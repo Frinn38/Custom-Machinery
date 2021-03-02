@@ -1,0 +1,60 @@
+{
+  "name": "Test Machine",
+  "appearance": {
+    "block": "minecraft:tnt",
+    "blockstate": "minecraft:furnace#facing=north,lit=true"
+  },
+  "gui": [
+    {
+      "type": "custommachinery:player_inventory",
+      "x": 50,
+      "y": 100
+    },
+    {
+      "type": "custommachinery:slot",
+      "x": 10,
+      "y": 20,
+      "id": "input"
+    },
+    {
+      "type": "custommachinery:slot",
+      "x": 100,
+      "y": 20,
+      "id": "output1"
+    },
+    {
+      "type": "custommachinery:slot",
+      "x": 120,
+      "y": 20,
+      "id": "output2"
+    },
+    {
+      "type": "custommachinery:slot",
+      "x": 140,
+      "y": 20,
+      "id": "output3"
+    }
+  ],
+  "components": [
+    {
+      "type": "custommachinery:item",
+      "id": "input",
+      "mode": "input"
+    },
+    {
+      "type": "custommachinery:item",
+      "id": "output1",
+      "mode": "output"
+    },
+    {
+      "type": "custommachinery:item",
+      "id": "output2",
+      "mode": "output"
+    },
+    {
+      "type": "custommachinery:item",
+      "id": "output3",
+      "mode": "output"
+    }
+  ]
+}

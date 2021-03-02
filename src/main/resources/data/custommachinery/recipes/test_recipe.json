@@ -1,0 +1,19 @@
+{
+  "type": "custommachinery:custom_machine",
+  "machine": "custommachinery:test_machine",
+  "time": 100,
+  "requirements": [
+    {
+      "type": "custommachinery:item",
+      "item": "minecraft:stone",
+      "amount": 64,
+      "mode": "input"
+    },
+    {
+      "type": "custommachinery:item",
+      "item": "minecraft:diamond",
+      "amount": 100,
+      "mode": "output"
+    }
+  ]
+}

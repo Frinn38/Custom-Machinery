@@ -1,0 +1,69 @@
+package fr.frinn.custommachinery.common.network;
+
+import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.util.FileUtils;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
+
+import java.io.IOException;
+import java.util.function.Supplier;
+
+public class CAddMachinePacket {
+
+    private ResourceLocation id;
+    private CustomMachine machine;
+    private boolean shouldReload;
+    private boolean writeToFile;
+
+    public CAddMachinePacket(ResourceLocation id, CustomMachine machine, boolean shouldReload, boolean writeToFile) {
+        this.id = id;
+        this.machine = machine;
+        this.shouldReload = shouldReload;
+        this.writeToFile = writeToFile;
+    }
+
+    public static void encode(CAddMachinePacket pkt, PacketBuffer buf) {
+        buf.writeResourceLocation(pkt.id);
+        try {
+            buf.func_240629_a_(CustomMachine.CODEC, pkt.machine);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        buf.writeBoolean(pkt.shouldReload);
+        buf.writeBoolean(pkt.writeToFile);
+    }
+
+    public static CAddMachinePacket decode(PacketBuffer buf) {
+        ResourceLocation id = buf.readResourceLocation();
+        CustomMachine machine = CustomMachine.DUMMY;
+        try {
+            machine = buf.func_240628_a_(CustomMachine.CODEC);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        boolean shouldReload = buf.readBoolean();
+        boolean writeToFile = buf.readBoolean();
+        return new CAddMachinePacket(id, machine, shouldReload, writeToFile);
+    }
+
+    public void handle(Supplier<NetworkEvent.Context> context) {
+        if (context.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
+            ServerPlayerEntity player = context.get().getSender();
+            if(player != null && player.world.getServer() != null && (player.hasPermissionLevel(player.world.getServer().getOpPermissionLevel()) || player.isCreative()) && this.machine != CustomMachine.DUMMY)
+            context.get().enqueueWork(() -> {
+                CustomMachinery.LOGGER.info("Player: " + player.getDisplayName().getString() + " added new Machine: " + id);
+                CustomMachinery.MACHINES.put(this.id, this.machine);
+                if(this.shouldReload)
+                    NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
+                if(this.writeToFile)
+                    FileUtils.writeMachineJSON(this.id, this.machine);
+            });
+        }
+        context.get().setPacketHandled(true);
+    }
+}

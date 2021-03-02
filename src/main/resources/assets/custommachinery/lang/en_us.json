@@ -1,0 +1,25 @@
+{
+  "item.custommachinery.machine_creator_item": "Machine Creator",
+  "itemGroup.custommachinery": "Custom Machinery",
+
+  "custommachinery.gui.element.energy.tooltip": "Energy: %sFE / %sFE",
+  "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
+
+  "custommachinery.gui.baseinfo.name": "Name:",
+  "custommachinery.gui.baseinfo.id": "ID:",
+
+  "custommachinery.gui.machineappearance.appearance": "Appearance",
+  "custommachinery.gui.machineappearance.type.block": "Block",
+  "custommachinery.gui.machineappearance.type.blockstate": "BlockState",
+  "custommachinery.gui.machineappearance.type.model": "Model",
+  "custommachinery.gui.machineappearance.type.default": "Default",
+
+  "custommachinery.gui.machinecreation.baseinfos": "Base Machine Infos",
+  "custommachinery.gui.machinecreation.appearance": "Machine Appearance",
+  "custommachinery.gui.machinecreation.components": "Machine Components",
+  "custommachinery.gui.machinecreation.gui": "Machine GUI",
+
+  "custommachinery.gui.machineloading.create": "Create",
+  "custommachinery.gui.machineloading.save": "Save",
+  "custommachinery.gui.machineloading.delete": "Delete"
+}
