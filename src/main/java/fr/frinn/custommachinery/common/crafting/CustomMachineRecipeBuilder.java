@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
+import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import net.minecraft.util.ResourceLocation;
 
@@ -14,8 +15,8 @@ public class CustomMachineRecipeBuilder {
     private ResourceLocation id;
     private ResourceLocation machine;
     private int time;
-    private List<IRequirement> inputRequirements = new ArrayList<>();
-    private List<IRequirement> outputRequirements = new ArrayList<>();
+    private List<IRequirement<?>> inputRequirements = new ArrayList<>();
+    private List<IRequirement<?>> outputRequirements = new ArrayList<>();
 
     public CustomMachineRecipeBuilder withId(ResourceLocation id) {
         this.id = id;
@@ -32,7 +33,7 @@ public class CustomMachineRecipeBuilder {
         return this;
     }
 
-    public CustomMachineRecipeBuilder withRequirement(IRequirement requirement) {
+    public CustomMachineRecipeBuilder withRequirement(IRequirement<?> requirement) {
         if(requirement.getMode() == IRequirement.MODE.INPUT)
             this.inputRequirements.add(requirement);
         else
@@ -41,6 +42,8 @@ public class CustomMachineRecipeBuilder {
     }
 
     public CustomMachineRecipe build() {
-        return new CustomMachineRecipe(this.id, this.machine, this.time, Stream.of(this.inputRequirements, this.outputRequirements).flatMap(Collection::stream).collect(Collectors.toList()));
+        List<IRequirement<?>> requirements = Lists.newArrayList(this.inputRequirements);
+        requirements.addAll(this.outputRequirements);
+        return new CustomMachineRecipe(this.id, this.machine, this.time, requirements);
     }
 }

@@ -51,6 +51,10 @@ public class MachineComponentManager {
         return this.components.stream().filter(component -> component instanceof ICapabilityMachineComponent).map(component -> (ICapabilityMachineComponent)component).collect(Collectors.toList());
     }
 
+    public <T extends IMachineComponent> T getComponentRaw(MachineComponentType type) {
+        return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst().get();
+    }
+
     public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType type) {
         return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
     }

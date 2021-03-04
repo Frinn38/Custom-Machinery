@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
+import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
@@ -8,7 +9,9 @@ import java.util.Locale;
 
 public interface IRequirement<T extends IMachineComponent> {
 
-    RequirementType<? extends IRequirement<?>> getType();
+    Codec<IRequirement<?>> CODEC = RequirementType.CODEC.dispatch("type", IRequirement::getType, RequirementType::getCodec);
+
+    RequirementType<IRequirement<T>> getType();
 
     boolean test(T component);
 
@@ -18,7 +21,7 @@ public interface IRequirement<T extends IMachineComponent> {
 
     MODE getMode();
 
-    MachineComponentType getComponentType();
+    MachineComponentType<T> getComponentType();
 
     enum MODE {
         INPUT,

@@ -97,7 +97,7 @@ public class CraftingManager {
                 case ENDING:
                     for(IRequirement requirement : this.currentRecipe.getRequirements()) {
                         if(!this.processedRequirements.contains(requirement)) {
-                            CraftingResult result = requirement.processEnd(this.tile.componentManager.getComponent(requirement.getComponentType()).get());
+                            CraftingResult result = requirement.processEnd(this.tile.componentManager.getComponentRaw(requirement.getComponentType()));
                             if(!result.isSuccess()) {
                                 this.setErrored(result.getMessage());
                                 break;

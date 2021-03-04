@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.function.Function;
 
 public class MachineComponentType<T extends IMachineComponent> extends ForgeRegistryEntry<MachineComponentType<? extends IMachineComponent>> {
