@@ -19,8 +19,8 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
     public void renderElement(MatrixStack matrix, FluidGuiElement element, CustomMachineScreen screen) {
         int posX = element.getX();
         int posY = element.getY();
-        int width = element.getWidth() < 0 ? TextureSizeHelper.getTextureWidth(element.getTexture()) : element.getWidth();
-        int height = element.getHeight() < 0 ? TextureSizeHelper.getTextureHeight(element.getTexture()) : element.getHeight();
+        int width = element.getWidth();
+        int height = element.getHeight();
         screen.getMinecraft().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
         screen.getTile().componentManager.getFluidHandler().ifPresent(fluidHandler -> {
@@ -55,8 +55,8 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
     public boolean isHovered(FluidGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
-        int width = element.getWidth() > 0 ? element.getWidth() : TextureSizeHelper.getTextureWidth(element.getTexture());
-        int height = element.getHeight() > 0 ? element.getHeight() : TextureSizeHelper.getTextureHeight(element.getTexture());
+        int width = element.getWidth();
+        int height = element.getHeight();
         return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
     }
 }

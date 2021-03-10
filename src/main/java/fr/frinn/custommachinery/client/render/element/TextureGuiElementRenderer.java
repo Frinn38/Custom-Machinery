@@ -14,11 +14,7 @@ public class TextureGuiElementRenderer implements IGuiElementRenderer<TextureGui
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
-        if(width < 0)
-            width = TextureSizeHelper.getTextureWidth(element.getTexture());
         int height = element.getHeight();
-        if(height < 0)
-            height = TextureSizeHelper.getTextureHeight(element.getTexture());
 
         Minecraft.getInstance().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);

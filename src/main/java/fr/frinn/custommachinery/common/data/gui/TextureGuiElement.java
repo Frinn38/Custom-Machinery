@@ -27,6 +27,7 @@ public class TextureGuiElement extends AbstractGuiElement {
     public TextureGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture) {
         super(x, y, width, height, priority);
         this.texture = texture;
+        setBaseTexture(texture);
     }
 
     @Override

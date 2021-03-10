@@ -38,6 +38,7 @@ public class StatusGuiElement extends AbstractGuiElement {
         this.idleTexture = idleTexture;
         this.runningTexture = runningTexture;
         this.erroredTexture = erroredTexture;
+        setBaseTexture(idleTexture);
     }
 
     @Override

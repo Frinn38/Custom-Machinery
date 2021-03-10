@@ -89,12 +89,14 @@ minecraft {
 }
 
 repositories {
-
     maven { // TOP
         name 'tterrag maven'
         url "http://maven.tterrag.com/"
     }
-
+    maven { //JEI
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
 }
 
 dependencies {
@@ -120,7 +122,9 @@ dependencies {
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-    compile fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:1.16-3.0.6-8")
+    compile fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
+    compileOnly fg.deobf("mezz.jei:jei-1.16.4:${jei_version}:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.16.4:${jei_version}")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

@@ -14,6 +14,17 @@
       "item": "minecraft:diamond",
       "amount": 100,
       "mode": "output"
+    },
+    {
+      "type": "custommachinery:fluid",
+      "fluid": "minecraft:lava",
+      "amount": 100,
+      "mode": "output"
+    },
+    {
+      "type": "custommachinery:energy",
+      "amount": 1000,
+      "mode": "output"
     }
   ]
 }

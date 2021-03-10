@@ -32,6 +32,7 @@ public class FluidGuiElement extends AbstractGuiElement {
         super(x, y, width, height, priority);
         this.id = id;
         this.texture = texture;
+        setBaseTexture(texture);
     }
 
     @Override

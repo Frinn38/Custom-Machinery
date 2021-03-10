@@ -11,7 +11,9 @@ import fr.frinn.custommachinery.common.data.gui.*;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.Utils;
+import mezz.jei.api.gui.handlers.IGuiProperties;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.PlayerInventory;
@@ -75,5 +77,4 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
     public CustomMachineTile getTile() {
         return this.tile;
     }
-
 }

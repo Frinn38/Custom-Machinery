@@ -14,11 +14,8 @@ public class StatusGuiElementRenderer implements IGuiElementRenderer<StatusGuiEl
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
-        if(width < 0)
-            width = TextureSizeHelper.getTextureWidth(element.getIdleTexture());
         int height = element.getHeight();
-        if(height < 0)
-            height = TextureSizeHelper.getTextureHeight(element.getIdleTexture());
+
         switch (screen.getTile().craftingManager.getStatus()) {
             case IDLE:
                 Minecraft.getInstance().getTextureManager().bindTexture(element.getIdleTexture());
@@ -42,8 +39,9 @@ public class StatusGuiElementRenderer implements IGuiElementRenderer<StatusGuiEl
     public boolean isHovered(StatusGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
-        int width = element.getWidth() > 0 ? element.getWidth() : TextureSizeHelper.getTextureWidth(element.getIdleTexture());
-        int height = element.getHeight() > 0 ? element.getHeight() : TextureSizeHelper.getTextureHeight(element.getIdleTexture());
+        int width = element.getWidth();
+        int height = element.getHeight();
+
         return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
     }
 }

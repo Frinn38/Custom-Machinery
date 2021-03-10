@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -15,8 +16,10 @@ public class TextureSizeHelper {
 
     private final static Map<ResourceLocation, Pair<Integer, Integer>> SIZES = new HashMap<>();
 
-    public static int getTextureWidth(ResourceLocation texture) {
-        if(SIZES.containsKey(texture))
+    public static int getTextureWidth(@Nullable ResourceLocation texture) {
+        if(texture == null)
+            return 0;
+        else if(SIZES.containsKey(texture))
             return SIZES.get(texture).getLeft();
         else {
             try {
@@ -33,8 +36,10 @@ public class TextureSizeHelper {
         }
     }
 
-    public static int getTextureHeight(ResourceLocation texture) {
-        if(SIZES.containsKey(texture))
+    public static int getTextureHeight(@Nullable ResourceLocation texture) {
+        if(texture == null)
+            return 0;
+        else if(SIZES.containsKey(texture))
             return SIZES.get(texture).getRight();
         else {
             try {

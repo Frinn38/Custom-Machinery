@@ -8,9 +8,13 @@ import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -80,5 +84,29 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
             return CraftingResult.error(new TranslationTextComponent("Not enough space to store " + this.amount + " ").append(new TranslationTextComponent(this.item.getTranslationKey())));
         }
         return CraftingResult.pass();
+    }
+
+    @Override
+    public IIngredientType<?> getJEIIngredientType() {
+        return VanillaTypes.ITEM;
+    }
+
+    @Override
+    public Object asJEIIngredient() {
+        return new ItemStack(this.item, this.amount);
+    }
+
+    @Override
+    public void addJeiIngredients(IIngredients ingredients) {
+        int maxStackSize = this.item.getDefaultInstance().getMaxStackSize();
+        int toAdd = this.amount;
+        while (toAdd > 0) {
+            int added = MathHelper.clamp(toAdd, 0, maxStackSize);
+            if(getMode() == MODE.INPUT)
+                ingredients.setInput(VanillaTypes.ITEM, new ItemStack(this.item, added));
+            else
+                ingredients.setOutput(VanillaTypes.ITEM, new ItemStack(this.item, added));
+            toAdd -= added;
+        }
     }
 }

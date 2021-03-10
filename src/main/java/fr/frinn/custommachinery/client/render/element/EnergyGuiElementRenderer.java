@@ -19,8 +19,8 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
     public void renderElement(MatrixStack matrix, EnergyGuiElement element, CustomMachineScreen screen) {
         int posX = element.getX();
         int posY = element.getY();
-        int width = element.getWidth() > 0 ? element.getWidth() : TextureSizeHelper.getTextureWidth(element.getTexture());
-        int height = element.getHeight() > 0 ? element.getHeight() : TextureSizeHelper.getTextureHeight(element.getTexture());
+        int width = element.getWidth();
+        int height = element.getHeight();
         screen.getMinecraft().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
         screen.getTile().componentManager.getEnergy().ifPresent(energy -> {
@@ -64,8 +64,8 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
     public boolean isHovered(EnergyGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
-        int width = element.getWidth() > 0 ? element.getWidth() : TextureSizeHelper.getTextureWidth(element.getTexture());
-        int height = element.getHeight() > 0 ? element.getHeight() : TextureSizeHelper.getTextureHeight(element.getTexture());
+        int width = element.getWidth();
+        int height = element.getHeight();
         return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
     }
 }

@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
+import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.ingredients.IIngredients;
 
 import java.util.Locale;
 
@@ -22,6 +24,12 @@ public interface IRequirement<T extends IMachineComponent> {
     MODE getMode();
 
     MachineComponentType<T> getComponentType();
+
+    IIngredientType<?> getJEIIngredientType();
+
+    Object asJEIIngredient();
+
+    void addJeiIngredients(IIngredients ingredients);
 
     enum MODE {
         INPUT,

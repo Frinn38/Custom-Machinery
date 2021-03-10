@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
@@ -9,11 +10,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = CustomMachinery.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientHandler {
 
+    @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ClientRegistry.bindTileEntityRenderer(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);

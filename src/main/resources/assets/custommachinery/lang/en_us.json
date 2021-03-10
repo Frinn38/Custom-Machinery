@@ -21,5 +21,9 @@
 
   "custommachinery.gui.machineloading.create": "Create",
   "custommachinery.gui.machineloading.save": "Save",
-  "custommachinery.gui.machineloading.delete": "Delete"
+  "custommachinery.gui.machineloading.delete": "Delete",
+
+  "custommachinery.jei.fluid.amount": "Amount: %smB",
+  "custommachinery.jei.ingredient.energy": "Energy: %sFE",
+  "custommachinery.jei.recipe.time": "%sticks"
 }

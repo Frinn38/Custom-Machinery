@@ -30,6 +30,7 @@ public class PlayerInventoryGuiElement extends AbstractGuiElement {
     public PlayerInventoryGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture) {
         super(x, y, width, height, priority);
         this.texture = texture;
+        setBaseTexture(texture);
     }
 
     @Override

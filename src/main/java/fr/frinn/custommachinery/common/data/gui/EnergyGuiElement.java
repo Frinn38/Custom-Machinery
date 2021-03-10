@@ -28,6 +28,7 @@ public class EnergyGuiElement extends AbstractGuiElement {
     public EnergyGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture) {
         super(x, y, width, height, priority);
         this.texture = texture;
+        setBaseTexture(texture);
     }
 
     @Override

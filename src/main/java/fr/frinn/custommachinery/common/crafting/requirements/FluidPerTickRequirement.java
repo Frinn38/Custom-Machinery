@@ -9,6 +9,9 @@ import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -79,5 +82,23 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     @Override
     public CraftingResult processEnd(FluidComponentHandler component) {
         return CraftingResult.pass();
+    }
+
+    @Override
+    public IIngredientType<?> getJEIIngredientType() {
+        return VanillaTypes.ITEM;
+    }
+
+    @Override
+    public Object asJEIIngredient() {
+        return new FluidStack(this.fluid, this.amount);
+    }
+
+    @Override
+    public void addJeiIngredients(IIngredients ingredients) {
+        if(getMode() == MODE.INPUT)
+            ingredients.setInput(VanillaTypes.FLUID, new FluidStack(this.fluid, this.amount));
+        else
+            ingredients.setOutput(VanillaTypes.FLUID, new FluidStack(this.fluid, this.amount));
     }
 }

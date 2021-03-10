@@ -11,4 +11,6 @@ public interface IGuiElementRenderer<E extends IGuiElement> {
     void renderTooltip(MatrixStack matrix, E element, CustomMachineScreen screen, int mouseX, int mouseY);
 
     boolean isHovered(E element, CustomMachineScreen screen, int mouseX, int mouseY);
+
+
 }

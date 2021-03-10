@@ -34,6 +34,7 @@ public class ProgressBarGuiElement extends AbstractGuiElement {
         super(x, y, width, height, priority);
         this.emptyTexture = emptyTexture;
         this.filledTexture = filledTexture;
+        setBaseTexture(emptyTexture);
     }
 
     @Override

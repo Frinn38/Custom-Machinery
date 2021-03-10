@@ -18,11 +18,11 @@ public class SlotGuiElement extends AbstractGuiElement {
                     Codec.INT.fieldOf("y").forGetter(SlotGuiElement::getY),
                     Codec.INT.optionalFieldOf("width").forGetter(element -> Optional.of(element.getWidth())),
                     Codec.INT.optionalFieldOf("height").forGetter(element -> Optional.of(element.getHeight())),
-                    Codec.INT.optionalFieldOf("priority").forGetter(element -> Optional.of(element.getPriority())),
+                    Codec.INT.optionalFieldOf("priority", 0).forGetter(SlotGuiElement::getPriority),
                     Codec.STRING.fieldOf("id").forGetter(SlotGuiElement::getId),
-                    ResourceLocation.CODEC.optionalFieldOf("texture").forGetter(element -> Optional.of(element.getTexture()))
+                    ResourceLocation.CODEC.optionalFieldOf("texture", BASE_SLOT_TEXTURE).forGetter(SlotGuiElement::getTexture)
             ).apply(slotGuiElementCodec, (x, y, width, height, priority, id, texture) ->
-                    new SlotGuiElement(x, y, width.orElse(-1), height.orElse(-1), priority.orElse(0), id, texture.orElse(BASE_SLOT_TEXTURE))
+                    new SlotGuiElement(x, y, width.orElse(-1), height.orElse(-1), priority, id, texture)
             )
     );
 
@@ -33,6 +33,7 @@ public class SlotGuiElement extends AbstractGuiElement {
         super(x, y, width, height, priority);
         this.id = id;
         this.texture = texture;
+        setBaseTexture(texture);
     }
 
     @Override

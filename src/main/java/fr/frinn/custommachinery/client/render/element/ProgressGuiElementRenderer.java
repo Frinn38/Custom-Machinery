@@ -1,24 +1,26 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.client.TextureSizeHelper;
+import fr.frinn.custommachinery.client.render.element.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
-public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressBarGuiElement> {
+public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressBarGuiElement>, IJEIElementRenderer<ProgressBarGuiElement> {
 
     @Override
     public void renderElement(MatrixStack matrix, ProgressBarGuiElement element, CustomMachineScreen screen) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
-        if(width < 0)
-            width = TextureSizeHelper.getTextureWidth(element.getEmptyTexture());
         int height = element.getHeight();
-        if(height < 0)
-            height = TextureSizeHelper.getTextureHeight(element.getEmptyTexture());
+
         Minecraft.getInstance().getTextureManager().bindTexture(element.getEmptyTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
         int filledWidth = (int)(width * screen.getContainer().getRecipeProgressPercent());
@@ -35,8 +37,25 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
     public boolean isHovered(ProgressBarGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
-        int width = element.getWidth() > 0 ? element.getWidth() : TextureSizeHelper.getTextureWidth(element.getEmptyTexture());
-        int height = element.getHeight() > 0 ? element.getHeight() : TextureSizeHelper.getTextureHeight(element.getEmptyTexture());
+        int width = element.getWidth();
+        int height = element.getHeight();
         return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
+    }
+
+    @Override
+    public void renderElementInJEI(MatrixStack matrix, ProgressBarGuiElement element, CustomMachineRecipe recipe, int mouseX, int mouseY) {
+        int posX = element.getX();
+        int posY = element.getY();
+        int width = element.getWidth();
+        int height = element.getHeight();
+
+        Minecraft.getInstance().getTextureManager().bindTexture(element.getEmptyTexture());
+        AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
+        int filledWidth = (int)Minecraft.getInstance().world.getGameTime() % width;
+        Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
+        AbstractGui.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
+        FontRenderer font = Minecraft.getInstance().fontRenderer;
+        ITextComponent time = new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()).mergeStyle(TextFormatting.DARK_GRAY);
+        font.func_243248_b(matrix, time, posX + width / 2 - font.getStringWidth(time.getString()) / 2, posY + height, 0);
     }
 }

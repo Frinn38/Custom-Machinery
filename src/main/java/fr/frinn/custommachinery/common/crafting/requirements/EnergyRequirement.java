@@ -8,6 +8,10 @@ import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
+import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
+import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -70,5 +74,23 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
             return CraftingResult.error(new StringTextComponent("Not enough space for storing " + this.amount + "FE !"));
         }
         return CraftingResult.pass();
+    }
+
+    @Override
+    public IIngredientType<?> getJEIIngredientType() {
+        return CustomIngredientTypes.ENERGY;
+    }
+
+    @Override
+    public Object asJEIIngredient() {
+        return new Energy(this.amount);
+    }
+
+    @Override
+    public void addJeiIngredients(IIngredients ingredients) {
+        if(getMode() == MODE.INPUT)
+            ingredients.setInput(CustomIngredientTypes.ENERGY, new Energy(this.amount));
+        else
+            ingredients.setOutput(CustomIngredientTypes.ENERGY, new Energy(this.amount));
     }
 }

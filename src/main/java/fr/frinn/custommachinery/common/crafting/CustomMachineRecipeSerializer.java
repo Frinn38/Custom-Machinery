@@ -20,6 +20,8 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 public class CustomMachineRecipeSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<CustomMachineRecipe> {
@@ -36,12 +38,15 @@ public class CustomMachineRecipeSerializer extends ForgeRegistryEntry<IRecipeSer
         return builder.build();
     }));
 
+    public static final List<CustomMachineRecipe> RECIPES = new ArrayList<>();
+
     @ParametersAreNonnullByDefault
     @Override
     public CustomMachineRecipe read(ResourceLocation recipeId, JsonObject json) {
         DataResult<Pair<CustomMachineRecipe, JsonElement>> result = CODEC.decode(JsonOps.INSTANCE, json);
         CustomMachineRecipe recipe = result.resultOrPartial(CustomMachinery.LOGGER::error).orElseThrow(() -> new JsonParseException("Error while reading recipe: " + recipeId + " from json")).getFirst();
         recipe.setId(recipeId);
+        RECIPES.add(recipe);
         return recipe;
     }
 
@@ -52,6 +57,7 @@ public class CustomMachineRecipeSerializer extends ForgeRegistryEntry<IRecipeSer
         try {
             CustomMachineRecipe recipe = buffer.func_240628_a_(CODEC);
             recipe.setId(recipeId);
+            RECIPES.add(recipe);
             return recipe;
         } catch (IOException e) {
             RuntimeException exception = new RuntimeException("Error while reading recipe: " + recipeId + " from packet !");
