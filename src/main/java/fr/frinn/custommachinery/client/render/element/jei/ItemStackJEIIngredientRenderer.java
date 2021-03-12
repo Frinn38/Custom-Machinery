@@ -11,7 +11,6 @@ import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemStack, SlotGuiElement> {
@@ -41,6 +40,6 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
     @ParametersAreNonnullByDefault
     @Override
     public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag tooltipFlag) {
-        return new ArrayList<>(ingredient.getTooltip(Minecraft.getInstance().player, tooltipFlag));
+        return ingredient.getTooltip(null, tooltipFlag);
     }
 }
