@@ -88,7 +88,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
 
     @Override
     public void serialize(CompoundNBT nbt) {
-        nbt.putString("id", this.id);
+        nbt.putString("slotID", this.id);
         if(!stack.isEmpty())
             stack.write(nbt);
     }

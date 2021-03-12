@@ -80,8 +80,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             components.forEach(inbt -> {
                 if (inbt instanceof CompoundNBT) {
                     CompoundNBT componentNBT = (CompoundNBT)inbt;
-                    if(componentNBT.contains("id", Constants.NBT.TAG_STRING)) {
-                        this.getComponents().stream().filter(component -> component.getId().equals(nbt.getString("id"))).findFirst().ifPresent(component -> component.deserialize(componentNBT));
+                    if(componentNBT.contains("slotID", Constants.NBT.TAG_STRING)) {
+                        this.getComponents().stream().filter(component -> component.getId().equals(componentNBT.getString("slotID"))).findFirst().ifPresent(component -> component.deserialize(componentNBT));
                     }
                 }
             });
