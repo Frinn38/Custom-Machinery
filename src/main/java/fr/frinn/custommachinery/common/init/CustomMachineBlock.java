@@ -1,12 +1,17 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateContainer;
@@ -25,11 +30,13 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.stream.Collectors;
 
 public class CustomMachineBlock extends Block {
 
     public CustomMachineBlock() {
-        super(Properties.create(Material.ROCK).notSolid());
+        super(Properties.create(Material.ROCK).setRequiresTool().hardnessAndResistance(3.5F).notSolid());
     }
 
     @SuppressWarnings("deprecation")
@@ -68,6 +75,22 @@ public class CustomMachineBlock extends Block {
             return stack;
         }
         return super.getPickBlock(state, target, world, pos, player);
+    }
+
+    @ParametersAreNonnullByDefault
+    @Override
+    public void onBlockHarvested(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        super.onBlockHarvested(world, pos, state, player);
+        if(!world.isRemote && !player.isCreative()) {
+            TileEntity tile = world.getTileEntity(pos);
+            if(tile instanceof CustomMachineTile) {
+                CustomMachineTile machine = (CustomMachineTile) tile;
+                machine.componentManager.getComponent(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(component -> ((ItemComponentHandler)component).getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
+                ItemStack machineItem = new ItemStack(Registration.CUSTOM_MACHINE_ITEM.get());
+                machineItem.getOrCreateTag().putString("id", machine.getMachine().getId().toString());
+                InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), machineItem);
+            }
+        }
     }
 
     @Override
