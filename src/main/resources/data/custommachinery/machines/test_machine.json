@@ -2,7 +2,8 @@
   "name": "Test Machine",
   "appearance": {
     "block": "minecraft:tnt",
-    "blockstate": "minecraft:furnace#facing=north,lit=true"
+    "blockstate": "minecraft:furnace#facing=north,lit=true",
+    "sound": "minecraft:block.anvil.place"
   },
   "gui": [
     {

@@ -3,11 +3,13 @@ package fr.frinn.custommachinery.common.init;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTilePacket;
+import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
@@ -40,6 +42,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
 
     public CraftingManager craftingManager;
     public MachineComponentManager componentManager;
+    public SoundManager soundManager;
 
     public CustomMachineTile() {
         super(Registration.CUSTOM_MACHINE_TILE.get());
@@ -65,13 +68,26 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
 
     @Override
     public void tick() {
-        if(this.world != null && !this.world.isRemote()) {
+        if(this.world == null)
+            return;
+
+        if(!this.world.isRemote()) {
             this.craftingManager.tick();
 
             if(this.needSyncing) {
                 this.needSyncing = false;
                 this.sync();
             }
+        } else {
+            if(this.soundManager == null)
+                this.soundManager = new SoundManager(this.pos);
+            if(getMachine().getAppearance().getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance().getSound().getName().equals(this.soundManager.getSound()))
+                this.soundManager.setSound(getMachine().getAppearance().getSound());
+
+            if (this.craftingManager.getStatus() == CraftingManager.STATUS.RUNNING && !this.soundManager.isPlaying())
+                this.soundManager.play();
+            else if(this.craftingManager.getStatus() != CraftingManager.STATUS.RUNNING && this.soundManager.isPlaying())
+                this.soundManager.stop();
         }
     }
 

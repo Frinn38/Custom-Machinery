@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -23,6 +24,7 @@ public class MachineAppearance {
     public static final Block DEFAULT_BLOCK = Blocks.FURNACE;
     public static final ModelResourceLocation DEFAULT_BLOCKSTATE = new ModelResourceLocation("minecraft:furnace", "facing=north,lit=true");
     public static final ResourceLocation DEFAULT_ITEM = new ResourceLocation("");
+    public static final SoundEvent DEFAULT_SOUND = new SoundEvent(new ResourceLocation(""));
 
     @SuppressWarnings("deprecation")
     public static final Codec<MachineAppearance> CODEC = RecordCodecBuilder.create(machineAppearanceCodec ->
@@ -31,25 +33,28 @@ public class MachineAppearance {
                     ResourceLocation.CODEC.optionalFieldOf("model", DEFAULT_MODEL).forGetter(machineAppearance -> machineAppearance.model),
                     Registry.BLOCK.optionalFieldOf("block", DEFAULT_BLOCK).forGetter(machineAppearance -> machineAppearance.block),
                     MODEL_RESOURCE_LOCATION_CODEC.optionalFieldOf("blockstate", DEFAULT_BLOCKSTATE).forGetter(machineAppearance -> machineAppearance.blockstate),
-                    ResourceLocation.CODEC.optionalFieldOf("item", DEFAULT_ITEM).forGetter(machineAppearance -> machineAppearance.itemTexture)
+                    ResourceLocation.CODEC.optionalFieldOf("item", DEFAULT_ITEM).forGetter(machineAppearance -> machineAppearance.itemTexture),
+                    SoundEvent.CODEC.optionalFieldOf("sound", DEFAULT_SOUND).forGetter(machineAppearance -> machineAppearance.sound)
             ).apply(machineAppearanceCodec, MachineAppearance::new)
     );
 
 
-    public static final MachineAppearance DUMMY = new MachineAppearance(AppearanceType.DEFAULT, DEFAULT_MODEL, DEFAULT_BLOCK, DEFAULT_BLOCKSTATE, DEFAULT_ITEM);
+    public static final MachineAppearance DUMMY = new MachineAppearance(AppearanceType.DEFAULT, DEFAULT_MODEL, DEFAULT_BLOCK, DEFAULT_BLOCKSTATE, DEFAULT_ITEM, DEFAULT_SOUND);
 
     private AppearanceType type;
     private ResourceLocation model;
     private Block block;
     private ModelResourceLocation blockstate;
     private ResourceLocation itemTexture;
+    private SoundEvent sound;
 
-    public MachineAppearance(AppearanceType type, ResourceLocation model, Block block, ModelResourceLocation state, ResourceLocation itemTexture) {
+    public MachineAppearance(AppearanceType type, ResourceLocation model, Block block, ModelResourceLocation state, ResourceLocation itemTexture, SoundEvent sound) {
         this.type = type;
         this.model = model;
         this.block = block;
         this.blockstate = state;
         this.itemTexture = itemTexture;
+        this.sound = sound;
         if(this.type == AppearanceType.DEFAULT) {
             if (this.blockstate != null && this.blockstate != DEFAULT_BLOCKSTATE)
                 this.type = AppearanceType.BLOCKSTATE;
@@ -75,6 +80,10 @@ public class MachineAppearance {
 
     public ResourceLocation getItemTexture() {
         return this.itemTexture;
+    }
+
+    public SoundEvent getSound() {
+        return this.sound;
     }
 
     public AppearanceType getType() {

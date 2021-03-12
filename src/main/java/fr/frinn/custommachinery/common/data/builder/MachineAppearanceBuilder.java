@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 
 public class MachineAppearanceBuilder {
 
@@ -12,6 +13,7 @@ public class MachineAppearanceBuilder {
     private Block block;
     private ModelResourceLocation blockState;
     private ResourceLocation itemTexture;
+    private SoundEvent sound;
 
     public MachineAppearanceBuilder() {
 
@@ -23,6 +25,7 @@ public class MachineAppearanceBuilder {
         this.block = appearance.getBlock();
         this.blockState = appearance.getBlockstate();
         this.itemTexture = appearance.getItemTexture();
+        this.sound = appearance.getSound();
     }
 
     public MachineAppearance.AppearanceType getType() {
@@ -65,7 +68,15 @@ public class MachineAppearanceBuilder {
         this.itemTexture = itemTexture;
     }
 
+    public SoundEvent getSound() {
+        return this.sound;
+    }
+
+    public void setSound(SoundEvent sound) {
+        this.sound = sound;
+    }
+
     public MachineAppearance build() {
-        return new MachineAppearance(this.type, this.model, this.block, this.blockState, this.itemTexture);
+        return new MachineAppearance(this.type, this.model, this.block, this.blockState, this.itemTexture, this.sound);
     }
 }
