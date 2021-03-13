@@ -40,6 +40,7 @@ public class MachineComponentManager {
                 }
             }
         });
+        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.getValues().stream().filter(MachineComponentType::isDefaultComponent).forEach(type -> this.components.add(type.getComponentBuilder().apply(this)));
         this.tile = tile;
     }
 
@@ -83,4 +84,7 @@ public class MachineComponentManager {
         this.tile.markForSyncing();
     }
 
+    public CustomMachineTile getTile() {
+        return this.tile;
+    }
 }

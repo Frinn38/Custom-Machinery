@@ -1,0 +1,36 @@
+package fr.frinn.custommachinery.common.data.component;
+
+import fr.frinn.custommachinery.common.init.Registration;
+import mcjty.theoneprobe.api.IProbeInfo;
+import net.minecraft.nbt.CompoundNBT;
+
+public class TimeMachineComponent extends AbstractMachineComponent {
+
+    public TimeMachineComponent(MachineComponentManager manager) {
+        super(manager, Mode.NONE);
+    }
+
+    @Override
+    public MachineComponentType<TimeMachineComponent> getType() {
+        return Registration.TIME_MACHINE_COMPONENT.get();
+    }
+
+    public long getTime() {
+        return this.getManager().getTile().getWorld().getDayTime();
+    }
+
+    @Override
+    public void serialize(CompoundNBT nbt) {
+
+    }
+
+    @Override
+    public void deserialize(CompoundNBT nbt) {
+
+    }
+
+    @Override
+    public void addProbeInfo(IProbeInfo info) {
+
+    }
+}

@@ -17,4 +17,8 @@ public abstract class AbstractMachineComponent implements IMachineComponent {
     public Mode getMode() {
         return this.mode;
     }
+
+    public MachineComponentManager getManager() {
+        return this.manager;
+    }
 }

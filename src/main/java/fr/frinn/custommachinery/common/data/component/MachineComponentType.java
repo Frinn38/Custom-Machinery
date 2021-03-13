@@ -16,9 +16,16 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
     private Codec<? extends IMachineComponentTemplate<T>> codec;
     private boolean isSingle = true;
     private Function<MachineComponentManager, IComponentHandler<T>> handlerBuilder;
+    private boolean defaultComponent = false;
+    private Function<MachineComponentManager, T> componentBuilder;
 
     public MachineComponentType(Codec<? extends IMachineComponentTemplate<T>> codec) {
         this.codec = codec;
+    }
+
+    public MachineComponentType(Function<MachineComponentManager, T> componentBuilder) {
+        this.defaultComponent = true;
+        this.componentBuilder = componentBuilder;
     }
 
     public MachineComponentType<T> setNotSingle(Function<MachineComponentManager, IComponentHandler<T>> handlerBuilder) {
@@ -28,7 +35,9 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
     }
 
     public Codec<? extends IMachineComponentTemplate<T>> getCodec() {
-        return this.codec;
+        if(this.codec != null)
+            return this.codec;
+        else throw new RuntimeException("Error while trying to serialize or deserialize Machine Component: " + getRegistryName() + ", Codec not present !");
     }
 
     public boolean isSingle() {
@@ -39,5 +48,13 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
         if(this.isSingle || this.handlerBuilder == null)
             return null;
         return this.handlerBuilder.apply(manager);
+    }
+
+    public boolean isDefaultComponent() {
+        return this.defaultComponent;
+    }
+
+    public Function<MachineComponentManager, T> getComponentBuilder() {
+        return this.componentBuilder;
     }
 }

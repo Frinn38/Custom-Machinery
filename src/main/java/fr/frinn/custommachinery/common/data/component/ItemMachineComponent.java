@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements ICapabilityMachineComponent {
+public class ItemMachineComponent extends AbstractMachineComponent {
 
     private String id;
     private int capacity;
@@ -33,22 +33,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     }
 
     @Override
-    public MachineComponentType getType() {
+    public MachineComponentType<ItemMachineComponent> getType() {
         return Registration.ITEM_MACHINE_COMPONENT.get();
     }
 
     public String getId() {
         return this.id;
-    }
-
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        return null;
-    }
-
-    @Override
-    public void invalidateCapability() {
-
     }
 
     public boolean isItemValid(ItemStack stack) {

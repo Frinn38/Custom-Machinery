@@ -25,5 +25,8 @@
 
   "custommachinery.jei.fluid.amount": "Amount: %smB",
   "custommachinery.jei.ingredient.energy": "Energy: %sFE",
-  "custommachinery.jei.recipe.time": "%sticks"
+  "custommachinery.jei.recipe.time": "%sticks",
+
+  "custommachinery.requirements.position.error": "This recipe cannot be processed at this location",
+  "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day"
 }

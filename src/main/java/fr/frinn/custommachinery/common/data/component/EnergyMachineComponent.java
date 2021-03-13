@@ -33,7 +33,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     @Override
-    public MachineComponentType getType() {
+    public MachineComponentType<EnergyMachineComponent> getType() {
         return Registration.ENERGY_MACHINE_COMPONENT.get();
     }
 

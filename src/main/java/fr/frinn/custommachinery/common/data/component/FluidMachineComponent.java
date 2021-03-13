@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements ICapabilityMachineComponent {
+public class FluidMachineComponent extends AbstractMachineComponent {
 
     private String id;
     private int capacity;
@@ -42,18 +42,8 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     @Override
-    public MachineComponentType getType() {
+    public MachineComponentType<FluidMachineComponent> getType() {
         return Registration.FLUID_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        return null;
-    }
-
-    @Override
-    public void invalidateCapability() {
-
     }
 
     public String getId() {
