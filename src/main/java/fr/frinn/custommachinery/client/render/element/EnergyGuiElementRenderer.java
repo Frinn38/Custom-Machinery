@@ -17,7 +17,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiElement> {
 
-    public static final ResourceLocation EMPTY = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_empty.png");
+    private static final ResourceLocation EMPTY = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_empty.png");
 
     @SuppressWarnings("deprecation")
     @Override

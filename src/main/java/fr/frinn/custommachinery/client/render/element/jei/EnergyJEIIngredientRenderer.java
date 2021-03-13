@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
 import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, EnergyGuiElement> {
+
+    private static final ResourceLocation EMPTY = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_empty.png");
 
     public EnergyJEIIngredientRenderer(EnergyGuiElement element) {
         super(element);
@@ -40,6 +44,8 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     @SuppressWarnings("deprecation")
     private void drawTransparentRec(MatrixStack matrix, int x, int y, int width, int height) {
         RenderSystem.enableBlend();
+
+        Minecraft.getInstance().getTextureManager().bindTexture(EMPTY);
 
         BufferBuilder builder = Tessellator.getInstance().getBuffer();
         builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
