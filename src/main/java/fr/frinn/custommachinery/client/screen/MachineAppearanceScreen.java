@@ -55,7 +55,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
                 widget -> this.machine.getAppearance().getType() == MachineAppearance.AppearanceType.MODEL
         ));
         this.modelPrompt.setMaxStringLength(100);
-        this.modelPrompt.setText(this.machine.getAppearance().getModel().toString());
+        this.modelPrompt.setText(this.machine.getAppearance().getModel() == null ? "" : this.machine.getAppearance().getModel().toString());
         this.modelPrompt.setSelectionPos(0);
         this.modelPrompt.setResponder(s -> this.machine.getAppearance().setModel(new ResourceLocation(s)));
         this.blockPrompt = this.addListener(new ToogleTextFieldWidget(
@@ -68,7 +68,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
                 widget -> this.machine.getAppearance().getType() == MachineAppearance.AppearanceType.BLOCK
         ));
         this.blockPrompt.setMaxStringLength(100);
-        this.blockPrompt.setText(this.machine.getAppearance().getBlock().getRegistryName().toString());
+        this.blockPrompt.setText(this.machine.getAppearance().getBlock() == null ? "" : this.machine.getAppearance().getBlock().getRegistryName().toString());
         this.blockPrompt.setSelectionPos(0);
         this.blockPrompt.setResponder(s -> this.machine.getAppearance().setBlock(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(s))));
         this.blockStatePrompt = this.addListener(new ToogleTextFieldWidget(
@@ -81,7 +81,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
                 widget -> this.machine.getAppearance().getType() == MachineAppearance.AppearanceType.BLOCKSTATE
         ));
         this.blockStatePrompt.setMaxStringLength(100);
-        this.blockStatePrompt.setText(this.machine.getAppearance().getBlockState().toString());
+        this.blockStatePrompt.setText(this.machine.getAppearance().getBlockState() == null ? "" : this.machine.getAppearance().getBlockState().toString());
         this.blockStatePrompt.setSelectionPos(0);
         this.blockStatePrompt.setResponder(s -> this.machine.getAppearance().setBlockState(new ModelResourceLocation(s)));
     }

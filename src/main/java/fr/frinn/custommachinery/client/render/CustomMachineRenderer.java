@@ -25,8 +25,8 @@ import java.util.stream.Stream;
 
 public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile> {
 
-    private Map<ResourceLocation, ModelHandle> models = new HashMap<>();
-    private Random random = new Random();
+    private static final Map<ResourceLocation, ModelHandle> MODELS = new HashMap<>();
+    private static final Random RAND = new Random();
 
     public CustomMachineRenderer(TileEntityRendererDispatcher dispatcher) {
         super(dispatcher);
@@ -36,43 +36,48 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
     @Override
     public void render(CustomMachineTile tile, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         MachineAppearance appearance = tile.getMachine().getAppearance();
+        renderMachineAppearance(appearance, partialTicks, matrix, buffer, combinedLight, combinedOverlay);
+
+    }
+
+    public static void renderMachineAppearance(MachineAppearance appearance, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         switch (appearance.getType()) {
             case BLOCKSTATE:
                 ModelResourceLocation modelLocation = appearance.getBlockstate();
-                this.renderModel(modelLocation, matrix, buffer, combinedLight, combinedOverlay);
+                renderModel(modelLocation, matrix, buffer, combinedLight, combinedOverlay);
                 break;
             case BLOCK:
                 BlockState blockState = appearance.getBlock().getDefaultState();
-                this.renderBlockState(blockState, matrix, buffer, combinedLight, combinedOverlay);
+                renderBlockState(blockState, matrix, buffer, combinedLight, combinedOverlay);
                 break;
             case MODEL:
                 ResourceLocation modelFile = appearance.getModel();
-                this.renderModel(modelFile, matrix, buffer, combinedLight, combinedOverlay);
+                renderModel(modelFile, matrix, buffer, combinedLight, combinedOverlay);
                 break;
             default:
-                this.renderDefaultModel(matrix, buffer, combinedLight, combinedOverlay);
+                renderDefaultModel(matrix, buffer, combinedLight, combinedOverlay);
         }
     }
 
-    private void renderBlockState(BlockState state, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
+    private static void renderBlockState(BlockState state, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(state, matrix, buffer, combinedLight, combinedOverlay, EmptyModelData.INSTANCE);
     }
 
-    private void renderModel(ResourceLocation modelFile, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
+    private static void renderModel(ResourceLocation modelFile, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         IBakedModel model = Minecraft.getInstance().getModelManager().getModel(modelFile);
         if(model != Minecraft.getInstance().getModelManager().getMissingModel()) {
             IVertexBuilder builder = buffer.getBuffer(RenderType.getSolid());
-            model.getQuads(null, null, random, EmptyModelData.INSTANCE).forEach(bakedQuad -> builder.addQuad(matrix.getLast(), bakedQuad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay));
-            Stream.of(Direction.values()).forEach(side -> model.getQuads(null, side, random, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
+            model.getQuads(null, null, RAND, EmptyModelData.INSTANCE).forEach(bakedQuad -> builder.addQuad(matrix.getLast(), bakedQuad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay));
+            Stream.of(Direction.values()).forEach(side -> model.getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
         }
-        else if(!this.models.containsKey(modelFile))
-            this.models.put(modelFile, new ModelHandle(modelFile));
+        else if(!MODELS.containsKey(modelFile))
+            MODELS.put(modelFile, new ModelHandle(modelFile));
         else
-            this.models.get(modelFile).render(buffer, RenderType.getSolid(), matrix, combinedLight, combinedOverlay, 0xFFFFFFFF);
+            MODELS.get(modelFile).render(buffer, RenderType.getSolid(), matrix, combinedLight, combinedOverlay, 0xFFFFFFFF);
     }
 
-    private void renderDefaultModel(MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
+    private static void renderDefaultModel(MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         IVertexBuilder builder = buffer.getBuffer(RenderType.getSolid());
-        Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getMissingModel().getQuads(null, side, random, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
+        Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getMissingModel().getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
     }
 }

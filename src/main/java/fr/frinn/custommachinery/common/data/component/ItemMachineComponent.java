@@ -56,7 +56,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     }
 
     public ItemStack getItemStack() {
-        return this.stack.copy();
+        return this.stack;
     }
 
     public int getCapacity() {

@@ -2,6 +2,9 @@ package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.MachineAppearanceScreen;
+import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
@@ -30,27 +33,21 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 public class CustomMachineItemRenderer extends ItemStackTileEntityRenderer {
 
-    private CustomMachineTile dummyTile;
-
     @ParametersAreNonnullByDefault
     @Override
     public void func_239207_a_(ItemStack stack, ItemCameraTransforms.TransformType transformType, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         if(stack.hasTag() && stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
             ResourceLocation id = new ResourceLocation(stack.getTag().getString("id"));
-            if(!CustomMachinery.MACHINES.containsKey(id))
+            if(!CustomMachinery.MACHINES.containsKey(id) && !MachineLoadingScreen.INSTANCE.getBuilders().containsKey(id))
                 return;
 
-            CustomMachine machine = CustomMachinery.MACHINES.get(id);
+            MachineAppearance appearance = CustomMachinery.MACHINES.get(id) == null ? MachineLoadingScreen.INSTANCE.getBuilders().get(id).getAppearance().build() : CustomMachinery.MACHINES.get(id).getAppearance();
 
-            ResourceLocation texture = machine.getAppearance().getItemTexture();
+            ResourceLocation texture = appearance.getItemTexture();
             if(texture == null || texture == MachineAppearance.DEFAULT_ITEM) {
-                if(this.dummyTile == null) {
-                    dummyTile = new CustomMachineTile();
-                    dummyTile.setId(id);
-                }
                 matrix.push();
                 this.handleTransformations(matrix, transformType);
-                TileEntityRendererDispatcher.instance.getRenderer(dummyTile).render(dummyTile, 0, matrix, buffer, combinedLight, combinedOverlay);
+                CustomMachineRenderer.renderMachineAppearance(appearance, 0, matrix, buffer, combinedLight, combinedOverlay);
                 matrix.pop();
             }
         }

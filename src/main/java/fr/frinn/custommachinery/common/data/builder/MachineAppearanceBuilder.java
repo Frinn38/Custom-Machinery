@@ -16,7 +16,12 @@ public class MachineAppearanceBuilder {
     private SoundEvent sound;
 
     public MachineAppearanceBuilder() {
-
+        this.type = MachineAppearance.AppearanceType.DEFAULT;
+        this.model = MachineAppearance.DEFAULT_MODEL;
+        this.block = MachineAppearance.DEFAULT_BLOCK;
+        this.blockState = MachineAppearance.DEFAULT_BLOCKSTATE;
+        this.itemTexture = MachineAppearance.DEFAULT_ITEM;
+        this.sound = MachineAppearance.DEFAULT_SOUND;
     }
 
     public MachineAppearanceBuilder(MachineAppearance appearance) {
@@ -29,7 +34,7 @@ public class MachineAppearanceBuilder {
     }
 
     public MachineAppearance.AppearanceType getType() {
-        return this.type;
+        return this.type == null ? MachineAppearance.AppearanceType.DEFAULT : this.type;
     }
 
     public void setType(MachineAppearance.AppearanceType type) {
@@ -77,6 +82,6 @@ public class MachineAppearanceBuilder {
     }
 
     public MachineAppearance build() {
-        return new MachineAppearance(this.type, this.model, this.block, this.blockState, this.itemTexture, this.sound);
+        return new MachineAppearance(this.getType(), this.model, this.block, this.blockState, this.itemTexture, this.sound);
     }
 }

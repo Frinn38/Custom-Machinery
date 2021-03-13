@@ -6,11 +6,9 @@ import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandl
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
@@ -31,7 +29,6 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.stream.Collectors;
 
 public class CustomMachineBlock extends Block {
 
@@ -41,11 +38,13 @@ public class CustomMachineBlock extends Block {
 
     @SuppressWarnings("deprecation")
     @Override
+    @ParametersAreNonnullByDefault
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.INVISIBLE;
     }
 
     @SuppressWarnings("deprecation")
+    @ParametersAreNonnullByDefault
     @Override
     public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         TileEntity tile = world.getTileEntity(pos);
@@ -93,6 +92,7 @@ public class CustomMachineBlock extends Block {
         }
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);

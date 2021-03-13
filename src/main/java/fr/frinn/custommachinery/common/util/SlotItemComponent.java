@@ -29,7 +29,7 @@ public class SlotItemComponent extends Slot {
 
     @Override
     public boolean isItemValid(ItemStack stack) {
-        return this.component.isItemValid(stack) && !this.component.getMode().isOutput();
+        return this.component.isItemValid(stack) && this.component.getMode().isInput();
     }
 
     @Override
@@ -52,6 +52,6 @@ public class SlotItemComponent extends Slot {
 
     @Override
     public boolean canTakeStack(PlayerEntity player) {
-        return !this.component.getItemStack().isEmpty();
+        return true;
     }
 }

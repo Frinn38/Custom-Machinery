@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
@@ -17,6 +18,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MachineLoadingScreen extends Screen {
@@ -142,6 +144,12 @@ public class MachineLoadingScreen extends Screen {
             this.machineCreationScreens.remove(machineToDelete);
             FileUtils.deleteMachineJSON(machineToDelete.getId());
         }
+    }
+
+    public Map<ResourceLocation, CustomMachineBuilder> getBuilders() {
+        Map<ResourceLocation, CustomMachineBuilder> builders = new HashMap<>();
+        this.machineCreationScreens.keySet().forEach(builder -> builders.put(builder.getId(), builder));
+        return builders;
     }
 
     @Override
