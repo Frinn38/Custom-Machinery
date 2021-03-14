@@ -31,6 +31,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,6 +114,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         return LazyOptional.empty();
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public CompoundNBT write(CompoundNBT nbt) {
         super.write(nbt);
@@ -121,12 +123,14 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         craftingManagerNBT.putString("status", this.craftingManager.getStatus().toString());
         if(this.craftingManager.getStatus() == CraftingManager.STATUS.ERRORED)
             craftingManagerNBT.putString("message", this.craftingManager.getMessage().getString());
+        craftingManagerNBT.putInt("recipeProgressTime", this.craftingManager.recipeProgressTime);
         nbt.put("craftingManager", craftingManagerNBT);
 
         this.componentManager.getComponents().forEach(component -> component.serialize(nbt));
         return nbt;
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public void read(BlockState state, CompoundNBT nbt) {
         super.read(state, nbt);
@@ -148,6 +152,8 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
                         break;
                 }
             }
+            if(craftingManagerNBT.contains("recipeProgressTime", Constants.NBT.TAG_INT))
+                this.craftingManager.recipeProgressTime = craftingManagerNBT.getInt("recipeProgressTime");
         }
         this.componentManager.getComponents().forEach(component -> component.deserialize(nbt));
     }
@@ -186,8 +192,10 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Nullable
     @Override
     public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
-        if(player instanceof ServerPlayerEntity)
+        if(player instanceof ServerPlayerEntity) {
             this.trackingPlayers.add((ServerPlayerEntity)player);
+            this.sync();
+        }
         return new CustomMachineContainer(id, inv, this);
     }
 }

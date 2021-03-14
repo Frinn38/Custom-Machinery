@@ -10,6 +10,10 @@
       "mode": "input"
     },
     {
+      "type": "custommachinery:time",
+      "times": [">>12000"]
+    },
+    {
       "type": "custommachinery:item",
       "item": "minecraft:diamond",
       "amount": 100,
