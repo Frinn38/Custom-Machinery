@@ -11,6 +11,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import org.apache.commons.lang3.tuple.Triple;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,10 +23,13 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     private int capacity;
     private int maxInput;
     private int maxOutput;
+    private long actualTick;
+    private int actualTickInput;
+    private int actualTickOutput;
     private LazyOptional<EnergyMachineComponent> capability = LazyOptional.of(() -> this);
 
-    public EnergyMachineComponent(MachineComponentManager manager, Mode mode, int capacity, int maxInput, int maxOutput) {
-        super(manager, mode);
+    public EnergyMachineComponent(MachineComponentManager manager, int capacity, int maxInput, int maxOutput) {
+        super(manager, Mode.BOTH);
         this.energy = 0;
         this.capacity = capacity;
         this.maxInput = maxInput;
@@ -72,9 +76,20 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!canReceive())
             return 0;
 
-        int energyReceived = Math.min(capacity - energy, Math.min(this.maxInput, maxReceive));
-        if (!simulate)
-            energy += energyReceived;
+        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+            this.actualTickInput = 0;
+            this.actualTickOutput = 0;
+        }
+
+        int maxTickInput = this.maxInput - this.actualTickInput;
+
+        int energyReceived = Math.min(this.capacity - this.energy, Math.min(maxTickInput, maxReceive));
+        if (!simulate) {
+            this.energy += energyReceived;
+            this.actualTickInput += energyReceived;
+        }
+
         return energyReceived;
     }
 
@@ -83,9 +98,20 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!canExtract())
             return 0;
 
-        int energyExtracted = Math.min(energy, Math.min(this.maxOutput, maxExtract));
-        if (!simulate)
-            energy -= energyExtracted;
+        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+            this.actualTickInput = 0;
+            this.actualTickOutput = 0;
+        }
+
+        int maxTickOutput = this.maxOutput - this.actualTickOutput;
+
+        int energyExtracted = Math.min(this.energy, Math.min(maxTickOutput, maxExtract));
+        if (!simulate) {
+            this.energy -= energyExtracted;
+            this.actualTickOutput += energyExtracted;
+        }
+
         return energyExtracted;
     }
 
@@ -107,6 +133,30 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public boolean canReceive() {
         return true;
+    }
+
+    /** Recipe Stuff **/
+
+    public int receiveRecipeEnergy(int maxReceive, boolean simulate) {
+        if(!canReceive())
+            return 0;
+
+        int energyReceived = Math.min(this.capacity - this.energy, maxReceive);
+        if(!simulate)
+            this.energy += energyReceived;
+
+        return energyReceived;
+    }
+
+    public int extractRecipeEnergy(int maxExtract, boolean simulate) {
+        if (!canExtract())
+            return 0;
+
+        int energyExtracted = Math.min(this.energy, maxExtract);
+        if (!simulate)
+            this.energy -= energyExtracted;
+
+        return energyExtracted;
     }
 
     public static class Template implements IMachineComponentTemplate<EnergyMachineComponent> {
@@ -136,7 +186,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         @Override
         public EnergyMachineComponent build(MachineComponentManager manager) {
-            return new EnergyMachineComponent(manager, Mode.BOTH, this.capacity, this.maxInput, this.maxOutput);
+            return new EnergyMachineComponent(manager, this.capacity, this.maxInput, this.maxOutput);
         }
     }
 }

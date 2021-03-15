@@ -51,17 +51,17 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
     @Override
     public CraftingResult processTick(EnergyMachineComponent energy) {
         if(getMode() == MODE.INPUT) {
-            int canExtract = energy.extractEnergy(this.amount, true);
+            int canExtract = energy.extractRecipeEnergy(this.amount, true);
             if(canExtract == this.amount) {
-                energy.extractEnergy(this.amount, false);
+                energy.extractRecipeEnergy(this.amount, false);
                 return CraftingResult.success();
             }
             return CraftingResult.error(new StringTextComponent("Not enough energy, " + this.amount + "FE needed but only " + canExtract + "FE found !"));
         }
         else {
-            int canReceive = energy.receiveEnergy(this.amount, true);
+            int canReceive = energy.receiveRecipeEnergy(this.amount, true);
             if(canReceive == this.amount) {
-                energy.receiveEnergy(this.amount, false);
+                energy.receiveRecipeEnergy(this.amount, false);
                 return CraftingResult.success();
             }
             return CraftingResult.error(new StringTextComponent("Not enough space for storing " + this.amount + "FE !"));

@@ -50,7 +50,6 @@ public class CustomMachineBlock extends Block {
         TileEntity tile = world.getTileEntity(pos);
         if(tile instanceof CustomMachineTile) {
             CustomMachineTile machine = (CustomMachineTile)tile;
-            machine.getCapability(CapabilityEnergy.ENERGY).ifPresent(energy -> energy.receiveEnergy(500, false));
             if(machine.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler)).orElse(false)) {
                 return ActionResultType.SUCCESS;
             }

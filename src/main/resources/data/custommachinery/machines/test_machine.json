@@ -87,7 +87,8 @@
     },
     {
       "type": "custommachinery:energy",
-      "capacity": 10000
+      "capacity": 100000000000,
+      "maxInput": 1
     }
   ]
 }
