@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Direction;
@@ -125,11 +126,11 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         AtomicInteger remaining = new AtomicInteger(stack.getAmount());
         this.components.forEach(component -> {
             if(component.isFluidValid(stack) && component.getRemainingSpace() > 0 && component.getMode().isInput()) {
-                int toInput = Math.min(remaining.get(), component.getRemainingSpace());
+                int toInput = Math.min(remaining.get(), component.insert(stack.getFluid(), stack.getAmount(), FluidAction.SIMULATE));
                 if(toInput > 0) {
                     remaining.addAndGet(-toInput);
                     if (action.execute()) {
-                        component.insert(stack.getFluid(), toInput);
+                        component.insert(stack.getFluid(), toInput, FluidAction.EXECUTE);
                         this.getManager().markDirty();
                     }
                 }
@@ -141,21 +142,22 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     @Nonnull
     @Override
     public FluidStack drain(FluidStack toExtract, FluidAction action) {
+        int maxExtract = toExtract.getAmount();
         for (FluidMachineComponent component : this.components) {
             if(!component.getFluidStack().isEmpty() && component.isFluidValid(toExtract) && component.getMode().isOutput()) {
-                FluidStack stack = component.getFluidStack();
-                if(stack.getAmount() > toExtract.getAmount()) {
+                FluidStack stack = component.extract(toExtract.getAmount(), FluidAction.SIMULATE);
+                if(stack.getAmount() > maxExtract) {
                     if(action.execute()) {
-                        component.extract(toExtract.getAmount());
+                        component.extract(toExtract.getAmount(), FluidAction.EXECUTE);
                         this.getManager().markDirty();
                     }
-                    return new FluidStack(stack.getFluid(), toExtract.getAmount());
+                    return toExtract;
                 } else {
                     if(action.execute()) {
-                        component.extract(stack.getAmount());
+                        component.extract(stack.getAmount(), FluidAction.EXECUTE);
                         this.getManager().markDirty();
                     }
-                    return stack;
+                    maxExtract -= stack.getAmount();
                 }
             }
         }
@@ -165,25 +167,31 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     @Nonnull
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
+        Fluid fluid = Fluids.EMPTY;
+        int toDrain = maxDrain;
         for (FluidMachineComponent component : this.components) {
-            if(!component.getFluidStack().isEmpty() && component.getMode().isOutput()) {
-                FluidStack stack = component.getFluidStack();
-                if(stack.getAmount() > maxDrain) {
+            if(!component.getFluidStack().isEmpty() && component.getMode().isOutput() && (fluid == Fluids.EMPTY || fluid == component.getFluidStack().getFluid())) {
+                FluidStack stack = component.extract(toDrain, FluidAction.SIMULATE);
+                if(stack.getAmount() > toDrain) {
                     if(action.execute()) {
-                        component.extract(maxDrain);
+                        component.extract(maxDrain, FluidAction.EXECUTE);
                         this.getManager().markDirty();
                     }
                     return new FluidStack(stack.getFluid(), maxDrain);
                 } else {
+                    fluid = stack.getFluid();
                     if(action.execute()) {
-                        component.extract(stack.getAmount());
+                        component.extract(stack.getAmount(), FluidAction.EXECUTE);
                         this.getManager().markDirty();
                     }
-                    return stack;
+                    toDrain -= stack.getAmount();
                 }
             }
         }
-        return FluidStack.EMPTY;
+        if(fluid == null || toDrain == 0)
+            return FluidStack.EMPTY;
+        else
+            return new FluidStack(fluid, toDrain);
     }
 
     /** RECIPE STUFF **/
@@ -213,7 +221,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == stack.getFluid()).forEach(component -> {
             int maxExtract = Math.min(component.getFluidStack().getAmount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
-            component.extract(maxExtract);
+            component.recipeExtract(maxExtract);
         });
         this.getManager().markDirty();
     }
@@ -221,9 +229,9 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public void addToOutputs(FluidStack stack) {
         AtomicInteger toAdd = new AtomicInteger(stack.getAmount());
         this.outputs.stream().filter(component -> (component.getFluidStack().getFluid() == stack.getFluid() && component.getRemainingSpace() > 0) || component.getFluidStack().isEmpty()).forEach(component -> {
-            int maxInsert = Math.min(component.getRemainingSpace(), toAdd.get());
+            int maxInsert = Math.min(component.getRecipeRemainingSpace(), toAdd.get());
             toAdd.addAndGet(-maxInsert);
-            component.insert(stack.getFluid(), maxInsert);
+            component.recipeInsert(stack.getFluid(), maxInsert);
         });
         this.getManager().markDirty();
     }

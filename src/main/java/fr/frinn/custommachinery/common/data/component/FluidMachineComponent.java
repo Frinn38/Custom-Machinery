@@ -7,21 +7,15 @@ import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FluidMachineComponent extends AbstractMachineComponent {
 
@@ -29,6 +23,9 @@ public class FluidMachineComponent extends AbstractMachineComponent {
     private int capacity;
     private int maxInput;
     private int maxOutput;
+    private long actualTick;
+    private int actualTickInput;
+    private int actualTickOutput;
     private List<Fluid> filter;
     private FluidStack fluidStack = FluidStack.EMPTY;
 
@@ -81,25 +78,94 @@ public class FluidMachineComponent extends AbstractMachineComponent {
     }
 
     public int getRemainingSpace() {
-        if(!fluidStack.isEmpty())
-            return this.capacity - this.fluidStack.getAmount();
-        return this.capacity;
+        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+            this.actualTickInput = 0;
+            this.actualTickOutput = 0;
+        }
+
+        int maxInput = this.maxInput - this.actualTickInput;
+
+        if(!this.fluidStack.isEmpty())
+            return Math.min(this.capacity - this.fluidStack.getAmount(), maxInput);
+        return Math.min(this.capacity, maxInput);
     }
 
     public boolean isFluidValid(@Nonnull FluidStack stack) {
         return (this.filter.isEmpty() || this.filter.contains(stack.getFluid())) && (this.fluidStack.isFluidEqual(stack) || this.fluidStack.isEmpty());
     }
 
-    public void insert(Fluid fluid, int amount) {
+    public int insert(Fluid fluid, int amount, FluidAction action) {
+        if (amount <= 0)
+            return 0;
+
+        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+            this.actualTickInput = 0;
+            this.actualTickOutput = 0;
+        }
+
+        int maxInsert = this.maxInput - this.actualTickInput;
+        if(this.fluidStack.isEmpty()) {
+            amount = Math.min(amount, maxInsert);
+            if(action.execute()) {
+                this.fluidStack = new FluidStack(fluid, amount);
+                this.actualTickInput += amount;
+            }
+        }
+        else {
+            amount = Math.min(Math.min(getRemainingSpace(), maxInsert), amount);
+            if(action.execute()) {
+                this.fluidStack.grow(amount);
+                this.actualTickInput += amount;
+            }
+        }
+        return amount;
+    }
+
+    public FluidStack extract(int amount, FluidAction action) {
+        if(amount <= 0)
+            return FluidStack.EMPTY;
+
+        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+            this.actualTickInput = 0;
+            this.actualTickOutput = 0;
+        }
+
+        int maxExtract = this.maxOutput - this.actualTickOutput;
+        amount = MathHelper.clamp(amount, 0, Math.min(this.fluidStack.getAmount(), maxExtract));
+        if(action.execute()) {
+            this.fluidStack.shrink(amount);
+            this.actualTickOutput += amount;
+        }
+        return new FluidStack(this.fluidStack.getFluid(), amount);
+    }
+
+    /** Recipe Stuff **/
+
+    public int getRecipeRemainingSpace() {
+        if(!this.fluidStack.isEmpty())
+            return this.capacity - this.fluidStack.getAmount();
+        return this.capacity;
+    }
+
+    public void recipeInsert(Fluid fluid, int amount) {
+        if(amount <= 0)
+            return;
+
         if(this.fluidStack.isEmpty())
             this.fluidStack = new FluidStack(fluid, amount);
         else {
-            amount = MathHelper.clamp(amount, 0, getRemainingSpace());
+            amount = MathHelper.clamp(amount, 0, getRecipeRemainingSpace());
             this.fluidStack.grow(amount);
         }
     }
 
-    public void extract(int amount) {
+    public void recipeExtract(int amount) {
+        if(amount <= 0)
+            return;
+
         amount = MathHelper.clamp(amount, 0, this.fluidStack.getAmount());
         this.fluidStack.shrink(amount);
     }
