@@ -53,7 +53,7 @@ public class CustomMachineBlock extends Block {
             if(machine.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler)).orElse(false)) {
                 return ActionResultType.SUCCESS;
             }
-            if(!world.isRemote()) {
+            if(!world.isRemote() && !machine.getMachine().getGuiElements().isEmpty()) {
                 NetworkHooks.openGui((ServerPlayerEntity)player, machine, pos);
                 return ActionResultType.SUCCESS;
             }

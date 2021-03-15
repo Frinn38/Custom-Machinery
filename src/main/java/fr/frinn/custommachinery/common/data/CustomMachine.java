@@ -18,8 +18,8 @@ public class CustomMachine {
         machineCodec.group(
             Codec.STRING.fieldOf("name").forGetter(CustomMachine::getName),
             MachineAppearance.CODEC.fieldOf("appearance").forGetter(CustomMachine::getAppearance),
-            IGuiElement.CODEC.listOf().fieldOf("gui").forGetter(CustomMachine::getGuiElements),
-            IMachineComponentTemplate.CODEC.listOf().fieldOf("components").forGetter(CustomMachine::getComponentTemplates)
+            IGuiElement.CODEC.listOf().optionalFieldOf("gui", new ArrayList<>()).forGetter(CustomMachine::getGuiElements),
+            IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", new ArrayList<>()).forGetter(CustomMachine::getComponentTemplates)
         ).apply(machineCodec, CustomMachine::new)
     );
 
