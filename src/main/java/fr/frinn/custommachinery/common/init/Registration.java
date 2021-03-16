@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.init;
 
-import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.render.CustomMachineItemRenderer;
 import fr.frinn.custommachinery.client.render.element.*;
@@ -32,6 +31,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.*;
 
+@SuppressWarnings("unused")
 public class Registration {
 
     public static final ItemGroup GROUP = new ItemGroup(CustomMachinery.MODID) {
@@ -94,6 +94,7 @@ public class Registration {
         Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CUSTOM_MACHINE_RECIPE);
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static <T extends IForgeRegistryEntry<T>> IForgeRegistry<T> makeRegistry(String name, Class type) {
         final ResourceLocation REGISTRY_NAME = new ResourceLocation(CustomMachinery.MODID, name);
         new RegistryBuilder<T>().setName(REGISTRY_NAME).setType(type).create();

@@ -15,6 +15,7 @@ import net.minecraft.util.IIntArray;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,8 +109,9 @@ public class CustomMachineContainer extends Container {
         this(id, playerInv, ClientHandler.getClientSideCustomMachineTile(extraData.readBlockPos()));
     }
 
+    @ParametersAreNonnullByDefault
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity playerIn, int index) {
+    public ItemStack transferStackInSlot(PlayerEntity player, int index) {
         if(!this.hasPlayerInventory)
             return ItemStack.EMPTY;
 
@@ -146,11 +148,13 @@ public class CustomMachineContainer extends Container {
         return ItemStack.EMPTY;
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public boolean canInteractWith(PlayerEntity player) {
         return true;
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public void onContainerClosed(PlayerEntity player) {
         super.onContainerClosed(player);

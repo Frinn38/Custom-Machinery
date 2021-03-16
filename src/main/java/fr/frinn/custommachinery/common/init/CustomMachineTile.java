@@ -190,12 +190,13 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         return new StringTextComponent(getMachine().getName());
     }
 
+    @ParametersAreNonnullByDefault
     @Nullable
     @Override
     public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
         if(player instanceof ServerPlayerEntity) {
             this.trackingPlayers.add((ServerPlayerEntity)player);
-            this.sync();
+            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new SUpdateCustomTilePacket(this.getPos(), this.getUpdateTag()));
         }
         return new CustomMachineContainer(id, inv, this);
     }

@@ -16,6 +16,8 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+import javax.annotation.Nonnull;
+
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = CustomMachinery.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientHandler {
 
@@ -32,12 +34,13 @@ public class ClientHandler {
         Minecraft.getInstance().displayGuiScreen(MachineLoadingScreen.INSTANCE);
     }
 
+    @Nonnull
     public static CustomMachineTile getClientSideCustomMachineTile(BlockPos pos) {
         if(Minecraft.getInstance().world != null) {
             TileEntity tile = Minecraft.getInstance().world.getTileEntity(pos);
             if(tile instanceof CustomMachineTile)
                 return (CustomMachineTile)tile;
         }
-        return null;
+        throw new IllegalStateException("Trying to open a Custom Machine container without clicking on a Custom Machine block");
     }
 }

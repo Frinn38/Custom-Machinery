@@ -136,9 +136,8 @@ public class CraftingManager {
                 return this.RUNNING_MESSAGE;
             case ERRORED:
                 return this.errorMessage;
-            default:
-                return this.errorMessage;
         }
+        return StringTextComponent.EMPTY;
     }
 
     public void setIdle() {
