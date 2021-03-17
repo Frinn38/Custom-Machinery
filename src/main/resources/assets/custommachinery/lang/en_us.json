@@ -2,6 +2,10 @@
   "item.custommachinery.machine_creator_item": "Machine Creator",
   "itemGroup.custommachinery": "Custom Machinery",
 
+  "custommachinery.craftingstatus.idle": "Idle",
+  "custommachinery.craftingstatus.running": "Running",
+  "custommachinery.craftingstatus.errored": "Errored",
+
   "custommachinery.gui.element.energy.tooltip": "Energy: %sFE / %sFE",
   "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
 
@@ -27,6 +31,16 @@
   "custommachinery.jei.ingredient.energy": "Energy: %sFE",
   "custommachinery.jei.recipe.time": "%sticks",
 
+  "custommachinery.requirements.energy.error.input": "Not enough energy, %sFE needed but only %sFE found !",
+  "custommachinery.requirements.energy.error.output": "Not enough space for storing %sFE !",
+  "custommachinery.requirements.energypertick.error.input": "Not enough energy, %sFE needed but only %sFE found !",
+  "custommachinery.requirements.energypertick.error.output": "Not enough space for storing %sFE !",
+  "custommachinery.requirements.fluid.error.input": "Not enough %s, %smB needed but %smB found !",
+  "custommachinery.requirements.fluid.error.output": "Not enough space for %smB of %s",
+  "custommachinery.requirements.fluidpertick.error.input": "Not enough %s, %smB needed but %smB found !",
+  "custommachinery.requirements.fluidpertick.error.output": "Not enough space for %smB of %s",
+  "custommachinery.requirements.item.error.input": "Not enough %s, %s needed but %s found !",
+  "custommachinery.requirements.item.error.output": "Not enough space to store %s %s",
   "custommachinery.requirements.position.error": "This recipe cannot be processed at this location",
   "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day"
 }

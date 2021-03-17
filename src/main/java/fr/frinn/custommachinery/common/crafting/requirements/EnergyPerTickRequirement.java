@@ -11,6 +11,7 @@ import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class EnergyPerTickRequirement extends AbstractTickableRequirement<EnergyMachineComponent> {
 
@@ -56,7 +57,7 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
                 energy.extractRecipeEnergy(this.amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new StringTextComponent("Not enough energy, " + this.amount + "FE needed but only " + canExtract + "FE found !"));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energypertick.error.input", this.amount, canExtract));
         }
         else {
             int canReceive = energy.receiveRecipeEnergy(this.amount, true);
@@ -64,7 +65,7 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
                 energy.receiveRecipeEnergy(this.amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new StringTextComponent("Not enough space for storing " + this.amount + "FE !"));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energypertick.error.output", this.amount));
         }
     }
 

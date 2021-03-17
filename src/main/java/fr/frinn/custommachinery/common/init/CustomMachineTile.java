@@ -25,9 +25,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
@@ -123,7 +120,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         CompoundNBT craftingManagerNBT = new CompoundNBT();
         craftingManagerNBT.putString("status", this.craftingManager.getStatus().toString());
         if(this.craftingManager.getStatus() == CraftingManager.STATUS.ERRORED)
-            craftingManagerNBT.putString("message", this.craftingManager.getMessage().getString());
+            craftingManagerNBT.putString("message", this.craftingManager.getErrorMessage().getString());
         craftingManagerNBT.putInt("recipeProgressTime", this.craftingManager.recipeProgressTime);
         nbt.put("craftingManager", craftingManagerNBT);
 
@@ -168,7 +165,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         markDirty();
     }
 
-    private List<ServerPlayerEntity> trackingPlayers = new ArrayList<>();
+    private final List<ServerPlayerEntity> trackingPlayers = new ArrayList<>();
     public void removeTrackingPlayer(ServerPlayerEntity player) {
         this.trackingPlayers.remove(player);
     }

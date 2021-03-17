@@ -16,6 +16,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
 public class FluidRequirement extends AbstractRequirement<FluidComponentHandler> {
@@ -65,7 +66,7 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                 component.removeFromInputs(stack);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new StringTextComponent("Not enough " + this.fluid.getRegistryName() + ", " + this.amount + "mB needed but " + canExtract + "mB found !"));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey()), this.amount, component));
         }
         return CraftingResult.pass();
     }
@@ -79,7 +80,7 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                 component.addToOutputs(stack);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new StringTextComponent("Not enough space for " + this.amount + "mB of " + this.fluid.getRegistryName()));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.output", this.amount, new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey())));
         }
         return CraftingResult.pass();
     }

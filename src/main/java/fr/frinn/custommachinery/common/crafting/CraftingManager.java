@@ -24,11 +24,7 @@ public class CraftingManager {
     private STATUS status;
     private PHASE phase;
 
-    private ITextComponent errorMessage;
-    private final ITextComponent IDLE_MESSAGE = new StringTextComponent("idle");
-    private final ITextComponent RUNNING_MESSAGE = new StringTextComponent("running");
-
-
+    private ITextComponent errorMessage = StringTextComponent.EMPTY;
 
     public CraftingManager(CustomMachineTile tile) {
         this.tile = tile;
@@ -128,16 +124,8 @@ public class CraftingManager {
                 .orElse(null);
     }
 
-    public ITextComponent getMessage() {
-        switch (this.status) {
-            case IDLE:
-                return this.IDLE_MESSAGE;
-            case RUNNING:
-                return this.RUNNING_MESSAGE;
-            case ERRORED:
-                return this.errorMessage;
-        }
-        return StringTextComponent.EMPTY;
+    public ITextComponent getErrorMessage() {
+        return this.errorMessage;
     }
 
     public void setIdle() {

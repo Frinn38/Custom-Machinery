@@ -16,6 +16,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
 public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidComponentHandler> {
@@ -67,7 +68,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
                 component.removeFromInputs(stack);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new StringTextComponent("Not enough " + this.fluid.getRegistryName() + ", " + this.amount + "mB needed but " + canExtract + "mB found !"));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluidpertick.error.input", this.fluid.getRegistryName(), this.amount, canExtract));
         }
         else {
             int canInsert = component.getSpaceForFluid(this.fluid);
@@ -75,7 +76,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
                 component.addToOutputs(stack);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new StringTextComponent("Not enough space for " + this.amount + "mB of " + this.fluid.getRegistryName()));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluidpertick.error.output", this.amount, this.fluid.getRegistryName()));
         }
     }
 

@@ -1,11 +1,17 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.gui.StatusGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class StatusGuiElementRenderer implements IGuiElementRenderer<StatusGuiElement> {
 
@@ -32,7 +38,11 @@ public class StatusGuiElementRenderer implements IGuiElementRenderer<StatusGuiEl
 
     @Override
     public void renderTooltip(MatrixStack matrix, StatusGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
-
+        List<ITextComponent> tooltips = new ArrayList<>();
+        tooltips.add(new TranslationTextComponent("custommachinery.craftingstatus." + screen.getTile().craftingManager.getStatus().toString().toLowerCase(Locale.ENGLISH)));
+        if(screen.getTile().craftingManager.getStatus() == CraftingManager.STATUS.ERRORED)
+            tooltips.add(screen.getTile().craftingManager.getErrorMessage());
+        screen.func_243308_b(matrix, tooltips, mouseX, mouseY);
     }
 
     @Override

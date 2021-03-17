@@ -68,7 +68,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
                 component.removeFromInputs(this.item, this.amount);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new StringTextComponent("Not enough " + this.item.getRegistryName() + ", " + canExtract + " found but " + this.amount + " needed !"));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.input", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, canExtract));
         }
         return CraftingResult.pass();
     }
@@ -81,7 +81,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
                 component.addToOutputs(this.item, this.amount);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslationTextComponent("Not enough space to store " + this.amount + " ").append(new TranslationTextComponent(this.item.getTranslationKey())));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", this.amount, new TranslationTextComponent(this.item.getTranslationKey())));
         }
         return CraftingResult.pass();
     }
