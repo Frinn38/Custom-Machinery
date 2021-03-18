@@ -29,7 +29,7 @@ public class CustomMachineRecipeSerializer extends ForgeRegistryEntry<IRecipeSer
     public static final Codec<CustomMachineRecipe> CODEC = RecordCodecBuilder.create(recipeBuilderInstance -> recipeBuilderInstance.group(
         ResourceLocation.CODEC.fieldOf("machine").forGetter(CustomMachineRecipe::getMachine),
         Codec.INT.fieldOf("time").forGetter(CustomMachineRecipe::getRecipeTime),
-        IRequirement.CODEC.listOf().fieldOf("requirements").forGetter(CustomMachineRecipe::getRequirements)
+        IRequirement.CODEC.listOf().optionalFieldOf("requirements", new ArrayList<>()).forGetter(CustomMachineRecipe::getRequirements)
     ).apply(recipeBuilderInstance, (machine, time, requirements) -> {
         CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder();
         builder.withMachine(machine);
