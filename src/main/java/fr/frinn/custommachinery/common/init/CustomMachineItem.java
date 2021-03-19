@@ -18,6 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class CustomMachineItem extends BlockItem {
 
@@ -25,6 +26,7 @@ public class CustomMachineItem extends BlockItem {
         super(block, properties);
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     protected boolean onBlockPlaced(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
         if(stack.hasTag() && stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
@@ -35,6 +37,7 @@ public class CustomMachineItem extends BlockItem {
         return super.onBlockPlaced(pos, world, player, stack, state);
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         if(this.isInGroup(group)) {
@@ -46,6 +49,7 @@ public class CustomMachineItem extends BlockItem {
         }
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public void onCreated(ItemStack stack, World worldIn, PlayerEntity playerIn) {
         if(!stack.hasTag() || !stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
@@ -60,7 +64,7 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     public String getTranslationKey(ItemStack stack) {
-        if(stack.hasTag() && stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
+        if(stack.hasTag() && stack.hasTag() && stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
             CustomMachine machine = CustomMachinery.MACHINES.get(new ResourceLocation(stack.getTag().getString("id")));
             if(machine != null)
                 return machine.getName();
