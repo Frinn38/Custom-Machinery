@@ -58,15 +58,6 @@ public class FluidMachineComponent extends AbstractMachineComponent {
         this.fluidStack = FluidStack.loadFluidStackFromNBT(nbt);
     }
 
-    @Override
-    public void addProbeInfo(IProbeInfo info) {
-        Fluid fluid = this.fluidStack.getFluid();
-        int color = fluid.getAttributes().getColor();
-        if(fluid == Fluids.LAVA)
-            color = new java.awt.Color(255, 128, 0).getRGB();
-        info.progress(this.fluidStack.getAmount(), this.capacity, info.defaultProgressStyle().filledColor(color).alternateFilledColor(color).prefix(this.fluidStack.isEmpty() ? "" : this.fluidStack.getDisplayName().getString() + ": ").suffix("mB"));
-    }
-
     /** FLUID HANDLER STUFF **/
 
     public FluidStack getFluidStack() {

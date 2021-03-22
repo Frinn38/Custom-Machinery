@@ -64,11 +64,6 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
             this.energy = nbt.getInt("energy");
     }
 
-    @Override
-    public void addProbeInfo(IProbeInfo info) {
-        info.progress(this.energy, this.capacity);
-    }
-
     /** ENERGY STORAGE STUFF **/
 
     @Override

@@ -88,11 +88,6 @@ public class ItemMachineComponent extends AbstractMachineComponent {
         this.stack = ItemStack.read(nbt);
     }
 
-    @Override
-    public void addProbeInfo(IProbeInfo info) {
-        info.item(this.stack);
-    }
-
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
 
         @SuppressWarnings("deprecation")

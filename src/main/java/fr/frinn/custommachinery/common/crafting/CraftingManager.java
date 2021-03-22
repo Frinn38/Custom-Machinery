@@ -5,8 +5,10 @@ import fr.frinn.custommachinery.common.crafting.requirements.ITickableRequiremen
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +133,9 @@ public class CraftingManager {
     public void setIdle() {
         if(this.status != STATUS.IDLE) {
             this.status = STATUS.IDLE;
-            this.tile.markForSyncing();
+            this.errorMessage = StringTextComponent.EMPTY;
+            if (this.tile.getWorld() != null && !this.tile.getWorld().isRemote())
+                this.tile.markForSyncing();
         }
     }
 
@@ -147,6 +151,7 @@ public class CraftingManager {
     public void setRunning() {
         if(this.status != STATUS.RUNNING) {
             this.status = STATUS.RUNNING;
+            this.errorMessage = StringTextComponent.EMPTY;
             if (this.tile.getWorld() != null && !this.tile.getWorld().isRemote())
                 this.tile.markForSyncing();
         }
@@ -158,6 +163,14 @@ public class CraftingManager {
 
     public CustomMachineRecipe getCurrentRecipe() {
         return this.currentRecipe;
+    }
+
+    public void addProbeInfo(IProbeInfo info) {
+        info.text(new TranslationTextComponent("custommachinery.craftingstatus." + this.status.toString().toLowerCase(Locale.ENGLISH)));
+        if(this.status == STATUS.ERRORED)
+            info.text(this.errorMessage);
+        if(this.status == STATUS.RUNNING)
+            info.progress(this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
     }
 
     public enum PHASE {

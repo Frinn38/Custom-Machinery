@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
@@ -50,6 +51,10 @@ public class MachineComponentManager {
 
     public List<ICapabilityMachineComponent> getCapabilityComponents() {
         return this.components.stream().filter(component -> component instanceof ICapabilityMachineComponent).map(component -> (ICapabilityMachineComponent)component).collect(Collectors.toList());
+    }
+
+    public List<IProbeInfoComponent> getProbeInfoComponents() {
+        return this.components.stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).collect(Collectors.toList());
     }
 
     public <T extends IMachineComponent> T getComponentRaw(MachineComponentType type) {

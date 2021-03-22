@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import mcjty.theoneprobe.api.*;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -34,6 +35,22 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
             }
             return false;
         });
+        probe.registerProbeConfigProvider(new IProbeConfigProvider() {
+            @Override
+            public void getProbeConfig(IProbeConfig config, PlayerEntity player, World world, Entity entity, IProbeHitEntityData data) {
+
+            }
+
+            @Override
+            public void getProbeConfig(IProbeConfig config, PlayerEntity player, World world, BlockState state, IProbeHitData data) {
+                if(state.getBlock() == Registration.CUSTOM_MACHINE_BLOCK.get()) {
+                    config.setRFMode(1);
+                    config.setTankMode(1);
+                    config.showTankSetting(IProbeConfig.ConfigMode.NORMAL);
+                    config.showChestContents(IProbeConfig.ConfigMode.NORMAL);
+                }
+            }
+        });
         return null;
     }
 
@@ -47,7 +64,9 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         TileEntity tile = world.getTileEntity(data.getPos());
         if(tile instanceof CustomMachineTile) {
             CustomMachineTile machine = (CustomMachineTile)tile;
-            machine.componentManager.getComponents().forEach(component -> component.addProbeInfo(info));
+            machine.componentManager.getProbeInfoComponents().forEach(component -> component.addProbeInfo(info));
+            machine.craftingManager.addProbeInfo(info);
+
         }
     }
 }

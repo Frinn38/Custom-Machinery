@@ -40,9 +40,4 @@ public class PositionMachineComponent extends AbstractMachineComponent {
     public void deserialize(CompoundNBT nbt) {
 
     }
-
-    @Override
-    public void addProbeInfo(IProbeInfo info) {
-
-    }
 }

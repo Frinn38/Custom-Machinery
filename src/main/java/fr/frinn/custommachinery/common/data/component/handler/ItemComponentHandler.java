@@ -88,17 +88,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         }
     }
 
-    @Override
-    public void addProbeInfo(IProbeInfo info) {
-        int componentsSize = this.getComponents().size();
-        for(int i = 0; i < componentsSize / 4; i++) {
-            //info.vertical();
-            for(int j = 0; j < 4; j++) {
-                this.getComponents().get(i * 4 + j).addProbeInfo(info.vertical());
-            }
-        }
-    }
-
     /** ITEM HANDLER STUFF **/
 
     @Override

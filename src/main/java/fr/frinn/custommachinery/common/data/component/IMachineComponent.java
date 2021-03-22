@@ -16,6 +16,4 @@ public interface IMachineComponent {
     void serialize(CompoundNBT nbt);
 
     void deserialize(CompoundNBT nbt);
-
-    void addProbeInfo(IProbeInfo info);
 }

@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.data.component.handler;
 
 import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -17,12 +18,13 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent, IProbeInfoComponent {
 
     private List<FluidMachineComponent> components;
     private LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);
@@ -93,9 +95,18 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         }
     }
 
+    /** THE ONE PROBE COMPAT **/
+
     @Override
     public void addProbeInfo(IProbeInfo info) {
-        this.components.forEach(component -> component.addProbeInfo(info));
+        this.components.forEach(component -> {
+            FluidStack fluidStack = component.getFluidStack();
+            Fluid fluid = fluidStack.getFluid();
+            int color = fluid.getAttributes().getColor();
+            if(fluid == Fluids.LAVA)
+                color = new Color(255, 128, 0).getRGB();
+            info.progress(fluidStack.getAmount(), component.getCapacity(), info.defaultProgressStyle().filledColor(color).alternateFilledColor(color).prefix(fluidStack.isEmpty() ? "" : fluidStack.getDisplayName().getString() + ": ").suffix("mB"));
+        });
     }
 
     /** FLUID HANDLER STUFF **/
