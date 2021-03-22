@@ -18,14 +18,14 @@ public class StatusGuiElement extends AbstractGuiElement {
             statusGuiElementInstance.group(
                     Codec.INT.fieldOf("x").forGetter(StatusGuiElement::getX),
                     Codec.INT.fieldOf("y").forGetter(StatusGuiElement::getY),
-                    Codec.INT.optionalFieldOf("width").forGetter(element -> Optional.of(element.getWidth())),
-                    Codec.INT.optionalFieldOf("height").forGetter(element -> Optional.of(element.getHeight())),
-                    Codec.INT.optionalFieldOf("priority").forGetter(element -> Optional.of(element.getPriority())),
+                    Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
+                    Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
+                    Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     ResourceLocation.CODEC.optionalFieldOf("idleTexture").forGetter(element -> Optional.of(element.getIdleTexture())),
                     ResourceLocation.CODEC.optionalFieldOf("runningTexture").forGetter(element -> Optional.of(element.getRunningTexture())),
                     ResourceLocation.CODEC.optionalFieldOf("erroredTexture").forGetter(element -> Optional.of(element.getErroredTexture()))
             ).apply(statusGuiElementInstance, (x, y, width, height, priority, idleTexture, runningTexture, erroredTexture) ->
-                    new StatusGuiElement(x, y, width.orElse(-1), height.orElse(-1), priority.orElse(0), idleTexture.orElse(BASE_STATUS_IDLE_TEXTURE), runningTexture.orElse(BASE_STATUS_RUNNING_TEXTURE), erroredTexture.orElse(BASE_STATUS_ERRORED_TEXTURE))
+                    new StatusGuiElement(x, y, width, height, priority, idleTexture.orElse(BASE_STATUS_IDLE_TEXTURE), runningTexture.orElse(BASE_STATUS_RUNNING_TEXTURE), erroredTexture.orElse(BASE_STATUS_ERRORED_TEXTURE))
             )
     );
 

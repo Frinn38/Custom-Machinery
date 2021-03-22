@@ -17,13 +17,13 @@ public class ProgressBarGuiElement extends AbstractGuiElement {
             progressGuiElementCodec.group(
                     Codec.INT.fieldOf("x").forGetter(ProgressBarGuiElement::getX),
                     Codec.INT.fieldOf("y").forGetter(ProgressBarGuiElement::getY),
-                    Codec.INT.optionalFieldOf("width").forGetter(element -> Optional.of(element.getWidth())),
-                    Codec.INT.optionalFieldOf("height").forGetter(element -> Optional.of(element.getHeight())),
-                    Codec.INT.optionalFieldOf("priority").forGetter(element -> Optional.of(element.getPriority())),
+                    Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
+                    Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
+                    Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     ResourceLocation.CODEC.optionalFieldOf("emptyTexture").forGetter(gui -> Optional.of(gui.getEmptyTexture())),
                     ResourceLocation.CODEC.optionalFieldOf("filledTexture").forGetter(gui -> Optional.of(gui.getFilledTexture()))
             ).apply(progressGuiElementCodec, (x, y, width, height, priority, empty, filled) ->
-                    new ProgressBarGuiElement(x, y, width.orElse(-1), height.orElse(-1), priority.orElse(0), empty.orElse(BASE_EMPTY_TEXTURE), filled.orElse(BASE_FILLED_TEXTURE))
+                    new ProgressBarGuiElement(x, y, width, height, priority, empty.orElse(BASE_EMPTY_TEXTURE), filled.orElse(BASE_FILLED_TEXTURE))
             )
     );
 

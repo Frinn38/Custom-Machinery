@@ -13,13 +13,11 @@ public class TextureGuiElement extends AbstractGuiElement {
             textureGuiElementCodec.group(
                     Codec.INT.fieldOf("x").forGetter(TextureGuiElement::getX),
                     Codec.INT.fieldOf("y").forGetter(TextureGuiElement::getY),
-                    Codec.INT.optionalFieldOf("width").forGetter(element -> Optional.of(element.getWidth())),
-                    Codec.INT.optionalFieldOf("height").forGetter(element -> Optional.of(element.getHeight())),
-                    Codec.INT.optionalFieldOf("priority").forGetter(element -> Optional.of(element.getPriority())),
+                    Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
+                    Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
+                    Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     ResourceLocation.CODEC.fieldOf("texture").forGetter(TextureGuiElement::getTexture)
-            ).apply(textureGuiElementCodec, (x, y, width, height, priority, texture) ->
-                    new TextureGuiElement(x, y, width.orElse(-1), height.orElse(-1), priority.orElse(0), texture)
-            )
+            ).apply(textureGuiElementCodec, TextureGuiElement::new)
     );
 
     private ResourceLocation texture;

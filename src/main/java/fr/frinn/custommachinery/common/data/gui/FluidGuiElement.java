@@ -16,13 +16,13 @@ public class FluidGuiElement extends AbstractGuiElement {
             fluidGuiElementInstance.group(
                     Codec.INT.fieldOf("x").forGetter(FluidGuiElement::getX),
                     Codec.INT.fieldOf("y").forGetter(FluidGuiElement::getY),
-                    Codec.INT.optionalFieldOf("width").forGetter(element -> Optional.of(element.getWidth())),
-                    Codec.INT.optionalFieldOf("height").forGetter(element -> Optional.of(element.getHeight())),
-                    Codec.INT.optionalFieldOf("priority").forGetter(element -> Optional.of(element.getPriority())),
+                    Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
+                    Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
+                    Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("id").forGetter(FluidGuiElement::getId),
                     ResourceLocation.CODEC.optionalFieldOf("texture").forGetter(element -> Optional.of(element.getTexture()))
             ).apply(fluidGuiElementInstance, (x, y, width, height, priority, id, texture) ->
-                    new FluidGuiElement(x, y, width.orElse(-1), height.orElse(-1), priority.orElse(0), id, texture.orElse(BASE_FLUID_STORAGE_TEXTURE)))
+                    new FluidGuiElement(x, y, width, height, priority, id, texture.orElse(BASE_FLUID_STORAGE_TEXTURE)))
     );
 
     private String id;

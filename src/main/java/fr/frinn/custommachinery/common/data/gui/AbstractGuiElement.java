@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.data.gui;
 
 import fr.frinn.custommachinery.client.TextureSizeHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.DistExecutor;
 
 public abstract class AbstractGuiElement implements IGuiElement {
 
@@ -32,12 +33,12 @@ public abstract class AbstractGuiElement implements IGuiElement {
 
     @Override
     public int getWidth() {
-        return this.width >= 0 ? this.width : TextureSizeHelper.getTextureWidth(this.baseTexture);
+        return this.width >= 0 ? this.width : DistExecutor.unsafeRunForDist(() -> () -> TextureSizeHelper.getTextureWidth(this.baseTexture), () -> () -> -1);
     }
 
     @Override
     public int getHeight() {
-        return this.height >= 0 ? this.height : TextureSizeHelper.getTextureHeight(this.baseTexture);
+        return this.height >= 0 ? this.height : DistExecutor.unsafeRunForDist(() -> () -> TextureSizeHelper.getTextureHeight(this.baseTexture), () -> () -> -1);
     }
 
     @Override
