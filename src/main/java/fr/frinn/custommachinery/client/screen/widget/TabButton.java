@@ -7,6 +7,8 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 public class TabButton extends Button {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/tabs.png");
@@ -17,8 +19,9 @@ public class TabButton extends Button {
         super(x, y, 28, 32, title, pressedAction, tooltip);
     }
 
+    @ParametersAreNonnullByDefault
     @Override
-    public void renderButton(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
         Minecraft.getInstance().getTextureManager().bindTexture(TEXTURE);
         if(this.isSelected)
             blit(matrix, this.x, this.y, 28, 0, 28, 32, 56, 32);

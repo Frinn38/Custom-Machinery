@@ -41,7 +41,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
                 20,
                 (button) -> this.machine.getAppearance().setType(((EnumButton<MachineAppearance.AppearanceType>)button).getValue()),
                 (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, mouseX, mouseY),
-                (value) -> new TranslationTextComponent("custommachinery.gui.machineappearance.appearance").appendString(" : ").append(new TranslationTextComponent("custommachinery.gui.machineappearance.type." + value.toString().toLowerCase(Locale.ENGLISH))),
+                (value) -> new TranslationTextComponent("custommachinery.gui.machineappearance.appearance").appendString(" : ").appendSibling(new TranslationTextComponent("custommachinery.gui.machineappearance.type." + value.toString().toLowerCase(Locale.ENGLISH))),
                 Arrays.asList(MachineAppearance.AppearanceType.values()),
                 this.machine.getAppearance().getType()
         ));

@@ -46,7 +46,7 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
                 String fluid = component.getFluidStack().getTranslationKey();
                 int amount = component.getFluidStack().getAmount();
                 int capacity = component.getCapacity();
-                screen.renderTooltip(matrix, new TranslationTextComponent(fluid).append(new TranslationTextComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
+                screen.renderTooltip(matrix, new TranslationTextComponent(fluid).appendSibling(new TranslationTextComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
             });
         });
     }

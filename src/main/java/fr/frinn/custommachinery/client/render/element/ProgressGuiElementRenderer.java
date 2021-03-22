@@ -56,6 +56,6 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
         AbstractGui.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
         FontRenderer font = Minecraft.getInstance().fontRenderer;
         ITextComponent time = new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()).mergeStyle(TextFormatting.DARK_GRAY);
-        font.func_243248_b(matrix, time, posX + width / 2 - font.getStringWidth(time.getString()) / 2, posY + height, 0);
+        font.drawText(matrix, time, posX + width / 2 - font.getStringWidth(time.getString()) / 2, posY + height, 0);
     }
 }
