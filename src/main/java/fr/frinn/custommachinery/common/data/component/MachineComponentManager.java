@@ -41,7 +41,7 @@ public class MachineComponentManager {
                 }
             }
         });
-        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.getValues().stream().filter(MachineComponentType::isDefaultComponent).forEach(type -> this.components.add(type.getComponentBuilder().apply(this)));
+        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(MachineComponentType::isDefaultComponent).forEach(type -> this.components.add(type.getComponentBuilder().apply(this)));
         this.tile = tile;
     }
 

@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public class MachineComponentType<T extends IMachineComponent> extends ForgeRegistryEntry<MachineComponentType<? extends IMachineComponent>> {
 
-    public static final Codec<MachineComponentType<? extends IMachineComponent>> CODEC = ResourceLocation.CODEC.xmap(Registration.MACHINE_COMPONENT_TYPE_REGISTRY::getValue, MachineComponentType::getRegistryName);
+    public static final Codec<MachineComponentType<? extends IMachineComponent>> CODEC = ResourceLocation.CODEC.xmap(Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get()::getValue, MachineComponentType::getRegistryName);
 
     private Codec<? extends IMachineComponentTemplate<T>> codec;
     private boolean isSingle = true;

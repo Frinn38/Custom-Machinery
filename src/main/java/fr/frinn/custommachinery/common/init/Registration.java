@@ -31,7 +31,9 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.*;
 
-@SuppressWarnings("unused")
+import java.util.function.Supplier;
+
+@SuppressWarnings({"unused", "unchecked", "rawtypes"})
 public class Registration {
 
     public static final ItemGroup GROUP = new ItemGroup(CustomMachinery.MODID) {
@@ -41,10 +43,6 @@ public class Registration {
         }
     };
 
-    public static final IForgeRegistry<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_REGISTRY = makeRegistry("gui_element_type", GuiElementType.class);
-    public static final IForgeRegistry<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_REGISTRY = makeRegistry("machine_component_type", MachineComponentType.class);
-    public static final IForgeRegistry<RequirementType<? extends IRequirement<?>>> REQUIREMENT_TYPE_REGISTRY = makeRegistry("requirement_type", RequirementType.class);
-
     public static final IRecipeType<CustomMachineRecipe> CUSTOM_MACHINE_RECIPE = new IRecipeType<CustomMachineRecipe>(){};
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, CustomMachinery.MODID);
@@ -52,9 +50,13 @@ public class Registration {
     public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, CustomMachinery.MODID);
     public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, CustomMachinery.MODID);
     public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, CustomMachinery.MODID);
-    public static final DeferredRegister<GuiElementType<? extends IGuiElement>> GUI_ELEMENTS = DeferredRegister.create(GUI_ELEMENT_TYPE_REGISTRY, CustomMachinery.MODID);
-    public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS = DeferredRegister.create(MACHINE_COMPONENT_TYPE_REGISTRY, CustomMachinery.MODID);
-    public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create(REQUIREMENT_TYPE_REGISTRY, CustomMachinery.MODID);
+    public static final DeferredRegister<GuiElementType<? extends IGuiElement>> GUI_ELEMENTS = DeferredRegister.create((Class)GuiElementType.class, CustomMachinery.MODID);
+    public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS = DeferredRegister.create((Class)MachineComponentType.class, CustomMachinery.MODID);
+    public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create((Class)RequirementType.class, CustomMachinery.MODID);
+
+    public static final Supplier<IForgeRegistry<GuiElementType<? extends IGuiElement>>> GUI_ELEMENT_TYPE_REGISTRY = GUI_ELEMENTS.makeRegistry("gui_element_type", RegistryBuilder::new);
+    public static final Supplier<IForgeRegistry<MachineComponentType<? extends IMachineComponent>>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry("machine_component_type", RegistryBuilder::new);
+    public static final Supplier<IForgeRegistry<RequirementType<? extends IRequirement<?>>>> REQUIREMENT_TYPE_REGISTRY = REQUIREMENTS.makeRegistry("requirement_type", RegistryBuilder::new);
 
     public static final RegistryObject<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", CustomMachineBlock::new);
 
@@ -92,12 +94,5 @@ public class Registration {
 
     public static void registerRecipeType(final RegistryEvent<IRecipeSerializer<?>> event) {
         Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CUSTOM_MACHINE_RECIPE);
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static <T extends IForgeRegistryEntry<T>> IForgeRegistry<T> makeRegistry(String name, Class type) {
-        final ResourceLocation REGISTRY_NAME = new ResourceLocation(CustomMachinery.MODID, name);
-        new RegistryBuilder<T>().setName(REGISTRY_NAME).setType(type).create();
-        return RegistryManager.ACTIVE.getRegistry(REGISTRY_NAME);
     }
 }

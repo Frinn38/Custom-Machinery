@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class GuiElementType<T extends IGuiElement> extends ForgeRegistryEntry<GuiElementType<? extends IGuiElement>> {
 
-    public static final Codec<GuiElementType<? extends IGuiElement>> CODEC = ResourceLocation.CODEC.xmap(Registration.GUI_ELEMENT_TYPE_REGISTRY::getValue, GuiElementType::getRegistryName);
+    public static final Codec<GuiElementType<? extends IGuiElement>> CODEC = ResourceLocation.CODEC.xmap(Registration.GUI_ELEMENT_TYPE_REGISTRY.get()::getValue, GuiElementType::getRegistryName);
 
     private Codec<T> codec;
     private Supplier<IGuiElementRenderer<T>> renderer;
