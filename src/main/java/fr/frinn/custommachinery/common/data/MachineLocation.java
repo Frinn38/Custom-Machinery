@@ -4,6 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.io.File;
 import java.util.Locale;
@@ -67,5 +70,24 @@ public class MachineLocation {
         KUBEJS;
 
         public static final Codec<Loader> CODEC = Codec.STRING.xmap(Loader::valueOf, Loader::toString).stable();
+
+        public TranslationTextComponent getTranslatedName() {
+            return new TranslationTextComponent("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        public int getColor() {
+            switch (this) {
+                case DEFAULT:
+                    return TextFormatting.BLACK.getColor();
+                case DATAPACK:
+                    return TextFormatting.DARK_GREEN.getColor();
+                case KUBEJS:
+                    return TextFormatting.DARK_PURPLE.getColor();
+                case CRAFTTWEAKER:
+                    return TextFormatting.DARK_AQUA.getColor();
+            }
+            return 0;
+        }
     }
 }

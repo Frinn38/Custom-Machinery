@@ -10,7 +10,9 @@
   "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
 
   "custommachinery.gui.baseinfo.name": "Name:",
+  "custommachinery.gui.baseinfo.namespace": "NameSpace:",
   "custommachinery.gui.baseinfo.id": "ID:",
+  "custommachinery.gui.baseinfo.packname": "Datapack:",
 
   "custommachinery.gui.machineappearance.appearance": "Appearance",
   "custommachinery.gui.machineappearance.type.block": "Block",
@@ -33,6 +35,11 @@
   "custommachinery.jei.fluid.amount": "Amount: %smB",
   "custommachinery.jei.ingredient.energy": "Energy: %sFE",
   "custommachinery.jei.recipe.time": "%sticks",
+
+  "custommachinery.machine.loader.default": "Default",
+  "custommachinery.machine.loader.datapack": "Datapack",
+  "custommachinery.machine.loader.crafttweaker": "CraftTweaker",
+  "custommachinery.machine.loader.kubejs": "KubeJS",
 
   "custommachinery.requirements.energy.error.input": "Not enough energy, %sFE needed but only %sFE found !",
   "custommachinery.requirements.energy.error.output": "Not enough space for storing %sFE !",

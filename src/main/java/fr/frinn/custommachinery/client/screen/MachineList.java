@@ -89,6 +89,8 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
                     Minecraft.getInstance().fontRenderer.drawString(matrix, this.machineBuilder.getName(), 0, 0, 0);
                 else
                     Minecraft.getInstance().fontRenderer.drawStringWithShadow(matrix, this.machineBuilder.getName(), 0, 0, Color.RED.getRGB());
+                matrix.scale(0.8F, 0.8F, 0.0F);
+                Minecraft.getInstance().fontRenderer.drawString(matrix, this.machineBuilder.getLocation().getLoader().getTranslatedName().getString(), 0, 11, this.machineBuilder.getLocation().getLoader().getColor());
                 matrix.pop();
             }
             else
