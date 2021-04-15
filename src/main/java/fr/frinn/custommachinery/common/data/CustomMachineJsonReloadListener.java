@@ -19,12 +19,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 public class CustomMachineJsonReloadListener extends JsonReloadListener {
 
     public static final Logger LOGGER = LogManager.getLogger("CustomMachinery/MachineLoader");
     public static final Gson GSON = (new GsonBuilder()).create();
+    public static final String MAIN_PACKNAME = "main";
 
     public CustomMachineJsonReloadListener() {
         super(GSON, "machines");
@@ -37,20 +40,30 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
 
         CustomMachinery.MACHINES.clear();
         map.forEach((id, json) -> {
-            LOGGER.info("Parsing " + id);
+            String packName;
+            try {
+                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).getPackName();
+                LOGGER.info("Found Custom Machine Json in datapack: " + packName);
+            } catch (IOException e) {
+                packName = MAIN_PACKNAME;
+            }
+            LOGGER.info("Parsing: " + id);
 
             if(!json.isJsonObject()) {
-                LOGGER.warn("Bad Machine JSON in : " + id);
+                LOGGER.warn("Bad Machine JSON in: " + id);
                 return;
             }
 
             if(CustomMachinery.MACHINES.containsKey(id)) {
-                LOGGER.warn("A machine with id : " + id + " already exists");
+                LOGGER.warn("A machine with id: " + id + " already exists, skipping...");
                 return;
             }
 
             CustomMachine machine = CustomMachine.CODEC.decode(JsonOps.INSTANCE, json).resultOrPartial(LOGGER::error).map(Pair::getFirst).orElseThrow(() -> new JsonParseException("Error while reading machine: " + id));
-            machine.setId(id);
+            if(packName.equals(MAIN_PACKNAME))
+                machine.setLocation(MachineLocation.fromDefault(id));
+            else
+                machine.setLocation(MachineLocation.fromDatapack(id, packName));
             CustomMachinery.MACHINES.put(id, machine);
         });
 

@@ -2,7 +2,9 @@ package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.util.FileUtils;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
@@ -30,6 +32,7 @@ public class CAddMachinePacket {
     public static void encode(CAddMachinePacket pkt, PacketBuffer buf) {
         buf.writeResourceLocation(pkt.id);
         try {
+            buf.func_240629_a_(MachineLocation.CODEC, pkt.machine.getLocation());
             buf.func_240629_a_(CustomMachine.CODEC, pkt.machine);
         } catch (IOException e) {
             e.printStackTrace();
@@ -42,7 +45,8 @@ public class CAddMachinePacket {
         ResourceLocation id = buf.readResourceLocation();
         CustomMachine machine = CustomMachine.DUMMY;
         try {
-            machine = buf.func_240628_a_(CustomMachine.CODEC);
+            MachineLocation location = buf.func_240628_a_(MachineLocation.CODEC);
+            machine = buf.func_240628_a_(CustomMachine.CODEC).setLocation(location);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,13 +58,13 @@ public class CAddMachinePacket {
     public void handle(Supplier<NetworkEvent.Context> context) {
         if (context.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
             ServerPlayerEntity player = context.get().getSender();
-            if(player != null && player.world.getServer() != null && (player.hasPermissionLevel(player.world.getServer().getOpPermissionLevel()) || player.isCreative()) && this.machine != CustomMachine.DUMMY)
+            if(player != null && player.world.getServer() != null && Utils.canPlayerManageMachines(player) && this.machine != CustomMachine.DUMMY)
             context.get().enqueueWork(() -> {
                 CustomMachinery.LOGGER.info("Player: " + player.getDisplayName().getString() + " added new Machine: " + id);
                 CustomMachinery.MACHINES.put(this.id, this.machine);
                 if(this.shouldReload)
                     NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
-                if(this.writeToFile)
+                if(this.writeToFile && this.machine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK)
                     FileUtils.writeMachineJSON(this.id, this.machine);
             });
         }

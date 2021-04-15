@@ -5,10 +5,13 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.Mode;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 public class Utils {
 
@@ -43,5 +46,9 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid Appearance Type: " + encoded + " " + e.getMessage());
         }
+    }
+
+    public static boolean canPlayerManageMachines(PlayerEntity player) {
+        return player.hasPermissionLevel(Objects.requireNonNull(player.getServer()).getOpPermissionLevel());
     }
 }

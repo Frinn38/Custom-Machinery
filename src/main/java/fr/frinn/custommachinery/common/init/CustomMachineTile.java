@@ -159,6 +159,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     /**SYNCING STUFF**/
 
     private void sync() {
+        world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
         if(world != null) {
             this.trackingPlayers.forEach(player -> NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateCustomTilePacket(this.getPos(), this.getUpdateTag())));
         }

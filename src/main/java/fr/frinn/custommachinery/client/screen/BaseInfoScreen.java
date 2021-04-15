@@ -10,6 +10,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.regex.Pattern;
 
 public class BaseInfoScreen extends MachineCreationTabScreen {
 
@@ -42,8 +43,9 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
                 20,
                 StringTextComponent.EMPTY
         ));
-        this.idPrompt.setText(this.machine.getId().getPath());
-        this.idPrompt.setResponder(id -> this.machine.setId(new ResourceLocation(this.machine.getId().getNamespace(), id)));
+        this.idPrompt.setValidator(ResourceLocation::isResouceNameValid);
+        this.idPrompt.setText(this.machine.getLocation().getId().getPath());
+        this.idPrompt.setResponder(id -> this.machine.setId(new ResourceLocation(this.machine.getLocation().getId().getNamespace(), id)));
     }
 
     @ParametersAreNonnullByDefault

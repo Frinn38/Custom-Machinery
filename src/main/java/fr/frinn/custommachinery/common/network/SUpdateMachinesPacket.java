@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
@@ -27,6 +28,7 @@ public class SUpdateMachinesPacket {
         pkt.machines.forEach((id, machine) -> {
             try {
                 buf.writeResourceLocation(id);
+                buf.func_240629_a_(MachineLocation.CODEC, machine.getLocation());
                 buf.func_240629_a_(CustomMachine.CODEC, machine);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -40,8 +42,9 @@ public class SUpdateMachinesPacket {
         for(int i = 0; i < size; i++) {
             try {
                 ResourceLocation id = buf.readResourceLocation();
+                MachineLocation location = buf.func_240628_a_(MachineLocation.CODEC);
                 CustomMachine machine = buf.func_240628_a_(CustomMachine.CODEC);
-                machine.setId(id);
+                machine.setLocation(location);
                 map.put(id, machine);
             } catch (IOException e) {
                 e.printStackTrace();

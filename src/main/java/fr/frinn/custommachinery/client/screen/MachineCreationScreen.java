@@ -67,14 +67,11 @@ public class MachineCreationScreen extends Screen {
     public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrix);
 
-        if(this.selectedTab == null)
-            this.selectedTab = this.baseInfoScreen;
-
-        this.selectedTab.render(matrix, mouseX, mouseY, partialTicks);
-
         super.render(matrix, mouseX, mouseY, partialTicks);
 
-
+        if(this.selectedTab == null)
+            this.selectedTab = this.baseInfoScreen;
+        this.selectedTab.render(matrix, mouseX, mouseY, partialTicks);
     }
 
     @ParametersAreNonnullByDefault

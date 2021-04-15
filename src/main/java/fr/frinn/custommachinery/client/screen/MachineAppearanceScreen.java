@@ -111,7 +111,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
         this.blockStatePrompt.render(matrix, mouseX, mouseY, partialTicks);
 
         ItemStack item = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
-        item.getOrCreateTag().putString("id", this.machine.getId().toString());
+        item.getOrCreateTag().putString("id", this.machine.getLocation().getId().toString());
 
         int scale = 2;
         int x = this.xPos + 128 - 8 * scale;

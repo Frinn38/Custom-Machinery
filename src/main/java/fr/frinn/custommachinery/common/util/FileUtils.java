@@ -20,48 +20,45 @@ import java.io.IOException;
 
 public class FileUtils {
 
-    public static void writeMachineJSON(ResourceLocation id, CustomMachine machine) {
+    public static boolean writeMachineJSON(ResourceLocation id, CustomMachine machine) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null) {
             DataResult<JsonElement> result = CustomMachine.CODEC.encodeStart(JsonOps.INSTANCE, machine);
             JsonElement json = result.resultOrPartial(CustomMachinery.LOGGER::error).orElseThrow(() -> new JsonParseException("Error while writing custom machine: " + id + " to JSON"));
             try {
-                String path;
-                if(!id.getNamespace().equals(CustomMachinery.MODID)) {
-                    path = server.func_240776_a_(FolderName.DATAPACKS) + "\\" + id.getNamespace() + "\\machines\\" + id.getPath() + ".json";
-                    path = path.substring(2);
-                } else {
-                    path = server.getDataDirectory().getPath() + "\\Custom Machines\\" + id.getPath() + ".json";
-                }
-
-                File file = new File(path);
+                File file = getCustomMachineJson(server, id);
                 file.getParentFile().mkdirs();
-                CustomMachinery.LOGGER.info("Writing machine: " + id + " to: " + file);
+                CustomMachinery.LOGGER.info("Writing machine: " + id + " to: " + file.getPath());
                 if(file.exists() || file.createNewFile()) {
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     JsonWriter writer = gson.newJsonWriter(new FileWriter(file));
                     gson.toJson(json, writer);
                     writer.close();
+                    return true;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        return false;
     }
 
-    public static void deleteMachineJSON(ResourceLocation id) {
+    public static boolean deleteMachineJSON(ResourceLocation id) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null) {
-            String path;
-            if(id.getNamespace().equals(CustomMachinery.MODID))
-                path = server.getDataDirectory().getPath() + "\\Custom Machines\\" + id.getPath() + ".json";
+            File file = getCustomMachineJson(server, id);
+            if (file.exists() && file.delete()) {
+                CustomMachinery.LOGGER.info("Deleting Custom Machine: " + file.getPath());
+                return true;
+            }
             else
-                path = server.func_240776_a_(FolderName.DATAPACKS) + "\\" + id.getNamespace() + "\\machines\\" + id.getPath() + ".json";
-            File file = new File(path);
-            if (file.exists() && file.delete())
-                CustomMachinery.LOGGER.info("Deleting Custom Machine: " + path);
-            else
-                CustomMachinery.LOGGER.info("Cannot delete Custom Machine: " + path);
+                CustomMachinery.LOGGER.info("Cannot delete Custom Machine: " + file.getPath());
         }
+        return false;
+    }
+
+    public static File getCustomMachineJson(MinecraftServer server, ResourceLocation id) {
+        String path = server.func_240776_a_(FolderName.DATAPACKS) + File.separator + id.getNamespace() + File.separator + "machines" + File.separator + id.getPath() + ".json";
+        return new File(path);
     }
 }

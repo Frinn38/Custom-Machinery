@@ -24,13 +24,14 @@ public class CustomMachine {
     );
 
     public static final CustomMachine DUMMY = new CustomMachine("Dummy", MachineAppearance.DUMMY, ImmutableList.of(), new ArrayList<>())
-            .setId(new ResourceLocation(CustomMachinery.MODID + "dummy"));
+            .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID + "dummy")));
 
-    private ResourceLocation id;
     private String name;
     private MachineAppearance appearance;
     private List<IGuiElement> guiElements;
     private List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates;
+    private MachineLocation location;
+
 
     public CustomMachine(String name, MachineAppearance appearance, List<IGuiElement> guiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
         this.name = name;
@@ -39,13 +40,8 @@ public class CustomMachine {
         this.componentTemplates = componentTemplates;
     }
 
-    public CustomMachine setId(ResourceLocation id) {
-        this.id = id;
-        return this;
-    }
-
     public ResourceLocation getId() {
-        return this.id;
+        return this.location.getId();
     }
 
     public void setName(String name) {
@@ -66,5 +62,14 @@ public class CustomMachine {
 
     public List<IMachineComponentTemplate<? extends IMachineComponent>> getComponentTemplates() {
         return this.componentTemplates;
+    }
+
+    public CustomMachine setLocation(MachineLocation location) {
+        this.location = location;
+        return this;
+    }
+
+    public MachineLocation getLocation() {
+        return this.location;
     }
 }
