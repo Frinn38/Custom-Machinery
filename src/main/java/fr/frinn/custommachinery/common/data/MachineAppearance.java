@@ -9,6 +9,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -63,7 +64,7 @@ public class MachineAppearance {
         this.itemTexture = itemTexture;
         this.sound = sound;
         this.lightMode = lightMode;
-        this.lightLevel = lightLevel;
+        this.lightLevel = MathHelper.clamp(lightLevel, 0, 15);
         if(this.type == AppearanceType.DEFAULT) {
             if (this.blockstate != null && this.blockstate != DEFAULT_BLOCKSTATE)
                 this.type = AppearanceType.BLOCKSTATE;
