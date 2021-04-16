@@ -59,7 +59,7 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
                 energy.extractRecipeEnergy(this.amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.input", this.amount, canExtract));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.error.input", this.amount, canExtract));
         }
         return CraftingResult.pass();
     }
@@ -72,7 +72,7 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
                 energy.receiveRecipeEnergy(this.amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.input", this.amount));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.error.output", this.amount));
         }
         return CraftingResult.pass();
     }
