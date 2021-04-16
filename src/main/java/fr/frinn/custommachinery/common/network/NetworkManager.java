@@ -17,6 +17,7 @@ public class NetworkManager {
         CHANNEL.registerMessage(0, SUpdateMachinesPacket.class, SUpdateMachinesPacket::encode, SUpdateMachinesPacket::decode, SUpdateMachinesPacket::handle);
         CHANNEL.registerMessage(1, SCraftingManagerErrorPacket.class, SCraftingManagerErrorPacket::encode, SCraftingManagerErrorPacket::decode, SCraftingManagerErrorPacket::handle);
         CHANNEL.registerMessage(2, SUpdateCustomTilePacket.class, SUpdateCustomTilePacket::encode, SUpdateCustomTilePacket::decode, SUpdateCustomTilePacket::handle);
-        CHANNEL.registerMessage(3, CAddMachinePacket.class, CAddMachinePacket::encode, CAddMachinePacket::decode, CAddMachinePacket::handle);
+        CHANNEL.registerMessage(3, SUpdateCustomTileLightPacket.class, SUpdateCustomTileLightPacket::encode, SUpdateCustomTileLightPacket::decode, SUpdateCustomTileLightPacket::handle);
+        CHANNEL.registerMessage(4, CAddMachinePacket.class, CAddMachinePacket::encode, CAddMachinePacket::decode, CAddMachinePacket::handle);
     }
 }

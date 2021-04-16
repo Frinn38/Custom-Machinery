@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import net.minecraft.block.Block;
@@ -102,6 +103,16 @@ public class CustomMachineBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         return getDefaultState().with(BlockStateProperties.HORIZONTAL_FACING, context.getPlacementHorizontalFacing());
+    }
+
+    @Override
+    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof CustomMachineTile) {
+            CustomMachineTile machineTile = (CustomMachineTile)tile;
+            return machineTile.getLightValue();
+        }
+        return 0;
     }
 
     @Override

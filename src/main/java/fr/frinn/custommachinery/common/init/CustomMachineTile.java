@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
+import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTilePacket;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
@@ -159,8 +160,9 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     /**SYNCING STUFF**/
 
     private void sync() {
-        world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
         if(world != null) {
+            if(this.needRefreshLightning())
+                this.refreshLightning();
             this.trackingPlayers.forEach(player -> NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateCustomTilePacket(this.getPos(), this.getUpdateTag())));
         }
         markDirty();
@@ -179,6 +181,32 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Override
     public CompoundNBT getUpdateTag() {
         return this.write(new CompoundNBT());
+    }
+
+    /**LIGHTNING STUFF**/
+
+    private void refreshLightning() {
+        if(world != null && !world.isRemote) {
+            this.changeLightState();
+            NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunk(pos.getX() / 16, pos.getZ() / 16)), new SUpdateCustomTileLightPacket(pos));
+        }
+
+    }
+
+    private boolean emmitLight = false;
+    public void changeLightState() {
+        this.emmitLight = !this.emmitLight;
+        if(world != null)world.getChunkProvider().getLightManager().checkBlock(pos);
+    }
+
+    private boolean needRefreshLightning() {
+        return (getMachine().getAppearance().getLightMode() == MachineAppearance.LightMode.ALWAYS || getMachine().getAppearance().getLightMode().toString().equals(this.craftingManager.getStatus().toString())) != emmitLight;
+    }
+
+    public int getLightValue() {
+        if(this.emmitLight)
+            return getMachine().getAppearance().getLightLevel();
+        else return 0;
     }
 
     /**CONTAINER STUFF**/
