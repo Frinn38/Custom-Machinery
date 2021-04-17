@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.Utils;
 import mezz.jei.api.gui.handlers.IGuiProperties;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -76,5 +77,16 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
 
     public CustomMachineTile getTile() {
         return this.tile;
+    }
+
+    @SuppressWarnings("deprecation")
+    public void renderTransparentItem(MatrixStack matrix, ItemStack stack, int posX, int posY) {
+        RenderSystem.pushMatrix();
+        RenderSystem.multMatrix(matrix.getLast().getMatrix());
+        this.itemRenderer.renderItemAndEffectIntoGUI(stack, posX, posY);
+        RenderSystem.popMatrix();
+        RenderSystem.depthFunc(516);
+        AbstractGui.fill(matrix, posX, posY, posX + 16, posY + 16, 822083583);
+        RenderSystem.depthFunc(515);
     }
 }

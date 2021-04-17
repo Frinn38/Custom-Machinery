@@ -5,6 +5,8 @@ import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
 public class SlotGuiElementRenderer implements IGuiElementRenderer<SlotGuiElement> {
 
@@ -17,6 +19,9 @@ public class SlotGuiElementRenderer implements IGuiElementRenderer<SlotGuiElemen
 
         Minecraft.getInstance().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
+        if(element.getItem() != Items.AIR) {
+            screen.renderTransparentItem(matrix, new ItemStack(element.getItem()), posX + 1, posY + 1);
+        }
     }
 
     @Override
