@@ -106,11 +106,12 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public ItemStack insertItem(int index, @Nonnull ItemStack stack, boolean simulate) {
         ItemMachineComponent component = this.getComponents().get(index);
         int maxInsert = component.getSpaceForItem(stack);
+        int toInsert = Math.min(maxInsert, stack.getCount());
         if(!simulate) {
-            component.insert(stack.getItem(), maxInsert);
+            component.insert(stack.getItem(), toInsert);
             this.getManager().markDirty();
         }
-        return new ItemStack(stack.getItem(), stack.getCount() - maxInsert);
+        return new ItemStack(stack.getItem(), stack.getCount() - toInsert);
     }
 
     @Nonnull
