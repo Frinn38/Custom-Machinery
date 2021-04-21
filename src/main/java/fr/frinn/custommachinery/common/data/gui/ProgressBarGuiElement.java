@@ -20,11 +20,9 @@ public class ProgressBarGuiElement extends AbstractGuiElement {
                     Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
                     Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    ResourceLocation.CODEC.optionalFieldOf("emptyTexture").forGetter(gui -> Optional.of(gui.getEmptyTexture())),
-                    ResourceLocation.CODEC.optionalFieldOf("filledTexture").forGetter(gui -> Optional.of(gui.getFilledTexture()))
-            ).apply(progressGuiElementCodec, (x, y, width, height, priority, empty, filled) ->
-                    new ProgressBarGuiElement(x, y, width, height, priority, empty.orElse(BASE_EMPTY_TEXTURE), filled.orElse(BASE_FILLED_TEXTURE))
-            )
+                    ResourceLocation.CODEC.optionalFieldOf("emptyTexture", BASE_EMPTY_TEXTURE).forGetter(ProgressBarGuiElement::getEmptyTexture),
+                    ResourceLocation.CODEC.optionalFieldOf("filledTexture", BASE_FILLED_TEXTURE).forGetter(ProgressBarGuiElement::getFilledTexture)
+            ).apply(progressGuiElementCodec, ProgressBarGuiElement::new)
     );
 
     private ResourceLocation emptyTexture;

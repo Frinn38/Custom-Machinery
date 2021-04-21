@@ -65,7 +65,7 @@ public class CAddMachinePacket {
                 if(this.shouldReload)
                     NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
                 if(this.writeToFile && this.machine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK)
-                    FileUtils.writeMachineJSON(this.id, this.machine);
+                    FileUtils.writeMachineJSON(this.machine);
             });
         }
         context.get().setPacketHandled(true);

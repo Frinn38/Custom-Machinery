@@ -19,10 +19,8 @@ public class PlayerInventoryGuiElement extends AbstractGuiElement {
                     Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
                     Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    ResourceLocation.CODEC.optionalFieldOf("texture").forGetter(element -> Optional.of(element.getTexture()))
-            ).apply(playerInventoryGuiElementInstance, (x, y, width, height, priority, texture) ->
-                    new PlayerInventoryGuiElement(x, y, width, height, priority, texture.orElse(BASE_PLAYER_INVENTORY_TEXTURE))
-            )
+                    ResourceLocation.CODEC.optionalFieldOf("texture", BASE_PLAYER_INVENTORY_TEXTURE).forGetter(PlayerInventoryGuiElement::getTexture)
+            ).apply(playerInventoryGuiElementInstance, PlayerInventoryGuiElement::new)
     );
 
     private ResourceLocation texture;

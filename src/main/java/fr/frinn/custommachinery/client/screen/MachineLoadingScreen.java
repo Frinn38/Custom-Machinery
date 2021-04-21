@@ -153,7 +153,7 @@ public class MachineLoadingScreen extends Screen {
             this.machineList.removeMachineEntry(machineToDelete);
             this.machineCreationScreens.remove(machineToDelete);
             if(machineToDelete.getLocation().getLoader() == MachineLocation.Loader.DATAPACK)
-                FileUtils.deleteMachineJSON(machineToDelete.getLocation().getId());
+                FileUtils.deleteMachineJSON(machineToDelete.getLocation());
         }
     }
 

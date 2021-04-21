@@ -20,9 +20,8 @@ public class FluidGuiElement extends AbstractGuiElement {
                     Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("id").forGetter(FluidGuiElement::getId),
-                    ResourceLocation.CODEC.optionalFieldOf("texture").forGetter(element -> Optional.of(element.getTexture()))
-            ).apply(fluidGuiElementInstance, (x, y, width, height, priority, id, texture) ->
-                    new FluidGuiElement(x, y, width, height, priority, id, texture.orElse(BASE_FLUID_STORAGE_TEXTURE)))
+                    ResourceLocation.CODEC.optionalFieldOf("texture", BASE_FLUID_STORAGE_TEXTURE).forGetter(FluidGuiElement::getTexture)
+            ).apply(fluidGuiElementInstance, FluidGuiElement::new)
     );
 
     private String id;

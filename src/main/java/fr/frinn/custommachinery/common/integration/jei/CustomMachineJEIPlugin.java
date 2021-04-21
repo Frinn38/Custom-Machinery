@@ -29,6 +29,7 @@ public class CustomMachineJEIPlugin implements IModPlugin {
         return PLUGIN_ID;
     }
 
+    @ParametersAreNonnullByDefault
     @Override
     public void registerCategories(IRecipeCategoryRegistration registry) {
         CustomMachinery.MACHINES.forEach((id, machine) -> registry.addRecipeCategories(new CustomMachineRecipeCategory(machine, registry.getJeiHelpers().getGuiHelper())));

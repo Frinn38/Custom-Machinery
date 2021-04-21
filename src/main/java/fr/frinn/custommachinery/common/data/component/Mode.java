@@ -33,4 +33,9 @@ public enum Mode {
     public static Mode value(String value) {
         return valueOf(value.toUpperCase(Locale.ENGLISH));
     }
+
+    @Override
+    public String toString() {
+        return super.toString().toLowerCase(Locale.ENGLISH);
+    }
 }

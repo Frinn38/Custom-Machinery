@@ -22,9 +22,9 @@ public class MachineAppearance {
     private static final Codec<AppearanceType> APPEARANCE_TYPE_CODEC = Codec.STRING.xmap(AppearanceType::value, AppearanceType::toString).stable();
     private static final Codec<LightMode> LIGHT_MODE_CODEC = Codec.STRING.xmap(LightMode::value, LightMode::toString).stable();
 
-    public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation("minecraft", "block/furnace_on");
-    public static final Block DEFAULT_BLOCK = Blocks.FURNACE;
-    public static final ModelResourceLocation DEFAULT_BLOCKSTATE = new ModelResourceLocation("minecraft:furnace", "facing=north,lit=true");
+    public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation("minecraft", "block/missing");
+    public static final Block DEFAULT_BLOCK = Blocks.AIR;
+    public static final ModelResourceLocation DEFAULT_BLOCKSTATE = new ModelResourceLocation("minecraft:air", "");
     public static final ResourceLocation DEFAULT_ITEM = new ResourceLocation("");
     public static final SoundEvent DEFAULT_SOUND = new SoundEvent(new ResourceLocation(""));
     public static final LightMode DEFAULT_LIGHT_MODE = LightMode.NEVER;
@@ -117,6 +117,11 @@ public class MachineAppearance {
         public static AppearanceType value(String value) {
             return valueOf(value.toUpperCase(Locale.ENGLISH));
         }
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase(Locale.ENGLISH);
+        }
     }
 
     public enum LightMode {
@@ -128,6 +133,11 @@ public class MachineAppearance {
 
         public static LightMode value(String value) {
             return valueOf(value.toUpperCase(Locale.ENGLISH));
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase(Locale.ENGLISH);
         }
     }
 }

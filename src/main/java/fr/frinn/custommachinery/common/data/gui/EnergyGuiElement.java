@@ -19,10 +19,8 @@ public class EnergyGuiElement extends AbstractGuiElement {
                     Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
                     Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
                     Codec.INT.optionalFieldOf("priority", -1).forGetter(AbstractGuiElement::getPriority),
-                    ResourceLocation.CODEC.optionalFieldOf("texture").forGetter(element -> Optional.of(element.getTexture()))
-            ).apply(energyGuiElementCodec, (x, y, width, height, priority, texture) ->
-                    new EnergyGuiElement(x, y, width, height, priority, texture.orElse(BASE_ENERGY_STORAGE_TEXTURE))
-            )
+                    ResourceLocation.CODEC.optionalFieldOf("texture", BASE_ENERGY_STORAGE_TEXTURE).forGetter(EnergyGuiElement::getTexture)
+            ).apply(energyGuiElementCodec, EnergyGuiElement::new)
     );
 
     private ResourceLocation texture;
