@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.ITickableRequiremen
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Utils;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -35,6 +36,7 @@ public class CraftingManager {
     }
 
     public void tick() {
+        List<CustomMachineRecipe> recipes = this.tile.getWorld().getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE);
         if(this.currentRecipe == null) {
             this.recipeProgressTime = 0;
             CustomMachineRecipe recipe = this.findRecipe();
@@ -122,7 +124,7 @@ public class CraftingManager {
                 .stream()
                 .filter(recipe -> recipe.getMachine().equals(this.tile.getMachine().getId()))
                 .filter(recipe -> recipe.matches(this.tile))
-                .findFirst()
+                .max(Utils.CUSTOM_MACHINE_RECIPE_COMPARATOR)
                 .orElse(null);
     }
 

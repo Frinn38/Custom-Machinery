@@ -18,12 +18,14 @@ public class CustomMachineRecipe extends DummyRecipe {
     private ResourceLocation machine;
     private int time;
     private List<IRequirement<?>> requirements;
+    private int priority;
 
-    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements) {
+    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, int priority) {
         this.id = id;
         this.machine = machine;
         this.time = time;
         this.requirements = requirements;
+        this.priority = priority;
     }
 
     public ResourceLocation getMachine() {
@@ -59,6 +61,10 @@ public class CustomMachineRecipe extends DummyRecipe {
             }
             else return false;
         });
+    }
+
+    public int getPriority() {
+        return this.priority;
     }
 
     @Override

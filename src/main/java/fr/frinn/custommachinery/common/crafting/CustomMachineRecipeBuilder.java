@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import net.minecraft.util.ResourceLocation;
 
@@ -12,38 +14,61 @@ import java.util.stream.Stream;
 
 public class CustomMachineRecipeBuilder {
 
+    public static final Codec<CustomMachineRecipeBuilder> CODEC = RecordCodecBuilder.create(recipeBuilderInstance -> recipeBuilderInstance.group(
+            ResourceLocation.CODEC.fieldOf("machine").forGetter(builder -> builder.machine),
+            Codec.INT.fieldOf("time").forGetter(builder -> builder.time),
+            IRequirement.CODEC.listOf().optionalFieldOf("requirements", new ArrayList<>()).forGetter(builder -> builder.requirements),
+            Codec.INT.optionalFieldOf("priority", 0).forGetter(builder -> builder.priority)
+    ).apply(recipeBuilderInstance, (machine, time, requirements, priority) -> {
+        CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
+        requirements.forEach(builder::withRequirement);
+        builder.withPriority(priority);
+        return builder;
+    }));
+
     private ResourceLocation id;
     private ResourceLocation machine;
     private int time;
-    private List<IRequirement<?>> inputRequirements = new ArrayList<>();
-    private List<IRequirement<?>> outputRequirements = new ArrayList<>();
+    private List<IRequirement<?>> requirements = new ArrayList<>();
+    private int priority = 0;
 
-    public CustomMachineRecipeBuilder withId(ResourceLocation id) {
+    public CustomMachineRecipeBuilder(ResourceLocation id, ResourceLocation machine, int time) {
         this.id = id;
-        return this;
-    }
-
-    public CustomMachineRecipeBuilder withMachine(ResourceLocation machine) {
         this.machine = machine;
-        return this;
+        this.time = time;
     }
 
-    public CustomMachineRecipeBuilder withTime(int time) {
+    public CustomMachineRecipeBuilder(ResourceLocation machine, int time) {
+        this.machine = machine;
         this.time = time;
-        return this;
+    }
+
+    public CustomMachineRecipeBuilder(CustomMachineRecipe recipe) {
+        this.id = recipe.getId();
+        this.machine = recipe.getMachine();
+        this.time = recipe.getRecipeTime();
+        this.requirements = recipe.getRequirements();
+        this.priority = recipe.getPriority();
     }
 
     public CustomMachineRecipeBuilder withRequirement(IRequirement<?> requirement) {
-        if(requirement.getMode() == IRequirement.MODE.INPUT)
-            this.inputRequirements.add(requirement);
-        else
-            this.outputRequirements.add(requirement);
+        this.requirements.add(requirement);
+        return this;
+    }
+
+    public CustomMachineRecipeBuilder withPriority(int priority) {
+        this.priority = priority;
         return this;
     }
 
     public CustomMachineRecipe build() {
-        List<IRequirement<?>> requirements = Lists.newArrayList(this.inputRequirements);
-        requirements.addAll(this.outputRequirements);
-        return new CustomMachineRecipe(this.id, this.machine, this.time, requirements);
+        if(this.id == null)
+            throw new IllegalStateException("Trying to build a Custom Machine Recipe without ID !");
+        return new CustomMachineRecipe(this.id, this.machine, this.time, this.requirements, this.priority);
+    }
+
+    public CustomMachineRecipe build(ResourceLocation id) {
+        this.id = id;
+        return this.build();
     }
 }
