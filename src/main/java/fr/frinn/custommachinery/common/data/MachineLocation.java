@@ -88,7 +88,7 @@ public class MachineLocation {
         }
 
         public static Loader value(String value) {
-            return valueOf(value.toLowerCase(Locale.ENGLISH));
+            return valueOf(value.toUpperCase(Locale.ENGLISH));
         }
 
         @Override
