@@ -19,15 +19,13 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
 
-    public static final ResourceLocation TYPE = new ResourceLocation(CustomMachinery.MODID, "item");
-
     @SuppressWarnings("deprecation")
     public static final Codec<ItemRequirement> CODEC = RecordCodecBuilder.create(itemRequirementInstance ->
             itemRequirementInstance.group(
-                    Codec.STRING.fieldOf("mode").forGetter(requirement -> requirement.getMode().toString()),
+                    MODE.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Registry.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
-            ).apply(itemRequirementInstance, (mode, item, amount) -> new ItemRequirement(MODE.value(mode), item, amount))
+            ).apply(itemRequirementInstance, ItemRequirement::new)
     );
 
     private Item item;

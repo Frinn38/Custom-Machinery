@@ -35,8 +35,15 @@ public interface IRequirement<T extends IMachineComponent> {
         INPUT,
         OUTPUT;
 
+        public static final Codec<MODE> CODEC = Codec.STRING.xmap(MODE::value, MODE::toString).stable();
+
         static MODE value(String mode) {
             return valueOf(mode.toUpperCase(Locale.ENGLISH));
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase(Locale.ENGLISH);
         }
     }
 }

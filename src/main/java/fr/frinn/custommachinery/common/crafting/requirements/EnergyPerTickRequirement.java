@@ -16,9 +16,9 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
 
     public static final Codec<EnergyPerTickRequirement> CODEC = RecordCodecBuilder.create(energyPerTickRequirementInstance ->
             energyPerTickRequirementInstance.group(
-                    Codec.STRING.fieldOf("mode").forGetter(requirement -> requirement.getMode().toString()),
+                    MODE.CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
-            ).apply(energyPerTickRequirementInstance, (mode, amount) -> new EnergyPerTickRequirement(MODE.value(mode), amount))
+            ).apply(energyPerTickRequirementInstance, EnergyPerTickRequirement::new)
     );
 
     private int amount;

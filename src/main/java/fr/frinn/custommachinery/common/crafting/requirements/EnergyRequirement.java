@@ -16,9 +16,9 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
 
     public static final Codec<EnergyRequirement> CODEC = RecordCodecBuilder.create(energyRequirementInstance ->
             energyRequirementInstance.group(
-                    Codec.STRING.fieldOf("mode").forGetter(requirement -> requirement.getMode().toString()),
+                    MODE.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
-            ).apply(energyRequirementInstance, (mode, amount) -> new EnergyRequirement(MODE.value(mode), amount))
+            ).apply(energyRequirementInstance, EnergyRequirement::new)
     );
 
     private int amount;

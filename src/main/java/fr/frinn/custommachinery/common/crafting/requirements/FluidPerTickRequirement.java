@@ -19,10 +19,10 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     @SuppressWarnings("deprecation")
     public static final Codec<FluidPerTickRequirement> CODEC = RecordCodecBuilder.create(fluidPerTickRequirementInstance ->
             fluidPerTickRequirementInstance.group(
-                    Codec.STRING.fieldOf("mode").forGetter(requirement -> requirement.getMode().toString()),
+                    MODE.CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
                     Registry.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
-            ).apply(fluidPerTickRequirementInstance, (mode, fluid, amount) -> new FluidPerTickRequirement(MODE.value(mode), fluid, amount))
+            ).apply(fluidPerTickRequirementInstance, FluidPerTickRequirement::new)
     );
 
     private Fluid fluid;

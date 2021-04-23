@@ -19,10 +19,10 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     @SuppressWarnings("deprecation")
     public static final Codec<FluidRequirement> CODEC = RecordCodecBuilder.create(fluidRequirementInstance ->
             fluidRequirementInstance.group(
-                    Codec.STRING.fieldOf("mode").forGetter(requirement -> requirement.getMode().toString()),
+                    MODE.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Registry.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
-            ).apply(fluidRequirementInstance, (mode, fluid, amount) -> new FluidRequirement(MODE.value(mode), fluid, amount))
+            ).apply(fluidRequirementInstance, FluidRequirement::new)
     );
 
     private Fluid fluid;
