@@ -6,8 +6,6 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.Optional;
-
 public class ProgressBarGuiElement extends AbstractGuiElement {
 
     private static final ResourceLocation BASE_EMPTY_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_progress_empty.png");

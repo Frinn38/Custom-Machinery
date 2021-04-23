@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.TextureGuiElement;
 import net.minecraft.client.Minecraft;

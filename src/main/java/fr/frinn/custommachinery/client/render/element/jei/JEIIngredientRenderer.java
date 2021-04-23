@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import net.minecraft.client.util.ITooltipFlag;

@@ -11,7 +11,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.regex.Pattern;
 
 public class BaseInfoScreen extends MachineCreationTabScreen {
 

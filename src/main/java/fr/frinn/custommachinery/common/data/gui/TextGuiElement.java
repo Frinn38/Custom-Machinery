@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 
 import java.util.Locale;
-import java.util.Optional;
 
 public class TextGuiElement extends AbstractGuiElement {
 

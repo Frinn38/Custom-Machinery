@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
-import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.item.crafting.IRecipeSerializer;

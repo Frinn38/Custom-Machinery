@@ -1,6 +1,9 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.common.data.component.*;
+import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
+import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
+import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
+import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import mcjty.theoneprobe.api.IProbeInfo;

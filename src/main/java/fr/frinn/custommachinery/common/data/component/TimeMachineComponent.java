@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.common.init.Registration;
-import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
 
 public class TimeMachineComponent extends AbstractMachineComponent {

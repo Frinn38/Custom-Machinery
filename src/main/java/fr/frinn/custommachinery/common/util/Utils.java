@@ -7,8 +7,6 @@ import fr.frinn.custommachinery.common.data.component.Mode;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 
 import java.util.Comparator;

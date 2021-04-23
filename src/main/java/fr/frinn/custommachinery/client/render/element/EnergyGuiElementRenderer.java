@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.client.render.element;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
 import net.minecraft.client.Minecraft;

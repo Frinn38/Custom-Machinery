@@ -5,8 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.Optional;
-
 public class TextureGuiElement extends AbstractGuiElement {
 
     public static final Codec<TextureGuiElement> CODEC = RecordCodecBuilder.create(textureGuiElementCodec ->
