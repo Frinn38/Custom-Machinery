@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TimeComparator;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
@@ -17,7 +18,7 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> {
 
     public static final Codec<TimeRequirement> CODEC = RecordCodecBuilder.create(timeRequirementInstance ->
             timeRequirementInstance.group(
-                   TimeComparator.CODEC.listOf().fieldOf("times").forGetter(requirement -> requirement.times)
+                    Codecs.TIME_COMPARATOR_CODEC.listOf().fieldOf("times").forGetter(requirement -> requirement.times)
             ).apply(timeRequirementInstance, TimeRequirement::new)
     );
 

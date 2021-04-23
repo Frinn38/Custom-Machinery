@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.data.gui;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
 
 import java.util.Locale;
 
@@ -14,7 +15,7 @@ public class TextGuiElement extends AbstractGuiElement {
                     Codec.INT.fieldOf("y").forGetter(AbstractGuiElement::getY),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("text").forGetter(TextGuiElement::getText),
-                    Alignment.CODEC.optionalFieldOf("alignment", Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
+                    Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment",Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
                     Codec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor)
             ).apply(textGuiElementCodec, TextGuiElement::new)
     );
@@ -51,8 +52,6 @@ public class TextGuiElement extends AbstractGuiElement {
         LEFT,
         CENTER,
         RIGHT;
-
-        public static final Codec<Alignment> CODEC = Codec.STRING.xmap(Alignment::value, Alignment::toString).stable();
 
         public static Alignment value(String value) {
             return valueOf(value.toUpperCase(Locale.ENGLISH));

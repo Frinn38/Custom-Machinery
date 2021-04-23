@@ -1,14 +1,11 @@
 package fr.frinn.custommachinery.common.util;
 
-import com.mojang.serialization.Codec;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Arrays;
 
 public class PositionComparator {
-
-    public static final Codec<PositionComparator> CODEC = Codec.STRING.xmap(PositionComparator::new, PositionComparator::toString).stable();
 
     private Direction.Axis axis;
     private MODE mode;

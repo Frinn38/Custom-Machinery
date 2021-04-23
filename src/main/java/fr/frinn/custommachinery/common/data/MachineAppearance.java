@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.common.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.common.util.ClientUtils;
-import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -18,10 +18,6 @@ import java.util.Locale;
 
 public class MachineAppearance {
 
-    private static final Codec<ModelResourceLocation> MODEL_RESOURCE_LOCATION_CODEC = Codec.STRING.comapFlatMap(Utils::decodeModelResourceLocation, ModelResourceLocation::toString).stable();
-    private static final Codec<AppearanceType> APPEARANCE_TYPE_CODEC = Codec.STRING.xmap(AppearanceType::value, AppearanceType::toString).stable();
-    private static final Codec<LightMode> LIGHT_MODE_CODEC = Codec.STRING.xmap(LightMode::value, LightMode::toString).stable();
-
     public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation("minecraft", "block/missing");
     public static final Block DEFAULT_BLOCK = Blocks.AIR;
     public static final ModelResourceLocation DEFAULT_BLOCKSTATE = new ModelResourceLocation("minecraft:air", "");
@@ -33,13 +29,13 @@ public class MachineAppearance {
     @SuppressWarnings("deprecation")
     public static final Codec<MachineAppearance> CODEC = RecordCodecBuilder.create(machineAppearanceCodec ->
             machineAppearanceCodec.group(
-                    APPEARANCE_TYPE_CODEC.optionalFieldOf("type", AppearanceType.DEFAULT).forGetter(machineAppearance -> machineAppearance.type),
+                    Codecs.APPEARANCE_TYPE_CODEC.optionalFieldOf("type", AppearanceType.DEFAULT).forGetter(machineAppearance -> machineAppearance.type),
                     ResourceLocation.CODEC.optionalFieldOf("model", DEFAULT_MODEL).forGetter(machineAppearance -> machineAppearance.model),
                     Registry.BLOCK.optionalFieldOf("block", DEFAULT_BLOCK).forGetter(machineAppearance -> machineAppearance.block),
-                    MODEL_RESOURCE_LOCATION_CODEC.optionalFieldOf("blockstate", DEFAULT_BLOCKSTATE).forGetter(machineAppearance -> machineAppearance.blockstate),
+                    Codecs.MODEL_RESOURCE_LOCATION_CODEC.optionalFieldOf("blockstate", DEFAULT_BLOCKSTATE).forGetter(machineAppearance -> machineAppearance.blockstate),
                     ResourceLocation.CODEC.optionalFieldOf("item", DEFAULT_ITEM).forGetter(machineAppearance -> machineAppearance.itemTexture),
                     SoundEvent.CODEC.optionalFieldOf("sound", DEFAULT_SOUND).forGetter(machineAppearance -> machineAppearance.sound),
-                    LIGHT_MODE_CODEC.optionalFieldOf("lightmode", DEFAULT_LIGHT_MODE).forGetter(machineAppearance -> machineAppearance.lightMode),
+                    Codecs.LIGHT_MODE_CODEC.optionalFieldOf("lightmode", DEFAULT_LIGHT_MODE).forGetter(machineAppearance -> machineAppearance.lightMode),
                     Codec.INT.optionalFieldOf("lightlevel", DEFAULT_LIGHT_LEVEL).forGetter(machineAppearance -> machineAppearance.lightLevel)
             ).apply(machineAppearanceCodec, MachineAppearance::new)
     );
@@ -73,7 +69,7 @@ public class MachineAppearance {
             else if (this.model != null && this.model != DEFAULT_MODEL)
                 this.type = AppearanceType.MODEL;
         }
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientUtils.setParticleTexture(this));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHandler.setParticleTexture(this));
     }
 
     public ResourceLocation getModel() {

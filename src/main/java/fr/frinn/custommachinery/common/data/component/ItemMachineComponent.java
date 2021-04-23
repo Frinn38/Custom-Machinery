@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -87,11 +88,11 @@ public class ItemMachineComponent extends AbstractMachineComponent {
         @SuppressWarnings("deprecation")
         public static final Codec<ItemMachineComponent.Template> CODEC = RecordCodecBuilder.create(itemMachineComponentTemplate ->
                 itemMachineComponentTemplate.group(
+                        Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", Mode.BOTH).forGetter(template -> template.mode),
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
-                        Codec.STRING.optionalFieldOf("mode", Mode.BOTH.toString()).forGetter(template -> template.mode.toString())
-                ).apply(itemMachineComponentTemplate, (id, capacity, filter, mode) -> new Template(Mode.value(mode), id, capacity, filter))
+                        Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter)
+                ).apply(itemMachineComponentTemplate, Template::new)
         );
 
         private Mode mode;

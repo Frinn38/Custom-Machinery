@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.ITickableRequiremen
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.Comparators;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -124,7 +124,7 @@ public class CraftingManager {
                 .stream()
                 .filter(recipe -> recipe.getMachine().equals(this.tile.getMachine().getId()))
                 .filter(recipe -> recipe.matches(this.tile))
-                .max(Utils.CUSTOM_MACHINE_RECIPE_COMPARATOR)
+                .max(Comparators.CUSTOM_MACHINE_RECIPE_COMPARATOR)
                 .orElse(null);
     }
 

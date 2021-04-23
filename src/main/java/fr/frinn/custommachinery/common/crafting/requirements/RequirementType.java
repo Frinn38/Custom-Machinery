@@ -1,15 +1,11 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
 public class RequirementType<T extends IRequirement<?>> extends ForgeRegistryEntry<RequirementType<? extends IRequirement<?>>> {
-
-    public static final Codec<RequirementType<?>> CODEC = ResourceLocation.CODEC.xmap(Registration.REQUIREMENT_TYPE_REGISTRY.get()::getValue, RequirementType::getRegistryName);
 
     private Codec<T> codec;
 

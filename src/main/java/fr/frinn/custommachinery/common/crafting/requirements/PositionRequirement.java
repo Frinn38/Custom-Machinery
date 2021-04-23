@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PositionComparator;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
@@ -23,7 +24,7 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
 
     public static final Codec<PositionRequirement> CODEC = RecordCodecBuilder.create(positionRequirementInstance ->
         positionRequirementInstance.group(
-                PositionComparator.CODEC.listOf().optionalFieldOf("positions", new ArrayList<>()).forGetter(requirement -> requirement.positions),
+                Codecs.POSITION_COMPARATOR_CODEC.listOf().optionalFieldOf("positions", new ArrayList<>()).forGetter(requirement -> requirement.positions),
                 ResourceLocation.CODEC.listOf().optionalFieldOf("biomes", new ArrayList<>()).forGetter(requirement -> requirement.biomes),
                 Codec.BOOL.optionalFieldOf("biomesBlacklist", false).forGetter(requirement -> requirement.biomesBlacklist),
                 ResourceLocation.CODEC.listOf().optionalFieldOf("dimensions", new ArrayList<>()).forGetter(requirement -> requirement.dimensions.stream().map(RegistryKey::getLocation).collect(Collectors.toList())),

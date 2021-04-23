@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.Comparators;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -34,7 +34,7 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         matrix.translate(this.guiLeft, this.guiTop, 0);
         this.machine.getGuiElements()
                 .stream()
-                .sorted(Utils.GUI_ELEMENTS_COMPARATOR.reversed())
+                .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
                 .forEach(element -> element.getType().getRenderer().renderElement(matrix, element, this));
         matrix.pop();
     }
@@ -48,7 +48,7 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         this.machine.getGuiElements()
                 .stream()
                 .filter(element -> element.getType().getRenderer().isHovered(element, this, mouseX - this.guiLeft, mouseY - this.guiTop))
-                .max(Utils.GUI_ELEMENTS_COMPARATOR)
+                .max(Comparators.GUI_ELEMENTS_COMPARATOR)
                 .ifPresent(element -> element.getType().getRenderer().renderTooltip(matrix, element, this, mouseX, mouseY));
         matrix.pop();
     }

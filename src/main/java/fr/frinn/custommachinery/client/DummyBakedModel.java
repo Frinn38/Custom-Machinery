@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.util;
+package fr.frinn.custommachinery.client;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;

@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -14,7 +15,7 @@ public class MachineLocation {
     public static final Codec<MachineLocation> CODEC = RecordCodecBuilder.create(machineLocationInstance ->
             machineLocationInstance.group(
                     ResourceLocation.CODEC.fieldOf("id").forGetter(MachineLocation::getId),
-                    Loader.CODEC.fieldOf("loader").forGetter(MachineLocation::getLoader),
+                    Codecs.LOADER_CODEC.fieldOf("loader").forGetter(MachineLocation::getLoader),
                     Codec.STRING.fieldOf("packName").forGetter(MachineLocation::getPackName)
             ).apply(machineLocationInstance, MachineLocation::new)
     );
@@ -67,8 +68,6 @@ public class MachineLocation {
         CRAFTTWEAKER,
         KUBEJS;
 
-        public static final Codec<Loader> CODEC = Codec.STRING.xmap(Loader::valueOf, Loader::toString).stable();
-
         public TranslationTextComponent getTranslatedName() {
             return new TranslationTextComponent("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
         }
@@ -86,6 +85,15 @@ public class MachineLocation {
                     return TextFormatting.DARK_AQUA.getColor();
             }
             return 0;
+        }
+
+        public static Loader value(String value) {
+            return valueOf(value.toLowerCase(Locale.ENGLISH));
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase(Locale.ENGLISH);
         }
     }
 }

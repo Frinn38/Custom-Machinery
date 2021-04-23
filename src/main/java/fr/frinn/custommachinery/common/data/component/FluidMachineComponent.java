@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
@@ -169,7 +170,7 @@ public class FluidMachineComponent extends AbstractMachineComponent {
                         Codec.INT.optionalFieldOf("maxInput").forGetter(template -> Optional.of(template.maxInput)),
                         Codec.INT.optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
                         Registry.FLUID.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
-                        Mode.CODEC.optionalFieldOf("mode", Mode.BOTH).forGetter(template -> template.mode)
+                        Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode",Mode.BOTH).forGetter(template -> template.mode)
                 ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, mode) ->
                         new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, mode)
                 )

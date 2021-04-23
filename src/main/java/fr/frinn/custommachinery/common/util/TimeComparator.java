@@ -1,12 +1,8 @@
 package fr.frinn.custommachinery.common.util;
 
-import com.mojang.serialization.Codec;
-
 import java.util.Arrays;
 
 public class TimeComparator {
-
-    public static final Codec<TimeComparator> CODEC = Codec.STRING.xmap(TimeComparator::new, TimeComparator::toString).stable();
 
     private MODE mode;
     private int timeToCompare;

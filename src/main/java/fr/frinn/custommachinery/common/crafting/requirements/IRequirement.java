@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
+import fr.frinn.custommachinery.common.util.Codecs;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 
@@ -11,7 +12,7 @@ import java.util.Locale;
 
 public interface IRequirement<T extends IMachineComponent> {
 
-    Codec<IRequirement<?>> CODEC = RequirementType.CODEC.dispatch("type", IRequirement::getType, RequirementType::getCodec);
+    Codec<IRequirement<?>> CODEC = Codecs.REQUIREMENT_TYPE_CODEC.dispatch("type",IRequirement::getType, RequirementType::getCodec);
 
     RequirementType<IRequirement<T>> getType();
 
@@ -35,9 +36,7 @@ public interface IRequirement<T extends IMachineComponent> {
         INPUT,
         OUTPUT;
 
-        public static final Codec<MODE> CODEC = Codec.STRING.xmap(MODE::value, MODE::toString).stable();
-
-        static MODE value(String mode) {
+        public static MODE value(String mode) {
             return valueOf(mode.toUpperCase(Locale.ENGLISH));
         }
 
