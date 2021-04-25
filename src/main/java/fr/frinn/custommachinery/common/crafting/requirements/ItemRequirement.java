@@ -39,7 +39,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
             itemRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Registry.ITEM.optionalFieldOf("item", DEFAULT_ITEM).forGetter(requirement -> requirement.item),
-                    ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? TagCollectionManager.getManager().getItemTags().getDirectIdFromTag(requirement.tag) : DEFAULT_TAG),
+                    ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getItemTagID(requirement.tag) : DEFAULT_TAG),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
             ).apply(itemRequirementInstance, ItemRequirement::new)
     );
@@ -130,12 +130,14 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
     @Override
     public CraftingResult processEnd(ItemComponentHandler component) {
         if(getMode() == MODE.OUTPUT) {
-            int canInsert = component.getSpaceForItem(this.item);
-            if(canInsert >= this.amount) {
-                component.addToOutputs(this.item, this.amount);
-                return CraftingResult.success();
-            }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", this.amount, new TranslationTextComponent(this.item.getTranslationKey())));
+            if(this.item != null && this.item != DEFAULT_ITEM) {
+                int canInsert = component.getSpaceForItem(this.item);
+                if(canInsert >= this.amount) {
+                    component.addToOutputs(this.item, this.amount);
+                    return CraftingResult.success();
+                }
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", this.amount, new TranslationTextComponent(this.item.getTranslationKey())));
+            } else throw new IllegalStateException("Using Output Item Requirement with null item");
         }
         return CraftingResult.pass();
     }

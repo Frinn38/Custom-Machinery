@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
@@ -15,6 +16,10 @@ public class Utils {
     }
 
     public static ResourceLocation getItemTagID(ITag<Item> tag) {
-        return TagCollectionManager.getManager().getItemTags().getDirectIdFromTag(tag);
+        return TagCollectionManager.getManager().getItemTags().getValidatedIdFromTag(tag);
+    }
+
+    public static ResourceLocation getFluidTagID(ITag<Fluid> tag) {
+        return TagCollectionManager.getManager().getFluidTags().getValidatedIdFromTag(tag);
     }
 }
