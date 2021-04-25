@@ -68,7 +68,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
 
     @Override
     public void tick() {
-        if(this.world == null)
+        if(this.world == null || this.componentManager == null || this.craftingManager == null)
             return;
 
         if(!this.world.isRemote()) {
@@ -94,7 +94,8 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Override
     protected void invalidateCaps() {
         super.invalidateCaps();
-        this.componentManager.getCapabilityComponents().forEach(ICapabilityMachineComponent::invalidateCapability);
+        if(this.componentManager != null)
+            this.componentManager.getCapabilityComponents().forEach(ICapabilityMachineComponent::invalidateCapability);
     }
 
     @Override

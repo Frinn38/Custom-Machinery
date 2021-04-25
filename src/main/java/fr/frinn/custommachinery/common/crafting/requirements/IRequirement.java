@@ -26,6 +26,7 @@ public interface IRequirement<T extends IMachineComponent> {
 
     MachineComponentType<T> getComponentType();
 
+    //TODO: Put JEI stuff in separate interface
     IIngredientType<?> getJEIIngredientType();
 
     Object asJEIIngredient();
