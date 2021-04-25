@@ -15,12 +15,15 @@ import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
+
+import java.util.stream.Collectors;
 
 public class FluidRequirement extends AbstractRequirement<FluidComponentHandler> {
 
@@ -146,7 +149,11 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
 
     @Override
     public Object asJEIIngredient() {
-        return new FluidStack(this.fluid, this.amount);
+        if(this.fluid != null && this.fluid != DEFAULT_FLUID)
+            return new FluidStack(this.fluid, this.amount);
+        else if(this.tag != null && getMode() == MODE.INPUT)
+            return this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
+        else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
     }
 
     @Override

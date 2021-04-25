@@ -21,6 +21,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
+import java.util.stream.Collectors;
+
 public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidComponentHandler> {
 
     private static final Fluid DEFAULT_FLUID = Fluids.EMPTY;
@@ -137,7 +139,11 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
 
     @Override
     public Object asJEIIngredient() {
-        return new FluidStack(this.fluid, this.amount);
+        if(this.fluid != null && this.fluid != DEFAULT_FLUID)
+            return new FluidStack(this.fluid, this.amount);
+        else if(this.tag != null && getMode() == MODE.INPUT)
+            return this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
+        else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
     }
 
     @Override

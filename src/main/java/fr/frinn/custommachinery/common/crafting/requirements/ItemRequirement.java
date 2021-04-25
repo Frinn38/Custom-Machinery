@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonParseException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -26,8 +27,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
 
@@ -149,20 +152,23 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
 
     @Override
     public Object asJEIIngredient() {
-        return new ItemStack(this.item, this.amount);
+        if(this.item != null && this.item != DEFAULT_ITEM)
+            return new ItemStack(this.item, this.amount);
+        else if(this.tag != null && getMode() == MODE.INPUT)
+            return this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
+        else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
     }
 
     @Override
     public void addJeiIngredients(IIngredients ingredients) {
-        int maxStackSize = this.item.getDefaultInstance().getMaxStackSize();
-        int toAdd = this.amount;
-        while (toAdd > 0) {
-            int added = MathHelper.clamp(toAdd, 0, maxStackSize);
+        if(this.item != null && this.item != DEFAULT_ITEM) {
             if(getMode() == MODE.INPUT)
-                ingredients.setInput(VanillaTypes.ITEM, new ItemStack(this.item, added));
+                ingredients.setInput(VanillaTypes.ITEM, new ItemStack(this.item, this.amount));
             else
-                ingredients.setOutput(VanillaTypes.ITEM, new ItemStack(this.item, added));
-            toAdd -= added;
-        }
+                ingredients.setOutput(VanillaTypes.ITEM, new ItemStack(this.item, this.amount));
+        } else if(this.tag != null && getMode() == MODE.INPUT) {
+            List<ItemStack> inputs = this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
+            ingredients.setInputs(VanillaTypes.ITEM, inputs);
+        } else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
     }
 }

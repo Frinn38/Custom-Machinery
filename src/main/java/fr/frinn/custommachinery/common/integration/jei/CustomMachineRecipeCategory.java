@@ -80,7 +80,11 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                     (element.getHeight() - 2) / 2,
                     0,
                     0);
-            layout.getIngredientsGroup(ingredientType).set(index.get(), this.getIngredientFromRequirements(ingredientType, requirements));
+            Object ingredient = this.getIngredientFromRequirements(ingredientType, requirements);
+            if(ingredient instanceof List)
+                layout.getIngredientsGroup(ingredientType).set(index.get(), (List)ingredient);
+            else
+                layout.getIngredientsGroup(ingredientType).set(index.get(), ingredient);
             index.incrementAndGet();
         });
     }
