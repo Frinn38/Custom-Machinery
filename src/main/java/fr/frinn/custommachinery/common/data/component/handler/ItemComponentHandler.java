@@ -1,9 +1,6 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
-import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
-import fr.frinn.custommachinery.common.data.component.MachineComponentType;
+import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent {
+public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent, IComponentSerializable {
 
     private LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
 

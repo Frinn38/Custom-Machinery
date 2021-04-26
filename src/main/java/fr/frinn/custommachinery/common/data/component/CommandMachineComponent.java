@@ -68,14 +68,4 @@ public class CommandMachineComponent extends AbstractMachineComponent {
     public MachineComponentType<CommandMachineComponent> getType() {
         return Registration.COMMAND_MACHINE_COMPONENT.get();
     }
-
-    @Override
-    public void serialize(CompoundNBT nbt) {
-
-    }
-
-    @Override
-    public void deserialize(CompoundNBT nbt) {
-
-    }
 }

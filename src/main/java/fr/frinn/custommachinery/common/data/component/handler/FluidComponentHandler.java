@@ -1,9 +1,6 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
-import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
-import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
-import fr.frinn.custommachinery.common.data.component.MachineComponentType;
+import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import mcjty.theoneprobe.api.IProbeInfo;
@@ -27,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent, IProbeInfoComponent {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent, IProbeInfoComponent, IComponentSerializable {
 
     private List<FluidMachineComponent> components;
     private LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);

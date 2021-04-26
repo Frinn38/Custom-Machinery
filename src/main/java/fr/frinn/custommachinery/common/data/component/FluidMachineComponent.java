@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class FluidMachineComponent extends AbstractMachineComponent {
+public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable {
 
     private String id;
     private int capacity;

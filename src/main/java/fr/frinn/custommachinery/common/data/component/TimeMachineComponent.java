@@ -17,14 +17,4 @@ public class TimeMachineComponent extends AbstractMachineComponent {
     public long getTime() {
         return this.getManager().getTile().getWorld().getDayTime();
     }
-
-    @Override
-    public void serialize(CompoundNBT nbt) {
-
-    }
-
-    @Override
-    public void deserialize(CompoundNBT nbt) {
-
-    }
 }

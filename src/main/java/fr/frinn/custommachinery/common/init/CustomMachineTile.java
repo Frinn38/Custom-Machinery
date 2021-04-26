@@ -126,7 +126,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         craftingManagerNBT.putInt("recipeProgressTime", this.craftingManager.recipeProgressTime);
         nbt.put("craftingManager", craftingManagerNBT);
 
-        this.componentManager.getComponents().forEach(component -> component.serialize(nbt));
+        this.componentManager.getSerializableComponents().forEach(component -> component.serialize(nbt));
         return nbt;
     }
 
@@ -155,7 +155,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             if(craftingManagerNBT.contains("recipeProgressTime", Constants.NBT.TAG_INT))
                 this.craftingManager.recipeProgressTime = craftingManagerNBT.getInt("recipeProgressTime");
         }
-        this.componentManager.getComponents().forEach(component -> component.deserialize(nbt));
+        this.componentManager.getSerializableComponents().forEach(component -> component.deserialize(nbt));
     }
 
     /**SYNCING STUFF**/

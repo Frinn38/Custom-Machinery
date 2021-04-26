@@ -47,6 +47,10 @@ public class MachineComponentManager {
         return this.components.stream().filter(component -> component instanceof ICapabilityMachineComponent).map(component -> (ICapabilityMachineComponent)component).collect(Collectors.toList());
     }
 
+    public List<IComponentSerializable> getSerializableComponents() {
+        return this.components.stream().filter(component -> component instanceof IComponentSerializable).map(component -> (IComponentSerializable)component).collect(Collectors.toList());
+    }
+
     public List<IProbeInfoComponent> getProbeInfoComponents() {
         return this.components.stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).collect(Collectors.toList());
     }

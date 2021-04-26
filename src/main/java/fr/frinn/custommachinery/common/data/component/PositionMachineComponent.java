@@ -29,14 +29,4 @@ public class PositionMachineComponent extends AbstractMachineComponent {
     public RegistryKey<World> getDimension() {
         return this.getManager().getTile().getWorld().getDimensionKey();
     }
-
-    @Override
-    public void serialize(CompoundNBT nbt) {
-
-    }
-
-    @Override
-    public void deserialize(CompoundNBT nbt) {
-
-    }
 }

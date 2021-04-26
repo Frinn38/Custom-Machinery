@@ -13,7 +13,7 @@ import net.minecraft.util.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemMachineComponent extends AbstractMachineComponent {
+public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable {
 
     private String id;
     private int capacity;
