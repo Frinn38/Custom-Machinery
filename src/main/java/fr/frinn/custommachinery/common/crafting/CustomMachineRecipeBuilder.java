@@ -22,17 +22,10 @@ public class CustomMachineRecipeBuilder {
         return builder;
     }));
 
-    private ResourceLocation id;
     private ResourceLocation machine;
     private int time;
     private List<IRequirement<?>> requirements = new ArrayList<>();
     private int priority = 0;
-
-    public CustomMachineRecipeBuilder(ResourceLocation id, ResourceLocation machine, int time) {
-        this.id = id;
-        this.machine = machine;
-        this.time = time;
-    }
 
     public CustomMachineRecipeBuilder(ResourceLocation machine, int time) {
         this.machine = machine;
@@ -40,7 +33,6 @@ public class CustomMachineRecipeBuilder {
     }
 
     public CustomMachineRecipeBuilder(CustomMachineRecipe recipe) {
-        this.id = recipe.getId();
         this.machine = recipe.getMachine();
         this.time = recipe.getRecipeTime();
         this.requirements = recipe.getRequirements();
@@ -57,14 +49,7 @@ public class CustomMachineRecipeBuilder {
         return this;
     }
 
-    public CustomMachineRecipe build() {
-        if(this.id == null)
-            throw new IllegalStateException("Trying to build a Custom Machine Recipe without ID !");
-        return new CustomMachineRecipe(this.id, this.machine, this.time, this.requirements, this.priority);
-    }
-
     public CustomMachineRecipe build(ResourceLocation id) {
-        this.id = id;
-        return this.build();
+        return new CustomMachineRecipe(id, this.machine, this.time, this.requirements, this.priority);
     }
 }
