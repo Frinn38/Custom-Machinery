@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
@@ -50,6 +51,10 @@ public class CustomMachineRecipe extends DummyRecipe {
 
     public List<IRequirement> getRequirementsRaw() {
         return this.requirements.stream().map(requirement -> (IRequirement)requirement).collect(Collectors.toList());
+    }
+
+    public List<IJEIIngredientRequirement> getJEIRequirements() {
+        return this.requirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
     }
 
     public boolean matches(CustomMachineTile tile) {

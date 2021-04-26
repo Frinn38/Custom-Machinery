@@ -7,13 +7,14 @@ import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
+import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import fr.frinn.custommachinery.common.util.Codecs;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponent> {
+public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponent> implements IJEIIngredientRequirement {
 
     public static final Codec<EnergyRequirement> CODEC = RecordCodecBuilder.create(energyRequirementInstance ->
             energyRequirementInstance.group(

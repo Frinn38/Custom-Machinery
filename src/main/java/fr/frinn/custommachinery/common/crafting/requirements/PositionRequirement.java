@@ -77,19 +77,4 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     public MachineComponentType<PositionMachineComponent> getComponentType() {
         return Registration.POSITION_MACHINE_COMPONENT.get();
     }
-
-    @Override
-    public IIngredientType<?> getJEIIngredientType() {
-        return null;
-    }
-
-    @Override
-    public Object asJEIIngredient() {
-        return null;
-    }
-
-    @Override
-    public void addJeiIngredients(IIngredients ingredients) {
-
-    }
 }

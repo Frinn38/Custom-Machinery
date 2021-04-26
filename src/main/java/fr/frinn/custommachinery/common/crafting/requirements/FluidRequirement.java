@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import mezz.jei.api.constants.VanillaTypes;
@@ -25,7 +26,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.stream.Collectors;
 
-public class FluidRequirement extends AbstractRequirement<FluidComponentHandler> {
+public class FluidRequirement extends AbstractRequirement<FluidComponentHandler> implements IJEIIngredientRequirement {
 
     private static final Fluid DEFAULT_FLUID = Fluids.EMPTY;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");

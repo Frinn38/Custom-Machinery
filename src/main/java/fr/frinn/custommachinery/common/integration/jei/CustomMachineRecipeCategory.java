@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.client.render.element.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -60,13 +61,13 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @ParametersAreNonnullByDefault
     @Override
     public void setIngredients(CustomMachineRecipe recipe, IIngredients ingredients) {
-        recipe.getRequirements().forEach(requirement -> requirement.addJeiIngredients(ingredients));
+        recipe.getJEIRequirements().forEach(requirement -> requirement.addJeiIngredients(ingredients));
     }
 
     @ParametersAreNonnullByDefault
     @Override
     public void setRecipe(IRecipeLayout layout, CustomMachineRecipe recipe, IIngredients ingredients) {
-        List<IRequirement> requirements = Lists.newArrayList(recipe.getRequirementsRaw());
+        List<IJEIIngredientRequirement> requirements = recipe.getJEIRequirements();
         AtomicInteger index = new AtomicInteger(0);
         this.machine.getGuiElements().stream().filter(element -> element.getType().getJeiIngredientType() != null).forEach(element -> {
             IIngredientType ingredientType = element.getType().getJeiIngredientType();
@@ -82,15 +83,15 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                     0);
             Object ingredient = this.getIngredientFromRequirements(ingredientType, requirements);
             if(ingredient instanceof List)
-                layout.getIngredientsGroup(ingredientType).set(index.get(), (List)ingredient);
+                layout.getIngredientsGroup(ingredientType).set(index.get(), (List<?>)ingredient);
             else
                 layout.getIngredientsGroup(ingredientType).set(index.get(), ingredient);
             index.incrementAndGet();
         });
     }
 
-    private Object getIngredientFromRequirements(IIngredientType ingredientType, List<IRequirement> requirements) {
-        for (IRequirement requirement : requirements) {
+    private Object getIngredientFromRequirements(IIngredientType<?> ingredientType, List<IJEIIngredientRequirement> requirements) {
+        for (IJEIIngredientRequirement requirement : requirements) {
             if(requirement.getJEIIngredientType() == ingredientType) {
                 requirements.remove(requirement);
                 return requirement.asJEIIngredient();

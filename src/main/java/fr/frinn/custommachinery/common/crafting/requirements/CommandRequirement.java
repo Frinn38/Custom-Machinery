@@ -55,19 +55,4 @@ public class CommandRequirement extends AbstractRequirement<CommandMachineCompon
     public MachineComponentType<CommandMachineComponent> getComponentType() {
         return Registration.COMMAND_MACHINE_COMPONENT.get();
     }
-
-    @Override
-    public IIngredientType<?> getJEIIngredientType() {
-        return null;
-    }
-
-    @Override
-    public Object asJEIIngredient() {
-        return null;
-    }
-
-    @Override
-    public void addJeiIngredients(IIngredients ingredients) {
-
-    }
 }

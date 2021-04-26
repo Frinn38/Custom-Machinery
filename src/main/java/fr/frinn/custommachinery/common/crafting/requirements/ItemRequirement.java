@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import mezz.jei.api.constants.VanillaTypes;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> {
+public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IJEIIngredientRequirement {
 
     private static final Item DEFAULT_ITEM = Items.AIR;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");
