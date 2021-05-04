@@ -26,7 +26,6 @@ public class CustomMachineContainer extends Container {
     private IIntArray recipeData;
     private boolean hasPlayerInventory = false;
     private List<SlotItemComponent> inputSlots = new ArrayList<>();
-    private List<SlotItemComponent> outputSlots = new ArrayList<>();
 
     public CustomMachineContainer(int id, PlayerInventory playerInv, CustomMachineTile tile) {
         super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id);
@@ -98,8 +97,6 @@ public class CustomMachineContainer extends Container {
                     this.addSlot(slotComponent);
                     if (component.getMode().isInput())
                         this.inputSlots.add(slotComponent);
-                    if (component.getMode().isOutput())
-                        this.outputSlots.add(slotComponent);
                 });
             }
         );
@@ -124,8 +121,9 @@ public class CustomMachineContainer extends Container {
             for (SlotItemComponent slotComponent : this.inputSlots) {
                 int maxInput = slotComponent.getComponent().getSpaceForItem(stack);
                 if(maxInput > 0) {
-                    slotComponent.getComponent().insert(stack.getItem(), maxInput);
-                    stack.shrink(maxInput);
+                    int toInsert = Math.min(maxInput, stack.getCount());
+                    slotComponent.getComponent().insert(stack.getItem(), toInsert);
+                    stack.shrink(toInsert);
                 }
                 if(stack.isEmpty())
                     break;
