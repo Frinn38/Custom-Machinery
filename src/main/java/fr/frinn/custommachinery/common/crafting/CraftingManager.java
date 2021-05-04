@@ -7,16 +7,19 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
 import mcjty.theoneprobe.api.IProbeInfo;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class CraftingManager {
+public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     private CustomMachineTile tile;
     private CustomMachineRecipe currentRecipe;
@@ -173,6 +176,25 @@ public class CraftingManager {
             info.text(this.errorMessage);
         if(this.status == STATUS.RUNNING)
             info.progress(this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
+    }
+
+    @Override
+    public CompoundNBT serializeNBT() {
+        CompoundNBT nbt = new CompoundNBT();
+        nbt.putString("status", this.status.toString());
+        nbt.putString("message", this.errorMessage.getString());
+        nbt.putInt("recipeProgressTime", this.recipeProgressTime);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundNBT nbt) {
+        if(nbt.contains("status", Constants.NBT.TAG_STRING))
+            this.status = STATUS.value(nbt.getString("status"));
+        if(nbt.contains("message", Constants.NBT.TAG_STRING))
+            this.errorMessage = ITextComponent.getTextComponentOrEmpty(nbt.getString("message"));
+        if(nbt.contains("recipeProgressTime", Constants.NBT.TAG_INT))
+            this.recipeProgressTime = nbt.getInt("recipeProgressTime");
     }
 
     public enum PHASE {

@@ -7,13 +7,15 @@ import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandl
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class MachineComponentManager {
+public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
 
     private List<IMachineComponent> components;
     private CustomMachineTile tile;
@@ -93,5 +95,17 @@ public class MachineComponentManager {
 
     public CustomMachineTile getTile() {
         return this.tile;
+    }
+
+    @Override
+    public CompoundNBT serializeNBT() {
+        CompoundNBT nbt = new CompoundNBT();
+        getSerializableComponents().forEach(component -> component.serialize(nbt));
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundNBT nbt) {
+        getSerializableComponents().forEach(component -> component.deserialize(nbt));
     }
 }

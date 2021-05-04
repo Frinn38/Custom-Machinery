@@ -127,20 +127,9 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     public CompoundNBT write(CompoundNBT nbt) {
         super.write(nbt);
         nbt.putString("machineID", this.id.toString());
-
-        CompoundNBT craftingManagerNBT = new CompoundNBT();
-        craftingManagerNBT.putString("status", this.craftingManager.getStatus().toString());
-        if(this.craftingManager.getStatus() == CraftingManager.STATUS.ERRORED)
-            craftingManagerNBT.putString("message", this.craftingManager.getErrorMessage().getString());
-        craftingManagerNBT.putInt("recipeProgressTime", this.craftingManager.recipeProgressTime);
-        nbt.put("craftingManager", craftingManagerNBT);
-
-        CompoundNBT fuelManagerNBT = new CompoundNBT();
-        fuelManagerNBT.putInt("fuel", this.fuelManager.getFuel());
-        fuelManagerNBT.putInt("maxFuel", this.fuelManager.getMaxFuel());
-        nbt.put("fuelManager", fuelManagerNBT);
-
-        this.componentManager.getSerializableComponents().forEach(component -> component.serialize(nbt));
+        nbt.put("craftingManager", this.craftingManager.serializeNBT());
+        nbt.put("fuelManager", this.fuelManager.serializeNBT());
+        nbt.put("componentManager", this.componentManager.serializeNBT());
         return nbt;
     }
 
@@ -151,34 +140,14 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         if(nbt.contains("machineID", Constants.NBT.TAG_STRING) && getMachine() == CustomMachine.DUMMY)
             this.setId(new ResourceLocation(nbt.getString("machineID")));
 
-        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND)) {
-            CompoundNBT craftingManagerNBT = nbt.getCompound("craftingManager");
-            if(craftingManagerNBT.contains("status", Constants.NBT.TAG_STRING)) {
-                CraftingManager.STATUS status = CraftingManager.STATUS.value(craftingManagerNBT.getString("status"));
-                switch (status) {
-                    case IDLE:
-                        this.craftingManager.setIdle();
-                        break;
-                    case RUNNING:
-                        this.craftingManager.setRunning();
-                        break;
-                    case ERRORED:
-                        this.craftingManager.setErrored(ITextComponent.getTextComponentOrEmpty(craftingManagerNBT.getString("message")));
-                        break;
-                }
-            }
-            if(craftingManagerNBT.contains("recipeProgressTime", Constants.NBT.TAG_INT))
-                this.craftingManager.recipeProgressTime = craftingManagerNBT.getInt("recipeProgressTime");
-        }
+        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
+            this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
 
-        if(nbt.contains("fuelManager", Constants.NBT.TAG_COMPOUND)) {
-            CompoundNBT fuelManagerNBT = nbt.getCompound("fuelManager");
-            if(fuelManagerNBT.contains("fuel", Constants.NBT.TAG_INT))
-                this.fuelManager.setFuel(fuelManagerNBT.getInt("fuel"));
-            if(fuelManagerNBT.contains("maxFuel", Constants.NBT.TAG_INT))
-                this.fuelManager.setMaxFuel(fuelManagerNBT.getInt("maxFuel"));
-        }
-        this.componentManager.getSerializableComponents().forEach(component -> component.deserialize(nbt));
+        if(nbt.contains("fuelManager", Constants.NBT.TAG_COMPOUND))
+            this.fuelManager.deserializeNBT(nbt.getCompound("fuelManager"));
+
+        if(nbt.contains("componentManager", Constants.NBT.TAG_COMPOUND))
+            this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }
 
     /**SYNCING STUFF**/

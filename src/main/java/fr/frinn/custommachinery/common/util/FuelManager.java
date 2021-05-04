@@ -1,8 +1,11 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.INBTSerializable;
 
-public class FuelManager {
+public class FuelManager implements INBTSerializable<CompoundNBT> {
 
     private CustomMachineTile tile;
     private int fuel;
@@ -39,6 +42,21 @@ public class FuelManager {
             return true;
         }
         return false;
+    }
 
+    @Override
+    public CompoundNBT serializeNBT() {
+        CompoundNBT nbt = new CompoundNBT();
+        nbt.putInt("fuel", this.fuel);
+        nbt.putInt("maxFuel", this.maxFuel);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundNBT nbt) {
+        if(nbt.contains("fuel", Constants.NBT.TAG_INT))
+            this.fuel = nbt.getInt("fuel");
+        if(nbt.contains("maxFuel", Constants.NBT.TAG_INT))
+            this.maxFuel = nbt.getInt("maxFuel");
     }
 }
