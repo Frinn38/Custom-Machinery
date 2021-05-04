@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
@@ -29,10 +30,11 @@ public class Codecs {
     public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC             = Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString).stable();
     public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString).stable();
     public static final Codec<TextGuiElement.Alignment> ALIGNMENT_CODEC                 = Codec.STRING.comapFlatMap(Codecs::decodeAlignment, TextGuiElement.Alignment::toString).stable();
+    public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = Codec.STRING.comapFlatMap(Codecs::decodePhase, CraftingManager.PHASE::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName);
     public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName);
-    public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                                      = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName);
+    public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                 = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName);
 
     private static DataResult<ModelResourceLocation> decodeModelResourceLocation(String encoded) {
         try {
@@ -126,6 +128,14 @@ public class Codecs {
             return DataResult.success(Objects.requireNonNull(Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(encoded)));
         } catch (NullPointerException e) {
             return DataResult.error("Not a valid Recipe Requirement Type: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<CraftingManager.PHASE> decodePhase(String encoded) {
+        try {
+            return DataResult.success(CraftingManager.PHASE.value(encoded));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error("Not a valid Phase: " + encoded + " " + e.getMessage());
         }
     }
 }

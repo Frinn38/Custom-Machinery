@@ -178,7 +178,11 @@ public class CraftingManager {
     public enum PHASE {
         STARTING,
         CRAFTING,
-        ENDING,
+        ENDING;
+
+        public static PHASE value(String string) {
+            return valueOf(string.toUpperCase(Locale.ENGLISH));
+        }
     }
 
     public enum STATUS {
