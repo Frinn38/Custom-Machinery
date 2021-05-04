@@ -7,7 +7,7 @@ import net.minecraft.util.text.StringTextComponent;
 import java.util.List;
 import java.util.function.Function;
 
-public class EnumButton<E extends Enum<E>> extends Button {
+public class EnumButton<E> extends Button {
 
     private Function<E, ITextComponent> messageFunction;
     private List<E> values;

@@ -18,8 +18,8 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
 
     private MachineLoadingScreen parent;
 
-    public MachineList(Minecraft mc, int width, int height, int x, int y, int entryheight, MachineLoadingScreen parent) {
-        super(mc, width, height, y, y + height, entryheight);
+    public MachineList(Minecraft mc, int width, int height, int x, int y, int entryHeight, MachineLoadingScreen parent) {
+        super(mc, width, height, y, y + height, entryHeight);
         this.setLeftPos(x);
         this.func_244605_b(false);
         this.func_244606_c(false);
@@ -47,6 +47,7 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
         return this.x0 + this.width + 6;
     }
 
+    //TODO: Add scrollbar
     @ParametersAreNonnullByDefault
     @Override
     public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
@@ -93,8 +94,7 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
                 Minecraft.getInstance().fontRenderer.drawString(matrix, this.machineBuilder.getLocation().getLoader().getTranslatedName().getString(), 0, 11, this.machineBuilder.getLocation().getLoader().getColor());
                 matrix.pop();
             }
-            else
-                Minecraft.getInstance().fontRenderer.drawString(matrix, "NULL", x, y, 0);
+            else Minecraft.getInstance().fontRenderer.drawString(matrix, "NULL", x, y, 0);
 
             /*
             BufferBuilder builder = Tessellator.getInstance().getBuffer();

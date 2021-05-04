@@ -130,17 +130,18 @@ public class MachineLoadingScreen extends Screen {
     }
 
     private void create() {
-        CustomMachineBuilder newMachine = new CustomMachineBuilder();
-        this.machineList.addMachineEntry(newMachine);
+        CustomMachineBuilder newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromDatapack(new ResourceLocation(CustomMachinery.MODID, "new_machine"), ""));
         MachineCreationScreen newMachineScreen = new MachineCreationScreen(newMachine);
         newMachineScreen.init(this.minecraft, this.width, this.height);
         this.machineCreationScreens.put(newMachine, newMachineScreen);
-        this.machineList.getEventListeners().stream().filter(entry -> entry.getMachineBuilder() == newMachine).findFirst().ifPresent(this.machineList::setSelected);
+        this.machineList.setSelected(this.machineList.getEventListeners().get(this.machineList.addMachineEntry(newMachine)));
     }
 
     private void save() {
         CustomMachine machineToSave = this.machineList.getSelected() == null ? null : this.machineList.getSelected().getMachineBuilder().build();
         if(machineToSave != null && machineToSave.getId() != null && machineToSave.getLocation().getLoader() == MachineLocation.Loader.DATAPACK) {
+            if(machineToSave.getLocation().getPackName().equals(""))
+                return;
             ResourceLocation id = machineToSave.getId();
             NetworkManager.CHANNEL.sendToServer(new CAddMachinePacket(id, machineToSave, true, true));
         }

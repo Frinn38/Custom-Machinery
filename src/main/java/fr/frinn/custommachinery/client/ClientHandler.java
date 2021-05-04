@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery.client;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
@@ -8,13 +10,18 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.entity.BatRenderer;
+import net.minecraft.entity.EntityType;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -60,5 +67,23 @@ public class ClientHandler {
         Registration.CUSTOM_MACHINE_BLOCK.get().getStateContainer().getValidStates().forEach(state ->
                 Minecraft.getInstance().getModelManager().getBlockModelShapes().bakedModelStore.replace(state, dummyModel)
         );
+    }
+
+    public static void drawSizedString(FontRenderer font, MatrixStack matrix, String string, int x, int y, int size, float maxScale, int color) {
+        float stringSize = font.getStringWidth(string);
+        float scale = Math.min(size / stringSize, maxScale);
+        matrix.push();
+        matrix.scale(scale, scale, 0);
+        font.drawString(matrix, string, x / scale, y / scale, color);
+        matrix.pop();
+    }
+
+    public static void drawCenteredString(FontRenderer font, MatrixStack matrix, String string, int x, int y, int color) {
+        int width = font.getStringWidth(string);
+        int height = font.FONT_HEIGHT;
+        matrix.push();
+        matrix.translate(-width / 2.0D, -height / 2.0D, 0);
+        font.drawString(matrix, string, x, y, color);
+        matrix.pop();
     }
 }

@@ -1,10 +1,14 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.common.data.builder.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import javax.annotation.Nullable;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class MachineComponentType<T extends IMachineComponent> extends ForgeRegistryEntry<MachineComponentType<? extends IMachineComponent>> {
 
@@ -12,15 +16,16 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
     private boolean isSingle = true;
     private Function<MachineComponentManager, IComponentHandler<T>> handlerBuilder;
     private boolean defaultComponent = false;
-    private Function<MachineComponentManager, T> componentBuilder;
+    private Function<MachineComponentManager, T> defaultComponentBuilder;
+    private Supplier<IMachineComponentBuilder<T>> GUIComponentBuilder;
 
     public MachineComponentType(Codec<? extends IMachineComponentTemplate<T>> codec) {
         this.codec = codec;
     }
 
-    public MachineComponentType(Function<MachineComponentManager, T> componentBuilder) {
+    public MachineComponentType(Function<MachineComponentManager, T> defaultComponentBuilder) {
         this.defaultComponent = true;
-        this.componentBuilder = componentBuilder;
+        this.defaultComponentBuilder = defaultComponentBuilder;
     }
 
     public MachineComponentType<T> setNotSingle(Function<MachineComponentManager, IComponentHandler<T>> handlerBuilder) {
@@ -49,7 +54,26 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
         return this.defaultComponent;
     }
 
-    public Function<MachineComponentManager, T> getComponentBuilder() {
-        return this.componentBuilder;
+    public Function<MachineComponentManager, T> getDefaultComponentBuilder() {
+        return this.defaultComponentBuilder;
+    }
+
+    public MachineComponentType<T> setGUIBuilder(Supplier<IMachineComponentBuilder<T>> builder) {
+        this.GUIComponentBuilder = builder;
+        return this;
+    }
+
+    public boolean haveGUIBuilder() {
+        return this.GUIComponentBuilder != null;
+    }
+
+    public Supplier<IMachineComponentBuilder<T>> getGUIBuilder() {
+        if(this.GUIComponentBuilder != null)
+            return this.GUIComponentBuilder;
+        else throw new IllegalStateException("Error while trying to get a builder for Machine Component: " + getRegistryName() + " builder not present !");
+    }
+
+    public TranslationTextComponent getTranslatedName() {
+        return new TranslationTextComponent(getRegistryName().getNamespace() + ".machine.component." + getRegistryName().getPath());
     }
 }

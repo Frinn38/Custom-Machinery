@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Locale;
 
@@ -28,6 +29,20 @@ public class MachineLocation {
         this.id = id;
         this.loader = loader;
         this.packName = packName;
+    }
+
+    public static MachineLocation fromLoader(Loader loader, ResourceLocation id, String packName) {
+        switch (loader) {
+            case DEFAULT:
+                return fromDefault(id);
+            case DATAPACK:
+                return fromDatapack(id, packName);
+            case CRAFTTWEAKER:
+                return fromCraftTweaker(id);
+            case KUBEJS:
+                return fromKubeJS(id);
+        }
+        throw new IllegalStateException("Invalid Custom Machine Loader: " + loader.name());
     }
 
     public static MachineLocation fromDefault(ResourceLocation id) {

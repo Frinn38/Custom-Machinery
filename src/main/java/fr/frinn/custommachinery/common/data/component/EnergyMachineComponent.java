@@ -34,6 +34,14 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         this.maxOutput = maxOutput;
     }
 
+    public int getMaxInput() {
+        return this.maxInput;
+    }
+
+    public int getMaxOutput() {
+        return this.maxOutput;
+    }
+
     @Override
     public MachineComponentType<EnergyMachineComponent> getType() {
         return Registration.ENERGY_MACHINE_COMPONENT.get();

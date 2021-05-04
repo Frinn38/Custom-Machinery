@@ -14,6 +14,10 @@
   "custommachinery.gui.baseinfo.id": "ID:",
   "custommachinery.gui.baseinfo.packname": "Datapack:",
 
+  "custommachinery.gui.component.buildertypewidget": "Click to circle available Components",
+  "custommachinery.gui.component.empty": "Use these buttons to add some Components ->",
+  "custommachinery.gui.component.select": "Select a Component to edit",
+
   "custommachinery.gui.machineappearance.appearance": "Appearance",
   "custommachinery.gui.machineappearance.type.block": "Block",
   "custommachinery.gui.machineappearance.type.blockstate": "BlockState",
@@ -40,6 +44,10 @@
   "custommachinery.machine.loader.datapack": "Datapack",
   "custommachinery.machine.loader.crafttweaker": "CraftTweaker",
   "custommachinery.machine.loader.kubejs": "KubeJS",
+
+  "custommachinery.machine.component.energy": "Energy",
+  "custommachinery.machine.component.fluid": "Fluid",
+  "custommachinery.machine.component.item": "Item",
 
   "custommachinery.requirements.energy.error.input": "Not enough energy, %sFE needed but only %sFE found !",
   "custommachinery.requirements.energy.error.output": "Not enough space for storing %sFE !",

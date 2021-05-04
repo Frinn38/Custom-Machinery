@@ -82,10 +82,11 @@ public class MachineCreationScreen extends Screen {
     }
 
     private void addTab(ITextComponent name, Screen screen) {
+        int index = this.tabs.size() + 1;
         TabButton tabButton = this.addButton(new TabButton(
                 this.xPos + 5 + 30 * this.tabs.size(),
                 this.yPos - 28,
-                StringTextComponent.EMPTY,
+                new StringTextComponent(index + ""),
                 (button) -> this.setSelectedTab(screen),
                 (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, name, mouseX, mouseY)
         ));

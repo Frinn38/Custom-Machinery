@@ -46,6 +46,14 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.id;
     }
 
+    public int getMaxInput() {
+        return this.maxInput;
+    }
+
+    public int getMaxOutput() {
+        return this.maxOutput;
+    }
+
     @Override
     public void serialize(CompoundNBT nbt) {
         nbt.putString("id", this.id);
@@ -183,7 +191,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         private List<Fluid> filter;
         private Mode mode;
 
-        private Template(String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, Mode mode) {
+        public Template(String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, Mode mode) {
             this.id = id;
             this.capacity = capacity;
             this.maxInput = maxInput;

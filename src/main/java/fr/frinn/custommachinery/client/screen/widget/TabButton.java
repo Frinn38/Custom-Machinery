@@ -1,7 +1,9 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.ResourceLocation;
@@ -22,11 +24,14 @@ public class TabButton extends Button {
     @ParametersAreNonnullByDefault
     @Override
     public void renderWidget(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+        RenderSystem.enableDepthTest();
         Minecraft.getInstance().getTextureManager().bindTexture(TEXTURE);
         if(this.isSelected)
             blit(matrix, this.x, this.y, 28, 0, 28, 32, 56, 32);
         else
             blit(matrix, this.x, this.y, 0, 0, 28, 32, 56, 32);
+
+        ClientHandler.drawCenteredString(Minecraft.getInstance().fontRenderer, matrix, getMessage().getString(), this.x + 14, this.y + 15, 0);
 
         if (this.isHovered()) {
             this.renderToolTip(matrix, mouseX, mouseY);
