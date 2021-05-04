@@ -141,7 +141,7 @@ public class CustomMachineContainer extends Container {
             if (remaining.isEmpty())
                 clickedSlot.decrStackSize(stack.getCount());
             else
-                clickedSlot.decrStackSize(remaining.getCount());
+                clickedSlot.decrStackSize(stack.getCount() - remaining.getCount());
         }
         return ItemStack.EMPTY;
     }
