@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.common.util.Comparators;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
@@ -24,7 +25,7 @@ public class CustomMachineRecipe extends DummyRecipe {
         this.id = id;
         this.machine = machine;
         this.time = time;
-        this.requirements = requirements;
+        this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).collect(Collectors.toList());
         this.priority = priority;
     }
 

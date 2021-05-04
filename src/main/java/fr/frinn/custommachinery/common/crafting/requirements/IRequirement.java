@@ -14,7 +14,7 @@ public interface IRequirement<T extends IMachineComponent> {
 
     Codec<IRequirement<?>> CODEC = Codecs.REQUIREMENT_TYPE_CODEC.dispatch("type",IRequirement::getType, RequirementType::getCodec);
 
-    RequirementType<IRequirement<T>> getType();
+    RequirementType<?> getType();
 
     boolean test(T component);
 
