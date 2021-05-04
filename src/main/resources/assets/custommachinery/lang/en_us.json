@@ -8,6 +8,7 @@
 
   "custommachinery.gui.element.energy.tooltip": "Energy: %sFE / %sFE",
   "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
+  "custommachinery.gui.element.fuel.tooltip": "Burn Time: %s",
 
   "custommachinery.gui.baseinfo.name": "Name:",
   "custommachinery.gui.baseinfo.namespace": "NameSpace:",

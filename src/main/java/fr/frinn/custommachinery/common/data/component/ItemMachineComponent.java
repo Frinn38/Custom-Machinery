@@ -4,9 +4,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.block.FurnaceBlock;
+import net.minecraft.inventory.container.FurnaceFuelSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 
@@ -19,12 +22,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     private int capacity;
     private List<Item> filter;
     private ItemStack stack = ItemStack.EMPTY;
+    private boolean isFuelSlot;
 
-    public ItemMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, List<Item> filter) {
+    public ItemMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, List<Item> filter, boolean isFuelSlot) {
         super(manager, mode);
         this.id = id;
         this.capacity = MathHelper.clamp(capacity, 0, 64);
         this.filter = filter;
+        this.isFuelSlot = isFuelSlot;
     }
 
     @Override
@@ -37,7 +42,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     }
 
     public boolean isItemValid(ItemStack stack) {
-        return (this.filter.isEmpty() || this.filter.contains(stack.getItem()) && (this.stack.isEmpty() || this.stack.isItemEqual(stack)));
+        return (this.filter.isEmpty() || this.filter.contains(stack.getItem()) && (this.stack.isEmpty() || this.stack.isItemEqual(stack)) && (!this.isFuelSlot || AbstractFurnaceTileEntity.isFuel(stack)));
     }
 
     public ItemStack getItemStack() {
@@ -46,6 +51,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
 
     public int getCapacity() {
         return this.capacity;
+    }
+
+    public boolean isFuelSlot() {
+        return this.isFuelSlot;
     }
 
     public int getSpaceForItem(ItemStack stack) {
@@ -91,7 +100,8 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
                         Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", Mode.BOTH).forGetter(template -> template.mode),
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter)
+                        Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
+                        Codec.BOOL.optionalFieldOf("fuel", false).forGetter(template -> template.isFuelSlot)
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
 
@@ -99,12 +109,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
         private String id;
         private int capacity;
         private List<Item> filter;
+        private boolean isFuelSlot;
 
-        public Template(Mode mode, String id, int capacity, List<Item> filter) {
+        public Template(Mode mode, String id, int capacity, List<Item> filter, boolean isFuelSlot) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
             this.filter = filter;
+            this.isFuelSlot = isFuelSlot;
         }
 
         @Override
@@ -114,7 +126,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
 
         @Override
         public ItemMachineComponent build(MachineComponentManager manager) {
-            return new ItemMachineComponent(manager, mode, id, capacity, filter);
+            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.isFuelSlot);
         }
     }
 }

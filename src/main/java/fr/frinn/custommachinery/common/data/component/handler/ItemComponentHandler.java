@@ -1,12 +1,15 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
+import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.Direction;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -20,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent, IComponentSerializable {
+public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent, IComponentSerializable, ITickableMachineComponent {
 
     private LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
 
@@ -82,6 +85,17 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                 }
             });
         }
+    }
+
+    @Override
+    public void tick() {
+        this.getComponents().stream().filter(component -> component.isFuelSlot() && component.getItemStack() != ItemStack.EMPTY && ForgeHooks.getBurnTime(component.getItemStack()) > 0).forEach(component -> {
+            if(getManager().getTile().fuelManager.getFuel() == 0 && getManager().getTile().craftingManager.getStatus() == CraftingManager.STATUS.RUNNING) {
+                getManager().getTile().fuelManager.addFuel(ForgeHooks.getBurnTime(component.getItemStack()));
+                component.extract(1);
+                getManager().getTile().markForSyncing();
+            }
+        });
     }
 
     /** ITEM HANDLER STUFF **/

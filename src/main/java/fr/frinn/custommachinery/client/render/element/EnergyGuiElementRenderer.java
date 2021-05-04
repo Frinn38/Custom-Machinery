@@ -63,7 +63,6 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
             int maxEnergy = energyComponent.getMaxEnergyStored();
             screen.renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.element.energy.tooltip", energy, maxEnergy), mouseX, mouseY);
         });
-
     }
 
     @Override

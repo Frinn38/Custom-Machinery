@@ -5,10 +5,12 @@ import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
+import fr.frinn.custommachinery.common.data.component.ITickableMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTilePacket;
+import fr.frinn.custommachinery.common.util.FuelManager;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,6 +29,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.PacketDistributor;
+import org.lwjgl.system.CallbackI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,6 +46,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     public CraftingManager craftingManager;
     public MachineComponentManager componentManager;
     public SoundManager soundManager;
+    public FuelManager fuelManager = new FuelManager(this);
 
     public CustomMachineTile() {
         super(Registration.CUSTOM_MACHINE_TILE.get());
@@ -72,6 +76,10 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             return;
 
         if(!this.world.isRemote()) {
+            if(this.fuelManager.consume())
+                this.markForSyncing();
+
+            this.componentManager.getTickableComponents().forEach(ITickableMachineComponent::tick);
             this.craftingManager.tick();
 
             if(this.needSyncing) {
@@ -119,12 +127,18 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     public CompoundNBT write(CompoundNBT nbt) {
         super.write(nbt);
         nbt.putString("machineID", this.id.toString());
+
         CompoundNBT craftingManagerNBT = new CompoundNBT();
         craftingManagerNBT.putString("status", this.craftingManager.getStatus().toString());
         if(this.craftingManager.getStatus() == CraftingManager.STATUS.ERRORED)
             craftingManagerNBT.putString("message", this.craftingManager.getErrorMessage().getString());
         craftingManagerNBT.putInt("recipeProgressTime", this.craftingManager.recipeProgressTime);
         nbt.put("craftingManager", craftingManagerNBT);
+
+        CompoundNBT fuelManagerNBT = new CompoundNBT();
+        fuelManagerNBT.putInt("fuel", this.fuelManager.getFuel());
+        fuelManagerNBT.putInt("maxFuel", this.fuelManager.getMaxFuel());
+        nbt.put("fuelManager", fuelManagerNBT);
 
         this.componentManager.getSerializableComponents().forEach(component -> component.serialize(nbt));
         return nbt;
@@ -136,6 +150,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         super.read(state, nbt);
         if(nbt.contains("machineID", Constants.NBT.TAG_STRING) && getMachine() == CustomMachine.DUMMY)
             this.setId(new ResourceLocation(nbt.getString("machineID")));
+
         if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND)) {
             CompoundNBT craftingManagerNBT = nbt.getCompound("craftingManager");
             if(craftingManagerNBT.contains("status", Constants.NBT.TAG_STRING)) {
@@ -154,6 +169,14 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             }
             if(craftingManagerNBT.contains("recipeProgressTime", Constants.NBT.TAG_INT))
                 this.craftingManager.recipeProgressTime = craftingManagerNBT.getInt("recipeProgressTime");
+        }
+
+        if(nbt.contains("fuelManager", Constants.NBT.TAG_COMPOUND)) {
+            CompoundNBT fuelManagerNBT = nbt.getCompound("fuelManager");
+            if(fuelManagerNBT.contains("fuel", Constants.NBT.TAG_INT))
+                this.fuelManager.setFuel(fuelManagerNBT.getInt("fuel"));
+            if(fuelManagerNBT.contains("maxFuel", Constants.NBT.TAG_INT))
+                this.fuelManager.setMaxFuel(fuelManagerNBT.getInt("maxFuel"));
         }
         this.componentManager.getSerializableComponents().forEach(component -> component.deserialize(nbt));
     }
