@@ -58,6 +58,7 @@
   "custommachinery.requirements.fluid.error.output": "Not enough space for %smB of %s",
   "custommachinery.requirements.fluidpertick.error.input": "Not enough %s, %smB needed but %smB found !",
   "custommachinery.requirements.fluidpertick.error.output": "Not enough space for %smB of %s",
+  "custommachinery.requirements.fuel.error": "This recipe require some fuel item",
   "custommachinery.requirements.item.error.input": "Not enough %s, %s needed but %s found !",
   "custommachinery.requirements.item.error.output": "Not enough space to store %s %s",
   "custommachinery.requirements.position.error": "This recipe cannot be processed at this location",
