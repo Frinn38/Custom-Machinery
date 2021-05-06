@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
@@ -14,6 +15,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 
+import javax.xml.soap.Text;
 import java.util.Locale;
 
 public class MachineAppearance {
@@ -69,7 +71,6 @@ public class MachineAppearance {
             else if (this.model != null && this.model != DEFAULT_MODEL)
                 this.type = AppearanceType.MODEL;
         }
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHandler.setParticleTexture(this));
     }
 
     public ResourceLocation getModel() {

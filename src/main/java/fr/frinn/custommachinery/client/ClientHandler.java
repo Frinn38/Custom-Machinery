@@ -9,15 +9,20 @@ import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.entity.BatRenderer;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityType;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -47,6 +52,16 @@ public class ClientHandler {
         ModelLoader.addSpecialModel(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"));
     }
 
+    @SubscribeEvent
+    public static void modelBake(final ModelBakeEvent event) {
+        Registration.CUSTOM_MACHINE_BLOCK.get().getStateContainer().getValidStates().forEach(state -> {
+            ModelResourceLocation modelLocation = BlockModelShapes.getModelLocation(state);
+            if(event.getModelRegistry().containsKey(modelLocation))
+                event.getModelRegistry().replace(BlockModelShapes.getModelLocation(state), new WrappedBakedModel(event.getModelRegistry().get(modelLocation)));
+            event.getModelRegistry().put(modelLocation, new DummyBakedModel());
+        });
+    }
+
     public static void openMachineLoadingScreen() {
         Minecraft.getInstance().displayGuiScreen(MachineLoadingScreen.INSTANCE);
     }
@@ -61,20 +76,18 @@ public class ClientHandler {
         throw new IllegalStateException("Trying to open a Custom Machine container without clicking on a Custom Machine block");
     }
 
-    public static void setParticleTexture(MachineAppearance appearance) {
-        net.minecraft.client.renderer.texture.TextureAtlasSprite particleTexture;
-        if(appearance.getType() == MachineAppearance.AppearanceType.BLOCKSTATE)
-            particleTexture = Minecraft.getInstance().getModelManager().getModel(appearance.getBlockstate()).getParticleTexture(EmptyModelData.INSTANCE);
-        else if(appearance.getType() == MachineAppearance.AppearanceType.BLOCK)
-            particleTexture = Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(appearance.getBlock().getDefaultState()).getParticleTexture(EmptyModelData.INSTANCE);
-        else if(appearance.getType() == MachineAppearance.AppearanceType.MODEL)
-            particleTexture = new ModelHandle(appearance.getModel()).getParticleTexture();
-        else
-            particleTexture = Minecraft.getInstance().getModelManager().getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
-        net.minecraft.client.renderer.model.IBakedModel dummyModel = new DummyBakedModel(particleTexture);
-        Registration.CUSTOM_MACHINE_BLOCK.get().getStateContainer().getValidStates().forEach(state ->
-                Minecraft.getInstance().getModelManager().getBlockModelShapes().bakedModelStore.replace(state, dummyModel)
-        );
+    public static TextureAtlasSprite getParticleTexture(MachineAppearance appearance) {
+        switch (appearance.getType()) {
+            case DEFAULT:
+                return Minecraft.getInstance().getModelManager().getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
+            case BLOCK:
+                return Minecraft.getInstance().getModelManager().getModel(appearance.getBlock().getRegistryName()).getParticleTexture(EmptyModelData.INSTANCE);
+            case BLOCKSTATE:
+                return Minecraft.getInstance().getModelManager().getModel(appearance.getBlockstate()).getParticleTexture(EmptyModelData.INSTANCE);
+            case MODEL:
+                return Minecraft.getInstance().getModelManager().getModel(appearance.getModel()).getParticleTexture(EmptyModelData.INSTANCE);
+        }
+        return Minecraft.getInstance().getModelManager().getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
     }
 
     public static void drawSizedString(FontRenderer font, MatrixStack matrix, String string, int x, int y, int size, float maxScale, int color) {

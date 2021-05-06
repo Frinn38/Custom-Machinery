@@ -9,58 +9,59 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.extensions.IForgeBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelProperty;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class DummyBakedModel implements IBakedModel, IForgeBakedModel {
+public class WrappedBakedModel implements IBakedModel, IForgeBakedModel {
 
-    public static final ModelProperty<TextureAtlasSprite> PARTICLE_TEXTURE = new ModelProperty<>();
+    private IBakedModel model;
 
-    @ParametersAreNonnullByDefault
+    public WrappedBakedModel(IBakedModel model) {
+        this.model = model;
+    }
+
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) {
-        return new ArrayList<>();
+        return this.model.getQuads(state, side, rand);
     }
 
     @Override
     public boolean isAmbientOcclusion() {
-        return false;
+        return this.model.isAmbientOcclusion();
     }
 
     @Override
     public boolean isGui3d() {
-        return false;
+        return this.model.isGui3d();
     }
 
     @Override
     public boolean isSideLit() {
-        return false;
+        return this.model.isSideLit();
     }
 
     @Override
     public boolean isBuiltInRenderer() {
-        return false;
+        return this.model.isBuiltInRenderer();
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture(IModelData data) {
-        if(data.hasProperty(PARTICLE_TEXTURE))
-            return data.getData(PARTICLE_TEXTURE);
+    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
+        if(data.hasProperty(DummyBakedModel.PARTICLE_TEXTURE))
+            return data.getData(DummyBakedModel.PARTICLE_TEXTURE);
         return Minecraft.getInstance().getModelManager().getMissingModel().getParticleTexture(data);
     }
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        return null;
+        return this.model.getParticleTexture();
     }
 
     @Override
     public ItemOverrideList getOverrides() {
-        return null;
+        return this.model.getOverrides();
     }
 }

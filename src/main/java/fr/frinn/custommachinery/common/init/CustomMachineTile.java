@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.DummyBakedModel;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
@@ -25,11 +27,14 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.client.model.ModelDataManager;
+import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.PacketDistributor;
-import org.lwjgl.system.CallbackI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -87,6 +92,8 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
                 this.sync();
             }
         } else {
+            if(this.modelDataMap == null)
+                this.setupModelData();
             if(this.soundManager == null)
                 this.soundManager = new SoundManager(this.pos);
             if(getMachine().getAppearance().getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance().getSound().getName().equals(this.soundManager.getSound()))
@@ -218,5 +225,25 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new SUpdateCustomTilePacket(this.getPos(), this.getUpdateTag()));
         }
         return new CustomMachineContainer(id, inv, this);
+    }
+
+    /**CLIENT STUFF**/
+
+    private ModelDataMap modelDataMap;
+    private boolean needRefresh = false;
+
+    private void setupModelData() {
+        this.modelDataMap = new ModelDataMap.Builder().withInitial(DummyBakedModel.PARTICLE_TEXTURE, ClientHandler.getParticleTexture(getMachine().getAppearance())).build();
+        this.needRefresh = true;
+    }
+
+    @Nonnull
+    @Override
+    public IModelData getModelData() {
+        if(this.needRefresh) {
+            ModelDataManager.requestModelDataRefresh(this);
+            this.needRefresh = false;
+        }
+        return this.modelDataMap == null ? EmptyModelData.INSTANCE : this.modelDataMap;
     }
 }
