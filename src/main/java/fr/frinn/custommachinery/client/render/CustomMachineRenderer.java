@@ -2,8 +2,10 @@ package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ModelHandle;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -13,8 +15,11 @@ import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -25,6 +30,7 @@ import java.util.stream.Stream;
 
 public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile> {
 
+    private static final ResourceLocation DEFAULT_MODEL = new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block");
     private static final Map<ResourceLocation, ModelHandle> MODELS = new HashMap<>();
     private static final Random RAND = new Random();
 
@@ -36,8 +42,12 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
     @Override
     public void render(CustomMachineTile tile, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         MachineAppearance appearance = tile.getMachine().getAppearance();
+        matrix.push();
+        matrix.translate(0.5F, 0, 0.5F);
+        matrix.rotate(Vector3f.YN.rotationDegrees(tile.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING).getHorizontalAngle()));
+        matrix.translate(-0.5F, 0, -0.5F);
         renderMachineAppearance(appearance, partialTicks, matrix, buffer, combinedLight, combinedOverlay);
-
+        matrix.pop();
     }
 
     public static void renderMachineAppearance(MachineAppearance appearance, float partialTicks, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
@@ -78,6 +88,7 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
 
     private static void renderDefaultModel(MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         IVertexBuilder builder = buffer.getBuffer(RenderType.getSolid());
+        //Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL).getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
         Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getMissingModel().getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
     }
 }
