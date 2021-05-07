@@ -5,6 +5,9 @@ import fr.frinn.custommachinery.common.crafting.requirements.ITickableRequiremen
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
+import fr.frinn.custommachinery.common.network.sync.StringSyncable;
 import fr.frinn.custommachinery.common.util.Comparators;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
@@ -17,6 +20,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class CraftingManager implements INBTSerializable<CompoundNBT> {
@@ -25,7 +29,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private CustomMachineRecipe currentRecipe;
     public int recipeProgressTime = 0;
     public int recipeTotalTime = 0; //For client GUI only
-    private List<IRequirement> processedRequirements;
+    private List<IRequirement<?>> processedRequirements;
 
     private STATUS status;
     private PHASE phase;
@@ -139,8 +143,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status != STATUS.IDLE) {
             this.status = STATUS.IDLE;
             this.errorMessage = StringTextComponent.EMPTY;
-            if (this.tile.getWorld() != null && !this.tile.getWorld().isRemote())
-                this.tile.markForSyncing();
         }
     }
 
@@ -148,8 +150,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status != STATUS.ERRORED || !this.errorMessage.equals(message)) {
             this.status = STATUS.ERRORED;
             this.errorMessage = message;
-            if (this.tile.getWorld() != null && !this.tile.getWorld().isRemote())
-                this.tile.markForSyncing();
         }
     }
 
@@ -157,8 +157,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status != STATUS.RUNNING) {
             this.status = STATUS.RUNNING;
             this.errorMessage = StringTextComponent.EMPTY;
-            if (this.tile.getWorld() != null && !this.tile.getWorld().isRemote())
-                this.tile.markForSyncing();
         }
     }
 
@@ -195,6 +193,13 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
             this.errorMessage = ITextComponent.getTextComponentOrEmpty(nbt.getString("message"));
         if(nbt.contains("recipeProgressTime", Constants.NBT.TAG_INT))
             this.recipeProgressTime = nbt.getInt("recipeProgressTime");
+    }
+
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        container.accept(IntegerSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
+        container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
+        container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = STATUS.value(status)));
+        container.accept(StringSyncable.create(() -> this.errorMessage.getString(), errorMessage -> this.errorMessage = ITextComponent.getTextComponentOrEmpty(errorMessage)));
     }
 
     public enum PHASE {

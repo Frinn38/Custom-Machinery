@@ -11,13 +11,13 @@ import fr.frinn.custommachinery.common.data.component.ITickableMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
-import fr.frinn.custommachinery.common.network.SUpdateCustomTilePacket;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.util.FuelManager;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
@@ -39,10 +39,9 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 
-public class CustomMachineTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider {
+public class CustomMachineTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, ISyncableStuff {
 
     public static final ResourceLocation DUMMY = new ResourceLocation(CustomMachinery.MODID, "dummy");
 
@@ -81,16 +80,14 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             return;
 
         if(!this.world.isRemote()) {
-            if(this.fuelManager.consume())
-                this.markForSyncing();
+            this.fuelManager.consume();
 
             this.componentManager.getTickableComponents().forEach(ITickableMachineComponent::tick);
             this.craftingManager.tick();
 
-            if(this.needSyncing) {
-                this.needSyncing = false;
-                this.sync();
-            }
+            if(this.needRefreshLightning())
+                this.refreshLightning();
+
         } else {
             if(this.modelDataMap == null)
                 this.setupModelData();
@@ -157,30 +154,11 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }
 
-    /**SYNCING STUFF**/
-
-    private void sync() {
-        if(world != null) {
-            if(this.needRefreshLightning())
-                this.refreshLightning();
-            this.trackingPlayers.forEach(player -> NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateCustomTilePacket(this.getPos(), this.getUpdateTag())));
-        }
-        markDirty();
-    }
-
-    private final List<ServerPlayerEntity> trackingPlayers = new ArrayList<>();
-    public void removeTrackingPlayer(ServerPlayerEntity player) {
-        this.trackingPlayers.remove(player);
-    }
-
-    private boolean needSyncing = false;
-    public void markForSyncing() {
-        this.needSyncing = true;
-    }
-
     @Override
     public CompoundNBT getUpdateTag() {
-        return this.write(new CompoundNBT());
+        CompoundNBT nbt = super.getUpdateTag();
+        nbt.putString("machineID", this.id.toString());
+        return nbt;
     }
 
     /**LIGHTNING STUFF**/
@@ -220,11 +198,14 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Nullable
     @Override
     public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
-        if(player instanceof ServerPlayerEntity) {
-            this.trackingPlayers.add((ServerPlayerEntity)player);
-            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), new SUpdateCustomTilePacket(this.getPos(), this.getUpdateTag()));
-        }
         return new CustomMachineContainer(id, inv, this);
+    }
+
+    @Override
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        this.craftingManager.getStuffToSync(container);
+        this.componentManager.getStuffToSync(container);
+        this.fuelManager.getStuffToSync(container);
     }
 
     /**CLIENT STUFF**/

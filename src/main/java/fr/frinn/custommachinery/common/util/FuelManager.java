@@ -1,9 +1,13 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
+
+import java.util.function.Consumer;
 
 public class FuelManager implements INBTSerializable<CompoundNBT> {
 
@@ -58,5 +62,10 @@ public class FuelManager implements INBTSerializable<CompoundNBT> {
             this.fuel = nbt.getInt("fuel");
         if(nbt.contains("maxFuel", Constants.NBT.TAG_INT))
             this.maxFuel = nbt.getInt("maxFuel");
+    }
+
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        container.accept(IntegerSyncable.create(() -> this.fuel, fuel -> this.fuel = fuel));
+        container.accept(IntegerSyncable.create(() -> this.maxFuel, maxFuel -> this.maxFuel = maxFuel));
     }
 }

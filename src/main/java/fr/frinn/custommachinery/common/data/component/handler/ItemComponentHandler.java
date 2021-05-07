@@ -3,11 +3,12 @@ package fr.frinn.custommachinery.common.data.component.handler;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
@@ -22,8 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
-public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent, IComponentSerializable, ITickableMachineComponent {
+public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent, IComponentSerializable, ITickableMachineComponent, ISyncableStuff {
 
     private LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
 
@@ -93,9 +95,13 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             if(getManager().getTile().fuelManager.getFuel() == 0 && getManager().getTile().craftingManager.getStatus() == CraftingManager.STATUS.RUNNING) {
                 getManager().getTile().fuelManager.addFuel(ForgeHooks.getBurnTime(component.getItemStack()));
                 component.extract(1);
-                getManager().getTile().markForSyncing();
             }
         });
+    }
+
+    @Override
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        this.getComponents().forEach(component -> component.getStuffToSync(container));
     }
 
     /** ITEM HANDLER STUFF **/
@@ -119,7 +125,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         int toInsert = Math.min(maxInsert, stack.getCount());
         if(!simulate) {
             component.insert(stack.getItem(), toInsert);
-            this.getManager().markDirty();
         }
         return new ItemStack(stack.getItem(), stack.getCount() - toInsert);
     }
@@ -131,7 +136,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         int maxExtract = component.getItemStack().isEmpty() ? 0 : Math.min(component.getItemStack().getCount(), amount);
         if(!simulate) {
             component.extract(maxExtract);
-            this.getManager().markDirty();
         }
         return new ItemStack(component.getItemStack().getItem(), maxExtract);
     }
@@ -176,7 +180,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             toRemove.addAndGet(-maxExtract);
             component.extract(maxExtract);
         });
-        this.getManager().markDirty();
     }
 
     public void addToOutputs(Item item, int amount) {
@@ -186,6 +189,5 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             toAdd.addAndGet(-maxInsert);
             component.insert(item, maxInsert);
         });
-        this.getManager().markDirty();
     }
 }

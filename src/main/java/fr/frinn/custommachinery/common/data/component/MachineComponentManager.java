@@ -7,12 +7,15 @@ import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandl
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
@@ -61,6 +64,10 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
         return this.components.stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).collect(Collectors.toList());
     }
 
+    public List<ISyncableStuff> getSyncableComponents() {
+        return this.components.stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(Collectors.toList());
+    }
+
     public <T extends IMachineComponent> T getComponentRaw(MachineComponentType type) {
         return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst().get();
     }
@@ -89,8 +96,8 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
         return getComponent(Registration.ITEM_MACHINE_COMPONENT.get());
     }
 
-    public void markDirty() {
-        this.tile.markForSyncing();
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        getSyncableComponents().forEach(syncableComponent -> syncableComponent.getStuffToSync(container));
     }
 
     public CustomMachineTile getTile() {

@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 

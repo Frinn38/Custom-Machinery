@@ -17,6 +17,8 @@ import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHand
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.data.gui.*;
 import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
+import fr.frinn.custommachinery.common.network.sync.*;
+import fr.frinn.custommachinery.common.network.sync.data.*;
 import mezz.jei.api.constants.VanillaTypes;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
@@ -31,6 +33,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -59,10 +62,12 @@ public class Registration {
     public static final DeferredRegister<GuiElementType<? extends IGuiElement>> GUI_ELEMENTS = DeferredRegister.create((Class)GuiElementType.class, CustomMachinery.MODID);
     public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS = DeferredRegister.create((Class)MachineComponentType.class, CustomMachinery.MODID);
     public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create((Class)RequirementType.class, CustomMachinery.MODID);
+    public static final DeferredRegister<DataType<? extends IData, ?>> DATA = DeferredRegister.create((Class)DataType.class, CustomMachinery.MODID);
 
     public static final Supplier<IForgeRegistry<GuiElementType<? extends IGuiElement>>> GUI_ELEMENT_TYPE_REGISTRY = GUI_ELEMENTS.makeRegistry("gui_element_type", RegistryBuilder::new);
     public static final Supplier<IForgeRegistry<MachineComponentType<? extends IMachineComponent>>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry("machine_component_type", RegistryBuilder::new);
     public static final Supplier<IForgeRegistry<RequirementType<? extends IRequirement<?>>>> REQUIREMENT_TYPE_REGISTRY = REQUIREMENTS.makeRegistry("requirement_type", RegistryBuilder::new);
+    public static final Supplier<IForgeRegistry<DataType<? extends IData, ?>>> DATA_REGISTRY = DATA.makeRegistry("data_type", RegistryBuilder::new);
 
     public static final RegistryObject<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", CustomMachineBlock::new);
 
@@ -102,6 +107,12 @@ public class Registration {
     public static final RegistryObject<RequirementType<TimeRequirement>> TIME_REQUIREMENT = REQUIREMENTS.register("time", () -> new RequirementType<>(TimeRequirement.CODEC));
     public static final RegistryObject<RequirementType<CommandRequirement>> COMMAND_REQUIREMENT = REQUIREMENTS.register("command", () -> new RequirementType<>(CommandRequirement.CODEC));
     public static final RegistryObject<RequirementType<FuelRequirement>> FUEL_REQUIREMENT = REQUIREMENTS.register("fuel", () -> new RequirementType<>(FuelRequirement.CODEC));
+
+    public static final RegistryObject<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATA.register("boolean", () -> new DataType<>(BooleanSyncable::create, BooleanData::new));
+    public static final RegistryObject<DataType<IntegerData, Integer>> INTEGER_DATA = DATA.register("integer", () -> new DataType<>(IntegerSyncable::create, IntegerData::new));
+    public static final RegistryObject<DataType<ItemStackData, ItemStack>> ITEMSTACK_DATA = DATA.register("itemstack", () -> new DataType<>(ItemStackSyncable::create, ItemStackData::new));
+    public static final RegistryObject<DataType<FluidStackData, FluidStack>> FLUIDSTACK_DATA = DATA.register("fluidstack", () -> new DataType<>(FluidStackSyncable::create, FluidStackData::new));
+    public static final RegistryObject<DataType<StringData, String>> STRING_DATA = DATA.register("string", () -> new DataType<>(StringSyncable::create, StringData::new));
 
     public static void registerRecipeType(final RegistryEvent<IRecipeSerializer<?>> event) {
         Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CUSTOM_MACHINE_RECIPE);

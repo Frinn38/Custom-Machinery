@@ -10,10 +10,7 @@ import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.fluid.Fluid;
 
-import javax.annotation.Nullable;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 

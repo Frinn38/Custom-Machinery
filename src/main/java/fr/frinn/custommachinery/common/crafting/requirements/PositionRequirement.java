@@ -8,8 +8,6 @@ import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PositionComparator;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;

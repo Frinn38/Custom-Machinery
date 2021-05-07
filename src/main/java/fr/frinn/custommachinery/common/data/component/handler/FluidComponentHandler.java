@@ -3,6 +3,8 @@ package fr.frinn.custommachinery.common.data.component.handler;
 import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -23,15 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent, IProbeInfoComponent, IComponentSerializable {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent, IProbeInfoComponent, IComponentSerializable, ISyncableStuff {
 
-    private List<FluidMachineComponent> components;
     private LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);
 
     public FluidComponentHandler(MachineComponentManager manager) {
         super(manager);
-        this.components = new ArrayList<>();
     }
 
     @Override
@@ -39,18 +40,13 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         return Registration.FLUID_MACHINE_COMPONENT.get();
     }
 
-    @Override
-    public List<FluidMachineComponent> getComponents() {
-        return this.components;
-    }
-
     public Optional<FluidMachineComponent> getComponentForId(String id) {
-        return this.components.stream().filter(component -> component.getId().equals(id)).findFirst();
+        return this.getComponents().stream().filter(component -> component.getId().equals(id)).findFirst();
     }
 
     @Override
     public void putComponent(FluidMachineComponent component) {
-        this.components.add(component);
+        super.putComponent(component);
         if(component.getMode().isInput())
             this.inputs.add(component);
         if(component.getMode().isOutput())
@@ -72,7 +68,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     @Override
     public void serialize(CompoundNBT nbt) {
         ListNBT componentsNBT = new ListNBT();
-        this.components.forEach(component -> {
+        this.getComponents().forEach(component -> {
             CompoundNBT componentNBT = new CompoundNBT();
             component.serialize(componentNBT);
             componentsNBT.add(componentNBT);
@@ -88,18 +84,23 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 if(inbt instanceof CompoundNBT) {
                     CompoundNBT componentNBT = (CompoundNBT)inbt;
                     if(componentNBT.contains("id", Constants.NBT.TAG_STRING)) {
-                        this.components.stream().filter(component -> component.getId().equals(componentNBT.getString("id"))).findFirst().ifPresent(component -> component.deserialize(componentNBT));
+                        this.getComponents().stream().filter(component -> component.getId().equals(componentNBT.getString("id"))).findFirst().ifPresent(component -> component.deserialize(componentNBT));
                     }
                 }
             });
         }
     }
 
+    @Override
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        this.getComponents().forEach(component -> component.getStuffToSync(container));
+    }
+
     /** THE ONE PROBE COMPAT **/
 
     @Override
     public void addProbeInfo(IProbeInfo info) {
-        this.components.forEach(component -> {
+        this.getComponents().forEach(component -> {
             FluidStack fluidStack = component.getFluidStack();
             Fluid fluid = fluidStack.getFluid();
             int color = fluid.getAttributes().getColor();
@@ -113,36 +114,35 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     @Override
     public int getTanks() {
-        return this.components.size();
+        return this.getComponents().size();
     }
 
     @Nonnull
     @Override
     public FluidStack getFluidInTank(int index) {
-        return this.components.get(index).getFluidStack();
+        return this.getComponents().get(index).getFluidStack();
     }
 
     @Override
     public int getTankCapacity(int index) {
-        return this.components.get(index).getCapacity();
+        return this.getComponents().get(index).getCapacity();
     }
 
     @Override
     public boolean isFluidValid(int index, @Nonnull FluidStack stack) {
-        return this.components.get(index).isFluidValid(stack);
+        return this.getComponents().get(index).isFluidValid(stack);
     }
 
     @Override
     public int fill(FluidStack stack, FluidAction action) {
         AtomicInteger remaining = new AtomicInteger(stack.getAmount());
-        this.components.forEach(component -> {
+        this.getComponents().forEach(component -> {
             if(component.isFluidValid(stack) && component.getRemainingSpace() > 0 && component.getMode().isInput()) {
                 int toInput = Math.min(remaining.get(), component.insert(stack.getFluid(), stack.getAmount(), FluidAction.SIMULATE));
                 if(toInput > 0) {
                     remaining.addAndGet(-toInput);
                     if (action.execute()) {
                         component.insert(stack.getFluid(), toInput, FluidAction.EXECUTE);
-                        this.getManager().markDirty();
                     }
                 }
             }
@@ -154,19 +154,17 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     @Override
     public FluidStack drain(FluidStack toExtract, FluidAction action) {
         int maxExtract = toExtract.getAmount();
-        for (FluidMachineComponent component : this.components) {
+        for (FluidMachineComponent component : this.getComponents()) {
             if(!component.getFluidStack().isEmpty() && component.isFluidValid(toExtract) && component.getMode().isOutput()) {
                 FluidStack stack = component.extract(toExtract.getAmount(), FluidAction.SIMULATE);
                 if(stack.getAmount() > maxExtract) {
                     if(action.execute()) {
                         component.extract(toExtract.getAmount(), FluidAction.EXECUTE);
-                        this.getManager().markDirty();
                     }
                     return toExtract;
                 } else {
                     if(action.execute()) {
                         component.extract(stack.getAmount(), FluidAction.EXECUTE);
-                        this.getManager().markDirty();
                     }
                     maxExtract -= stack.getAmount();
                 }
@@ -180,20 +178,18 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public FluidStack drain(int maxDrain, FluidAction action) {
         Fluid fluid = Fluids.EMPTY;
         int toDrain = maxDrain;
-        for (FluidMachineComponent component : this.components) {
+        for (FluidMachineComponent component : this.getComponents()) {
             if(!component.getFluidStack().isEmpty() && component.getMode().isOutput() && (fluid == Fluids.EMPTY || fluid == component.getFluidStack().getFluid())) {
                 FluidStack stack = component.extract(toDrain, FluidAction.SIMULATE);
                 if(stack.getAmount() > toDrain) {
                     if(action.execute()) {
                         component.extract(maxDrain, FluidAction.EXECUTE);
-                        this.getManager().markDirty();
                     }
                     return new FluidStack(stack.getFluid(), maxDrain);
                 } else {
                     fluid = stack.getFluid();
                     if(action.execute()) {
                         component.extract(stack.getAmount(), FluidAction.EXECUTE);
-                        this.getManager().markDirty();
                     }
                     toDrain -= stack.getAmount();
                 }
@@ -234,7 +230,6 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
             toRemove.addAndGet(-maxExtract);
             component.recipeExtract(maxExtract);
         });
-        this.getManager().markDirty();
     }
 
     public void addToOutputs(FluidStack stack) {
@@ -244,6 +239,5 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
             toAdd.addAndGet(-maxInsert);
             component.recipeInsert(stack.getFluid(), maxInsert);
         });
-        this.getManager().markDirty();
     }
 }

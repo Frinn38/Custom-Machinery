@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -8,8 +8,6 @@ import fr.frinn.custommachinery.common.data.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TimeComparator;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;

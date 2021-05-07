@@ -2,20 +2,15 @@ package fr.frinn.custommachinery.common.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 
-import javax.xml.soap.Text;
 import java.util.Locale;
 
 public class MachineAppearance {

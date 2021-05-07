@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
@@ -9,15 +8,12 @@ import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.BlockModelShapes;
-import net.minecraft.client.renderer.entity.BatRenderer;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.EntityType;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -25,11 +21,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 

@@ -3,6 +3,9 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
+import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -14,8 +17,9 @@ import net.minecraftforge.energy.IEnergyStorage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ICapabilityMachineComponent, IComponentSerializable {
+public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ICapabilityMachineComponent, IComponentSerializable, ISyncableStuff {
 
     private int energy;
     private int capacity;
@@ -68,6 +72,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     public void deserialize(CompoundNBT nbt) {
         if(nbt.contains("energy", Constants.NBT.TAG_INT))
             this.energy = nbt.getInt("energy");
+    }
+
+    @Override
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        container.accept(IntegerSyncable.create(() -> this.energy, energy -> this.energy = energy));
     }
 
     /** ENERGY STORAGE STUFF **/

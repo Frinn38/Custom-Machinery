@@ -3,6 +3,9 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.sync.FluidStackSyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,8 +18,9 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable {
+public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff {
 
     private String id;
     private int capacity;
@@ -63,6 +67,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     @Override
     public void deserialize(CompoundNBT nbt) {
         this.fluidStack = FluidStack.loadFluidStackFromNBT(nbt);
+    }
+
+    @Override
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        container.accept(FluidStackSyncable.create(() -> this.fluidStack, fluidStack -> this.fluidStack = fluidStack));
     }
 
     /** FLUID HANDLER STUFF **/

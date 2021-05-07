@@ -15,8 +15,6 @@ import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;

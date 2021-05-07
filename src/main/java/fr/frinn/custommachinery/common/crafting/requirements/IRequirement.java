@@ -5,8 +5,6 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.util.Codecs;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 
 import java.util.Locale;
 

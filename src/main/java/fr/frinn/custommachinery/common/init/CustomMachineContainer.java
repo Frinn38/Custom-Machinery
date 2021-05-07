@@ -3,15 +3,14 @@ package fr.frinn.custommachinery.common.init;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
+import fr.frinn.custommachinery.common.network.sync.SyncableContainer;
 import fr.frinn.custommachinery.common.util.SlotItemComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IIntArray;
+import net.minecraft.util.IWorldPosCallable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
@@ -19,48 +18,17 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomMachineContainer extends Container {
+public class CustomMachineContainer extends SyncableContainer {
 
     private PlayerInventory playerInv;
     public CustomMachineTile tile;
-    private IIntArray recipeData;
     private boolean hasPlayerInventory = false;
     private List<SlotItemComponent> inputSlots = new ArrayList<>();
 
     public CustomMachineContainer(int id, PlayerInventory playerInv, CustomMachineTile tile) {
-        super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id);
+        super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id, tile);
         this.playerInv = playerInv;
         this.tile = tile;
-
-        this.recipeData = new IIntArray() {
-            @Override
-            public int get(int index) {
-                switch (index) {
-                    case 0: return tile.craftingManager.recipeProgressTime;
-                    case 1: return tile.craftingManager.recipeTotalTime;
-                    default: return 0;
-                }
-            }
-
-            @Override
-            public void set(int index, int value) {
-                switch (index) {
-                    case 0:
-                        tile.craftingManager.recipeProgressTime = value;
-                        break;
-                    case 1:
-                        tile.craftingManager.recipeTotalTime = value;
-                        break;
-                }
-            }
-
-            @Override
-            public int size() {
-                return 2;
-            }
-        };
-
-        this.trackIntArray(this.recipeData);
 
         CustomMachine machine = tile.getMachine();
 
@@ -149,18 +117,10 @@ public class CustomMachineContainer extends Container {
     @ParametersAreNonnullByDefault
     @Override
     public boolean canInteractWith(PlayerEntity player) {
-        return true;
-    }
-
-    @ParametersAreNonnullByDefault
-    @Override
-    public void onContainerClosed(PlayerEntity player) {
-        super.onContainerClosed(player);
-        if(player instanceof ServerPlayerEntity)
-            this.tile.removeTrackingPlayer((ServerPlayerEntity)player);
+        return isWithinUsableDistance(IWorldPosCallable.of(player.world, this.tile.getPos()), player, Registration.CUSTOM_MACHINE_BLOCK.get());
     }
 
     public double getRecipeProgressPercent() {
-        return (double) this.recipeData.get(0) / (double) this.recipeData.get(1);
+        return (double) this.tile.craftingManager.recipeProgressTime / (double) this.tile.craftingManager.recipeTotalTime;
     }
 }

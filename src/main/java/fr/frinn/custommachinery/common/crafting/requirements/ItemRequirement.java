@@ -1,9 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
-import com.google.common.collect.Lists;
-import com.google.gson.JsonParseException;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -20,17 +17,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IJEIIngredientRequirement {

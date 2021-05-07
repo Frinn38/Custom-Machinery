@@ -7,7 +7,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Locale;
 

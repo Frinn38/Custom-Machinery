@@ -3,9 +3,10 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
+import fr.frinn.custommachinery.common.network.sync.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.block.FurnaceBlock;
-import net.minecraft.inventory.container.FurnaceFuelSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,8 +16,9 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable {
+public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff {
 
     private String id;
     private int capacity;
@@ -90,6 +92,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     @Override
     public void deserialize(CompoundNBT nbt) {
         this.stack = ItemStack.read(nbt);
+    }
+
+    @Override
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        container.accept(ItemStackSyncable.create(() -> this.stack, stack -> this.stack = stack));
     }
 
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {

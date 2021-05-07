@@ -10,10 +10,6 @@ public abstract class AbstractMachineComponent implements IMachineComponent {
         this.mode = mode;
     }
 
-    private void markDirty() {
-        this.manager.markDirty();
-    }
-
     public Mode getMode() {
         return this.mode;
     }

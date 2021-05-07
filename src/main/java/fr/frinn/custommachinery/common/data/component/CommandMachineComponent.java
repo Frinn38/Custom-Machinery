@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ICommandSource;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.vector.Vector2f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;

@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ModelHandle;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
-import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -18,7 +17,6 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
