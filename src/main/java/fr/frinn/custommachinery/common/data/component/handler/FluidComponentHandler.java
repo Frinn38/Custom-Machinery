@@ -143,6 +143,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                     remaining.addAndGet(-toInput);
                     if (action.execute()) {
                         component.insert(stack.getFluid(), toInput, FluidAction.EXECUTE);
+                        getManager().markDirty();
                     }
                 }
             }
@@ -165,6 +166,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 } else {
                     if(action.execute()) {
                         component.extract(stack.getAmount(), FluidAction.EXECUTE);
+                        getManager().markDirty();
                     }
                     maxExtract -= stack.getAmount();
                 }
@@ -184,12 +186,14 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 if(stack.getAmount() > toDrain) {
                     if(action.execute()) {
                         component.extract(maxDrain, FluidAction.EXECUTE);
+                        getManager().markDirty();
                     }
                     return new FluidStack(stack.getFluid(), maxDrain);
                 } else {
                     fluid = stack.getFluid();
                     if(action.execute()) {
                         component.extract(stack.getAmount(), FluidAction.EXECUTE);
+                        getManager().markDirty();
                     }
                     toDrain -= stack.getAmount();
                 }
@@ -230,6 +234,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
             toRemove.addAndGet(-maxExtract);
             component.recipeExtract(maxExtract);
         });
+        getManager().markDirty();
     }
 
     public void addToOutputs(FluidStack stack) {
@@ -239,5 +244,6 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
             toAdd.addAndGet(-maxInsert);
             component.recipeInsert(stack.getFluid(), maxInsert);
         });
+        getManager().markDirty();
     }
 }

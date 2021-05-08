@@ -43,7 +43,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void tick() {
-        List<CustomMachineRecipe> recipes = this.tile.getWorld().getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE);
         if(this.currentRecipe == null) {
             this.recipeProgressTime = 0;
             CustomMachineRecipe recipe = this.findRecipe();
@@ -143,6 +142,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status != STATUS.IDLE) {
             this.status = STATUS.IDLE;
             this.errorMessage = StringTextComponent.EMPTY;
+            this.tile.markDirty();
         }
     }
 
@@ -150,6 +150,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status != STATUS.ERRORED || !this.errorMessage.equals(message)) {
             this.status = STATUS.ERRORED;
             this.errorMessage = message;
+            this.tile.markDirty();
         }
     }
 
@@ -157,6 +158,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status != STATUS.RUNNING) {
             this.status = STATUS.RUNNING;
             this.errorMessage = StringTextComponent.EMPTY;
+            this.tile.markDirty();
         }
     }
 

@@ -125,6 +125,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         int toInsert = Math.min(maxInsert, stack.getCount());
         if(!simulate) {
             component.insert(stack.getItem(), toInsert);
+            getManager().markDirty();
         }
         return new ItemStack(stack.getItem(), stack.getCount() - toInsert);
     }
@@ -136,6 +137,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         int maxExtract = component.getItemStack().isEmpty() ? 0 : Math.min(component.getItemStack().getCount(), amount);
         if(!simulate) {
             component.extract(maxExtract);
+            getManager().markDirty();
         }
         return new ItemStack(component.getItemStack().getItem(), maxExtract);
     }
@@ -180,6 +182,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             toRemove.addAndGet(-maxExtract);
             component.extract(maxExtract);
         });
+        getManager().markDirty();
     }
 
     public void addToOutputs(Item item, int amount) {
@@ -189,5 +192,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             toAdd.addAndGet(-maxInsert);
             component.insert(item, maxInsert);
         });
+        getManager().markDirty();
     }
 }

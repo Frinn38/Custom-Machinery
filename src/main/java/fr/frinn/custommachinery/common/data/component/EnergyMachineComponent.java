@@ -98,6 +98,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!simulate) {
             this.energy += energyReceived;
             this.actualTickInput += energyReceived;
+            getManager().markDirty();
         }
 
         return energyReceived;
@@ -120,6 +121,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!simulate) {
             this.energy -= energyExtracted;
             this.actualTickOutput += energyExtracted;
+            getManager().markDirty();
         }
 
         return energyExtracted;
@@ -152,9 +154,10 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
             return 0;
 
         int energyReceived = Math.min(this.capacity - this.energy, maxReceive);
-        if(!simulate)
+        if(!simulate) {
             this.energy += energyReceived;
-
+            getManager().markDirty();
+        }
         return energyReceived;
     }
 
@@ -163,9 +166,10 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
             return 0;
 
         int energyExtracted = Math.min(this.energy, maxExtract);
-        if (!simulate)
+        if (!simulate) {
             this.energy -= energyExtracted;
-
+            getManager().markDirty();
+        }
         return energyExtracted;
     }
 

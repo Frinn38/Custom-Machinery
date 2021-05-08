@@ -104,6 +104,10 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
         return this.tile;
     }
 
+    public void markDirty() {
+        this.getTile().markDirty();
+    }
+
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();

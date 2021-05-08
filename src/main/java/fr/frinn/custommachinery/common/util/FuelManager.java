@@ -30,19 +30,13 @@ public class FuelManager implements INBTSerializable<CompoundNBT> {
     public void addFuel(int fuel) {
         this.fuel += fuel;
         this.maxFuel = fuel;
-    }
-
-    public void setMaxFuel(int maxFuel) {
-        this.maxFuel = maxFuel;
-    }
-
-    public void setFuel(int fuel) {
-        this.fuel = fuel;
+        this.tile.markDirty();
     }
 
     public boolean consume() {
         if(this.fuel > 0) {
             this.fuel--;
+            this.tile.markDirty();
             return true;
         }
         return false;
