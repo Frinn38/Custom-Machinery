@@ -2,8 +2,7 @@ package fr.frinn.custommachinery.common.data.gui;
 
 import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.client.render.element.IGuiElementRenderer;
-import mezz.jei.api.ingredients.IIngredientRenderer;
-import mezz.jei.api.ingredients.IIngredientType;
+import fr.frinn.custommachinery.client.render.element.jei.JEIIngredientRenderer;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.Function;
@@ -13,8 +12,7 @@ public class GuiElementType<T extends IGuiElement> extends ForgeRegistryEntry<Gu
 
     private Codec<T> codec;
     private Supplier<IGuiElementRenderer<T>> renderer;
-    private IIngredientType<?> jeiIngredientType;
-    private Function<T, IIngredientRenderer<?>> jeiRenderer;
+    private Supplier<Function<T, JEIIngredientRenderer<?, ?>>> jeiRenderer;
 
     public GuiElementType(Codec<T> codec, Supplier<IGuiElementRenderer<T>> renderer) {
         this.codec = codec;
@@ -29,17 +27,12 @@ public class GuiElementType<T extends IGuiElement> extends ForgeRegistryEntry<Gu
         return this.renderer.get();
     }
 
-    public GuiElementType<T> setJeiIngredientType(IIngredientType<?> ingredientType, Function<T, IIngredientRenderer<?>> renderer) {
-        this.jeiIngredientType = ingredientType;
+    public GuiElementType<T> setJeiIngredientType(Supplier<Function<T, JEIIngredientRenderer<?, ?>>> renderer) {
         this.jeiRenderer = renderer;
         return this;
     }
 
-    public IIngredientType<?> getJeiIngredientType() {
-        return this.jeiIngredientType;
-    }
-
-    public IIngredientRenderer<?> getJeiRenderer(T element) {
-        return this.jeiRenderer == null ? null : this.jeiRenderer.apply(element);
+    public JEIIngredientRenderer<?, ?> getJeiRenderer(T element) {
+        return this.jeiRenderer == null ? null : this.jeiRenderer.get().apply(element);
     }
 }

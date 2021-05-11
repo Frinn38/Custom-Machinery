@@ -6,13 +6,11 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
-import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
+import fr.frinn.custommachinery.common.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.common.util.Lazy;
 
 public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponent> implements IJEIIngredientRequirement {
 
@@ -75,21 +73,9 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
         return CraftingResult.pass();
     }
 
+    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount));
     @Override
-    public IIngredientType<?> getJEIIngredientType() {
-        return CustomIngredientTypes.ENERGY;
-    }
-
-    @Override
-    public Object asJEIIngredient() {
-        return new Energy(this.amount);
-    }
-
-    @Override
-    public void addJeiIngredients(IIngredients ingredients) {
-        if(getMode() == MODE.INPUT)
-            ingredients.setInput(CustomIngredientTypes.ENERGY, new Energy(this.amount));
-        else
-            ingredients.setOutput(CustomIngredientTypes.ENERGY, new Energy(this.amount));
+    public EnergyIngredientWrapper getJEIIngredientWrapper() {
+        return this.jeiIngredientWrapper.get();
     }
 }

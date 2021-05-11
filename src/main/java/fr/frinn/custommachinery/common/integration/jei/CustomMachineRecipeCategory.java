@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.integration.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.client.render.element.jei.IJEIElementRenderer;
+import fr.frinn.custommachinery.client.render.element.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -58,7 +59,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @ParametersAreNonnullByDefault
     @Override
     public void setIngredients(CustomMachineRecipe recipe, IIngredients ingredients) {
-        recipe.getJEIRequirements().forEach(requirement -> requirement.addJeiIngredients(ingredients));
+        recipe.getJEIRequirements().forEach(requirement -> requirement.getJEIIngredientWrapper().addJeiIngredients(ingredients));
     }
 
     @ParametersAreNonnullByDefault
@@ -66,12 +67,13 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     public void setRecipe(IRecipeLayout layout, CustomMachineRecipe recipe, IIngredients ingredients) {
         List<IJEIIngredientRequirement> requirements = recipe.getJEIRequirements();
         AtomicInteger index = new AtomicInteger(0);
-        this.machine.getGuiElements().stream().filter(element -> element.getType().getJeiIngredientType() != null).forEach(element -> {
-            IIngredientType ingredientType = element.getType().getJeiIngredientType();
+        this.machine.getGuiElements().stream().filter(element -> element.getType().getRenderer() != null).forEach(element -> {
+            JEIIngredientRenderer<?, ?> renderer = element.getType().getJeiRenderer(element);
+            IIngredientType ingredientType = renderer.getType();
             layout.getIngredientsGroup(ingredientType).init(
                     index.get(),
                     true,
-                    element.getType().getJeiRenderer(element),
+                    renderer,
                     element.getX() / 2,
                     element.getY() / 2,
                     (element.getWidth() - 2) / 2,
@@ -89,9 +91,9 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
     private Object getIngredientFromRequirements(IIngredientType<?> ingredientType, List<IJEIIngredientRequirement> requirements) {
         for (IJEIIngredientRequirement requirement : requirements) {
-            if(requirement.getJEIIngredientType() == ingredientType) {
+            if(requirement.getJEIIngredientWrapper().getJEIIngredientType() == ingredientType) {
                 requirements.remove(requirement);
-                return requirement.asJEIIngredient();
+                return requirement.getJEIIngredientWrapper().asJEIIngredient();
             }
         }
         return null;

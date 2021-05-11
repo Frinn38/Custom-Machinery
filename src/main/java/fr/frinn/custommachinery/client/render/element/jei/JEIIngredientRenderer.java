@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.render.element.jei;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.util.text.ITextComponent;
 
@@ -16,6 +17,10 @@ public abstract class JEIIngredientRenderer<T, E extends IGuiElement> implements
 
     public JEIIngredientRenderer(E element) {
         this.element = element;
+    }
+
+    public IIngredientType<T> getType() {
+        return null;
     }
 
     @SuppressWarnings("deprecation")

@@ -16,10 +16,8 @@ import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.data.gui.*;
-import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.common.network.sync.*;
 import fr.frinn.custommachinery.common.network.sync.data.*;
-import mezz.jei.api.constants.VanillaTypes;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
@@ -80,11 +78,11 @@ public class Registration {
 
     public static final RegistryObject<CustomMachineRecipeSerializer> CUSTOM_MACHINE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_machine", CustomMachineRecipeSerializer::new);
 
-    public static final RegistryObject<GuiElementType<EnergyGuiElement>> ENERGY_GUI_ELEMENT = GUI_ELEMENTS.register("energy", () -> new GuiElementType<>(EnergyGuiElement.CODEC, EnergyGuiElementRenderer::new).setJeiIngredientType(CustomIngredientTypes.ENERGY, EnergyJEIIngredientRenderer::new));
-    public static final RegistryObject<GuiElementType<FluidGuiElement>> FLUID_GUI_ELEMENT = GUI_ELEMENTS.register("fluid", () -> new GuiElementType<>(FluidGuiElement.CODEC, FluidGuiElementRenderer::new).setJeiIngredientType(VanillaTypes.FLUID, FluidStackIngredientRenderer::new));
+    public static final RegistryObject<GuiElementType<EnergyGuiElement>> ENERGY_GUI_ELEMENT = GUI_ELEMENTS.register("energy", () -> new GuiElementType<>(EnergyGuiElement.CODEC, EnergyGuiElementRenderer::new).setJeiIngredientType(() -> EnergyJEIIngredientRenderer::new));
+    public static final RegistryObject<GuiElementType<FluidGuiElement>> FLUID_GUI_ELEMENT = GUI_ELEMENTS.register("fluid", () -> new GuiElementType<>(FluidGuiElement.CODEC, FluidGuiElementRenderer::new).setJeiIngredientType(() -> FluidStackIngredientRenderer::new));
     public static final RegistryObject<GuiElementType<PlayerInventoryGuiElement>> PLAYER_INVENTORY_GUI_ELEMENT = GUI_ELEMENTS.register("player_inventory", () -> new GuiElementType<>(PlayerInventoryGuiElement.CODEC, PlayerInventoryGuiElementRenderer::new));
     public static final RegistryObject<GuiElementType<ProgressBarGuiElement>> PROGRESS_GUI_ELEMENT = GUI_ELEMENTS.register("progress", () -> new GuiElementType<>(ProgressBarGuiElement.CODEC, ProgressGuiElementRenderer::new));
-    public static final RegistryObject<GuiElementType<SlotGuiElement>> SLOT_GUI_ELEMENT = GUI_ELEMENTS.register("slot", () -> new GuiElementType<>(SlotGuiElement.CODEC, SlotGuiElementRenderer::new).setJeiIngredientType(VanillaTypes.ITEM, ItemStackJEIIngredientRenderer::new));
+    public static final RegistryObject<GuiElementType<SlotGuiElement>> SLOT_GUI_ELEMENT = GUI_ELEMENTS.register("slot", () -> new GuiElementType<>(SlotGuiElement.CODEC, SlotGuiElementRenderer::new).setJeiIngredientType(() -> ItemStackJEIIngredientRenderer::new));
     public static final RegistryObject<GuiElementType<StatusGuiElement>> STATUS_GUI_ELEMENT = GUI_ELEMENTS.register("status", () -> new GuiElementType<>(StatusGuiElement.CODEC, StatusGuiElementRenderer::new));
     public static final RegistryObject<GuiElementType<TextureGuiElement>> TEXTURE_GUI_ELEMENT = GUI_ELEMENTS.register("texture", () -> new GuiElementType<>(TextureGuiElement.CODEC, TextureGuiElementRenderer::new));
     public static final RegistryObject<GuiElementType<TextGuiElement>> TEXT_GUI_ELEMENT = GUI_ELEMENTS.register("text", () -> new GuiElementType<>(TextGuiElement.CODEC, TextGuiElementRenderer::new));

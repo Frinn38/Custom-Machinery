@@ -1,13 +1,8 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
+import fr.frinn.custommachinery.common.integration.jei.wrapper.IJEIIngredientWrapper;
 
 public interface IJEIIngredientRequirement {
 
-    IIngredientType<?> getJEIIngredientType();
-
-    Object asJEIIngredient();
-
-    void addJeiIngredients(IIngredients ingredients);
+    IJEIIngredientWrapper getJEIIngredientWrapper();
 }

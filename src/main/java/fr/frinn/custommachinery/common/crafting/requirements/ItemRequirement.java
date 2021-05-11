@@ -8,22 +8,17 @@ import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.common.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import net.minecraftforge.common.util.Lazy;
 
 public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IJEIIngredientRequirement {
 
@@ -138,30 +133,9 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         return CraftingResult.pass();
     }
 
+    private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag));
     @Override
-    public IIngredientType<?> getJEIIngredientType() {
-        return VanillaTypes.ITEM;
-    }
-
-    @Override
-    public Object asJEIIngredient() {
-        if(this.item != null && this.item != DEFAULT_ITEM)
-            return new ItemStack(this.item, this.amount);
-        else if(this.tag != null && getMode() == MODE.INPUT)
-            return this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
-        else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
-    }
-
-    @Override
-    public void addJeiIngredients(IIngredients ingredients) {
-        if(this.item != null && this.item != DEFAULT_ITEM) {
-            if(getMode() == MODE.INPUT)
-                ingredients.setInput(VanillaTypes.ITEM, new ItemStack(this.item, this.amount));
-            else
-                ingredients.setOutput(VanillaTypes.ITEM, new ItemStack(this.item, this.amount));
-        } else if(this.tag != null && getMode() == MODE.INPUT) {
-            List<ItemStack> inputs = this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
-            ingredients.setInputs(VanillaTypes.ITEM, inputs);
-        } else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
+    public ItemIngredientWrapper getJEIIngredientWrapper() {
+        return this.itemIngredientWrapper.get();
     }
 }

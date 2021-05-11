@@ -8,11 +8,9 @@ import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.tags.ITag;
@@ -20,9 +18,8 @@ import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
-
-import java.util.stream.Collectors;
 
 public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidComponentHandler> implements IJEIIngredientRequirement {
 
@@ -133,25 +130,9 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
         return CraftingResult.pass();
     }
 
+    private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag));
     @Override
-    public IIngredientType<?> getJEIIngredientType() {
-        return VanillaTypes.ITEM;
-    }
-
-    @Override
-    public Object asJEIIngredient() {
-        if(this.fluid != null && this.fluid != DEFAULT_FLUID)
-            return new FluidStack(this.fluid, this.amount);
-        else if(this.tag != null && getMode() == MODE.INPUT)
-            return this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
-        else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
-    }
-
-    @Override
-    public void addJeiIngredients(IIngredients ingredients) {
-        if(getMode() == MODE.INPUT)
-            ingredients.setInput(VanillaTypes.FLUID, new FluidStack(this.fluid, this.amount));
-        else
-            ingredients.setOutput(VanillaTypes.FLUID, new FluidStack(this.fluid, this.amount));
+    public FluidIngredientWrapper getJEIIngredientWrapper() {
+        return this.fluidIngredientWrapper.get();
     }
 }
