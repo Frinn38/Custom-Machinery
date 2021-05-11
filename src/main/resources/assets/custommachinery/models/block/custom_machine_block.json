@@ -1,11 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "up": "minecraft:block/stone",
-    "down": "minecraft:block/stone",
-    "north": "minecraft:block/furnace_front",
-    "east": "minecraft:block/crafting_table_front",
-    "south": "minecraft:block/smoker_front",
-    "west": "minecraft:block/smithing_table_front"
+    "particle": "custommachinery:block/custom_machine_side",
+    "up": "custommachinery:block/custom_machine_side",
+    "down": "custommachinery:block/custom_machine_side",
+    "north": "custommachinery:block/custom_machine_front",
+    "east": "custommachinery:block/custom_machine_side",
+    "south": "custommachinery:block/custom_machine_side",
+    "west": "custommachinery:block/custom_machine_side"
   }
 }

@@ -73,7 +73,7 @@ public class ClientHandler {
     public static TextureAtlasSprite getParticleTexture(MachineAppearance appearance) {
         switch (appearance.getType()) {
             case DEFAULT:
-                return Minecraft.getInstance().getModelManager().getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
+                return Minecraft.getInstance().getModelManager().getModel(CustomMachineRenderer.DEFAULT_MODEL).getParticleTexture(EmptyModelData.INSTANCE);
             case BLOCK:
                 return Minecraft.getInstance().getModelManager().getModel(appearance.getBlock().getRegistryName()).getParticleTexture(EmptyModelData.INSTANCE);
             case BLOCKSTATE:

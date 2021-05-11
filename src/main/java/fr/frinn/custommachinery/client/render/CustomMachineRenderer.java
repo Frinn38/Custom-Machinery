@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile> {
 
-    private static final ResourceLocation DEFAULT_MODEL = new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block");
+    public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block");
     private static final Map<ResourceLocation, ModelHandle> MODELS = new HashMap<>();
     private static final Random RAND = new Random();
 
@@ -86,7 +86,7 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
 
     private static void renderDefaultModel(MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         IVertexBuilder builder = buffer.getBuffer(RenderType.getSolid());
-        //Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL).getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
-        Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getMissingModel().getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
+        Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL).getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
+        //Stream.of(Direction.values()).forEach(side -> Minecraft.getInstance().getModelManager().getMissingModel().getQuads(null, side, RAND, EmptyModelData.INSTANCE).forEach(quad -> builder.addQuad(matrix.getLast(), quad, 1.0F, 1.0F, 1.0F, combinedLight, combinedOverlay)));
     }
 }
