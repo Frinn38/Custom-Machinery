@@ -18,4 +18,4 @@ Download this mod on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/c
 
 This mod is under the [GNU LESSER GENERAL PUBLIC LICENSE](https://www.curseforge.com/project/457017/license)
 
-Btw you are free to use this mod in any modpack as long as you don't sell said pack.
+Btw you are free to use this mod in any modpack.
