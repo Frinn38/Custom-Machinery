@@ -32,6 +32,10 @@ public class GuiElementType<T extends IGuiElement> extends ForgeRegistryEntry<Gu
         return this;
     }
 
+    public boolean hasJEIRenderer() {
+        return this.jeiRenderer != null;
+    }
+
     public JEIIngredientRenderer<?, ?> getJeiRenderer(T element) {
         return this.jeiRenderer == null ? null : this.jeiRenderer.get().apply(element);
     }

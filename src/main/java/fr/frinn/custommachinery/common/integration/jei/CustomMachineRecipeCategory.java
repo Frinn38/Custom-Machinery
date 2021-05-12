@@ -67,7 +67,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     public void setRecipe(IRecipeLayout layout, CustomMachineRecipe recipe, IIngredients ingredients) {
         List<IJEIIngredientRequirement> requirements = recipe.getJEIRequirements();
         AtomicInteger index = new AtomicInteger(0);
-        this.machine.getGuiElements().stream().filter(element -> element.getType().getRenderer() != null).forEach(element -> {
+        this.machine.getGuiElements().stream().filter(element -> element.getType().hasJEIRenderer()).forEach(element -> {
             JEIIngredientRenderer<?, ?> renderer = element.getType().getJeiRenderer(element);
             IIngredientType ingredientType = renderer.getType();
             layout.getIngredientsGroup(ingredientType).init(
@@ -83,7 +83,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
             Object ingredient = this.getIngredientFromRequirements(ingredientType, requirements);
             if(ingredient instanceof List)
                 layout.getIngredientsGroup(ingredientType).set(index.get(), (List<?>)ingredient);
-            else
+            else if(ingredient != null)
                 layout.getIngredientsGroup(ingredientType).set(index.get(), ingredient);
             index.incrementAndGet();
         });

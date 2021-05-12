@@ -19,9 +19,7 @@ public abstract class JEIIngredientRenderer<T, E extends IGuiElement> implements
         this.element = element;
     }
 
-    public IIngredientType<T> getType() {
-        return null;
-    }
+    public abstract IIngredientType<T> getType();
 
     @SuppressWarnings("deprecation")
     @ParametersAreNonnullByDefault

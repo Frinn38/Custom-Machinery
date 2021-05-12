@@ -3,6 +3,8 @@ package fr.frinn.custommachinery.client.render.element.jei;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.util.ITooltipFlag;
@@ -17,6 +19,11 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
 
     public ItemStackJEIIngredientRenderer(SlotGuiElement element) {
         super(element);
+    }
+
+    @Override
+    public IIngredientType<ItemStack> getType() {
+        return VanillaTypes.ITEM;
     }
 
     @SuppressWarnings("deprecation")

@@ -3,6 +3,8 @@ package fr.frinn.custommachinery.client.render.element.jei;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -22,6 +24,11 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
 
     public FluidStackIngredientRenderer(FluidGuiElement element) {
         super(element);
+    }
+
+    @Override
+    public IIngredientType<FluidStack> getType() {
+        return VanillaTypes.FLUID;
     }
 
     @SuppressWarnings("deprecation")

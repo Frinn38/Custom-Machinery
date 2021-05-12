@@ -4,7 +4,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
+import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
+import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -26,6 +28,11 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
 
     public EnergyJEIIngredientRenderer(EnergyGuiElement element) {
         super(element);
+    }
+
+    @Override
+    public IIngredientType<Energy> getType() {
+        return CustomIngredientTypes.ENERGY;
     }
 
     @Override
