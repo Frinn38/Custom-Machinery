@@ -1,0 +1,19 @@
+{
+	"type": "custommachinery:custom_machine",
+	"machine": "custommachinery:magic_spawner",
+	"time": 100,
+	"requirements": [
+		{
+			"type": "custommachinery:item",
+			"item": "minecraft:rotten_flesh",
+			"amount": 1,
+			"mode": "input"
+		},
+		{
+			"type": "custommachinery:command",
+			"phase": "ending",
+			"permission": 4,
+			"command": "/summon minecraft:zombie"
+		}
+	]
+}
