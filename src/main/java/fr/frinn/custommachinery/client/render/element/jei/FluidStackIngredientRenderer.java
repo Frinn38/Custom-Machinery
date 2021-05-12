@@ -63,6 +63,10 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.pertick", ingredient.getAmount()));
         else
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid", ingredient.getAmount()));
+        if(ingredient.getChildTag(CustomMachinery.MODID) != null && ingredient.getChildTag(CustomMachinery.MODID).contains("chance")) {
+            double chance = ingredient.getChildTag(CustomMachinery.MODID).getDouble("chance");
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(chance * 100)));
+        }
         return tooltips;
     }
 }

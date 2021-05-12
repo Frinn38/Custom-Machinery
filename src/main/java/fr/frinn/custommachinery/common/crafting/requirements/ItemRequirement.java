@@ -16,14 +16,18 @@ import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Lazy;
 
-public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IJEIIngredientRequirement {
+import java.util.Random;
+
+public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement, IJEIIngredientRequirement {
 
     private static final Item DEFAULT_ITEM = Items.AIR;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");
+    private static final Random RAND = new Random();
 
     @SuppressWarnings("deprecation")
     public static final Codec<ItemRequirement> CODEC = RecordCodecBuilder.create(itemRequirementInstance ->
@@ -31,15 +35,17 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Registry.ITEM.optionalFieldOf("item", DEFAULT_ITEM).forGetter(requirement -> requirement.item),
                     ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getItemTagID(requirement.tag) : DEFAULT_TAG),
-                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
+                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
             ).apply(itemRequirementInstance, ItemRequirement::new)
     );
 
     private Item item;
     private ITag<Item> tag;
     private int amount;
+    private double chance;
 
-    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount) {
+    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, double chance) {
         super(mode);
         this.amount = amount;
         if(mode == MODE.OUTPUT) {
@@ -60,6 +66,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                 this.item = item;
             }
         }
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);;
     }
 
     @Override
@@ -133,7 +140,12 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         return CraftingResult.pass();
     }
 
-    private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag));
+    @Override
+    public boolean testChance(Random rand) {
+        return rand.nextDouble() > this.chance;
+    }
+
+    private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance));
     @Override
     public ItemIngredientWrapper getJEIIngredientWrapper() {
         return this.itemIngredientWrapper.get();

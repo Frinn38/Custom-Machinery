@@ -8,15 +8,19 @@ import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.util.math.MathHelper;
 
-public class CommandRequirement extends AbstractTickableRequirement<CommandMachineComponent> {
+import java.util.Random;
+
+public class CommandRequirement extends AbstractTickableRequirement<CommandMachineComponent> implements IChanceableRequirement {
 
     public static final Codec<CommandRequirement> CODEC = RecordCodecBuilder.create(commandRequirementInstance ->
             commandRequirementInstance.group(
                 Codec.STRING.fieldOf("command").forGetter(requirement -> requirement.command),
                 Codecs.PHASE_CODEC.fieldOf("phase").forGetter(requirement -> requirement.phase),
                 Codec.INT.optionalFieldOf("permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
-                Codec.BOOL.optionalFieldOf("log", false).forGetter(requirement -> requirement.log)
+                Codec.BOOL.optionalFieldOf("log", false).forGetter(requirement -> requirement.log),
+                Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
             ).apply(commandRequirementInstance, CommandRequirement::new)
     );
 
@@ -24,13 +28,15 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     private CraftingManager.PHASE phase;
     private int permissionLevel;
     private boolean log;
+    private double chance;
 
-    public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log) {
+    public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log, double chance) {
         super(MODE.INPUT);
         this.command = command;
         this.phase = phase;
         this.permissionLevel = permissionLevel;
         this.log = log;
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
     }
 
     @Override
@@ -62,6 +68,11 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
         if(this.phase == CraftingManager.PHASE.ENDING)
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
+    }
+
+    @Override
+    public boolean testChance(Random rand) {
+        return rand.nextDouble() > this.chance;
     }
 
     @Override

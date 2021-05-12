@@ -16,12 +16,15 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidComponentHandler> implements IJEIIngredientRequirement {
+import java.util.Random;
+
+public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidComponentHandler> implements IChanceableRequirement, IJEIIngredientRequirement {
 
     private static final Fluid DEFAULT_FLUID = Fluids.EMPTY;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");
@@ -32,15 +35,17 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
                     Registry.FLUID.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(requirement -> requirement.fluid),
                     ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getFluidTagID(requirement.tag) : DEFAULT_TAG),
-                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
+                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
             ).apply(fluidPerTickRequirementInstance, FluidPerTickRequirement::new)
     );
 
     private Fluid fluid;
     private ITag<Fluid> tag;
     private int amount;
+    private double chance;
 
-    public FluidPerTickRequirement(MODE mode, Fluid fluid, ResourceLocation tagLocation, int amount) {
+    public FluidPerTickRequirement(MODE mode, Fluid fluid, ResourceLocation tagLocation, int amount, double chance) {
         super(mode);
         this.amount = amount;
         if(mode == MODE.OUTPUT) {
@@ -61,6 +66,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
                 this.fluid = fluid;
             }
         }
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);;
     }
 
     @Override
@@ -130,7 +136,12 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
         return CraftingResult.pass();
     }
 
-    private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag, true));
+    @Override
+    public boolean testChance(Random rand) {
+        return rand.nextDouble() > this.chance;
+    }
+
+    private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag, this.chance, true));
     @Override
     public FluidIngredientWrapper getJEIIngredientWrapper() {
         return this.fluidIngredientWrapper.get();

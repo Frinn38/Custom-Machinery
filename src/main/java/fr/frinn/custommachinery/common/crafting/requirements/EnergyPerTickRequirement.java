@@ -9,23 +9,29 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Lazy;
 
-public class EnergyPerTickRequirement extends AbstractTickableRequirement<EnergyMachineComponent> implements IJEIIngredientRequirement {
+import java.util.Random;
+
+public class EnergyPerTickRequirement extends AbstractTickableRequirement<EnergyMachineComponent> implements IChanceableRequirement, IJEIIngredientRequirement {
 
     public static final Codec<EnergyPerTickRequirement> CODEC = RecordCodecBuilder.create(energyPerTickRequirementInstance ->
             energyPerTickRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
-                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
+                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
             ).apply(energyPerTickRequirementInstance, EnergyPerTickRequirement::new)
     );
 
     private int amount;
+    private double chance;
 
-    public EnergyPerTickRequirement(MODE mode, int amount) {
+    public EnergyPerTickRequirement(MODE mode, int amount, double chance) {
         super(mode);
         this.amount = amount;
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);;
     }
 
     @Override
@@ -73,7 +79,12 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
         return CraftingResult.pass();
     }
 
-    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, true));
+    @Override
+    public boolean testChance(Random rand) {
+        return rand.nextDouble() > this.chance;
+    }
+
+    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, true));
     @Override
     public EnergyIngredientWrapper getJEIIngredientWrapper() {
         return this.jeiIngredientWrapper.get();

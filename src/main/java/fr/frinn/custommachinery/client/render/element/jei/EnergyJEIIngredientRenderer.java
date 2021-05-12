@@ -75,6 +75,8 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.energy.pertick", ingredient.getAmount()));
         else
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.energy", ingredient.getAmount()));
+        if(ingredient.getChance() != 1.0D)
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(ingredient.getChance() * 100)));
         return tooltips;
     }
 }

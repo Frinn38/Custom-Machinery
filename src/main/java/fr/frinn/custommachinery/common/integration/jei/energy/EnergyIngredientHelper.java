@@ -40,7 +40,7 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
 
     @Override
     public Energy copyIngredient(Energy energy) {
-        return new Energy(energy.getAmount());
+        return new Energy(energy.getAmount(), energy.getChance(), energy.isPerTick());
     }
 
     @Override

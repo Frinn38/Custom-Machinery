@@ -9,23 +9,29 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Lazy;
 
-public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponent> implements IJEIIngredientRequirement {
+import java.util.Random;
+
+public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponent> implements IChanceableRequirement, IJEIIngredientRequirement {
 
     public static final Codec<EnergyRequirement> CODEC = RecordCodecBuilder.create(energyRequirementInstance ->
             energyRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount)
+                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
             ).apply(energyRequirementInstance, EnergyRequirement::new)
     );
 
     private int amount;
+    private double chance;
 
-    public EnergyRequirement(MODE mode, int amount) {
+    public EnergyRequirement(MODE mode, int amount, double chance) {
         super(mode);
         this.amount = amount;
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);;
     }
 
     @Override
@@ -40,7 +46,6 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
 
     @Override
     public boolean test(EnergyMachineComponent energy) {
-
         if(getMode() == MODE.INPUT)
             return energy.getEnergyStored() > this.amount;
         else
@@ -73,7 +78,12 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
         return CraftingResult.pass();
     }
 
-    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, false));
+    @Override
+    public boolean testChance(Random rand) {
+        return rand.nextDouble() > this.chance;
+    }
+
+    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, false));
     @Override
     public EnergyIngredientWrapper getJEIIngredientWrapper() {
         return this.jeiIngredientWrapper.get();

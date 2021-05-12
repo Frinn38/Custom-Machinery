@@ -9,13 +9,11 @@ import mezz.jei.api.ingredients.IIngredients;
 public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
     private IRequirement.MODE mode;
-    private int amount;
-    private boolean isPerTick;
+    private Energy energy;
 
-    public EnergyIngredientWrapper(IRequirement.MODE mode, int amount, boolean isPerTick) {
+    public EnergyIngredientWrapper(IRequirement.MODE mode, int amount, double chance, boolean isPerTick) {
         this.mode = mode;
-        this.amount = amount;
-        this.isPerTick = isPerTick;
+        this.energy = new Energy(amount, chance, isPerTick);
     }
 
     @Override
@@ -25,14 +23,14 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
     @Override
     public Energy asJEIIngredient() {
-        return new Energy(this.amount, this.isPerTick);
+        return this.energy;
     }
 
     @Override
     public void addJeiIngredients(IIngredients ingredients) {
         if(this.mode == IRequirement.MODE.INPUT)
-            ingredients.setInput(CustomIngredientTypes.ENERGY, new Energy(this.amount));
+            ingredients.setInput(CustomIngredientTypes.ENERGY, this.energy);
         else
-            ingredients.setOutput(CustomIngredientTypes.ENERGY, new Energy(this.amount));
+            ingredients.setOutput(CustomIngredientTypes.ENERGY, this.energy);
     }
 }

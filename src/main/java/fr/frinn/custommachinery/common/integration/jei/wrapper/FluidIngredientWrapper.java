@@ -7,8 +7,6 @@ import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -21,18 +19,16 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     private Fluid fluid;
     private int amount;
     private ITag<Fluid> tag;
+    private double chance;
     private boolean isPerTick;
 
-    public FluidIngredientWrapper(IRequirement.MODE mode, Fluid fluid, int amount, ITag<Fluid> tag, boolean isPerTick) {
+    public FluidIngredientWrapper(IRequirement.MODE mode, Fluid fluid, int amount, ITag<Fluid> tag, double chance, boolean isPerTick) {
         this.mode = mode;
         this.fluid = fluid;
         this.amount = amount;
         this.tag = tag;
+        this.chance = chance;
         this.isPerTick = isPerTick;
-    }
-
-    public FluidIngredientWrapper(IRequirement.MODE mode, Fluid fluid, int amount, ITag<Fluid> tag) {
-        this(mode, fluid, amount, tag, false);
     }
 
     @Override
@@ -43,20 +39,20 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     @Override
     public Object asJEIIngredient() {
         if(this.fluid != null && this.fluid != Fluids.EMPTY) {
-            if(this.isPerTick) {
-                FluidStack stack = new FluidStack(this.fluid, this.amount);
+            FluidStack stack = new FluidStack(this.fluid, this.amount);
+            if(this.isPerTick)
                 stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true);
-                return stack;
-            }
-            else return new FluidStack(this.fluid, this.amount);
+            if(this.chance != 1.0D)
+                stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
+            return stack;
         }
         else if(this.tag != null && this.mode == IRequirement.MODE.INPUT) {
-            if(this.isPerTick) {
-                List<FluidStack> stacks = this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
+            List<FluidStack> stacks = this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
+            if(this.isPerTick)
                 stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true));
-                return stacks;
-            }
-            else return this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
+            if(this.chance != 1.0D)
+                stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance));
+            return stacks;
         }
         else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
     }

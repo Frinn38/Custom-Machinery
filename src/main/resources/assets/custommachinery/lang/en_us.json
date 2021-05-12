@@ -37,10 +37,11 @@
   "custommachinery.gui.machineloading.delete": "Delete",
   "custommachinery.gui.machineloading.cantdelete": "This Custom Machine is not loaded with datapacks and cannot be deleted",
 
-  "custommachinery.jei.ingredient.fluid": "Amount: %smB",
-  "custommachinery.jei.ingredient.fluid.pertick": "Amount: %smB per tick",
+  "custommachinery.jei.ingredient.chance": "Chance: %s%%",
   "custommachinery.jei.ingredient.energy": "Energy: %sFE",
   "custommachinery.jei.ingredient.energy.pertick": "Energy: %sFE per tick",
+  "custommachinery.jei.ingredient.fluid": "Amount: %smB",
+  "custommachinery.jei.ingredient.fluid.pertick": "Amount: %smB per tick",
   "custommachinery.jei.recipe.time": "%sticks",
 
   "custommachinery.machine.loader.default": "Default",

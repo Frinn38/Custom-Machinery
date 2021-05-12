@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -47,6 +49,11 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
     @ParametersAreNonnullByDefault
     @Override
     public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag tooltipFlag) {
-        return ingredient.getTooltip(null, tooltipFlag);
+        List<ITextComponent> tooltips = ingredient.getTooltip(null, tooltipFlag);
+        if(ingredient.getChildTag(CustomMachinery.MODID) != null && ingredient.getChildTag(CustomMachinery.MODID).contains("chance")) {
+            double chance = ingredient.getChildTag(CustomMachinery.MODID).getDouble("chance");
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(chance * 100)));
+        }
+        return tooltips;
     }
 }
