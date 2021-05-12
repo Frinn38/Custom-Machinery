@@ -73,7 +73,7 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
         return CraftingResult.pass();
     }
 
-    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount));
+    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, false));
     @Override
     public EnergyIngredientWrapper getJEIIngredientWrapper() {
         return this.jeiIngredientWrapper.get();

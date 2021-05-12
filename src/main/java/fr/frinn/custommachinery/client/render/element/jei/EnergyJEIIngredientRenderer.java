@@ -71,7 +71,10 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     @Override
     public List<ITextComponent> getTooltip(Energy ingredient, EnergyGuiElement element, ITooltipFlag iTooltipFlag) {
         List<ITextComponent> tooltips = new ArrayList<>();
-        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.energy", ingredient.getAmount()));
+        if(ingredient.isPerTick())
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.energy.pertick", ingredient.getAmount()));
+        else
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.energy", ingredient.getAmount()));
         return tooltips;
     }
 }

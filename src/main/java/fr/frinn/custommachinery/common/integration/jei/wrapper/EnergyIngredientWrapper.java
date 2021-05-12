@@ -10,10 +10,12 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
     private IRequirement.MODE mode;
     private int amount;
+    private boolean isPerTick;
 
-    public EnergyIngredientWrapper(IRequirement.MODE mode, int amount) {
+    public EnergyIngredientWrapper(IRequirement.MODE mode, int amount, boolean isPerTick) {
         this.mode = mode;
         this.amount = amount;
+        this.isPerTick = isPerTick;
     }
 
     @Override
@@ -23,7 +25,7 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
     @Override
     public Energy asJEIIngredient() {
-        return new Energy(this.amount);
+        return new Energy(this.amount, this.isPerTick);
     }
 
     @Override

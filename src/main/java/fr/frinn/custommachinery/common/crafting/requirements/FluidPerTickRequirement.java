@@ -130,7 +130,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
         return CraftingResult.pass();
     }
 
-    private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag));
+    private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag, true));
     @Override
     public FluidIngredientWrapper getJEIIngredientWrapper() {
         return this.fluidIngredientWrapper.get();

@@ -73,7 +73,7 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
         return CraftingResult.pass();
     }
 
-    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount));
+    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, true));
     @Override
     public EnergyIngredientWrapper getJEIIngredientWrapper() {
         return this.jeiIngredientWrapper.get();
