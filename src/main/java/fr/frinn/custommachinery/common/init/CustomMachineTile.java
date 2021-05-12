@@ -80,7 +80,6 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             return;
 
         if(!this.world.isRemote()) {
-
             this.fuelManager.consume();
             this.componentManager.getTickableComponents().forEach(ITickableMachineComponent::tick);
             this.craftingManager.tick();

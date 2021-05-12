@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.common.network.sync.SyncableContainer;
 import fr.frinn.custommachinery.common.util.SlotItemComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -72,6 +73,13 @@ public class CustomMachineContainer extends SyncableContainer {
 
     public CustomMachineContainer(int id, PlayerInventory playerInv, PacketBuffer extraData) {
         this(id, playerInv, ClientHandler.getClientSideCustomMachineTile(extraData.readBlockPos()));
+    }
+
+    @ParametersAreNonnullByDefault
+    @Override
+    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+        this.tile.markDirty();
+        return super.slotClick(slotId, dragType, clickTypeIn, player);
     }
 
     @ParametersAreNonnullByDefault
