@@ -95,6 +95,7 @@ public class Registration {
     public static final RegistryObject<MachineComponentType<TimeMachineComponent>> TIME_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("time", () -> new MachineComponentType<>(TimeMachineComponent::new));
     public static final RegistryObject<MachineComponentType<CommandMachineComponent>> COMMAND_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("command", () -> new MachineComponentType<>(CommandMachineComponent::new));
     public static final RegistryObject<MachineComponentType<FuelMachineComponent>> FUEL_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fuel", () -> new MachineComponentType<>(FuelMachineComponent::new));
+    public static final RegistryObject<MachineComponentType<EffectMachineComponent>> EFFECT_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("effect", () -> new MachineComponentType<>(EffectMachineComponent::new));
 
     public static final RegistryObject<RequirementType<ItemRequirement>> ITEM_REQUIREMENT = REQUIREMENTS.register("item", () -> new RequirementType<>(ItemRequirement.CODEC));
     public static final RegistryObject<RequirementType<EnergyRequirement>> ENERGY_REQUIREMENT = REQUIREMENTS.register("energy", () -> new RequirementType<>(EnergyRequirement.CODEC));
@@ -105,6 +106,7 @@ public class Registration {
     public static final RegistryObject<RequirementType<TimeRequirement>> TIME_REQUIREMENT = REQUIREMENTS.register("time", () -> new RequirementType<>(TimeRequirement.CODEC));
     public static final RegistryObject<RequirementType<CommandRequirement>> COMMAND_REQUIREMENT = REQUIREMENTS.register("command", () -> new RequirementType<>(CommandRequirement.CODEC));
     public static final RegistryObject<RequirementType<FuelRequirement>> FUEL_REQUIREMENT = REQUIREMENTS.register("fuel", () -> new RequirementType<>(FuelRequirement.CODEC));
+    public static final RegistryObject<RequirementType<EffectRequirement>> EFFECT_REQUIREMENT = REQUIREMENTS.register("effect", () -> new RequirementType<>(EffectRequirement.CODEC));
 
     public static final RegistryObject<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATA.register("boolean", () -> new DataType<>(BooleanSyncable::create, BooleanData::new));
     public static final RegistryObject<DataType<IntegerData, Integer>> INTEGER_DATA = DATA.register("integer", () -> new DataType<>(IntegerSyncable::create, IntegerData::new));
