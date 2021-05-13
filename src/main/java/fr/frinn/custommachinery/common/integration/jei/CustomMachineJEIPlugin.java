@@ -10,11 +10,9 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
-import mezz.jei.api.registration.IGuiHandlerRegistration;
-import mezz.jei.api.registration.IModIngredientRegistration;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -61,6 +59,16 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                     return Collections.singleton(IGuiClickableArea.createBasic(progress.getX(), progress.getY(), progress.getWidth(), progress.getHeight(), screen.getMachine().getId()));
                 return new ArrayList<>();
             }
+        });
+    }
+
+    @ParametersAreNonnullByDefault
+    @Override
+    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        CustomMachinery.MACHINES.forEach((id, machine) -> {
+            ItemStack stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
+            stack.getOrCreateTag().putString("id", id.toString());
+            registration.addRecipeCatalyst(stack, id);
         });
     }
 }
