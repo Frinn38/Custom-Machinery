@@ -10,6 +10,10 @@ This mod can be used to create custom machines and recipes for them.
 
 For more informations and examples of how to create custom machines see the [Wiki](https://github.com/Frinn38/Custom-Machinery/wiki)
 
+You can find some working examples of Custom Machines [here](https://github.com/Frinn38/Custom-Machinery/tree/1.16.5/test_datapack)
+
+You can download the full test datapack [here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FFrinn38%2FCustom-Machinery%2Ftree%2F1.16.5%2Ftest_datapack) (It can takes a few seconds to complete the files zipping) Just download the zip and extract it in `World/datapacks/test_datapack/` (you can replace "test_datapack" with what you want)
+
 ## Download
 
 Download this mod on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/custom-machinery)
