@@ -64,7 +64,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
             return 0;
         if(this.stack.isEmpty())
             return Math.min(stack.getMaxStackSize(), this.capacity);
-        return Math.min(stack.getMaxStackSize() - this.stack.getCount(), this.capacity - this.stack.getCount());
+        else if(ItemStack.areItemsEqual(stack, this.stack))
+            return Math.min(stack.getMaxStackSize() - this.stack.getCount(), this.capacity - this.stack.getCount());
+        else
+            return 0;
     }
 
     public void insert(Item item, int amount) {
