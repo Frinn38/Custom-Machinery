@@ -121,6 +121,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     @Override
     public ItemStack insertItem(int index, @Nonnull ItemStack stack, boolean simulate) {
         ItemMachineComponent component = this.getComponents().get(index);
+        if(!component.getMode().isInput())
+            return stack;
         int maxInsert = component.getSpaceForItem(stack);
         int toInsert = Math.min(maxInsert, stack.getCount());
         if(!simulate) {
@@ -134,6 +136,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     @Override
     public ItemStack extractItem(int index, int amount, boolean simulate) {
         ItemMachineComponent component = this.getComponents().get(index);
+        if(!component.getMode().isOutput())
+            return ItemStack.EMPTY;
         int maxExtract = component.getItemStack().isEmpty() ? 0 : Math.min(component.getItemStack().getCount(), amount);
         if(!simulate) {
             component.extract(maxExtract);
