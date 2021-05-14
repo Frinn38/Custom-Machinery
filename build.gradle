@@ -90,12 +90,16 @@ minecraft {
 
 repositories {
     maven { // TOP
-        name 'tterrag maven'
-        url "http://maven.tterrag.com/"
+        name = "tterrag maven"
+        url = "http://maven.tterrag.com/"
     }
     maven { //JEI
         name = "Progwml6 maven"
         url = "https://dvs1.progwml6.com/files/maven/"
+    }
+    maven { //Crafttweaker
+        name = "Jared maven"
+        url = "https://maven.blamejared.com"
     }
 }
 
@@ -126,6 +130,7 @@ dependencies {
     runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
     compileOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}")
+    runtimeOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:${ct_version}")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

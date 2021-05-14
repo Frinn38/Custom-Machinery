@@ -56,8 +56,6 @@ public class CustomMachineItem extends BlockItem {
             CompoundNBT nbt = new CompoundNBT();
             nbt.putString("id", CustomMachineTile.DUMMY.toString());
             stack.setTag(nbt);
-        } else {
-            stack.getTag().putString("id", CustomMachineTile.DUMMY.toString());
         }
         super.onCreated(stack, worldIn, playerIn);
     }
