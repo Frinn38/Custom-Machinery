@@ -32,6 +32,12 @@ public class CustomMachineJEIPlugin implements IModPlugin {
 
     @ParametersAreNonnullByDefault
     @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+        registration.useNbtForSubtypes(Registration.CUSTOM_MACHINE_ITEM.get());
+    }
+
+    @ParametersAreNonnullByDefault
+    @Override
     public void registerCategories(IRecipeCategoryRegistration registry) {
         CustomMachinery.MACHINES.forEach((id, machine) -> registry.addRecipeCategories(new CustomMachineRecipeCategory(machine, registry.getJeiHelpers().getGuiHelper())));
     }
