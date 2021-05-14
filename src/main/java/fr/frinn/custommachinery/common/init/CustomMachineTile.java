@@ -117,6 +117,8 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+        if(this.componentManager == null)
+            return LazyOptional.empty();
         for (ICapabilityMachineComponent component : this.componentManager.getCapabilityComponents()) {
             LazyOptional<T> capability = component.getCapability(cap, side);
             if(capability != LazyOptional.empty())
