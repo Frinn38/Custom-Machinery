@@ -153,37 +153,40 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     @Nonnull
     @Override
-    public FluidStack drain(FluidStack toExtract, FluidAction action) {
-        int maxExtract = toExtract.getAmount();
+    public FluidStack drain(FluidStack maxDrain, FluidAction action) {
+        int remainingToDrain = maxDrain.getAmount();
         for (FluidMachineComponent component : this.getComponents()) {
-            if(!component.getFluidStack().isEmpty() && component.isFluidValid(toExtract) && component.getMode().isOutput()) {
-                FluidStack stack = component.extract(toExtract.getAmount(), FluidAction.SIMULATE);
-                if(stack.getAmount() > maxExtract) {
+            if(!component.getFluidStack().isEmpty() && component.isFluidValid(maxDrain) && component.getMode().isOutput()) {
+                FluidStack stack = component.extract(maxDrain.getAmount(), FluidAction.SIMULATE);
+                if(stack.getAmount() > remainingToDrain) {
                     if(action.execute()) {
-                        component.extract(toExtract.getAmount(), FluidAction.EXECUTE);
+                        component.extract(maxDrain.getAmount(), FluidAction.EXECUTE);
                     }
-                    return toExtract;
+                    return maxDrain;
                 } else {
                     if(action.execute()) {
                         component.extract(stack.getAmount(), FluidAction.EXECUTE);
                         getManager().markDirty();
                     }
-                    maxExtract -= stack.getAmount();
+                    remainingToDrain -= stack.getAmount();
                 }
             }
         }
-        return FluidStack.EMPTY;
+        if(remainingToDrain == maxDrain.getAmount())
+            return FluidStack.EMPTY;
+        else
+            return new FluidStack(maxDrain.getFluid(), maxDrain.getAmount() - remainingToDrain);
     }
 
     @Nonnull
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
         Fluid fluid = Fluids.EMPTY;
-        int toDrain = maxDrain;
+        int remainingToDrain = maxDrain;
         for (FluidMachineComponent component : this.getComponents()) {
             if(!component.getFluidStack().isEmpty() && component.getMode().isOutput() && (fluid == Fluids.EMPTY || fluid == component.getFluidStack().getFluid())) {
-                FluidStack stack = component.extract(toDrain, FluidAction.SIMULATE);
-                if(stack.getAmount() > toDrain) {
+                FluidStack stack = component.extract(remainingToDrain, FluidAction.SIMULATE);
+                if(stack.getAmount() > remainingToDrain) {
                     if(action.execute()) {
                         component.extract(maxDrain, FluidAction.EXECUTE);
                         getManager().markDirty();
@@ -195,14 +198,14 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                         component.extract(stack.getAmount(), FluidAction.EXECUTE);
                         getManager().markDirty();
                     }
-                    toDrain -= stack.getAmount();
+                    remainingToDrain -= stack.getAmount();
                 }
             }
         }
-        if(fluid == null || toDrain == 0)
+        if(fluid == null || remainingToDrain == maxDrain)
             return FluidStack.EMPTY;
         else
-            return new FluidStack(fluid, toDrain);
+            return new FluidStack(fluid, maxDrain - remainingToDrain);
     }
 
     /** RECIPE STUFF **/
