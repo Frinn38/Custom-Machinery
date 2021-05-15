@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,15 +52,11 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     }
 
     @Override
-    public void addJeiIngredients(IIngredients ingredients) {
-        if(this.item != null && this.item != Items.AIR) {
-            if(this.mode == IRequirement.MODE.INPUT)
-                ingredients.setInput(VanillaTypes.ITEM, new ItemStack(this.item, this.amount));
-            else
-                ingredients.setOutput(VanillaTypes.ITEM, new ItemStack(this.item, this.amount));
-        } else if(this.tag != null && this.mode == IRequirement.MODE.INPUT) {
-            List<ItemStack> inputs = this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
-            ingredients.setInputs(VanillaTypes.ITEM, inputs);
-        } else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
+    public List<ItemStack> getJeiIngredients() {
+        if(this.item != null && this.item != Items.AIR)
+            return Collections.singletonList(new ItemStack(this.item, this.amount));
+        else if(this.tag != null && this.mode == IRequirement.MODE.INPUT)
+            return this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
+        else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
     }
 }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.client.render.element.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.render.element.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
+import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.gui.IRecipeLayout;
@@ -16,7 +17,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachineRecipe> {
@@ -59,7 +63,22 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @ParametersAreNonnullByDefault
     @Override
     public void setIngredients(CustomMachineRecipe recipe, IIngredients ingredients) {
-        recipe.getJEIRequirements().forEach(requirement -> requirement.getJEIIngredientWrapper().addJeiIngredients(ingredients));
+        Map<IIngredientType<Object>, List<List<Object>>> ingredientInputMap = new HashMap<>();
+        Map<IIngredientType<Object>, List<List<Object>>> ingredientOutputMap = new HashMap<>();
+        recipe.getJEIRequirements().forEach(requirement -> {
+            IIngredientType<Object> type = requirement.getJEIIngredientWrapper().getJEIIngredientType();
+            if(((IRequirement<?>)requirement).getMode() == IRequirement.MODE.INPUT) {
+                if(!ingredientInputMap.containsKey(type))
+                    ingredientInputMap.put(type, new ArrayList<>());
+                ingredientInputMap.get(type).add(requirement.getJEIIngredientWrapper().getJeiIngredients());
+            } else {
+                if(!ingredientOutputMap.containsKey(type))
+                    ingredientOutputMap.put(type, new ArrayList<>());
+                ingredientOutputMap.get(type).add(requirement.getJEIIngredientWrapper().getJeiIngredients());
+            }
+        });
+        ingredientInputMap.forEach(ingredients::setInputLists);
+        ingredientOutputMap.forEach(ingredients::setOutputLists);
     }
 
     @ParametersAreNonnullByDefault

@@ -4,7 +4,9 @@ import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
+
+import java.util.Collections;
+import java.util.List;
 
 public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
@@ -27,10 +29,7 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
     }
 
     @Override
-    public void addJeiIngredients(IIngredients ingredients) {
-        if(this.mode == IRequirement.MODE.INPUT)
-            ingredients.setInput(CustomIngredientTypes.ENERGY, this.energy);
-        else
-            ingredients.setOutput(CustomIngredientTypes.ENERGY, this.energy);
+    public List<Energy> getJeiIngredients() {
+        return Collections.singletonList(this.energy);
     }
 }
