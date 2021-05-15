@@ -18,10 +18,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -30,6 +27,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private CustomMachineTile tile;
     private Random rand;
     private CustomMachineRecipe currentRecipe;
+    private CustomMachineRecipe previousRecipe;
     public int recipeProgressTime = 0;
     public int recipeTotalTime = 0; //For client GUI only
     private List<IRequirement<?>> processedRequirements;
@@ -48,15 +46,24 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     public void tick() {
         if(this.currentRecipe == null) {
-            this.recipeProgressTime = 0;
-            CustomMachineRecipe recipe = this.findRecipe();
-            if(recipe != null) {
-                this.currentRecipe = recipe;
-                this.recipeTotalTime = recipe.getRecipeTime();
+            if(this.previousRecipe != null && this.previousRecipe.getMachine().equals(this.tile.getMachine().getId()) && this.previousRecipe.matches(this.tile)) {
+                this.currentRecipe = this.previousRecipe;
+                this.recipeTotalTime = this.currentRecipe.getRecipeTime();
                 this.phase = PHASE.STARTING;
                 this.setRunning();
             }
-        } else {
+            if(this.currentRecipe == null) {
+                this.findRecipe().ifPresent(recipe -> {
+                    this.currentRecipe = recipe;
+                    this.recipeTotalTime = this.currentRecipe.getRecipeTime();
+                    this.phase = PHASE.STARTING;
+                    this.setRunning();
+                });
+            }
+            if(this.currentRecipe == null)
+                this.setIdle();
+        }
+        if(this.currentRecipe != null) {
             switch (this.phase) {
                 case STARTING:
                     for(IRequirement requirement : this.currentRecipe.getRequirements()) {
@@ -80,7 +87,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                         this.phase = PHASE.CRAFTING;
                         this.processedRequirements.clear();
                     }
-                    break;
                 case CRAFTING:
                     List<ITickableRequirement> tickableRequirements = this.currentRecipe.getRequirements()
                             .stream()
@@ -111,7 +117,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                     }
                     if(this.recipeProgressTime == this.currentRecipe.getRecipeTime())
                         this.phase = PHASE.ENDING;
-                    break;
+
                 case ENDING:
                     for(IRequirement requirement : this.currentRecipe.getRequirements()) {
                         if(!this.processedRequirements.contains(requirement)) {
@@ -130,24 +136,22 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                     }
 
                     if(this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
+                        this.previousRecipe = this.currentRecipe;
                         this.currentRecipe = null;
-                        this.setIdle();
+                        this.recipeProgressTime = 0;
                         this.processedRequirements.clear();
                     }
-                    break;
             }
         }
-
     }
 
-    private CustomMachineRecipe findRecipe() {
+    private Optional<CustomMachineRecipe> findRecipe() {
         return this.tile.getWorld().getRecipeManager()
                 .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
                 .stream()
                 .filter(recipe -> recipe.getMachine().equals(this.tile.getMachine().getId()))
                 .filter(recipe -> recipe.matches(this.tile))
-                .max(Comparators.CUSTOM_MACHINE_RECIPE_COMPARATOR)
-                .orElse(null);
+                .max(Comparators.CUSTOM_MACHINE_RECIPE_COMPARATOR);
     }
 
     public ITextComponent getErrorMessage() {
