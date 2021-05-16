@@ -136,14 +136,14 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     @Override
     public ItemStack extractItem(int index, int amount, boolean simulate) {
         ItemMachineComponent component = this.getComponents().get(index);
-        if(!component.getMode().isOutput())
+        if(!component.getMode().isOutput() || component.getItemStack().isEmpty())
             return ItemStack.EMPTY;
-        int maxExtract = component.getItemStack().isEmpty() ? 0 : Math.min(component.getItemStack().getCount(), amount);
+        ItemStack stack = new ItemStack(component.getItemStack().getItem(), Math.min(component.getItemStack().getCount(), amount));
         if(!simulate) {
-            component.extract(maxExtract);
+            component.extract(stack.getCount());
             getManager().markDirty();
         }
-        return new ItemStack(component.getItemStack().getItem(), maxExtract);
+        return stack;
     }
 
     @Override
