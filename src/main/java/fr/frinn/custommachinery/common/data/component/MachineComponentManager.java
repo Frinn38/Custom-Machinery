@@ -10,13 +10,17 @@ import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoCompone
 import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.energy.CapabilityEnergy;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
 
@@ -102,6 +106,27 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
 
     public CustomMachineTile getTile() {
         return this.tile;
+    }
+
+    public void tick() {
+        getTickableComponents().forEach(ITickableMachineComponent::tick);
+        getEnergy().ifPresent(energyComponent -> {
+            for (Direction direction : Direction.values()) {
+                TileEntity tile = this.tile.getWorld().getTileEntity(this.tile.getPos().offset(direction));
+                if(tile != null) {
+                    tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite()).ifPresent(energy -> {
+                        int maxOutput = energyComponent.extractEnergy(Integer.MAX_VALUE, true);
+                        if(maxOutput > 0) {
+                            int toOutput = energy.receiveEnergy(maxOutput, true);
+                            if(toOutput > 0) {
+                                energyComponent.extractEnergy(toOutput, false);
+                                energy.receiveEnergy(toOutput, false);
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public void markDirty() {
