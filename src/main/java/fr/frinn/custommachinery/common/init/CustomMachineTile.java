@@ -7,7 +7,6 @@ import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
-import fr.frinn.custommachinery.common.data.component.ITickableMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
@@ -80,7 +79,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             return;
 
         if(!this.world.isRemote()) {
-            this.fuelManager.consume();
+            this.fuelManager.tick();
             this.componentManager.tick();
             this.craftingManager.tick();
 

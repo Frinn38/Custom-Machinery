@@ -33,13 +33,11 @@ public class FuelManager implements INBTSerializable<CompoundNBT> {
         this.tile.markDirty();
     }
 
-    public boolean consume() {
+    public void tick() {
         if(this.fuel > 0) {
             this.fuel--;
             this.tile.markDirty();
-            return true;
         }
-        return false;
     }
 
     @Override
