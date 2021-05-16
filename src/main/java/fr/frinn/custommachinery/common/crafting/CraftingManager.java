@@ -64,83 +64,81 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 this.setIdle();
         }
         if(this.currentRecipe != null) {
-            switch (this.phase) {
-                case STARTING:
-                    for(IRequirement requirement : this.currentRecipe.getRequirements()) {
-                        if(!this.processedRequirements.contains(requirement)) {
-                            if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(this.rand)) {
-                                this.processedRequirements.add(requirement);
-                                continue;
-                            }
-                            IMachineComponent component = this.tile.componentManager.getComponent(requirement.getComponentType()).get();
-                            CraftingResult result = requirement.processStart(component);
-                            if(!result.isSuccess()) {
-                                this.setErrored(result.getMessage());
-                                break;
-                            }
-                            else this.processedRequirements.add(requirement);
+            if(this.phase == PHASE.STARTING) {
+                for (IRequirement requirement : this.currentRecipe.getRequirements()) {
+                    if (!this.processedRequirements.contains(requirement)) {
+                        if (requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(this.rand)) {
+                            this.processedRequirements.add(requirement);
+                            continue;
                         }
+                        IMachineComponent component = this.tile.componentManager.getComponent(requirement.getComponentType()).get();
+                        CraftingResult result = requirement.processStart(component);
+                        if (!result.isSuccess()) {
+                            this.setErrored(result.getMessage());
+                            break;
+                        } else this.processedRequirements.add(requirement);
                     }
+                }
 
-                    if(this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
-                        this.setRunning();
-                        this.phase = PHASE.CRAFTING;
-                        this.processedRequirements.clear();
-                    }
-                case CRAFTING:
-                    List<ITickableRequirement> tickableRequirements = this.currentRecipe.getRequirements()
-                            .stream()
-                            .filter(requirement -> requirement instanceof ITickableRequirement)
-                            .map(requirement -> (ITickableRequirement)requirement)
-                            .collect(Collectors.toList());
+                if (this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
+                    this.setRunning();
+                    this.phase = PHASE.CRAFTING;
+                    this.processedRequirements.clear();
+                }
+            }
+            if(this.phase == PHASE.CRAFTING) {
+                List<ITickableRequirement> tickableRequirements = this.currentRecipe.getRequirements()
+                        .stream()
+                        .filter(requirement -> requirement instanceof ITickableRequirement)
+                        .map(requirement -> (ITickableRequirement) requirement)
+                        .collect(Collectors.toList());
 
-                    for (ITickableRequirement tickableRequirement : tickableRequirements) {
-                        if(!this.processedRequirements.contains(tickableRequirement)) {
-                            if(tickableRequirement instanceof IChanceableRequirement && ((IChanceableRequirement) tickableRequirement).testChance(this.rand)) {
-                                this.processedRequirements.add(tickableRequirement);
-                                continue;
-                            }
-                            CraftingResult result = tickableRequirement.processTick(this.tile.componentManager.getComponent(tickableRequirement.getComponentType()).get());
-                            if(!result.isSuccess()) {
-                                this.setErrored(result.getMessage());
-                                break;
-                            }
-                            else
-                                this.processedRequirements.add(tickableRequirement);
+                for (ITickableRequirement tickableRequirement : tickableRequirements) {
+                    if (!this.processedRequirements.contains(tickableRequirement)) {
+                        if (tickableRequirement instanceof IChanceableRequirement && ((IChanceableRequirement) tickableRequirement).testChance(this.rand)) {
+                            this.processedRequirements.add(tickableRequirement);
+                            continue;
                         }
+                        CraftingResult result = tickableRequirement.processTick(this.tile.componentManager.getComponent(tickableRequirement.getComponentType()).get());
+                        if (!result.isSuccess()) {
+                            this.setErrored(result.getMessage());
+                            break;
+                        } else
+                            this.processedRequirements.add(tickableRequirement);
                     }
+                }
 
-                    if(this.processedRequirements.size() == tickableRequirements.size()) {
-                        this.recipeProgressTime++;
-                        this.setRunning();
-                        this.processedRequirements.clear();
-                    }
-                    if(this.recipeProgressTime == this.currentRecipe.getRecipeTime())
-                        this.phase = PHASE.ENDING;
-
-                case ENDING:
-                    for(IRequirement requirement : this.currentRecipe.getRequirements()) {
-                        if(!this.processedRequirements.contains(requirement)) {
-                            if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(this.rand)) {
-                                this.processedRequirements.add(requirement);
-                                continue;
-                            }
-                            CraftingResult result = requirement.processEnd(this.tile.componentManager.getComponentRaw(requirement.getComponentType()));
-                            if(!result.isSuccess()) {
-                                this.setErrored(result.getMessage());
-                                break;
-                            }
-                            else
-                                this.processedRequirements.add(requirement);
+                if (this.processedRequirements.size() == tickableRequirements.size()) {
+                    this.recipeProgressTime++;
+                    this.setRunning();
+                    this.processedRequirements.clear();
+                }
+                if (this.recipeProgressTime == this.currentRecipe.getRecipeTime())
+                    this.phase = PHASE.ENDING;
+            }
+            if(this.phase == PHASE.ENDING) {
+                for(IRequirement requirement : this.currentRecipe.getRequirements()) {
+                    if(!this.processedRequirements.contains(requirement)) {
+                        if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(this.rand)) {
+                            this.processedRequirements.add(requirement);
+                            continue;
                         }
+                        CraftingResult result = requirement.processEnd(this.tile.componentManager.getComponentRaw(requirement.getComponentType()));
+                        if(!result.isSuccess()) {
+                            this.setErrored(result.getMessage());
+                            break;
+                        }
+                        else
+                            this.processedRequirements.add(requirement);
                     }
+                }
 
-                    if(this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
-                        this.previousRecipe = this.currentRecipe;
-                        this.currentRecipe = null;
-                        this.recipeProgressTime = 0;
-                        this.processedRequirements.clear();
-                    }
+                if(this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
+                    this.previousRecipe = this.currentRecipe;
+                    this.currentRecipe = null;
+                    this.recipeProgressTime = 0;
+                    this.processedRequirements.clear();
+                }
             }
         }
     }
