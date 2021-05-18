@@ -49,12 +49,12 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         super(mode);
         this.amount = amount;
         if(mode == MODE.OUTPUT) {
-            if(item != DEFAULT_ITEM)
+            if(item != DEFAULT_ITEM && item != null)
                 this.item = item;
             else throw new IllegalArgumentException("You must specify an item for an Output Item Requirement");
         } else {
-            if(item == DEFAULT_ITEM) {
-                if(tagLocation == DEFAULT_TAG)
+            if(item == DEFAULT_ITEM || item == null) {
+                if(tagLocation == DEFAULT_TAG || tagLocation == null)
                     throw  new IllegalArgumentException("You must specify either an item or an item tag for an Input Item Requirement");
                 ITag<Item> tag = TagCollectionManager.getManager().getItemTags().get(tagLocation);
                 if(tag == null)

@@ -49,12 +49,12 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
         super(mode);
         this.amount = amount;
         if(mode == MODE.OUTPUT) {
-            if(fluid != DEFAULT_FLUID)
+            if(fluid != DEFAULT_FLUID && fluid != null)
                 this.fluid = fluid;
             else throw new IllegalArgumentException("You must specify a fluid for an Output Fluid Requirement");
         } else {
-            if(fluid == DEFAULT_FLUID) {
-                if(tagLocation == DEFAULT_TAG)
+            if(fluid == DEFAULT_FLUID || fluid == null) {
+                if(tagLocation == DEFAULT_TAG || tagLocation == null)
                     throw  new IllegalArgumentException("You must specify either a fluid or a fluid tag for an Input Fluid Requirement");
                 ITag<Fluid> tag = TagCollectionManager.getManager().getFluidTags().get(tagLocation);
                 if(tag == null)
