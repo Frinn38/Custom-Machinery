@@ -8,20 +8,27 @@ import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeColors;
+import net.minecraft.world.level.ColorResolver;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -44,6 +51,10 @@ public class ClientHandler {
     @SubscribeEvent
     public static void modelRegistry(final ModelRegistryEvent event) {
         ModelLoader.addSpecialModel(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"));
+        Minecraft.getInstance().getResourceManager().getAllResourceLocations("models/machines", s -> s.endsWith(".json")).forEach(rl -> {
+            ResourceLocation modelRL = new ResourceLocation(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
+            ModelLoader.addSpecialModel(modelRL);
+        });
     }
 
     @SubscribeEvent
@@ -51,9 +62,42 @@ public class ClientHandler {
         Registration.CUSTOM_MACHINE_BLOCK.get().getStateContainer().getValidStates().forEach(state -> {
             ModelResourceLocation modelLocation = BlockModelShapes.getModelLocation(state);
             if(event.getModelRegistry().containsKey(modelLocation))
-                event.getModelRegistry().replace(BlockModelShapes.getModelLocation(state), new WrappedBakedModel(event.getModelRegistry().get(modelLocation)));
-            event.getModelRegistry().put(modelLocation, new DummyBakedModel());
+                event.getModelRegistry().replace(modelLocation, new WrappedBakedModel(event.getModelRegistry().get(modelLocation)));
+            else
+                event.getModelRegistry().put(modelLocation, new DummyBakedModel());
         });
+    }
+
+    @SubscribeEvent
+    public static void registerBlockColors(final ColorHandlerEvent.Block event) {
+        event.getBlockColors().register((state, world, pos, tintIndex) -> {
+            if(world == null || pos == null)
+                return 0;
+            switch (tintIndex) {
+                case 1:
+                    return world.getBlockColor(pos, BiomeColors.WATER_COLOR);
+                case 2:
+                    return world.getBlockColor(pos, BiomeColors.GRASS_COLOR);
+                case 3:
+                    return world.getBlockColor(pos, BiomeColors.FOLIAGE_COLOR);
+                case 4:
+                    TileEntity tile = world.getTileEntity(pos);
+                    if(tile instanceof CustomMachineTile)
+                        return ((CustomMachineTile)tile).getMachine().getAppearance().getColor();
+                default:
+                    return 0;
+            }
+        }, Registration.CUSTOM_MACHINE_BLOCK.get());
+    }
+
+    @SubscribeEvent
+    public static void registerItemColors(final ColorHandlerEvent.Item event) {
+        event.getItemColors().register((stack, tintIndex) -> {
+            BlockState state = Registration.CUSTOM_MACHINE_BLOCK.get().getDefaultState();
+            World world = Minecraft.getInstance().world;
+            BlockPos pos = Minecraft.getInstance().player.getPosition();
+            return Minecraft.getInstance().getBlockColors().getColor(state, world, pos, tintIndex);
+        }, Registration.CUSTOM_MACHINE_ITEM::get);
     }
 
     public static void openMachineLoadingScreen() {

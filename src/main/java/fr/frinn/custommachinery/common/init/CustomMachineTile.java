@@ -87,8 +87,6 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
                 this.refreshLightning();
 
         } else {
-            if(this.modelDataMap == null)
-                this.setupModelData();
             if(this.soundManager == null)
                 this.soundManager = new SoundManager(this.pos);
             if(getMachine().getAppearance().getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance().getSound().getName().equals(this.soundManager.getSound()))
@@ -210,21 +208,9 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
 
     /**CLIENT STUFF**/
 
-    private ModelDataMap modelDataMap;
-    private boolean needRefresh = false;
-
-    private void setupModelData() {
-        this.modelDataMap = new ModelDataMap.Builder().withInitial(DummyBakedModel.PARTICLE_TEXTURE, ClientHandler.getParticleTexture(getMachine().getAppearance())).build();
-        this.needRefresh = true;
-    }
-
     @Nonnull
     @Override
     public IModelData getModelData() {
-        if(this.needRefresh) {
-            ModelDataManager.requestModelDataRefresh(this);
-            this.needRefresh = false;
-        }
-        return this.modelDataMap == null ? EmptyModelData.INSTANCE : this.modelDataMap;
+        return new ModelDataMap.Builder().withInitial(DummyBakedModel.PARTICLE_TEXTURE, ClientHandler.getParticleTexture(getMachine().getAppearance())).build();
     }
 }

@@ -22,6 +22,7 @@ public class MachineAppearance {
     public static final SoundEvent DEFAULT_SOUND = new SoundEvent(new ResourceLocation(""));
     public static final LightMode DEFAULT_LIGHT_MODE = LightMode.NEVER;
     public static final int DEFAULT_LIGHT_LEVEL = 0;
+    public static final int DEFAULT_COLOR = 0xFFFFFF;
 
     @SuppressWarnings("deprecation")
     public static final Codec<MachineAppearance> CODEC = RecordCodecBuilder.create(machineAppearanceCodec ->
@@ -33,12 +34,13 @@ public class MachineAppearance {
                     ResourceLocation.CODEC.optionalFieldOf("item", DEFAULT_ITEM).forGetter(machineAppearance -> machineAppearance.itemTexture),
                     SoundEvent.CODEC.optionalFieldOf("sound", DEFAULT_SOUND).forGetter(machineAppearance -> machineAppearance.sound),
                     Codecs.LIGHT_MODE_CODEC.optionalFieldOf("lightmode", DEFAULT_LIGHT_MODE).forGetter(machineAppearance -> machineAppearance.lightMode),
-                    Codec.INT.optionalFieldOf("lightlevel", DEFAULT_LIGHT_LEVEL).forGetter(machineAppearance -> machineAppearance.lightLevel)
+                    Codec.INT.optionalFieldOf("lightlevel", DEFAULT_LIGHT_LEVEL).forGetter(machineAppearance -> machineAppearance.lightLevel),
+                    Codec.INT.optionalFieldOf("color", DEFAULT_COLOR).forGetter(machineAppearance -> machineAppearance.color)
             ).apply(machineAppearanceCodec, MachineAppearance::new)
     );
 
 
-    public static final MachineAppearance DUMMY = new MachineAppearance(AppearanceType.DEFAULT, DEFAULT_MODEL, DEFAULT_BLOCK, DEFAULT_BLOCKSTATE, DEFAULT_ITEM, DEFAULT_SOUND, DEFAULT_LIGHT_MODE, DEFAULT_LIGHT_LEVEL);
+    public static final MachineAppearance DUMMY = new MachineAppearance(AppearanceType.DEFAULT, DEFAULT_MODEL, DEFAULT_BLOCK, DEFAULT_BLOCKSTATE, DEFAULT_ITEM, DEFAULT_SOUND, DEFAULT_LIGHT_MODE, DEFAULT_LIGHT_LEVEL, DEFAULT_COLOR);
 
     private AppearanceType type;
     private ResourceLocation model;
@@ -48,8 +50,9 @@ public class MachineAppearance {
     private SoundEvent sound;
     private LightMode lightMode;
     private int lightLevel;
+    private int color;
 
-    public MachineAppearance(AppearanceType type, ResourceLocation model, Block block, ModelResourceLocation state, ResourceLocation itemTexture, SoundEvent sound, LightMode lightMode, int lightLevel) {
+    public MachineAppearance(AppearanceType type, ResourceLocation model, Block block, ModelResourceLocation state, ResourceLocation itemTexture, SoundEvent sound, LightMode lightMode, int lightLevel, int color) {
         this.type = type;
         this.model = model;
         this.block = block;
@@ -58,6 +61,7 @@ public class MachineAppearance {
         this.sound = sound;
         this.lightMode = lightMode;
         this.lightLevel = MathHelper.clamp(lightLevel, 0, 15);
+        this.color = color;
         if(this.type == AppearanceType.DEFAULT) {
             if (this.blockstate != null && this.blockstate != DEFAULT_BLOCKSTATE)
                 this.type = AppearanceType.BLOCKSTATE;
@@ -94,6 +98,10 @@ public class MachineAppearance {
 
     public int getLightLevel() {
         return this.lightLevel;
+    }
+
+    public int getColor() {
+        return this.color;
     }
 
     public AppearanceType getType() {

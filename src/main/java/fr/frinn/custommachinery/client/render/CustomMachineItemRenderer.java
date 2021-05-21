@@ -3,13 +3,17 @@ package fr.frinn.custommachinery.client.render;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
+import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.util.Color3F;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -24,54 +28,15 @@ public class CustomMachineItemRenderer extends ItemStackTileEntityRenderer {
             if(!CustomMachinery.MACHINES.containsKey(id) && !MachineLoadingScreen.INSTANCE.getBuilders().containsKey(id))
                 return;
 
-            MachineAppearance appearance = CustomMachinery.MACHINES.get(id) == null ? MachineLoadingScreen.INSTANCE.getBuilders().get(id).getAppearance().build() : CustomMachinery.MACHINES.get(id).getAppearance();
-
-            ResourceLocation texture = appearance.getItemTexture();
-            if(texture == null || texture == MachineAppearance.DEFAULT_ITEM) {
-                matrix.push();
-                this.handleTransformations(matrix, transformType);
-                CustomMachineRenderer.renderMachineAppearance(appearance, 0, matrix, buffer, combinedLight, combinedOverlay);
-                matrix.pop();
-            }
-        }
-    }
-
-    private void handleTransformations(MatrixStack matrix, ItemCameraTransforms.TransformType transformType) {
-        if(transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND) {
-            matrix.translate(0.4F, -0.1F, 0.05F);
-            matrix.scale(0.625F, 0.625F, 0.625F);
-            matrix.rotate(Vector3f.YP.rotationDegrees(45));
-        }
-        else if(transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND) {
-            matrix.translate(-0.3F, -0.1F, 0.0F);
-            matrix.scale(0.625F, 0.625F, 0.625F);
-            matrix.rotate(Vector3f.YP.rotationDegrees(45));
-        }
-        else if(transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND) {
-            matrix.translate(0.25F, 0.6F, 0.35F);
-            matrix.scale(0.375F, 0.375F, 0.375F);
-            matrix.rotate(Vector3f.XP.rotationDegrees(75));
-            matrix.rotate(Vector3f.YP.rotationDegrees(45));
-        }
-        else if(transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND) {
-            matrix.translate(0.25F, 0.6F, 0.35F);
-            matrix.scale(0.375F, 0.375F, 0.375F);
-            matrix.rotate(Vector3f.XP.rotationDegrees(75));
-            matrix.rotate(Vector3f.YP.rotationDegrees(45));
-        }
-        else if(transformType == ItemCameraTransforms.TransformType.GUI) {
-            matrix.translate(0.94F, 0.24F, 0.0F);
-            matrix.scale(0.625F, 0.625F, 0.625F);
-            matrix.rotate(Vector3f.XP.rotationDegrees(30));
-            matrix.rotate(Vector3f.YP.rotationDegrees(225));
-        }
-        else if(transformType == ItemCameraTransforms.TransformType.FIXED) {
-            matrix.translate(0.25F, 0.25F, 0.25F);
-            matrix.scale(0.5F, 0.5F, 0.5F);
-        }
-        else if(transformType == ItemCameraTransforms.TransformType.GROUND) {
-            matrix.translate(0.4F, 0.4F, 0.4F);
-            matrix.scale(0.25F, 0.25F, 0.25F);
+            CustomMachine machine = CustomMachinery.MACHINES.get(id);
+            matrix.push();
+            matrix.translate(0.5, 0.5, 0.5);
+            if(transformType.isFirstPerson())
+                matrix.rotate(Vector3f.YP.rotationDegrees(90));
+            ForgeHooksClient.handleCameraTransforms(matrix, CustomMachineRenderer.getMachineModel(machine.getAppearance()), transformType, transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND);
+            matrix.translate(-0.5, -0.5, -0.5);
+            CustomMachineRenderer.renderMachine(machine, 0, matrix, buffer, combinedLight, combinedOverlay, tintIndex -> Color3F.of(Minecraft.getInstance().getItemColors().getColor(stack, tintIndex)));
+            matrix.pop();
         }
     }
 }

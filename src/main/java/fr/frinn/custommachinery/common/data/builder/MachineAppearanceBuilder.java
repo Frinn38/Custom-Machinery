@@ -16,6 +16,7 @@ public class MachineAppearanceBuilder {
     private SoundEvent sound;
     private MachineAppearance.LightMode lightMode;
     private int lightLevel;
+    private int color;
 
     public MachineAppearanceBuilder() {
         this.type = MachineAppearance.AppearanceType.DEFAULT;
@@ -26,6 +27,7 @@ public class MachineAppearanceBuilder {
         this.sound = MachineAppearance.DEFAULT_SOUND;
         this.lightMode = MachineAppearance.DEFAULT_LIGHT_MODE;
         this.lightLevel = MachineAppearance.DEFAULT_LIGHT_LEVEL;
+        this.color = MachineAppearance.DEFAULT_COLOR;
     }
 
     public MachineAppearanceBuilder(MachineAppearance appearance) {
@@ -37,6 +39,7 @@ public class MachineAppearanceBuilder {
         this.sound = appearance.getSound();
         this.lightMode = appearance.getLightMode();
         this.lightLevel = appearance.getLightLevel();
+        this.color = appearance.getColor();
     }
 
     public MachineAppearance.AppearanceType getType() {
@@ -103,7 +106,15 @@ public class MachineAppearanceBuilder {
         this.lightLevel = lightLevel;
     }
 
+    public int getColor() {
+        return this.color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
     public MachineAppearance build() {
-        return new MachineAppearance(this.getType(), this.model, this.block, this.blockState, this.itemTexture, this.sound, this.lightMode, this.lightLevel);
+        return new MachineAppearance(this.getType(), this.model, this.block, this.blockState, this.itemTexture, this.sound, this.lightMode, this.lightLevel, this.color);
     }
 }

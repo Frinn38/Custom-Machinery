@@ -2,7 +2,8 @@
   "name": "Stone Generator",
   "appearance": {
     "lightmode": "running",
-    "lightlevel": 7
+    "lightlevel": 7,
+    "model": "testresourcepack:machines/stone_generator_model"
   },
   "components": [
     {
