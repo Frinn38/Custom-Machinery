@@ -51,7 +51,7 @@ public class ClientHandler {
     @SubscribeEvent
     public static void modelRegistry(final ModelRegistryEvent event) {
         ModelLoader.addSpecialModel(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"));
-        Minecraft.getInstance().getResourceManager().getAllResourceLocations("models/machines", s -> s.endsWith(".json")).forEach(rl -> {
+        Minecraft.getInstance().getResourceManager().getAllResourceLocations("models/machine", s -> s.endsWith(".json")).forEach(rl -> {
             ResourceLocation modelRL = new ResourceLocation(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
             ModelLoader.addSpecialModel(modelRL);
         });
