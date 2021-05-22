@@ -37,7 +37,7 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
             if(weather == WeatherType.RAIN)
                 return world.isRaining();
             else if(weather == WeatherType.SNOW)
-                return world.isRaining() && world.getBiome(pos).getPrecipitation() == Biome.RainType.SNOW;
+                return world.isRaining() && world.getBiome(pos).getPrecipitation() == Biome.RainType.SNOW && world.getBiome(pos).getTemperature(pos) < 0.15;
             else if(weather == WeatherType.THUNDER)
                 return world.isThundering();
             else if(weather == WeatherType.CLEAR)
