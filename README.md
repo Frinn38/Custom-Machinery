@@ -15,6 +15,8 @@ You can find some working examples of Custom Machines [here](https://github.com/
 
 You can download the full test datapack [here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FFrinn38%2FCustom-Machinery%2Ftree%2F1.16.5%2Ftest_datapack) (It can takes a few seconds to complete the files zipping) Just download the zip and extract it in `World/datapacks/test_datapack/` (you can replace "test_datapack" with what you want)
 
+You can download a test resourcepack [here](https://download-directory.github.io/?url=https://github.com/Frinn38/Custom-Machinery/tree/1.16.5/test_resourcepack) This will give a custom model to the "Stone generator" machine present in the test resourcepack.
+
 ## Download
 
 Download this mod on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/custom-machinery)
