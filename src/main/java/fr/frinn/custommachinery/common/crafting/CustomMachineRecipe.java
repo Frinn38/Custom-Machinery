@@ -59,7 +59,7 @@ public class CustomMachineRecipe extends DummyRecipe {
     }
 
     public boolean matches(CustomMachineTile tile) {
-        return this.requirements.stream().allMatch(requirement -> {
+        return this.getMachine().equals(tile.getMachine().getId()) && this.requirements.stream().allMatch(requirement -> {
             if(tile.componentManager.hasComponent(requirement.getComponentType())) {
                  IMachineComponent component = tile.componentManager.getComponentRaw(requirement.getComponentType());
                  return ((IRequirement)requirement).test(component);

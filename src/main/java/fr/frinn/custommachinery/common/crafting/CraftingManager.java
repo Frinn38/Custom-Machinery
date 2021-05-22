@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.network.sync.StringSyncable;
 import fr.frinn.custommachinery.common.util.Comparators;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -27,7 +28,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private CustomMachineTile tile;
     private Random rand;
     private CustomMachineRecipe currentRecipe;
-    private CustomMachineRecipe previousRecipe;
+    private ResourceLocation previousRecipe;
     public int recipeProgressTime = 0;
     public int recipeTotalTime = 0; //For client GUI only
     private List<IRequirement<?>> processedRequirements;
@@ -46,11 +47,15 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     public void tick() {
         if(this.currentRecipe == null) {
-            if(this.previousRecipe != null && this.previousRecipe.getMachine().equals(this.tile.getMachine().getId()) && this.previousRecipe.matches(this.tile)) {
-                this.currentRecipe = this.previousRecipe;
-                this.recipeTotalTime = this.currentRecipe.getRecipeTime();
-                this.phase = PHASE.STARTING;
-                this.setRunning();
+            if(this.previousRecipe != null) {
+                this.tile.getWorld().getRecipeManager().getRecipe(this.previousRecipe).map(recipe -> (CustomMachineRecipe)recipe).ifPresent(recipe -> {
+                    if(recipe.matches(this.tile)) {
+                        this.currentRecipe = recipe;
+                        this.recipeTotalTime = this.currentRecipe.getRecipeTime();
+                        this.phase = PHASE.STARTING;
+                        this.setRunning();
+                    }
+                });
             }
             if(this.currentRecipe == null) {
                 this.findRecipe().ifPresent(recipe -> {
@@ -134,7 +139,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 }
 
                 if(this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
-                    this.previousRecipe = this.currentRecipe;
+                    this.previousRecipe = this.currentRecipe.getId();
                     this.currentRecipe = null;
                     this.recipeProgressTime = 0;
                     this.processedRequirements.clear();
@@ -147,7 +152,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         return this.tile.getWorld().getRecipeManager()
                 .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
                 .stream()
-                .filter(recipe -> recipe.getMachine().equals(this.tile.getMachine().getId()))
                 .filter(recipe -> recipe.matches(this.tile))
                 .max(Comparators.CUSTOM_MACHINE_RECIPE_COMPARATOR);
     }
