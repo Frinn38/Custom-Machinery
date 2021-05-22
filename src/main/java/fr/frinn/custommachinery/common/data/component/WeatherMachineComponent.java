@@ -1,0 +1,59 @@
+package fr.frinn.custommachinery.common.data.component;
+
+import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.Heightmap;
+
+import java.util.Locale;
+
+public class WeatherMachineComponent extends AbstractMachineComponent {
+
+    public WeatherMachineComponent(MachineComponentManager manager) {
+        super(manager, Mode.NONE);
+    }
+
+    @Override
+    public MachineComponentType<WeatherMachineComponent> getType() {
+        return Registration.WEATHER_MACHINE_COMPONENT.get();
+    }
+
+    public boolean hasWeather(WeatherType weather, boolean onTile) {
+        World world = this.getManager().getTile().getWorld();
+        BlockPos pos = this.getManager().getTile().getPos();
+        if(world == null)
+            return false;
+        if(onTile) {
+            if(weather == WeatherType.RAIN)
+                return world.isRainingAt(pos.up());
+            else if(weather == WeatherType.SNOW)
+                return world.isRaining() && world.canSeeSky(pos.up()) && world.getHeight(Heightmap.Type.MOTION_BLOCKING, pos.up()).getY() > pos.up().getY() && world.getBiome(pos).getPrecipitation() == Biome.RainType.SNOW;
+            else if(weather == WeatherType.THUNDER)
+                return world.isRainingAt(pos.up()) && world.isThundering();
+            else if(weather == WeatherType.CLEAR)
+                return !world.isRaining();
+        } else {
+            if(weather == WeatherType.RAIN)
+                return world.isRaining();
+            else if(weather == WeatherType.SNOW)
+                return world.isRaining() && world.getBiome(pos).getPrecipitation() == Biome.RainType.SNOW;
+            else if(weather == WeatherType.THUNDER)
+                return world.isThundering();
+            else if(weather == WeatherType.CLEAR)
+                return !world.isRaining();
+        }
+        return false;
+    }
+
+    public enum WeatherType {
+        CLEAR,
+        RAIN,
+        SNOW,
+        THUNDER;
+
+        public static WeatherType value(String value) {
+            return valueOf(value.toUpperCase(Locale.ENGLISH));
+        }
+    }
+}

@@ -65,5 +65,6 @@
   "custommachinery.requirements.item.error.input": "Not enough %s, %s needed but %s found !",
   "custommachinery.requirements.item.error.output": "Not enough space to store %s %s",
   "custommachinery.requirements.position.error": "This recipe cannot be processed at this location",
-  "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day"
+  "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day",
+  "custommachinery.requirements.weather.error": "This recipe cannot be processed with this weather, need: %s"
 }

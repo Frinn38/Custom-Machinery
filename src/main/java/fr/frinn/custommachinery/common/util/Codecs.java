@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
+import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
@@ -31,6 +32,7 @@ public class Codecs {
     public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString).stable();
     public static final Codec<TextGuiElement.Alignment> ALIGNMENT_CODEC                 = Codec.STRING.comapFlatMap(Codecs::decodeAlignment, TextGuiElement.Alignment::toString).stable();
     public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = Codec.STRING.comapFlatMap(Codecs::decodePhase, CraftingManager.PHASE::toString).stable();
+    public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeWeather, WeatherMachineComponent.WeatherType::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName);
     public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName);
@@ -136,6 +138,14 @@ public class Codecs {
             return DataResult.success(CraftingManager.PHASE.value(encoded));
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid Phase: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<WeatherMachineComponent.WeatherType> decodeWeather(String encoded) {
+        try {
+            return DataResult.success(WeatherMachineComponent.WeatherType.value(encoded));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error("Not a valid Weather Type: " + encoded + " " + e.getMessage());
         }
     }
 }
