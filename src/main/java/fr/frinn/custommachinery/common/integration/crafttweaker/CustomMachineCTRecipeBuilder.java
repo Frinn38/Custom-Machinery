@@ -8,9 +8,11 @@ import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
 import com.blamejared.crafttweaker.impl.tag.MCTag;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
+import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.crafting.requirements.*;
+import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PositionComparator;
@@ -221,6 +223,26 @@ public class CustomMachineCTRecipeBuilder {
         return this;
     }
 
+    /** COMMAND **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder runCommandOnStart(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log, @OptionalDouble(1.0D) double chance) {
+        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.STARTING, permissionLevel, log, chance));
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder runCommandEachTick(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log, @OptionalDouble(1.0D) double chance) {
+        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING, permissionLevel, log, chance));
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder runCommandOnEnd(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log, @OptionalDouble(1.0D) double chance) {
+        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.ENDING, permissionLevel, log, chance));
+        return this;
+    }
+
     /** EFFECT **/
 
     @Method
@@ -232,6 +254,14 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder giveEffectEachTick(Effect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
         this.builder.withRequirement(new EffectRequirement(effect, time, level, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), false));
+        return this;
+    }
+
+    /** WEATHER **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireWeather(String weatherType, @OptionalBoolean(true) boolean onMachine) {
+        this.builder.withRequirement(new WeatherRequirement(WeatherMachineComponent.WeatherType.value(weatherType), onMachine));
         return this;
     }
 
