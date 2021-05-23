@@ -28,7 +28,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private CustomMachineTile tile;
     private Random rand;
     private CustomMachineRecipe currentRecipe;
-    private ResourceLocation previousRecipe;
     public int recipeProgressTime = 0;
     public int recipeTotalTime = 0; //For client GUI only
     private List<IRequirement<?>> processedRequirements;
@@ -56,26 +55,12 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status == STATUS.PAUSED)
             return;
         if(this.currentRecipe == null) {
-            if(this.previousRecipe != null) {
-                this.tile.getWorld().getRecipeManager().getRecipe(this.previousRecipe).map(recipe -> (CustomMachineRecipe)recipe).ifPresent(recipe -> {
-                    if(recipe.matches(this.tile)) {
-                        this.currentRecipe = recipe;
-                        this.recipeTotalTime = this.currentRecipe.getRecipeTime();
-                        this.phase = PHASE.STARTING;
-                        this.setRunning();
-                    }
-                });
-            }
-            if(this.currentRecipe == null) {
-                this.findRecipe().ifPresent(recipe -> {
-                    this.currentRecipe = recipe;
-                    this.recipeTotalTime = this.currentRecipe.getRecipeTime();
-                    this.phase = PHASE.STARTING;
-                    this.setRunning();
-                });
-            }
-            if(this.currentRecipe == null)
-                this.setIdle();
+            this.findRecipe().ifPresent(recipe -> {
+                this.currentRecipe = recipe;
+                this.recipeTotalTime = this.currentRecipe.getRecipeTime();
+                this.phase = PHASE.STARTING;
+                this.setRunning();
+            });
         }
         if(this.currentRecipe != null) {
             if(this.phase == PHASE.STARTING) {
@@ -148,16 +133,18 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 }
 
                 if(this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
-                    this.previousRecipe = this.currentRecipe.getId();
                     this.currentRecipe = null;
                     this.recipeProgressTime = 0;
                     this.processedRequirements.clear();
                 }
             }
         }
+        else this.setIdle();
     }
 
     private Optional<CustomMachineRecipe> findRecipe() {
+        if(this.tile.getWorld() == null)
+            return Optional.empty();
         return this.tile.getWorld().getRecipeManager()
                 .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
                 .stream()
