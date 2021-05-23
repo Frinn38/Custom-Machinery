@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
 import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.util.FuelManager;
+import fr.frinn.custommachinery.common.util.RedstoneManager;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -50,6 +51,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     public MachineComponentManager componentManager;
     public SoundManager soundManager;
     public FuelManager fuelManager = new FuelManager(this);
+    public RedstoneManager redstoneManager = new RedstoneManager(this);
 
     public CustomMachineTile() {
         super(Registration.CUSTOM_MACHINE_TILE.get());
@@ -79,6 +81,11 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             return;
 
         if(!this.world.isRemote()) {
+            if(!this.paused && this.redstoneManager.shouldPauseMachine())
+                this.setPaused(true);
+            if(this.paused && !this.redstoneManager.shouldPauseMachine())
+                this.setPaused(false);
+
             this.fuelManager.tick();
             this.componentManager.tick();
             this.craftingManager.tick();
@@ -157,6 +164,15 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         CompoundNBT nbt = super.getUpdateTag();
         nbt.putString("machineID", this.id.toString());
         return nbt;
+    }
+
+    private boolean paused = false;
+    private void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
+    public boolean isPaused() {
+        return this.paused;
     }
 
     /**LIGHTNING STUFF**/

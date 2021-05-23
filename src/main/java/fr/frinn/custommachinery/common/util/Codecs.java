@@ -33,6 +33,7 @@ public class Codecs {
     public static final Codec<TextGuiElement.Alignment> ALIGNMENT_CODEC                 = Codec.STRING.comapFlatMap(Codecs::decodeAlignment, TextGuiElement.Alignment::toString).stable();
     public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = Codec.STRING.comapFlatMap(Codecs::decodePhase, CraftingManager.PHASE::toString).stable();
     public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeWeather, WeatherMachineComponent.WeatherType::toString).stable();
+    public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName);
     public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName);
@@ -146,6 +147,14 @@ public class Codecs {
             return DataResult.success(WeatherMachineComponent.WeatherType.value(encoded));
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid Weather Type: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<ComparatorMode> decodeComparatorMode(String encoded) {
+        try {
+            return DataResult.success(ComparatorMode.value(encoded));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error("Not a valid Comparator Mode: " + encoded + " " + e.getMessage());
         }
     }
 }

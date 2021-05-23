@@ -5,6 +5,7 @@
   "custommachinery.craftingstatus.idle": "Idle",
   "custommachinery.craftingstatus.running": "Running",
   "custommachinery.craftingstatus.errored": "Errored",
+  "custommachinery.craftingstatus.paused": "Paused via redstone",
 
   "custommachinery.gui.element.energy.tooltip": "Energy: %sFE / %sFE",
   "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
@@ -66,5 +67,6 @@
   "custommachinery.requirements.item.error.output": "Not enough space to store %s %s",
   "custommachinery.requirements.position.error": "This recipe cannot be processed at this location",
   "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day",
-  "custommachinery.requirements.weather.error": "This recipe cannot be processed with this weather, need: %s"
+  "custommachinery.requirements.weather.error": "This recipe cannot be processed with this weather, need: %s",
+  "custommachinery.requirements.redstone.error": "Not enough redstone power, need at least: %s"
 }

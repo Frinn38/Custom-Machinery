@@ -29,14 +29,16 @@ public class CustomMachineItemRenderer extends ItemStackTileEntityRenderer {
                 return;
 
             CustomMachine machine = CustomMachinery.MACHINES.get(id);
-            matrix.push();
-            matrix.translate(0.5, 0.5, 0.5);
-            if(transformType.isFirstPerson())
-                matrix.rotate(Vector3f.YP.rotationDegrees(90));
-            ForgeHooksClient.handleCameraTransforms(matrix, CustomMachineRenderer.getMachineModel(machine.getAppearance()), transformType, transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND);
-            matrix.translate(-0.5, -0.5, -0.5);
-            CustomMachineRenderer.renderMachine(machine, 0, matrix, buffer, combinedLight, combinedOverlay, tintIndex -> Color3F.of(Minecraft.getInstance().getItemColors().getColor(stack, tintIndex)));
-            matrix.pop();
+            if(machine != null) {
+                matrix.push();
+                matrix.translate(0.5, 0.5, 0.5);
+                if(transformType.isFirstPerson())
+                    matrix.rotate(Vector3f.YP.rotationDegrees(90));
+                ForgeHooksClient.handleCameraTransforms(matrix, CustomMachineRenderer.getMachineModel(machine.getAppearance()), transformType, transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND);
+                matrix.translate(-0.5, -0.5, -0.5);
+                CustomMachineRenderer.renderMachine(machine, 0, matrix, buffer, combinedLight, combinedOverlay, tintIndex -> Color3F.of(Minecraft.getInstance().getItemColors().getColor(stack, tintIndex)));
+                matrix.pop();
+            }
         }
     }
 }

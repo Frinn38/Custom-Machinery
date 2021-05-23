@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff {
+public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent {
 
     private String id;
     private int capacity;
@@ -72,6 +72,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(FluidStackSyncable.create(() -> this.fluidStack, fluidStack -> this.fluidStack = fluidStack));
+    }
+
+    @Override
+    public int getComparatorInput() {
+        return (int) (15 * ((double)this.fluidStack.getAmount() / (double)this.capacity));
     }
 
     /** FLUID HANDLER STUFF **/

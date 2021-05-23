@@ -16,6 +16,7 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -122,5 +123,54 @@ public class CustomMachineBlock extends Block {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return Registration.CUSTOM_MACHINE_TILE.get().create();
+    }
+
+    @Override
+    public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
+        return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    @ParametersAreNonnullByDefault
+    @Override
+    public boolean canProvidePower(BlockState state) {
+        return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    @ParametersAreNonnullByDefault
+    @Override
+    public boolean hasComparatorInputOverride(BlockState state) {
+        return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    @ParametersAreNonnullByDefault
+    @Override
+    public int getComparatorInputOverride(BlockState state, World world, BlockPos pos) {
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof CustomMachineTile)
+            return ((CustomMachineTile)tile).redstoneManager.getComparatorInput();
+        return 0;
+    }
+
+    @SuppressWarnings("deprecation")
+    @ParametersAreNonnullByDefault
+    @Override
+    public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof CustomMachineTile && false)
+            return ((CustomMachineTile)tile).redstoneManager.getPowerOutput();
+        return 0;
+    }
+
+    @SuppressWarnings("deprecation")
+    @ParametersAreNonnullByDefault
+    @Override
+    public int getWeakPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof CustomMachineTile)
+            return ((CustomMachineTile)tile).redstoneManager.getPowerOutput();
+        return 0;
     }
 }

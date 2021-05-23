@@ -24,6 +24,7 @@ public class StatusGuiElementRenderer implements IGuiElementRenderer<StatusGuiEl
 
         switch (screen.getTile().craftingManager.getStatus()) {
             case IDLE:
+            case PAUSED:
                 Minecraft.getInstance().getTextureManager().bindTexture(element.getIdleTexture());
                 break;
             case RUNNING:

@@ -7,6 +7,8 @@ import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.network.sync.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff {
+public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent {
 
     private String id;
     private int capacity;
@@ -100,6 +102,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(ItemStackSyncable.create(() -> this.stack, stack -> this.stack = stack));
+    }
+
+    @Override
+    public int getComparatorInput() {
+        return Container.calcRedstoneFromInventory(new Inventory(this.stack));
     }
 
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {

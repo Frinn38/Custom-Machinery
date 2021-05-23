@@ -34,7 +34,7 @@ public class FuelManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void tick() {
-        if(this.fuel > 0) {
+        if(this.fuel > 0 && !this.tile.isPaused()) {
             this.fuel--;
             this.tile.markDirty();
         }

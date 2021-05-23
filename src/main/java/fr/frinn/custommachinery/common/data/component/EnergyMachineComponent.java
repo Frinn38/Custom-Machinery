@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ICapabilityMachineComponent, IComponentSerializable, ISyncableStuff {
+public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ICapabilityMachineComponent, IComponentSerializable, ISyncableStuff, IComparatorInputComponent {
 
     private int energy;
     private int capacity;
@@ -77,6 +77,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(IntegerSyncable.create(() -> this.energy, energy -> this.energy = energy));
+    }
+
+    @Override
+    public int getComparatorInput() {
+        return (int) (15 * ((double)this.energy / (double)this.capacity));
     }
 
     /** ENERGY STORAGE STUFF **/

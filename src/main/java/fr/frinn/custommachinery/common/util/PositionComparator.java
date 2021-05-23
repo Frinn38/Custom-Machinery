@@ -3,22 +3,20 @@ package fr.frinn.custommachinery.common.util;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Arrays;
-
 public class PositionComparator {
 
     private Direction.Axis axis;
-    private MODE mode;
+    private ComparatorMode mode;
     private int coordinate;
 
     public PositionComparator(String s) {
         this.axis = Direction.Axis.byName(s.substring(0, 1));
-        this.mode = MODE.fromPrefix(s.substring(1, 3));
+        this.mode = ComparatorMode.value(s.substring(1, 3));
         this.coordinate = Integer.parseInt(s.substring(3));
     }
 
     public String toString() {
-        return this.axis.toString() + this.mode.prefix + this.coordinate;
+        return this.axis.toString() + this.mode.getPrefix() + this.coordinate;
     }
 
     public boolean compare(BlockPos pos) {
@@ -34,41 +32,6 @@ public class PositionComparator {
                 toCompare = pos.getZ();
                 break;
         }
-        switch (this.mode) {
-            case UPPER:
-                return toCompare > this.coordinate;
-            case UPPER_OR_EQUALS:
-                return toCompare >= this.coordinate;
-            case EQUALS:
-                return toCompare == this.coordinate;
-            case LESSER_OR_EQUALS:
-                return toCompare <= this.coordinate;
-            case LESSER:
-                return toCompare < this.coordinate;
-            default:
-                return false;
-        }
-    }
-
-    private enum MODE {
-        UPPER(">>"),
-        UPPER_OR_EQUALS(">="),
-        EQUALS("=="),
-        LESSER_OR_EQUALS("<="),
-        LESSER("<<");
-
-        private String prefix;
-
-        MODE(String prefix) {
-            this.prefix = prefix;
-        }
-
-        public String getPrefix() {
-            return this.prefix;
-        }
-
-        public static PositionComparator.MODE fromPrefix(String prefix) {
-            return Arrays.stream(values()).filter(mode -> mode.prefix.equals(prefix)).findFirst().orElseThrow(() -> new RuntimeException("Invalid Position Comparator prefix: " + prefix));
-        }
+        return this.mode.compare(toCompare, this.coordinate);
     }
 }

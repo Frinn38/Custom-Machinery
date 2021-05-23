@@ -72,16 +72,20 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
         return this.components.stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(Collectors.toList());
     }
 
-    public <T extends IMachineComponent> T getComponentRaw(MachineComponentType type) {
-        return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst().get();
+    public IMachineComponent getComponentRaw(MachineComponentType type) {
+        return this.components.stream().filter(component -> component.getType() == type).findFirst().get();
     }
 
     public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType type) {
         return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
     }
 
-    public <T extends IMachineComponent> Optional<T> getComponent(Class<T> type) {
-        return this.components.stream().filter(component -> component.getClass() == type).map(component -> (T)component).findFirst();
+    public <T extends IMachineComponent> Optional<T> getOptionalComponent(MachineComponentType<T> type) {
+        return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
+    }
+
+    public List<IComparatorInputComponent> getComparatorInputComponents() {
+        return this.components.stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(Collectors.toList());
     }
 
     public boolean hasComponent(MachineComponentType type) {
@@ -109,6 +113,8 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void tick() {
+        if(this.tile.isPaused())
+            return;
         getTickableComponents().forEach(ITickableMachineComponent::tick);
         getEnergy().ifPresent(energyComponent -> {
             for (Direction direction : Direction.values()) {

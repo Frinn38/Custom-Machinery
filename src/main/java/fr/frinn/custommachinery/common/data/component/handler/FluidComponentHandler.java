@@ -40,7 +40,8 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         return Registration.FLUID_MACHINE_COMPONENT.get();
     }
 
-    public Optional<FluidMachineComponent> getComponentForId(String id) {
+    @Override
+    public Optional<FluidMachineComponent> getComponentForID(String id) {
         return this.getComponents().stream().filter(component -> component.getId().equals(id)).findFirst();
     }
 

@@ -34,6 +34,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private List<IRequirement<?>> processedRequirements;
 
     private STATUS status;
+    private STATUS prevStatus;
     private PHASE phase;
 
     private ITextComponent errorMessage = StringTextComponent.EMPTY;
@@ -46,6 +47,14 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void tick() {
+        if(this.tile.isPaused() && this.status != STATUS.PAUSED) {
+            this.prevStatus = this.status;
+            this.status = STATUS.PAUSED;
+        }
+        if(!this.tile.isPaused() && this.status == STATUS.PAUSED)
+            this.status = this.prevStatus;
+        if(this.status == STATUS.PAUSED)
+            return;
         if(this.currentRecipe == null) {
             if(this.previousRecipe != null) {
                 this.tile.getWorld().getRecipeManager().getRecipe(this.previousRecipe).map(recipe -> (CustomMachineRecipe)recipe).ifPresent(recipe -> {
@@ -239,7 +248,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     public enum STATUS {
         IDLE,
         RUNNING,
-        ERRORED;
+        ERRORED,
+        PAUSED;
 
         public static STATUS value(String string) {
             return valueOf(string.toUpperCase(Locale.ENGLISH));

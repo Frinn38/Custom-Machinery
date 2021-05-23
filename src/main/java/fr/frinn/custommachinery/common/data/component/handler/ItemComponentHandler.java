@@ -59,7 +59,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         this.capability.invalidate();
     }
 
-    public Optional<ItemMachineComponent> getComponentForId(String id) {
+    @Override
+    public Optional<ItemMachineComponent> getComponentForID(String id) {
         return this.getComponents().stream().filter(component -> component.getId().equals(id)).findFirst();
     }
 
