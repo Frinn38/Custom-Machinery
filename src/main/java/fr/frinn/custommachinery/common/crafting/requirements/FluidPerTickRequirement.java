@@ -70,7 +70,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     }
 
     @Override
-    public RequirementType getType() {
+    public RequirementType<FluidPerTickRequirement> getType() {
         return Registration.FLUID_PER_TICK_REQUIREMENT.get();
     }
 
@@ -81,7 +81,10 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
 
     @Override
     public boolean test(FluidComponentHandler component) {
-        return true;
+        if(getMode() == MODE.INPUT)
+            return component.getFluidAmount(this.fluid) >= this.amount;
+        else
+            return component.getSpaceForFluid(this.fluid) >= this.amount;
     }
 
     @Override
