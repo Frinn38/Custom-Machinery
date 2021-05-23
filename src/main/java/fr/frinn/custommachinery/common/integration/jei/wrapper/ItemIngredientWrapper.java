@@ -21,13 +21,15 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     private int amount;
     private ITag<Item> tag;
     private double chance;
+    private boolean useDurability;
 
-    public ItemIngredientWrapper(IRequirement.MODE mode, Item item, int amount, ITag<Item> tag, double chance) {
+    public ItemIngredientWrapper(IRequirement.MODE mode, Item item, int amount, ITag<Item> tag, double chance, boolean useDurability) {
         this.mode = mode;
         this.item = item;
         this.amount = amount;
         this.tag = tag;
         this.chance = chance;
+        this.useDurability = useDurability;
     }
 
     @Override
@@ -37,7 +39,17 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     @Override
     public Object asJEIIngredient() {
-        if(this.item != null && this.item != Items.AIR) {
+        if(this.useDurability && this.item != null && this.item != Items.AIR) {
+            ItemStack stack = new ItemStack(this.item);
+            if(this.mode == IRequirement.MODE.INPUT)
+                stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
+            else if(this.mode == IRequirement.MODE.OUTPUT)
+                stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
+            if(this.chance != 1.0D)
+                stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
+            return stack;
+        }
+        else if(this.item != null && this.item != Items.AIR) {
             ItemStack stack = new ItemStack(this.item, this.amount);
             if(this.chance != 1.0D)
                 stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
@@ -53,7 +65,9 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     @Override
     public List<ItemStack> getJeiIngredients() {
-        if(this.item != null && this.item != Items.AIR)
+        if(this.useDurability && this.item != null && this.item != Items.AIR)
+            return Collections.singletonList(new ItemStack(this.item));
+        else if(this.item != null && this.item != Items.AIR)
             return Collections.singletonList(new ItemStack(this.item, this.amount));
         else if(this.tag != null && this.mode == IRequirement.MODE.INPUT)
             return this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());

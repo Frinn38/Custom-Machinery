@@ -22,12 +22,14 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent, IComponentSerializable, ITickableMachineComponent, ISyncableStuff {
 
     private LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
+    private final Random rand = new Random();
 
     public ItemComponentHandler(MachineComponentManager manager) {
         super(manager);
@@ -163,21 +165,25 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     private List<ItemMachineComponent> outputs = new ArrayList<>();
 
     public int getItemAmount(Item item) {
-        AtomicInteger amount = new AtomicInteger();
-        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item).forEach(component -> amount.addAndGet(component.getItemStack().getCount()));
-        return amount.get();
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item).mapToInt(component -> component.getItemStack().getCount()).sum();
+    }
+
+    public int getDurabilityAmount(Item item) {
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).mapToInt(component -> component.getItemStack().getMaxDamage() - component.getItemStack().getDamage()).sum();
     }
 
     public int getSpaceForItem(Item item) {
         int maxStackSize = item.getDefaultInstance().getMaxStackSize();
-        AtomicInteger space = new AtomicInteger();
-        this.outputs.stream().filter(component -> (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity())) || component.getItemStack().isEmpty()).forEach(component -> {
+        return this.outputs.stream().filter(component -> (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity())) || component.getItemStack().isEmpty()).mapToInt(component -> {
             if(component.getItemStack().isEmpty())
-                space.addAndGet(Math.min(component.getCapacity(), maxStackSize));
+                return Math.min(component.getCapacity(), maxStackSize);
             else
-                space.addAndGet(Math.min(component.getCapacity() - component.getItemStack().getCount(), maxStackSize - component.getItemStack().getCount()));
-        });
-        return space.get();
+                return Math.min(component.getCapacity() - component.getItemStack().getCount(), maxStackSize - component.getItemStack().getCount());
+        }).sum();
+    }
+
+    public int getSpaceForDurability(Item item) {
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).mapToInt(component -> component.getItemStack().getDamage()).sum();
     }
 
     public void removeFromInputs(Item item, int amount) {
@@ -190,12 +196,31 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
+    public void removeDurability(Item item, int amount) {
+        AtomicInteger toRemove = new AtomicInteger(amount);
+        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).forEach(component -> {
+            int maxRemove = Math.min(component.getItemStack().getMaxDamage() - component.getItemStack().getDamage(), toRemove.get());
+            toRemove.addAndGet(-maxRemove);
+            component.getItemStack().attemptDamageItem(maxRemove, rand, null);
+        });
+    }
+
     public void addToOutputs(Item item, int amount) {
         AtomicInteger toAdd = new AtomicInteger(amount);
         this.outputs.stream().filter(component -> (component.getItemStack().getItem() == item && component.getSpaceForItem(item.getDefaultInstance()) > 0) || component.getItemStack().isEmpty()).forEach(component -> {
             int maxInsert = Math.min(component.getSpaceForItem(item.getDefaultInstance()), toAdd.get());
             toAdd.addAndGet(-maxInsert);
             component.insert(item, maxInsert);
+        });
+        getManager().markDirty();
+    }
+
+    public void repairItem(Item item, int amount) {
+        AtomicInteger toRepair = new AtomicInteger(amount);
+        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).forEach(component -> {
+            int maxRepair = Math.min(component.getItemStack().getDamage(), toRepair.get());
+            toRepair.addAndGet(-maxRepair);
+            component.getItemStack().setDamage(component.getItemStack().getDamage() - maxRepair);
         });
         getManager().markDirty();
     }

@@ -131,20 +131,20 @@ public class CustomMachineCTRecipeBuilder {
     /** ITEM **/
 
     @Method
-    public CustomMachineCTRecipeBuilder requireItem(Item item, int amount, @OptionalDouble(1.0D) double chance) {
-        withItemRequirement(IRequirement.MODE.INPUT, item, null, amount, chance);
+    public CustomMachineCTRecipeBuilder requireItem(Item item, int amount, @OptionalDouble(1.0D) double chance, @OptionalBoolean boolean useDurability) {
+        withItemRequirement(IRequirement.MODE.INPUT, item, null, amount, chance, useDurability);
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireItem(MCTag<Item> tag, int amount, @OptionalDouble(1.0D) double chance) {
-        withItemRequirement(IRequirement.MODE.INPUT, null, tag, amount, chance);
+    public CustomMachineCTRecipeBuilder requireItem(MCTag<Item> tag, int amount, @OptionalDouble(1.0D) double chance, @OptionalBoolean boolean useDurability) {
+        withItemRequirement(IRequirement.MODE.INPUT, null, tag, amount, chance, useDurability);
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder produceItem(Item item, int amount, @OptionalDouble(1.0D) double chance) {
-        withItemRequirement(IRequirement.MODE.OUTPUT, item, null, amount, chance);
+    public CustomMachineCTRecipeBuilder produceItem(Item item, int amount, @OptionalDouble(1.0D) double chance, @OptionalBoolean boolean useDurability) {
+        withItemRequirement(IRequirement.MODE.OUTPUT, item, null, amount, chance, useDurability);
         return this;
     }
 
@@ -297,10 +297,10 @@ public class CustomMachineCTRecipeBuilder {
         }
     }
 
-    private void withItemRequirement(IRequirement.MODE mode, Item item, MCTag<Item> tag, int amount, double chance) {
+    private void withItemRequirement(IRequirement.MODE mode, Item item, MCTag<Item> tag, int amount, double chance, boolean useDurability) {
         if(item != null)
-            this.builder.withRequirement(new ItemRequirement(mode, item, null, amount, chance));
+            this.builder.withRequirement(new ItemRequirement(mode, item, null, amount, chance, useDurability));
         else
-            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, chance));
+            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, chance, useDurability));
     }
 }

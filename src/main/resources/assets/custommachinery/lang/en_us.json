@@ -43,6 +43,8 @@
   "custommachinery.jei.ingredient.energy.pertick": "Energy: %sFE per tick",
   "custommachinery.jei.ingredient.fluid": "Amount: %smB",
   "custommachinery.jei.ingredient.fluid.pertick": "Amount: %smB per tick",
+  "custommachinery.jei.ingredient.item.durability.consume": "Consume %s durability",
+  "custommachinery.jei.ingredient.item.durability.repair": "Repair %s durability",
   "custommachinery.jei.recipe.time": "%sticks",
 
   "custommachinery.machine.loader.default": "Default",
@@ -65,6 +67,8 @@
   "custommachinery.requirements.fuel.error": "This recipe require some fuel item",
   "custommachinery.requirements.item.error.input": "Not enough %s, %s needed but %s found !",
   "custommachinery.requirements.item.error.output": "Not enough space to store %s %s",
+  "custommachinery.requirements.item.error.durability.input": "Not enough durability in %s, %s needed but %s found !",
+  "custommachinery.requirement.item.error.durability.output": "Can't repair %s, trying to repair %s durability but only %s missing !",
   "custommachinery.requirements.position.error": "This recipe cannot be processed at this location",
   "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day",
   "custommachinery.requirements.weather.error": "This recipe cannot be processed with this weather, need: %s",

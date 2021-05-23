@@ -50,9 +50,18 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
     @Override
     public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag tooltipFlag) {
         List<ITextComponent> tooltips = ingredient.getTooltip(null, tooltipFlag);
-        if(ingredient.getChildTag(CustomMachinery.MODID) != null && ingredient.getChildTag(CustomMachinery.MODID).contains("chance")) {
-            double chance = ingredient.getChildTag(CustomMachinery.MODID).getDouble("chance");
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(chance * 100)));
+        if(ingredient.getChildTag(CustomMachinery.MODID) != null) {
+            if(ingredient.getChildTag(CustomMachinery.MODID).contains("consumeDurability")) {
+                int durability = ingredient.getChildTag(CustomMachinery.MODID).getInt("consumeDurability");
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.consume", durability));
+            } else if(ingredient.getChildTag(CustomMachinery.MODID).contains("repairDurability")) {
+                int durability = ingredient.getChildTag(CustomMachinery.MODID).getInt("repairDurability");
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.repair", durability));
+            }
+            if(ingredient.getChildTag(CustomMachinery.MODID).contains("chance")) {
+                double chance = ingredient.getChildTag(CustomMachinery.MODID).getDouble("chance");
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int) (chance * 100)));
+            }
         }
         return tooltips;
     }

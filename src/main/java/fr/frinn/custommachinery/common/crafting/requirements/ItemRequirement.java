@@ -27,7 +27,6 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
 
     private static final Item DEFAULT_ITEM = Items.AIR;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");
-    private static final Random RAND = new Random();
 
     @SuppressWarnings("deprecation")
     public static final Codec<ItemRequirement> CODEC = RecordCodecBuilder.create(itemRequirementInstance ->
@@ -36,7 +35,8 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     Registry.ITEM.optionalFieldOf("item", DEFAULT_ITEM).forGetter(requirement -> requirement.item),
                     ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getItemTagID(requirement.tag) : DEFAULT_TAG),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
+                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    Codec.BOOL.optionalFieldOf("durability", false).forGetter(requirement -> requirement.useDurability)
             ).apply(itemRequirementInstance, ItemRequirement::new)
     );
 
@@ -44,10 +44,13 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     private ITag<Item> tag;
     private int amount;
     private double chance;
+    private boolean useDurability;
 
-    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, double chance) {
+    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, double chance, boolean useDurability) {
         super(mode);
         this.amount = amount;
+        if(useDurability && (item == null || item == DEFAULT_ITEM))
+            throw new IllegalArgumentException("You must specify an item to use durability in Item Requirement");
         if(mode == MODE.OUTPUT) {
             if(item != DEFAULT_ITEM && item != null)
                 this.item = item;
@@ -66,7 +69,8 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                 this.item = item;
             }
         }
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);;
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
+        this.useDurability = useDurability;
     }
 
     @Override
@@ -82,12 +86,16 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     @Override
     public boolean test(ItemComponentHandler component) {
         if(getMode() == MODE.INPUT) {
-            if(this.item != null && this.item != DEFAULT_ITEM)
+            if (this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
+                return component.getDurabilityAmount(item) >= this.amount;
+            else if(this.item != null && this.item != DEFAULT_ITEM)
                 return component.getItemAmount(this.item) >= this.amount;
             else if(this.tag != null)
                 return this.tag.getAllElements().stream().mapToInt(component::getItemAmount).sum() >= this.amount;
             else throw new IllegalStateException("Using Input Item Requirement with null item and tag");
         } else {
+            if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
+                return component.getSpaceForDurability(item) >= this.amount;
             if(this.item != null && this.item != DEFAULT_ITEM)
                 return component.getSpaceForItem(this.item) >= this.amount;
             else throw new IllegalStateException("Using Output Item Requirement with null item");
@@ -97,7 +105,14 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     @Override
     public CraftingResult processStart(ItemComponentHandler component) {
         if(getMode() == MODE.INPUT) {
-            if(this.item != null && this.item != DEFAULT_ITEM) {
+            if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
+                int canRemove = component.getDurabilityAmount(item);
+                if(canRemove >= this.amount) {
+                    component.removeDurability(this.item, this.amount);
+                    return CraftingResult.success();
+                }
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.durability.input", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, canRemove));
+            } else if(this.item != null && this.item != DEFAULT_ITEM) {
                 int canExtract = component.getItemAmount(this.item);
                 if(canExtract >= this.amount) {
                     component.removeFromInputs(this.item, this.amount);
@@ -128,6 +143,14 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     @Override
     public CraftingResult processEnd(ItemComponentHandler component) {
         if(getMode() == MODE.OUTPUT) {
+            if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
+                int maxRepair = component.getSpaceForDurability(item);
+                if(maxRepair >= this.amount) {
+                    component.repairItem(this.item, this.amount);
+                    return CraftingResult.success();
+                }
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, maxRepair));
+            }
             if(this.item != null && this.item != DEFAULT_ITEM) {
                 int canInsert = component.getSpaceForItem(this.item);
                 if(canInsert >= this.amount) {
@@ -145,7 +168,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         return rand.nextDouble() > this.chance;
     }
 
-    private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance));
+    private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance, this.useDurability));
     @Override
     public ItemIngredientWrapper getJEIIngredientWrapper() {
         return this.itemIngredientWrapper.get();
