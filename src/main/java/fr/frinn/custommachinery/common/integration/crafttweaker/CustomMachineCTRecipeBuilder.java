@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.*;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PositionComparator;
 import fr.frinn.custommachinery.common.util.TimeComparator;
 import net.minecraft.entity.EntityType;
@@ -262,6 +263,14 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireWeather(String weatherType, @OptionalBoolean(true) boolean onMachine) {
         this.builder.withRequirement(new WeatherRequirement(WeatherMachineComponent.WeatherType.value(weatherType), onMachine));
+        return this;
+    }
+
+    /** REDSTONE **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireRedstone(int power, @OptionalString(">=") String comparator) {
+        this.builder.withRequirement(new RedstoneRequirement(power, ComparatorMode.value(comparator)));
         return this;
     }
 
