@@ -4,7 +4,6 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;

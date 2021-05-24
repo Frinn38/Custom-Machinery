@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.math.AxisAlignedBB;

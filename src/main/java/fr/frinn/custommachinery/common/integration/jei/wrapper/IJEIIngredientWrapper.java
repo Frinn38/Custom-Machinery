@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
 import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 
 import java.util.List;
 
