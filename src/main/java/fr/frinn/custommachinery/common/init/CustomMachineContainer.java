@@ -98,7 +98,9 @@ public class CustomMachineContainer extends SyncableContainer {
                 int maxInput = slotComponent.getComponent().getSpaceForItem(stack);
                 if(maxInput > 0) {
                     int toInsert = Math.min(maxInput, stack.getCount());
-                    slotComponent.getComponent().insert(stack.getItem(), toInsert);
+                    ItemStack stack1 = new ItemStack(stack.getItem(), toInsert);
+                    stack1.setTag(stack.getTag());
+                    slotComponent.getComponent().insert(stack1);
                     stack.shrink(toInsert);
                 }
                 if(stack.isEmpty())

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
@@ -15,6 +16,8 @@ import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 
@@ -34,6 +37,7 @@ public class Codecs {
     public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = Codec.STRING.comapFlatMap(Codecs::decodePhase, CraftingManager.PHASE::toString).stable();
     public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeWeather, WeatherMachineComponent.WeatherType::toString).stable();
     public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::toString).stable();
+    public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName);
     public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName);
@@ -155,6 +159,14 @@ public class Codecs {
             return DataResult.success(ComparatorMode.value(encoded));
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid Comparator Mode: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<CompoundNBT> decodeCompoundNBT(String encoded) {
+        try {
+            return DataResult.success(JsonToNBT.getTagFromJson(encoded));
+        } catch (CommandSyntaxException e) {
+            return DataResult.error("Not a valid NBT: " + encoded + " " + e.getMessage());
         }
     }
 }

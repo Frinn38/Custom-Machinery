@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -36,7 +37,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     @Override
-    public MachineComponentType getType() {
+    public MachineComponentType<ItemMachineComponent> getType() {
         return Registration.ITEM_MACHINE_COMPONENT.get();
     }
 
@@ -129,7 +130,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         int maxInsert = component.getSpaceForItem(stack);
         int toInsert = Math.min(maxInsert, stack.getCount());
         if(!simulate) {
-            component.insert(stack.getItem(), toInsert);
+            component.insert(new ItemStack(stack.getItem(), toInsert));
             getManager().markDirty();
         }
         return new ItemStack(stack.getItem(), stack.getCount() - toInsert);
@@ -164,17 +165,23 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     private List<ItemMachineComponent> inputs = new ArrayList<>();
     private List<ItemMachineComponent> outputs = new ArrayList<>();
 
-    public int getItemAmount(Item item) {
-        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item).mapToInt(component -> component.getItemStack().getCount()).sum();
+    public int getItemAmount(Item item, @Nullable CompoundNBT nbt) {
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt))))
+                .mapToInt(component -> component.getItemStack().getCount())
+                .sum();
     }
 
-    public int getDurabilityAmount(Item item) {
-        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).mapToInt(component -> component.getItemStack().getMaxDamage() - component.getItemStack().getDamage()).sum();
+    public int getDurabilityAmount(Item item, @Nullable CompoundNBT nbt) {
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt))))
+                .mapToInt(component -> component.getItemStack().getMaxDamage() - component.getItemStack().getDamage())
+                .sum();
     }
 
-    public int getSpaceForItem(Item item) {
-        int maxStackSize = item.getDefaultInstance().getMaxStackSize();
-        return this.outputs.stream().filter(component -> (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity())) || component.getItemStack().isEmpty()).mapToInt(component -> {
+    public int getSpaceForItem(Item item, @Nullable CompoundNBT nbt) {
+        ItemStack stack = item.getDefaultInstance();
+        stack.setTag(nbt == null ? null : nbt.copy());
+        int maxStackSize = stack.getMaxStackSize();
+        return this.outputs.stream().filter(component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()) && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt))))).mapToInt(component -> {
             if(component.getItemStack().isEmpty())
                 return Math.min(component.getCapacity(), maxStackSize);
             else
@@ -182,13 +189,15 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         }).sum();
     }
 
-    public int getSpaceForDurability(Item item) {
-        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).mapToInt(component -> component.getItemStack().getDamage()).sum();
+    public int getSpaceForDurability(Item item, @Nullable CompoundNBT nbt) {
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt))))
+                .mapToInt(component -> component.getItemStack().getDamage())
+                .sum();
     }
 
-    public void removeFromInputs(Item item, int amount) {
+    public void removeFromInputs(Item item, int amount, @Nullable CompoundNBT nbt) {
         AtomicInteger toRemove = new AtomicInteger(amount);
-        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item).forEach(component -> {
+        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt)))).forEach(component -> {
             int maxExtract = Math.min(component.getItemStack().getCount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
             component.extract(maxExtract);
@@ -196,28 +205,30 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
-    public void removeDurability(Item item, int amount) {
+    public void removeDurability(Item item, int amount, @Nullable CompoundNBT nbt) {
         AtomicInteger toRemove = new AtomicInteger(amount);
-        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).forEach(component -> {
+        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt)))).forEach(component -> {
             int maxRemove = Math.min(component.getItemStack().getMaxDamage() - component.getItemStack().getDamage(), toRemove.get());
             toRemove.addAndGet(-maxRemove);
             component.getItemStack().attemptDamageItem(maxRemove, rand, null);
         });
     }
 
-    public void addToOutputs(Item item, int amount) {
+    public void addToOutputs(Item item, int amount, @Nullable CompoundNBT nbt) {
         AtomicInteger toAdd = new AtomicInteger(amount);
-        this.outputs.stream().filter(component -> (component.getItemStack().getItem() == item && component.getSpaceForItem(item.getDefaultInstance()) > 0) || component.getItemStack().isEmpty()).forEach(component -> {
+        this.outputs.stream().filter(component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getSpaceForItem(item.getDefaultInstance()) > 0 && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt))))).forEach(component -> {
             int maxInsert = Math.min(component.getSpaceForItem(item.getDefaultInstance()), toAdd.get());
             toAdd.addAndGet(-maxInsert);
-            component.insert(item, maxInsert);
+            ItemStack stack = new ItemStack(item, maxInsert);
+            stack.setTag(nbt == null ? null : nbt.copy());
+            component.insert(stack);
         });
         getManager().markDirty();
     }
 
-    public void repairItem(Item item, int amount) {
+    public void repairItem(Item item, int amount, @Nullable CompoundNBT nbt) {
         AtomicInteger toRepair = new AtomicInteger(amount);
-        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable()).forEach(component -> {
+        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && (nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt)))).forEach(component -> {
             int maxRepair = Math.min(component.getItemStack().getDamage(), toRepair.get());
             toRepair.addAndGet(-maxRepair);
             component.getItemStack().setDamage(component.getItemStack().getDamage() - maxRepair);

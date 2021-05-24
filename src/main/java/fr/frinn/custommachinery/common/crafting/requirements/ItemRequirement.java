@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
@@ -35,6 +36,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     Registry.ITEM.optionalFieldOf("item", DEFAULT_ITEM).forGetter(requirement -> requirement.item),
                     ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getItemTagID(requirement.tag) : DEFAULT_TAG),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    Codecs.COMPOUND_NBT_CODEC.optionalFieldOf("nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
                     Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
                     Codec.BOOL.optionalFieldOf("durability", false).forGetter(requirement -> requirement.useDurability)
             ).apply(itemRequirementInstance, ItemRequirement::new)
@@ -43,12 +45,14 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     private Item item;
     private ITag<Item> tag;
     private int amount;
+    private CompoundNBT nbt;
     private double chance;
     private boolean useDurability;
 
-    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, double chance, boolean useDurability) {
+    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, CompoundNBT nbt, double chance, boolean useDurability) {
         super(mode);
         this.amount = amount;
+        this.nbt = nbt == null || nbt.isEmpty() ? null : nbt;
         if(useDurability && (item == null || item == DEFAULT_ITEM))
             throw new IllegalArgumentException("You must specify an item to use durability in Item Requirement");
         if(mode == MODE.OUTPUT) {
@@ -87,17 +91,17 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public boolean test(ItemComponentHandler component) {
         if(getMode() == MODE.INPUT) {
             if (this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
-                return component.getDurabilityAmount(item) >= this.amount;
+                return component.getDurabilityAmount(this.item, this.nbt) >= this.amount;
             else if(this.item != null && this.item != DEFAULT_ITEM)
-                return component.getItemAmount(this.item) >= this.amount;
+                return component.getItemAmount(this.item, this.nbt) >= this.amount;
             else if(this.tag != null)
-                return this.tag.getAllElements().stream().mapToInt(component::getItemAmount).sum() >= this.amount;
+                return this.tag.getAllElements().stream().mapToInt(item -> component.getItemAmount(item, this.nbt)).sum() >= this.amount;
             else throw new IllegalStateException("Using Input Item Requirement with null item and tag");
         } else {
             if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
-                return component.getSpaceForDurability(item) >= this.amount;
+                return component.getSpaceForDurability(this.item, this.nbt) >= this.amount;
             if(this.item != null && this.item != DEFAULT_ITEM)
-                return component.getSpaceForItem(this.item) >= this.amount;
+                return component.getSpaceForItem(this.item, this.nbt) >= this.amount;
             else throw new IllegalStateException("Using Output Item Requirement with null item");
         }
     }
@@ -106,28 +110,28 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public CraftingResult processStart(ItemComponentHandler component) {
         if(getMode() == MODE.INPUT) {
             if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
-                int canRemove = component.getDurabilityAmount(item);
+                int canRemove = component.getDurabilityAmount(this.item, this.nbt);
                 if(canRemove >= this.amount) {
-                    component.removeDurability(this.item, this.amount);
+                    component.removeDurability(this.item, this.amount, this.nbt);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.durability.input", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, canRemove));
             } else if(this.item != null && this.item != DEFAULT_ITEM) {
-                int canExtract = component.getItemAmount(this.item);
+                int canExtract = component.getItemAmount(this.item, this.nbt);
                 if(canExtract >= this.amount) {
-                    component.removeFromInputs(this.item, this.amount);
+                    component.removeFromInputs(this.item, this.amount, this.nbt);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.input", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, canExtract));
             } else if(this.tag != null) {
-                int maxExtract = this.tag.getAllElements().stream().mapToInt(component::getItemAmount).sum();
+                int maxExtract = this.tag.getAllElements().stream().mapToInt(item -> component.getItemAmount(item, this.nbt)).sum();
                 if(maxExtract >= this.amount) {
                     int toExtract = this.amount;
                     for (Item item : this.tag.getAllElements()) {
-                        int canExtract = component.getItemAmount(item);
+                        int canExtract = component.getItemAmount(item, this.nbt);
                         if(canExtract > 0) {
                             canExtract = Math.min(canExtract, toExtract);
-                            component.removeFromInputs(item, canExtract);
+                            component.removeFromInputs(item, canExtract, this.nbt);
                             toExtract -= canExtract;
                             if(toExtract == 0)
                                 return CraftingResult.success();
@@ -144,17 +148,17 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public CraftingResult processEnd(ItemComponentHandler component) {
         if(getMode() == MODE.OUTPUT) {
             if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
-                int maxRepair = component.getSpaceForDurability(item);
+                int maxRepair = component.getSpaceForDurability(this.item, this.nbt);
                 if(maxRepair >= this.amount) {
-                    component.repairItem(this.item, this.amount);
+                    component.repairItem(this.item, this.amount, this.nbt);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, maxRepair));
             }
             if(this.item != null && this.item != DEFAULT_ITEM) {
-                int canInsert = component.getSpaceForItem(this.item);
+                int canInsert = component.getSpaceForItem(this.item, this.nbt);
                 if(canInsert >= this.amount) {
-                    component.addToOutputs(this.item, this.amount);
+                    component.addToOutputs(this.item, this.amount, this.nbt);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", this.amount, new TranslationTextComponent(this.item.getTranslationKey())));
@@ -168,7 +172,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         return rand.nextDouble() > this.chance;
     }
 
-    private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance, this.useDurability));
+    private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance, this.useDurability, this.nbt));
     @Override
     public ItemIngredientWrapper getJEIIngredientWrapper() {
         return this.itemIngredientWrapper.get();

@@ -37,6 +37,8 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
         Minecraft.getInstance().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, x - 1, y - 1, 0, 0, width, height, width, height);
         if(ingredient != null) {
+            if(ingredient.getTag() != null)
+                ingredient.getTag().remove(CustomMachinery.MODID);
             RenderSystem.pushMatrix();
             RenderSystem.scalef(0.5F, 0.5F, 0.5F);
             RenderSystem.translatef(x, y, 0);

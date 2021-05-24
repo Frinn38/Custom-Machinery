@@ -4,6 +4,7 @@ import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.annotations.ZenRegister;
 import com.blamejared.crafttweaker.impl.actions.recipes.ActionAddRecipe;
 import com.blamejared.crafttweaker.impl.entity.MCEntityType;
+import com.blamejared.crafttweaker.impl.item.MCItemStack;
 import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
 import com.blamejared.crafttweaker.impl.tag.MCTag;
 import com.google.gson.JsonPrimitive;
@@ -130,8 +131,8 @@ public class CustomMachineCTRecipeBuilder {
     /** ITEM **/
 
     @Method
-    public CustomMachineCTRecipeBuilder requireItem(Item item, int amount, @OptionalDouble(1.0D) double chance, @OptionalBoolean boolean useDurability) {
-        withItemRequirement(IRequirement.MODE.INPUT, item, null, amount, chance, useDurability);
+    public CustomMachineCTRecipeBuilder requireItem(MCItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalBoolean boolean useDurability) {
+        withItemRequirement(IRequirement.MODE.INPUT, stack, null, amount, chance, useDurability);
         return this;
     }
 
@@ -142,8 +143,8 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder produceItem(Item item, int amount, @OptionalDouble(1.0D) double chance, @OptionalBoolean boolean useDurability) {
-        withItemRequirement(IRequirement.MODE.OUTPUT, item, null, amount, chance, useDurability);
+    public CustomMachineCTRecipeBuilder produceItem(MCItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalBoolean boolean useDurability) {
+        withItemRequirement(IRequirement.MODE.OUTPUT, stack, null, amount, chance, useDurability);
         return this;
     }
 
@@ -296,10 +297,10 @@ public class CustomMachineCTRecipeBuilder {
         }
     }
 
-    private void withItemRequirement(IRequirement.MODE mode, Item item, MCTag<Item> tag, int amount, double chance, boolean useDurability) {
-        if(item != null)
-            this.builder.withRequirement(new ItemRequirement(mode, item, null, amount, chance, useDurability));
+    private void withItemRequirement(IRequirement.MODE mode, MCItemStack stack, MCTag<Item> tag, int amount, double chance, boolean useDurability) {
+        if(stack != null)
+            this.builder.withRequirement(new ItemRequirement(mode, stack.getInternal().getItem(), null, amount, stack.getInternal().getTag(), chance, useDurability));
         else
-            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, chance, useDurability));
+            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, null, chance, useDurability));
     }
 }

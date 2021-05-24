@@ -72,11 +72,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
             return 0;
     }
 
-    public void insert(Item item, int amount) {
+    public void insert(ItemStack stack) {
         if(this.stack.isEmpty())
-            this.stack = new ItemStack(item, amount);
-        else
-            this.stack.grow(amount);
+            this.stack = stack;
+        else if(this.stack.getItem() == stack.getItem() && (stack.getTag() == null || stack.getTag().isEmpty() || stack.getTag().equals(this.stack.getTag())))
+            this.stack.grow(stack.getCount());
     }
 
     public void extract(int amount) {
