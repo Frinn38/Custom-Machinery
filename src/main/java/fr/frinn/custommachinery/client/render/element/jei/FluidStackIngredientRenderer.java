@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
@@ -34,7 +33,6 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
         return VanillaTypes.FLUID;
     }
 
-    @SuppressWarnings("deprecation")
     @ParametersAreNonnullByDefault
     @Override
     public void render(MatrixStack matrix, int x, int y, FluidGuiElement element, @Nullable FluidStack fluid) {

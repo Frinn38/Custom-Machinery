@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.data.gui.IComponentGuiElement;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;

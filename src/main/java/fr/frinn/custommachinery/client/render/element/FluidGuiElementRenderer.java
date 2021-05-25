@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
@@ -15,7 +14,6 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElement> {
 
-    @SuppressWarnings("deprecation")
     @Override
     public void renderElement(MatrixStack matrix, FluidGuiElement element, CustomMachineScreen screen) {
         int posX = element.getX();
@@ -37,13 +35,11 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
 
     @Override
     public void renderTooltip(MatrixStack matrix, FluidGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
-        screen.getTile().componentManager.getFluidHandler().ifPresent(fluidHandler -> {
-            fluidHandler.getComponentForID(element.getID()).ifPresent(component -> {
-                String fluid = component.getFluidStack().getTranslationKey();
-                int amount = component.getFluidStack().getAmount();
-                int capacity = component.getCapacity();
-                screen.renderTooltip(matrix, new TranslationTextComponent(fluid).appendSibling(new TranslationTextComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
-            });
+        screen.getTile().componentManager.getFluidHandler().flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
+            String fluid = component.getFluidStack().getTranslationKey();
+            int amount = component.getFluidStack().getAmount();
+            int capacity = component.getCapacity();
+            screen.renderTooltip(matrix, new TranslationTextComponent(fluid).appendSibling(new TranslationTextComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
         });
     }
 

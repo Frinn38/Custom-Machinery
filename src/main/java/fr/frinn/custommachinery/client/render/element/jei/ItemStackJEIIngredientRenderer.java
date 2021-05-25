@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
