@@ -3,7 +3,9 @@ package fr.frinn.custommachinery.client.render.element.jei;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
+import fr.frinn.custommachinery.common.util.Color3F;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
@@ -46,10 +48,7 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
             int color = fluid.getFluid().getAttributes().getColor();
             float filledPercent = (float)fluid.getAmount() / (float)fluid.getAmount();
             int fluidHeight = (int)(height * filledPercent);
-            RenderSystem.color4f(((color >> 16) & 0xFF) / 255f, ((color >> 8) & 0xFF) / 255f, ((color >> 0) & 0xFF) / 255f, ((color >> 24) & 0xFF) / 255f);
-            Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
-            AbstractGui.blit(matrix, x - 1 + 1, y - 1 + (height - fluidHeight + 1), 0, width - 2, fluidHeight - 2, sprite);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            ClientHandler.renderFluidInTank(matrix, x, y, height - fluidHeight, fluidHeight - 2, sprite, Color3F.of(color));
         }
     }
 

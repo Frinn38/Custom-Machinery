@@ -2,8 +2,10 @@ package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
+import fr.frinn.custommachinery.common.util.Color3F;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.inventory.container.PlayerContainer;
@@ -22,19 +24,14 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
         int height = element.getHeight();
         screen.getMinecraft().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
-        screen.getTile().componentManager.getFluidHandler().ifPresent(fluidHandler -> {
-            fluidHandler.getComponentForID(element.getID()).ifPresent(component -> {
-                FluidStack fluid = component.getFluidStack();
-                ResourceLocation fluidTexture = fluid.getFluid().getAttributes().getStillTexture();
-                TextureAtlasSprite sprite = screen.getMinecraft().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluidTexture);
-                int color = fluid.getFluid().getAttributes().getColor();
-                float filledPercent = (float)fluid.getAmount() / (float)component.getCapacity();
-                int fluidHeight = (int)(height * filledPercent);
-                RenderSystem.color4f(((color >> 16) & 0xFF) / 255f, ((color >> 8) & 0xFF) / 255f, ((color >> 0) & 0xFF) / 255f, ((color >> 24) & 0xFF) / 255f);
-                screen.getMinecraft().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
-                AbstractGui.blit(matrix, posX + 1, posY + (height - fluidHeight + 1), 0, width - 2, fluidHeight - 2, sprite);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            });
+        screen.getTile().componentManager.getFluidHandler().flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
+            FluidStack fluid = component.getFluidStack();
+            ResourceLocation fluidTexture = fluid.getFluid().getAttributes().getStillTexture();
+            TextureAtlasSprite sprite = screen.getMinecraft().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluidTexture);
+            int color = fluid.getFluid().getAttributes().getColor();
+            float filledPercent = (float) fluid.getAmount() / (float) component.getCapacity();
+            int fluidHeight = (int) (height * filledPercent);
+            ClientHandler.renderFluidInTank(matrix, posX + 1, posY + 1, height - fluidHeight, fluidHeight - 2, sprite, Color3F.of(color));
         });
     }
 
