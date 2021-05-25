@@ -10,6 +10,7 @@ public abstract class AbstractMachineComponent implements IMachineComponent {
         this.mode = mode;
     }
 
+    @Override
     public Mode getMode() {
         return this.mode;
     }

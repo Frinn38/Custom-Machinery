@@ -6,6 +6,12 @@ import fr.frinn.custommachinery.client.render.element.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.component.IMachineComponent;
+import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
+import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
+import fr.frinn.custommachinery.common.data.gui.IComponentGuiElement;
+import fr.frinn.custommachinery.common.data.gui.IGuiElement;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -13,24 +19,50 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachineRecipe> {
 
     private final CustomMachine machine;
     private final IGuiHelper guiHelper;
+    private final MachineComponentManager components;
+    private int offsetX;
+    private int offsetY;
+    private int width;
+    private int height;
 
     public CustomMachineRecipeCategory(CustomMachine machine, IGuiHelper guiHelper) {
         this.machine = machine;
         this.guiHelper = guiHelper;
+        this.components = new MachineComponentManager(machine.getComponentTemplates(),null);
+        this.setupRecipeDimensions();
+    }
+
+    private void setupRecipeDimensions() {
+        if(Minecraft.getInstance().world == null)
+            return;
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = 0;
+        int maxY = 0;
+        for(IGuiElement element : this.machine.getGuiElements()) {
+            if(!element.getType().hasJEIRenderer() && !(element.getType().getRenderer() instanceof IJEIElementRenderer))
+                continue;
+            minX = Math.min(minX, element.getX());
+            minY = Math.min(minY, element.getY());
+            maxX = Math.max(maxX, element.getX() + element.getWidth());
+            maxY = Math.max(maxY, element.getY() + element.getHeight());
+        }
+        this.offsetX = minX;
+        this.offsetY = minY;
+        this.width = maxX - minX;
+        this.height = maxY - minY;
     }
 
     @Override
@@ -50,7 +82,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
     @Override
     public IDrawable getBackground() {
-        return guiHelper.createBlankDrawable(128, 96);
+        return guiHelper.createBlankDrawable(this.width, this.height);
     }
 
     @Override
@@ -93,13 +125,13 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                     index.get(),
                     true,
                     renderer,
-                    element.getX() / 2,
-                    element.getY() / 2,
-                    (element.getWidth() - 2) / 2,
-                    (element.getHeight() - 2) / 2,
+                    element.getX() - this.offsetX,
+                    element.getY() - this.offsetY,
+                    element.getWidth() - 2,
+                    element.getHeight() - 2,
                     0,
                     0);
-            Object ingredient = this.getIngredientFromRequirements(ingredientType, requirements);
+            Object ingredient = this.getIngredientFromRequirements(ingredientType, element, requirements);
             if(ingredient instanceof List)
                 layout.getIngredientsGroup(ingredientType).set(index.get(), (List<?>)ingredient);
             else if(ingredient != null)
@@ -108,9 +140,13 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         });
     }
 
-    private Object getIngredientFromRequirements(IIngredientType<?> ingredientType, List<IJEIIngredientRequirement> requirements) {
+    private Object getIngredientFromRequirements(IIngredientType<?> ingredientType, IGuiElement element, List<IJEIIngredientRequirement> requirements) {
+        if(!(element instanceof IComponentGuiElement))
+            return null;
+        IMachineComponent.Mode elementMode = getElementMode((IComponentGuiElement<?>)element);
         for (IJEIIngredientRequirement requirement : requirements) {
-            if(requirement.getJEIIngredientWrapper().getJEIIngredientType() == ingredientType) {
+            IRequirement.MODE requirementMode = getRequirementMode(requirement);
+            if(requirement.getJEIIngredientWrapper().getJEIIngredientType() == ingredientType && ((elementMode.isInput() && requirementMode == IRequirement.MODE.INPUT) || (elementMode.isOutput() && requirementMode == IRequirement.MODE.OUTPUT))) {
                 requirements.remove(requirement);
                 return requirement.getJEIIngredientWrapper().asJEIIngredient();
             }
@@ -118,11 +154,23 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         return null;
     }
 
+    private IMachineComponent.Mode getElementMode(IComponentGuiElement<?> element) {
+        return this.components.getComponent(element.getComponentType()).flatMap(component -> {
+            if(component instanceof IComponentHandler)
+                return (Optional<IMachineComponent>)((IComponentHandler<?>)component).getComponentForID(element.getID());
+            return Optional.of(component);
+        }).map(IMachineComponent::getMode).orElse(IMachineComponent.Mode.NONE);
+    }
+
+    private IRequirement.MODE getRequirementMode(IJEIIngredientRequirement requirement) {
+        return ((IRequirement<?>)requirement).getMode();
+    }
+
     @ParametersAreNonnullByDefault
     @Override
     public void draw(CustomMachineRecipe recipe, MatrixStack matrix, double mouseX, double mouseY) {
         matrix.push();
-        matrix.scale(0.5F, 0.5F, 0.5F);
+        matrix.translate(-this.offsetX, -this.offsetY, 0);
         this.machine.getGuiElements().stream()
                 .filter(element -> element.getType().getRenderer() instanceof IJEIElementRenderer)
                 .forEach(element -> ((IJEIElementRenderer)element.getType().getRenderer()).renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY));

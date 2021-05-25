@@ -21,14 +21,12 @@ public abstract class JEIIngredientRenderer<T, E extends IGuiElement> implements
 
     public abstract IIngredientType<T> getType();
 
-    @SuppressWarnings("deprecation")
     @ParametersAreNonnullByDefault
     @Override
     public void render(MatrixStack matrix, int x, int y, @Nullable T ingredient) {
         matrix.push();
-        matrix.scale(0.5F, 0.5F, 0);
         matrix.translate(x, y, 0);
-        this.render(matrix, x, y, this.element, ingredient);
+        this.render(matrix, 0, 0, this.element, ingredient);
         matrix.pop();
     }
 

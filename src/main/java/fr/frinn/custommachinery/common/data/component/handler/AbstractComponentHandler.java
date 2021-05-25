@@ -20,6 +20,11 @@ public abstract class AbstractComponentHandler<T extends IMachineComponent> impl
     }
 
     @Override
+    public Mode getMode() {
+        return Mode.NONE;
+    }
+
+    @Override
     public List<T> getComponents() {
         return this.components;
     }

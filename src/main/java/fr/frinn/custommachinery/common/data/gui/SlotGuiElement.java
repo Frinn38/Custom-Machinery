@@ -3,13 +3,15 @@ package fr.frinn.custommachinery.common.data.gui;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 
-public class SlotGuiElement extends AbstractGuiElement {
+public class SlotGuiElement extends AbstractGuiElement implements IComponentGuiElement<ItemMachineComponent> {
 
     private static final ResourceLocation BASE_SLOT_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_slot.png");
 
@@ -21,7 +23,7 @@ public class SlotGuiElement extends AbstractGuiElement {
                     Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
                     Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(SlotGuiElement::getPriority),
-                    Codec.STRING.fieldOf("id").forGetter(SlotGuiElement::getId),
+                    Codec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID),
                     ResourceLocation.CODEC.optionalFieldOf("texture", BASE_SLOT_TEXTURE).forGetter(SlotGuiElement::getTexture),
                     Registry.ITEM.optionalFieldOf("item", Items.AIR).forGetter(SlotGuiElement::getItem)
             ).apply(slotGuiElementCodec, SlotGuiElement::new)
@@ -40,12 +42,18 @@ public class SlotGuiElement extends AbstractGuiElement {
     }
 
     @Override
-    public GuiElementType getType() {
+    public GuiElementType<SlotGuiElement> getType() {
         return Registration.SLOT_GUI_ELEMENT.get();
     }
 
-    public String getId() {
+    @Override
+    public String getID() {
         return this.id;
+    }
+
+    @Override
+    public MachineComponentType<ItemMachineComponent> getComponentType() {
+        return Registration.ITEM_MACHINE_COMPONENT.get();
     }
 
     public ResourceLocation getTexture() {

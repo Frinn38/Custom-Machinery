@@ -61,7 +61,7 @@ public class CustomMachineContainer extends SyncableContainer {
             .filter(element -> element.getType() == Registration.SLOT_GUI_ELEMENT.get())
             .map(element -> (SlotGuiElement)element)
             .forEach(element -> {
-                this.tile.componentManager.getItemHandler().flatMap(itemHandler -> itemHandler.getComponentForID(element.getId())).ifPresent(component -> {
+                this.tile.componentManager.getItemHandler().flatMap(itemHandler -> itemHandler.getComponentForID(element.getID())).ifPresent(component -> {
                     SlotItemComponent slotComponent = new SlotItemComponent(component, element.getX() + 1, element.getY() + 1);
                     this.addSlot(slotComponent);
                     if (component.getMode().isInput())

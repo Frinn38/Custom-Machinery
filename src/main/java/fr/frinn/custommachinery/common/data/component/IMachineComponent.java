@@ -6,6 +6,8 @@ public interface IMachineComponent {
 
     MachineComponentType getType();
 
+    Mode getMode();
+
     enum Mode {
 
         INPUT(true, false),

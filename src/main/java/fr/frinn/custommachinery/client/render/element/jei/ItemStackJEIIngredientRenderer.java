@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.render.element.jei;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
@@ -28,7 +29,6 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
         return VanillaTypes.ITEM;
     }
 
-    @SuppressWarnings("deprecation")
     @ParametersAreNonnullByDefault
     @Override
     public void render(MatrixStack matrix, int x, int y, SlotGuiElement element, @Nullable ItemStack ingredient) {
@@ -39,12 +39,8 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
         if(ingredient != null) {
             if(ingredient.getTag() != null)
                 ingredient.getTag().remove(CustomMachinery.MODID);
-            RenderSystem.pushMatrix();
-            RenderSystem.scalef(0.5F, 0.5F, 0.5F);
-            RenderSystem.translatef(x, y, 0);
-            Minecraft.getInstance().getItemRenderer().renderItemAndEffectIntoGUI(ingredient, x, y);
-            Minecraft.getInstance().getItemRenderer().renderItemOverlayIntoGUI(getFontRenderer(Minecraft.getInstance(), ingredient), ingredient, x, y, null);
-            RenderSystem.popMatrix();
+            ClientHandler.renderItemAndEffectsIntoGUI(matrix, ingredient, x, y);
+            ClientHandler.renderItemOverlayIntoGUI(matrix, getFontRenderer(Minecraft.getInstance(), ingredient), ingredient, x, y, null);
         }
     }
 
