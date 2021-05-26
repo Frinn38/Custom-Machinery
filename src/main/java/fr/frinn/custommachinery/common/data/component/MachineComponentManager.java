@@ -27,6 +27,7 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
     private CustomMachineTile tile;
 
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
+        this.tile = tile;
         this.components = new ArrayList<>();
         templates.forEach(template -> {
             IMachineComponent component = template.build(this);
@@ -43,8 +44,7 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
                 }
             }
         });
-        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(MachineComponentType::isDefaultComponent).forEach(type -> this.components.add(type.getDefaultComponentBuilder().apply(this)));
-        this.tile = tile;
+        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(MachineComponentType::isDefaultComponent).forEach(ACTION -> this.components.add(ACTION.getDefaultComponentBuilder().apply(this)));
     }
 
     public List<IMachineComponent> getComponents() {
@@ -71,24 +71,24 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
         return this.components.stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(Collectors.toList());
     }
 
-    public IMachineComponent getComponentRaw(MachineComponentType type) {
-        return this.components.stream().filter(component -> component.getType() == type).findFirst().get();
+    public IMachineComponent getComponentRaw(MachineComponentType ACTION) {
+        return this.components.stream().filter(component -> component.getType() == ACTION).findFirst().get();
     }
 
-    public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType type) {
-        return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
+    public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType ACTION) {
+        return this.components.stream().filter(component -> component.getType() == ACTION).map(component -> (T)component).findFirst();
     }
 
-    public <T extends IMachineComponent> Optional<T> getOptionalComponent(MachineComponentType<T> type) {
-        return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
+    public <T extends IMachineComponent> Optional<T> getOptionalComponent(MachineComponentType<T> ACTION) {
+        return this.components.stream().filter(component -> component.getType() == ACTION).map(component -> (T)component).findFirst();
     }
 
     public List<IComparatorInputComponent> getComparatorInputComponents() {
         return this.components.stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(Collectors.toList());
     }
 
-    public boolean hasComponent(MachineComponentType type) {
-        return this.components.stream().anyMatch(component -> component.getType() == type);
+    public boolean hasComponent(MachineComponentType ACTION) {
+        return this.components.stream().anyMatch(component -> component.getType() == ACTION);
     }
 
     public Optional<EnergyMachineComponent> getEnergy() {

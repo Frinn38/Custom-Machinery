@@ -4,6 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.common.crafting.requirements.EntityRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
@@ -38,6 +39,7 @@ public class Codecs {
     public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeWeather, WeatherMachineComponent.WeatherType::toString).stable();
     public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::toString).stable();
     public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString).stable();
+    public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = Codec.STRING.comapFlatMap(Codecs::decodeEntityRequirementAction, EntityRequirement.ACTION::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName);
     public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName);
@@ -167,6 +169,14 @@ public class Codecs {
             return DataResult.success(JsonToNBT.getTagFromJson(encoded));
         } catch (CommandSyntaxException e) {
             return DataResult.error("Not a valid NBT: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<EntityRequirement.ACTION> decodeEntityRequirementAction(String encoded) {
+        try {
+            return DataResult.success(EntityRequirement.ACTION.value(encoded));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error("Not a valid Entity Requirement Mode: " + encoded + " " + e.getMessage());
         }
     }
 }

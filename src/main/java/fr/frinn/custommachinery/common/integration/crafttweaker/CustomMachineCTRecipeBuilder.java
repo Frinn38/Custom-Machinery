@@ -7,6 +7,7 @@ import com.blamejared.crafttweaker.impl.entity.MCEntityType;
 import com.blamejared.crafttweaker.impl.item.MCItemStack;
 import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
 import com.blamejared.crafttweaker.impl.tag.MCTag;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
@@ -271,6 +272,41 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireRedstone(int power, @OptionalString(">=") String comparator) {
         this.builder.withRequirement(new RedstoneRequirement(power, ComparatorMode.value(comparator)));
+        return this;
+    }
+
+    /** ENTITY **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireEntities(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        this.builder.withRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), whitelist));
+        return this;
+    }
+
+    @Method CustomMachineCTRecipeBuilder requireEntitiesHealth(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        this.builder.withRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CHECK_HEALTH, amount, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), whitelist));
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireEntitiesKill(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        this.builder.withRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.KILL, amount, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), whitelist));
+        return this;
+    }
+
+    @Method CustomMachineCTRecipeBuilder requireEntitiesConsumeHealth(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        this.builder.withRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), whitelist));
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder killEntities(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        this.builder.withRequirement(new EntityRequirement(IRequirement.MODE.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), whitelist));
+        return this;
+    }
+
+    @Method CustomMachineCTRecipeBuilder consumeEntitiesHealth(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        this.builder.withRequirement(new EntityRequirement(IRequirement.MODE.OUTPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), whitelist));
         return this;
     }
 

@@ -7,6 +7,8 @@
   "custommachinery.craftingstatus.errored": "Errored",
   "custommachinery.craftingstatus.paused": "Paused via redstone",
 
+  "custommachinery.damagesource.kill": "%s was killed by a %s",
+
   "custommachinery.gui.element.energy.tooltip": "Energy: %sFE / %sFE",
   "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
   "custommachinery.gui.element.fuel.tooltip": "Burn Time: %s",
@@ -72,5 +74,7 @@
   "custommachinery.requirements.position.error": "This recipe cannot be processed at this location",
   "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day",
   "custommachinery.requirements.weather.error": "This recipe cannot be processed with this weather, need: %s",
-  "custommachinery.requirements.redstone.error": "Not enough redstone power, need at least: %s"
+  "custommachinery.requirements.redstone.error": "Not enough redstone power, need at least: %s",
+  "custommachinery.requirements.entity.amount.error": "Not enough entities nearby !",
+  "custommachinery.requirements.entity.health.error": "Can't collect %s health points with nearby entities !"
 }
