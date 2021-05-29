@@ -30,15 +30,17 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private int actualTickInput;
     private int actualTickOutput;
     private List<Fluid> filter;
+    private boolean whitelist;
     private FluidStack fluidStack = FluidStack.EMPTY;
 
-    public FluidMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter) {
+    public FluidMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, boolean whitelist) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
         this.maxInput = maxInput;
         this.maxOutput = maxOutput;
         this.filter = filter;
+        this.whitelist = whitelist;
     }
 
     @Override
@@ -104,7 +106,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public boolean isFluidValid(@Nonnull FluidStack stack) {
-        return (this.filter.isEmpty() || this.filter.contains(stack.getFluid())) && (this.fluidStack.isFluidEqual(stack) || this.fluidStack.isEmpty());
+        return this.filter.contains(stack.getFluid()) == this.whitelist && (this.fluidStack.isFluidEqual(stack) || this.fluidStack.isEmpty());
     }
 
     public int insert(Fluid fluid, int amount, FluidAction action) {
@@ -192,9 +194,10 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                         Codec.INT.optionalFieldOf("maxInput").forGetter(template -> Optional.of(template.maxInput)),
                         Codec.INT.optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
                         Registry.FLUID.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
+                        Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode",Mode.BOTH).forGetter(template -> template.mode)
-                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, mode) ->
-                        new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, mode)
+                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode) ->
+                        new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, mode)
                 )
         );
 
@@ -203,14 +206,16 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         private int maxInput;
         private int maxOutput;
         private List<Fluid> filter;
+        private boolean whitelist;
         private Mode mode;
 
-        public Template(String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, Mode mode) {
+        public Template(String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, boolean whitelist, Mode mode) {
             this.id = id;
             this.capacity = capacity;
             this.maxInput = maxInput;
             this.maxOutput = maxOutput;
             this.filter = filter;
+            this.whitelist = whitelist;
             this.mode = mode;
         }
 
@@ -221,7 +226,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         @Override
         public FluidMachineComponent build(MachineComponentManager manager) {
-            return new FluidMachineComponent(manager, mode, id, capacity, maxInput, maxOutput, filter);
+            return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist);
         }
     }
 }

@@ -25,14 +25,16 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     private String id;
     private int capacity;
     private List<Item> filter;
+    private boolean whitelist;
     private ItemStack stack = ItemStack.EMPTY;
     private boolean isFuelSlot;
 
-    public ItemMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, List<Item> filter, boolean isFuelSlot) {
+    public ItemMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, boolean isFuelSlot) {
         super(manager, mode);
         this.id = id;
         this.capacity = MathHelper.clamp(capacity, 0, 64);
         this.filter = filter;
+        this.whitelist = whitelist;
         this.isFuelSlot = isFuelSlot;
     }
 
@@ -46,7 +48,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     }
 
     public boolean isItemValid(ItemStack stack) {
-        return (this.filter.isEmpty() || this.filter.contains(stack.getItem()) && (this.stack.isEmpty() || this.stack.isItemEqual(stack)) && (!this.isFuelSlot || AbstractFurnaceTileEntity.isFuel(stack)));
+        if(this.isFuelSlot)
+            return stack.getBurnTime() > 0 && this.filter.contains(stack.getItem()) == this.whitelist;
+        else
+            return this.filter.contains(stack.getItem()) == this.whitelist;
     }
 
     public ItemStack getItemStack() {
@@ -118,6 +123,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
                         Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
+                        Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         Codec.BOOL.optionalFieldOf("fuel", false).forGetter(template -> template.isFuelSlot)
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
@@ -126,9 +132,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
         private String id;
         private int capacity;
         private List<Item> filter;
+        private boolean whitelist;
         private boolean isFuelSlot;
 
-        public Template(Mode mode, String id, int capacity, List<Item> filter, boolean isFuelSlot) {
+        public Template(Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, boolean isFuelSlot) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
@@ -143,7 +150,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
 
         @Override
         public ItemMachineComponent build(MachineComponentManager manager) {
-            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.isFuelSlot);
+            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.whitelist, this.isFuelSlot);
         }
     }
 }
