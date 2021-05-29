@@ -22,7 +22,9 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,7 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
     private EnumButton<MachineComponentType<?>> builderTypeWidget;
     private TexturedButton addButton;
     private TexturedButton removeButton;
-    private List<Widget> propertyWidgets;
+    private Map<String, Widget> propertyWidgets;
 
     public ComponentList(Minecraft mc, int width, int height, int x, int y, int entryHeight, MachineComponentScreen parent) {
         super(mc, width, height, y, y + height, entryHeight);
@@ -80,7 +82,7 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
                 (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.machineloading.delete"), mouseX, mouseY)
         );
         this.parent.getChildrens().add(this.removeButton);
-        this.propertyWidgets = new ArrayList<>();
+        this.propertyWidgets = new HashMap<>();
     }
 
     public void addComponent(IMachineComponentBuilder<? extends IMachineComponent> builder) {
@@ -126,21 +128,21 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
         this.builderTypeWidget.render(matrix, mouseX, mouseY, partialTicks);
         this.addButton.render(matrix, mouseX, mouseY, partialTicks);
         this.removeButton.render(matrix, mouseX, mouseY, partialTicks);
-        this.propertyWidgets.forEach(widget -> ClientHandler.drawSizedString(this.minecraft.fontRenderer, matrix, widget.getMessage().getString(), this.parent.xPos + 5, widget.y + 5, 40, 1.0F,0));
-        this.propertyWidgets.forEach(widget -> widget.render(matrix, mouseX, mouseY, partialTicks));
+        this.propertyWidgets.forEach((name, widget) -> ClientHandler.drawSizedString(this.minecraft.fontRenderer, matrix, name, this.parent.xPos + 5, widget.y + 5, 40, 1.0F,0));
+        this.propertyWidgets.forEach((name, widget) -> widget.render(matrix, mouseX, mouseY, partialTicks));
     }
 
     @Override
     public void setSelected(@Nullable ComponentList.ComponentEntry entry) {
         super.setSelected(entry);
-        this.propertyWidgets.forEach(widget -> this.parent.getChildrens().remove(widget));
+        this.propertyWidgets.forEach((name, widget) -> this.parent.getChildrens().remove(widget));
         this.propertyWidgets.clear();
         if(entry != null) {
             AtomicInteger index = new AtomicInteger();
             entry.getComponentBuilder().getProperties().forEach(property ->
-                this.propertyWidgets.add(property.getAsWidget(this.parent.xPos + 50, this.parent.yPos + index.getAndIncrement() * 25 + 5, 200, 20))
+                this.propertyWidgets.put(property.getName(), property.getAsWidget(this.parent.xPos + 50, this.parent.yPos + index.getAndIncrement() * 25 + 5, 200, 20))
             );
-            this.propertyWidgets.forEach(widget -> this.parent.getChildrens().add(widget));
+            this.propertyWidgets.forEach((name, widget) -> this.parent.getChildrens().add(widget));
         }
     }
 
