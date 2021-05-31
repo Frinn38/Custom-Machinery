@@ -58,10 +58,10 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
             maxX = Math.max(maxX, element.getX() + element.getWidth());
             maxY = Math.max(maxY, element.getY() + element.getHeight());
         }
-        this.offsetX = minX;
-        this.offsetY = minY;
-        this.width = maxX - minX;
-        this.height = maxY - minY;
+        this.offsetX = Math.max(minX, 0);
+        this.offsetY = Math.max(minY, 0);
+        this.width = Math.max(maxX - minX, 20);
+        this.height = Math.max(maxY - minY, 20);
     }
 
     @Override
