@@ -27,8 +27,6 @@ public class CustomMachineItemRenderer extends ItemStackTileEntityRenderer {
             CustomMachine machine;
             if(CustomMachinery.MACHINES.containsKey(id))
                 machine = CustomMachinery.MACHINES.get(id);
-            else if(MachineLoadingScreen.INSTANCE.getBuilders().containsKey(id))
-                machine = MachineLoadingScreen.INSTANCE.getBuilders().get(id).build();
             else return;
 
             matrix.push();
