@@ -7,7 +7,6 @@ import com.blamejared.crafttweaker.impl.entity.MCEntityType;
 import com.blamejared.crafttweaker.impl.item.MCItemStack;
 import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
 import com.blamejared.crafttweaker.impl.tag.MCTag;
-import com.google.common.collect.Lists;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;

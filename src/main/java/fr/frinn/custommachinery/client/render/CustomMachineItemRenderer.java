@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.util.Color3F;
 import net.minecraft.client.Minecraft;

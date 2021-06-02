@@ -12,7 +12,6 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 

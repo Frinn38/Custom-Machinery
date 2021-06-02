@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.network.sync.data;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.network.PacketBuffer;
 
-public class StringData extends Data {
+public class StringData extends Data<String> {
 
     private String value;
 

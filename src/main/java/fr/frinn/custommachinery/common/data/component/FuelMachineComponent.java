@@ -9,7 +9,7 @@ public class FuelMachineComponent extends AbstractMachineComponent {
     }
 
     @Override
-    public MachineComponentType getType() {
+    public MachineComponentType<FuelMachineComponent> getType() {
         return Registration.FUEL_MACHINE_COMPONENT.get();
     }
 

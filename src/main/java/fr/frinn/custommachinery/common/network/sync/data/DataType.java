@@ -8,7 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class DataType<D extends IData, T> extends ForgeRegistryEntry<DataType<?, ?>> {
+public class DataType<D extends IData<T>, T> extends ForgeRegistryEntry<DataType<?, ?>> {
 
     private BiFunction<Supplier<T>, Consumer<T>, ISyncable<D, T>> builder;
     private BiFunction<Short, PacketBuffer, D> reader;
