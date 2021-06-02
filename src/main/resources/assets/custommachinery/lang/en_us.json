@@ -76,5 +76,7 @@
   "custommachinery.requirements.weather.error": "This recipe cannot be processed with this weather, need: %s",
   "custommachinery.requirements.redstone.error": "Not enough redstone power, need at least: %s",
   "custommachinery.requirements.entity.amount.error": "Not enough entities nearby !",
-  "custommachinery.requirements.entity.health.error": "Can't collect %s health points with nearby entities !"
+  "custommachinery.requirements.entity.health.error": "Can't collect %s health points with nearby entities !",
+  "custommachinery.requirements.light.block.error": "This recipe need a block light value %s %s",
+  "custommachinery.requirements.light.sky.error": "This recipe need a sky light value %s %s"
 }
