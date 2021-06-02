@@ -140,6 +140,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
             this.id = id;
             this.capacity = capacity;
             this.filter = filter;
+            this.whitelist = whitelist;
             this.isFuelSlot = isFuelSlot;
         }
 
