@@ -159,7 +159,7 @@ public class CustomMachineBlock extends Block {
     @Override
     public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity tile = world.getTileEntity(pos);
-        if(tile instanceof CustomMachineTile && false)
+        if(tile instanceof CustomMachineTile)
             return ((CustomMachineTile)tile).redstoneManager.getPowerOutput();
         return 0;
     }
