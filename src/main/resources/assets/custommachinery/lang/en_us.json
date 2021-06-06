@@ -78,5 +78,8 @@
   "custommachinery.requirements.entity.amount.error": "Not enough entities nearby !",
   "custommachinery.requirements.entity.health.error": "Can't collect %s health points with nearby entities !",
   "custommachinery.requirements.light.block.error": "This recipe need a block light value %s %s",
-  "custommachinery.requirements.light.sky.error": "This recipe need a sky light value %s %s"
+  "custommachinery.requirements.light.sky.error": "This recipe need a sky light value %s %s",
+  "custommachinery.requirements.block.check.error": "This recipe need %s %s in %s, found %s",
+  "custommachinery.requirements.block.place.error": "Can't place %s %s in %s",
+  "custommachinery.requirements.block.break.error": "Can't break %s %s in %s"
 }

@@ -4,6 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.common.crafting.requirements.BlockRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.EntityRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
@@ -16,13 +17,23 @@ import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Codecs {
 
@@ -40,10 +51,14 @@ public class Codecs {
     public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::toString).stable();
     public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString).stable();
     public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = Codec.STRING.comapFlatMap(Codecs::decodeEntityRequirementAction, EntityRequirement.ACTION::toString).stable();
+    public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeBlockRequirementAction, BlockRequirement.ACTION::toString).stable();
 
-    public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName);
-    public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName);
-    public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                 = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName);
+    public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName).stable();
+    public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName).stable();
+    public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                 = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName).stable();
+
+    public static final Codec<AxisAlignedBB> BOX_CODEC = Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ));
+    public static final Codec<PartialBlockState> BLOCK_STATE_CODEC = MODEL_RESOURCE_LOCATION_CODEC.comapFlatMap(Codecs::decodeBlockState, PartialBlockState::location).stable();
 
     private static DataResult<ModelResourceLocation> decodeModelResourceLocation(String encoded) {
         try {
@@ -178,5 +193,37 @@ public class Codecs {
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid Entity Requirement Mode: " + encoded + " " + e.getMessage());
         }
+    }
+
+    private static DataResult<BlockRequirement.ACTION> decodeBlockRequirementAction(String encoded) {
+        try {
+            return DataResult.success(BlockRequirement.ACTION.value(encoded));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error("Not a valid Block Requirement Mode: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<PartialBlockState> decodeBlockState(ModelResourceLocation encoded) {
+        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(encoded.getNamespace(), encoded.getPath()));
+        if(block == null)
+            return DataResult.error("Not a valid block: '" + encoded + "'");
+        PartialBlockState state = new PartialBlockState(block);
+        if(encoded.getVariant().isEmpty())
+            return DataResult.success(state);
+        for(String property : encoded.getVariant().split(",")) {
+            String[] keyValue = property.split("=");
+            if(keyValue.length != 2)
+                return DataResult.error("Bad formating in: '" + property + "' for block: '" + encoded + "'. Except: 'key=value'");
+            String key = keyValue[0];
+            String value = keyValue[1];
+            Property stateProperty = block.getStateContainer().getProperty(key);
+            if(stateProperty == null)
+                return DataResult.error("Unknown BlockState property: '" + key + "' in: '" + encoded + "'");
+            Optional<Comparable> optionalValue = stateProperty.parseValue(value);
+            if(!optionalValue.isPresent())
+                return DataResult.error("Unknown BlockState property value: '" + value + "' for property: '" + key + "' in: '" + encoded + "'");
+            state = state.with(stateProperty, optionalValue.get());
+        }
+        return DataResult.success(state);
     }
 }
