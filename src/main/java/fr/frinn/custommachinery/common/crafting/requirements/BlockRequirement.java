@@ -53,11 +53,12 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     public boolean test(BlockMachineComponent component) {
         switch (this.action) {
             case CHECK:
+                return this.comparator.compare((int)component.getBlockAmount(this.pos, this.block), this.amount);
             case BREAK:
             case DESTROY:
-                return this.comparator.compare((int)component.getBlockAmount(this.pos, this.block), this.amount);
+                return (int)component.getBlockAmount(this.pos, this.block) >= this.amount;
             case PLACE:
-                return this.amount <= (int)component.getBlockAmount(this.pos, PartialBlockState.AIR);
+                return  (int)component.getBlockAmount(this.pos, PartialBlockState.AIR) >= this.amount;
             default:
                 return true;
         }
