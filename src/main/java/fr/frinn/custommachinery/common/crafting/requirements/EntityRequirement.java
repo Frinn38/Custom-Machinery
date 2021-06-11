@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EntityMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
@@ -49,35 +50,39 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
     }
 
     @Override
-    public RequirementType<?> getType() {
+    public RequirementType<EntityRequirement> getType() {
         return Registration.ENTITY_REQUIREMENT.get();
     }
 
     @Override
-    public boolean test(EntityMachineComponent component) {
+    public boolean test(EntityMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
+        int radius = (int)context.getModifiedvalue(this.radius, this, "radius");
         if(this.action == ACTION.CHECK_AMOUNT || this.action == ACTION.KILL)
-            return component.getEntitiesInRadius(this.radius, this.predicate) >= this.amount;
+            return component.getEntitiesInRadius(radius, this.predicate) >= amount;
         else
-            return component.getEntitiesInRadiusHealth(this.radius, this.predicate) >= this.amount;
+            return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount;
     }
 
     @Override
-    public CraftingResult processStart(EntityMachineComponent component) {
+    public CraftingResult processStart(EntityMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
+        int radius = (int)context.getModifiedvalue(this.radius, this, "radius");
         if(getMode() == MODE.INPUT) {
             switch (this.action) {
                 case CHECK_AMOUNT:
-                    return component.getEntitiesInRadius(this.radius, this.predicate) >= this.amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
+                    return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
                 case CHECK_HEALTH:
-                    return component.getEntitiesInRadiusHealth(this.radius, this.predicate) >= this.amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", this.amount));
+                    return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
                 case CONSUME_HEALTH:
-                    if(component.getEntitiesInRadiusHealth(this.radius, this.predicate) >= this.amount) {
-                        component.removeEntitiesHealth(this.radius, this.predicate, this.amount);
+                    if(component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {
+                        component.removeEntitiesHealth(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", this.amount));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
                 case KILL:
-                    if(component.getEntitiesInRadius(this.radius, this.predicate) >= this.amount) {
-                        component.killEntities(this.radius, this.predicate, this.amount);
+                    if(component.getEntitiesInRadius(radius, this.predicate) >= amount) {
+                        component.killEntities(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
                     return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
@@ -87,18 +92,20 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
     }
 
     @Override
-    public CraftingResult processEnd(EntityMachineComponent component) {
+    public CraftingResult processEnd(EntityMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
+        int radius = (int)context.getModifiedvalue(this.radius, this, "radius");
         if(getMode() == MODE.OUTPUT) {
             switch (this.action) {
                 case CONSUME_HEALTH:
-                    if(component.getEntitiesInRadiusHealth(this.radius, this.predicate) >= this.amount) {
-                        component.removeEntitiesHealth(this.radius, this.predicate, this.amount);
+                    if(component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {
+                        component.removeEntitiesHealth(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", this.amount));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
                 case KILL:
-                    if(component.getEntitiesInRadius(this.radius, this.predicate) >= this.amount) {
-                        component.killEntities(this.radius, this.predicate, this.amount);
+                    if(component.getEntitiesInRadius(radius, this.predicate) >= amount) {
+                        component.killEntities(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
                     return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
@@ -113,11 +120,13 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
     }
 
     @Override
-    public CraftingResult processTick(EntityMachineComponent component) {
+    public CraftingResult processTick(EntityMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
+        int radius = (int)context.getModifiedvalue(this.radius, this, "radius");
         if(this.action == ACTION.CHECK_AMOUNT)
-            return component.getEntitiesInRadius(this.radius, this.predicate) >= this.amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
+            return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
         else if(this.action == ACTION.CHECK_HEALTH)
-            return component.getEntitiesInRadiusHealth(this.radius, this.predicate) >= this.amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", this.amount));
+            return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
         else
             return CraftingResult.pass();
     }

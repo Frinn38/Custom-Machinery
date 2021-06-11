@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
@@ -51,7 +52,7 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     }
 
     @Override
-    public boolean test(PositionMachineComponent component) {
+    public boolean test(PositionMachineComponent component, CraftingContext context) {
         boolean positionCheck = this.positions.isEmpty() || this.positions.stream().allMatch(comparator -> comparator.compare(component.getPosition()));
         boolean biomeCheck = (this.biomes.isEmpty() || this.biomesBlacklist) != this.biomes.contains(component.getBiome().getRegistryName());
         boolean dimensionCheck = this.dimensions.isEmpty() || this.dimensionsBlacklist != this.dimensions.contains(component.getDimension());
@@ -59,15 +60,15 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     }
 
     @Override
-    public CraftingResult processStart(PositionMachineComponent component) {
-        if(test(component))
+    public CraftingResult processStart(PositionMachineComponent component, CraftingContext context) {
+        if(test(component, context))
             return CraftingResult.success();
         else
             return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.position.error"));
     }
 
     @Override
-    public CraftingResult processEnd(PositionMachineComponent component) {
+    public CraftingResult processEnd(PositionMachineComponent component, CraftingContext context) {
         return CraftingResult.pass();
     }
 

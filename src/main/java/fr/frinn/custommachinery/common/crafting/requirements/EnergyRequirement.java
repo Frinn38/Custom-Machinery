@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
@@ -35,7 +36,7 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
     }
 
     @Override
-    public RequirementType getType() {
+    public RequirementType<EnergyRequirement> getType() {
         return Registration.ENERGY_REQUIREMENT.get();
     }
 
@@ -45,42 +46,46 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
     }
 
     @Override
-    public boolean test(EnergyMachineComponent energy) {
+    public boolean test(EnergyMachineComponent energy, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT)
-            return energy.getEnergyStored() > this.amount;
+            return energy.extractRecipeEnergy(amount, true) == amount;
         else
-            return true;
+            return energy.receiveRecipeEnergy(amount, true) == amount;
     }
 
     @Override
-    public CraftingResult processStart(EnergyMachineComponent energy) {
+    public CraftingResult processStart(EnergyMachineComponent energy, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
-            int canExtract = energy.extractRecipeEnergy(this.amount, true);
-            if(canExtract == this.amount) {
-                energy.extractRecipeEnergy(this.amount, false);
+            int canExtract = energy.extractRecipeEnergy(amount, true);
+            if(canExtract == amount) {
+                energy.extractRecipeEnergy(amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.error.input", this.amount, canExtract));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.error.input", amount, canExtract));
         }
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processEnd(EnergyMachineComponent energy) {
+    public CraftingResult processEnd(EnergyMachineComponent energy, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if (getMode() == MODE.OUTPUT) {
-            int canReceive = energy.receiveRecipeEnergy(this.amount, true);
-            if(canReceive == this.amount) {
-                energy.receiveRecipeEnergy(this.amount, false);
+            int canReceive = energy.receiveRecipeEnergy(amount, true);
+            if(canReceive == amount) {
+                energy.receiveRecipeEnergy(amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.error.output", this.amount));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energy.error.output", amount));
         }
         return CraftingResult.pass();
     }
 
     @Override
-    public boolean testChance(Random rand) {
-        return rand.nextDouble() > this.chance;
+    public boolean testChance(Random rand, CraftingContext context) {
+        double chance = context.getModifiedvalue(this.chance, this, "chance");
+        return rand.nextDouble() > chance;
     }
 
     private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, false));

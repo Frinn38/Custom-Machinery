@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
@@ -45,34 +46,35 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     }
 
     @Override
-    public boolean test(CommandMachineComponent component) {
+    public boolean test(CommandMachineComponent component, CraftingContext context) {
         return true;
     }
 
     @Override
-    public CraftingResult processStart(CommandMachineComponent component) {
+    public CraftingResult processStart(CommandMachineComponent component, CraftingContext context) {
         if(this.phase == CraftingManager.PHASE.STARTING)
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processTick(CommandMachineComponent component) {
+    public CraftingResult processTick(CommandMachineComponent component, CraftingContext context) {
         if(this.phase == CraftingManager.PHASE.CRAFTING)
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processEnd(CommandMachineComponent component) {
+    public CraftingResult processEnd(CommandMachineComponent component, CraftingContext context) {
         if(this.phase == CraftingManager.PHASE.ENDING)
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
     @Override
-    public boolean testChance(Random rand) {
-        return rand.nextDouble() > this.chance;
+    public boolean testChance(Random rand, CraftingContext context) {
+        double chance = context.getModifiedPerTickValue(this.chance, this, "chance");
+        return rand.nextDouble() > chance;
     }
 
     @Override

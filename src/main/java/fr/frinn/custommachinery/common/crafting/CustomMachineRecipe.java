@@ -50,19 +50,15 @@ public class CustomMachineRecipe extends DummyRecipe {
         return this.requirements;
     }
 
-    public List<IRequirement> getRequirementsRaw() {
-        return this.requirements.stream().map(requirement -> (IRequirement)requirement).collect(Collectors.toList());
-    }
-
     public List<IJEIIngredientRequirement> getJEIRequirements() {
         return this.requirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
     }
 
-    public boolean matches(CustomMachineTile tile) {
+    public boolean matches(CustomMachineTile tile, CraftingContext context) {
         return this.getMachine().equals(tile.getMachine().getId()) && this.requirements.stream().allMatch(requirement -> {
             if(tile.componentManager.hasComponent(requirement.getComponentType())) {
                  IMachineComponent component = tile.componentManager.getComponentRaw(requirement.getComponentType());
-                 return ((IRequirement)requirement).test(component);
+                 return ((IRequirement)requirement).test(component, context);
             }
             else return false;
         });

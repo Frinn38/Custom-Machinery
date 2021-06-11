@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
@@ -37,24 +38,26 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
     }
 
     @Override
-    public boolean test(LightMachineComponent component) {
+    public boolean test(LightMachineComponent component, CraftingContext context) {
+        int light = (int)context.getModifiedvalue(this.light, this, null);
         if(this.sky)
-            return this.comparator.compare(component.getSkyLight(), this.light);
-        return this.comparator.compare(component.getBlockLight(), this.light);
+            return this.comparator.compare(component.getSkyLight(), light);
+        return this.comparator.compare(component.getBlockLight(), light);
     }
 
     @Override
-    public CraftingResult processStart(LightMachineComponent component) {
-        if(this.test(component))
+    public CraftingResult processStart(LightMachineComponent component, CraftingContext context) {
+        int light = (int)context.getModifiedvalue(this.light, this, null);
+        if(this.test(component, context))
             return CraftingResult.success();
         if(this.sky)
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), this.light));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
         else
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), this.light));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
     }
 
     @Override
-    public CraftingResult processEnd(LightMachineComponent component) {
+    public CraftingResult processEnd(LightMachineComponent component, CraftingContext context) {
         return CraftingResult.pass();
     }
 
@@ -64,12 +67,13 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
     }
 
     @Override
-    public CraftingResult processTick(LightMachineComponent component) {
-        if(this.test(component))
+    public CraftingResult processTick(LightMachineComponent component, CraftingContext context) {
+        int light = (int)context.getModifiedvalue(this.light, this, null);
+        if(this.test(component, context))
             return CraftingResult.success();
         if(this.sky)
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), this.light));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
         else
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), this.light));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
     }
 }

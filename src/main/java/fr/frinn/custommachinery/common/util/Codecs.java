@@ -16,10 +16,9 @@ import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
+import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
@@ -32,7 +31,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Codecs {
@@ -52,10 +50,11 @@ public class Codecs {
     public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString).stable();
     public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = Codec.STRING.comapFlatMap(Codecs::decodeEntityRequirementAction, EntityRequirement.ACTION::toString).stable();
     public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeBlockRequirementAction, BlockRequirement.ACTION::toString).stable();
+    public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION                   = Codec.STRING.comapFlatMap(Codecs::decodeModifierOperation, RecipeModifier.OPERATION::toString).stable();
 
-    public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                   = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName).stable();
-    public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName).stable();
-    public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                 = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName).stable();
+    public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                            = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName).stable();
+    public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName).stable();
+    public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName).stable();
 
     public static final Codec<AxisAlignedBB> BOX_CODEC = Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ));
     public static final Codec<PartialBlockState> BLOCK_STATE_CODEC = MODEL_RESOURCE_LOCATION_CODEC.comapFlatMap(Codecs::decodeBlockState, PartialBlockState::location).stable();
@@ -225,5 +224,13 @@ public class Codecs {
             state = state.with(stateProperty, optionalValue.get());
         }
         return DataResult.success(state);
+    }
+
+    private static DataResult<RecipeModifier.OPERATION> decodeModifierOperation(String encoded) {
+        try {
+            return DataResult.success(RecipeModifier.OPERATION.value(encoded));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error("Not a valid modifier operation: " + encoded + " " + e.getMessage());
+        }
     }
 }

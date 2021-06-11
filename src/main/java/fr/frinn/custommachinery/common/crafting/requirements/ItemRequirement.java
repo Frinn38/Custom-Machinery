@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
@@ -88,45 +89,47 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     }
 
     @Override
-    public boolean test(ItemComponentHandler component) {
+    public boolean test(ItemComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             if (this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
-                return component.getDurabilityAmount(this.item, this.nbt) >= this.amount;
+                return component.getDurabilityAmount(this.item, this.nbt) >= amount;
             else if(this.item != null && this.item != DEFAULT_ITEM)
-                return component.getItemAmount(this.item, this.nbt) >= this.amount;
+                return component.getItemAmount(this.item, this.nbt) >= amount;
             else if(this.tag != null)
-                return this.tag.getAllElements().stream().mapToInt(item -> component.getItemAmount(item, this.nbt)).sum() >= this.amount;
+                return this.tag.getAllElements().stream().mapToInt(item -> component.getItemAmount(item, this.nbt)).sum() >= amount;
             else throw new IllegalStateException("Using Input Item Requirement with null item and tag");
         } else {
             if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
-                return component.getSpaceForDurability(this.item, this.nbt) >= this.amount;
+                return component.getSpaceForDurability(this.item, this.nbt) >= amount;
             if(this.item != null && this.item != DEFAULT_ITEM)
-                return component.getSpaceForItem(this.item, this.nbt) >= this.amount;
+                return component.getSpaceForItem(this.item, this.nbt) >= amount;
             else throw new IllegalStateException("Using Output Item Requirement with null item");
         }
     }
 
     @Override
-    public CraftingResult processStart(ItemComponentHandler component) {
+    public CraftingResult processStart(ItemComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
                 int canRemove = component.getDurabilityAmount(this.item, this.nbt);
-                if(canRemove >= this.amount) {
-                    component.removeDurability(this.item, this.amount, this.nbt);
+                if(canRemove >= amount) {
+                    component.removeDurability(this.item, amount, this.nbt);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.durability.input", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, canRemove));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.durability.input", new TranslationTextComponent(this.item.getTranslationKey()), amount, canRemove));
             } else if(this.item != null && this.item != DEFAULT_ITEM) {
                 int canExtract = component.getItemAmount(this.item, this.nbt);
-                if(canExtract >= this.amount) {
-                    component.removeFromInputs(this.item, this.amount, this.nbt);
+                if(canExtract >= amount) {
+                    component.removeFromInputs(this.item, amount, this.nbt);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.input", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, canExtract));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.input", new TranslationTextComponent(this.item.getTranslationKey()), amount, canExtract));
             } else if(this.tag != null) {
                 int maxExtract = this.tag.getAllElements().stream().mapToInt(item -> component.getItemAmount(item, this.nbt)).sum();
-                if(maxExtract >= this.amount) {
-                    int toExtract = this.amount;
+                if(maxExtract >= amount) {
+                    int toExtract = amount;
                     for (Item item : this.tag.getAllElements()) {
                         int canExtract = component.getItemAmount(item, this.nbt);
                         if(canExtract > 0) {
@@ -138,38 +141,40 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                         }
                     }
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.input", Utils.getItemTagID(this.tag), this.amount, maxExtract));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.input", Utils.getItemTagID(this.tag), amount, maxExtract));
             } else throw new IllegalStateException("Using Input Item Requirement with null item and tag");
         }
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processEnd(ItemComponentHandler component) {
+    public CraftingResult processEnd(ItemComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.OUTPUT) {
             if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
                 int maxRepair = component.getSpaceForDurability(this.item, this.nbt);
-                if(maxRepair >= this.amount) {
-                    component.repairItem(this.item, this.amount, this.nbt);
+                if(maxRepair >= amount) {
+                    component.repairItem(this.item, amount, this.nbt);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", new TranslationTextComponent(this.item.getTranslationKey()), this.amount, maxRepair));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", new TranslationTextComponent(this.item.getTranslationKey()), amount, maxRepair));
             }
             if(this.item != null && this.item != DEFAULT_ITEM) {
                 int canInsert = component.getSpaceForItem(this.item, this.nbt);
-                if(canInsert >= this.amount) {
-                    component.addToOutputs(this.item, this.amount, this.nbt);
+                if(canInsert >= amount) {
+                    component.addToOutputs(this.item, amount, this.nbt);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", this.amount, new TranslationTextComponent(this.item.getTranslationKey())));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", amount, new TranslationTextComponent(this.item.getTranslationKey())));
             } else throw new IllegalStateException("Using Output Item Requirement with null item");
         }
         return CraftingResult.pass();
     }
 
     @Override
-    public boolean testChance(Random rand) {
-        return rand.nextDouble() > this.chance;
+    public boolean testChance(Random rand, CraftingContext context) {
+        double chance = context.getModifiedvalue(this.chance, this, "chance");
+        return rand.nextDouble() > chance;
     }
 
     private Lazy<ItemIngredientWrapper> itemIngredientWrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance, this.useDurability, this.nbt));

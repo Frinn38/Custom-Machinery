@@ -58,6 +58,9 @@
   "custommachinery.machine.component.fluid": "Fluid",
   "custommachinery.machine.component.item": "Item",
 
+  "custommachinery.requirement.mode.input": "Input",
+  "custommachinery.requirement.mode.output": "Output",
+
   "custommachinery.requirements.energy.error.input": "Not enough energy, %sFE needed but only %sFE found !",
   "custommachinery.requirements.energy.error.output": "Not enough space for storing %sFE !",
   "custommachinery.requirements.energypertick.error.input": "Not enough energy, %sFE needed but only %sFE found !",
@@ -81,5 +84,22 @@
   "custommachinery.requirements.light.sky.error": "This recipe need a sky light value %s %s",
   "custommachinery.requirements.block.check.error": "This recipe need %s %s in %s, found %s",
   "custommachinery.requirements.block.place.error": "Can't place %s %s in %s",
-  "custommachinery.requirements.block.break.error": "Can't break %s %s in %s"
+  "custommachinery.requirements.block.break.error": "Can't break %s %s in %s",
+
+  "requirement.custommachinery.item": "Item",
+  "requirement.custommachinery.energy": "Energy",
+  "requirement.custommachinery.energy_per_tick": "Energy per tick",
+  "requirement.custommachinery.fluid": "Fluid",
+  "requirement.custommachinery.fluid_per_tick": "Fluid per tick",
+  "requirement.custommachinery.position": "Position",
+  "requirement.custommachinery.time": "Time",
+  "requirement.custommachinery.command": "Command",
+  "requirement.custommachinery.fuel": "Fuel",
+  "requirement.custommachinery.effect": "Effect",
+  "requirement.custommachinery.weather": "Weather",
+  "requirement.custommachinery.redstone": "Redstone",
+  "requirement.custommachinery.entity": "Entity",
+  "requirement.custommachinery.light": "Light",
+  "requirement.custommachinery.block": "Block",
+  "requirement.custommachinery.speed": "Speed"
 }

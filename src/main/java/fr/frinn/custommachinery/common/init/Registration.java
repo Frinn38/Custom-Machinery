@@ -117,9 +117,11 @@ public class Registration {
     public static final RegistryObject<RequirementType<EntityRequirement>> ENTITY_REQUIREMENT = REQUIREMENTS.register("entity", () -> new RequirementType<>(EntityRequirement.CODEC));
     public static final RegistryObject<RequirementType<LightRequirement>> LIGHT_REQUIREMENT = REQUIREMENTS.register("light", () -> new RequirementType<>(LightRequirement.CODEC));
     public static final RegistryObject<RequirementType<BlockRequirement>> BLOCK_REQUIREMENT = REQUIREMENTS.register("block", () -> new RequirementType<>(BlockRequirement.CODEC));
+    public static final RegistryObject<RequirementType<SpeedRequirement>> SPEED_REQUIREMENT = REQUIREMENTS.register("speed", () -> new RequirementType<>(SpeedRequirement.CODEC));
 
     public static final RegistryObject<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATA.register("boolean", () -> new DataType<>(BooleanSyncable::create, BooleanData::new));
     public static final RegistryObject<DataType<IntegerData, Integer>> INTEGER_DATA = DATA.register("integer", () -> new DataType<>(IntegerSyncable::create, IntegerData::new));
+    public static final RegistryObject<DataType<DoubleData, Double>> DOUBLE_DATA = DATA.register("double", () -> new DataType<>(DoubleSyncable::create, DoubleData::new));
     public static final RegistryObject<DataType<ItemStackData, ItemStack>> ITEMSTACK_DATA = DATA.register("itemstack", () -> new DataType<>(ItemStackSyncable::create, ItemStackData::new));
     public static final RegistryObject<DataType<FluidStackData, FluidStack>> FLUIDSTACK_DATA = DATA.register("fluidstack", () -> new DataType<>(FluidStackSyncable::create, FluidStackData::new));
     public static final RegistryObject<DataType<StringData, String>> STRING_DATA = DATA.register("string", () -> new DataType<>(StringSyncable::create, StringData::new));

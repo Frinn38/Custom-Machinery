@@ -17,4 +17,10 @@ public class RequirementType<T extends IRequirement<?>> extends ForgeRegistryEnt
     public Codec<T> getCodec() {
         return this.codec;
     }
+
+    public String getTranslationKey() {
+        if(getRegistryName() == null)
+            return "unknown";
+        return "requirement." + getRegistryName().getNamespace() + "." + getRegistryName().getPath();
+    }
 }

@@ -20,5 +20,6 @@ public class NetworkManager {
         CHANNEL.registerMessage(3, SUpdateCustomTileLightPacket.class, SUpdateCustomTileLightPacket::encode, SUpdateCustomTileLightPacket::decode, SUpdateCustomTileLightPacket::handle);
         CHANNEL.registerMessage(4, CAddMachinePacket.class, CAddMachinePacket::encode, CAddMachinePacket::decode, CAddMachinePacket::handle);
         CHANNEL.registerMessage(5, SUpdateContainerPacket.class, SUpdateContainerPacket::encode, SUpdateContainerPacket::decode, SUpdateContainerPacket::handle);
+        CHANNEL.registerMessage(6, SUpdateUpgradesPacket.class, SUpdateUpgradesPacket::encode, SUpdateUpgradesPacket::decode, SUpdateUpgradesPacket::handle);
     }
 }

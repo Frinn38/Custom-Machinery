@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
@@ -34,19 +35,21 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
     }
 
     @Override
-    public boolean test(RedstoneMachineComponent component) {
-        return this.comparatorMode.compare(component.getMachinePower(), this.powerLevel);
+    public boolean test(RedstoneMachineComponent component, CraftingContext context) {
+        int powerLevel = (int)context.getModifiedvalue(this.powerLevel, this, null);
+        return this.comparatorMode.compare(component.getMachinePower(), powerLevel);
     }
 
     @Override
-    public CraftingResult processStart(RedstoneMachineComponent component) {
-        if(this.test(component))
+    public CraftingResult processStart(RedstoneMachineComponent component, CraftingContext context) {
+        int powerLevel = (int)context.getModifiedvalue(this.powerLevel, this, null);
+        if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", this.powerLevel));
+        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", powerLevel));
     }
 
     @Override
-    public CraftingResult processEnd(RedstoneMachineComponent component) {
+    public CraftingResult processEnd(RedstoneMachineComponent component, CraftingContext context) {
         return CraftingResult.pass();
     }
 
@@ -56,9 +59,10 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
     }
 
     @Override
-    public CraftingResult processTick(RedstoneMachineComponent component) {
-        if(this.test(component))
+    public CraftingResult processTick(RedstoneMachineComponent component, CraftingContext context) {
+        int powerLevel = (int)context.getModifiedvalue(this.powerLevel, this, null);
+        if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", this.powerLevel));
+        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", powerLevel));
     }
 }

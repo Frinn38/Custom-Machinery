@@ -35,7 +35,7 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
     @ParametersAreNonnullByDefault
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager resourceManager, IProfiler profiler) {
-        LOGGER.info("Reading Custom Machinery files...");
+        LOGGER.info("Reading Custom Machinery machines...");
 
         CustomMachinery.MACHINES.clear();
         map.forEach((id, json) -> {
@@ -66,7 +66,7 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
             CustomMachinery.MACHINES.put(id, machine);
         });
 
-        LOGGER.info("Finished.");
+        LOGGER.info("Finished creating custom machines.");
 
         if(ServerLifecycleHooks.getCurrentServer() != null)
             NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));

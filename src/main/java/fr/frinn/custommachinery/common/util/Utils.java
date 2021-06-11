@@ -1,5 +1,11 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.ibm.icu.impl.Pair;
+import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
+import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -12,7 +18,10 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Utils {
 
@@ -73,5 +82,17 @@ public class Utils {
             default:
                 return false;
         }
+    }
+
+    public static Map<RecipeModifier, Integer> getModifiersForTile(CustomMachineTile tile) {
+        return tile.componentManager.getItemHandler()
+                .map(ItemComponentHandler::getComponents)
+                .orElse(new ArrayList<>())
+                .stream()
+                .filter(ItemMachineComponent::isUpgradeSlot)
+                .map(component -> Pair.of(component.getItemStack().getItem(), component.getItemStack().getCount()))
+                .flatMap(pair -> CustomMachinery.UPGRADES.stream().filter(upgrade -> upgrade.getItem() == pair.first && upgrade.getMachines().contains(tile.getMachine().getId())).flatMap(upgrade -> upgrade.getModifiers().stream()).map(modifier -> Pair.of(modifier, pair.second)))
+                .collect(Collectors.toMap(pair -> pair.first, pair -> pair.second));
+
     }
 }

@@ -55,7 +55,6 @@ public class CustomMachineContainer extends SyncableContainer {
             }
         );
 
-
         machine.getGuiElements()
             .stream()
             .filter(element -> element.getType() == Registration.SLOT_GUI_ELEMENT.get())

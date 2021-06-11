@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
@@ -80,33 +81,35 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     }
 
     @Override
-    public boolean test(FluidComponentHandler component) {
+    public boolean test(FluidComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
         if(getMode() == MODE.INPUT)
-            return component.getFluidAmount(this.fluid) >= this.amount;
+            return component.getFluidAmount(this.fluid) >= amount;
         else
-            return component.getSpaceForFluid(this.fluid) >= this.amount;
+            return component.getSpaceForFluid(this.fluid) >= amount;
     }
 
     @Override
-    public CraftingResult processStart(FluidComponentHandler component) {
+    public CraftingResult processStart(FluidComponentHandler component, CraftingContext context) {
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processTick(FluidComponentHandler component) {
+    public CraftingResult processTick(FluidComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID) {
-                FluidStack stack = new FluidStack(this.fluid, this.amount);
+                FluidStack stack = new FluidStack(this.fluid, amount);
                 int canExtract = component.getFluidAmount(this.fluid);
-                if(canExtract >= this.amount) {
+                if(canExtract >= amount) {
                     component.removeFromInputs(stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey()), this.amount, canExtract));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey()), amount, canExtract));
             } else if(this.tag != null) {
                 int maxExtract = this.tag.getAllElements().stream().mapToInt(component::getFluidAmount).sum();
-                if(maxExtract >= this.amount) {
-                    int toExtract = this.amount;
+                if(maxExtract >= amount) {
+                    int toExtract = amount;
                     for (Fluid fluid : this.tag.getAllElements()) {
                         int canExtract = component.getFluidAmount(fluid);
                         if(canExtract > 0) {
@@ -118,30 +121,31 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
                         }
                     }
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", Utils.getFluidTagID(this.tag), this.amount, maxExtract));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", Utils.getFluidTagID(this.tag), amount, maxExtract));
             } else throw new IllegalStateException("Using Input Fluid Per Tick Requirement with null fluid and fluid tag");
         }
         else {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID) {
-                FluidStack stack = new FluidStack(this.fluid, this.amount);
+                FluidStack stack = new FluidStack(this.fluid, amount);
                 int canInsert = component.getSpaceForFluid(this.fluid);
-                if(canInsert >= this.amount) {
+                if(canInsert >= amount) {
                     component.addToOutputs(stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluidpertick.error.output", this.amount, this.fluid.getRegistryName()));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluidpertick.error.output", amount, this.fluid.getRegistryName()));
             } else throw new IllegalStateException("Using Output Fluid Per Tick Requirement with null fluid");
         }
     }
 
     @Override
-    public CraftingResult processEnd(FluidComponentHandler component) {
+    public CraftingResult processEnd(FluidComponentHandler component, CraftingContext context) {
         return CraftingResult.pass();
     }
 
     @Override
-    public boolean testChance(Random rand) {
-        return rand.nextDouble() > this.chance;
+    public boolean testChance(Random rand, CraftingContext context) {
+        double chance = context.getModifiedvalue(this.chance, this, "chance");
+        return rand.nextDouble() > chance;
     }
 
     private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag, this.chance, true));

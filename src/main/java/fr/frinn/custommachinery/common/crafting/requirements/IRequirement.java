@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
@@ -14,11 +16,11 @@ public interface IRequirement<T extends IMachineComponent> {
 
     RequirementType<?> getType();
 
-    boolean test(T component);
+    boolean test(T component, CraftingContext context);
 
-    CraftingResult processStart(T component);
+    CraftingResult processStart(T component, CraftingContext context);
 
-    CraftingResult processEnd(T component);
+    CraftingResult processEnd(T component, CraftingContext context);
 
     MODE getMode();
 
@@ -35,6 +37,10 @@ public interface IRequirement<T extends IMachineComponent> {
         @Override
         public String toString() {
             return super.toString().toLowerCase(Locale.ENGLISH);
+        }
+
+        public String getTranslationKey() {
+            return CustomMachinery.MODID + ".requirement.mode." + toString();
         }
     }
 }

@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
@@ -70,7 +71,7 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     }
 
     @Override
-    public RequirementType getType() {
+    public RequirementType<FluidRequirement> getType() {
         return Registration.FLUID_REQUIREMENT.get();
     }
 
@@ -80,37 +81,39 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     }
 
     @Override
-    public boolean test(FluidComponentHandler component) {
+    public boolean test(FluidComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID)
-                return component.getFluidAmount(this.fluid) >= this.amount;
+                return component.getFluidAmount(this.fluid) >= amount;
             else if(this.tag != null)
-                return this.tag.getAllElements().stream().mapToInt(component::getFluidAmount).sum() >= this.amount;
+                return this.tag.getAllElements().stream().mapToInt(component::getFluidAmount).sum() >= amount;
             else throw new IllegalStateException("Using Input Fluid Requirement with null fluid and fluid tag");
         }
         else {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID)
-                return component.getSpaceForFluid(this.fluid) >= this.amount;
+                return component.getSpaceForFluid(this.fluid) >= amount;
             else throw new IllegalStateException("Using Output Fluid Requirement with null fluid");
         }
 
     }
 
     @Override
-    public CraftingResult processStart(FluidComponentHandler component) {
+    public CraftingResult processStart(FluidComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID) {
-                FluidStack stack = new FluidStack(this.fluid, this.amount);
+                FluidStack stack = new FluidStack(this.fluid, amount);
                 int canExtract = component.getFluidAmount(this.fluid);
-                if(canExtract >= this.amount) {
+                if(canExtract >= amount) {
                     component.removeFromInputs(stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey()), this.amount, canExtract));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey()), amount, canExtract));
             } else if(this.tag != null) {
                 int maxExtract = this.tag.getAllElements().stream().mapToInt(component::getFluidAmount).sum();
-                if(maxExtract >= this.amount) {
-                    int toExtract = this.amount;
+                if(maxExtract >= amount) {
+                    int toExtract = amount;
                     for (Fluid fluid : this.tag.getAllElements()) {
                         int canExtract = component.getFluidAmount(fluid);
                         if(canExtract > 0) {
@@ -122,31 +125,33 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                         }
                     }
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", Utils.getFluidTagID(this.tag), this.amount, maxExtract));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", Utils.getFluidTagID(this.tag), amount, maxExtract));
             } else throw new IllegalStateException("Using Input Fluid Requirement with null fluid and fluid tag");
         }
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processEnd(FluidComponentHandler component) {
+    public CraftingResult processEnd(FluidComponentHandler component, CraftingContext context) {
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.OUTPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID) {
-                FluidStack stack = new FluidStack(this.fluid, this.amount);
+                FluidStack stack = new FluidStack(this.fluid, amount);
                 int canAdd =  component.getSpaceForFluid(this.fluid);
-                if(canAdd >= this.amount) {
+                if(canAdd >= amount) {
                     component.addToOutputs(stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.output", this.amount, new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey())));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.output", amount, new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey())));
             } else throw new IllegalStateException("Using Output Fluid Requirement with null fluid");
         }
         return CraftingResult.pass();
     }
 
     @Override
-    public boolean testChance(Random rand) {
-        return rand.nextDouble() > this.chance;
+    public boolean testChance(Random rand, CraftingContext context) {
+        double chance = context.getModifiedvalue(this.chance, this, "chance");
+        return rand.nextDouble() > chance;
     }
 
     private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag, this.chance, false));

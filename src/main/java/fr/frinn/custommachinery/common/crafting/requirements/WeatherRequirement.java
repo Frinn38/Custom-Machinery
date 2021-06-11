@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
@@ -33,19 +34,19 @@ public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachi
     }
 
     @Override
-    public boolean test(WeatherMachineComponent component) {
+    public boolean test(WeatherMachineComponent component, CraftingContext context) {
         return component.hasWeather(this.weather, this.onMachine);
     }
 
     @Override
-    public CraftingResult processStart(WeatherMachineComponent component) {
+    public CraftingResult processStart(WeatherMachineComponent component, CraftingContext context) {
         if(component.hasWeather(this.weather, this.onMachine))
             return CraftingResult.success();
         return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.weather.error", this.weather));
     }
 
     @Override
-    public CraftingResult processEnd(WeatherMachineComponent component) {
+    public CraftingResult processEnd(WeatherMachineComponent component, CraftingContext context) {
         return CraftingResult.pass();
     }
 
@@ -55,7 +56,7 @@ public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachi
     }
 
     @Override
-    public CraftingResult processTick(WeatherMachineComponent component) {
+    public CraftingResult processTick(WeatherMachineComponent component, CraftingContext context) {
         if(component.hasWeather(this.weather, this.onMachine))
             return CraftingResult.success();
         return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.weather.error", this.weather));

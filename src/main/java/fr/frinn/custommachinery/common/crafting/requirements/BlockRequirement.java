@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
@@ -50,73 +51,76 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     }
 
     @Override
-    public boolean test(BlockMachineComponent component) {
+    public boolean test(BlockMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
         switch (this.action) {
             case CHECK:
-                return this.comparator.compare((int)component.getBlockAmount(this.pos, this.block), this.amount);
+                return this.comparator.compare((int)component.getBlockAmount(this.pos, this.block), amount);
             case BREAK:
             case DESTROY:
-                return (int)component.getBlockAmount(this.pos, this.block) >= this.amount;
+                return (int)component.getBlockAmount(this.pos, this.block) >= amount;
             case PLACE:
-                return  (int)component.getBlockAmount(this.pos, PartialBlockState.AIR) >= this.amount;
+                return  (int)component.getBlockAmount(this.pos, PartialBlockState.AIR) >= amount;
             default:
                 return true;
         }
     }
 
     @Override
-    public CraftingResult processStart(BlockMachineComponent component) {
+    public CraftingResult processStart(BlockMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
         if(this.getMode() == MODE.INPUT) {
             switch (this.action) {
                 case PLACE:
-                    if(component.placeBlock(this.pos, this.block, this.amount))
+                    if(component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_BREAK:
-                    if(component.replaceBlock(this.pos, this.block, this.amount, true))
+                    if(component.replaceBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_DESTROY:
-                    if(component.replaceBlock(this.pos, this.block, this.amount, false))
+                    if(component.replaceBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case BREAK:
-                    if(component.breakBlock(this.pos, this.block, this.amount, true))
+                    if(component.breakBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case DESTROY:
-                    if(component.breakBlock(this.pos, this.block, this.amount, false))
+                    if(component.breakBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
             }
         }
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processEnd(BlockMachineComponent component) {
+    public CraftingResult processEnd(BlockMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
         if(this.getMode() == MODE.OUTPUT) {
             switch (this.action) {
                 case PLACE:
-                    if(component.placeBlock(this.pos, this.block, this.amount))
+                    if(component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_BREAK:
-                    if(component.replaceBlock(this.pos, this.block, this.amount, true))
+                    if(component.replaceBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_DESTROY:
-                    if(component.replaceBlock(this.pos, this.block, this.amount, false))
+                    if(component.replaceBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case BREAK:
-                    if(component.breakBlock(this.pos, this.block, this.amount, true))
+                    if(component.breakBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
                 case DESTROY:
-                    if(component.breakBlock(this.pos, this.block, this.amount, false))
+                    if(component.breakBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
             }
         }
         return CraftingResult.pass();
@@ -128,11 +132,12 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     }
 
     @Override
-    public CraftingResult processTick(BlockMachineComponent component) {
+    public CraftingResult processTick(BlockMachineComponent component, CraftingContext context) {
+        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
         if(this.action == ACTION.CHECK) {
-            long amount = component.getBlockAmount(this.pos, this.block);
-            if(!this.comparator.compare((int)amount, this.amount))
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.check.error", this.amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString(), amount));
+            long found = component.getBlockAmount(this.pos, this.block);
+            if(!this.comparator.compare((int)found, amount))
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.check.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString(), found));
         }
         return CraftingResult.success();
     }

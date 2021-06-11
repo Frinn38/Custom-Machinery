@@ -2,10 +2,13 @@ package fr.frinn.custommachinery;
 
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.CustomMachineJsonReloadListener;
+import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.data.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
+import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -24,7 +27,9 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Mod(CustomMachinery.MODID)
@@ -35,6 +40,7 @@ public class CustomMachinery {
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
+    public static final List<MachineUpgrade> UPGRADES = new ArrayList<>();
 
     public CustomMachinery() {
         final IEventBus MOD_BUS = FMLJavaModLoadingContext.get().getModEventBus();
@@ -67,11 +73,14 @@ public class CustomMachinery {
 
     public void addReloadListener(final AddReloadListenerEvent event) {
         event.addListener(new CustomMachineJsonReloadListener());
+        event.addListener(new UpgradesCustomReloadListener());
     }
 
     public void playerLogIn(final PlayerEvent.PlayerLoggedInEvent event) {
         PlayerEntity player = event.getPlayer();
-        if(!player.world.isRemote())
+        if(!player.world.isRemote()) {
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateMachinesPacket(MACHINES));
+            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateUpgradesPacket(UPGRADES));
+        }
     }
 }

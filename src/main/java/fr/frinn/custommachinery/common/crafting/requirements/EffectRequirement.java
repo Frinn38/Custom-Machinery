@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
@@ -51,26 +52,32 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
     }
 
     @Override
-    public boolean test(EffectMachineComponent component) {
+    public boolean test(EffectMachineComponent component, CraftingContext context) {
         return true;
     }
 
     @Override
-    public CraftingResult processStart(EffectMachineComponent component) {
+    public CraftingResult processStart(EffectMachineComponent component, CraftingContext context) {
         return CraftingResult.pass();
     }
 
     @Override
-    public CraftingResult processEnd(EffectMachineComponent component) {
+    public CraftingResult processEnd(EffectMachineComponent component, CraftingContext context) {
+        int time = (int)context.getModifiedPerTickValue(this.time, this, "time");
+        int level = (int)context.getModifiedPerTickValue(this.level, this, "level");
+        int radius = (int)context.getModifiedPerTickValue(this.radius, this, "radius");
         if(this.applyAtEnd)
-            component.applyEffect(new EffectInstance(this.effect, this.time, this.level), this.radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
+            component.applyEffect(new EffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         return CraftingResult.success();
     }
 
     @Override
-    public CraftingResult processTick(EffectMachineComponent component) {
+    public CraftingResult processTick(EffectMachineComponent component, CraftingContext context) {
+        int time = (int)context.getModifiedPerTickValue(this.time, this, "time");
+        int level = (int)context.getModifiedPerTickValue(this.level, this, "level");
+        int radius = (int)context.getModifiedPerTickValue(this.radius, this, "radius");
         if(!this.applyAtEnd)
-            component.applyEffect(new EffectInstance(this.effect, this.time, this.level), this.radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
+            component.applyEffect(new EffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         return CraftingResult.success();
     }
 
