@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.common.IExtensibleEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,17 +28,15 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     private List<Item> filter;
     private boolean whitelist;
     private ItemStack stack = ItemStack.EMPTY;
-    private boolean isUpgradeSlot;
-    private boolean isFuelSlot;
+    private ItemComponentVariant variant;
 
-    public ItemMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, boolean isUpgradeSlot, boolean isFuelSlot) {
+    public ItemMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
         super(manager, mode);
         this.id = id;
         this.capacity = MathHelper.clamp(capacity, 0, 64);
         this.filter = filter;
         this.whitelist = whitelist;
-        this.isUpgradeSlot = isUpgradeSlot;
-        this.isFuelSlot = isFuelSlot;
+        this.variant = variant;
     }
 
     @Override
@@ -49,13 +48,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
         return this.id;
     }
 
+    public ItemComponentVariant getVariant() {
+        return this.variant;
+    }
+
     public boolean isItemValid(ItemStack stack) {
-        if(this.isUpgradeSlot)
-            return CustomMachinery.UPGRADES.stream().anyMatch(upgrade -> upgrade.getItem() == stack.getItem());
-        else if(this.isFuelSlot)
-            return stack.getBurnTime() > 0 && this.filter.contains(stack.getItem()) == this.whitelist;
-        else
-            return this.filter.contains(stack.getItem()) == this.whitelist;
+        return this.filter.contains(stack.getItem()) == this.whitelist && this.variant.isItemValid(this, stack);
     }
 
     public ItemStack getItemStack() {
@@ -64,14 +62,6 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
 
     public int getCapacity() {
         return this.capacity;
-    }
-
-    public boolean isUpgradeSlot() {
-        return this.isUpgradeSlot;
-    }
-
-    public boolean isFuelSlot() {
-        return this.isFuelSlot;
     }
 
     public int getSpaceForItem(ItemStack stack) {
@@ -132,8 +122,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
                         Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
                         Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
                         Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
-                        Codec.BOOL.optionalFieldOf("upgrade", false).forGetter(template -> template.isUpgradeSlot),
-                        Codec.BOOL.optionalFieldOf("fuel", false).forGetter(template -> template.isFuelSlot)
+                        Codecs.ITEM_COMPONENT_VARIANT_CODEC.optionalFieldOf("variant", ItemComponentVariant.DEFAULT).forGetter(template -> template.variant)
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
 
@@ -142,17 +131,15 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
         private int capacity;
         private List<Item> filter;
         private boolean whitelist;
-        private boolean isUpgradeSlot;
-        private boolean isFuelSlot;
+        private ItemComponentVariant variant;
 
-        public Template(Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, boolean isUpgradeSlot, boolean isFuelSlot) {
+        public Template(Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
             this.filter = filter;
             this.whitelist = whitelist;
-            this.isUpgradeSlot = isUpgradeSlot;
-            this.isFuelSlot = isFuelSlot;
+            this.variant = variant;
         }
 
         @Override
@@ -162,7 +149,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
 
         @Override
         public ItemMachineComponent build(MachineComponentManager manager) {
-            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.whitelist, this.isUpgradeSlot, this.isFuelSlot);
+            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.whitelist, this.variant);
         }
     }
 }

@@ -95,12 +95,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     @Override
     public void tick() {
-        this.getComponents().stream().filter(component -> component.isFuelSlot() && component.getItemStack() != ItemStack.EMPTY && ForgeHooks.getBurnTime(component.getItemStack()) > 0).forEach(component -> {
-            if(getManager().getTile().fuelManager.getFuel() == 0 && getManager().getTile().craftingManager.getStatus() != CraftingManager.STATUS.IDLE) {
-                getManager().getTile().fuelManager.addFuel(ForgeHooks.getBurnTime(component.getItemStack()));
-                component.extract(1);
-            }
-        });
+        this.getComponents().forEach(component -> component.getVariant().tick(component));
     }
 
     @Override

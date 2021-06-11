@@ -11,6 +11,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
+import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.data.gui.GuiElementType;
@@ -50,11 +51,12 @@ public class Codecs {
     public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString).stable();
     public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = Codec.STRING.comapFlatMap(Codecs::decodeEntityRequirementAction, EntityRequirement.ACTION::toString).stable();
     public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeBlockRequirementAction, BlockRequirement.ACTION::toString).stable();
-    public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION                   = Codec.STRING.comapFlatMap(Codecs::decodeModifierOperation, RecipeModifier.OPERATION::toString).stable();
+    public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION              = Codec.STRING.comapFlatMap(Codecs::decodeModifierOperation, RecipeModifier.OPERATION::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                            = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName).stable();
     public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName).stable();
     public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName).stable();
+    public static final Codec<ItemComponentVariant> ITEM_COMPONENT_VARIANT_CODEC                                       = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeItemComponentVariant, ItemComponentVariant::getId).stable();
 
     public static final Codec<AxisAlignedBB> BOX_CODEC = Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ));
     public static final Codec<PartialBlockState> BLOCK_STATE_CODEC = MODEL_RESOURCE_LOCATION_CODEC.comapFlatMap(Codecs::decodeBlockState, PartialBlockState::location).stable();
@@ -231,6 +233,14 @@ public class Codecs {
             return DataResult.success(RecipeModifier.OPERATION.value(encoded));
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid modifier operation: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<ItemComponentVariant> decodeItemComponentVariant(ResourceLocation encoded) {
+        try {
+            return DataResult.success(Objects.requireNonNull(ItemComponentVariant.getVariant(encoded)));
+        } catch (NullPointerException e) {
+            return DataResult.error("Not a valid Item component variant: " + encoded + " " + e.getMessage());
         }
     }
 }

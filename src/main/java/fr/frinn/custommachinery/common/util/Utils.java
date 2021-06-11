@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.util;
 
 import com.ibm.icu.impl.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
@@ -89,7 +90,7 @@ public class Utils {
                 .map(ItemComponentHandler::getComponents)
                 .orElse(new ArrayList<>())
                 .stream()
-                .filter(ItemMachineComponent::isUpgradeSlot)
+                .filter(component -> component.getVariant() == ItemComponentVariant.UPGRADE)
                 .map(component -> Pair.of(component.getItemStack().getItem(), component.getItemStack().getCount()))
                 .flatMap(pair -> CustomMachinery.UPGRADES.stream().filter(upgrade -> upgrade.getItem() == pair.first && upgrade.getMachines().contains(tile.getMachine().getId())).flatMap(upgrade -> upgrade.getModifiers().stream()).map(modifier -> Pair.of(modifier, pair.second)))
                 .collect(Collectors.toMap(pair -> pair.first, pair -> pair.second));
