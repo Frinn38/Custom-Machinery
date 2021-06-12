@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.util;
 import com.ibm.icu.impl.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
-import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;

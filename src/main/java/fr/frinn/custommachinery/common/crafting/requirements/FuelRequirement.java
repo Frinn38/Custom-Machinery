@@ -1,8 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
-import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.FuelMachineComponent;

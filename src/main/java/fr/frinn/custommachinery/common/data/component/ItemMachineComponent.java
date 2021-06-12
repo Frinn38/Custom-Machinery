@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.data.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
@@ -15,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
-import net.minecraftforge.common.IExtensibleEnum;
 
 import java.util.ArrayList;
 import java.util.List;

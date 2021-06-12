@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.ISyncable;
@@ -11,7 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Direction;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;

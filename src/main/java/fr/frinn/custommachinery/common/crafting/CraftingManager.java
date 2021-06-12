@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.sync.StringSyncable;
 import fr.frinn.custommachinery.common.util.Comparators;
-import fr.frinn.custommachinery.common.util.Utils;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
