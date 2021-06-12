@@ -67,8 +67,7 @@ public class CustomMachinery {
     }
 
     public void sendIMCMessages(final InterModEnqueueEvent event) {
-        if(ModList.get().isLoaded("theoneprobe"))
-            InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPInfoProvider::new);
+        InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPInfoProvider::new);
     }
 
     public void addReloadListener(final AddReloadListenerEvent event) {
