@@ -23,6 +23,12 @@
       "type": "custommachinery:slot"
     },
     {
+      "id": "input2",
+      "x": 87,
+      "y": 30,
+      "type": "custommachinery:slot"
+    },
+    {
       "x": 47,
       "y": 30,
       "type": "custommachinery:energy"
@@ -43,6 +49,12 @@
       "id": "output3",
       "x": 189,
       "y": 30,
+      "type": "custommachinery:slot"
+    },
+    {
+      "id": "upgrade",
+      "x": 116,
+      "y": 50,
       "type": "custommachinery:slot"
     },
     {
@@ -69,6 +81,11 @@
       "type": "custommachinery:item"
     },
     {
+      "mode": "input",
+      "id": "input2",
+      "type": "custommachinery:item"
+    },
+    {
       "mode": "output",
       "id": "output1",
       "type": "custommachinery:item"
@@ -84,8 +101,18 @@
       "type": "custommachinery:item"
     },
     {
+      "mode": "input",
+      "id": "upgrade",
+      "type": "custommachinery:item",
+      "variant": "custommachinery:upgrade"
+    },
+    {
       "capacity": 60000,
       "type": "custommachinery:energy"
+    },
+    {
+    	"type": "custommachinery:redstone",
+    	"poweroutput": 15
     }
   ]
 }
