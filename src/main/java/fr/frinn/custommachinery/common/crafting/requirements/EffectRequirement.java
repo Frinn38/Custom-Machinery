@@ -70,9 +70,9 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
 
     @Override
     public CraftingResult processEnd(EffectMachineComponent component, CraftingContext context) {
-        int time = (int)context.getModifiedPerTickValue(this.time, this, "time");
-        int level = (int)context.getModifiedPerTickValue(this.level, this, "level");
-        int radius = (int)context.getModifiedPerTickValue(this.radius, this, "radius");
+        int time = (int)context.getModifiedvalue(this.time, this, "time");
+        int level = (int)context.getModifiedvalue(this.level, this, "level");
+        int radius = (int)context.getModifiedvalue(this.radius, this, "radius");
         if(this.applyAtEnd)
             component.applyEffect(new EffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         return CraftingResult.success();
@@ -80,9 +80,9 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
 
     @Override
     public CraftingResult processTick(EffectMachineComponent component, CraftingContext context) {
-        int time = (int)context.getModifiedPerTickValue(this.time, this, "time");
-        int level = (int)context.getModifiedPerTickValue(this.level, this, "level");
-        int radius = (int)context.getModifiedPerTickValue(this.radius, this, "radius");
+        int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
+        int level = (int)context.getPerTickModifiedValue(this.level, this, "level");
+        int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
         if(!this.applyAtEnd)
             component.applyEffect(new EffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         return CraftingResult.success();

@@ -66,7 +66,7 @@ public class CraftingContext {
         return getModifiedValue(value, requirement.getType(), target, requirement.getMode());
     }
 
-    public double getModifiedPerTickValue(double value, IRequirement<?> requirement, @Nullable String target) {
+    public double getPerTickModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
         return getModifiedvalue(value, requirement, target) * Math.min(this.getModifiedSpeed(), this.getRemainingTime());
     }
 

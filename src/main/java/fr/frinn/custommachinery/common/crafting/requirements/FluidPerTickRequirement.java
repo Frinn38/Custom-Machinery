@@ -82,7 +82,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
 
     @Override
     public boolean test(FluidComponentHandler component, CraftingContext context) {
-        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
+        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
         if(getMode() == MODE.INPUT)
             return component.getFluidAmount(this.fluid) >= amount;
         else
@@ -96,7 +96,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
 
     @Override
     public CraftingResult processTick(FluidComponentHandler component, CraftingContext context) {
-        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
+        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID) {
                 FluidStack stack = new FluidStack(this.fluid, amount);

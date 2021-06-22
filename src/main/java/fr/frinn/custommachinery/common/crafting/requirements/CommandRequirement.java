@@ -79,7 +79,7 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
 
     @Override
     public boolean testChance(Random rand, CraftingContext context) {
-        double chance = context.getModifiedPerTickValue(this.chance, this, "chance");
+        double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }
 

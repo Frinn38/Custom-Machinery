@@ -55,7 +55,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
 
     @Override
     public boolean test(BlockMachineComponent component, CraftingContext context) {
-        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         switch (this.action) {
             case CHECK:
                 return this.comparator.compare((int)component.getBlockAmount(this.pos, this.block), amount);
@@ -71,7 +71,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
 
     @Override
     public CraftingResult processStart(BlockMachineComponent component, CraftingContext context) {
-        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(this.getMode() == MODE.INPUT) {
             switch (this.action) {
                 case PLACE:
@@ -101,7 +101,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
 
     @Override
     public CraftingResult processEnd(BlockMachineComponent component, CraftingContext context) {
-        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
+        int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(this.getMode() == MODE.OUTPUT) {
             switch (this.action) {
                 case PLACE:
@@ -136,7 +136,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
 
     @Override
     public CraftingResult processTick(BlockMachineComponent component, CraftingContext context) {
-        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
+        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
         if(this.action == ACTION.CHECK) {
             long found = component.getBlockAmount(this.pos, this.block);
             if(!this.comparator.compare((int)found, amount))

@@ -47,7 +47,7 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
 
     @Override
     public boolean test(EnergyMachineComponent energy, CraftingContext context) {
-        int amount = (int)context.getModifiedPerTickValue(this.amount, this, null);
+        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
         if(getMode() == MODE.INPUT)
             return energy.extractRecipeEnergy(amount, true) == amount;
         else
@@ -61,7 +61,7 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
 
     @Override
     public CraftingResult processTick(EnergyMachineComponent energy, CraftingContext context) {
-        int amount = (int)context.getModifiedvalue(this.amount, this, null);
+        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             int canExtract = energy.extractRecipeEnergy(amount, true);
             if(canExtract == amount) {
