@@ -7,13 +7,17 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TimeComparator;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 
-public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> {
+public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> implements IJEIRequirement {
 
     public static final Codec<TimeRequirement> CODEC = RecordCodecBuilder.create(timeRequirementInstance ->
             timeRequirementInstance.group(
@@ -54,5 +58,15 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> {
     @Override
     public MachineComponentType<TimeMachineComponent> getComponentType() {
         return Registration.TIME_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        if(!this.times.isEmpty()) {
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.time.info").mergeStyle(TextFormatting.AQUA));
+            this.times.forEach(time -> info.addTooltip(new StringTextComponent("* ").appendSibling(time.getText())));
+        }
+        return info;
     }
 }

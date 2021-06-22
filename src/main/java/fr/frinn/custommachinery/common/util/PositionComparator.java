@@ -2,6 +2,9 @@ package fr.frinn.custommachinery.common.util;
 
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class PositionComparator {
 
@@ -33,5 +36,9 @@ public class PositionComparator {
                 break;
         }
         return this.mode.compare(toCompare, this.coordinate);
+    }
+
+    public ITextComponent getText() {
+        return new StringTextComponent(this.axis.getString() + " " + new TranslationTextComponent(this.mode.getTranslationKey()).getString() + " " + this.coordinate);
     }
 }

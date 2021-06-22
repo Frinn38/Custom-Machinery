@@ -43,6 +43,23 @@ public enum ComparatorMode {
         return this.compare(first, second, Comparator.naturalOrder());
     }
 
+    public String getTranslationKey() {
+        switch (this) {
+            case GREATER:
+                return "custommachinery.comparator.greater";
+            case GREATER_OR_EQUALS:
+                return "custommachinery.comparator.greater_or_equals";
+            case EQUALS:
+                return "custommachinery.comparator.equals";
+            case LESSER_OR_EQUALS:
+                return "custommachinery.comparator.lesser_or_equals";
+            case LESSER:
+                return "custommachinery.comparator.lesser";
+            default:
+                return "";
+        }
+    }
+
     public static ComparatorMode value(String value) {
         try {
             return valueOf(value.toUpperCase(Locale.ENGLISH));

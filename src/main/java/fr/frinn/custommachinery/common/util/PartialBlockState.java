@@ -8,7 +8,9 @@ import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PartialBlockState {
 
@@ -48,13 +50,17 @@ public class PartialBlockState {
     public ModelResourceLocation location() {
         ResourceLocation blockLocation = this.block.getRegistryName();
         StringBuilder variant = new StringBuilder();
-        this.properties.entrySet().forEach(entry -> {
-            variant.append(entry.getKey().toString());
+        this.properties.forEach((key, value) -> {
+            variant.append(key.getName());
             variant.append("=");
-            variant.append(entry.getValue().toString());
+            variant.append(value.toString());
             variant.append(",");
         });
         variant.delete(variant.length() - 1, variant.length());
         return new ModelResourceLocation(blockLocation, variant.toString());
+    }
+
+    public List<String> getProperties() {
+        return this.properties.entrySet().stream().map(entry -> entry.getKey().getName() + "=" + entry.getValue().toString()).collect(Collectors.toList());
     }
 }

@@ -8,16 +8,19 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Locale;
 import java.util.function.Consumer;
 
-public class BlockRequirement extends AbstractTickableRequirement<BlockMachineComponent> {
+public class BlockRequirement extends AbstractTickableRequirement<BlockMachineComponent> implements IJEIRequirement {
 
     public static final Codec<BlockRequirement> CODEC = RecordCodecBuilder.create(blockRequirementInstance ->
             blockRequirementInstance.group(
@@ -140,6 +143,49 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.check.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString(), found));
         }
         return CraftingResult.success();
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        switch (this.action) {
+            case CHECK:
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.check.info"));
+                break;
+            case BREAK:
+                if(this.getMode() == MODE.INPUT)
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.break.info.input"));
+                else
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.break.info.output"));
+                break;
+            case DESTROY:
+                if(this.getMode() == MODE.INPUT)
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.destroy.info.input"));
+                else
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.destroy.info.output"));
+                break;
+            case PLACE:
+                if(this.getMode() == MODE.INPUT)
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.place.info.input"));
+                else
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.place.info.output"));
+                break;
+            case REPLACE_BREAK:
+            case REPLACE_DESTROY:
+                if(this.getMode() == MODE.INPUT)
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.replace.info.input"));
+                else
+                    info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.replace.info.output"));
+                break;
+        }
+        info.addTooltip(new StringTextComponent(this.amount + "x ").appendSibling(new TranslationTextComponent(this.block.getBlock().getTranslationKey())));
+        this.block.getProperties().forEach(property -> info.addTooltip(new StringTextComponent("* " + property)));
+        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.info.box"));
+        return info;
+    }
+
+    public AxisAlignedBB getBox() {
+        return this.pos;
     }
 
     public enum ACTION {

@@ -7,11 +7,15 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PositionComparator;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
@@ -19,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PositionRequirement extends AbstractRequirement<PositionMachineComponent> {
+public class PositionRequirement extends AbstractRequirement<PositionMachineComponent> implements IJEIRequirement {
 
     public static final Codec<PositionRequirement> CODEC = RecordCodecBuilder.create(positionRequirementInstance ->
         positionRequirementInstance.group(
@@ -47,7 +51,7 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     }
 
     @Override
-    public RequirementType getType() {
+    public RequirementType<PositionRequirement> getType() {
         return Registration.POSITION_REQUIREMENT.get();
     }
 
@@ -75,5 +79,29 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     @Override
     public MachineComponentType<PositionMachineComponent> getComponentType() {
         return Registration.POSITION_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info =  new RequirementDisplayInfo();
+        if(!this.positions.isEmpty()) {
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.pos").mergeStyle(TextFormatting.AQUA));
+            this.positions.forEach(pos -> info.addTooltip(new StringTextComponent("* ").appendSibling(pos.getText())));
+        }
+        if(!this.biomes.isEmpty()) {
+            if(this.biomesBlacklist)
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.biome.blacklist").mergeStyle(TextFormatting.AQUA));
+            else
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.biome.whitelist").mergeStyle(TextFormatting.AQUA));
+            this.biomes.forEach(biome -> info.addTooltip(new StringTextComponent("* ").appendSibling(new TranslationTextComponent("biome." + biome.getNamespace() + "." + biome.getPath()))));
+        }
+        if(!this.dimensions.isEmpty()) {
+            if(this.dimensionsBlacklist)
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.blacklist").mergeStyle(TextFormatting.AQUA));
+            else
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.whitelist").mergeStyle(TextFormatting.AQUA));
+            this.biomes.forEach(dimension -> info.addTooltip(new StringTextComponent("* " + dimension)));
+        }
+        return info;
     }
 }

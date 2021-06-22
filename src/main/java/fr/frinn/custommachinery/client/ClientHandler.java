@@ -27,7 +27,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
@@ -275,5 +277,19 @@ public class ClientHandler {
 
         builder.finishDrawing();
         WorldVertexBufferUploader.draw(builder);
+    }
+
+    public static AxisAlignedBB rotateBox(AxisAlignedBB box, Direction to) {
+        //Based on East, positive X
+        switch (to) {
+            default: //Don't change
+                return box;
+            case SOUTH: //90° clockwise
+                return new AxisAlignedBB(box.minZ, box.minY, box.minX, box.maxZ, box.maxY, box.maxX);
+            case WEST: //Opposite
+                return new AxisAlignedBB(box.maxX * -1, box.minY, box.minZ, box.minX * -1, box.maxY, box.maxZ);
+            case NORTH: //90° counter-clockwise
+                return new AxisAlignedBB(box.minZ, box.minY, box.minX * -1, box.maxZ, box.maxY, box.maxX * -1);
+        }
     }
 }

@@ -7,15 +7,22 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
+import fr.frinn.custommachinery.common.util.RomanNumber;
 import net.minecraft.entity.EntityType;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EffectRequirement extends AbstractTickableRequirement<EffectMachineComponent> {
+public class EffectRequirement extends AbstractTickableRequirement<EffectMachineComponent> implements IJEIRequirement {
 
     @SuppressWarnings("deprecation")
     public static final Codec<EffectRequirement> CODEC = RecordCodecBuilder.create(effectRequirementInstance ->
@@ -84,5 +91,21 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
     @Override
     public MachineComponentType<EffectMachineComponent> getComponentType() {
         return Registration.EFFECT_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        ITextComponent effect = new StringTextComponent(this.effect.getDisplayName().getString()).mergeStyle(TextFormatting.AQUA);
+        ITextComponent level = new StringTextComponent(RomanNumber.toRoman(this.level)).mergeStyle(TextFormatting.GOLD);
+        if(this.applyAtEnd)
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.end", effect, level, this.time, this.radius));
+        else
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.tick", effect, level, this.time, this.radius));
+        if(!this.filter.isEmpty()) {
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.whitelist").mergeStyle(TextFormatting.AQUA));
+            this.filter.forEach(type -> info.addTooltip(new StringTextComponent("* ").appendSibling(new TranslationTextComponent(type.getTranslationKey()))));
+        }
+        return info;
     }
 }

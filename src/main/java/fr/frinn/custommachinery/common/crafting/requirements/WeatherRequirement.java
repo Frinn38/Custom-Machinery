@@ -7,10 +7,12 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachineComponent> {
+public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachineComponent> implements IJEIRequirement {
 
     public static final Codec<WeatherRequirement> CODEC = RecordCodecBuilder.create(weatherRequirementInstance ->
             weatherRequirementInstance.group(
@@ -60,5 +62,14 @@ public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachi
         if(component.hasWeather(this.weather, this.onMachine))
             return CraftingResult.success();
         return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.weather.error", this.weather));
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.weather.info", this.weather.getText()));
+        if(this.onMachine)
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.weather.info.sky"));
+        return info;
     }
 }

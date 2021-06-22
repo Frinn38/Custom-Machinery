@@ -1,9 +1,12 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.render.element.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.render.element.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
+import fr.frinn.custommachinery.common.crafting.requirements.BlockRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
@@ -19,8 +22,10 @@ import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.gui.GuiUtils;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
@@ -28,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachineRecipe> {
 
+    private static final int ICON_SIZE = 10;
     private final CustomMachine machine;
     private final IGuiHelper guiHelper;
     private final MachineComponentManager components;
@@ -61,7 +67,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         this.offsetX = Math.max(minX, 0);
         this.offsetY = Math.max(minY, 0);
         this.width = Math.max(maxX - minX, 20);
-        this.height = Math.max(maxY - minY, 20);
+        this.height = Math.max(maxY - minY, 20) + ICON_SIZE + 4;
     }
 
     @Override
@@ -96,7 +102,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     public void setIngredients(CustomMachineRecipe recipe, IIngredients ingredients) {
         Map<IIngredientType<Object>, List<List<Object>>> ingredientInputMap = new HashMap<>();
         Map<IIngredientType<Object>, List<List<Object>>> ingredientOutputMap = new HashMap<>();
-        recipe.getJEIRequirements().forEach(requirement -> {
+        recipe.getJEIIngredientRequirements().forEach(requirement -> {
             IIngredientType<Object> ACTION = requirement.getJEIIngredientWrapper().getJEIIngredientType();
             if(((IRequirement<?>)requirement).getMode() == IRequirement.MODE.INPUT) {
                 if(!ingredientInputMap.containsKey(ACTION))
@@ -115,7 +121,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @ParametersAreNonnullByDefault
     @Override
     public void setRecipe(IRecipeLayout layout, CustomMachineRecipe recipe, IIngredients ingredients) {
-        List<IJEIIngredientRequirement> requirements = recipe.getJEIRequirements();
+        List<IJEIIngredientRequirement> requirements = recipe.getJEIIngredientRequirements();
         AtomicInteger index = new AtomicInteger(0);
         this.machine.getGuiElements().stream().filter(element -> element.getType().hasJEIRenderer()).forEach(element -> {
             JEIIngredientRenderer<?, ?> renderer = element.getType().getJeiRenderer(element);
@@ -168,17 +174,46 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @ParametersAreNonnullByDefault
     @Override
     public void draw(CustomMachineRecipe recipe, MatrixStack matrix, double mouseX, double mouseY) {
+        //Render elements that doesn't have an ingredient/requirement such as the progress bar element
         matrix.push();
         matrix.translate(-this.offsetX, -this.offsetY, 0);
         this.machine.getGuiElements().stream()
                 .filter(element -> element.getType().getRenderer() instanceof IJEIElementRenderer)
                 .forEach(element -> ((IJEIElementRenderer)element.getType().getRenderer()).renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY));
         matrix.pop();
+
+        //Render the line between the gui elements and the requirements icons
+        AbstractGui.fill(matrix, -3, this.height - ICON_SIZE - 3, this.width + 3, this.height - ICON_SIZE - 2, 0x30000000);
+
+        //Render the requirements that doesn't have a gui element such as command, position, weather etc... with a little icon and a tooltip
+        AtomicInteger index = new AtomicInteger();
+        RenderSystem.disableDepthTest();
+        recipe.getJEIRequirements().stream().map(IJEIRequirement::getDisplayInfo).forEach(info -> {
+            int x = index.get() * (ICON_SIZE + 2);
+            if(info.getIcon() != null) {
+                Minecraft.getInstance().getTextureManager().bindTexture(info.getIcon());
+                AbstractGui.blit(matrix, x, this.height - ICON_SIZE, info.getU(), info.getV(), ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+            }
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height && !info.getTooltips().isEmpty() && Minecraft.getInstance().currentScreen != null) {
+                GuiUtils.drawHoveringText(matrix, info.getTooltips(), (int)mouseX, (int)mouseY, this.width * 2, this.height, this.width, Minecraft.getInstance().fontRenderer);
+            }
+            index.incrementAndGet();
+        });
+        RenderSystem.enableDepthTest();
     }
 
     @ParametersAreNonnullByDefault
     @Override
     public boolean handleClick(CustomMachineRecipe recipe, double mouseX, double mouseY, int mouseButton) {
+        AtomicInteger index = new AtomicInteger();
+        recipe.getJEIRequirements().stream().forEach(requirement -> {
+            int x = index.get() * (ICON_SIZE + 2);
+            if(((IRequirement<?>)requirement).getType() == Registration.BLOCK_REQUIREMENT.get() && mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height) {
+                CustomMachineRenderer.addRenderBox(this.machine.getId(), ((BlockRequirement)requirement).getBox());
+                return;
+            }
+            index.incrementAndGet();
+        });
         return false;
     }
 }

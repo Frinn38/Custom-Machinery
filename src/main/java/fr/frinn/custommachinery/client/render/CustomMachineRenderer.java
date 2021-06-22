@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
@@ -11,17 +12,22 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -29,6 +35,7 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
 
     public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block");
     private static final Random RAND = new Random();
+    private static final Map<ResourceLocation, Pair<AxisAlignedBB, AtomicInteger>> boxToRender = new HashMap<>();
 
     public CustomMachineRenderer(TileEntityRendererDispatcher dispatcher) {
         super(dispatcher);
@@ -43,6 +50,11 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
         matrix.rotate(Vector3f.YN.rotationDegrees(tile.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING).getHorizontalAngle()));
         matrix.translate(-0.5F, 0, -0.5F);
         renderMachine(machine, partialTicks, matrix, buffer, combinedLight, combinedOverlay, tintIndex -> Color3F.of(Minecraft.getInstance().getBlockColors().getColor(tile.getBlockState(), tile.getWorld(), tile.getPos(), tintIndex)));
+        if(boxToRender.containsKey(machine.getId())) {
+            WorldRenderer.drawBoundingBox(matrix, buffer.getBuffer(RenderType.LINES), boxToRender.get(machine.getId()).getFirst().expand(1, 1, 1), 1.0F, 0.0F, 0.0F, 1.0F);
+            if(boxToRender.get(machine.getId()).getSecond().decrementAndGet() == 0)
+                boxToRender.remove(machine.getId());
+        }
         matrix.pop();
     }
 
@@ -83,5 +95,9 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
         if(machineModel == Minecraft.getInstance().getModelManager().getMissingModel())
             machineModel = Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL);
         return machineModel;
+    }
+
+    public static void addRenderBox(ResourceLocation machine, AxisAlignedBB box) {
+        boxToRender.put(machine, Pair.of(box, new AtomicInteger(200)));
     }
 }

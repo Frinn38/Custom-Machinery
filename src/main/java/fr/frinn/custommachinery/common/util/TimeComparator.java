@@ -1,5 +1,9 @@
 package fr.frinn.custommachinery.common.util;
 
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+
 public class TimeComparator {
 
     private ComparatorMode mode;
@@ -16,5 +20,9 @@ public class TimeComparator {
 
     public boolean compare(int time) {
         return this.mode.compare(time, this.timeToCompare);
+    }
+
+    public ITextComponent getText() {
+        return new StringTextComponent("Time " + new TranslationTextComponent(this.mode.getTranslationKey()).getString() + " " + this.timeToCompare);
     }
 }

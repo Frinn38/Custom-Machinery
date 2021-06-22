@@ -7,11 +7,13 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class LightRequirement extends AbstractTickableRequirement<LightMachineComponent> {
+public class LightRequirement extends AbstractTickableRequirement<LightMachineComponent> implements IJEIRequirement {
 
     public static final Codec<LightRequirement> CODEC = RecordCodecBuilder.create(lightRequirementInstance ->
             lightRequirementInstance.group(
@@ -75,5 +77,14 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
             return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
         else
             return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        if(this.sky)
+            return info.addTooltip(new TranslationTextComponent("custommachinery.requirements.light.sky.info", new TranslationTextComponent(this.comparator.getTranslationKey()), this.light));
+        else
+            return info.addTooltip(new TranslationTextComponent("custommachinery.requirements.light.block.info", new TranslationTextComponent(this.comparator.getTranslationKey()), this.light));
     }
 }

@@ -2,6 +2,8 @@ package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.Heightmap;
@@ -54,6 +56,10 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
 
         public static WeatherType value(String value) {
             return valueOf(value.toUpperCase(Locale.ENGLISH));
+        }
+
+        public ITextComponent getText() {
+            return new TranslationTextComponent("custommachinery.component.weather." + this.toString().toLowerCase(Locale.ENGLISH));
         }
     }
 }

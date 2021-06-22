@@ -7,11 +7,13 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMachineComponent> {
+public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMachineComponent> implements IJEIRequirement {
 
     public static final Codec<RedstoneRequirement> CODEC = RecordCodecBuilder.create(redstoneRequirementInstance ->
             redstoneRequirementInstance.group(
@@ -64,5 +66,11 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
         if(this.test(component, context))
             return CraftingResult.success();
         return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", powerLevel));
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        return new RequirementDisplayInfo()
+                .addTooltip(new TranslationTextComponent("custommachinery.requirements.redstone.info", new TranslationTextComponent(this.comparatorMode.getTranslationKey()), this.powerLevel));
     }
 }

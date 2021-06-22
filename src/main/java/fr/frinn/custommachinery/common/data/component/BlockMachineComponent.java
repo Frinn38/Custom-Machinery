@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
@@ -24,7 +24,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
     public long getBlockAmount(AxisAlignedBB box, PartialBlockState block) {
         if(getManager().getTile().getWorld() == null)
             return 0;
-        box = rotate(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+        box = ClientHandler.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
         return BlockPos.getAllInBox(box).map(getManager().getTile().getWorld()::getBlockState).filter(block::compareState).count();
     }
@@ -32,7 +32,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
     public boolean placeBlock(AxisAlignedBB box, PartialBlockState block, int amount) {
         if(getManager().getTile().getWorld() == null)
             return false;
-        box = rotate(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+        box = ClientHandler.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
         if(BlockPos.getAllInBox(box).map(getManager().getTile().getWorld()::getBlockState).filter(state -> state.getBlock() == Blocks.AIR).count() < amount)
             return false;
@@ -49,7 +49,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
     public boolean replaceBlock(AxisAlignedBB box, PartialBlockState block, int amount, boolean drop) {
         if(getManager().getTile().getWorld() == null)
             return false;
-        box = rotate(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+        box = ClientHandler.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
         if(BlockPos.getAllInBox(box).map(getManager().getTile().getWorld()::getBlockState).count() < amount)
             return false;
@@ -68,7 +68,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
     public boolean breakBlock(AxisAlignedBB box, PartialBlockState block, int amount, boolean drop) {
         if(getManager().getTile().getWorld() == null)
             return false;
-        box = rotate(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+        box = ClientHandler.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
         if(BlockPos.getAllInBox(box).map(getManager().getTile().getWorld()::getBlockState).filter(block::compareState).count() < amount)
             return false;
@@ -80,19 +80,5 @@ public class BlockMachineComponent extends AbstractMachineComponent {
             }
         });
         return true;
-    }
-
-    private AxisAlignedBB rotate(AxisAlignedBB box, Direction to) {
-        //Based on East, positive X
-        switch (to) {
-            default: //Don't change
-                return box;
-            case SOUTH: //90° clockwise
-                return new AxisAlignedBB(box.minZ, box.minY, box.minX, box.maxZ, box.maxY, box.maxX);
-            case WEST: //Opposite
-                return new AxisAlignedBB(box.maxX * -1, box.minY, box.minZ, box.minX * -1, box.maxY, box.maxZ);
-            case NORTH: //90° counter-clockwise
-                return new AxisAlignedBB(box.minZ, box.minY, box.minX * -1, box.maxZ, box.maxY, box.maxX * -1);
-        }
     }
 }

@@ -8,12 +8,18 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
+import java.util.Locale;
 import java.util.Random;
 
-public class CommandRequirement extends AbstractTickableRequirement<CommandMachineComponent> implements IChanceableRequirement {
+public class CommandRequirement extends AbstractTickableRequirement<CommandMachineComponent> implements IChanceableRequirement, IJEIRequirement {
 
     public static final Codec<CommandRequirement> CODEC = RecordCodecBuilder.create(commandRequirementInstance ->
             commandRequirementInstance.group(
@@ -41,7 +47,7 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     }
 
     @Override
-    public RequirementType getType() {
+    public RequirementType<CommandRequirement> getType() {
         return Registration.COMMAND_REQUIREMENT.get();
     }
 
@@ -80,5 +86,11 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     @Override
     public MachineComponentType<CommandMachineComponent> getComponentType() {
         return Registration.COMMAND_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        return new RequirementDisplayInfo()
+                .addTooltip(new TranslationTextComponent("custommachinery.requirements.command.info", new StringTextComponent(this.command).mergeStyle(TextFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));
     }
 }

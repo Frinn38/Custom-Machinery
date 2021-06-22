@@ -20,7 +20,7 @@ public class SUpdateMachinesPacket {
     private Map<ResourceLocation, CustomMachine> machines;
 
     public SUpdateMachinesPacket(Map<ResourceLocation, CustomMachine> machines) {
-        this.machines = machines;
+        this.machines = new HashMap<>(machines);
     }
 
     public static void encode(SUpdateMachinesPacket pkt, PacketBuffer buf) {
