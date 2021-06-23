@@ -25,7 +25,7 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
 
     @Override
     public boolean test(FuelMachineComponent component, CraftingContext context) {
-        return component.isBurning();
+        return true;
     }
 
     @Override
