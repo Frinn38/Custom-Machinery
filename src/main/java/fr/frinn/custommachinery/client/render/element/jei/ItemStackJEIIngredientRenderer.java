@@ -11,7 +11,9 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -46,16 +48,19 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
     public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag tooltipFlag) {
         List<ITextComponent> tooltips = ingredient.getTooltip(null, tooltipFlag);
         if(ingredient.getChildTag(CustomMachinery.MODID) != null) {
-            if(ingredient.getChildTag(CustomMachinery.MODID).contains("consumeDurability")) {
+            if(ingredient.getChildTag(CustomMachinery.MODID).contains("consumeDurability", Constants.NBT.TAG_INT)) {
                 int durability = ingredient.getChildTag(CustomMachinery.MODID).getInt("consumeDurability");
                 tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.consume", durability));
-            } else if(ingredient.getChildTag(CustomMachinery.MODID).contains("repairDurability")) {
+            } else if(ingredient.getChildTag(CustomMachinery.MODID).contains("repairDurability", Constants.NBT.TAG_INT)) {
                 int durability = ingredient.getChildTag(CustomMachinery.MODID).getInt("repairDurability");
                 tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.repair", durability));
             }
-            if(ingredient.getChildTag(CustomMachinery.MODID).contains("chance")) {
+            if(ingredient.getChildTag(CustomMachinery.MODID).contains("chance", Constants.NBT.TAG_DOUBLE)) {
                 double chance = ingredient.getChildTag(CustomMachinery.MODID).getDouble("chance");
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int) (chance * 100)));
+                if(chance == 0)
+                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
+                else
+                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int) (chance * 100)));
             }
         }
         return tooltips;

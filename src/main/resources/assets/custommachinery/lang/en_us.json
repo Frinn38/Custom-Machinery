@@ -52,6 +52,7 @@
   "custommachinery.gui.machineloading.cantdelete": "This Custom Machine is not loaded with datapacks and cannot be deleted",
 
   "custommachinery.jei.ingredient.chance": "Chance: %s%%",
+  "custommachinery.jei.ingredient.chance.0": "Not consumed",
   "custommachinery.jei.ingredient.energy": "Energy: %sFE",
   "custommachinery.jei.ingredient.energy.pertick": "Energy: %sFE per tick",
   "custommachinery.jei.ingredient.fluid": "Amount: %smB",

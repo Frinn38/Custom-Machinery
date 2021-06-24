@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
@@ -75,7 +76,9 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.energy.pertick", ingredient.getAmount()));
         else
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.energy", ingredient.getAmount()));
-        if(ingredient.getChance() != 1.0D)
+        if(ingredient.getChance() == 0)
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
+        if(ingredient.getChance() < 1.0D && ingredient.getChance() > 0)
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(ingredient.getChance() * 100)));
         return tooltips;
     }
