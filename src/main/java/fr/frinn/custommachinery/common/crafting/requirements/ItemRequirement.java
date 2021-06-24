@@ -25,7 +25,7 @@ import net.minecraftforge.common.util.Lazy;
 
 import java.util.Random;
 
-public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement, IJEIIngredientRequirement {
+public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement<ItemComponentHandler>, IJEIIngredientRequirement {
 
     private static final Item DEFAULT_ITEM = Items.AIR;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");
@@ -172,7 +172,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     }
 
     @Override
-    public boolean testChance(Random rand, CraftingContext context) {
+    public boolean testChance(ItemComponentHandler component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }

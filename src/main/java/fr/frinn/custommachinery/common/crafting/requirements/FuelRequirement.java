@@ -6,11 +6,11 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComponent> implements IJEIRequirement {
+public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComponent> implements IDisplayInfoRequirement<FuelMachineComponent> {
 
     public static final Codec<FuelRequirement> CODEC = Codec.unit(FuelRequirement::new);
 

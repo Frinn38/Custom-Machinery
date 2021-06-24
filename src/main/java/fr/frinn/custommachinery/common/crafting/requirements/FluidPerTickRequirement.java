@@ -25,7 +25,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Random;
 
-public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidComponentHandler> implements IChanceableRequirement, IJEIIngredientRequirement {
+public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidComponentHandler> implements IChanceableRequirement<FluidComponentHandler>, IJEIIngredientRequirement {
 
     private static final Fluid DEFAULT_FLUID = Fluids.EMPTY;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");
@@ -143,7 +143,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     }
 
     @Override
-    public boolean testChance(Random rand, CraftingContext context) {
+    public boolean testChance(FluidComponentHandler component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }

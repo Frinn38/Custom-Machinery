@@ -16,7 +16,7 @@ import net.minecraftforge.common.util.Lazy;
 
 import java.util.Random;
 
-public class EnergyPerTickRequirement extends AbstractTickableRequirement<EnergyMachineComponent> implements IChanceableRequirement, IJEIIngredientRequirement {
+public class EnergyPerTickRequirement extends AbstractTickableRequirement<EnergyMachineComponent> implements IChanceableRequirement<EnergyMachineComponent>, IJEIIngredientRequirement {
 
     public static final Codec<EnergyPerTickRequirement> CODEC = RecordCodecBuilder.create(energyPerTickRequirementInstance ->
             energyPerTickRequirementInstance.group(
@@ -86,7 +86,7 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
     }
 
     @Override
-    public boolean testChance(Random rand, CraftingContext context) {
+    public boolean testChance(EnergyMachineComponent component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }

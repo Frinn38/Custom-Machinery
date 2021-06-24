@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.math.MathHelper;
@@ -19,7 +19,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.Locale;
 import java.util.Random;
 
-public class CommandRequirement extends AbstractTickableRequirement<CommandMachineComponent> implements IChanceableRequirement, IJEIRequirement {
+public class CommandRequirement extends AbstractTickableRequirement<CommandMachineComponent> implements IChanceableRequirement<CommandMachineComponent>, IDisplayInfoRequirement<CommandMachineComponent> {
 
     public static final Codec<CommandRequirement> CODEC = RecordCodecBuilder.create(commandRequirementInstance ->
             commandRequirementInstance.group(
@@ -78,7 +78,7 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     }
 
     @Override
-    public boolean testChance(Random rand, CraftingContext context) {
+    public boolean testChance(CommandMachineComponent component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }

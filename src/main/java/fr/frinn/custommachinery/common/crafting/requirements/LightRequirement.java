@@ -7,13 +7,13 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class LightRequirement extends AbstractTickableRequirement<LightMachineComponent> implements IJEIRequirement {
+public class LightRequirement extends AbstractTickableRequirement<LightMachineComponent> implements IDisplayInfoRequirement<LightMachineComponent> {
 
     public static final Codec<LightRequirement> CODEC = RecordCodecBuilder.create(lightRequirementInstance ->
             lightRequirementInstance.group(

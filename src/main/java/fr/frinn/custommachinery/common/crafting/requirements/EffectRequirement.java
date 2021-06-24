@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.RomanNumber;
 import net.minecraft.entity.EntityType;
@@ -22,7 +22,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EffectRequirement extends AbstractTickableRequirement<EffectMachineComponent> implements IJEIRequirement {
+public class EffectRequirement extends AbstractTickableRequirement<EffectMachineComponent> implements IDisplayInfoRequirement<EffectMachineComponent> {
 
     @SuppressWarnings("deprecation")
     public static final Codec<EffectRequirement> CODEC = RecordCodecBuilder.create(effectRequirementInstance ->

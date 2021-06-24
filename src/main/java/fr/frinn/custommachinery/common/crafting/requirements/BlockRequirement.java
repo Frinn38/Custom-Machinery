@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.IJEIRequirement;
+import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
@@ -20,7 +20,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-public class BlockRequirement extends AbstractTickableRequirement<BlockMachineComponent> implements IJEIRequirement {
+public class BlockRequirement extends AbstractTickableRequirement<BlockMachineComponent> implements IDisplayInfoRequirement<BlockMachineComponent> {
 
     public static final Codec<BlockRequirement> CODEC = RecordCodecBuilder.create(blockRequirementInstance ->
             blockRequirementInstance.group(

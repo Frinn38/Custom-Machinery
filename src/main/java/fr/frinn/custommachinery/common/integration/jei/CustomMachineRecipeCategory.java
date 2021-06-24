@@ -188,7 +188,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         //Render the requirements that doesn't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
         RenderSystem.disableDepthTest();
-        recipe.getJEIRequirements().stream().map(IJEIRequirement::getDisplayInfo).forEach(info -> {
+        recipe.getDisplayInfoRequirements().stream().map(IDisplayInfoRequirement::getDisplayInfo).forEach(info -> {
             int x = index.get() * (ICON_SIZE + 2);
             if(info.getIcon() != null) {
                 Minecraft.getInstance().getTextureManager().bindTexture(info.getIcon());
@@ -205,15 +205,15 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @ParametersAreNonnullByDefault
     @Override
     public boolean handleClick(CustomMachineRecipe recipe, double mouseX, double mouseY, int mouseButton) {
-        AtomicInteger index = new AtomicInteger();
-        recipe.getJEIRequirements().stream().forEach(requirement -> {
-            int x = index.get() * (ICON_SIZE + 2);
-            if(((IRequirement<?>)requirement).getType() == Registration.BLOCK_REQUIREMENT.get() && mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height) {
+        List<IDisplayInfoRequirement<?>> requirements = recipe.getDisplayInfoRequirements();
+        for(int i = 0; i < requirements.size(); i++) {
+            int x = i * (ICON_SIZE + 2);
+            IDisplayInfoRequirement<?> requirement = requirements.get(i);
+            if(requirement.getType() == Registration.BLOCK_REQUIREMENT.get() && mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height) {
                 CustomMachineRenderer.addRenderBox(this.machine.getId(), ((BlockRequirement)requirement).getBox());
-                return;
+                return true;
             }
-            index.incrementAndGet();
-        });
+        }
         return false;
     }
 }

@@ -77,11 +77,11 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
             if(this.phase == PHASE.STARTING) {
                 for (IRequirement requirement : this.currentRecipe.getRequirements()) {
                     if (!this.processedRequirements.contains(requirement)) {
-                        if (requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(this.rand, this.context)) {
+                        IMachineComponent component = this.tile.componentManager.getComponent(requirement.getComponentType()).get();
+                        if (requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(component, this.rand, this.context)) {
                             this.processedRequirements.add(requirement);
                             continue;
                         }
-                        IMachineComponent component = this.tile.componentManager.getComponent(requirement.getComponentType()).get();
                         CraftingResult result = requirement.processStart(component, this.context);
                         if (!result.isSuccess()) {
                             this.setErrored(result.getMessage());
@@ -105,11 +105,12 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
                 for (ITickableRequirement tickableRequirement : tickableRequirements) {
                     if (!this.processedRequirements.contains(tickableRequirement)) {
-                        if (tickableRequirement instanceof IChanceableRequirement && ((IChanceableRequirement) tickableRequirement).testChance(this.rand, this.context)) {
+                        IMachineComponent component = this.tile.componentManager.getComponent(tickableRequirement.getComponentType()).get();
+                        if (tickableRequirement instanceof IChanceableRequirement && ((IChanceableRequirement) tickableRequirement).testChance(component, this.rand, this.context)) {
                             this.processedRequirements.add(tickableRequirement);
                             continue;
                         }
-                        CraftingResult result = tickableRequirement.processTick(this.tile.componentManager.getComponent(tickableRequirement.getComponentType()).get(), this.context);
+                        CraftingResult result = tickableRequirement.processTick(component, this.context);
                         if (!result.isSuccess()) {
                             this.setErrored(result.getMessage());
                             break;
@@ -130,11 +131,12 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
             if(this.phase == PHASE.ENDING) {
                 for(IRequirement requirement : this.currentRecipe.getRequirements()) {
                     if(!this.processedRequirements.contains(requirement)) {
-                        if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(this.rand, this.context)) {
+                        IMachineComponent component = this.tile.componentManager.getComponent(requirement.getComponentType()).get();
+                        if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(component, this.rand, this.context)) {
                             this.processedRequirements.add(requirement);
                             continue;
                         }
-                        CraftingResult result = requirement.processEnd(this.tile.componentManager.getComponentRaw(requirement.getComponentType()), this.context);
+                        CraftingResult result = requirement.processEnd(component, this.context);
                         if(!result.isSuccess()) {
                             this.setErrored(result.getMessage());
                             break;
