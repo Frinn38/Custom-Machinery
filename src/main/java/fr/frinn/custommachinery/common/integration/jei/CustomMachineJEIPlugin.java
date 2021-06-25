@@ -45,7 +45,12 @@ public class CustomMachineJEIPlugin implements IModPlugin {
     @ParametersAreNonnullByDefault
     @Override
     public void registerRecipes(IRecipeRegistration registry) {
-        Minecraft.getInstance().world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE).forEach(recipe -> registry.addRecipes(Lists.newArrayList(recipe), recipe.getMachine()));
+        Minecraft.getInstance().world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE).forEach(recipe -> {
+            if(CustomMachinery.MACHINES.containsKey(recipe.getMachine()))
+                registry.addRecipes(Lists.newArrayList(recipe), recipe.getMachine());
+            else
+                CustomMachinery.LOGGER.error("Invalid machine ID: " + recipe.getMachine() + " in recipe: " + recipe.getId());
+        });
     }
 
     @ParametersAreNonnullByDefault

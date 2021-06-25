@@ -150,11 +150,9 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         if(!(element instanceof IComponentGuiElement))
             return null;
         IComponentGuiElement<?> componentElement = (IComponentGuiElement<?>)element;
-        IMachineComponent.Mode elementMode = getElementMode(componentElement);
         for (IJEIIngredientRequirement requirement : requirements) {
-            IRequirement.MODE requirementMode = getRequirementMode(requirement);
             IJEIIngredientWrapper<?> wrapper = requirement.getJEIIngredientWrapper();
-            if(wrapper.getJEIIngredientType() == ingredientType && ((elementMode.isInput() && requirementMode == IRequirement.MODE.INPUT) || (elementMode.isOutput() && requirementMode == IRequirement.MODE.OUTPUT)) && (wrapper.getComponentID().isEmpty() || componentElement.getID().equals(wrapper.getComponentID()))) {
+            if(wrapper.getJEIIngredientType() == ingredientType && testMode(componentElement, requirement) && (wrapper.getComponentID().isEmpty() || componentElement.getID().equals(wrapper.getComponentID()))) {
                 requirements.remove(requirement);
                 return wrapper.asJEIIngredient();
             }
@@ -162,16 +160,14 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         return null;
     }
 
-    private IMachineComponent.Mode getElementMode(IComponentGuiElement<?> element) {
-        return this.components.getComponent(element.getComponentType()).flatMap(component -> {
+    private boolean testMode(IComponentGuiElement<?> element, IJEIIngredientRequirement requirement) {
+        IMachineComponent.Mode elementMode = this.components.getComponent(element.getComponentType()).flatMap(component -> {
             if(component instanceof IComponentHandler)
                 return (Optional<IMachineComponent>)((IComponentHandler<?>)component).getComponentForID(element.getID());
             return Optional.of(component);
         }).map(IMachineComponent::getMode).orElse(IMachineComponent.Mode.NONE);
-    }
-
-    private IRequirement.MODE getRequirementMode(IJEIIngredientRequirement requirement) {
-        return ((IRequirement<?>)requirement).getMode();
+        IRequirement.MODE requirementMode = ((IRequirement<?>)requirement).getMode();
+        return (elementMode.isInput() && requirementMode == IRequirement.MODE.INPUT) || (elementMode.isOutput() && requirementMode == IRequirement.MODE.OUTPUT);
     }
 
     @ParametersAreNonnullByDefault
