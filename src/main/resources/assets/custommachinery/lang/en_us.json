@@ -57,8 +57,10 @@
   "custommachinery.jei.ingredient.energy.pertick": "Energy: %sFE per tick",
   "custommachinery.jei.ingredient.fluid": "Amount: %smB",
   "custommachinery.jei.ingredient.fluid.pertick": "Amount: %smB per tick",
+  "custommachinery.jei.ingredient.fluid.specificTank": "Must be inside this tank",
   "custommachinery.jei.ingredient.item.durability.consume": "Consume %s durability",
   "custommachinery.jei.ingredient.item.durability.repair": "Repair %s durability",
+  "custommachinery.jei.ingredient.item.specificSlot": "Must be in this slot",
   "custommachinery.jei.recipe.time": "%sticks",
 
   "custommachinery.machine.loader.default": "Default",

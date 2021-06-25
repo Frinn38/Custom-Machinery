@@ -37,7 +37,8 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                     Registry.FLUID.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(requirement -> requirement.fluid),
                     ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getFluidTagID(requirement.tag) : DEFAULT_TAG),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
+                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    Codec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
             ).apply(fluidRequirementInstance, FluidRequirement::new)
     );
 
@@ -45,8 +46,9 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     private ITag<Fluid> tag;
     private int amount;
     private double chance;
+    private String tank;
 
-    public FluidRequirement(MODE mode, Fluid fluid, ResourceLocation tagLocation, int amount, double chance) {
+    public FluidRequirement(MODE mode, Fluid fluid, ResourceLocation tagLocation, int amount, double chance, String tank) {
         super(mode);
         this.amount = amount;
         if(mode == MODE.OUTPUT) {
@@ -67,7 +69,9 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                 this.fluid = fluid;
             }
         }
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);;
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
+        this.tank = tank;
+        this.fluidIngredientWrapper = new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag, this.chance, false, this.tank);
     }
 
     @Override
@@ -85,14 +89,14 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID)
-                return component.getFluidAmount(this.fluid) >= amount;
+                return component.getFluidAmount(this.tank, this.fluid) >= amount;
             else if(this.tag != null)
-                return this.tag.getAllElements().stream().mapToInt(component::getFluidAmount).sum() >= amount;
+                return this.tag.getAllElements().stream().mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
             else throw new IllegalStateException("Using Input Fluid Requirement with null fluid and fluid tag");
         }
         else {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID)
-                return component.getSpaceForFluid(this.fluid) >= amount;
+                return component.getSpaceForFluid(this.tank, this.fluid) >= amount;
             else throw new IllegalStateException("Using Output Fluid Requirement with null fluid");
         }
 
@@ -104,21 +108,21 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
         if(getMode() == MODE.INPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID) {
                 FluidStack stack = new FluidStack(this.fluid, amount);
-                int canExtract = component.getFluidAmount(this.fluid);
+                int canExtract = component.getFluidAmount(this.tank, this.fluid);
                 if(canExtract >= amount) {
-                    component.removeFromInputs(stack);
+                    component.removeFromInputs(this.tank, stack);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey()), amount, canExtract));
             } else if(this.tag != null) {
-                int maxExtract = this.tag.getAllElements().stream().mapToInt(component::getFluidAmount).sum();
+                int maxExtract = this.tag.getAllElements().stream().mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
                 if(maxExtract >= amount) {
                     int toExtract = amount;
                     for (Fluid fluid : this.tag.getAllElements()) {
-                        int canExtract = component.getFluidAmount(fluid);
+                        int canExtract = component.getFluidAmount(this.tank, fluid);
                         if(canExtract > 0) {
                             canExtract = Math.min(canExtract, toExtract);
-                            component.removeFromInputs(new FluidStack(fluid, canExtract));
+                            component.removeFromInputs(this.tank, new FluidStack(fluid, canExtract));
                             toExtract -= canExtract;
                             if(toExtract == 0)
                                 return CraftingResult.success();
@@ -137,9 +141,9 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
         if(getMode() == MODE.OUTPUT) {
             if(this.fluid != null && this.fluid != DEFAULT_FLUID) {
                 FluidStack stack = new FluidStack(this.fluid, amount);
-                int canAdd =  component.getSpaceForFluid(this.fluid);
+                int canAdd =  component.getSpaceForFluid(this.tank, this.fluid);
                 if(canAdd >= amount) {
-                    component.addToOutputs(stack);
+                    component.addToOutputs(this.tank, stack);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.output", amount, new TranslationTextComponent(this.fluid.getAttributes().getTranslationKey())));
@@ -154,9 +158,9 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
         return rand.nextDouble() > chance;
     }
 
-    private Lazy<FluidIngredientWrapper> fluidIngredientWrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.tag, this.chance, false));
+    private FluidIngredientWrapper fluidIngredientWrapper;
     @Override
     public FluidIngredientWrapper getJEIIngredientWrapper() {
-        return this.fluidIngredientWrapper.get();
+        return this.fluidIngredientWrapper;
     }
 }

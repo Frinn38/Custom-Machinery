@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.data.gui.IComponentGuiElement;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.wrapper.IJEIIngredientWrapper;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -148,12 +149,14 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     private Object getIngredientFromRequirements(IIngredientType<?> ingredientType, IGuiElement element, List<IJEIIngredientRequirement> requirements) {
         if(!(element instanceof IComponentGuiElement))
             return null;
-        IMachineComponent.Mode elementMode = getElementMode((IComponentGuiElement<?>)element);
+        IComponentGuiElement<?> componentElement = (IComponentGuiElement<?>)element;
+        IMachineComponent.Mode elementMode = getElementMode(componentElement);
         for (IJEIIngredientRequirement requirement : requirements) {
             IRequirement.MODE requirementMode = getRequirementMode(requirement);
-            if(requirement.getJEIIngredientWrapper().getJEIIngredientType() == ingredientType && ((elementMode.isInput() && requirementMode == IRequirement.MODE.INPUT) || (elementMode.isOutput() && requirementMode == IRequirement.MODE.OUTPUT))) {
+            IJEIIngredientWrapper<?> wrapper = requirement.getJEIIngredientWrapper();
+            if(wrapper.getJEIIngredientType() == ingredientType && ((elementMode.isInput() && requirementMode == IRequirement.MODE.INPUT) || (elementMode.isOutput() && requirementMode == IRequirement.MODE.OUTPUT)) && (wrapper.getComponentID().isEmpty() || componentElement.getID().equals(wrapper.getComponentID()))) {
                 requirements.remove(requirement);
-                return requirement.getJEIIngredientWrapper().asJEIIngredient();
+                return wrapper.asJEIIngredient();
             }
         }
         return null;

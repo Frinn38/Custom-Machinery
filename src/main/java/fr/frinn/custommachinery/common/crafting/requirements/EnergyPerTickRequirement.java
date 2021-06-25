@@ -12,7 +12,6 @@ import fr.frinn.custommachinery.common.integration.jei.wrapper.EnergyIngredientW
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.util.Lazy;
 
 import java.util.Random;
 
@@ -32,7 +31,8 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
     public EnergyPerTickRequirement(MODE mode, int amount, double chance) {
         super(mode);
         this.amount = amount;
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);;
+        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
+        this.energyIngredientWrapper = new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, true);
     }
 
     @Override
@@ -91,9 +91,9 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
         return rand.nextDouble() > chance;
     }
 
-    private final Lazy<EnergyIngredientWrapper> jeiIngredientWrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, true));
+    private EnergyIngredientWrapper energyIngredientWrapper;
     @Override
     public EnergyIngredientWrapper getJEIIngredientWrapper() {
-        return this.jeiIngredientWrapper.get();
+        return this.energyIngredientWrapper;
     }
 }

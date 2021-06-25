@@ -10,6 +10,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tags.ITag;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +25,9 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     private double chance;
     private boolean useDurability;
     private CompoundNBT nbt;
+    private String slot;
 
-    public ItemIngredientWrapper(IRequirement.MODE mode, Item item, int amount, ITag<Item> tag, double chance, boolean useDurability, @Nullable CompoundNBT nbt) {
+    public ItemIngredientWrapper(IRequirement.MODE mode, Item item, int amount, ITag<Item> tag, double chance, boolean useDurability, @Nullable CompoundNBT nbt, String slot) {
         this.mode = mode;
         this.item = item;
         this.amount = amount;
@@ -33,6 +35,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         this.chance = chance;
         this.useDurability = useDurability;
         this.nbt = nbt == null ? new CompoundNBT() : nbt.copy();
+        this.slot = slot;
     }
 
     @Override
@@ -42,28 +45,36 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     @Override
     public Object asJEIIngredient() {
-        if(this.useDurability && this.item != null && this.item != Items.AIR) {
+        if(this.item != null && this.item != Items.AIR) {
             ItemStack stack = new ItemStack(this.item);
             stack.setTag(this.nbt.copy());
-            if(this.mode == IRequirement.MODE.INPUT)
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
-            else if(this.mode == IRequirement.MODE.OUTPUT)
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
+            if(this.useDurability) {
+                if(this.mode == IRequirement.MODE.INPUT)
+                    stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
+                else if(this.mode == IRequirement.MODE.OUTPUT)
+                    stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("repairDurability", this.amount);
+            }
             if(this.chance != 1.0D)
                 stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
-            return stack;
-        }
-        else if(this.item != null && this.item != Items.AIR) {
-            ItemStack stack = new ItemStack(this.item, this.amount);
-            stack.setTag(this.nbt.copy());
-            if(this.chance != 1.0D)
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
+            if(!this.slot.isEmpty())
+                stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificSlot", true);
             return stack;
         }
         else if(this.tag != null && this.mode == IRequirement.MODE.INPUT) {
             List<ItemStack> stacks = this.tag.getAllElements().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
-            stacks.forEach(stack -> stack.setTag(this.nbt.copy()));
-            stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance));
+            stacks.forEach(stack -> {
+                stack.setTag(this.nbt.copy());
+                if(this.useDurability) {
+                    if(this.mode == IRequirement.MODE.INPUT)
+                        stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
+                    else if(this.mode == IRequirement.MODE.OUTPUT)
+                        stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("repairDurability", this.amount);
+                }
+                if(this.chance != 1.0D)
+                    stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
+                if(!this.slot.isEmpty())
+                    stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificSlot", true);
+            });
             return stacks;
         }
         else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
@@ -88,5 +99,11 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
                 return stack;
             }).collect(Collectors.toList());
         else throw new IllegalStateException("Using Item Requirement with null item and/or tag");
+    }
+
+    @Nonnull
+    @Override
+    public String getComponentID() {
+        return this.slot;
     }
 }

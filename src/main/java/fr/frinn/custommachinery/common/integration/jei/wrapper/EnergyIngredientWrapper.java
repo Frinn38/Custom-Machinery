@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import mezz.jei.api.ingredients.IIngredientType;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,5 +32,11 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
     @Override
     public List<Energy> getJeiIngredients() {
         return Collections.singletonList(this.energy);
+    }
+
+    @Nonnull
+    @Override
+    public String getComponentID() {
+        return "";
     }
 }

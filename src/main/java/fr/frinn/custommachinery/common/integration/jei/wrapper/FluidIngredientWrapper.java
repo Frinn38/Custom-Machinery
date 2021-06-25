@@ -9,6 +9,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.tags.ITag;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,14 +22,16 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     private ITag<Fluid> tag;
     private double chance;
     private boolean isPerTick;
+    private String tank;
 
-    public FluidIngredientWrapper(IRequirement.MODE mode, Fluid fluid, int amount, ITag<Fluid> tag, double chance, boolean isPerTick) {
+    public FluidIngredientWrapper(IRequirement.MODE mode, Fluid fluid, int amount, ITag<Fluid> tag, double chance, boolean isPerTick, String tank) {
         this.mode = mode;
         this.fluid = fluid;
         this.amount = amount;
         this.tag = tag;
         this.chance = chance;
         this.isPerTick = isPerTick;
+        this.tank = tank;
     }
 
     @Override
@@ -44,6 +47,8 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
                 stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true);
             if(this.chance != 1.0D)
                 stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
+            if(!this.tank.isEmpty())
+                stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificTank", true);
             return stack;
         }
         else if(this.tag != null && this.mode == IRequirement.MODE.INPUT) {
@@ -52,6 +57,8 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
                 stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true));
             if(this.chance != 1.0D)
                 stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance));
+            if(!this.tank.isEmpty())
+                stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificTank", true));
             return stacks;
         }
         else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
@@ -64,5 +71,11 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         else if(this.tag != null && this.mode == IRequirement.MODE.INPUT)
             return this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
         else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
+    }
+
+    @Nonnull
+    @Override
+    public String getComponentID() {
+        return this.tank;
     }
 }

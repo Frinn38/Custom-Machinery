@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -47,22 +48,25 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
     @Override
     public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag tooltipFlag) {
         List<ITextComponent> tooltips = ingredient.getTooltip(null, tooltipFlag);
-        if(ingredient.getChildTag(CustomMachinery.MODID) != null) {
-            if(ingredient.getChildTag(CustomMachinery.MODID).contains("consumeDurability", Constants.NBT.TAG_INT)) {
-                int durability = ingredient.getChildTag(CustomMachinery.MODID).getInt("consumeDurability");
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.consume", durability));
-            } else if(ingredient.getChildTag(CustomMachinery.MODID).contains("repairDurability", Constants.NBT.TAG_INT)) {
-                int durability = ingredient.getChildTag(CustomMachinery.MODID).getInt("repairDurability");
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.repair", durability));
-            }
-            if(ingredient.getChildTag(CustomMachinery.MODID).contains("chance", Constants.NBT.TAG_DOUBLE)) {
-                double chance = ingredient.getChildTag(CustomMachinery.MODID).getDouble("chance");
-                if(chance == 0)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
-                else
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int) (chance * 100)));
-            }
+        CompoundNBT nbt = ingredient.getChildTag(CustomMachinery.MODID);
+        if(nbt == null)
+            return tooltips;
+        if(nbt.contains("consumeDurability", Constants.NBT.TAG_INT)) {
+            int durability = nbt.getInt("consumeDurability");
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.consume", durability));
+        } else if(nbt.contains("repairDurability", Constants.NBT.TAG_INT)) {
+            int durability = nbt.getInt("repairDurability");
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.repair", durability));
         }
+        if(nbt.contains("chance", Constants.NBT.TAG_DOUBLE)) {
+            double chance = nbt.getDouble("chance");
+            if(chance == 0)
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
+            else
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int) (chance * 100)));
+        }
+        if(nbt.contains("specificSlot", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificSlot"))
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.specificSlot").mergeStyle(TextFormatting.DARK_RED));
         return tooltips;
     }
 }

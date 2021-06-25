@@ -416,21 +416,21 @@ public class CustomMachineCTRecipeBuilder {
     private void withFluidRequirement(IRequirement.MODE mode, Fluid fluid, MCTag<Fluid> tag, int amount, double chance, boolean isPerTick) {
         if(isPerTick) {
             if(fluid != null)
-                this.builder.withRequirement(new FluidPerTickRequirement(mode, fluid, null, amount, chance));
+                this.builder.withRequirement(new FluidPerTickRequirement(mode, fluid, null, amount, chance, ""));
             else
-                this.builder.withRequirement(new FluidPerTickRequirement(mode, null, tag.getId(), amount, chance));
+                this.builder.withRequirement(new FluidPerTickRequirement(mode, null, tag.getId(), amount, chance, ""));
         } else {
             if(fluid != null)
-                this.builder.withRequirement(new FluidRequirement(mode, fluid, null, amount, chance));
+                this.builder.withRequirement(new FluidRequirement(mode, fluid, null, amount, chance, ""));
             else
-                this.builder.withRequirement(new FluidRequirement(mode, null, tag.getId(), amount, chance));
+                this.builder.withRequirement(new FluidRequirement(mode, null, tag.getId(), amount, chance, ""));
         }
     }
 
     private void withItemRequirement(IRequirement.MODE mode, MCItemStack stack, MCTag<Item> tag, int amount, double chance, boolean useDurability) {
         if(stack != null)
-            this.builder.withRequirement(new ItemRequirement(mode, stack.getInternal().getItem(), null, amount, stack.getInternal().getTag(), chance, useDurability));
+            this.builder.withRequirement(new ItemRequirement(mode, stack.getInternal().getItem(), null, amount, stack.getInternal().getTag(), chance, useDurability, ""));
         else
-            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, null, chance, useDurability));
+            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, null, chance, useDurability, ""));
     }
 }

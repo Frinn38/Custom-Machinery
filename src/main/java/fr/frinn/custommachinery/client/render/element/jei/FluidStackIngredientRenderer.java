@@ -12,10 +12,12 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -56,17 +58,22 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
     public List<ITextComponent> getTooltip(FluidStack ingredient, FluidGuiElement element, ITooltipFlag tooltipFlag) {
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(ingredient.getDisplayName());
-        if(ingredient.getChildTag(CustomMachinery.MODID) != null && ingredient.getChildTag(CustomMachinery.MODID).contains("isPerTick") && ingredient.getChildTag(CustomMachinery.MODID).getBoolean("isPerTick"))
+        CompoundNBT nbt = ingredient.getChildTag(CustomMachinery.MODID);
+        if(nbt == null)
+            return tooltips;
+        if(nbt.contains("isPerTick", Constants.NBT.TAG_BYTE) && nbt.getBoolean("isPerTick"))
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.pertick", ingredient.getAmount()));
         else
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid", ingredient.getAmount()));
-        if(ingredient.getChildTag(CustomMachinery.MODID) != null && ingredient.getChildTag(CustomMachinery.MODID).contains("chance")) {
-            double chance = ingredient.getChildTag(CustomMachinery.MODID).getDouble("chance");
+        if(nbt.contains("chance", Constants.NBT.TAG_DOUBLE)) {
+            double chance = nbt.getDouble("chance");
             if(chance == 0)
                 tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
             else
                 tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(chance * 100)));
         }
+        if(nbt.contains("specificTank", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificTank"))
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.specificTank").mergeStyle(TextFormatting.DARK_RED));
         return tooltips;
     }
 }

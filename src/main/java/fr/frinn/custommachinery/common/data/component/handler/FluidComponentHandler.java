@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent, IComponentSerializable, ISyncableStuff {
 
@@ -197,15 +198,18 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private List<FluidMachineComponent> inputs = new ArrayList<>();
     private List<FluidMachineComponent> outputs = new ArrayList<>();
 
-    public int getFluidAmount(Fluid fluid) {
+    public int getFluidAmount(String tank, Fluid fluid) {
         AtomicInteger amount = new AtomicInteger();
-        this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == fluid).forEach(component -> amount.addAndGet(component.getFluidStack().getAmount()));
+        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+        this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == fluid && tankPredicate.test(component)).forEach(component -> amount.addAndGet(component.getFluidStack().getAmount()));
         return amount.get();
     }
 
-    public int getSpaceForFluid(Fluid fluid) {
+    public int getSpaceForFluid(String tank, Fluid fluid) {
         AtomicInteger space = new AtomicInteger();
-        this.outputs.stream().filter(component -> (component.getFluidStack().getFluid() == fluid && component.getRemainingSpace() > 0) || component.getFluidStack().isEmpty()).forEach(component -> {
+        Predicate<FluidMachineComponent> fluidPredicate = component -> component.getFluidStack().isEmpty() || (component.getFluidStack().getFluid() == fluid && component.getRemainingSpace() > 0);
+        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+        this.outputs.stream().filter(component -> fluidPredicate.test(component) && tankPredicate.test(component)).forEach(component -> {
             if(component.getFluidStack().isEmpty())
                 space.addAndGet(component.getCapacity());
             else
@@ -214,9 +218,10 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         return space.get();
     }
 
-    public void removeFromInputs(FluidStack stack) {
+    public void removeFromInputs(String tank, FluidStack stack) {
         AtomicInteger toRemove = new AtomicInteger(stack.getAmount());
-        this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == stack.getFluid()).forEach(component -> {
+        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+        this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == stack.getFluid() && tankPredicate.test(component)).forEach(component -> {
             int maxExtract = Math.min(component.getFluidStack().getAmount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
             component.recipeExtract(maxExtract);
@@ -224,9 +229,11 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         getManager().markDirty();
     }
 
-    public void addToOutputs(FluidStack stack) {
+    public void addToOutputs(String tank, FluidStack stack) {
         AtomicInteger toAdd = new AtomicInteger(stack.getAmount());
-        this.outputs.stream().filter(component -> (component.getFluidStack().getFluid() == stack.getFluid() && component.getRemainingSpace() > 0) || component.getFluidStack().isEmpty()).forEach(component -> {
+        Predicate<FluidMachineComponent> fluidPredicate = component -> component.getFluidStack().isEmpty() || (component.getFluidStack().getFluid() == stack.getFluid() && component.getRemainingSpace() > 0);
+        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+        this.outputs.stream().filter(component -> fluidPredicate.test(component) && tankPredicate.test(component)).forEach(component -> {
             int maxInsert = Math.min(component.getRecipeRemainingSpace(), toAdd.get());
             toAdd.addAndGet(-maxInsert);
             component.recipeInsert(stack.getFluid(), maxInsert);
