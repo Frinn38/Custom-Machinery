@@ -11,8 +11,8 @@ public class TextGuiElement extends AbstractGuiElement {
 
     public static final Codec<TextGuiElement> CODEC = RecordCodecBuilder.create(textGuiElementCodec ->
             textGuiElementCodec.group(
-                    Codec.INT.fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.INT.fieldOf("y").forGetter(AbstractGuiElement::getY),
+                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
+                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("text").forGetter(TextGuiElement::getText),
                     Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment",Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
@@ -32,7 +32,7 @@ public class TextGuiElement extends AbstractGuiElement {
     }
 
     @Override
-    public GuiElementType getType() {
+    public GuiElementType<TextGuiElement> getType() {
         return Registration.TEXT_GUI_ELEMENT.get();
     }
 

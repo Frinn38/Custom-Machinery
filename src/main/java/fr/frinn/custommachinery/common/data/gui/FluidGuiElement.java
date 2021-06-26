@@ -8,16 +8,16 @@ import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
 
-public class FluidGuiElement extends AbstractGuiElement implements IComponentGuiElement<FluidMachineComponent> {
+public class FluidGuiElement extends TexturedGuiElement implements IComponentGuiElement<FluidMachineComponent> {
 
     private static final ResourceLocation BASE_FLUID_STORAGE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
 
     public static final Codec<FluidGuiElement> CODEC = RecordCodecBuilder.create(fluidGuiElementInstance ->
             fluidGuiElementInstance.group(
-                    Codec.INT.fieldOf("x").forGetter(FluidGuiElement::getX),
-                    Codec.INT.fieldOf("y").forGetter(FluidGuiElement::getY),
-                    Codec.INT.optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
-                    Codec.INT.optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
+                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
+                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
+                    Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
+                    Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID),
                     ResourceLocation.CODEC.optionalFieldOf("texture", BASE_FLUID_STORAGE_TEXTURE).forGetter(FluidGuiElement::getTexture)
@@ -25,13 +25,10 @@ public class FluidGuiElement extends AbstractGuiElement implements IComponentGui
     );
 
     private String id;
-    private ResourceLocation texture;
 
     public FluidGuiElement(int x, int y, int width, int height, int priority, String id, ResourceLocation texture) {
-        super(x, y, width, height, priority);
+        super(x, y, width, height, priority, texture);
         this.id = id;
-        this.texture = texture;
-        setBaseTexture(texture);
     }
 
     @Override
@@ -47,9 +44,5 @@ public class FluidGuiElement extends AbstractGuiElement implements IComponentGui
     @Override
     public String getID() {
         return this.id;
-    }
-
-    public ResourceLocation getTexture() {
-        return this.texture;
     }
 }
