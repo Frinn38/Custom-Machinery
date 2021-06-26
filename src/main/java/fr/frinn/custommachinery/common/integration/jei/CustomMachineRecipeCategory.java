@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.requirements.BlockRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.component.IFilterComponent;
 import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
@@ -26,11 +27,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.world.PistonEvent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachineRecipe> {
 
@@ -161,15 +164,21 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     }
 
     private boolean testMode(IComponentGuiElement<?> element, IJEIIngredientRequirement requirement) {
-        IMachineComponent.Mode elementMode = this.components.getComponent(element.getComponentType()).flatMap(component -> {
+        return this.components.getComponent(element.getComponentType()).flatMap(component -> {
             if(component instanceof IComponentHandler)
                 return (Optional<IMachineComponent>)((IComponentHandler<?>)component).getComponentForID(element.getID());
             return Optional.of(component);
-        }).map(IMachineComponent::getMode).orElse(IMachineComponent.Mode.NONE);
-        IRequirement.MODE requirementMode = ((IRequirement<?>)requirement).getMode();
-        if(((IRequirement<?>) requirement).getType() == Registration.DURABILITY_REQUIREMENT.get())
-            return elementMode.isInput();
-        return (elementMode.isInput() && requirementMode == IRequirement.MODE.INPUT) || (elementMode.isOutput() && requirementMode == IRequirement.MODE.OUTPUT);
+        }).map(component -> {
+            IRequirement.MODE requirementMode = ((IRequirement<?>)requirement).getMode();
+            if(component instanceof IFilterComponent) {
+                Predicate<Object> filter = ((IFilterComponent)component).getFilter();
+                if(!filter.test(requirement.getJEIIngredientWrapper().asJEIIngredient()))
+                    return false;
+            }
+            if(((IRequirement<?>) requirement).getType() == Registration.DURABILITY_REQUIREMENT.get())
+                return component.getMode().isInput();
+            return (component.getMode().isInput() && requirementMode == IRequirement.MODE.INPUT) || (component.getMode().isOutput() && requirementMode == IRequirement.MODE.OUTPUT);
+        }).orElse(false);
     }
 
     @ParametersAreNonnullByDefault

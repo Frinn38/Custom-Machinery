@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
@@ -19,8 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent {
+public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
 
     private String id;
     private int capacity;
@@ -79,6 +81,19 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     @Override
     public int getComparatorInput() {
         return (int) (15 * ((double)this.fluidStack.getAmount() / (double)this.capacity));
+    }
+
+    @Override
+    public Predicate<Object> getFilter() {
+        return object -> {
+            if(object instanceof FluidStack) {
+                return isFluidValid((FluidStack)object);
+            }
+            else if(object instanceof List) {
+                return ((List<Object>)object).stream().allMatch(o -> o instanceof FluidStack && isFluidValid((FluidStack)o));
+            }
+            else return false;
+        };
     }
 
     /** FLUID HANDLER STUFF **/

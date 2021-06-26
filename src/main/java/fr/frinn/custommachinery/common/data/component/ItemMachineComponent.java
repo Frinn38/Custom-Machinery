@@ -18,8 +18,9 @@ import net.minecraft.util.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent {
+public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
 
     private String id;
     private int capacity;
@@ -108,6 +109,19 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     @Override
     public int getComparatorInput() {
         return Container.calcRedstoneFromInventory(new Inventory(this.stack));
+    }
+
+    @Override
+    public Predicate<Object> getFilter() {
+        return object -> {
+            if(object instanceof ItemStack) {
+                return isItemValid((ItemStack)object);
+            }
+            else if(object instanceof List) {
+                return ((List<Object>)object).stream().allMatch(o -> o instanceof ItemStack && isItemValid((ItemStack)o));
+            }
+            else return false;
+        };
     }
 
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
