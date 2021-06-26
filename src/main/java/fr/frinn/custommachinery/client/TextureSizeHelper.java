@@ -30,7 +30,7 @@ public class TextureSizeHelper {
                 SIZES.put(texture, sizes);
                 return width;
             } catch (IOException e) {
-                CustomMachinery.LOGGER.warn("No texture found for location: " + texture.toString());
+                CustomMachinery.LOGGER.warn("No texture found for location: " + texture);
             }
             return 0;
         }
@@ -50,7 +50,7 @@ public class TextureSizeHelper {
                 SIZES.put(texture, sizes);
                 return height;
             } catch (IOException e) {
-                CustomMachinery.LOGGER.warn("No texture found for location: " + texture.toString());
+                CustomMachinery.LOGGER.warn("No texture found for location: " + texture);
             }
             return 0;
         }
