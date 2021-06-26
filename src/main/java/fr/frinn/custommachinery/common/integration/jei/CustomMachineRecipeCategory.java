@@ -167,6 +167,8 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
             return Optional.of(component);
         }).map(IMachineComponent::getMode).orElse(IMachineComponent.Mode.NONE);
         IRequirement.MODE requirementMode = ((IRequirement<?>)requirement).getMode();
+        if(((IRequirement<?>) requirement).getType() == Registration.DURABILITY_REQUIREMENT.get())
+            return elementMode.isInput();
         return (elementMode.isInput() && requirementMode == IRequirement.MODE.INPUT) || (elementMode.isOutput() && requirementMode == IRequirement.MODE.OUTPUT);
     }
 

@@ -131,37 +131,31 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireItem(ItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        withItemRequirement(IRequirement.MODE.INPUT, stack, null, amount, chance, false, slot);
+        withItemRequirement(IRequirement.MODE.INPUT, stack, null, amount, chance, slot);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireItem(MCTag<Item> tag, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        withItemRequirement(IRequirement.MODE.INPUT, null, tag, amount, chance, false, slot);
+        withItemRequirement(IRequirement.MODE.INPUT, null, tag, amount, chance, slot);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder damageItem(ItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        withItemRequirement(IRequirement.MODE.INPUT, stack, null, amount, chance, true, slot);
-        return this;
-    }
-
-    @Method
-    public CustomMachineCTRecipeBuilder damageItem(MCTag<Item> tag, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        withItemRequirement(IRequirement.MODE.INPUT, null, tag, amount, chance, true, slot);
+        this.builder.withRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, stack.getItem(), amount, stack.getOrCreateTag(), chance, slot));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceItem(ItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        withItemRequirement(IRequirement.MODE.OUTPUT, stack, null, amount, chance, false, slot);
+        withItemRequirement(IRequirement.MODE.OUTPUT, stack, null, amount, chance, slot);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder repairItem(ItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        withItemRequirement(IRequirement.MODE.OUTPUT, stack, null, amount, chance, true, slot);
+        this.builder.withRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, stack.getItem(), amount, stack.getOrCreateTag(), chance, slot));
         return this;
     }
 
@@ -445,10 +439,10 @@ public class CustomMachineCTRecipeBuilder {
         }
     }
 
-    private void withItemRequirement(IRequirement.MODE mode, ItemStack stack, MCTag<Item> tag, int amount, double chance, boolean useDurability, String slot) {
+    private void withItemRequirement(IRequirement.MODE mode, ItemStack stack, MCTag<Item> tag, int amount, double chance, String slot) {
         if(stack != null)
-            this.builder.withRequirement(new ItemRequirement(mode, stack.getItem(), null, amount, stack.getTag(), chance, useDurability, slot));
+            this.builder.withRequirement(new ItemRequirement(mode, stack.getItem(), null, amount, stack.getTag(), chance, slot));
         else
-            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, null, chance, useDurability, slot));
+            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, null, chance, slot));
     }
 }

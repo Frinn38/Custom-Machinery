@@ -38,7 +38,6 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codecs.COMPOUND_NBT_CODEC.optionalFieldOf("nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
                     Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
-                    Codec.BOOL.optionalFieldOf("durability", false).forGetter(requirement -> requirement.useDurability),
                     Codec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
             ).apply(itemRequirementInstance, ItemRequirement::new)
     );
@@ -48,15 +47,12 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     private int amount;
     private CompoundNBT nbt;
     private double chance;
-    private boolean useDurability;
     private String slot;
 
-    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, CompoundNBT nbt, double chance, boolean useDurability, String slot) {
+    public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, CompoundNBT nbt, double chance, String slot) {
         super(mode);
         this.amount = amount;
         this.nbt = nbt == null || nbt.isEmpty() ? null : nbt;
-        if(useDurability && (item == null || item == DEFAULT_ITEM))
-            throw new IllegalArgumentException("You must specify an item to use durability in Item Requirement");
         if(mode == MODE.OUTPUT) {
             if(item != DEFAULT_ITEM && item != null)
                 this.item = item;
@@ -76,9 +72,8 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
             }
         }
         this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
-        this.useDurability = useDurability;
         this.slot = slot;
-        this.itemIngredientWrapper = new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance, this.useDurability, this.nbt, this.slot);
+        this.itemIngredientWrapper = new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.tag, this.chance, false, this.nbt, this.slot);
     }
 
     @Override
@@ -95,16 +90,12 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public boolean test(ItemComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
-            if (this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
-                return component.getDurabilityAmount(this.slot, this.item, this.nbt) >= amount;
-            else if(this.item != null && this.item != DEFAULT_ITEM)
+            if(this.item != null && this.item != DEFAULT_ITEM)
                 return component.getItemAmount(this.slot, this.item, this.nbt) >= amount;
             else if(this.tag != null)
                 return this.tag.getAllElements().stream().mapToInt(item -> component.getItemAmount(this.slot, item, this.nbt)).sum() >= amount;
             else throw new IllegalStateException("Using Input Item Requirement with null item and tag");
         } else {
-            if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM)
-                return component.getSpaceForDurability(this.slot, this.item, this.nbt) >= amount;
             if(this.item != null && this.item != DEFAULT_ITEM)
                 return component.getSpaceForItem(this.slot, this.item, this.nbt) >= amount;
             else throw new IllegalStateException("Using Output Item Requirement with null item");
@@ -115,14 +106,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public CraftingResult processStart(ItemComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
-            if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
-                int canRemove = component.getDurabilityAmount(this.slot, this.item, this.nbt);
-                if(canRemove >= amount) {
-                    component.removeDurability(this.slot, this.item, amount, this.nbt);
-                    return CraftingResult.success();
-                }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.durability.input", new TranslationTextComponent(this.item.getTranslationKey()), amount, canRemove));
-            } else if(this.item != null && this.item != DEFAULT_ITEM) {
+            if(this.item != null && this.item != DEFAULT_ITEM) {
                 int canExtract = component.getItemAmount(this.slot, this.item, this.nbt);
                 if(canExtract >= amount) {
                     component.removeFromInputs(this.slot, this.item, amount, this.nbt);
@@ -154,14 +138,6 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public CraftingResult processEnd(ItemComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.OUTPUT) {
-            if(this.useDurability && this.item != null && this.item != DEFAULT_ITEM) {
-                int maxRepair = component.getSpaceForDurability(this.slot, this.item, this.nbt);
-                if(maxRepair >= amount) {
-                    component.repairItem(this.slot, this.item, amount, this.nbt);
-                    return CraftingResult.success();
-                }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", new TranslationTextComponent(this.item.getTranslationKey()), amount, maxRepair));
-            }
             if(this.item != null && this.item != DEFAULT_ITEM) {
                 int canInsert = component.getSpaceForItem(this.slot, this.item, this.nbt);
                 if(canInsert >= amount) {

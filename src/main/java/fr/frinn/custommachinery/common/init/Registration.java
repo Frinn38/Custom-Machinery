@@ -118,6 +118,7 @@ public class Registration {
     public static final RegistryObject<RequirementType<LightRequirement>> LIGHT_REQUIREMENT = REQUIREMENTS.register("light", () -> new RequirementType<>(LightRequirement.CODEC));
     public static final RegistryObject<RequirementType<BlockRequirement>> BLOCK_REQUIREMENT = REQUIREMENTS.register("block", () -> new RequirementType<>(BlockRequirement.CODEC));
     public static final RegistryObject<RequirementType<SpeedRequirement>> SPEED_REQUIREMENT = REQUIREMENTS.register("speed", () -> new RequirementType<>(SpeedRequirement.CODEC));
+    public static final RegistryObject<RequirementType<DurabilityRequirement>> DURABILITY_REQUIREMENT = REQUIREMENTS.register("durability", () -> new RequirementType<>(DurabilityRequirement.CODEC));
 
     public static final RegistryObject<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATA.register("boolean", () -> new DataType<>(BooleanSyncable::create, BooleanData::new));
     public static final RegistryObject<DataType<IntegerData, Integer>> INTEGER_DATA = DATA.register("integer", () -> new DataType<>(IntegerSyncable::create, IntegerData::new));
