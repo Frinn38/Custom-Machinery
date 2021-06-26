@@ -46,9 +46,10 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     @Override
     public Object asJEIIngredient() {
         if(this.item != null && this.item != Items.AIR) {
-            ItemStack stack = new ItemStack(this.item);
+            ItemStack stack = new ItemStack(this.item, this.amount);
             stack.setTag(this.nbt.copy());
             if(this.useDurability) {
+                stack.setCount(1);
                 if(this.mode == IRequirement.MODE.INPUT)
                     stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
                 else if(this.mode == IRequirement.MODE.OUTPUT)
@@ -65,6 +66,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
             stacks.forEach(stack -> {
                 stack.setTag(this.nbt.copy());
                 if(this.useDurability) {
+                    stack.setCount(1);
                     if(this.mode == IRequirement.MODE.INPUT)
                         stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
                     else if(this.mode == IRequirement.MODE.OUTPUT)
