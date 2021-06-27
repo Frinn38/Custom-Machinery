@@ -46,8 +46,8 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
 
     @ParametersAreNonnullByDefault
     @Override
-    public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag tooltipFlag) {
-        List<ITextComponent> tooltips = ingredient.getTooltip(null, tooltipFlag);
+    public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag flag) {
+        List<ITextComponent> tooltips = ingredient.getTooltip(null, flag);
         CompoundNBT nbt = ingredient.getChildTag(CustomMachinery.MODID);
         if(nbt == null)
             return tooltips;
@@ -65,7 +65,7 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
             else
                 tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int) (chance * 100)));
         }
-        if(nbt.contains("specificSlot", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificSlot"))
+        if(nbt.contains("specificSlot", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificSlot") && flag.isAdvanced())
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.specificSlot").mergeStyle(TextFormatting.DARK_RED));
         return tooltips;
     }

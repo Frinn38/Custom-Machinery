@@ -55,7 +55,7 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
 
     @ParametersAreNonnullByDefault
     @Override
-    public List<ITextComponent> getTooltip(FluidStack ingredient, FluidGuiElement element, ITooltipFlag tooltipFlag) {
+    public List<ITextComponent> getTooltip(FluidStack ingredient, FluidGuiElement element, ITooltipFlag flag) {
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(ingredient.getDisplayName());
         CompoundNBT nbt = ingredient.getChildTag(CustomMachinery.MODID);
@@ -72,7 +72,7 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
             else
                 tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(chance * 100)));
         }
-        if(nbt.contains("specificTank", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificTank"))
+        if(nbt.contains("specificTank", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificTank") && flag.isAdvanced())
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.specificTank").mergeStyle(TextFormatting.DARK_RED));
         return tooltips;
     }
