@@ -27,6 +27,7 @@ import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.extensions.IForgeContainerType;
@@ -38,6 +39,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
 @SuppressWarnings({"unused", "unchecked", "rawtypes"})
@@ -46,7 +48,15 @@ public class Registration {
     public static final ItemGroup GROUP = new ItemGroup(CustomMachinery.MODID) {
         @Override
         public ItemStack createIcon() {
-            return new ItemStack(Items.FURNACE);
+            ItemStack icon = new ItemStack(CUSTOM_MACHINE_ITEM.get());
+            icon.getOrCreateTag().putString("id", "dummy");
+            return icon;
+        }
+
+        @ParametersAreNonnullByDefault
+        @Override
+        public void fill(NonNullList<ItemStack> items) {
+            ITEMS.getEntries().forEach(item -> item.get().fillItemGroup(this, items));
         }
     };
 

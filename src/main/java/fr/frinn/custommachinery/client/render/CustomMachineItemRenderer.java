@@ -23,10 +23,7 @@ public class CustomMachineItemRenderer extends ItemStackTileEntityRenderer {
     public void func_239207_a_(ItemStack stack, ItemCameraTransforms.TransformType transformType, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay) {
         if(stack.getTag() != null && stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
             ResourceLocation id = new ResourceLocation(stack.getTag().getString("id"));
-            CustomMachine machine;
-            if(CustomMachinery.MACHINES.containsKey(id))
-                machine = CustomMachinery.MACHINES.get(id);
-            else return;
+            CustomMachine machine = CustomMachinery.MACHINES.getOrDefault(id, CustomMachine.DUMMY);
 
             matrix.push();
             matrix.translate(0.5, 0.5, 0.5);
