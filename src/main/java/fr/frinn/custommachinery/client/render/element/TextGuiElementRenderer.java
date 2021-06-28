@@ -11,16 +11,16 @@ public class TextGuiElementRenderer implements IGuiElementRenderer<TextGuiElemen
         int posX;
         switch (element.getAlignment()) {
             case CENTER:
-                posX = element.getX() - screen.getMinecraft().fontRenderer.getStringWidth(element.getText()) / 2;
+                posX = element.getX() - screen.getMinecraft().fontRenderer.getStringWidth(element.getText().getString()) / 2;
                 break;
             case RIGHT:
-                posX = element.getX() - screen.getMinecraft().fontRenderer.getStringWidth(element.getText());
+                posX = element.getX() - screen.getMinecraft().fontRenderer.getStringWidth(element.getText().getString());
                 break;
             default:
                 posX = element.getX();
         }
         int posY = element.getY();
-        screen.getMinecraft().fontRenderer.drawString(matrix, element.getText(), posX, posY, element.getColor());
+        screen.getMinecraft().fontRenderer.drawText(matrix, element.getText(), posX, posY, element.getColor());
     }
 
     @Override

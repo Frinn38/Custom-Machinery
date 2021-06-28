@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Locale;
 
@@ -14,19 +16,19 @@ public class TextGuiElement extends AbstractGuiElement {
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    Codec.STRING.fieldOf("text").forGetter(TextGuiElement::getText),
+                    Codec.STRING.fieldOf("text").forGetter(element -> element.text.getKey()),
                     Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment",Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
                     Codec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor)
             ).apply(textGuiElementCodec, TextGuiElement::new)
     );
 
-    private String text;
+    private TranslationTextComponent text;
     private Alignment alignment;
     private int color;
 
     public TextGuiElement(int x, int y, int priority, String text, Alignment alignment, int color) {
         super(x, y, 0, 0, priority);
-        this.text = text;
+        this.text = new TranslationTextComponent(text);
         this.alignment = alignment;
         this.color = color;
     }
@@ -36,7 +38,7 @@ public class TextGuiElement extends AbstractGuiElement {
         return Registration.TEXT_GUI_ELEMENT.get();
     }
 
-    public String getText() {
+    public ITextComponent getText() {
         return this.text;
     }
 
