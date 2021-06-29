@@ -8,21 +8,25 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
+
 public class SoundManager {
 
     private BlockPos pos;
     private ISound sound;
-    private boolean isPlaying = false;
 
     public SoundManager(BlockPos pos) {
         this.pos = pos;
     }
 
-    public ResourceLocation getSound() {
-        if(this.sound != null)
-            return this.sound.getSoundLocation();
-        else
-            return null;
+    @Nullable
+    public ResourceLocation getSoundID() {
+        return this.getSound().map(ISound::getSoundLocation).orElse(null);
+    }
+
+    public Optional<ISound> getSound() {
+        return Optional.ofNullable(this.sound);
     }
 
     public void setSound(SoundEvent sound) {
@@ -30,19 +34,14 @@ public class SoundManager {
     }
 
     public boolean isPlaying() {
-        if(this.sound != null)
-            return Minecraft.getInstance().getSoundHandler().isPlaying(this.sound);
-        else
-            return false;
+        return getSound().map(sound -> Minecraft.getInstance().getSoundHandler().isPlaying(sound)).orElse(false);
     }
 
     public void play() {
-        if(this.sound != null)
-            Minecraft.getInstance().getSoundHandler().play(this.sound);
+        getSound().ifPresent(sound -> Minecraft.getInstance().getSoundHandler().play(sound));
     }
 
     public void stop() {
-        if(this.sound != null)
-            Minecraft.getInstance().getSoundHandler().stop(this.sound);
+        getSound().ifPresent(sound -> Minecraft.getInstance().getSoundHandler().stop(sound));
     }
 }

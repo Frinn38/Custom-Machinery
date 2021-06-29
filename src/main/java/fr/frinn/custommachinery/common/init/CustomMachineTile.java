@@ -20,6 +20,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -93,7 +94,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         } else {
             if(this.soundManager == null)
                 this.soundManager = new SoundManager(this.pos);
-            if(getMachine().getAppearance().getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance().getSound().getName().equals(this.soundManager.getSound()))
+            if(getMachine().getAppearance().getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance().getSound().getName().equals(this.soundManager.getSoundID()))
                 this.soundManager.setSound(getMachine().getAppearance().getSound());
 
             if (this.craftingManager.getStatus() == CraftingManager.STATUS.RUNNING && !this.soundManager.isPlaying())
@@ -112,7 +113,10 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
 
     @Override
     public void remove() {
+        if(this.world != null && this.world.isRemote() && this.soundManager != null)
+            this.soundManager.stop();
         super.remove();
+
     }
 
     @Nonnull
@@ -156,11 +160,31 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }
 
+    @Nullable
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(getPos(), 666, getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(net.minecraft.network.NetworkManager net, SUpdateTileEntityPacket pkt) {
+        handleUpdateTag(null, pkt.getNbtCompound());
+    }
+
     @Override
     public CompoundNBT getUpdateTag() {
-        CompoundNBT nbt = super.getUpdateTag();
+        CompoundNBT nbt = new CompoundNBT();
         nbt.putString("machineID", this.id.toString());
+        nbt.put("craftingManager", this.craftingManager.serializeNBT());
         return nbt;
+    }
+
+    @Override
+    public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
+        if(nbt.contains("machineID", Constants.NBT.TAG_STRING))
+            this.setId(new ResourceLocation(nbt.getString("machineID")));
+        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
+            this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
     }
 
     private boolean paused = false;

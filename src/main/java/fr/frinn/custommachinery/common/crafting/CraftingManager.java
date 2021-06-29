@@ -53,9 +53,12 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.tile.isPaused() && this.status != STATUS.PAUSED) {
             this.prevStatus = this.status;
             this.status = STATUS.PAUSED;
+            notifyStatusChanged();
         }
-        if(!this.tile.isPaused() && this.status == STATUS.PAUSED)
+        if(!this.tile.isPaused() && this.status == STATUS.PAUSED) {
             this.status = this.prevStatus;
+            notifyStatusChanged();
+        }
         if(this.status == STATUS.PAUSED)
             return;
         if(this.currentRecipe == null) {
@@ -176,6 +179,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
             this.status = STATUS.IDLE;
             this.errorMessage = StringTextComponent.EMPTY;
             this.tile.markDirty();
+            notifyStatusChanged();
         }
     }
 
@@ -184,6 +188,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
             this.status = STATUS.ERRORED;
             this.errorMessage = message;
             this.tile.markDirty();
+            notifyStatusChanged();
         }
     }
 
@@ -192,7 +197,13 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
             this.status = STATUS.RUNNING;
             this.errorMessage = StringTextComponent.EMPTY;
             this.tile.markDirty();
+            notifyStatusChanged();
         }
+    }
+
+    private void notifyStatusChanged() {
+        if(this.tile.getWorld() != null)
+            this.tile.getWorld().notifyBlockUpdate(this.tile.getPos(), this.tile.getBlockState(), this.tile.getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
     }
 
     public STATUS getStatus() {
@@ -205,10 +216,14 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     public void addProbeInfo(IProbeInfo info) {
         info.text(new TranslationTextComponent("custommachinery.craftingstatus." + this.status.toString().toLowerCase(Locale.ENGLISH)));
-        if(this.status == STATUS.ERRORED)
-            info.text(this.errorMessage);
-        if(this.status == STATUS.RUNNING)
-            info.progress((int)this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
+        switch (this.status) {
+            case RUNNING:
+                info.progress((int)this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
+                break;
+            case ERRORED:
+                info.text(this.errorMessage);
+                break;
+        }
     }
 
     @Override
