@@ -3,8 +3,6 @@ package fr.frinn.custommachinery.client.render;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.util.Color3F;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
@@ -29,9 +27,9 @@ public class CustomMachineItemRenderer extends ItemStackTileEntityRenderer {
             matrix.translate(0.5, 0.5, 0.5);
             if(transformType.isFirstPerson())
                 matrix.rotate(Vector3f.YP.rotationDegrees(90));
-            ForgeHooksClient.handleCameraTransforms(matrix, CustomMachineRenderer.getMachineModel(machine.getAppearance()), transformType, transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND);
+            ForgeHooksClient.handleCameraTransforms(matrix, CustomMachineBakedModel.INSTANCE.getMachineModel(machine.getAppearance()), transformType, transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND);
             matrix.translate(-0.5, -0.5, -0.5);
-            CustomMachineRenderer.renderMachine(machine, 0, matrix, buffer, combinedLight, combinedOverlay, tintIndex -> Color3F.of(Minecraft.getInstance().getItemColors().getColor(stack, tintIndex)));
+            CustomMachineRenderer.renderMachineItem(machine, stack, matrix, buffer, combinedLight, combinedOverlay);
             matrix.pop();
         }
     }

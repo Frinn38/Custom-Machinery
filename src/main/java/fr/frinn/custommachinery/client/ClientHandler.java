@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
@@ -72,12 +73,10 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void modelBake(final ModelBakeEvent event) {
+        IBakedModel model = new CustomMachineBakedModel();
         Registration.CUSTOM_MACHINE_BLOCK.get().getStateContainer().getValidStates().forEach(state -> {
             ModelResourceLocation modelLocation = BlockModelShapes.getModelLocation(state);
-            if(event.getModelRegistry().containsKey(modelLocation))
-                event.getModelRegistry().replace(modelLocation, new WrappedBakedModel(event.getModelRegistry().get(modelLocation)));
-            else
-                event.getModelRegistry().put(modelLocation, new DummyBakedModel());
+            event.getModelRegistry().put(modelLocation, model);
         });
     }
 
@@ -98,7 +97,7 @@ public class ClientHandler {
                     if(tile instanceof CustomMachineTile)
                         return ((CustomMachineTile)tile).getMachine().getAppearance().getColor();
                 default:
-                    return 0;
+                    return 0xFFFFFF;
             }
         }, Registration.CUSTOM_MACHINE_BLOCK.get());
     }
@@ -125,20 +124,6 @@ public class ClientHandler {
                 return (CustomMachineTile)tile;
         }
         throw new IllegalStateException("Trying to open a Custom Machine container without clicking on a Custom Machine block");
-    }
-
-    public static TextureAtlasSprite getParticleTexture(MachineAppearance appearance) {
-        switch (appearance.getType()) {
-            case DEFAULT:
-                return Minecraft.getInstance().getModelManager().getModel(CustomMachineRenderer.DEFAULT_MODEL).getParticleTexture(EmptyModelData.INSTANCE);
-            case BLOCK:
-                return Minecraft.getInstance().getModelManager().getModel(appearance.getBlock().getRegistryName()).getParticleTexture(EmptyModelData.INSTANCE);
-            case BLOCKSTATE:
-                return Minecraft.getInstance().getModelManager().getModel(appearance.getBlockstate()).getParticleTexture(EmptyModelData.INSTANCE);
-            case MODEL:
-                return Minecraft.getInstance().getModelManager().getModel(appearance.getModel()).getParticleTexture(EmptyModelData.INSTANCE);
-        }
-        return Minecraft.getInstance().getModelManager().getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
     }
 
     public static void drawSizedString(FontRenderer font, MatrixStack matrix, String string, int x, int y, int size, float maxScale, int color) {

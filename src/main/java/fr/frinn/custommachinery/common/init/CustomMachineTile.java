@@ -1,8 +1,7 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.client.DummyBakedModel;
+import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
@@ -225,6 +224,8 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Nonnull
     @Override
     public IModelData getModelData() {
-        return new ModelDataMap.Builder().withInitial(DummyBakedModel.PARTICLE_TEXTURE, ClientHandler.getParticleTexture(getMachine().getAppearance())).build();
+        return new ModelDataMap.Builder()
+                .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance())
+                .build();
     }
 }
