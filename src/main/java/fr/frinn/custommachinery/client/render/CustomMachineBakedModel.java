@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -64,10 +65,13 @@ public class CustomMachineBakedModel implements IBakedModel {
     @Nonnull
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData data) {
+        Direction direction = side;
+        if(state != null && direction != null)
+            direction = MachineRenderer.INSTANCE.getRotatedDirection(state.get(BlockStateProperties.HORIZONTAL_FACING), direction);
         if(!data.hasProperty(APPEARANCE) || data.getData(APPEARANCE) == null)
-            return Minecraft.getInstance().getModelManager().getMissingModel().getQuads(state, side, rand, data);
+            return Minecraft.getInstance().getModelManager().getMissingModel().getQuads(state, direction, rand, data);
         IBakedModel model = getMachineModel(data.getData(APPEARANCE));
-        return model.getQuads(state, side, rand, data);
+        return model.getQuads(state, direction, rand, data);
     }
 
     @Override

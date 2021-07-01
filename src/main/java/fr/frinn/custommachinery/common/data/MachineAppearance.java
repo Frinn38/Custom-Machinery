@@ -108,6 +108,10 @@ public class MachineAppearance {
         return this.type;
     }
 
+    public MachineAppearance copy() {
+        return new MachineAppearance(this.type, this.model, this.block, this.blockstate, this.itemTexture, this.sound, this.lightMode, this.lightLevel, this.color);
+    }
+
     public enum AppearanceType {
         MODEL,
         BLOCK,

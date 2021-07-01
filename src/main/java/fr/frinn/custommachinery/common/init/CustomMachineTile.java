@@ -249,7 +249,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Override
     public IModelData getModelData() {
         return new ModelDataMap.Builder()
-                .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance())
+                .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance().copy())
                 .build();
     }
 }

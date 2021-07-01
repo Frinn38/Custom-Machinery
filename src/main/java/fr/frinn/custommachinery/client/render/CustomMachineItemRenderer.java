@@ -29,7 +29,7 @@ public class CustomMachineItemRenderer extends ItemStackTileEntityRenderer {
                 matrix.rotate(Vector3f.YP.rotationDegrees(90));
             ForgeHooksClient.handleCameraTransforms(matrix, CustomMachineBakedModel.INSTANCE.getMachineModel(machine.getAppearance()), transformType, transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND);
             matrix.translate(-0.5, -0.5, -0.5);
-            CustomMachineRenderer.renderMachineItem(machine, stack, matrix, buffer, combinedLight, combinedOverlay);
+            MachineRenderer.INSTANCE.renderMachineItem(machine, stack, matrix, buffer, combinedLight, combinedOverlay);
             matrix.pop();
         }
     }
