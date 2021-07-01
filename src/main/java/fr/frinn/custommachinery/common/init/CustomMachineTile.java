@@ -173,7 +173,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
 
     @Override
     public CompoundNBT getUpdateTag() {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundNBT nbt = super.getUpdateTag();
         nbt.putString("machineID", this.id.toString());
         nbt.put("craftingManager", this.craftingManager.serializeNBT());
         return nbt;
