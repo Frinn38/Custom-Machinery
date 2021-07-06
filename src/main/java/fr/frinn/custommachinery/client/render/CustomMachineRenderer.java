@@ -13,6 +13,7 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Vector3f;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
@@ -38,9 +39,8 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
         Direction machineFacing = tile.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING);
         matrix.push();
         matrix.translate(0.5F, 0, 0.5F);
-        //matrix.rotate(Vector3f.YN.rotationDegrees(machineFacing.getOpposite().getHorizontalAngle()));
+        matrix.rotate(Vector3f.YN.rotationDegrees(machineFacing.getOpposite().getHorizontalAngle()));
         matrix.translate(-0.5F, 0, -0.5F);
-        //MachineRenderer.INSTANCE.renderMachineBlock(tile.getWorld(), tile.getPos(), machineFacing, matrix, buffer, combinedOverlay, tile.getModelData());
         if(boxToRender.containsKey(machine.getId())) {
             WorldRenderer.drawBoundingBox(matrix, buffer.getBuffer(RenderType.LINES), boxToRender.get(machine.getId()).getFirst().expand(1, 1, 1), 1.0F, 0.0F, 0.0F, 1.0F);
             if(boxToRender.get(machine.getId()).getSecond().decrementAndGet() == 0)

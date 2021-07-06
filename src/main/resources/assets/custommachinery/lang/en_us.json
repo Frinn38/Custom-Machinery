@@ -1,6 +1,16 @@
 {
   "item.custommachinery.machine_creator_item": "Machine Creator",
+  "item.custommachinery.box_creator_item": "Box Creator",
   "itemGroup.custommachinery": "Custom Machinery",
+
+  "custommachinery.box_creator.first_block": "First Block : %s",
+  "custommachinery.box_creator.second_block": "Second Block : %s",
+  "custommachinery.box_creator.select_first_block": "Select the first corner",
+  "custommachinery.box_creator.select_second_block": "Now select the second corner",
+  "custommachinery.box_creator.select_machine": "Now select the machine block",
+  "custommachinery.box_creator.reset": "Click in the air while crouching to reset",
+  "custommachinery.box_creator.create_box": "The selected box is : %s",
+  "custommachinery.box_creator.copy": "Click to copy to clipboard",
 
   "custommachinery.comparator.greater": "greater than",
   "custommachinery.comparator.greater_or_equals": "greater or equals to",

@@ -261,19 +261,4 @@ public class ClientHandler {
         builder.finishDrawing();
         WorldVertexBufferUploader.draw(builder);
     }
-
-    public static AxisAlignedBB rotateBox(AxisAlignedBB box, Direction to) {
-        //Based on south, positive Z
-        switch (to) {
-            case EAST: //90° CCW
-                return new AxisAlignedBB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
-            case NORTH: //180° CCW
-                return new AxisAlignedBB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
-            case WEST: //270° CCW
-                return new AxisAlignedBB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
-            case SOUTH: //No changes
-            default:
-                return new AxisAlignedBB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
-        }
-    }
 }

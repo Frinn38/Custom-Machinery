@@ -12,7 +12,9 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.*;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.util.Constants;
@@ -94,5 +96,20 @@ public class Utils {
                 .flatMap(pair -> CustomMachinery.UPGRADES.stream().filter(upgrade -> upgrade.getItem() == pair.first && upgrade.getMachines().contains(tile.getMachine().getId())).flatMap(upgrade -> upgrade.getModifiers().stream()).map(modifier -> Pair.of(modifier, pair.second)))
                 .collect(Collectors.toMap(pair -> pair.first, pair -> pair.second));
 
+    }
+
+    public static AxisAlignedBB rotateBox(AxisAlignedBB box, Direction to) {
+        //Based on south, positive Z
+        switch (to) {
+            case EAST: //90° CCW
+                return new AxisAlignedBB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
+            case NORTH: //180° CCW
+                return new AxisAlignedBB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
+            case WEST: //270° CCW
+                return new AxisAlignedBB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
+            case SOUTH: //No changes
+            default:
+                return new AxisAlignedBB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+        }
     }
 }
