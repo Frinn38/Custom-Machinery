@@ -40,7 +40,7 @@ public class CustomMachineBlock extends Block {
     @Override
     @ParametersAreNonnullByDefault
     public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.INVISIBLE;
+        return BlockRenderType.MODEL;
     }
 
     @SuppressWarnings("deprecation")
