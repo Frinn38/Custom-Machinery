@@ -58,9 +58,7 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
     public List<ITextComponent> getTooltip(FluidStack ingredient, FluidGuiElement element, ITooltipFlag flag) {
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(ingredient.getDisplayName());
-        CompoundNBT nbt = ingredient.getChildTag(CustomMachinery.MODID);
-        if(nbt == null)
-            return tooltips;
+        CompoundNBT nbt = ingredient.getOrCreateChildTag(CustomMachinery.MODID);
         if(nbt.contains("isPerTick", Constants.NBT.TAG_BYTE) && nbt.getBoolean("isPerTick"))
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.pertick", ingredient.getAmount()));
         else
