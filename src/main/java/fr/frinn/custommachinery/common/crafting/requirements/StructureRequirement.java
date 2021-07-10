@@ -7,10 +7,9 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
-import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.block.pattern.BlockPatternBuilder;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
@@ -27,13 +26,13 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
 
     private List<List<String>> pattern;
     private Map<Character, PartialBlockState> keys;
-    private BlockPattern structure;
+    private BlockStructure structure;
 
     public StructureRequirement(List<List<String>> pattern, Map<Character, PartialBlockState> keys) {
         super(MODE.INPUT);
         this.pattern = pattern;
         this.keys = keys;
-        BlockPatternBuilder builder = BlockPatternBuilder.start();
+        BlockStructure.Builder builder = BlockStructure.Builder.start();
         for(List<String> levels : pattern)
             builder.aisle(levels.toArray(new String[0]));
         for(Map.Entry<Character, PartialBlockState> key : keys.entrySet())
@@ -48,7 +47,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
 
     @Override
     public boolean test(StructureMachineComponent component, CraftingContext context) {
-        return component.checkStructure(this.structure) != null;
+        return component.checkStructure(this.structure);
     }
 
     @Override
@@ -68,7 +67,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
 
     @Override
     public CraftingResult processTick(StructureMachineComponent component, CraftingContext context) {
-        if(component.checkStructure(this.structure) != null)
+        if(component.checkStructure(this.structure))
             return CraftingResult.success();
         else return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.structure.error"));
     }

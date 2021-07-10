@@ -16,6 +16,17 @@ import java.util.stream.Collectors;
 public class PartialBlockState implements Predicate<CachedBlockInfo> {
 
     public static final PartialBlockState AIR = new PartialBlockState(Blocks.AIR.getDefaultState(), new HashSet<>(), null);
+    public static final PartialBlockState ANY = new PartialBlockState(null, null, null) {
+        @Override
+        public boolean test(CachedBlockInfo cachedBlockInfo) {
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "ANY";
+        }
+    };
 
     private BlockState blockState;
     private Set<Property<?>> properties;
