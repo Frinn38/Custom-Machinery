@@ -29,7 +29,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                     Codecs.BOX_CODEC.fieldOf("pos").forGetter(requirement -> requirement.pos),
                     Codec.INT.optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
                     Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
-                    Codecs.BLOCK_STATE_CODEC.fieldOf("block").orElse((Consumer<String>) CustomMachinery.LOGGER::error, PartialBlockState.AIR).forGetter(requirement -> requirement.block)
+                    Codecs.PARTIAL_BLOCK_STATE_CODEC.fieldOf("block").orElse((Consumer<String>) CustomMachinery.LOGGER::error, PartialBlockState.AIR).forGetter(requirement -> requirement.block)
             ).apply(blockRequirementInstance, BlockRequirement::new)
     );
 
@@ -77,23 +77,23 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                 case PLACE:
                     if(component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_BREAK:
                     if(component.replaceBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_DESTROY:
                     if(component.replaceBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case BREAK:
                     if(component.breakBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case DESTROY:
                     if(component.breakBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
             }
         }
         return CraftingResult.pass();
@@ -107,23 +107,23 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                 case PLACE:
                     if(component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_BREAK:
                     if(component.replaceBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case REPLACE_DESTROY:
                     if(component.replaceBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case BREAK:
                     if(component.breakBlock(this.pos, this.block, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
                 case DESTROY:
                     if(component.breakBlock(this.pos, this.block, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString()));
+                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
             }
         }
         return CraftingResult.pass();
@@ -140,7 +140,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
         if(this.action == ACTION.CHECK) {
             long found = component.getBlockAmount(this.pos, this.block);
             if(!this.comparator.compare((int)found, amount))
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.check.error", amount, new TranslationTextComponent(this.block.getBlock().getTranslationKey()), this.pos.toString(), found));
+                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.check.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString(), found));
         }
         return CraftingResult.success();
     }
@@ -178,7 +178,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                     info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.replace.info.output"));
                 break;
         }
-        info.addTooltip(new StringTextComponent(this.amount + "x ").appendSibling(new TranslationTextComponent(this.block.getBlock().getTranslationKey())));
+        info.addTooltip(new StringTextComponent(this.amount + "x ").appendSibling(new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey())));
         this.block.getProperties().forEach(property -> info.addTooltip(new StringTextComponent("* " + property)));
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.info.box"));
         return info;

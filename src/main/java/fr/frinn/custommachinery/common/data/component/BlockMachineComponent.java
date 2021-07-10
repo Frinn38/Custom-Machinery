@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.block.Blocks;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.CachedBlockInfo;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
@@ -27,7 +28,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
             return 0;
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
-        return BlockPos.getAllInBox(box).map(getManager().getTile().getWorld()::getBlockState).filter(block::compareState).count();
+        return BlockPos.getAllInBox(box).map(pos -> new CachedBlockInfo(getManager().getTile().getWorld(), pos, false)).filter(block).count();
     }
 
     public boolean placeBlock(AxisAlignedBB box, PartialBlockState block, int amount) {
@@ -71,11 +72,11 @@ public class BlockMachineComponent extends AbstractMachineComponent {
             return false;
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
-        if(BlockPos.getAllInBox(box).map(getManager().getTile().getWorld()::getBlockState).filter(block::compareState).count() < amount)
+        if(BlockPos.getAllInBox(box).map(pos -> new CachedBlockInfo(getManager().getTile().getWorld(), pos, false)).filter(block).count() < amount)
             return false;
         AtomicInteger toPlace = new AtomicInteger(amount);
         BlockPos.getAllInBox(box).forEach(pos -> {
-            if(toPlace.get() > 0 && block.compareState(getManager().getTile().getWorld().getBlockState(pos))) {
+            if(toPlace.get() > 0 && block.test(new CachedBlockInfo(getManager().getTile().getWorld(), pos, false))) {
                 getManager().getTile().getWorld().destroyBlock(pos, drop);
                 toPlace.addAndGet(-1);
             }

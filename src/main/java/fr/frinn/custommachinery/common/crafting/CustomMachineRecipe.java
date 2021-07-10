@@ -39,10 +39,6 @@ public class CustomMachineRecipe extends DummyRecipe {
         return this.id;
     }
 
-    public void setId(ResourceLocation id) {
-        this.id = id;
-    }
-
     public int getRecipeTime() {
         return this.time;
     }

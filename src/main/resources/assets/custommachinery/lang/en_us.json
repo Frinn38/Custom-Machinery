@@ -135,6 +135,7 @@
   "custommachinery.requirements.block.info.box": "Click to show nearby machines working area",
   "custommachinery.requirements.command.info": "Run %s on %s",
   "custommachinery.requirements.fuel.info": "Require some burning fuel",
+  "custommachinery.requirements.structure.error": "Invalid structure !",
 
   "requirement.custommachinery.item": "Item",
   "requirement.custommachinery.energy": "Energy",

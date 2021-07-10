@@ -20,7 +20,7 @@ public class RecipeModifier {
                     Codecs.REQUIREMENT_TYPE_CODEC.fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
                     Codec.STRING.optionalFieldOf("target", "").forGetter(modifier -> modifier.target),
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(modifier -> modifier.mode),
-                    Codecs.MODIFIER_OPERATION.fieldOf("operation").forGetter(modifier -> modifier.operation),
+                    Codecs.MODIFIER_OPERATION_CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
                     Codec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
                     Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(modifier -> modifier.chance)
             ).apply(energyModifierInstance, RecipeModifier::new)

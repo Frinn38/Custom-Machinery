@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -19,19 +20,16 @@ import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class Codecs {
@@ -51,7 +49,9 @@ public class Codecs {
     public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString).stable();
     public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = Codec.STRING.comapFlatMap(Codecs::decodeEntityRequirementAction, EntityRequirement.ACTION::toString).stable();
     public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeBlockRequirementAction, BlockRequirement.ACTION::toString).stable();
-    public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION              = Codec.STRING.comapFlatMap(Codecs::decodeModifierOperation, RecipeModifier.OPERATION::toString).stable();
+    public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = Codec.STRING.comapFlatMap(Codecs::decodeModifierOperation, RecipeModifier.OPERATION::toString).stable();
+    public static final Codec<Character> CHARACTER_CODEC                                = Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString).stable();
+    public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                            = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName).stable();
     public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName).stable();
@@ -59,7 +59,6 @@ public class Codecs {
     public static final Codec<ItemComponentVariant> ITEM_COMPONENT_VARIANT_CODEC                                       = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeItemComponentVariant, ItemComponentVariant::getId).stable();
 
     public static final Codec<AxisAlignedBB> BOX_CODEC = Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ));
-    public static final Codec<PartialBlockState> BLOCK_STATE_CODEC = MODEL_RESOURCE_LOCATION_CODEC.comapFlatMap(Codecs::decodeBlockState, PartialBlockState::location).stable();
 
     private static DataResult<ModelResourceLocation> decodeModelResourceLocation(String encoded) {
         try {
@@ -204,30 +203,6 @@ public class Codecs {
         }
     }
 
-    private static DataResult<PartialBlockState> decodeBlockState(ModelResourceLocation encoded) {
-        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(encoded.getNamespace(), encoded.getPath()));
-        if(block == null)
-            return DataResult.error("Not a valid block: '" + encoded + "'");
-        PartialBlockState state = new PartialBlockState(block);
-        if(encoded.getVariant().isEmpty())
-            return DataResult.success(state);
-        for(String property : encoded.getVariant().split(",")) {
-            String[] keyValue = property.split("=");
-            if(keyValue.length != 2)
-                return DataResult.error("Bad formating in: '" + property + "' for block: '" + encoded + "'. Except: 'key=value'");
-            String key = keyValue[0];
-            String value = keyValue[1];
-            Property stateProperty = block.getStateContainer().getProperty(key);
-            if(stateProperty == null)
-                return DataResult.error("Unknown BlockState property: '" + key + "' in: '" + encoded + "'");
-            Optional<Comparable> optionalValue = stateProperty.parseValue(value);
-            if(!optionalValue.isPresent())
-                return DataResult.error("Unknown BlockState property value: '" + value + "' for property: '" + key + "' in: '" + encoded + "'");
-            state = state.with(stateProperty, optionalValue.get());
-        }
-        return DataResult.success(state);
-    }
-
     private static DataResult<RecipeModifier.OPERATION> decodeModifierOperation(String encoded) {
         try {
             return DataResult.success(RecipeModifier.OPERATION.value(encoded));
@@ -241,6 +216,22 @@ public class Codecs {
             return DataResult.success(Objects.requireNonNull(ItemComponentVariant.getVariant(encoded)));
         } catch (NullPointerException e) {
             return DataResult.error("Not a valid Item component variant: " + encoded + " " + e.getMessage());
+        }
+    }
+
+    private static DataResult<Character> decodeCharacter(String encoded) {
+        if(encoded.length() != 1)
+            return DataResult.error("Invalid character : \"" + encoded + "\" must be a single character !");
+        return DataResult.success(encoded.charAt(0));
+    }
+
+    private static DataResult<PartialBlockState> decodePartialBlockState(String encoded) {
+        StringReader reader = new StringReader(encoded);
+        try {
+            BlockStateParser parser = new BlockStateParser(reader, false).parse(true);
+            return DataResult.success(new PartialBlockState(parser.getState(), parser.getProperties().keySet(), parser.getNbt()));
+        } catch (CommandSyntaxException exception) {
+            return DataResult.error(exception.getMessage());
         }
     }
 }
