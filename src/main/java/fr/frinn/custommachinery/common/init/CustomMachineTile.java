@@ -182,9 +182,12 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     @Override
     public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
         if(nbt.contains("machineID", Constants.NBT.TAG_STRING))
-            this.setId(new ResourceLocation(nbt.getString("machineID")));
-        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
+            this.id = new ResourceLocation(nbt.getString("machineID"));
+        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND)) {
+            if(this.craftingManager == null)
+                this.craftingManager = new CraftingManager(this);
             this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
+        }
     }
 
     private boolean paused = false;
