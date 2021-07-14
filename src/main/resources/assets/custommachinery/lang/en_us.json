@@ -136,6 +136,8 @@
   "custommachinery.requirements.command.info": "Run %s on %s",
   "custommachinery.requirements.fuel.info": "Require some burning fuel",
   "custommachinery.requirements.structure.error": "Invalid structure !",
+  "custommachinery.requirements.structure.info": "Requires a structure",
+  "custommachinery.requirements.structure.click": "Click to view the required structure",
 
   "requirement.custommachinery.item": "Item",
   "requirement.custommachinery.energy": "Energy",

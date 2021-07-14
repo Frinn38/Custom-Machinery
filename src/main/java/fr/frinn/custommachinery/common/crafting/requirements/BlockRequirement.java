@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.BlockMachineComponent;
@@ -181,6 +182,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
         info.addTooltip(new StringTextComponent(this.amount + "x ").appendSibling(new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey())));
         this.block.getProperties().forEach(property -> info.addTooltip(new StringTextComponent("* " + property)));
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.info.box"));
+        info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
         return info;
     }
 

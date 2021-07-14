@@ -218,10 +218,8 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         for(int i = 0; i < requirements.size(); i++) {
             int x = i * (ICON_SIZE + 2);
             IDisplayInfoRequirement<?> requirement = requirements.get(i);
-            if(requirement.getType() == Registration.BLOCK_REQUIREMENT.get() && mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height) {
-                CustomMachineRenderer.addRenderBox(this.machine.getId(), ((BlockRequirement)requirement).getBox());
-                return true;
-            }
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height)
+                return requirement.getDisplayInfo().handleClick(this.machine, mouseButton);
         }
         return false;
     }

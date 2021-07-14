@@ -1,11 +1,15 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.data.CustomMachine;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class RequirementDisplayInfo {
 
@@ -13,6 +17,7 @@ public class RequirementDisplayInfo {
     private int u;
     private int v;
     private List<ITextComponent> tooltips = new ArrayList<>();
+    private BiConsumer<CustomMachine, Integer> clickAction;
 
     public RequirementDisplayInfo setIcon(ResourceLocation icon, int u, int v) {
         this.icon = icon;
@@ -44,5 +49,21 @@ public class RequirementDisplayInfo {
 
     public List<ITextComponent> getTooltips() {
         return this.tooltips;
+    }
+
+    public void setClickAction(BiConsumer<CustomMachine, Integer> clickAction) {
+        this.clickAction = clickAction;
+    }
+
+    public boolean hasClickAction() {
+        return this.clickAction != null;
+    }
+
+    public boolean handleClick(CustomMachine machine, int mouseButton) {
+        if(hasClickAction()) {
+            this.clickAction.accept(machine, mouseButton);
+            return true;
+        }
+        return false;
     }
 }

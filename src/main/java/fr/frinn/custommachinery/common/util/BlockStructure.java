@@ -31,22 +31,21 @@ public class BlockStructure {
         this.blocks_east = rotate(blocks, Rotation.COUNTERCLOCKWISE_90);
     }
 
-    public boolean match(IWorldReader world, BlockPos machinePos, Direction machineFacing) {
-        Map<BlockPos, PartialBlockState> blocks;
-        switch (machineFacing) {
-            case WEST:
-                blocks = this.blocks_west;
-                break;
-            case EAST:
-                blocks = this.blocks_east;
-                break;
+    public Map<BlockPos, PartialBlockState> getBlocks(Direction direction) {
+        switch (direction) {
             case SOUTH:
-                blocks = this.blocks_south;
-                break;
+                return blocks_south;
+            case EAST:
+                return this.blocks_east;
+            case WEST:
+                return this.blocks_west;
             default:
-                blocks = this.blocks_north;
-                break;
+                return this.blocks_north;
         }
+    }
+
+    public boolean match(IWorldReader world, BlockPos machinePos, Direction machineFacing) {
+        Map<BlockPos, PartialBlockState> blocks = getBlocks(machineFacing);
         BlockPos.Mutable worldPos = new BlockPos.Mutable();
         for(BlockPos pos : blocks.keySet()) {
             PartialBlockState state = blocks.get(pos);

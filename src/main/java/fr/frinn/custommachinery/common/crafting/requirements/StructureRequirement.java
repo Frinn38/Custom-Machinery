@@ -2,11 +2,14 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
@@ -15,7 +18,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.List;
 import java.util.Map;
 
-public class StructureRequirement extends AbstractTickableRequirement<StructureMachineComponent> {
+public class StructureRequirement extends AbstractTickableRequirement<StructureMachineComponent> implements IDisplayInfoRequirement<StructureMachineComponent> {
 
     public static final Codec<StructureRequirement> CODEC = RecordCodecBuilder.create(structureRequirementInstance ->
             structureRequirementInstance.group(
@@ -70,5 +73,14 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
         if(component.checkStructure(this.structure))
             return CraftingResult.success();
         else return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.structure.error"));
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.info"));
+        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.click"));
+        info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
+        return info;
     }
 }
