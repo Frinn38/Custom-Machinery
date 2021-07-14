@@ -27,9 +27,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
@@ -72,11 +70,12 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void modelBake(final ModelBakeEvent event) {
-        IBakedModel model = new CustomMachineBakedModel();
+        IBakedModel model = CustomMachineBakedModel.INSTANCE;
         Registration.CUSTOM_MACHINE_BLOCK.get().getStateContainer().getValidStates().forEach(state -> {
             ModelResourceLocation modelLocation = BlockModelShapes.getModelLocation(state);
             event.getModelRegistry().put(modelLocation, model);
         });
+        event.getModelRegistry().put(new ModelResourceLocation(Registration.CUSTOM_MACHINE_ITEM.getId(), "inventory"), model);
     }
 
     @SubscribeEvent

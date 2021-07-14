@@ -19,54 +19,64 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 
+@ParametersAreNonnullByDefault
 public class CustomMachineItem extends BlockItem {
+
+    public static final String MACHINE_TAG_KEY = "machine";
 
     public CustomMachineItem(Block block, Item.Properties properties) {
         super(block, properties);
     }
 
-    @ParametersAreNonnullByDefault
+    public static Optional<CustomMachine> getMachine(ItemStack stack) {
+        if(stack.getItem() == Registration.CUSTOM_MACHINE_ITEM.get() && stack.getTag() != null && stack.getTag().contains(MACHINE_TAG_KEY, Constants.NBT.TAG_STRING) && ResourceLocation.isResouceNameValid(stack.getTag().getString(MACHINE_TAG_KEY))) {
+            ResourceLocation machineID = new ResourceLocation(stack.getTag().getString(MACHINE_TAG_KEY));
+            if(machineID.equals(CustomMachine.DUMMY.getId()))
+                return Optional.of(CustomMachine.DUMMY);
+            return Optional.ofNullable(CustomMachinery.MACHINES.get(machineID));
+        }
+        return Optional.empty();
+    }
+
+    public static ItemStack makeMachineItem(ResourceLocation machineID) {
+        CompoundNBT nbt = new CompoundNBT();
+        nbt.putString(MACHINE_TAG_KEY, machineID.toString());
+        ItemStack stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
+        stack.setTag(nbt);
+        return stack;
+    }
+
     @Override
     protected boolean onBlockPlaced(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
-        if(stack.hasTag() && stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
+        getMachine(stack).ifPresent(machine -> {
             TileEntity tile = world.getTileEntity(pos);
             if(tile instanceof CustomMachineTile)
-                ((CustomMachineTile)tile).setId(new ResourceLocation(stack.getTag().getString("id")));
-        }
+                ((CustomMachineTile)tile).setId(machine.getId());
+        });
         return super.onBlockPlaced(pos, world, player, stack, state);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
-        if(this.isInGroup(group)) {
-            CustomMachinery.MACHINES.keySet().forEach(id -> {
-                ItemStack stack = new ItemStack(this);
-                stack.getOrCreateTag().putString("id", id.toString());
-                items.add(stack);
-            });
-        }
+        if(this.isInGroup(group))
+            CustomMachinery.MACHINES.keySet().forEach(id -> items.add(makeMachineItem(id)));
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void onCreated(ItemStack stack, World worldIn, PlayerEntity playerIn) {
-        if(!stack.hasTag() || !stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
+        if(stack.getTag() == null || !stack.getTag().contains(MACHINE_TAG_KEY, Constants.NBT.TAG_STRING)) {
             CompoundNBT nbt = new CompoundNBT();
-            nbt.putString("id", CustomMachineTile.DUMMY.toString());
+            nbt.putString(MACHINE_TAG_KEY, CustomMachine.DUMMY.getId().toString());
             stack.setTag(nbt);
         }
         super.onCreated(stack, worldIn, playerIn);
     }
 
+
     @Override
     public String getTranslationKey(ItemStack stack) {
-        if(stack.hasTag() && stack.hasTag() && stack.getTag().contains("id", Constants.NBT.TAG_STRING)) {
-            CustomMachine machine = CustomMachinery.MACHINES.get(new ResourceLocation(stack.getTag().getString("id")));
-            if(machine != null)
-                return machine.getName();
-        }
-        return super.getTranslationKey(stack);
+        return getMachine(stack).map(CustomMachine::getName).orElse(super.getTranslationKey(stack));
     }
 }

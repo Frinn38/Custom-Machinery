@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.client.screen.widget.EnumButton;
 import fr.frinn.custommachinery.client.screen.widget.ToogleTextFieldWidget;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
@@ -109,8 +109,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
         this.blockPrompt.render(matrix, mouseX, mouseY, partialTicks);
         this.blockStatePrompt.render(matrix, mouseX, mouseY, partialTicks);
 
-        ItemStack item = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
-        item.getOrCreateTag().putString("id", this.machine.getLocation().getId().toString());
+        ItemStack item = CustomMachineItem.makeMachineItem(this.machine.getLocation().getId());
 
         int scale = 2;
         int x = this.xPos + 128 - 8 * scale;

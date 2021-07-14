@@ -17,6 +17,7 @@ import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector4f;
 import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 
@@ -25,16 +26,13 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CustomMachineBakedModel implements IBakedModel {
+public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     public static final ModelProperty<MachineAppearance> APPEARANCE = new ModelProperty<>();
     public static final CustomMachineBakedModel INSTANCE = new CustomMachineBakedModel();
     public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block");
 
-    @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) {
-        return this.getQuads(state, side, rand, EmptyModelData.INSTANCE);
-    }
+    private final CustomMachineOverrideList overrideList = new CustomMachineOverrideList();
 
     @Override
     public boolean isAmbientOcclusion() {
@@ -63,7 +61,7 @@ public class CustomMachineBakedModel implements IBakedModel {
 
     @Override
     public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+        return this.overrideList;
     }
 
     @Nonnull

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
+import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.energy.EnergyIngredientHelper;
 import mezz.jei.api.IModPlugin;
@@ -12,7 +13,6 @@ import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -76,10 +76,6 @@ public class CustomMachineJEIPlugin implements IModPlugin {
     @ParametersAreNonnullByDefault
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        CustomMachinery.MACHINES.forEach((id, machine) -> {
-            ItemStack stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
-            stack.getOrCreateTag().putString("id", id.toString());
-            registration.addRecipeCatalyst(stack, id);
-        });
+        CustomMachinery.MACHINES.forEach((id, machine) -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), id));
     }
 }

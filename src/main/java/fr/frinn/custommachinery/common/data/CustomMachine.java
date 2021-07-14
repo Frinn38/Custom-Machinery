@@ -24,7 +24,7 @@ public class CustomMachine {
     );
 
     public static final CustomMachine DUMMY = new CustomMachine("Dummy", MachineAppearance.DUMMY, ImmutableList.of(), new ArrayList<>())
-            .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID + "dummy")));
+            .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")));
 
     private String name;
     private MachineAppearance appearance;

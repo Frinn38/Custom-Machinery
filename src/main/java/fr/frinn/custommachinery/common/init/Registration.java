@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.render.CustomMachineItemRenderer;
 import fr.frinn.custommachinery.client.render.element.*;
 import fr.frinn.custommachinery.client.render.element.jei.EnergyJEIIngredientRenderer;
 import fr.frinn.custommachinery.client.render.element.jei.FluidStackIngredientRenderer;
@@ -9,6 +8,7 @@ import fr.frinn.custommachinery.client.render.element.jei.ItemStackJEIIngredient
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeSerializer;
 import fr.frinn.custommachinery.common.crafting.requirements.*;
+import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.builder.component.EnergyComponentBuilder;
 import fr.frinn.custommachinery.common.data.builder.component.FluidComponentBuilder;
 import fr.frinn.custommachinery.common.data.builder.component.ItemComponentBuilder;
@@ -47,9 +47,7 @@ public class Registration {
     public static final ItemGroup GROUP = new ItemGroup(CustomMachinery.MODID) {
         @Override
         public ItemStack createIcon() {
-            ItemStack icon = new ItemStack(CUSTOM_MACHINE_ITEM.get());
-            icon.getOrCreateTag().putString("id", "dummy");
-            return icon;
+            return CustomMachineItem.makeMachineItem(CustomMachine.DUMMY.getId());
         }
 
         @ParametersAreNonnullByDefault
@@ -78,7 +76,7 @@ public class Registration {
 
     public static final RegistryObject<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", CustomMachineBlock::new);
 
-    public static final RegistryObject<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().group(GROUP).setISTER(() -> CustomMachineItemRenderer::new)));
+    public static final RegistryObject<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().group(GROUP)));
     public static final RegistryObject<MachineCreatorItem> MACHINE_CREATOR_ITEM = ITEMS.register("machine_creator_item", () ->  new MachineCreatorItem(new Item.Properties().group(GROUP).maxStackSize(1)));
     public static final RegistryObject<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().group(GROUP).maxStackSize(1)));
 

@@ -68,9 +68,7 @@ public class CustomMachineBlock extends Block {
         if(tile instanceof CustomMachineTile) {
             CustomMachineTile customMachineTile = (CustomMachineTile)tile;
             CustomMachine machine = customMachineTile.getMachine();
-            ItemStack stack = new ItemStack(Registration.CUSTOM_MACHINE_ITEM.get());
-            stack.getOrCreateTag().putString("id", machine.getId().toString());
-            return stack;
+            return CustomMachineItem.makeMachineItem(machine.getId());
         }
         return super.getPickBlock(state, target, world, pos, player);
     }
@@ -84,9 +82,7 @@ public class CustomMachineBlock extends Block {
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machine = (CustomMachineTile) tile;
                 machine.componentManager.getComponent(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(component -> ((ItemComponentHandler)component).getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
-                ItemStack machineItem = new ItemStack(Registration.CUSTOM_MACHINE_ITEM.get());
-                machineItem.getOrCreateTag().putString("id", machine.getMachine().getId().toString());
-                InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), machineItem);
+                InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
             }
         }
     }

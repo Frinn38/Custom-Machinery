@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.data.component;
 
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
