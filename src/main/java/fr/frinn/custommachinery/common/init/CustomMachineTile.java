@@ -13,7 +13,6 @@ import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
 import fr.frinn.custommachinery.common.util.FuelManager;
-import fr.frinn.custommachinery.common.util.RedstoneManager;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -49,7 +48,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     public MachineComponentManager componentManager;
     public SoundManager soundManager;
     public FuelManager fuelManager = new FuelManager(this);
-    public RedstoneManager redstoneManager = new RedstoneManager(this);
 
     public CustomMachineTile() {
         super(Registration.CUSTOM_MACHINE_TILE.get());
@@ -80,7 +78,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
             return;
 
         if(!this.world.isRemote()) {
-            this.redstoneManager.tick();
             this.fuelManager.tick();
             this.componentManager.tick();
             this.craftingManager.tick();

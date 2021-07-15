@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -145,7 +146,7 @@ public class CustomMachineBlock extends Block {
     public int getComparatorInputOverride(BlockState state, World world, BlockPos pos) {
         TileEntity tile = world.getTileEntity(pos);
         if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).redstoneManager.getComparatorInput();
+            return ((CustomMachineTile)tile).componentManager.getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getComparatorInput).orElse(0);
         return 0;
     }
 
@@ -155,7 +156,7 @@ public class CustomMachineBlock extends Block {
     public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity tile = world.getTileEntity(pos);
         if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).redstoneManager.getPowerOutput();
+            return ((CustomMachineTile)tile).componentManager.getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
         return 0;
     }
 
@@ -165,7 +166,7 @@ public class CustomMachineBlock extends Block {
     public int getWeakPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity tile = world.getTileEntity(pos);
         if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).redstoneManager.getPowerOutput();
+            return ((CustomMachineTile)tile).componentManager.getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
         return 0;
     }
 }

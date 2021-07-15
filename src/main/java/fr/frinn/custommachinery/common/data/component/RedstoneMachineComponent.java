@@ -10,7 +10,7 @@ import net.minecraft.util.Direction;
 
 import java.util.stream.Stream;
 
-public class RedstoneMachineComponent extends AbstractMachineComponent {
+public class RedstoneMachineComponent extends AbstractMachineComponent implements ITickableComponent {
 
     private int powerToPause;
     private int craftingPowerOutput;
@@ -32,6 +32,21 @@ public class RedstoneMachineComponent extends AbstractMachineComponent {
     @Override
     public MachineComponentType<RedstoneMachineComponent> getType() {
         return Registration.REDSTONE_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public void tick() {
+        if(!getManager().getTile().isPaused() && this.shouldPauseMachine())
+            getManager().getTile().setPaused(true);
+        if(getManager().getTile().isPaused() && !this.shouldPauseMachine())
+            getManager().getTile().setPaused(false);
+    }
+
+    private boolean shouldPauseMachine() {
+        if(getManager().getTile().getWorld() == null)
+            return false;
+        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getTile().getWorld().getRedstonePower(getManager().getTile().getPos(), direction)).max().orElse(0) >=
+                getManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerToPause).orElse(1);
     }
 
     public int getPowerToPause() {
