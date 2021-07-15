@@ -12,7 +12,6 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
-import fr.frinn.custommachinery.common.util.FuelManager;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -47,7 +46,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     public CraftingManager craftingManager;
     public MachineComponentManager componentManager;
     public SoundManager soundManager;
-    public FuelManager fuelManager = new FuelManager(this);
 
     public CustomMachineTile() {
         super(Registration.CUSTOM_MACHINE_TILE.get());
@@ -78,7 +76,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
             return;
 
         if(!this.world.isRemote()) {
-            this.fuelManager.tick();
             this.componentManager.tick();
             this.craftingManager.tick();
 
@@ -131,7 +128,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         super.write(nbt);
         nbt.putString("machineID", this.id.toString());
         nbt.put("craftingManager", this.craftingManager.serializeNBT());
-        nbt.put("fuelManager", this.fuelManager.serializeNBT());
         nbt.put("componentManager", this.componentManager.serializeNBT());
         return nbt;
     }
@@ -145,9 +141,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
         if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
             this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
-
-        if(nbt.contains("fuelManager", Constants.NBT.TAG_COMPOUND))
-            this.fuelManager.deserializeNBT(nbt.getCompound("fuelManager"));
 
         if(nbt.contains("componentManager", Constants.NBT.TAG_COMPOUND))
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
@@ -238,7 +231,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         this.craftingManager.getStuffToSync(container);
         this.componentManager.getStuffToSync(container);
-        this.fuelManager.getStuffToSync(container);
     }
 
     /**CLIENT STUFF**/
