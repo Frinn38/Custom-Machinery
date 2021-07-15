@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.network.sync;
 
+import fr.frinn.custommachinery.api.network.AbstractSyncable;
 import fr.frinn.custommachinery.common.network.sync.data.DoubleData;
 
 import java.util.function.Consumer;

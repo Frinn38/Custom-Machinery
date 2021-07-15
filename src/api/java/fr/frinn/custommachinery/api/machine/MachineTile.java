@@ -9,6 +9,9 @@ import net.minecraft.tileentity.TileEntityType;
  */
 public abstract class MachineTile extends TileEntity {
 
+    /**
+     * Default constructor.
+     */
     public MachineTile(TileEntityType<?> tileEntityTypeIn) {
         super(tileEntityTypeIn);
     }

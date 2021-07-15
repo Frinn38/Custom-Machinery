@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.network.sync;
 
+import fr.frinn.custommachinery.api.network.AbstractSyncable;
 import fr.frinn.custommachinery.common.network.sync.data.ItemStackData;
 import net.minecraft.item.ItemStack;
 
