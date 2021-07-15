@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -11,8 +14,8 @@ import java.util.function.Predicate;
 
 public class EffectMachineComponent extends AbstractMachineComponent {
 
-    public EffectMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.NONE);
+    public EffectMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.NONE);
     }
 
     @Override

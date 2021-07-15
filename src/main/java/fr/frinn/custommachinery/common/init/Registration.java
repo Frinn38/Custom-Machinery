@@ -1,6 +1,9 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.client.render.element.*;
 import fr.frinn.custommachinery.client.render.element.jei.EnergyJEIIngredientRenderer;
 import fr.frinn.custommachinery.client.render.element.jei.FluidStackIngredientRenderer;
@@ -70,7 +73,7 @@ public class Registration {
     public static final DeferredRegister<DataType<?, ?>> DATA = DeferredRegister.create((Class)DataType.class, CustomMachinery.MODID);
 
     public static final Supplier<IForgeRegistry<GuiElementType<? extends IGuiElement>>> GUI_ELEMENT_TYPE_REGISTRY = GUI_ELEMENTS.makeRegistry("gui_element_type", RegistryBuilder::new);
-    public static final Supplier<IForgeRegistry<MachineComponentType<? extends IMachineComponent>>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry("machine_component_type", RegistryBuilder::new);
+    public static final Supplier<IForgeRegistry<MachineComponentType<? extends IMachineComponent>>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry("component_type", RegistryBuilder::new);
     public static final Supplier<IForgeRegistry<RequirementType<? extends IRequirement<?>>>> REQUIREMENT_TYPE_REGISTRY = REQUIREMENTS.makeRegistry("requirement_type", RegistryBuilder::new);
     public static final Supplier<IForgeRegistry<DataType<?, ?>>> DATA_REGISTRY = DATA.makeRegistry("data_type", RegistryBuilder::new);
 

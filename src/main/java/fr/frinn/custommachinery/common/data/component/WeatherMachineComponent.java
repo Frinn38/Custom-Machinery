@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -12,8 +15,8 @@ import java.util.Locale;
 
 public class WeatherMachineComponent extends AbstractMachineComponent {
 
-    public WeatherMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.NONE);
+    public WeatherMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.NONE);
     }
 
     @Override

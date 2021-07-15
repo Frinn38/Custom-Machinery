@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.network.sync.data;
 
+import fr.frinn.custommachinery.api.network.DataType;
+import fr.frinn.custommachinery.api.network.IData;
+
 public abstract class Data<T> implements IData<T> {
 
     private DataType<?, T> type;

@@ -1,9 +1,13 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.common.data.component.*;
+import fr.frinn.custommachinery.api.components.ICapabilityComponent;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.ISerializableComponent;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
@@ -25,11 +29,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityMachineComponent, IComponentSerializable, ISyncableStuff {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityComponent, ISerializableComponent, ISyncableStuff {
 
     private LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);
 
-    public FluidComponentHandler(MachineComponentManager manager) {
+    public FluidComponentHandler(IMachineComponentManager manager) {
         super(manager);
     }
 

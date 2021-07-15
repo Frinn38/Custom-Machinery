@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.network.sync;
+package fr.frinn.custommachinery.api.network;
 
 import java.util.function.Consumer;
 

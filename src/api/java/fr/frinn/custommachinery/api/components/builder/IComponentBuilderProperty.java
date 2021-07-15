@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data.builder.component.property;
+package fr.frinn.custommachinery.api.components.builder;
 
 import net.minecraft.client.gui.widget.Widget;
 

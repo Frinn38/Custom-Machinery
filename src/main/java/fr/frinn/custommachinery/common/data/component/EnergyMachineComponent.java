@@ -2,9 +2,10 @@ package fr.frinn.custommachinery.common.data.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -19,7 +20,7 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ICapabilityMachineComponent, IComponentSerializable, ISyncableStuff, IComparatorInputComponent {
+public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ICapabilityComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent {
 
     private int energy;
     private int capacity;
@@ -30,8 +31,8 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     private int actualTickOutput;
     private LazyOptional<EnergyMachineComponent> capability = LazyOptional.of(() -> this);
 
-    public EnergyMachineComponent(MachineComponentManager manager, int capacity, int maxInput, int maxOutput) {
-        super(manager, Mode.BOTH);
+    public EnergyMachineComponent(IMachineComponentManager manager, int capacity, int maxInput, int maxOutput) {
+        super(manager, ComponentIOMode.BOTH);
         this.energy = 0;
         this.capacity = capacity;
         this.maxInput = maxInput;
@@ -204,7 +205,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         }
 
         @Override
-        public EnergyMachineComponent build(MachineComponentManager manager) {
+        public EnergyMachineComponent build(IMachineComponentManager manager) {
             return new EnergyMachineComponent(manager, this.capacity, this.maxInput, this.maxOutput);
         }
     }

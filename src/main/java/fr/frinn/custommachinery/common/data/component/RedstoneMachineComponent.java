@@ -2,9 +2,10 @@ package fr.frinn.custommachinery.common.data.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.Direction;
 
 import java.util.stream.Stream;
@@ -18,8 +19,8 @@ public class RedstoneMachineComponent extends AbstractMachineComponent {
     private MachineComponentType<?> comparatorInputType;
     private String comparatorInputID;
 
-    public RedstoneMachineComponent(MachineComponentManager manager, int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
-        super(manager, Mode.BOTH);
+    public RedstoneMachineComponent(IMachineComponentManager manager, int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
+        super(manager, ComponentIOMode.BOTH);
         this.powerToPause = powerToPause;
         this.craftingPowerOutput = craftingPowerOutput;
         this.idlePowerOutput = idlePowerOutput;
@@ -38,7 +39,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent {
     }
 
     public int getPowerOutput() {
-        switch (this.getManager().getTile().craftingManager.getStatus()) {
+        switch (((CustomMachineTile)this.getManager().getTile()).craftingManager.getStatus()) {
             case PAUSED:
             case IDLE:
                 return this.idlePowerOutput;
@@ -51,7 +52,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent {
     }
 
     public int getComparatorInput() {
-        return this.getManager().getTile().componentManager.getOptionalComponent(this.comparatorInputType).map(component -> {
+        return ((CustomMachineTile)this.getManager().getTile()).componentManager.getComponent(this.comparatorInputType).map(component -> {
             if(component instanceof IComparatorInputComponent)
                 return (IComparatorInputComponent)component;
             else if(component instanceof IComponentHandler)
@@ -72,7 +73,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent {
                         Codec.INT.optionalFieldOf("craftingpoweroutput", 0).forGetter(template -> template.craftingPowerOutput),
                         Codec.INT.optionalFieldOf("idlepoweroutput", 0).forGetter(template -> template.idlePowerOutput),
                         Codec.INT.optionalFieldOf("erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
-                        Codecs.MACHINE_COMPONENT_TYPE_CODEC.optionalFieldOf("comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
+                        MachineComponentType.CODEC.optionalFieldOf("comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
                         Codec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputID)
                 ).apply(templateInstance, Template::new)
         );
@@ -99,7 +100,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent {
         }
 
         @Override
-        public RedstoneMachineComponent build(MachineComponentManager manager) {
+        public RedstoneMachineComponent build(IMachineComponentManager manager) {
             return new RedstoneMachineComponent(manager, this.powerToPause, this.craftingPowerOutput, this.idlePowerOutput, this.erroredPowerOutput, this.comparatorInputType, this.comparatorInputID);
         }
     }

@@ -1,11 +1,15 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 
 public class FuelMachineComponent extends AbstractMachineComponent {
 
-    public FuelMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.NONE);
+    public FuelMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.NONE);
     }
 
     @Override
@@ -14,6 +18,6 @@ public class FuelMachineComponent extends AbstractMachineComponent {
     }
 
     public boolean isBurning() {
-        return getManager().getTile().fuelManager.getFuel() > 0;
+        return ((CustomMachineTile)getManager().getTile()).fuelManager.getFuel() > 0;
     }
 }

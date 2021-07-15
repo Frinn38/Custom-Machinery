@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -81,7 +80,7 @@ public class CustomMachineBlock extends Block {
             TileEntity tile = world.getTileEntity(pos);
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machine = (CustomMachineTile) tile;
-                machine.componentManager.getComponent(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(component -> ((ItemComponentHandler)component).getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
+                machine.componentManager.getItemHandler().ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
                 InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
             }
         }

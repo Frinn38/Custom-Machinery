@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CustomMachineDamageSource;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -16,8 +19,8 @@ public class EntityMachineComponent extends AbstractMachineComponent {
 
     private Lazy<CustomMachineDamageSource> damageSource;
 
-    public EntityMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.BOTH);
+    public EntityMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.BOTH);
         this.damageSource = Lazy.of(() -> new CustomMachineDamageSource(manager.getTile().getMachine().getName()));
     }
 

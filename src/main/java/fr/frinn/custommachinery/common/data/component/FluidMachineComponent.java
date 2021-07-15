@@ -2,10 +2,11 @@ package fr.frinn.custommachinery.common.data.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.FluidStackSyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
@@ -21,7 +22,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
+public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
 
     private String id;
     private int capacity;
@@ -34,7 +35,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private boolean whitelist;
     private FluidStack fluidStack = FluidStack.EMPTY;
 
-    public FluidMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, boolean whitelist) {
+    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, boolean whitelist) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -209,7 +210,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                         Codec.INT.optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
                         Registry.FLUID.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
                         Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
-                        Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode",Mode.BOTH).forGetter(template -> template.mode)
+                        Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode)
                 ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode) ->
                         new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, mode)
                 )
@@ -221,9 +222,9 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         private int maxOutput;
         private List<Fluid> filter;
         private boolean whitelist;
-        private Mode mode;
+        private ComponentIOMode mode;
 
-        public Template(String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, boolean whitelist, Mode mode) {
+        public Template(String id, int capacity, int maxInput, int maxOutput, List<Fluid> filter, boolean whitelist, ComponentIOMode mode) {
             this.id = id;
             this.capacity = capacity;
             this.maxInput = maxInput;
@@ -239,7 +240,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         }
 
         @Override
-        public FluidMachineComponent build(MachineComponentManager manager) {
+        public FluidMachineComponent build(IMachineComponentManager manager) {
             return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist);
         }
     }

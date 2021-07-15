@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery.common.data.builder.component.property;
 
+import fr.frinn.custommachinery.api.components.builder.IComponentBuilderProperty;
+
 public abstract class AbstractComponentBuilderProperty<T> implements IComponentBuilderProperty<T> {
 
     private String name;

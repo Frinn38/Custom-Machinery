@@ -1,7 +1,6 @@
-package fr.frinn.custommachinery.common.network.sync.data;
+package fr.frinn.custommachinery.api.network;
 
-import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
+import fr.frinn.custommachinery.api.CustomMachineryAPI;
 import net.minecraft.network.PacketBuffer;
 
 public interface IData<T> {
@@ -18,7 +17,7 @@ public interface IData<T> {
     }
 
     static IData<?> readData(PacketBuffer buffer) {
-        DataType<?, ?> type = Registration.DATA_REGISTRY.get().getValue(buffer.readResourceLocation());
+        DataType<?, ?> type = CustomMachineryAPI.getDataRegistry().getValue(buffer.readResourceLocation());
         short id = buffer.readShort();
         return type.readData(id, buffer);
     }

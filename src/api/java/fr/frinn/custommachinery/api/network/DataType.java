@@ -1,6 +1,5 @@
-package fr.frinn.custommachinery.common.network.sync.data;
+package fr.frinn.custommachinery.api.network;
 
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -8,7 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class DataType<D extends IData<T>, T> extends ForgeRegistryEntry<DataType<?, ?>> {
+public class DataType<D extends IData<T>, T> extends ForgeRegistryEntry<DataType<? extends IData<?>, ?>> {
 
     private BiFunction<Supplier<T>, Consumer<T>, ISyncable<D, T>> builder;
     private BiFunction<Short, PacketBuffer, D> reader;

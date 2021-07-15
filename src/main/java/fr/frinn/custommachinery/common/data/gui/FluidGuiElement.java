@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.common.data.gui;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
-import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
 

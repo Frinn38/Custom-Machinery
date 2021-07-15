@@ -1,11 +1,17 @@
 package fr.frinn.custommachinery.common.data.builder.component;
 
 import com.google.common.collect.Lists;
-import fr.frinn.custommachinery.common.data.builder.component.property.IComponentBuilderProperty;
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.components.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.components.builder.IComponentBuilderProperty;
+import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.common.data.builder.component.property.IntComponentBuilderProperty;
 import fr.frinn.custommachinery.common.data.builder.component.property.ModeComponentBuilderProperty;
 import fr.frinn.custommachinery.common.data.builder.component.property.StringComponentBuilderProperty;
-import fr.frinn.custommachinery.common.data.component.*;
+import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
+import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 
 import java.util.ArrayList;
@@ -15,7 +21,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
     private StringComponentBuilderProperty id = new StringComponentBuilderProperty("id", "");
     private IntComponentBuilderProperty capacity = new IntComponentBuilderProperty("capacity", 64);
-    private ModeComponentBuilderProperty mode = new ModeComponentBuilderProperty("mode", IMachineComponent.Mode.BOTH);
+    private ModeComponentBuilderProperty mode = new ModeComponentBuilderProperty("mode", ComponentIOMode.BOTH);
     private List<IComponentBuilderProperty<?>> properties = Lists.newArrayList(id, capacity, mode);
 
     public ItemComponentBuilder fromComponent(IMachineComponent component) {

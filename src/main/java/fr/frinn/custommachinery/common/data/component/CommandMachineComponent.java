@@ -1,6 +1,9 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.command.CommandSource;
@@ -50,8 +53,8 @@ public class CommandMachineComponent extends AbstractMachineComponent {
     private final Lazy<CommandSource> sourceLog;
     private final Lazy<CommandSource> sourceNoLog;
 
-    public CommandMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.NONE);
+    public CommandMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.NONE);
         sourceLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getTile().getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getTile().getWorld().getServer(), null));
         sourceNoLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getTile().getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getTile().getWorld().getServer(), null));
     }

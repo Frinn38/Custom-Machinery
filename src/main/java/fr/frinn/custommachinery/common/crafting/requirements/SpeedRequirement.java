@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.AbstractMachineComponent;
-import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 
 public class SpeedRequirement extends AbstractRequirement<AbstractMachineComponent> {

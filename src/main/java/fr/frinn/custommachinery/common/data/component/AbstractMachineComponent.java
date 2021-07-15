@@ -1,21 +1,26 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+
 public abstract class AbstractMachineComponent implements IMachineComponent {
 
-    private MachineComponentManager manager;
-    private Mode mode;
+    private IMachineComponentManager manager;
+    private ComponentIOMode mode;
 
-    public AbstractMachineComponent(MachineComponentManager manager, Mode mode) {
+    public AbstractMachineComponent(IMachineComponentManager manager, ComponentIOMode mode) {
         this.manager = manager;
         this.mode = mode;
     }
 
     @Override
-    public Mode getMode() {
+    public ComponentIOMode getMode() {
         return this.mode;
     }
 
-    public MachineComponentManager getManager() {
+    @Override
+    public IMachineComponentManager getManager() {
         return this.manager;
     }
 }

@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
-import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
@@ -56,13 +55,11 @@ public class CustomMachineRecipe extends DummyRecipe {
     }
 
     public boolean matches(CustomMachineTile tile, CraftingContext context) {
-        return this.getMachine().equals(tile.getMachine().getId()) && this.requirements.stream().allMatch(requirement -> {
-            if(tile.componentManager.hasComponent(requirement.getComponentType())) {
-                 IMachineComponent component = tile.componentManager.getComponentRaw(requirement.getComponentType());
-                 return ((IRequirement)requirement).test(component, context);
-            }
-            else return false;
-        });
+        return this.getMachine().equals(tile.getMachine().getId()) && this.requirements.stream().allMatch(requirement ->
+            tile.componentManager.getComponent(requirement.getComponentType())
+                    .map(component -> ((IRequirement)requirement).test(component, context))
+                    .orElse(false)
+        );
     }
 
     public int getPriority() {

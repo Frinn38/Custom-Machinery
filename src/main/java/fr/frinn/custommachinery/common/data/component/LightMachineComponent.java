@@ -1,12 +1,15 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.world.LightType;
 
 public class LightMachineComponent extends AbstractMachineComponent {
 
-    public LightMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.BOTH);
+    public LightMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.BOTH);
     }
 
     @Override

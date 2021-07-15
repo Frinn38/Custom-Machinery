@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
+import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants;

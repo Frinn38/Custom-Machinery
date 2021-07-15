@@ -4,15 +4,16 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.data.component.IMachineComponent;
-import fr.frinn.custommachinery.common.data.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.components.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomMachine {
+public class CustomMachine implements ICustomMachine {
 
     public static final Codec<CustomMachine> CODEC = RecordCodecBuilder.create(machineCodec ->
         machineCodec.group(
@@ -40,16 +41,19 @@ public class CustomMachine {
         this.componentTemplates = componentTemplates;
     }
 
+    @Override
     public ResourceLocation getId() {
         return this.location.getId();
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    @Override
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public boolean isDummy() {
+        return this == DUMMY;
     }
 
     public MachineAppearance getAppearance() {

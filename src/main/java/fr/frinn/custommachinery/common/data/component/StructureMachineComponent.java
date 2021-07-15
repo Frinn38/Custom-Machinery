@@ -1,13 +1,16 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import net.minecraft.state.properties.BlockStateProperties;
 
 public class StructureMachineComponent extends AbstractMachineComponent {
 
-    public StructureMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.NONE);
+    public StructureMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.NONE);
     }
 
     @Override

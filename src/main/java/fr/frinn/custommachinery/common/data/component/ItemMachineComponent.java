@@ -2,9 +2,10 @@ package fr.frinn.custommachinery.common.data.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.network.sync.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.inventory.Inventory;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements IComponentSerializable, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
+public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
 
     private String id;
     private int capacity;
@@ -29,7 +30,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
     private ItemStack stack = ItemStack.EMPTY;
     private ItemComponentVariant variant;
 
-    public ItemMachineComponent(MachineComponentManager manager, Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
+    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
         super(manager, mode);
         this.id = id;
         this.capacity = MathHelper.clamp(capacity, 0, 64);
@@ -129,7 +130,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
         @SuppressWarnings("deprecation")
         public static final Codec<ItemMachineComponent.Template> CODEC = RecordCodecBuilder.create(itemMachineComponentTemplate ->
                 itemMachineComponentTemplate.group(
-                        Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", Mode.BOTH).forGetter(template -> template.mode),
+                        Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
                         Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
@@ -138,14 +139,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
 
-        private Mode mode;
+        private ComponentIOMode mode;
         private String id;
         private int capacity;
         private List<Item> filter;
         private boolean whitelist;
         private ItemComponentVariant variant;
 
-        public Template(Mode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
+        public Template(ComponentIOMode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
@@ -160,7 +161,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IC
         }
 
         @Override
-        public ItemMachineComponent build(MachineComponentManager manager) {
+        public ItemMachineComponent build(IMachineComponentManager manager) {
             return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.whitelist, this.variant);
         }
     }

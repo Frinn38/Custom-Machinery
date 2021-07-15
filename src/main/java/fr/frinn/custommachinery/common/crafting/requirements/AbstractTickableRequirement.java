@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
-import fr.frinn.custommachinery.common.data.component.IMachineComponent;
+import fr.frinn.custommachinery.api.components.IMachineComponent;
 
 public abstract class AbstractTickableRequirement<T extends IMachineComponent> implements ITickableRequirement<T> {
 

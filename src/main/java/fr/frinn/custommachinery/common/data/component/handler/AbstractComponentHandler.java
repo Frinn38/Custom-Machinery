@@ -1,32 +1,35 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.common.data.component.IMachineComponent;
-import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
+import com.google.common.collect.ImmutableList;
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractComponentHandler<T extends IMachineComponent> implements IComponentHandler<T> {
 
-    private MachineComponentManager manager;
+    private IMachineComponentManager manager;
     private List<T> components = new ArrayList<>();
 
-    public AbstractComponentHandler(MachineComponentManager manager) {
+    public AbstractComponentHandler(IMachineComponentManager manager) {
         this.manager = manager;
     }
 
-    public MachineComponentManager getManager() {
+    public IMachineComponentManager getManager() {
         return this.manager;
     }
 
     @Override
-    public Mode getMode() {
-        return Mode.NONE;
+    public ComponentIOMode getMode() {
+        return ComponentIOMode.NONE;
     }
 
     @Override
     public List<T> getComponents() {
-        return this.components;
+        return ImmutableList.copyOf(this.components);
     }
 
     @Override

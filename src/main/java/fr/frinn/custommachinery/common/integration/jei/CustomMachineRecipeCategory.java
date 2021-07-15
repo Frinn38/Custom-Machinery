@@ -2,15 +2,15 @@ package fr.frinn.custommachinery.common.integration.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.api.components.IFilterComponent;
+import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
 import fr.frinn.custommachinery.client.render.element.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.render.element.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.component.IFilterComponent;
-import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
-import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.data.gui.IComponentGuiElement;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;

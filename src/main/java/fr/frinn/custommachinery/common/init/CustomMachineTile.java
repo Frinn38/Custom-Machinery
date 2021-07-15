@@ -1,16 +1,17 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.components.ICapabilityComponent;
+import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
-import fr.frinn.custommachinery.common.data.component.ICapabilityMachineComponent;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.util.FuelManager;
 import fr.frinn.custommachinery.common.util.RedstoneManager;
 import fr.frinn.custommachinery.common.util.SoundManager;
@@ -22,7 +23,6 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
-public class CustomMachineTile extends TileEntity implements ITickableTileEntity, INamedContainerProvider, ISyncableStuff {
+public class CustomMachineTile extends MachineTile implements ITickableTileEntity, INamedContainerProvider, ISyncableStuff {
 
     public static final ResourceLocation DUMMY = new ResourceLocation(CustomMachinery.MODID, "dummy");
 
@@ -65,6 +65,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
     }
 
+    @Override
     public CustomMachine getMachine() {
         CustomMachine machine = CustomMachinery.MACHINES.get(getId());
         if(machine != null)
@@ -79,11 +80,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
             return;
 
         if(!this.world.isRemote()) {
-            if(!this.paused && this.redstoneManager.shouldPauseMachine())
-                this.setPaused(true);
-            if(this.paused && !this.redstoneManager.shouldPauseMachine())
-                this.setPaused(false);
-
+            this.redstoneManager.tick();
             this.fuelManager.tick();
             this.componentManager.tick();
             this.craftingManager.tick();
@@ -108,7 +105,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     protected void invalidateCaps() {
         super.invalidateCaps();
         if(this.componentManager != null)
-            this.componentManager.getCapabilityComponents().forEach(ICapabilityMachineComponent::invalidateCapability);
+            this.componentManager.getCapabilityComponents().forEach(ICapabilityComponent::invalidateCapability);
     }
 
     @Override
@@ -116,7 +113,6 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
         if(this.world != null && this.world.isRemote() && this.soundManager != null)
             this.soundManager.stop();
         super.remove();
-
     }
 
     @Nonnull
@@ -124,7 +120,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
         if(this.componentManager == null)
             return LazyOptional.empty();
-        for (ICapabilityMachineComponent component : this.componentManager.getCapabilityComponents()) {
+        for (ICapabilityComponent component : this.componentManager.getCapabilityComponents()) {
             LazyOptional<T> capability = component.getCapability(cap, side);
             if(capability != LazyOptional.empty())
                 return capability;
@@ -193,7 +189,7 @@ public class CustomMachineTile extends TileEntity implements ITickableTileEntity
     }
 
     private boolean paused = false;
-    private void setPaused(boolean paused) {
+    public void setPaused(boolean paused) {
         this.paused = paused;
     }
 

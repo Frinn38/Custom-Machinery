@@ -8,16 +8,35 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1+', changing: true
     }
 }
+
+plugins {
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+}
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.16.5-0.3.9'
+version = '1.16.5-0.4.0'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'custommachinery'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
+
+
+
+sourceSets {
+    api
+    main{
+        runtimeClasspath += sourceSets.api.output
+        compileClasspath += sourceSets.api.output
+    }
+    test
+}
+
+configurations {
+    apiImplementation.extendsFrom(implementation)
+}
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -49,6 +68,7 @@ minecraft {
             mods {
                 custommachinery {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -68,6 +88,7 @@ minecraft {
             mods {
                 custommachinery {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -86,6 +107,7 @@ minecraft {
             mods {
                 custommachinery {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -149,24 +171,37 @@ dependencies {
     runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")
 }
 
-// Example for how to get properties into the manifest for reading by the runtime..
-jar {
-    manifest {
-        attributes([
-            "Specification-Title": "custommachinery",
-            "Specification-Vendor": "frinn",
-            "Specification-Version": "1",
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"frinn",
+def getManifestAttributes(String title) {
+    return [
+            "Specification-Title"     : title,
+            "Specification-Vendor"    : "Frinn",
+            "Specification-Version"   : project.version,
+            "Implementation-Title"    : title,
+            "Implementation-Version"  : project.version,
+            "Implementation-Vendor"   : "Frinn",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
+    ]
+}
+
+jar {
+    from sourceSets.main.output.classesDirs
+    from sourceSets.main.output.resourcesDir
+    from sourceSets.api.output.classesDirs
+    from sourceSets.api.output.resourcesDir
+
+    manifest.attributes(getManifestAttributes(project.name))
+}
+
+task apiJar(type: Jar) {
+    archiveClassifier.set("api")
+    from sourceSets.api.output
+    manifest.attributes(getManifestAttributes(project.name))
 }
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar') 
+jar.finalizedBy('reobfJar')
+apiJar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
 
@@ -179,6 +214,22 @@ publishing {
     repositories {
         maven {
             url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
+if (System.getenv("CURSEFORGE")) {
+    curseforge {
+        apiKey = System.getenv("CURSEFORGE")
+        project {
+            id = "457017"
+            changelogType = "markdown"
+            changelog = ""
+            releaseType = "beta"
+            mainArtifact(jar) {
+                displayName = "Custom-Machinery-1.16.5-${project.version}"
+            }
+            addArtifact apiJar
         }
     }
 }

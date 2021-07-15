@@ -4,6 +4,8 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.requirements.BlockRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.EntityRequirement;
@@ -11,9 +13,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.MachineLocation;
-import fr.frinn.custommachinery.common.data.component.IMachineComponent;
 import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
-import fr.frinn.custommachinery.common.data.component.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
@@ -37,7 +37,7 @@ public class Codecs {
     public static final Codec<ModelResourceLocation> MODEL_RESOURCE_LOCATION_CODEC      = Codec.STRING.comapFlatMap(Codecs::decodeModelResourceLocation, ModelResourceLocation::toString).stable();
     public static final Codec<MachineAppearance.AppearanceType> APPEARANCE_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeAppearanceType, MachineAppearance.AppearanceType::toString).stable();
     public static final Codec<MachineAppearance.LightMode> LIGHT_MODE_CODEC             = Codec.STRING.comapFlatMap(Codecs::decodeLightMode, MachineAppearance.LightMode::toString).stable();
-    public static final Codec<IMachineComponent.Mode> COMPONENT_MODE_CODEC              = Codec.STRING.comapFlatMap(Codecs::decodeMachineComponentMode, IMachineComponent.Mode::toString).stable();
+    public static final Codec<ComponentIOMode> COMPONENT_MODE_CODEC              = Codec.STRING.comapFlatMap(Codecs::decodeMachineComponentMode, ComponentIOMode::toString).stable();
     public static final Codec<IRequirement.MODE> REQUIREMENT_MODE_CODEC                 = Codec.STRING.comapFlatMap(Codecs::decodeRecipeRequirementMode, IRequirement.MODE::toString).stable();
     public static final Codec<MachineLocation.Loader> LOADER_CODEC                      = Codec.STRING.comapFlatMap(Codecs::decodeLoader, MachineLocation.Loader::toString).stable();
     public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC             = Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString).stable();
@@ -54,7 +54,6 @@ public class Codecs {
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString).stable();
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                            = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName).stable();
-    public static final Codec<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_CODEC          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeMachineComponentType, MachineComponentType::getRegistryName).stable();
     public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName).stable();
     public static final Codec<ItemComponentVariant> ITEM_COMPONENT_VARIANT_CODEC                                       = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeItemComponentVariant, ItemComponentVariant::getId).stable();
 
@@ -76,9 +75,9 @@ public class Codecs {
         }
     }
 
-    private static DataResult<IMachineComponent.Mode> decodeMachineComponentMode(String encoded) {
+    private static DataResult<ComponentIOMode> decodeMachineComponentMode(String encoded) {
         try {
-            return DataResult.success(IMachineComponent.Mode.value(encoded));
+            return DataResult.success(ComponentIOMode.value(encoded));
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid Machine Component Mode: " + encoded + " " + e.getMessage());
         }

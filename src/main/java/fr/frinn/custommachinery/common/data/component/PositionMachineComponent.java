@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.data.component;
 
+import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
@@ -8,8 +11,8 @@ import net.minecraft.world.biome.Biome;
 
 public class PositionMachineComponent extends AbstractMachineComponent {
 
-    public PositionMachineComponent(MachineComponentManager manager) {
-        super(manager, Mode.NONE);
+    public PositionMachineComponent(IMachineComponentManager manager) {
+        super(manager, ComponentIOMode.NONE);
     }
 
     @Override

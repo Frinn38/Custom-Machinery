@@ -1,9 +1,10 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.common.data.component.*;
+import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -26,12 +27,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityMachineComponent, IComponentSerializable, ITickableMachineComponent, ISyncableStuff {
+public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityComponent, ISerializableComponent, ITickableComponent, ISyncableStuff {
 
     private LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
     private final Random rand = new Random();
 
-    public ItemComponentHandler(MachineComponentManager manager) {
+    public ItemComponentHandler(IMachineComponentManager manager) {
         super(manager);
     }
 

@@ -1,6 +1,4 @@
-package fr.frinn.custommachinery.common.network.sync;
-
-import fr.frinn.custommachinery.common.network.sync.data.IData;
+package fr.frinn.custommachinery.api.network;
 
 public interface ISyncable<D extends IData, T> {
 

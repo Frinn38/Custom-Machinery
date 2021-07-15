@@ -1,14 +1,15 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import com.google.common.collect.Lists;
+import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.data.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
-import fr.frinn.custommachinery.common.network.sync.ISyncable;
-import fr.frinn.custommachinery.common.network.sync.ISyncableStuff;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -21,7 +22,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
+public class MachineComponentManager implements IMachineComponentManager, INBTSerializable<CompoundNBT> {
 
     private List<IMachineComponent> components;
     private CustomMachineTile tile;
@@ -47,48 +48,48 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
         Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(MachineComponentType::isDefaultComponent).forEach(ACTION -> this.components.add(ACTION.getDefaultComponentBuilder().apply(this)));
     }
 
+    @Override
     public List<IMachineComponent> getComponents() {
         return Lists.newArrayList(this.components);
     }
 
-    public List<ICapabilityMachineComponent> getCapabilityComponents() {
-        return this.components.stream().filter(component -> component instanceof ICapabilityMachineComponent).map(component -> (ICapabilityMachineComponent)component).collect(Collectors.toList());
+    @Override
+    public List<ICapabilityComponent> getCapabilityComponents() {
+        return this.components.stream().filter(component -> component instanceof ICapabilityComponent).map(component -> (ICapabilityComponent)component).collect(Collectors.toList());
     }
 
-    public List<IComponentSerializable> getSerializableComponents() {
-        return this.components.stream().filter(component -> component instanceof IComponentSerializable).map(component -> (IComponentSerializable)component).collect(Collectors.toList());
+    @Override
+    public List<ISerializableComponent> getSerializableComponents() {
+        return this.components.stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).collect(Collectors.toList());
     }
 
-    public List<ITickableMachineComponent> getTickableComponents() {
-        return this.components.stream().filter(component -> component instanceof ITickableMachineComponent).map(component -> (ITickableMachineComponent)component).collect(Collectors.toList());
+    @Override
+    public List<ITickableComponent> getTickableComponents() {
+        return this.components.stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).collect(Collectors.toList());
     }
 
     public List<IProbeInfoComponent> getProbeInfoComponents() {
         return this.components.stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).collect(Collectors.toList());
     }
 
+    @Override
     public List<ISyncableStuff> getSyncableComponents() {
         return this.components.stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(Collectors.toList());
     }
 
-    public IMachineComponent getComponentRaw(MachineComponentType ACTION) {
-        return this.components.stream().filter(component -> component.getType() == ACTION).findFirst().get();
+    @Override
+    public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type) {
+        return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
     }
 
-    public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType ACTION) {
-        return this.components.stream().filter(component -> component.getType() == ACTION).map(component -> (T)component).findFirst();
-    }
-
-    public <T extends IMachineComponent> Optional<T> getOptionalComponent(MachineComponentType<T> ACTION) {
-        return this.components.stream().filter(component -> component.getType() == ACTION).map(component -> (T)component).findFirst();
-    }
-
+    @Override
     public List<IComparatorInputComponent> getComparatorInputComponents() {
         return this.components.stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(Collectors.toList());
     }
 
-    public boolean hasComponent(MachineComponentType ACTION) {
-        return this.components.stream().anyMatch(component -> component.getType() == ACTION);
+    @Override
+    public boolean hasComponent(MachineComponentType<?> type) {
+        return this.components.stream().anyMatch(component -> component.getType() == type);
     }
 
     public Optional<EnergyMachineComponent> getEnergy() {
@@ -96,17 +97,18 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
     }
 
     public Optional<FluidComponentHandler> getFluidHandler() {
-        return getComponent(Registration.FLUID_MACHINE_COMPONENT.get());
+        return getComponent((MachineComponentType)Registration.FLUID_MACHINE_COMPONENT.get());
     }
 
     public Optional<ItemComponentHandler> getItemHandler() {
-        return getComponent(Registration.ITEM_MACHINE_COMPONENT.get());
+        return getComponent((MachineComponentType)Registration.ITEM_MACHINE_COMPONENT.get());
     }
 
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         getSyncableComponents().forEach(syncableComponent -> syncableComponent.getStuffToSync(container));
     }
 
+    @Override
     public CustomMachineTile getTile() {
         return this.tile;
     }
@@ -114,7 +116,7 @@ public class MachineComponentManager implements INBTSerializable<CompoundNBT> {
     public void tick() {
         if(this.tile.isPaused())
             return;
-        getTickableComponents().forEach(ITickableMachineComponent::tick);
+        getTickableComponents().forEach(ITickableComponent::tick);
         getEnergy().ifPresent(energyComponent -> {
             for (Direction direction : Direction.values()) {
                 TileEntity tile = this.tile.getWorld().getTileEntity(this.tile.getPos().offset(direction));
