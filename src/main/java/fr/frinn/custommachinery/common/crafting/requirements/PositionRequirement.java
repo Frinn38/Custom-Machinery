@@ -31,7 +31,8 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
                 ResourceLocation.CODEC.listOf().optionalFieldOf("biomes", new ArrayList<>()).forGetter(requirement -> requirement.biomes),
                 Codec.BOOL.optionalFieldOf("biomesBlacklist", false).forGetter(requirement -> requirement.biomesBlacklist),
                 ResourceLocation.CODEC.listOf().optionalFieldOf("dimensions", new ArrayList<>()).forGetter(requirement -> requirement.dimensions.stream().map(RegistryKey::getLocation).collect(Collectors.toList())),
-                Codec.BOOL.optionalFieldOf("dimensionsBlacklist", false).forGetter(requirement -> requirement.dimensionsBlacklist)
+                Codec.BOOL.optionalFieldOf("dimensionsBlacklist", false).forGetter(requirement -> requirement.dimensionsBlacklist),
+                Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
         ).apply(positionRequirementInstance, PositionRequirement::new)
     );
 
@@ -40,14 +41,16 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     private boolean biomesBlacklist;
     private List<RegistryKey<World>> dimensions;
     private boolean dimensionsBlacklist;
+    private boolean jeiVisible;
 
-    public PositionRequirement(List<PositionComparator> positions, List<ResourceLocation> biomes, boolean biomesBlacklist, List<ResourceLocation> dimensions, boolean dimensionsBlacklist) {
+    public PositionRequirement(List<PositionComparator> positions, List<ResourceLocation> biomes, boolean biomesBlacklist, List<ResourceLocation> dimensions, boolean dimensionsBlacklist, boolean jeiVisible) {
         super(MODE.INPUT);
         this.positions = positions;
         this.biomes = biomes;
         this.biomesBlacklist = biomesBlacklist;
         this.dimensions = dimensions.stream().map(location -> RegistryKey.getOrCreateKey(Registry.WORLD_KEY, location)).collect(Collectors.toList());
         this.dimensionsBlacklist = dimensionsBlacklist;
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -102,6 +105,7 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
                 info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.whitelist").mergeStyle(TextFormatting.AQUA));
             this.biomes.forEach(dimension -> info.addTooltip(new StringTextComponent("* " + dimension)));
         }
+        info.setVisible(this.jeiVisible);
         return info;
     }
 }

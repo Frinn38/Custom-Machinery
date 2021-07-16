@@ -16,6 +16,7 @@ public class RequirementDisplayInfo {
     private int v;
     private List<ITextComponent> tooltips = new ArrayList<>();
     private BiConsumer<CustomMachine, Integer> clickAction;
+    private boolean visible = true;
 
     public RequirementDisplayInfo setIcon(ResourceLocation icon, int u, int v) {
         this.icon = icon;
@@ -63,5 +64,14 @@ public class RequirementDisplayInfo {
             return true;
         }
         return false;
+    }
+
+    public RequirementDisplayInfo setVisible(boolean visible) {
+        this.visible = visible;
+        return this;
+    }
+
+    public boolean isVisible() {
+        return this.visible;
     }
 }

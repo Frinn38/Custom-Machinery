@@ -23,15 +23,17 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
     public static final Codec<StructureRequirement> CODEC = RecordCodecBuilder.create(structureRequirementInstance ->
             structureRequirementInstance.group(
                     Codec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
-                    Codec.unboundedMap(Codecs.CHARACTER_CODEC, Codecs.PARTIAL_BLOCK_STATE_CODEC).fieldOf("keys").forGetter(requirement -> requirement.keys)
+                    Codec.unboundedMap(Codecs.CHARACTER_CODEC, Codecs.PARTIAL_BLOCK_STATE_CODEC).fieldOf("keys").forGetter(requirement -> requirement.keys),
+                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(structureRequirementInstance, StructureRequirement::new)
     );
 
     private List<List<String>> pattern;
     private Map<Character, PartialBlockState> keys;
     private BlockStructure structure;
+    private boolean jeiVisible;
 
-    public StructureRequirement(List<List<String>> pattern, Map<Character, PartialBlockState> keys) {
+    public StructureRequirement(List<List<String>> pattern, Map<Character, PartialBlockState> keys, boolean jeiVisible) {
         super(MODE.INPUT);
         this.pattern = pattern;
         this.keys = keys;
@@ -41,6 +43,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
         for(Map.Entry<Character, PartialBlockState> key : keys.entrySet())
             builder.where(key.getKey(), key.getValue());
         this.structure = builder.build();
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -81,6 +84,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.info"));
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.click"));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
+        info.setVisible(this.jeiVisible);
         return info;
     }
 }

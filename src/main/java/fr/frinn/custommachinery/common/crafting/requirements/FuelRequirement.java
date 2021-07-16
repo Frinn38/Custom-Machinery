@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -12,10 +13,17 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComponent> implements IDisplayInfoRequirement<FuelMachineComponent> {
 
-    public static final Codec<FuelRequirement> CODEC = Codec.unit(FuelRequirement::new);
+    public static final Codec<FuelRequirement> CODEC = RecordCodecBuilder.create(fuelRequirementInstance ->
+            fuelRequirementInstance.group(
+                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+            ).apply(fuelRequirementInstance, FuelRequirement::new)
+    );
 
-    public FuelRequirement() {
+    private boolean jeiVisible;
+
+    public FuelRequirement(boolean jeiVisible) {
         super(MODE.INPUT);
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -55,6 +63,7 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
     @Override
     public RequirementDisplayInfo getDisplayInfo() {
         return new RequirementDisplayInfo()
+                .setVisible(this.jeiVisible)
                 .addTooltip(new TranslationTextComponent("custommachinery.requirements.fuel.info"));
     }
 }

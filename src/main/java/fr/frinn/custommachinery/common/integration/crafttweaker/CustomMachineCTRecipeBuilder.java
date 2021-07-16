@@ -165,14 +165,14 @@ public class CustomMachineCTRecipeBuilder {
     public CustomMachineCTRecipeBuilder requireTimes(String[] times) {
         List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).collect(Collectors.toList());
         if(!timeComparators.isEmpty())
-            this.builder.withRequirement(new TimeRequirement(timeComparators));
+            this.builder.withRequirement(new TimeRequirement(timeComparators, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireTime(String time) {
         TimeComparator timeComparator = Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(time)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + time)).getFirst();
-        this.builder.withRequirement(new TimeRequirement(Collections.singletonList(timeComparator)));
+        this.builder.withRequirement(new TimeRequirement(Collections.singletonList(timeComparator), true));
         return this;
     }
 
@@ -182,27 +182,27 @@ public class CustomMachineCTRecipeBuilder {
     public CustomMachineCTRecipeBuilder requirePositions(String[] positions) {
         List<PositionComparator> positionComparators = Stream.of(positions).map(s -> Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s)).getFirst()).collect(Collectors.toList());
         if(!positionComparators.isEmpty())
-            this.builder.withRequirement(new PositionRequirement(positionComparators, Collections.emptyList(), false, Collections.emptyList(), false));
+            this.builder.withRequirement(new PositionRequirement(positionComparators, Collections.emptyList(), false, Collections.emptyList(), false, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requirePosition(String position) {
         PositionComparator positionComparator = Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(position)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + position)).getFirst();
-        this.builder.withRequirement(new PositionRequirement(Collections.singletonList(positionComparator), Collections.emptyList(), false, Collections.emptyList(), false));
+        this.builder.withRequirement(new PositionRequirement(Collections.singletonList(positionComparator), Collections.emptyList(), false, Collections.emptyList(), false, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireBiomes(Biome[] biomes, @OptionalBoolean() boolean blacklist) {
         List<ResourceLocation> biomesID = Arrays.stream(biomes).map(Biome::getRegistryName).collect(Collectors.toList());
-        this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), biomesID, blacklist, Collections.emptyList(), false));
+        this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), biomesID, blacklist, Collections.emptyList(), false, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireBiome(Biome biome, @OptionalBoolean() boolean blacklist) {
-        this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), Collections.singletonList(biome.getRegistryName()), blacklist, Collections.emptyList(), false));
+        this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), Collections.singletonList(biome.getRegistryName()), blacklist, Collections.emptyList(), false, true));
         return this;
     }
 
@@ -210,7 +210,7 @@ public class CustomMachineCTRecipeBuilder {
     public CustomMachineCTRecipeBuilder requireDimensions(String[] dimensions, @OptionalBoolean boolean blacklist) {
         try {
             List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).map(ResourceLocation::new).collect(Collectors.toList());
-            this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, dimensionsID, blacklist));
+            this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, dimensionsID, blacklist, true));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimension ID: " + e.getMessage());
         }
@@ -220,7 +220,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireDimension(String dimension, @OptionalBoolean boolean blacklist) {
         try {
-            this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, Collections.singletonList(new ResourceLocation(dimension)), blacklist));
+            this.builder.withRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, Collections.singletonList(new ResourceLocation(dimension)), blacklist, true));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimensions ID: " + e.getMessage());
         }
@@ -231,7 +231,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireFuel() {
-        this.builder.withRequirement(new FuelRequirement());
+        this.builder.withRequirement(new FuelRequirement(true));
         return this;
     }
 
@@ -239,19 +239,19 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder runCommandOnStart(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log, @OptionalDouble(1.0D) double chance) {
-        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.STARTING, permissionLevel, log, chance));
+        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.STARTING, permissionLevel, log, chance, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder runCommandEachTick(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log, @OptionalDouble(1.0D) double chance) {
-        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING, permissionLevel, log, chance));
+        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING, permissionLevel, log, chance, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder runCommandOnEnd(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log, @OptionalDouble(1.0D) double chance) {
-        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.ENDING, permissionLevel, log, chance));
+        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.ENDING, permissionLevel, log, chance, true));
         return this;
     }
 
@@ -259,13 +259,13 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder giveEffectAtEnd(Effect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
-        this.builder.withRequirement(new EffectRequirement(effect, time, level, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), true));
+        this.builder.withRequirement(new EffectRequirement(effect, time, level, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), true, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder giveEffectEachTick(Effect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
-        this.builder.withRequirement(new EffectRequirement(effect, time, level, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), false));
+        this.builder.withRequirement(new EffectRequirement(effect, time, level, radius, Arrays.stream(filter).map(MCEntityType::getInternal).collect(Collectors.toList()), false, true));
         return this;
     }
 
@@ -273,7 +273,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireWeather(String weatherType, @OptionalBoolean(true) boolean onMachine) {
-        this.builder.withRequirement(new WeatherRequirement(WeatherMachineComponent.WeatherType.value(weatherType), onMachine));
+        this.builder.withRequirement(new WeatherRequirement(WeatherMachineComponent.WeatherType.value(weatherType), onMachine, true));
         return this;
     }
 
@@ -281,7 +281,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireRedstone(int power, @OptionalString(">=") String comparator) {
-        this.builder.withRequirement(new RedstoneRequirement(power, ComparatorMode.value(comparator)));
+        this.builder.withRequirement(new RedstoneRequirement(power, ComparatorMode.value(comparator), true));
         return this;
     }
 
@@ -327,13 +327,13 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireSkyLight(int level, @OptionalString(">=") String comparator) {
-        this.builder.withRequirement(new LightRequirement(level, ComparatorMode.value(comparator), true));
+        this.builder.withRequirement(new LightRequirement(level, ComparatorMode.value(comparator), true, true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireBlockLight(int level, @OptionalString(">=") String comparator) {
-        this.builder.withRequirement(new LightRequirement(level, ComparatorMode.value(comparator), false));
+        this.builder.withRequirement(new LightRequirement(level, ComparatorMode.value(comparator), false, true));
         return this;
     }
 
@@ -342,77 +342,77 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireBlock(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalString(">=") String comparator) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, bb, amount, ComparatorMode.value(comparator), new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, bb, amount, ComparatorMode.value(comparator), new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder placeBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder placeBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block)));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
         return this;
     }
 

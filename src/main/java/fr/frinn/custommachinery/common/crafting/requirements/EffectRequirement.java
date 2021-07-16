@@ -32,7 +32,8 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
                     Codec.INT.optionalFieldOf("level", 1).forGetter(requirement -> requirement.level),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
                     Registry.ENTITY_TYPE.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
-                    Codec.BOOL.optionalFieldOf("finish", false).forGetter(requirement -> requirement.applyAtEnd)
+                    Codec.BOOL.optionalFieldOf("finish", false).forGetter(requirement -> requirement.applyAtEnd),
+                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(effectRequirementInstance, EffectRequirement::new)
     );
 
@@ -42,8 +43,9 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
     private int radius;
     private List<EntityType<?>> filter;
     private boolean applyAtEnd;
+    private boolean jeiVisible;
 
-    public EffectRequirement(Effect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd) {
+    public EffectRequirement(Effect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd, boolean jeiVisible) {
         super(MODE.OUTPUT);
         this.effect = effect;
         this.time = time;
@@ -51,6 +53,7 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
         this.radius = radius;
         this.filter = filter;
         this.applyAtEnd = applyAtEnd;
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -106,6 +109,7 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
             info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.whitelist").mergeStyle(TextFormatting.AQUA));
             this.filter.forEach(type -> info.addTooltip(new StringTextComponent("* ").appendSibling(new TranslationTextComponent(type.getTranslationKey()))));
         }
+        info.setVisible(this.jeiVisible);
         return info;
     }
 }

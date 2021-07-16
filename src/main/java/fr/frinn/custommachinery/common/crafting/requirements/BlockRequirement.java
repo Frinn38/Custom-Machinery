@@ -30,7 +30,8 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                     Codecs.BOX_CODEC.fieldOf("pos").forGetter(requirement -> requirement.pos),
                     Codec.INT.optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
                     Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
-                    Codecs.PARTIAL_BLOCK_STATE_CODEC.fieldOf("block").orElse((Consumer<String>) CustomMachinery.LOGGER::error, PartialBlockState.AIR).forGetter(requirement -> requirement.block)
+                    Codecs.PARTIAL_BLOCK_STATE_CODEC.fieldOf("block").orElse((Consumer<String>) CustomMachinery.LOGGER::error, PartialBlockState.AIR).forGetter(requirement -> requirement.block),
+                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(blockRequirementInstance, BlockRequirement::new)
     );
 
@@ -39,14 +40,16 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     private int amount;
     private ComparatorMode comparator;
     private PartialBlockState block;
+    private boolean jeiVisible;
 
-    public BlockRequirement(MODE mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block) {
+    public BlockRequirement(MODE mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block, boolean jeiVisible) {
         super(mode);
         this.action = action;
         this.pos = pos;
         this.amount = amount;
         this.comparator = comparator;
         this.block = block;
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -183,6 +186,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
         this.block.getProperties().forEach(property -> info.addTooltip(new StringTextComponent("* " + property)));
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.info.box"));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
+        info.setVisible(this.jeiVisible);
         return info;
     }
 

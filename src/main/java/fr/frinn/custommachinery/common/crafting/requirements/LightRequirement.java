@@ -19,19 +19,22 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
             lightRequirementInstance.group(
                     Codec.INT.fieldOf("light").forGetter(requirement -> requirement.light),
                     Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
-                    Codec.BOOL.optionalFieldOf("sky", false).forGetter(requirement -> requirement.sky)
+                    Codec.BOOL.optionalFieldOf("sky", false).forGetter(requirement -> requirement.sky),
+                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(lightRequirementInstance, LightRequirement::new)
     );
 
     private int light;
     private ComparatorMode comparator;
     private boolean sky;
+    private boolean jeiVisible;
 
-    public LightRequirement(int light, ComparatorMode comparator, boolean sky) {
+    public LightRequirement(int light, ComparatorMode comparator, boolean sky, boolean jeiVisible) {
         super(MODE.INPUT);
         this.light = light;
         this.comparator = comparator;
         this.sky = sky;
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -82,6 +85,7 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
     @Override
     public RequirementDisplayInfo getDisplayInfo() {
         RequirementDisplayInfo info = new RequirementDisplayInfo();
+        info.setVisible(this.jeiVisible);
         if(this.sky)
             return info.addTooltip(new TranslationTextComponent("custommachinery.requirements.light.sky.info", new TranslationTextComponent(this.comparator.getTranslationKey()), this.light));
         else

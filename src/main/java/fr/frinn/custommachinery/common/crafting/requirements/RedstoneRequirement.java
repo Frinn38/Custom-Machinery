@@ -18,17 +18,20 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
     public static final Codec<RedstoneRequirement> CODEC = RecordCodecBuilder.create(redstoneRequirementInstance ->
             redstoneRequirementInstance.group(
                     Codec.INT.fieldOf("power").forGetter(requirement -> requirement.powerLevel),
-                    Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparatorMode)
+                    Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparatorMode),
+                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(redstoneRequirementInstance, RedstoneRequirement::new)
     );
 
     private int powerLevel;
     private ComparatorMode comparatorMode;
+    private boolean jeiVisible;
 
-    public RedstoneRequirement(int powerLevel, ComparatorMode comparatorMode) {
+    public RedstoneRequirement(int powerLevel, ComparatorMode comparatorMode, boolean jeiVisible) {
         super(MODE.INPUT);
         this.powerLevel = powerLevel;
         this.comparatorMode = comparatorMode;
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -71,6 +74,7 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
     @Override
     public RequirementDisplayInfo getDisplayInfo() {
         return new RequirementDisplayInfo()
+                .setVisible(this.jeiVisible)
                 .addTooltip(new TranslationTextComponent("custommachinery.requirements.redstone.info", new TranslationTextComponent(this.comparatorMode.getTranslationKey()), this.powerLevel));
     }
 }

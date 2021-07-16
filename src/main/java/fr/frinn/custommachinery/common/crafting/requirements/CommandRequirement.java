@@ -27,7 +27,8 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
                 Codecs.PHASE_CODEC.fieldOf("phase").forGetter(requirement -> requirement.phase),
                 Codec.INT.optionalFieldOf("permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
                 Codec.BOOL.optionalFieldOf("log", false).forGetter(requirement -> requirement.log),
-                Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
+                Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
+                Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(commandRequirementInstance, CommandRequirement::new)
     );
 
@@ -36,14 +37,16 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     private int permissionLevel;
     private boolean log;
     private double chance;
+    private boolean jeiVisible;
 
-    public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log, double chance) {
+    public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log, double chance, boolean jeiVisible) {
         super(MODE.INPUT);
         this.command = command;
         this.phase = phase;
         this.permissionLevel = permissionLevel;
         this.log = log;
         this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -91,6 +94,7 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     @Override
     public RequirementDisplayInfo getDisplayInfo() {
         return new RequirementDisplayInfo()
+                .setVisible(this.jeiVisible)
                 .addTooltip(new TranslationTextComponent("custommachinery.requirements.command.info", new StringTextComponent(this.command).mergeStyle(TextFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));
     }
 }

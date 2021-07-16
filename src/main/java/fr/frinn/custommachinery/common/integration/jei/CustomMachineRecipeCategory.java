@@ -192,31 +192,28 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
         //Render the requirements that doesn't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
-        RenderSystem.disableDepthTest();
-        recipe.getDisplayInfoRequirements().stream().map(IDisplayInfoRequirement::getDisplayInfo).forEach(info -> {
+        recipe.getDisplayInfoRequirements().stream().map(IDisplayInfoRequirement::getDisplayInfo).filter(RequirementDisplayInfo::isVisible).forEach(info -> {
             int x = index.get() * (ICON_SIZE + 2);
             if(info.getIcon() != null) {
                 Minecraft.getInstance().getTextureManager().bindTexture(info.getIcon());
                 AbstractGui.blit(matrix, x, this.height - ICON_SIZE, info.getU(), info.getV(), ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
             }
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height && !info.getTooltips().isEmpty() && Minecraft.getInstance().currentScreen != null) {
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height && !info.getTooltips().isEmpty() && Minecraft.getInstance().currentScreen != null)
                 GuiUtils.drawHoveringText(matrix, info.getTooltips(), (int)mouseX, (int)mouseY, this.width * 2, this.height, this.width, Minecraft.getInstance().fontRenderer);
-            }
             index.incrementAndGet();
         });
-        RenderSystem.enableDepthTest();
     }
 
     @ParametersAreNonnullByDefault
     @Override
     public boolean handleClick(CustomMachineRecipe recipe, double mouseX, double mouseY, int mouseButton) {
-        List<IDisplayInfoRequirement<?>> requirements = recipe.getDisplayInfoRequirements();
-        for(int i = 0; i < requirements.size(); i++) {
-            int x = i * (ICON_SIZE + 2);
-            IDisplayInfoRequirement<?> requirement = requirements.get(i);
+        AtomicInteger index = new AtomicInteger();
+        return recipe.getDisplayInfoRequirements().stream().map(IDisplayInfoRequirement::getDisplayInfo).filter(RequirementDisplayInfo::isVisible).anyMatch(info -> {
+            int x = index.get() * (ICON_SIZE + 2);
             if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height)
-                return requirement.getDisplayInfo().handleClick(this.machine, mouseButton);
-        }
-        return false;
+                return info.handleClick(this.machine, mouseButton);
+            index.incrementAndGet();
+            return false;
+        });
     }
 }
