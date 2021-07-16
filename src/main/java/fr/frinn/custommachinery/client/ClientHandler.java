@@ -165,14 +165,14 @@ public class ClientHandler {
         if (flag) {
             RenderHelper.setupGuiFlatDiffuseLighting();
         }
-
+        RenderSystem.disableDepthTest();
         Minecraft.getInstance().getItemRenderer().renderItem(stack, ItemCameraTransforms.TransformType.GUI, false, matrix, irendertypebuffer$impl, 15728880, OverlayTexture.NO_OVERLAY, model);
         irendertypebuffer$impl.finish();
         RenderSystem.enableDepthTest();
         if (flag) {
             RenderHelper.setupGui3DDiffuseLighting();
         }
-
+        RenderSystem.disableBlend();
         RenderSystem.disableAlphaTest();
         RenderSystem.disableRescaleNormal();
         matrix.pop();
@@ -181,13 +181,15 @@ public class ClientHandler {
     @SuppressWarnings("deprecation")
     public static void renderItemOverlayIntoGUI(MatrixStack matrix, FontRenderer fr, ItemStack stack, int xPosition, int yPosition, @Nullable String text) {
         if (!stack.isEmpty()) {
-            matrix.push();
             if (stack.getCount() != 1 || text != null) {
+                matrix.push();
                 String s = text == null ? String.valueOf(stack.getCount()) : text;
                 matrix.translate(0.0D, 0.0D, Minecraft.getInstance().getItemRenderer().zLevel + 200.0F);
                 IRenderTypeBuffer.Impl irendertypebuffer$impl = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
                 fr.renderString(s, (float)(xPosition + 19 - 2 - fr.getStringWidth(s)), (float)(yPosition + 6 + 3), 16777215, true, matrix.getLast().getMatrix(), irendertypebuffer$impl, false, 0, 15728880);
                 irendertypebuffer$impl.finish();
+                RenderSystem.enableDepthTest();
+                matrix.pop();
             }
 
             if (stack.getItem().showDurabilityBar(stack)) {
@@ -218,10 +220,10 @@ public class ClientHandler {
                 Tessellator tessellator1 = Tessellator.getInstance();
                 BufferBuilder bufferbuilder1 = tessellator1.getBuffer();
                 draw(bufferbuilder1, xPosition, yPosition + MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 255, 255, 255, 127);
+                RenderSystem.disableBlend();
                 RenderSystem.enableTexture();
                 RenderSystem.enableDepthTest();
             }
-            matrix.pop();
         }
     }
 
