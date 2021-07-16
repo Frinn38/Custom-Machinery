@@ -55,6 +55,8 @@ public class ClientHandler {
             ClientRegistry.bindTileEntityRenderer(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
 
             ScreenManager.registerFactory(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
+
+            RenderTypeLookup.setRenderLayer(Registration.CUSTOM_MACHINE_BLOCK.get(), RenderType.getTranslucent());
         });
     }
 
