@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
+import fr.frinn.custommachinery.common.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
@@ -77,7 +78,12 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
         if(!this.world.isRemote()) {
             this.componentManager.tick();
-            this.craftingManager.tick();
+            try {
+                this.craftingManager.tick();
+            } catch (ComponentNotFoundException e) {
+                CustomMachinery.LOGGER.error(e.getMessage());
+                setPaused(true);
+            }
 
             if(this.needRefreshLightning())
                 this.refreshLightning();

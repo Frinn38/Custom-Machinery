@@ -68,7 +68,7 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
 
     @Override
     public CraftingResult processTick(CommandMachineComponent component, CraftingContext context) {
-        if(this.phase == CraftingManager.PHASE.CRAFTING)
+        if(this.phase == CraftingManager.PHASE.CRAFTING_TICKABLE)
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }

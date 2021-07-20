@@ -245,7 +245,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder runCommandEachTick(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log, @OptionalDouble(1.0D) double chance) {
-        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING, permissionLevel, log, chance, true));
+        this.builder.withRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING_TICKABLE, permissionLevel, log, chance, true));
         return this;
     }
 
@@ -340,79 +340,79 @@ public class CustomMachineCTRecipeBuilder {
     /** BLOCK **/
 
     @Method
-    public CustomMachineCTRecipeBuilder requireBlock(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalString(">=") String comparator) {
+    public CustomMachineCTRecipeBuilder requireBlock(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalString(">=") String comparator, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, bb, amount, ComparatorMode.value(comparator), new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, bb, amount, ComparatorMode.value(comparator), new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder placeBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder placeBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder placeBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder placeBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder breakBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder destroyBlockOnStart(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder breakBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+    public CustomMachineCTRecipeBuilder destroyBlockOnEnd(Block block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalDouble double delay, @OptionalBoolean(true) boolean jeiVisible) {
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), true));
+        this.builder.withRequirement(new BlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, bb, amount, ComparatorMode.EQUALS, new PartialBlockState(block), delay, jeiVisible));
         return this;
     }
 
