@@ -2,6 +2,8 @@ package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,6 +21,9 @@ public class ClientEvents {
                 .filter(upgrade -> upgrade.getItem() == event.getItemStack().getItem())
                 .flatMap(upgrade -> upgrade.getModifiers().stream())
                 .collect(Collectors.toList());
-        modifiers.stream().flatMap(modifier -> modifier.getTooltip().stream()).forEach(event.getToolTip()::add);
+        if(!modifiers.isEmpty()) {
+            event.getToolTip().add(new TranslationTextComponent("custommachinery.upgrade.tooltip").mergeStyle(TextFormatting.AQUA));
+            modifiers.stream().flatMap(modifier -> modifier.getTooltip().stream()).forEach(event.getToolTip()::add);
+        }
     }
 }

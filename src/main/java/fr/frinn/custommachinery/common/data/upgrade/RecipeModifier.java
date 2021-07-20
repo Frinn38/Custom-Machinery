@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
+import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -67,11 +68,15 @@ public class RecipeModifier {
     }
 
     public List<ITextComponent> getTooltip() {
-        String operator = this.modifier >= 0 && this.operation == OPERATION.ADDITION ? "+" : "";
-        String modifier = this.operation == OPERATION.ADDITION ? String.valueOf(this.modifier) : this.modifier * 100 + "%";
-        String path = new TranslationTextComponent(this.requirementType.getTranslationKey()).getString();
-        String mode = new TranslationTextComponent(this.mode.getTranslationKey()).getString();
-        StringTextComponent tooltip = new StringTextComponent(operator + modifier + " " + path + " " + mode);
+        double tooltipModifier = this.operation == OPERATION.ADDITION ? this.modifier : this.modifier * 100 - 100;
+        StringTextComponent tooltip = new StringTextComponent(tooltipModifier >= 0 ? "+" : "");
+        tooltip.appendString(this.operation == OPERATION.ADDITION ? String.valueOf(tooltipModifier) : tooltipModifier + "%");
+        tooltip.appendString(" ");
+        tooltip.appendSibling(new TranslationTextComponent(this.requirementType.getTranslationKey()));
+        if(this.requirementType != Registration.SPEED_REQUIREMENT.get()) {
+            tooltip.appendString(" ");
+            tooltip.appendSibling(new TranslationTextComponent(this.mode.getTranslationKey()));
+        }
         return Collections.singletonList(tooltip);
     }
 

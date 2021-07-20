@@ -139,6 +139,8 @@
   "custommachinery.requirements.structure.info": "Requires a structure",
   "custommachinery.requirements.structure.click": "Click to view the required structure",
 
+  "custommachinery.upgrade.tooltip": "Custom Machine Upgrade",
+
   "requirement.custommachinery.item": "Item",
   "requirement.custommachinery.energy": "Energy",
   "requirement.custommachinery.energy_per_tick": "Energy per tick",
