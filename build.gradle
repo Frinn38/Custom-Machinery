@@ -224,10 +224,15 @@ if (System.getenv("CURSEFORGE")) {
         project {
             id = "457017"
             changelogType = "markdown"
-            changelog = ""
+            changelog = file("run/changelog.md")
             releaseType = "beta"
             mainArtifact(jar) {
                 displayName = "Custom-Machinery-1.16.5-${project.version}"
+                relations {
+                    optionalDependency "crafttweaker"
+                    optionalDependency "jei"
+                    optionalDependency "the-one-probe"
+                }
             }
             addArtifact apiJar
         }
