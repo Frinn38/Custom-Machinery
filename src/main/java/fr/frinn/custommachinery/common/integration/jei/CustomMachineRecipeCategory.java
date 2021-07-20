@@ -180,12 +180,19 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @Override
     public void draw(CustomMachineRecipe recipe, MatrixStack matrix, double mouseX, double mouseY) {
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
-        matrix.push();
-        matrix.translate(-this.offsetX, -this.offsetY, 0);
         this.machine.getGuiElements().stream()
                 .filter(element -> element.getType().getRenderer() instanceof IJEIElementRenderer)
-                .forEach(element -> ((IJEIElementRenderer)element.getType().getRenderer()).renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY));
-        matrix.pop();
+                .forEach(element -> {
+                    int x = element.getX() - this.offsetX;
+                    int y = element.getY() - this.offsetY;
+                    IJEIElementRenderer<IGuiElement> renderer = (IJEIElementRenderer<IGuiElement>)element.getType().getRenderer();
+                    matrix.push();
+                    matrix.translate(-this.offsetX, -this.offsetY, 0);
+                    renderer.renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY);
+                    matrix.pop();
+                    if(mouseX >= x && mouseX <= x + element.getWidth() && mouseY >= y && mouseY <= y + element.getHeight())
+                        GuiUtils.drawHoveringText(matrix, renderer.getJEITooltips(element, recipe), (int)mouseX, (int)mouseY, this.width * 2, this.height, this.width, Minecraft.getInstance().fontRenderer);
+                });
 
         //Render the line between the gui elements and the requirements icons
         AbstractGui.fill(matrix, -3, this.height - ICON_SIZE - 3, this.width + 3, this.height - ICON_SIZE - 2, 0x30000000);

@@ -9,8 +9,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressBarGuiElement>, IJEIElementRenderer<ProgressBarGuiElement> {
 
@@ -54,8 +58,10 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
         int filledWidth = (int)Minecraft.getInstance().world.getGameTime() % width;
         Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
-        FontRenderer font = Minecraft.getInstance().fontRenderer;
-        ITextComponent time = new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()).mergeStyle(TextFormatting.DARK_GRAY);
-        font.drawText(matrix, time, posX + width / 2 - font.getStringWidth(time.getString()) / 2, posY + height, 0);
+    }
+
+    @Override
+    public List<ITextComponent> getJEITooltips(ProgressBarGuiElement element, CustomMachineRecipe recipe) {
+        return Collections.singletonList(new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
     }
 }
