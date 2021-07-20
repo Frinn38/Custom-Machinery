@@ -19,6 +19,7 @@ public class CustomMachineBuilder {
     private String name;
     private MachineAppearanceBuilder appearance;
     private List<IGuiElement> guiElements;
+    private List<IGuiElement> jeiElements;
     private List<IMachineComponentBuilder<? extends IMachineComponent>> componentBuilders;
     private MachineLocation location;
 
@@ -26,6 +27,7 @@ public class CustomMachineBuilder {
         this.name = "New Machine";
         this.appearance = new MachineAppearanceBuilder();
         this.guiElements = new ArrayList<>();
+        this.jeiElements = new ArrayList<>();
         this.componentBuilders = new ArrayList<>();
         this.location = MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "new_machine"));
     }
@@ -34,6 +36,7 @@ public class CustomMachineBuilder {
         this.name = machine.getName();
         this.appearance = new MachineAppearanceBuilder(machine.getAppearance());
         this.guiElements = machine.getGuiElements();
+        this.jeiElements = machine.getJeiElements();
         this.componentBuilders = new ArrayList<>();
         machine.getComponentTemplates().forEach(template -> {
             if(template.getType().haveGUIBuilder())
@@ -83,8 +86,9 @@ public class CustomMachineBuilder {
         String name = this.name == null ? "New Machine" : this.name;
         MachineAppearance appearance = this.appearance.build();
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);
+        List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.jeiElements);
         List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = new ArrayList<>();
         this.componentBuilders.forEach(builder -> componentTemplates.add(builder.build()));
-        return new CustomMachine(name, appearance, guiElements, componentTemplates).setLocation(this.location);
+        return new CustomMachine(name, appearance, guiElements, jeiElements, componentTemplates).setLocation(this.location);
     }
 }

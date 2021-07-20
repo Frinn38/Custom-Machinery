@@ -57,7 +57,8 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         int minY = Integer.MAX_VALUE;
         int maxX = 0;
         int maxY = 0;
-        for(IGuiElement element : this.machine.getGuiElements()) {
+        List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
+        for(IGuiElement element : elements) {
             if(!element.getType().hasJEIRenderer() && !(element.getType().getRenderer() instanceof IJEIElementRenderer))
                 continue;
             minX = Math.min(minX, element.getX());
@@ -122,7 +123,8 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     public void setRecipe(IRecipeLayout layout, CustomMachineRecipe recipe, IIngredients ingredients) {
         List<IJEIIngredientRequirement> requirements = recipe.getJEIIngredientRequirements();
         AtomicInteger index = new AtomicInteger(0);
-        this.machine.getGuiElements().stream().filter(element -> element.getType().hasJEIRenderer()).forEach(element -> {
+        List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
+        elements.stream().filter(element -> element.getType().hasJEIRenderer()).forEach(element -> {
             JEIIngredientRenderer<?, ?> renderer = element.getType().getJeiRenderer(element);
             IIngredientType ingredientType = renderer.getType();
             layout.getIngredientsGroup(ingredientType).init(
@@ -180,7 +182,8 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @Override
     public void draw(CustomMachineRecipe recipe, MatrixStack matrix, double mouseX, double mouseY) {
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
-        this.machine.getGuiElements().stream()
+        List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
+        elements.stream()
                 .filter(element -> element.getType().getRenderer() instanceof IJEIElementRenderer)
                 .forEach(element -> {
                     int x = element.getX() - this.offsetX;

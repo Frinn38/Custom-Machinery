@@ -19,25 +19,28 @@ public class CustomMachine implements ICustomMachine {
         machineCodec.group(
             Codec.STRING.fieldOf("name").forGetter(CustomMachine::getName),
             MachineAppearance.CODEC.fieldOf("appearance").forGetter(CustomMachine::getAppearance),
-            IGuiElement.CODEC.listOf().optionalFieldOf("gui", new ArrayList<>()).forGetter(CustomMachine::getGuiElements),
+            IGuiElement.CODEC.listOf().optionalFieldOf("gui", ImmutableList.of()).forGetter(CustomMachine::getGuiElements),
+            IGuiElement.CODEC.listOf().optionalFieldOf("jei", ImmutableList.of()).forGetter(CustomMachine::getJeiElements),
             IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", new ArrayList<>()).forGetter(CustomMachine::getComponentTemplates)
         ).apply(machineCodec, CustomMachine::new)
     );
 
-    public static final CustomMachine DUMMY = new CustomMachine("Dummy", MachineAppearance.DUMMY, ImmutableList.of(), new ArrayList<>())
+    public static final CustomMachine DUMMY = new CustomMachine("Dummy", MachineAppearance.DUMMY, ImmutableList.of(), ImmutableList.of(), ImmutableList.of())
             .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")));
 
     private String name;
     private MachineAppearance appearance;
     private List<IGuiElement> guiElements;
+    private List<IGuiElement> jeiElements;
     private List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates;
     private MachineLocation location;
 
 
-    public CustomMachine(String name, MachineAppearance appearance, List<IGuiElement> guiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
+    public CustomMachine(String name, MachineAppearance appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
         this.name = name;
         this.appearance = appearance;
         this.guiElements = guiElements;
+        this.jeiElements = jeiElements;
         this.componentTemplates = componentTemplates;
     }
 
@@ -62,6 +65,10 @@ public class CustomMachine implements ICustomMachine {
 
     public List<IGuiElement> getGuiElements() {
         return this.guiElements;
+    }
+
+    public List<IGuiElement> getJeiElements() {
+        return this.jeiElements;
     }
 
     public List<IMachineComponentTemplate<? extends IMachineComponent>> getComponentTemplates() {

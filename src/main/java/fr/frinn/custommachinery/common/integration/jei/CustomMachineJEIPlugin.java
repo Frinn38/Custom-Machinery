@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.integration.jei;
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -19,6 +20,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @JeiPlugin
 public class CustomMachineJEIPlugin implements IModPlugin {
@@ -65,7 +67,8 @@ public class CustomMachineJEIPlugin implements IModPlugin {
         registration.addGuiContainerHandler(CustomMachineScreen.class, new IGuiContainerHandler<CustomMachineScreen>() {
             @Override
             public Collection<IGuiClickableArea> getGuiClickableAreas(CustomMachineScreen screen, double mouseX, double mouseY) {
-                ProgressBarGuiElement progress = (ProgressBarGuiElement) screen.getMachine().getGuiElements().stream().filter(element -> element.getType() == Registration.PROGRESS_GUI_ELEMENT.get()).findFirst().orElse(null);
+                List<IGuiElement> elements = screen.getMachine().getJeiElements().isEmpty() ? screen.getMachine().getGuiElements() : screen.getMachine().getJeiElements();
+                ProgressBarGuiElement progress = (ProgressBarGuiElement) elements.stream().filter(element -> element.getType() == Registration.PROGRESS_GUI_ELEMENT.get()).findFirst().orElse(null);
                 if(progress != null)
                     return Collections.singleton(IGuiClickableArea.createBasic(progress.getX(), progress.getY(), progress.getWidth(), progress.getHeight(), screen.getMachine().getId()));
                 return new ArrayList<>();
