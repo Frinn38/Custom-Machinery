@@ -7,10 +7,13 @@ import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EntityMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
@@ -18,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
 
-public class EntityRequirement extends AbstractTickableRequirement<EntityMachineComponent> {
+public class EntityRequirement extends AbstractTickableRequirement<EntityMachineComponent> implements IDisplayInfoRequirement<EntityMachineComponent> {
 
     @SuppressWarnings("deprecation")
     public static final Codec<EntityRequirement> CODEC = RecordCodecBuilder.create(entityRequirementInstance ->
@@ -28,7 +31,8 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
                     Registry.ENTITY_TYPE.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
-                    Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist)
+                    Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist),
+                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(entityRequirementInstance, EntityRequirement::new)
     );
 
@@ -38,8 +42,9 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
     private List<EntityType<?>> filter;
     private boolean whitelist;
     private Predicate<Entity> predicate;
+    private boolean jeiVisible;
 
-    public EntityRequirement(MODE mode, ACTION action, int amount, int radius, List<EntityType<?>> filter, boolean whitelist) {
+    public EntityRequirement(MODE mode, ACTION action, int amount, int radius, List<EntityType<?>> filter, boolean whitelist, boolean jeiVisible) {
         super(mode);
         this.action = action;
         this.amount = amount;
@@ -47,6 +52,7 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
         this.filter = filter;
         this.whitelist = whitelist;
         this.predicate = entity -> filter.contains(entity.getType()) == whitelist;
+        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -129,6 +135,21 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
             return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
         else
             return CraftingResult.pass();
+    }
+
+    @Override
+    public RequirementDisplayInfo getDisplayInfo() {
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        info.setVisible(this.jeiVisible);
+        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.entity." + this.action.toString().toLowerCase(Locale.ENGLISH) + ".info", this.amount, this.radius));
+        if(!this.filter.isEmpty()) {
+            if(this.whitelist)
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.entity.whitelist"));
+            else
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.entity.blacklist"));
+        }
+        this.filter.forEach(type -> info.addTooltip(new StringTextComponent("*").appendSibling(type.getName())));
+        return info;
     }
 
     public enum ACTION {
