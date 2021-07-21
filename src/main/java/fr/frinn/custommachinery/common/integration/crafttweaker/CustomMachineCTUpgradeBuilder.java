@@ -1,0 +1,107 @@
+package fr.frinn.custommachinery.common.integration.crafttweaker;
+
+import com.blamejared.crafttweaker.api.CraftTweakerAPI;
+import com.blamejared.crafttweaker.api.actions.IRuntimeAction;
+import com.blamejared.crafttweaker.api.annotations.ZenRegister;
+import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
+import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
+import org.openzen.zencode.java.ZenCodeType.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@ZenRegister
+@Name("mods.custommachinery.CMUpgradeBuilder")
+public class CustomMachineCTUpgradeBuilder {
+
+    private Item item;
+    private List<ResourceLocation> machines;
+    private List<RecipeModifier> modifiers;
+    private int maxAmount;
+
+    public CustomMachineCTUpgradeBuilder(Item item, int maxAmount) {
+        this.item = item;
+        this.maxAmount = maxAmount;
+        this.machines = new ArrayList<>();
+        this.modifiers = new ArrayList<>();
+    }
+
+    @Method
+    public static CustomMachineCTUpgradeBuilder create(Item item, @OptionalInt(64) int maxAmount) {
+        return new CustomMachineCTUpgradeBuilder(item, maxAmount);
+    }
+
+    @Method
+    public void build() {
+        if(this.machines.isEmpty())
+            throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + this.item.getRegistryName());
+        if(this.modifiers.isEmpty())
+            throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + this.item.getRegistryName());
+        MachineUpgrade upgrade = new MachineUpgrade(this.item, this.machines, this.modifiers, this.maxAmount);
+        CraftTweakerAPI.apply(new AddMachineUpgradeAction(upgrade));
+    }
+
+    @Method
+    public CustomMachineCTUpgradeBuilder machine(String string) {
+        final ResourceLocation machine;
+        try {
+            machine = new ResourceLocation(string);
+        } catch (ResourceLocationException e) {
+            throw new IllegalArgumentException("Invalid Machine ID: " + string + "\n" + e.getMessage());
+        }
+        this.machines.add(machine);
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTUpgradeBuilder addInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.INPUT, RecipeModifier.OPERATION.ADDITION, value, chance);
+        this.modifiers.add(modifier);
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTUpgradeBuilder mulInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, chance);
+        this.modifiers.add(modifier);
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTUpgradeBuilder addOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, chance);
+        this.modifiers.add(modifier);
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTUpgradeBuilder mulOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, chance);
+        this.modifiers.add(modifier);
+        return this;
+    }
+
+    public static class AddMachineUpgradeAction implements IRuntimeAction {
+
+        private MachineUpgrade upgrade;
+
+        public AddMachineUpgradeAction(MachineUpgrade upgrade) {
+            this.upgrade = upgrade;
+        }
+
+        @Override
+        public void apply() {
+            CustomMachinery.UPGRADES.add(this.upgrade);
+        }
+
+        @Override
+        public String describe() {
+            return "Add a custom machine upgrade for item: " + this.upgrade.getItem().getRegistryName();
+        }
+    }
+}
