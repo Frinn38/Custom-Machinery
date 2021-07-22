@@ -2,6 +2,9 @@ package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,7 +26,8 @@ public class ClientEvents {
                 .collect(Collectors.toList());
         if(!modifiers.isEmpty()) {
             event.getToolTip().add(new TranslationTextComponent("custommachinery.upgrade.tooltip").mergeStyle(TextFormatting.AQUA));
-            modifiers.stream().flatMap(modifier -> modifier.getTooltip().stream()).forEach(event.getToolTip()::add);
+            if(Screen.hasControlDown() || Screen.hasShiftDown())
+                modifiers.stream().flatMap(modifier -> modifier.getTooltip().stream()).forEach(event.getToolTip()::add);
         }
     }
 }

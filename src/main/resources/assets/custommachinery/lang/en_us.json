@@ -145,7 +145,7 @@
   "custommachinery.requirements.entity.whitelist": "Entity whitelist:",
   "custommachinery.requirements.entity.blacklist": "Entity blacklist:",
 
-  "custommachinery.upgrade.tooltip": "Custom Machine Upgrade",
+  "custommachinery.upgrade.tooltip": "(Shift) Custom Machine Upgrade",
 
   "requirement.custommachinery.item": "Item",
   "requirement.custommachinery.energy": "Energy",
