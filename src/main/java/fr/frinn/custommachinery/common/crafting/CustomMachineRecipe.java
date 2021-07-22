@@ -12,6 +12,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CustomMachineRecipe extends DummyRecipe {
 
@@ -19,13 +20,15 @@ public class CustomMachineRecipe extends DummyRecipe {
     private ResourceLocation machine;
     private int time;
     private List<IRequirement<?>> requirements;
+    private List<IRequirement<?>> jeiRequirements;
     private int priority;
 
-    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, int priority) {
+    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority) {
         this.id = id;
         this.machine = machine;
         this.time = time;
         this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).collect(Collectors.toList());
+        this.jeiRequirements = jeiRequirements;
         this.priority = priority;
     }
 
@@ -47,11 +50,13 @@ public class CustomMachineRecipe extends DummyRecipe {
     }
 
     public List<IJEIIngredientRequirement> getJEIIngredientRequirements() {
-        return this.requirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
+        Stream<IRequirement<?>> stream = Stream.concat(this.requirements.stream(), this.jeiRequirements.stream());
+        return stream.filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
     }
 
     public List<IDisplayInfoRequirement<?>> getDisplayInfoRequirements() {
-        return this.requirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement<?>)requirement).collect(Collectors.toList());
+        Stream<IRequirement<?>> stream = Stream.concat(this.requirements.stream(), this.jeiRequirements.stream());
+        return stream.filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement<?>)requirement).collect(Collectors.toList());
     }
 
     public boolean matches(CustomMachineTile tile, CraftingContext context) {

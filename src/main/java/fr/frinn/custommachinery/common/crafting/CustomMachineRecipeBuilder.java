@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class CustomMachineRecipeBuilder {
 
@@ -14,10 +15,12 @@ public class CustomMachineRecipeBuilder {
             ResourceLocation.CODEC.fieldOf("machine").forGetter(builder -> builder.machine),
             Codec.INT.fieldOf("time").forGetter(builder -> builder.time),
             IRequirement.CODEC.listOf().optionalFieldOf("requirements", new ArrayList<>()).forGetter(builder -> builder.requirements),
+            IRequirement.CODEC.listOf().fieldOf("jeiRequirements").orElse((Consumer<String>) System.out::println, new ArrayList<>()).forGetter(builder -> builder.jeiRequirements),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(builder -> builder.priority)
-    ).apply(recipeBuilderInstance, (machine, time, requirements, priority) -> {
+    ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority) -> {
         CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
         requirements.forEach(builder::withRequirement);
+        jeiRequirements.forEach(builder::withJeiRequirement);
         builder.withPriority(priority);
         return builder;
     }));
@@ -25,6 +28,7 @@ public class CustomMachineRecipeBuilder {
     private ResourceLocation machine;
     private int time;
     private List<IRequirement<?>> requirements = new ArrayList<>();
+    private List<IRequirement<?>> jeiRequirements = new ArrayList<>();
     private int priority = 0;
 
     public CustomMachineRecipeBuilder(ResourceLocation machine, int time) {
@@ -44,12 +48,17 @@ public class CustomMachineRecipeBuilder {
         return this;
     }
 
+    public CustomMachineRecipeBuilder withJeiRequirement(IRequirement<?> requirement) {
+        this.jeiRequirements.add(requirement);
+        return this;
+    }
+
     public CustomMachineRecipeBuilder withPriority(int priority) {
         this.priority = priority;
         return this;
     }
 
     public CustomMachineRecipe build(ResourceLocation id) {
-        return new CustomMachineRecipe(id, this.machine, this.time, this.requirements, this.priority);
+        return new CustomMachineRecipe(id, this.machine, this.time, this.requirements, this.jeiRequirements, this.priority);
     }
 }
