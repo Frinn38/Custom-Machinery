@@ -33,7 +33,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     public static final Codec<FluidPerTickRequirement> CODEC = RecordCodecBuilder.create(fluidPerTickRequirementInstance ->
             fluidPerTickRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
-                    Registry.FLUID.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(requirement -> requirement.fluid),
+                    Registry.FLUID.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(requirement -> requirement.fluid != null ? requirement.fluid : DEFAULT_FLUID),
                     ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getFluidTagID(requirement.tag) : DEFAULT_TAG),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),

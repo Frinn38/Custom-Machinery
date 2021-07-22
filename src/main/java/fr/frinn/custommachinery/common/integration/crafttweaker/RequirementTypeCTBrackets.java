@@ -8,6 +8,7 @@ import com.blamejared.crafttweaker.api.brackets.CommandStringDisplayable;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
 import org.openzen.zencode.java.ZenCodeType;
 
 import java.awt.geom.RectangularShape;
@@ -26,11 +27,14 @@ public class RequirementTypeCTBrackets {
 
     @BracketValidator("requirementtype")
     public static boolean validateBracket(String bracket) {
-        if(!ResourceLocation.isResouceNameValid(bracket))
-            throw new IllegalArgumentException("Invalid Requirement Type bracket: " + bracket);
-        ResourceLocation requirementLocation = new ResourceLocation(bracket);
-        if(!Registration.REQUIREMENT_TYPE_REGISTRY.get().containsKey(requirementLocation))
-            throw new IllegalArgumentException("Unknown Requirement type: " + requirementLocation);
+        ResourceLocation requirementTypeLocation;
+        try {
+            requirementTypeLocation = new ResourceLocation(bracket);
+        } catch (ResourceLocationException e) {
+            throw new IllegalArgumentException("Invalid Requirement Type bracket: " + bracket, e);
+        }
+        if(!Registration.REQUIREMENT_TYPE_REGISTRY.get().containsKey(requirementTypeLocation))
+            throw new IllegalArgumentException("Unknown Requirement type: " + requirementTypeLocation);
         return true;
     }
 

@@ -52,7 +52,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public ItemRequirement(MODE mode, Item item, ResourceLocation tagLocation, int amount, CompoundNBT nbt, double chance, String slot) {
         super(mode);
         this.amount = amount;
-        this.nbt = nbt == null || nbt.isEmpty() ? null : nbt;
+        this.nbt = nbt == null ? new CompoundNBT() : nbt;
         if(mode == MODE.OUTPUT) {
             if(item != DEFAULT_ITEM && item != null)
                 this.item = item;
