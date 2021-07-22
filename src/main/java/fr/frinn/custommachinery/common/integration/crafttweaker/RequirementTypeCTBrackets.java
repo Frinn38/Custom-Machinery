@@ -11,7 +11,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import org.openzen.zencode.java.ZenCodeType;
 
-import java.awt.geom.RectangularShape;
 import java.util.Collection;
 import java.util.stream.Collectors;
 

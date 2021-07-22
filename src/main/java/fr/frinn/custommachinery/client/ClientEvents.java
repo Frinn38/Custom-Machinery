@@ -2,8 +2,6 @@ package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;

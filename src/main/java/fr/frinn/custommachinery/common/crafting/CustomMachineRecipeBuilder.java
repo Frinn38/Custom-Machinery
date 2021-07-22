@@ -7,7 +7,6 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class CustomMachineRecipeBuilder {
 
@@ -15,7 +14,7 @@ public class CustomMachineRecipeBuilder {
             ResourceLocation.CODEC.fieldOf("machine").forGetter(builder -> builder.machine),
             Codec.INT.fieldOf("time").forGetter(builder -> builder.time),
             IRequirement.CODEC.listOf().optionalFieldOf("requirements", new ArrayList<>()).forGetter(builder -> builder.requirements),
-            IRequirement.CODEC.listOf().fieldOf("jeiRequirements").orElse((Consumer<String>) System.out::println, new ArrayList<>()).forGetter(builder -> builder.jeiRequirements),
+            IRequirement.CODEC.listOf().optionalFieldOf("jei", new ArrayList<>()).forGetter(builder -> builder.jeiRequirements),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(builder -> builder.priority)
     ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority) -> {
         CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);

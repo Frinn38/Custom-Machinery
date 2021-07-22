@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.api.components.IFilterComponent;
 import fr.frinn.custommachinery.api.components.IMachineComponent;
 import fr.frinn.custommachinery.api.components.handler.IComponentHandler;

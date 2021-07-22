@@ -35,7 +35,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private CraftingContext context;
     private int refreshModifiersCooldown = 20;
 
-    private Map<Double, IDelayedRequirement<IMachineComponent>> delayedRequirements = new HashMap<>();
+    private List<IDelayedRequirement<IMachineComponent>> delayedRequirements;
 
     private STATUS status;
     private STATUS prevStatus;
@@ -48,6 +48,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         this.rand = tile.getWorld() != null ? tile.getWorld().rand : new Random();
         this.status = STATUS.IDLE;
         this.processedRequirements = new ArrayList<>();
+        this.delayedRequirements = new ArrayList<>();
     }
 
     public void tick() {
@@ -73,7 +74,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 this.delayedRequirements = this.currentRecipe.getRequirements()
                         .stream()
                         .filter(requirement -> requirement instanceof IDelayedRequirement)
-                        .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement).collect(Collectors.toMap(IDelayedRequirement::getDelay, requirement -> requirement));
+                        .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement).collect(Collectors.toList());
                 this.recipeTotalTime = this.currentRecipe.getRecipeTime();
                 this.phase = PHASE.STARTING;
                 this.setRunning();
@@ -137,11 +138,11 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 this.phase = PHASE.CRAFTING_DELAYED;
             }
             if(this.phase == PHASE.CRAFTING_DELAYED) {
-                for(Iterator<Map.Entry<Double, IDelayedRequirement<IMachineComponent>>> iterator = this.delayedRequirements.entrySet().iterator(); iterator.hasNext(); ) {
-                    Map.Entry<Double, IDelayedRequirement<IMachineComponent>> entry = iterator.next();
-                    if(this.recipeProgressTime / this.recipeTotalTime >= entry.getKey()) {
-                        IMachineComponent component = this.tile.componentManager.getComponent(entry.getValue().getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), entry.getValue().getType()));
-                        CraftingResult result = entry.getValue().execute(component, this.context);
+                for(Iterator<IDelayedRequirement<IMachineComponent>> iterator = this.delayedRequirements.iterator(); iterator.hasNext(); ) {
+                    IDelayedRequirement<IMachineComponent> delayedRequirement = iterator.next();
+                    if(this.recipeProgressTime / this.recipeTotalTime >= delayedRequirement.getDelay()) {
+                        IMachineComponent component = this.tile.componentManager.getComponent(delayedRequirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), delayedRequirement.getType()));
+                        CraftingResult result = delayedRequirement.execute(component, this.context);
                         if(!result.isSuccess()) {
                             this.setErrored(result.getMessage());
                             break;
@@ -149,7 +150,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                     }
                 }
 
-                if(this.delayedRequirements.keySet().stream().allMatch(delay -> this.recipeProgressTime / this.recipeTotalTime < delay))
+                if(this.delayedRequirements.stream().allMatch(delayedRequirement -> this.recipeProgressTime / this.recipeTotalTime < delayedRequirement.getDelay()))
                     if (this.recipeProgressTime >= this.recipeTotalTime)
                         this.phase = PHASE.ENDING;
                     else this.phase = PHASE.CRAFTING_TICKABLE;
