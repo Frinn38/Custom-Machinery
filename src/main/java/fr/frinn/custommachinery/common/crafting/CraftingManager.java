@@ -74,7 +74,9 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 this.delayedRequirements = this.currentRecipe.getRequirements()
                         .stream()
                         .filter(requirement -> requirement instanceof IDelayedRequirement)
-                        .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement).collect(Collectors.toList());
+                        .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
+                        .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
+                        .collect(Collectors.toList());
                 this.recipeTotalTime = this.currentRecipe.getRecipeTime();
                 this.phase = PHASE.STARTING;
                 this.setRunning();
