@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -18,14 +18,16 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onItemTooltip(final ItemTooltipEvent event) {
-        List<RecipeModifier> modifiers = CustomMachinery.UPGRADES.stream()
+        List<MachineUpgrade> upgrades = CustomMachinery.UPGRADES.stream()
                 .filter(upgrade -> upgrade.getItem() == event.getItemStack().getItem())
-                .flatMap(upgrade -> upgrade.getModifiers().stream())
                 .collect(Collectors.toList());
-        if(!modifiers.isEmpty()) {
-            event.getToolTip().add(new TranslationTextComponent("custommachinery.upgrade.tooltip").mergeStyle(TextFormatting.AQUA));
-            if(Screen.hasControlDown() || Screen.hasShiftDown())
-                modifiers.stream().flatMap(modifier -> modifier.getTooltip().stream()).forEach(event.getToolTip()::add);
+        if(!upgrades.isEmpty()) {
+            upgrades.forEach(upgrade -> {
+                event.getToolTip().add(upgrade.getTooltip());
+
+                if(Screen.hasControlDown() || Screen.hasShiftDown())
+                    upgrade.getModifiers().stream().flatMap(modifier -> modifier.getTooltip().stream()).forEach(event.getToolTip()::add);
+            });
         }
     }
 }

@@ -10,6 +10,9 @@ import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import org.openzen.zencode.java.ZenCodeType.*;
 
 import java.util.ArrayList;
@@ -20,12 +23,14 @@ import java.util.List;
 public class CustomMachineCTUpgradeBuilder {
 
     private Item item;
+    private String tooltip;
     private List<ResourceLocation> machines;
     private List<RecipeModifier> modifiers;
     private int maxAmount;
 
     public CustomMachineCTUpgradeBuilder(Item item, int maxAmount) {
         this.item = item;
+        this.tooltip = "custommachinery.upgrade.tooltip";
         this.maxAmount = maxAmount;
         this.machines = new ArrayList<>();
         this.modifiers = new ArrayList<>();
@@ -42,7 +47,13 @@ public class CustomMachineCTUpgradeBuilder {
             throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + this.item.getRegistryName());
         if(this.modifiers.isEmpty())
             throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + this.item.getRegistryName());
-        MachineUpgrade upgrade = new MachineUpgrade(this.item, this.machines, this.modifiers, this.maxAmount);
+        ITextComponent tooltip;
+        try {
+            tooltip = ITextComponent.Serializer.getComponentFromJson(this.tooltip);
+        } catch (Exception e) {
+            tooltip = new TranslationTextComponent(this.tooltip);
+        }
+        MachineUpgrade upgrade = new MachineUpgrade(this.item, tooltip, this.machines, this.modifiers, this.maxAmount);
         CraftTweakerAPI.apply(new AddMachineUpgradeAction(upgrade));
     }
 
@@ -55,6 +66,12 @@ public class CustomMachineCTUpgradeBuilder {
             throw new IllegalArgumentException("Invalid Machine ID: " + string + "\n" + e.getMessage());
         }
         this.machines.add(machine);
+        return this;
+    }
+
+    @Method
+    public CustomMachineCTUpgradeBuilder tooltip(String tooltip) {
+        this.tooltip = tooltip;
         return this;
     }
 
