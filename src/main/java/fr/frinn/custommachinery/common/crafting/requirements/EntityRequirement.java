@@ -12,7 +12,6 @@ import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -23,14 +22,13 @@ import java.util.function.Predicate;
 
 public class EntityRequirement extends AbstractTickableRequirement<EntityMachineComponent> implements IDisplayInfoRequirement<EntityMachineComponent> {
 
-    @SuppressWarnings("deprecation")
     public static final Codec<EntityRequirement> CODEC = RecordCodecBuilder.create(entityRequirementInstance ->
             entityRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
                     Codecs.ENTITY_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    Registry.ENTITY_TYPE.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
+                    Codecs.ENTITY_TYPE_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
                     Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(entityRequirementInstance, EntityRequirement::new)

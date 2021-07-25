@@ -18,7 +18,6 @@ import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -29,11 +28,10 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     private static final Fluid DEFAULT_FLUID = Fluids.EMPTY;
     private static final ResourceLocation DEFAULT_TAG = new ResourceLocation(CustomMachinery.MODID, "dummy");
 
-    @SuppressWarnings("deprecation")
     public static final Codec<FluidRequirement> CODEC = RecordCodecBuilder.create(fluidRequirementInstance ->
             fluidRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    Registry.FLUID.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(requirement -> requirement.fluid != null ? requirement.fluid : DEFAULT_FLUID),
+                    Codecs.FLUID_CODEC.optionalFieldOf("fluid", DEFAULT_FLUID).forGetter(requirement -> requirement.fluid != null ? requirement.fluid : DEFAULT_FLUID),
                     ResourceLocation.CODEC.optionalFieldOf("tag", DEFAULT_TAG).forGetter(requirement -> requirement.tag != null ? Utils.getFluidTagID(requirement.tag) : DEFAULT_TAG),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),

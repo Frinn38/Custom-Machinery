@@ -6,16 +6,15 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 
 public class SlotGuiElement extends TexturedGuiElement implements IComponentGuiElement<ItemMachineComponent> {
 
     private static final ResourceLocation BASE_SLOT_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_slot.png");
 
-    @SuppressWarnings("deprecation")
     public static final Codec<SlotGuiElement> CODEC = RecordCodecBuilder.create(slotGuiElementCodec ->
             slotGuiElementCodec.group(
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
@@ -25,7 +24,7 @@ public class SlotGuiElement extends TexturedGuiElement implements IComponentGuiE
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID),
                     ResourceLocation.CODEC.optionalFieldOf("texture", BASE_SLOT_TEXTURE).forGetter(SlotGuiElement::getTexture),
-                    Registry.ITEM.optionalFieldOf("item", Items.AIR).forGetter(SlotGuiElement::getItem)
+                    Codecs.ITEM_CODEC.optionalFieldOf("item",Items.AIR).forGetter(SlotGuiElement::getItem)
             ).apply(slotGuiElementCodec, SlotGuiElement::new)
     );
 

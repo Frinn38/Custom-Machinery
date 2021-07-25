@@ -3,8 +3,6 @@ package fr.frinn.custommachinery.client;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

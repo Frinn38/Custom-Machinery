@@ -9,11 +9,11 @@ import fr.frinn.custommachinery.common.data.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
+import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.RomanNumber;
 import net.minecraft.entity.EntityType;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -24,14 +24,13 @@ import java.util.List;
 
 public class EffectRequirement extends AbstractTickableRequirement<EffectMachineComponent> implements IDisplayInfoRequirement<EffectMachineComponent> {
 
-    @SuppressWarnings("deprecation")
     public static final Codec<EffectRequirement> CODEC = RecordCodecBuilder.create(effectRequirementInstance ->
             effectRequirementInstance.group(
-                    Registry.EFFECTS.fieldOf("effect").forGetter(requirement -> requirement.effect),
+                    Codecs.EFFECT_CODEC.fieldOf("effect").forGetter(requirement -> requirement.effect),
                     Codec.INT.fieldOf("time").forGetter(requirement -> requirement.time),
                     Codec.INT.optionalFieldOf("level", 1).forGetter(requirement -> requirement.level),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    Registry.ENTITY_TYPE.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
+                    Codecs.ENTITY_TYPE_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
                     Codec.BOOL.optionalFieldOf("finish", false).forGetter(requirement -> requirement.applyAtEnd),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(effectRequirementInstance, EffectRequirement::new)

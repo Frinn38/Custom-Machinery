@@ -6,17 +6,17 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 
 public class MachineUpgrade {
 
-    @SuppressWarnings("deprecation")
     public static final Codec<MachineUpgrade> CODEC = RecordCodecBuilder.create(machineUpgradeInstance ->
             machineUpgradeInstance.group(
-                    Registry.ITEM.fieldOf("item").forGetter(upgrade -> upgrade.item),
+                    Codecs.ITEM_CODEC.fieldOf("item").forGetter(upgrade -> upgrade.item),
                     TextComponentUtils.TEXT_COMPONENT_CODEC.optionalFieldOf("tooltip", new TranslationTextComponent("custommachinery.upgrade.tooltip").mergeStyle(TextFormatting.AQUA)).forGetter(upgrade -> upgrade.tooltip),
                     ResourceLocation.CODEC.listOf().fieldOf("machines").forGetter(upgrade -> upgrade.machines),
                     RecipeModifier.CODEC.listOf().fieldOf("modifiers").forGetter(upgrade -> upgrade.modifiers),

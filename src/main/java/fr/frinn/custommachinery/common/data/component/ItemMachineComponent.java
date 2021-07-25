@@ -14,7 +14,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,13 +126,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
 
-        @SuppressWarnings("deprecation")
         public static final Codec<ItemMachineComponent.Template> CODEC = RecordCodecBuilder.create(itemMachineComponentTemplate ->
                 itemMachineComponentTemplate.group(
                         Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        Registry.ITEM.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
+                        Codecs.ITEM_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
                         Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         Codecs.ITEM_COMPONENT_VARIANT_CODEC.optionalFieldOf("variant", ItemComponentVariant.DEFAULT).forGetter(template -> template.variant)
                 ).apply(itemMachineComponentTemplate, Template::new)

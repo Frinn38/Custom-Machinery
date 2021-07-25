@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.components.ComponentIOMode;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.requirements.BlockRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.EntityRequirement;
@@ -21,22 +22,31 @@ import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.command.arguments.BlockStateParser;
+import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.potion.Effect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class Codecs {
+
+    public static final Codec<Item> ITEM_CODEC                          = new RegistryCodec<>(ForgeRegistries.ITEMS).stable();
+    public static final Codec<Block> BLOCK_CODEC                        = new RegistryCodec<>(ForgeRegistries.BLOCKS).stable();
+    public static final Codec<EntityType<?>> ENTITY_TYPE_CODEC          = new RegistryCodec<>(ForgeRegistries.ENTITIES).stable();
+    public static final Codec<Effect> EFFECT_CODEC                      = new RegistryCodec<>(ForgeRegistries.POTIONS).stable();
+    public static final Codec<Fluid> FLUID_CODEC                        = new RegistryCodec<>(ForgeRegistries.FLUIDS).stable();
 
     public static final Codec<ModelResourceLocation> MODEL_RESOURCE_LOCATION_CODEC      = Codec.STRING.comapFlatMap(Codecs::decodeModelResourceLocation, ModelResourceLocation::toString).stable();
     public static final Codec<MachineAppearance.AppearanceType> APPEARANCE_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeAppearanceType, MachineAppearance.AppearanceType::toString).stable();

@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
@@ -201,14 +200,13 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     public static class Template implements IMachineComponentTemplate<FluidMachineComponent> {
 
-        @SuppressWarnings("deprecation")
         public static final Codec<FluidMachineComponent.Template> CODEC = RecordCodecBuilder.create(fluidMachineComponentTemplate ->
                 fluidMachineComponentTemplate.group(
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         Codec.INT.fieldOf("capacity").forGetter(template -> template.capacity),
                         Codec.INT.optionalFieldOf("maxInput").forGetter(template -> Optional.of(template.maxInput)),
                         Codec.INT.optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
-                        Registry.FLUID.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
+                        Codecs.FLUID_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
                         Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode)
                 ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode) ->
