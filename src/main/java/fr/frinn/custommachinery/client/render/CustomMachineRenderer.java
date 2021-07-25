@@ -54,7 +54,7 @@ public class CustomMachineRenderer extends TileEntityRenderer<CustomMachineTile>
         Direction machineFacing = tile.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING);
         matrix.push();
         matrix.translate(0.5F, 0, 0.5F);
-        matrix.rotate(Vector3f.YN.rotationDegrees(machineFacing.getOpposite().getHorizontalAngle()));
+        matrix.rotate(Vector3f.YN.rotationDegrees(machineFacing.getHorizontalAngle()));
         matrix.translate(-0.5F, 0, -0.5F);
         if(boxToRender.containsKey(machine.getId())) {
             WorldRenderer.drawBoundingBox(matrix, buffer.getBuffer(RenderType.LINES), boxToRender.get(machine.getId()).getFirst().expand(1, 1, 1), 1.0F, 0.0F, 0.0F, 1.0F);

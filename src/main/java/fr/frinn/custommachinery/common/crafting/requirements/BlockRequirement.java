@@ -226,10 +226,6 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
         return info;
     }
 
-    public AxisAlignedBB getBox() {
-        return this.pos;
-    }
-
     public enum ACTION {
         CHECK,
         BREAK,
