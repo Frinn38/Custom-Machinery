@@ -105,15 +105,15 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         Map<IIngredientType<Object>, List<List<Object>>> ingredientInputMap = new HashMap<>();
         Map<IIngredientType<Object>, List<List<Object>>> ingredientOutputMap = new HashMap<>();
         recipe.getJEIIngredientRequirements().forEach(requirement -> {
-            IIngredientType<Object> ACTION = requirement.getJEIIngredientWrapper().getJEIIngredientType();
+            IIngredientType<Object> type = requirement.getJEIIngredientWrapper().getJEIIngredientType();
             if(((IRequirement<?>)requirement).getMode() == IRequirement.MODE.INPUT) {
-                if(!ingredientInputMap.containsKey(ACTION))
-                    ingredientInputMap.put(ACTION, new ArrayList<>());
-                ingredientInputMap.get(ACTION).add(requirement.getJEIIngredientWrapper().getJeiIngredients());
+                if(!ingredientInputMap.containsKey(type))
+                    ingredientInputMap.put(type, new ArrayList<>());
+                ingredientInputMap.get(type).add(requirement.getJEIIngredientWrapper().getJeiIngredients());
             } else {
-                if(!ingredientOutputMap.containsKey(ACTION))
-                    ingredientOutputMap.put(ACTION, new ArrayList<>());
-                ingredientOutputMap.get(ACTION).add(requirement.getJEIIngredientWrapper().getJeiIngredients());
+                if(!ingredientOutputMap.containsKey(type))
+                    ingredientOutputMap.put(type, new ArrayList<>());
+                ingredientOutputMap.get(type).add(requirement.getJEIIngredientWrapper().getJeiIngredients());
             }
         });
         ingredientInputMap.forEach(ingredients::setInputLists);
