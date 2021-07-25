@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
@@ -231,7 +232,7 @@ public class Codecs {
         StringReader reader = new StringReader(encoded);
         try {
             BlockStateParser parser = new BlockStateParser(reader, false).parse(true);
-            return DataResult.success(new PartialBlockState(parser.getState(), parser.getProperties().keySet(), parser.getNbt()));
+            return DataResult.success(new PartialBlockState(parser.getState(), Lists.newArrayList(parser.getProperties().keySet()), parser.getNbt()));
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception.getMessage());
         }

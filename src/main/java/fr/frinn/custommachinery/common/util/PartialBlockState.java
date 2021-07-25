@@ -1,25 +1,26 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.state.Property;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.CachedBlockInfo;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Rotation;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PartialBlockState implements Predicate<CachedBlockInfo> {
 
-    public static final PartialBlockState AIR = new PartialBlockState(Blocks.AIR.getDefaultState(), new HashSet<>(), null);
-    public static final PartialBlockState ANY = new PartialBlockState(Blocks.AIR.getDefaultState(), new HashSet<>(), null) {
+    public static final PartialBlockState AIR = new PartialBlockState(Blocks.AIR.getDefaultState(), new ArrayList<>(), null);
+    public static final PartialBlockState ANY = new PartialBlockState(Blocks.AIR.getDefaultState(), new ArrayList<>(), null) {
         @Override
         public boolean test(CachedBlockInfo cachedBlockInfo) {
             return true;
@@ -32,17 +33,17 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
     };
 
     private BlockState blockState;
-    private Set<Property<?>> properties;
+    private List<Property<?>> properties;
     private CompoundNBT nbt;
 
-    public PartialBlockState(BlockState blockState, Set<Property<?>> properties, CompoundNBT nbt) {
+    public PartialBlockState(BlockState blockState, List<Property<?>> properties, CompoundNBT nbt) {
         this.blockState = blockState;
         this.properties = properties;
         this.nbt = nbt;
     }
 
     public PartialBlockState(Block block) {
-        this(block.getDefaultState(), new HashSet<>(), null);
+        this(block.getDefaultState(), new ArrayList<>(), null);
     }
 
     public BlockState getBlockState() {
@@ -51,6 +52,19 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
 
     public List<String> getProperties() {
         return this.properties.stream().map(property -> property.getName() + "=" + this.blockState.get(property)).collect(Collectors.toList());
+    }
+
+    public PartialBlockState rotate(Rotation rotation) {
+        if(this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            Direction direction = this.blockState.get(BlockStateProperties.HORIZONTAL_FACING);
+            direction = rotation.rotate(direction);
+            BlockState blockState = this.blockState.with(BlockStateProperties.HORIZONTAL_FACING, direction);
+            List<Property<?>> properties = Lists.newArrayList(this.properties);
+            if(!properties.contains(BlockStateProperties.HORIZONTAL_FACING))
+                properties.add(BlockStateProperties.HORIZONTAL_FACING);
+            return new PartialBlockState(blockState, properties, this.nbt);
+        }
+        return this;
     }
 
     @Override

@@ -12,10 +12,7 @@ import net.minecraft.world.IWorldReader;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BlockStructure {
 
@@ -59,7 +56,9 @@ public class BlockStructure {
 
     private Map<BlockPos, PartialBlockState> rotate(Map<BlockPos, PartialBlockState> blocks, Rotation rotation) {
         Map<BlockPos, PartialBlockState> rotated = new HashMap<>();
-        blocks.forEach((pos, state) -> rotated.put(pos.rotate(rotation), state));
+        blocks.forEach((pos, state) -> {
+            rotated.put(pos.rotate(rotation), state.rotate(rotation));
+        });
         return rotated;
     }
 
@@ -73,7 +72,7 @@ public class BlockStructure {
 
         private Builder() {
             this.symbolMap.put(' ', PartialBlockState.ANY);
-            this.symbolMap.put('m', new PartialBlockState(Registration.CUSTOM_MACHINE_BLOCK.get().getDefaultState(), new HashSet<>(), null));
+            this.symbolMap.put('m', new PartialBlockState(Registration.CUSTOM_MACHINE_BLOCK.get().getDefaultState(), new ArrayList<>(), null));
         }
 
         /**
