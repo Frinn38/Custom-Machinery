@@ -34,6 +34,9 @@ import java.util.function.Predicate;
 public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachineRecipe> {
 
     private static final int ICON_SIZE = 10;
+    private static final int TOOLTIP_WIDTH = 256;
+    private static final int TOOLTIP_HEIGHT = 192;
+
     private final CustomMachine machine;
     private final IGuiHelper guiHelper;
     private final MachineComponentManager components;
@@ -193,7 +196,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                     renderer.renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY);
                     matrix.pop();
                     if(mouseX >= x && mouseX <= x + element.getWidth() && mouseY >= y && mouseY <= y + element.getHeight())
-                        GuiUtils.drawHoveringText(matrix, renderer.getJEITooltips(element, recipe), (int)mouseX, (int)mouseY, this.width * 2, this.height, this.width, Minecraft.getInstance().fontRenderer);
+                        GuiUtils.drawHoveringText(matrix, renderer.getJEITooltips(element, recipe), (int)mouseX, (int)mouseY, TOOLTIP_WIDTH, TOOLTIP_HEIGHT, TOOLTIP_WIDTH, Minecraft.getInstance().fontRenderer);
                 });
 
         //Render the line between the gui elements and the requirements icons
@@ -208,7 +211,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                 AbstractGui.blit(matrix, x, this.height - ICON_SIZE, info.getU(), info.getV(), ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
             }
             if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height && !info.getTooltips().isEmpty() && Minecraft.getInstance().currentScreen != null)
-                GuiUtils.drawHoveringText(matrix, info.getTooltips(), (int)mouseX, (int)mouseY, this.width * 2, this.height, this.width, Minecraft.getInstance().fontRenderer);
+                GuiUtils.drawHoveringText(matrix, info.getTooltips(), (int)mouseX, (int)mouseY, TOOLTIP_WIDTH, TOOLTIP_HEIGHT, TOOLTIP_WIDTH, Minecraft.getInstance().fontRenderer);
             index.incrementAndGet();
         });
     }
