@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
+import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Color3F;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
@@ -12,12 +12,10 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -58,20 +56,21 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
     public List<ITextComponent> getTooltip(FluidStack ingredient, FluidGuiElement element, ITooltipFlag flag) {
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(ingredient.getDisplayName());
-        CompoundNBT nbt = ingredient.getOrCreateChildTag(CustomMachinery.MODID);
-        if(nbt.contains("isPerTick", Constants.NBT.TAG_BYTE) && nbt.getBoolean("isPerTick"))
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.pertick", ingredient.getAmount()));
-        else
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid", ingredient.getAmount()));
-        if(nbt.contains("chance", Constants.NBT.TAG_DOUBLE)) {
-            double chance = nbt.getDouble("chance");
-            if(chance == 0)
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
+        if(ingredient instanceof FluidIngredientWrapper.FluidStackWrapper) {
+            FluidIngredientWrapper.FluidStackWrapper wrapper = (FluidIngredientWrapper.FluidStackWrapper)ingredient;
+            if(wrapper.isPerTick())
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.pertick", wrapper.getAmount()));
             else
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(chance * 100)));
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid", wrapper.getAmount()));
+
+            if(wrapper.getChance() == 0)
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
+            else if(wrapper.getChance() != 1.0)
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(wrapper.getChance() * 100)));
+
+            if(wrapper.isSpecificTank() && flag.isAdvanced())
+                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.specificTank").mergeStyle(TextFormatting.DARK_RED));
         }
-        if(nbt.contains("specificTank", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificTank") && flag.isAdvanced())
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.specificTank").mergeStyle(TextFormatting.DARK_RED));
         return tooltips;
     }
 }

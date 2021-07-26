@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.util.Ingredient;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
+import net.minecraft.fluid.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -36,14 +36,9 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
 
     @Override
     public Object asJEIIngredient() {
-        List<FluidStack> stacks = this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
-        if(this.isPerTick)
-            stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true));
-        if(this.chance != 1.0D)
-            stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance));
-        if(!this.tank.isEmpty())
-            stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificTank", true));
-        return stacks;
+        return this.fluid.getAll().stream().map(fluid ->
+            new FluidStackWrapper(fluid, this.amount).setPerTick(this.isPerTick).setSpecificTank(!this.tank.isEmpty()).setChance(this.chance)
+        ).collect(Collectors.toList());
     }
 
     @Override
@@ -55,5 +50,43 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     @Override
     public String getComponentID() {
         return this.tank;
+    }
+
+    public static class FluidStackWrapper extends FluidStack {
+
+        private boolean isPerTick;
+        private boolean specificTank;
+        private double chance;
+
+        public FluidStackWrapper(Fluid fluid, int amount) {
+            super(fluid, amount);
+        }
+
+        public boolean isPerTick() {
+            return this.isPerTick;
+        }
+
+        public FluidStackWrapper setPerTick(boolean perTick) {
+            this.isPerTick = perTick;
+            return this;
+        }
+
+        public boolean isSpecificTank() {
+            return this.specificTank;
+        }
+
+        public FluidStackWrapper setSpecificTank(boolean specificTank) {
+            this.specificTank = specificTank;
+            return this;
+        }
+
+        public double getChance() {
+            return this.chance;
+        }
+
+        public FluidStackWrapper setChance(double chance) {
+            this.chance = chance;
+            return this;
+        }
     }
 }
