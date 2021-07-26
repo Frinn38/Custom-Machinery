@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -37,6 +38,10 @@ public class Utils {
 
     public static ResourceLocation getFluidTagID(ITag<Fluid> tag) {
         return TagCollectionManager.getManager().getFluidTags().getValidatedIdFromTag(tag);
+    }
+
+    public static ResourceLocation getBlockTagID(ITag<Block> tag) {
+        return TagCollectionManager.getManager().getBlockTags().getValidatedIdFromTag(tag);
     }
 
     public static Vector3d vec3dFromBlockPos(BlockPos pos) {

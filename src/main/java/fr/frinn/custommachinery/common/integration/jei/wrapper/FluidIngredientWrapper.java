@@ -2,33 +2,28 @@ package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
+import fr.frinn.custommachinery.common.util.Ingredient;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.tags.ITag;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack> {
 
     private IRequirement.MODE mode;
-    private Fluid fluid;
+    private Ingredient.FluidIngredient fluid;
     private int amount;
-    private ITag<Fluid> tag;
     private double chance;
     private boolean isPerTick;
     private String tank;
 
-    public FluidIngredientWrapper(IRequirement.MODE mode, Fluid fluid, int amount, ITag<Fluid> tag, double chance, boolean isPerTick, String tank) {
+    public FluidIngredientWrapper(IRequirement.MODE mode, Ingredient.FluidIngredient fluid, int amount, double chance, boolean isPerTick, String tank) {
         this.mode = mode;
         this.fluid = fluid;
         this.amount = amount;
-        this.tag = tag;
         this.chance = chance;
         this.isPerTick = isPerTick;
         this.tank = tank;
@@ -41,36 +36,19 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
 
     @Override
     public Object asJEIIngredient() {
-        if(this.fluid != null && this.fluid != Fluids.EMPTY) {
-            FluidStack stack = new FluidStack(this.fluid, this.amount);
-            if(this.isPerTick)
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true);
-            if(this.chance != 1.0D)
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
-            if(!this.tank.isEmpty())
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificTank", true);
-            return stack;
-        }
-        else if(this.tag != null && this.mode == IRequirement.MODE.INPUT) {
-            List<FluidStack> stacks = this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
-            if(this.isPerTick)
-                stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true));
-            if(this.chance != 1.0D)
-                stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance));
-            if(!this.tank.isEmpty())
-                stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificTank", true));
-            return stacks;
-        }
-        else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
+        List<FluidStack> stacks = this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
+        if(this.isPerTick)
+            stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("isPerTick", true));
+        if(this.chance != 1.0D)
+            stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance));
+        if(!this.tank.isEmpty())
+            stacks.forEach(stack -> stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificTank", true));
+        return stacks;
     }
 
     @Override
     public List<FluidStack> getJeiIngredients() {
-        if(this.fluid != null && this.fluid != Fluids.EMPTY)
-            return Collections.singletonList(new FluidStack(this.fluid, this.amount));
-        else if(this.tag != null && this.mode == IRequirement.MODE.INPUT)
-            return this.tag.getAllElements().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
-        else throw new IllegalStateException("Using Fluid Requirement with null item and/or tag");
+        return this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount)).collect(Collectors.toList());
     }
 
     @Nonnull

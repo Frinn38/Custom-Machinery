@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unchecked")
 @ZenRegister
 @Name("mods.custommachinery.CMRecipeBuilder")
 public class CustomMachineCTRecipeBuilder {
@@ -93,37 +94,37 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluid(Fluid fluid, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String tank) {
-        withFluidRequirement(IRequirement.MODE.INPUT, fluid, null, amount, chance, false, tank);
+        withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(fluid), amount, chance, false, tank);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluid(MCTag<Fluid> tag, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String tank) {
-        withFluidRequirement(IRequirement.MODE.INPUT, null, tag, amount, chance, false, tank);
+        withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(tag.getInternalRaw()), amount, chance, false, tank);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluid(Fluid fluid, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String tank) {
-        withFluidRequirement(IRequirement.MODE.OUTPUT, fluid, null, amount, chance, false, tank);
+        withFluidRequirement(IRequirement.MODE.OUTPUT, new Ingredient.FluidIngredient(fluid), amount, chance, false, tank);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidPerTick(Fluid fluid, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String tank) {
-        withFluidRequirement(IRequirement.MODE.INPUT, fluid, null, amount, chance, true, tank);
+        withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(fluid), amount, chance, true, tank);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidPerTick(MCTag<Fluid> tag, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String tank) {
-        withFluidRequirement(IRequirement.MODE.INPUT, null, tag, amount, chance, true, tank);
+        withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(tag.getInternalRaw()), amount, chance, true, tank);
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluidPerTick(Fluid fluid, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String tank) {
-        withFluidRequirement(IRequirement.MODE.OUTPUT, fluid, null, amount, chance, true, tank);
+        withFluidRequirement(IRequirement.MODE.OUTPUT, new Ingredient.FluidIngredient(fluid), amount, chance, true, tank);
         return this;
     }
 
@@ -143,7 +144,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder damageItem(ItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        this.builder.withRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, stack.getItem(), amount, stack.getOrCreateTag(), chance, slot));
+        this.builder.withRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getOrCreateTag(), chance, slot));
         return this;
     }
 
@@ -155,7 +156,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder repairItem(ItemStack stack, int amount, @OptionalDouble(1.0D) double chance, @OptionalString String slot) {
-        this.builder.withRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, stack.getItem(), amount, stack.getOrCreateTag(), chance, slot));
+        this.builder.withRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getOrCreateTag(), chance, slot));
         return this;
     }
 
@@ -425,24 +426,19 @@ public class CustomMachineCTRecipeBuilder {
             this.builder.withRequirement(new EnergyRequirement(mode, amount, chance));
     }
 
-    private void withFluidRequirement(IRequirement.MODE mode, Fluid fluid, MCTag<Fluid> tag, int amount, double chance, boolean isPerTick, String tank) {
+    private void withFluidRequirement(IRequirement.MODE mode, Ingredient.FluidIngredient fluid, int amount, double chance, boolean isPerTick, String tank) {
         if(isPerTick) {
-            if(fluid != null)
-                this.builder.withRequirement(new FluidPerTickRequirement(mode, fluid, null, amount, chance, tank));
-            else
-                this.builder.withRequirement(new FluidPerTickRequirement(mode, null, tag.getId(), amount, chance, tank));
+            this.builder.withRequirement(new FluidPerTickRequirement(mode, fluid, amount, chance, tank));
         } else {
-            if(fluid != null)
-                this.builder.withRequirement(new FluidRequirement(mode, fluid, null, amount, chance, tank));
-            else
-                this.builder.withRequirement(new FluidRequirement(mode, null, tag.getId(), amount, chance, tank));
+            this.builder.withRequirement(new FluidRequirement(mode, fluid, amount, chance, tank));
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void withItemRequirement(IRequirement.MODE mode, ItemStack stack, MCTag<Item> tag, int amount, double chance, String slot) {
         if(stack != null)
-            this.builder.withRequirement(new ItemRequirement(mode, stack.getItem(), null, amount, stack.getTag(), chance, slot));
+            this.builder.withRequirement(new ItemRequirement(mode, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getTag(), chance, slot));
         else
-            this.builder.withRequirement(new ItemRequirement(mode, null, tag.getId(), amount, null, chance, slot));
+            this.builder.withRequirement(new ItemRequirement(mode, new Ingredient.ItemIngredient(tag.getInternalRaw()), amount, null, chance, slot));
     }
 }

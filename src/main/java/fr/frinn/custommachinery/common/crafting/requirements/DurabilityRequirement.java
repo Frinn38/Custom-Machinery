@@ -10,9 +10,9 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.Ingredient;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Random;
@@ -22,7 +22,7 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
     public static final Codec<DurabilityRequirement> CODEC = RecordCodecBuilder.create(durabilityRequirementInstance ->
             durabilityRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    Registry.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
+                    Ingredient.ItemIngredient.CODEC.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codecs.COMPOUND_NBT_CODEC.optionalFieldOf("nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
                     Codec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
@@ -30,22 +30,22 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
             ).apply(durabilityRequirementInstance, DurabilityRequirement::new)
     );
 
-    private Item item;
+    private Ingredient.ItemIngredient item;
     private int amount;
     private CompoundNBT nbt;
     private double chance;
     private String slot;
 
-    public DurabilityRequirement(MODE mode, Item item, int amount, CompoundNBT nbt, double chance, String slot) {
+    public DurabilityRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, CompoundNBT nbt, double chance, String slot) {
         super(mode);
-        if(!item.isDamageable())
-            throw new IllegalArgumentException("Invalid Item in Durability requirement: " + item.getRegistryName() + " can't be damaged !");
+        if(item.getAll().stream().noneMatch(Item::isDamageable))
+            throw new IllegalArgumentException("Invalid Item in Durability requirement: " + item + " can't be damaged !");
         this.item = item;
         this.amount = amount;
         this.nbt = nbt;
         this.chance = chance;
         this.slot = slot;
-        this.itemIngredientWrapper = new ItemIngredientWrapper(this.getMode(), this.item, this.amount, null, this.chance, true, this.nbt, this.slot);
+        this.itemIngredientWrapper = new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, true, this.nbt, this.slot);
     }
 
     @Override
@@ -57,21 +57,30 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
     public boolean test(ItemComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT)
-            return component.getDurabilityAmount(this.slot, this.item, this.nbt) >= amount;
+            return this.item.getAll().stream().mapToInt(item -> component.getDurabilityAmount(this.slot, item, this.nbt)).sum() >= amount;
         else
-            return component.getSpaceForDurability(this.slot, this.item, this.nbt) >= amount;
+            return this.item.getAll().stream().mapToInt(item -> component.getSpaceForDurability(this.slot, item, this.nbt)).sum() >= amount;
     }
 
     @Override
     public CraftingResult processStart(ItemComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
-            int canRemove = component.getDurabilityAmount(this.slot, this.item, this.nbt);
-            if(canRemove >= amount) {
-                component.removeDurability(this.slot, this.item, amount, this.nbt);
-                return CraftingResult.success();
+            int maxRemove = this.item.getAll().stream().mapToInt(item -> component.getDurabilityAmount(this.slot, item, this.nbt)).sum();
+            if(maxRemove >= amount) {
+                int toDamage = amount;
+                for (Item item : this.item.getAll()) {
+                    int canDamage = component.getDurabilityAmount(this.slot, item, this.nbt);
+                    if(canDamage > 0) {
+                        canDamage = Math.min(canDamage, toDamage);
+                        component.removeDurability(this.slot, item, canDamage, this.nbt);
+                        toDamage -= canDamage;
+                        if(toDamage == 0)
+                            return CraftingResult.success();
+                    }
+                }
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.durability.error.input", new TranslationTextComponent(this.item.getTranslationKey()), amount, canRemove));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.durability.error.input", this.item, amount, maxRemove));
         }
         return CraftingResult.pass();
     }
@@ -80,12 +89,21 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
     public CraftingResult processEnd(ItemComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.OUTPUT) {
-            int maxRepair = component.getSpaceForDurability(this.slot, this.item, this.nbt);
+            int maxRepair = this.item.getAll().stream().mapToInt(item -> component.getSpaceForDurability(this.slot, item, this.nbt)).sum();
             if(maxRepair >= amount) {
-                component.repairItem(this.slot, this.item, amount, this.nbt);
-                return CraftingResult.success();
+                int toRepair = amount;
+                for (Item item : this.item.getAll()) {
+                    int canRepair = component.getSpaceForDurability(this.slot, item, this.nbt);
+                    if(canRepair > 0) {
+                        canRepair = Math.min(canRepair, toRepair);
+                        component.repairItem(this.slot, item, canRepair, this.nbt);
+                        toRepair -= canRepair;
+                        if(toRepair == 0)
+                            return CraftingResult.success();
+                    }
+                }
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", new TranslationTextComponent(this.item.getTranslationKey()), amount, maxRepair));
+            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", this.item, amount, maxRepair));
         }
         return CraftingResult.pass();
     }
