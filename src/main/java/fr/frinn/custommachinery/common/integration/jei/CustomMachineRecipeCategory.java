@@ -154,7 +154,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         IComponentGuiElement<?> componentElement = (IComponentGuiElement<?>)element;
         for (IJEIIngredientRequirement requirement : requirements) {
             IJEIIngredientWrapper<?> wrapper = requirement.getJEIIngredientWrapper();
-            if(wrapper.getJEIIngredientType() == ingredientType && (componentElement.getID().equals(wrapper.getComponentID()) || testMode(componentElement, requirement))) {
+            if(wrapper.getJEIIngredientType() == ingredientType && ((componentElement.getID().equals(wrapper.getComponentID()) || wrapper.getComponentID().isEmpty()) && testMode(componentElement, requirement))) {
                 requirements.remove(requirement);
                 return wrapper.asJEIIngredient();
             }
