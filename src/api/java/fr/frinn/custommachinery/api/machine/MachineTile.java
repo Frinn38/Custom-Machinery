@@ -2,6 +2,9 @@ package fr.frinn.custommachinery.api.machine;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nullable;
 
 /**
  * The base class of the custom machine tile entity,
@@ -20,6 +23,14 @@ public abstract class MachineTile extends TileEntity {
      * @return The ICustomMachine currently linked to this MachineTile, or DUMMY.
      */
     public abstract ICustomMachine getMachine();
+
+    /**
+     * Calling this on the server side will recreate the machine craftingManager and componentManager.
+     * This will be called for any loaded MachineTile after /reload.
+     * If machineId param is not null, the MachineTile custom machine will change to the corresponding machine.
+     * @param machineId The id of the new machine linked to the tile, or null if the tile should keep its current machine.
+     */
+    public abstract void refreshMachine(@Nullable ResourceLocation machineId);
 
     /**
      * Pause or resume the MachineTile process.

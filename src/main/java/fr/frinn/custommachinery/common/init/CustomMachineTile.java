@@ -13,6 +13,8 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
+import fr.frinn.custommachinery.common.data.component.DummyComponentManager;
+import fr.frinn.custommachinery.common.crafting.DummyCraftingManager;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -44,8 +46,8 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
     private ResourceLocation id = DUMMY;
 
-    public CraftingManager craftingManager;
-    public MachineComponentManager componentManager;
+    public CraftingManager craftingManager = new DummyCraftingManager(this);
+    public MachineComponentManager componentManager = new DummyComponentManager(this);
     public SoundManager soundManager;
 
     public CustomMachineTile() {
@@ -69,6 +71,21 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
             return machine;
         else
             return CustomMachine.DUMMY;
+    }
+
+    @Override
+    public void refreshMachine(@Nullable ResourceLocation id) {
+        if(this.world == null || this.world.isRemote())
+            return;
+        CompoundNBT craftingManagerNBT = this.craftingManager.serializeNBT();
+        CompoundNBT componentManagerNBT = this.componentManager.serializeNBT();
+        if(id == null)
+            id = getId();
+        this.setId(id);
+        this.craftingManager.deserializeNBT(craftingManagerNBT);
+        this.componentManager.deserializeNBT(componentManagerNBT);
+
+        this.world.notifyBlockUpdate(this.pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
     }
 
     @Override
@@ -168,20 +185,18 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         CompoundNBT nbt = super.getUpdateTag();
         nbt.putString("machineID", this.id.toString());
         nbt.put("craftingManager", this.craftingManager.serializeNBT());
+        nbt.put("componentManager", this.componentManager.serializeNBT());
         return nbt;
     }
 
     @Override
     public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
         if(nbt.contains("machineID", Constants.NBT.TAG_STRING))
-            this.id = new ResourceLocation(nbt.getString("machineID"));
-        if(this.craftingManager == null)
-            this.craftingManager = new CraftingManager(this);
-        if(this.componentManager == null)
-            this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
-        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND)) {
+            this.setId(new ResourceLocation(nbt.getString("machineID")));
+        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
             this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
-        }
+        if(nbt.contains("componentManager", Constants.NBT.TAG_COMPOUND))
+            this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }
 
     private boolean paused = false;

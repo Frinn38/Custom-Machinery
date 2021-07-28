@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -30,6 +31,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private CustomMachineTile tile;
     private Random rand;
     private CustomMachineRecipe currentRecipe;
+    private ResourceLocation futureRecipeID;
     public double recipeProgressTime = 0;
     public int recipeTotalTime = 0;
     private List<IRequirement<?>> processedRequirements;
@@ -40,7 +42,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     private STATUS status;
     private STATUS prevStatus;
-    private PHASE phase;
+    private PHASE phase = PHASE.STARTING;
 
     private ITextComponent errorMessage = StringTextComponent.EMPTY;
 
@@ -66,6 +68,10 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         }
         if(this.status == STATUS.PAUSED)
             return;
+        if(this.futureRecipeID != null && this.tile.getWorld() != null) {
+            this.currentRecipe = (CustomMachineRecipe) this.tile.getWorld().getRecipeManager().getRecipe(this.futureRecipeID).orElse(null);
+            this.futureRecipeID = null;
+        }
         if(this.currentRecipe == null) {
             this.findRecipe().ifPresent(recipe -> {
                 this.currentRecipe = recipe;
@@ -255,6 +261,9 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     @Override
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
+        if(this.currentRecipe != null)
+            nbt.putString("recipe", this.currentRecipe.getId().toString());
+        nbt.putString("phase", this.phase.toString());
         nbt.putString("status", this.status.toString());
         nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
         nbt.putDouble("recipeProgressTime", this.recipeProgressTime);
@@ -263,6 +272,10 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     @Override
     public void deserializeNBT(CompoundNBT nbt) {
+        if(nbt.contains("recipe", Constants.NBT.TAG_STRING))
+            this.futureRecipeID = new ResourceLocation(nbt.getString("recipe"));
+        if(nbt.contains("phase", Constants.NBT.TAG_STRING))
+            this.phase = PHASE.value(nbt.getString("phase"));
         if(nbt.contains("status", Constants.NBT.TAG_STRING))
             this.status = STATUS.value(nbt.getString("status"));
         if(nbt.contains("message", Constants.NBT.TAG_STRING))

@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.data.upgrade.UpgradesCustomReloadListener;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.network.NetworkManager;
@@ -15,9 +16,12 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -60,6 +64,7 @@ public class CustomMachinery {
         final IEventBus FORGE_BUS = MinecraftForge.EVENT_BUS;
         FORGE_BUS.addListener(this::addReloadListener);
         FORGE_BUS.addListener(this::playerLogIn);
+        FORGE_BUS.addListener(this::worldTick);
     }
 
     public void commonSetup(final FMLCommonSetupEvent event) {
@@ -81,6 +86,14 @@ public class CustomMachinery {
         if(!player.world.isRemote()) {
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateMachinesPacket(MACHINES));
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateUpgradesPacket(UPGRADES));
+        }
+    }
+
+    public static boolean refreshMachines = false;
+    public void worldTick(final TickEvent.WorldTickEvent event) {
+        if(refreshMachines && event.phase == TickEvent.Phase.END && event.side == LogicalSide.SERVER && !event.world.isRemote()) {
+            refreshMachines = false;
+            event.world.tickableTileEntities.stream().filter(tile -> tile instanceof CustomMachineTile).map(tile -> (CustomMachineTile)tile).forEach(tile -> tile.refreshMachine(null));
         }
     }
 }
