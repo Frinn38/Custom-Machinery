@@ -10,7 +10,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class EnergyGuiElement extends TexturedGuiElement implements IComponentGuiElement<EnergyMachineComponent> {
 
-    private static final ResourceLocation BASE_ENERGY_STORAGE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_energy_storage.png");
+    private static final ResourceLocation BASE_ENERGY_STORAGE_EMPTY_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_energy_storage_empty.png");
+    private static final ResourceLocation BASE_ENERGY_STORAGE_FILLED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_energy_storage_filled.png");
 
     public static final Codec<EnergyGuiElement> CODEC = RecordCodecBuilder.create(energyGuiElementCodec ->
             energyGuiElementCodec.group(
@@ -19,12 +20,26 @@ public class EnergyGuiElement extends TexturedGuiElement implements IComponentGu
                     Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
                     Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
                     Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    ResourceLocation.CODEC.optionalFieldOf("texture", BASE_ENERGY_STORAGE_TEXTURE).forGetter(EnergyGuiElement::getTexture)
+                    ResourceLocation.CODEC.optionalFieldOf("emptytexture", BASE_ENERGY_STORAGE_EMPTY_TEXTURE).forGetter(EnergyGuiElement::getEmptyTexture),
+                    ResourceLocation.CODEC.optionalFieldOf("filledtexture", BASE_ENERGY_STORAGE_FILLED_TEXTURE).forGetter(EnergyGuiElement::getFilledTexture)
             ).apply(energyGuiElementCodec, EnergyGuiElement::new)
     );
 
-    public EnergyGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture) {
-        super(x, y, width, height, priority, texture);
+    private ResourceLocation emptyTexture;
+    private ResourceLocation filledTexture;
+
+    public EnergyGuiElement(int x, int y, int width, int height, int priority, ResourceLocation emptyTexture, ResourceLocation filledTexture) {
+        super(x, y, width, height, priority, emptyTexture);
+        this.emptyTexture = emptyTexture;
+        this.filledTexture = filledTexture;
+    }
+
+    public ResourceLocation getEmptyTexture() {
+        return this.emptyTexture;
+    }
+
+    public ResourceLocation getFilledTexture() {
+        return this.filledTexture;
     }
 
     @Override

@@ -25,35 +25,14 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
         int posY = element.getY();
         int width = element.getWidth();
         int height = element.getHeight();
-        screen.getMinecraft().getTextureManager().bindTexture(element.getTexture());
+        screen.getMinecraft().getTextureManager().bindTexture(element.getEmptyTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
         screen.getTile().componentManager.getEnergy().ifPresent(energy -> {
             double fillPercent = (double)energy.getEnergyStored() / (double)energy.getMaxEnergyStored();
-            int eneryHeight = (int)(fillPercent * (double)(height - 2));
-
-            drawTransparentRec(matrix, posX + 1, posY + height - eneryHeight - 1, width - 2, eneryHeight);
+            int eneryHeight = (int)(fillPercent * (double)(height));
+            screen.getMinecraft().getTextureManager().bindTexture(element.getFilledTexture());
+            AbstractGui.blit(matrix, posX, posY + height - eneryHeight, 0, height - eneryHeight, width, eneryHeight, width, height);
         });
-    }
-
-    @SuppressWarnings("deprecation")
-    private void drawTransparentRec(MatrixStack matrix, int x, int y, int width, int height) {
-        RenderSystem.enableBlend();
-
-        Minecraft.getInstance().getTextureManager().bindTexture(EMPTY);
-
-        BufferBuilder builder = Tessellator.getInstance().getBuffer();
-        builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-
-        builder.pos(matrix.getLast().getMatrix(), x, y + height, 0).color(255, 0, 0, 200).endVertex();
-        builder.pos(matrix.getLast().getMatrix(), x + width, y + height, 0).color(255, 0, 0, 200).endVertex();
-        builder.pos(matrix.getLast().getMatrix(), x + width, y, 0).color(255, 0, 0, 200).endVertex();
-        builder.pos(matrix.getLast().getMatrix(), x, y, 0).color(255, 0, 0, 200).endVertex();
-
-
-        builder.finishDrawing();
-        WorldVertexBufferUploader.draw(builder);
-
-        RenderSystem.disableBlend();
     }
 
     @Override
