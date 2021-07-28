@@ -1,7 +1,11 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ResourceLocation;
@@ -48,4 +52,14 @@ public class TextComponentUtils {
                     }
             )
     );
+
+    public static String toJsonString(ITextComponent component) {
+        DataResult<JsonElement> result = TEXT_COMPONENT_CODEC.encodeStart(JsonOps.INSTANCE, component);
+        return result.result().map(JsonElement::toString).orElse("");
+    }
+
+    public static ITextComponent fromJsonString(String jsonString) {
+        JsonElement json = new JsonParser().parse(jsonString);
+        return TEXT_COMPONENT_CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst).orElse(StringTextComponent.EMPTY);
+    }
 }

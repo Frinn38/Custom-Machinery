@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.network.sync.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.sync.StringSyncable;
 import fr.frinn.custommachinery.common.util.Comparators;
+import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
@@ -255,7 +256,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     public CompoundNBT serializeNBT() {
         CompoundNBT nbt = new CompoundNBT();
         nbt.putString("status", this.status.toString());
-        nbt.putString("message", this.errorMessage.getString());
+        nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
         nbt.putDouble("recipeProgressTime", this.recipeProgressTime);
         return nbt;
     }
@@ -265,7 +266,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(nbt.contains("status", Constants.NBT.TAG_STRING))
             this.status = STATUS.value(nbt.getString("status"));
         if(nbt.contains("message", Constants.NBT.TAG_STRING))
-            this.errorMessage = ITextComponent.getTextComponentOrEmpty(nbt.getString("message"));
+            this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
         if(nbt.contains("recipeProgressTime", Constants.NBT.TAG_DOUBLE))
             this.recipeProgressTime = nbt.getDouble("recipeProgressTime");
     }
@@ -274,7 +275,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
         container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
         container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = STATUS.value(status)));
-        container.accept(StringSyncable.create(() -> this.errorMessage.getString(), errorMessage -> this.errorMessage = ITextComponent.getTextComponentOrEmpty(errorMessage)));
+        container.accept(StringSyncable.create(() -> TextComponentUtils.toJsonString(this.errorMessage), errorMessage -> this.errorMessage = TextComponentUtils.fromJsonString(errorMessage)));
     }
 
     public enum PHASE {
