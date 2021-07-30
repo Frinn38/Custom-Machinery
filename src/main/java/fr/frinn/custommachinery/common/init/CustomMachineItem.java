@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -31,7 +32,7 @@ public class CustomMachineItem extends BlockItem {
     }
 
     public static Optional<CustomMachine> getMachine(ItemStack stack) {
-        if(stack.getItem() == Registration.CUSTOM_MACHINE_ITEM.get() && stack.getTag() != null && stack.getTag().contains(MACHINE_TAG_KEY, Constants.NBT.TAG_STRING) && ResourceLocation.isResouceNameValid(stack.getTag().getString(MACHINE_TAG_KEY))) {
+        if(stack.getItem() == Registration.CUSTOM_MACHINE_ITEM.get() && stack.getTag() != null && stack.getTag().contains(MACHINE_TAG_KEY, Constants.NBT.TAG_STRING) && Utils.isResourceNameValid(stack.getTag().getString(MACHINE_TAG_KEY))) {
             ResourceLocation machineID = new ResourceLocation(stack.getTag().getString(MACHINE_TAG_KEY));
             if(machineID.equals(CustomMachine.DUMMY.getId()))
                 return Optional.of(CustomMachine.DUMMY);

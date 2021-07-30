@@ -15,6 +15,7 @@ import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -115,6 +116,15 @@ public class Utils {
             case SOUTH: //No changes
             default:
                 return new AxisAlignedBB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+        }
+    }
+
+    public static boolean isResourceNameValid(String resourceLocation) {
+        try {
+            ResourceLocation location = new ResourceLocation(resourceLocation);
+            return true;
+        } catch (ResourceLocationException e) {
+            return false;
         }
     }
 }
