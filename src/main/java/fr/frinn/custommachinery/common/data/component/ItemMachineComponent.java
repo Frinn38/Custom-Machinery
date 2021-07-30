@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.Ingredient;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
@@ -24,12 +25,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     private String id;
     private int capacity;
-    private List<Item> filter;
+    private List<Ingredient.ItemIngredient> filter;
     private boolean whitelist;
     private ItemStack stack = ItemStack.EMPTY;
     private ItemComponentVariant variant;
 
-    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
+    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<Ingredient.ItemIngredient> filter, boolean whitelist, ItemComponentVariant variant) {
         super(manager, mode);
         this.id = id;
         this.capacity = MathHelper.clamp(capacity, 0, 64);
@@ -52,7 +53,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     public boolean isItemValid(ItemStack stack) {
-        return this.filter.contains(stack.getItem()) == this.whitelist && this.variant.isItemValid(this, stack);
+        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getItem())) == this.whitelist && this.variant.isItemValid(this, stack);
     }
 
     public ItemStack getItemStack() {
@@ -131,7 +132,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                         Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        Codecs.ITEM_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
+                        Ingredient.ItemIngredient.CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
                         Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         Codecs.ITEM_COMPONENT_VARIANT_CODEC.optionalFieldOf("variant", ItemComponentVariant.DEFAULT).forGetter(template -> template.variant)
                 ).apply(itemMachineComponentTemplate, Template::new)
@@ -140,11 +141,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         private ComponentIOMode mode;
         private String id;
         private int capacity;
-        private List<Item> filter;
+        private List<Ingredient.ItemIngredient> filter;
         private boolean whitelist;
         private ItemComponentVariant variant;
 
-        public Template(ComponentIOMode mode, String id, int capacity, List<Item> filter, boolean whitelist, ItemComponentVariant variant) {
+        public Template(ComponentIOMode mode, String id, int capacity, List<Ingredient.ItemIngredient> filter, boolean whitelist, ItemComponentVariant variant) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
