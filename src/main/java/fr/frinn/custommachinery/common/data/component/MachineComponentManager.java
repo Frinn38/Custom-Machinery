@@ -114,26 +114,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     }
 
     public void tick() {
-        if(this.tile.isPaused())
-            return;
         getTickableComponents().forEach(ITickableComponent::tick);
-        getEnergy().ifPresent(energyComponent -> {
-            for (Direction direction : Direction.values()) {
-                TileEntity tile = this.tile.getWorld().getTileEntity(this.tile.getPos().offset(direction));
-                if(tile != null) {
-                    tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite()).ifPresent(energy -> {
-                        int maxOutput = energyComponent.extractEnergy(Integer.MAX_VALUE, true);
-                        if(maxOutput > 0) {
-                            int toOutput = energy.receiveEnergy(maxOutput, true);
-                            if(toOutput > 0) {
-                                energyComponent.extractEnergy(toOutput, false);
-                                energy.receiveEnergy(toOutput, false);
-                            }
-                        }
-                    });
-                }
-            }
-        });
     }
 
     public void markDirty() {

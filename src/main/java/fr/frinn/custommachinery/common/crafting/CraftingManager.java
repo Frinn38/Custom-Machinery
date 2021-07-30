@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.sync.StringSyncable;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
+import fr.frinn.custommachinery.common.util.Utils;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -36,7 +37,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     public int recipeTotalTime = 0;
     private List<IRequirement<?>> processedRequirements;
     private CraftingContext context;
-    private int refreshModifiersCooldown = 20;
+    private int refreshModifiersCooldown = Utils.RAND.nextInt(20);
+    private int recipeCheckCooldown = Utils.RAND.nextInt(20);
 
     private List<IDelayedRequirement<IMachineComponent>> delayedRequirements;
 
@@ -193,8 +195,10 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     private Optional<CustomMachineRecipe> findRecipe() {
-        if(this.tile.getWorld() == null)
+        if(this.tile.getWorld() == null || this.recipeCheckCooldown-- > 0)
             return Optional.empty();
+
+        this.recipeCheckCooldown = 20;
         return this.tile.getWorld().getRecipeManager()
                 .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
                 .stream()

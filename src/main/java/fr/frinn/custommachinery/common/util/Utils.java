@@ -25,9 +25,12 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Utils {
+
+    public static final Random RAND = new Random();
 
     public static boolean canPlayerManageMachines(PlayerEntity player) {
         return player.hasPermissionLevel(Objects.requireNonNull(player.getServer()).getOpPermissionLevel());

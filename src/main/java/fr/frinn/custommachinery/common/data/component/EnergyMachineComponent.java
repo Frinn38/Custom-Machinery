@@ -7,8 +7,12 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -17,10 +21,14 @@ import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ICapabilityComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent {
+public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ITickableComponent, ICapabilityComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent {
 
     private int energy;
     private int capacity;
@@ -29,7 +37,9 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     private long actualTick;
     private int actualTickInput;
     private int actualTickOutput;
+    private int searchNeighborCooldown = Utils.RAND.nextInt(20);
     private LazyOptional<EnergyMachineComponent> capability = LazyOptional.of(() -> this);
+    private Map<Direction, LazyOptional<IEnergyStorage>> neighborStorages = new HashMap<>();
 
     public EnergyMachineComponent(IMachineComponentManager manager, int capacity, int maxInput, int maxOutput) {
         super(manager, ComponentIOMode.BOTH);
@@ -50,6 +60,45 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public MachineComponentType<EnergyMachineComponent> getType() {
         return Registration.ENERGY_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public void tick() {
+        if(getManager().getTile().isPaused() || getManager().getTile().getWorld() == null || this.energy == 0)
+            return;
+
+        AtomicInteger maxExtract = new AtomicInteger(extractEnergy(Integer.MAX_VALUE, true));
+
+        if(maxExtract.get() > 0) {
+            if(this.searchNeighborCooldown-- <= 0) {
+                this.searchNeighborCooldown = 20;
+                this.searchNeighborStorages();
+            }
+            this.neighborStorages.values().forEach(cap ->
+                cap.ifPresent(energy -> {
+                    int toInsert = energy.receiveEnergy(maxExtract.get(), true);
+                    if (toInsert > 0) {
+                        this.extractEnergy(toInsert, false);
+                        energy.receiveEnergy(toInsert, false);
+                        maxExtract.addAndGet(-toInsert);
+                    }
+                })
+            );
+        }
+    }
+
+    private void searchNeighborStorages() {
+        for(Direction direction : Direction.values()) {
+            if(this.neighborStorages.get(direction) != null)
+                continue;
+            World world = getManager().getTile().getWorld();
+            BlockPos pos = getManager().getTile().getPos();
+            LazyOptional<IEnergyStorage> neighborStorage = Optional.ofNullable(world.getTileEntity(pos.offset(direction))).map(tile -> tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite())).orElse(null);
+            if(neighborStorage != null && neighborStorage.isPresent()) {
+                neighborStorage.addListener(storage -> this.neighborStorages.remove(direction));
+                this.neighborStorages.put(direction, neighborStorage);
+            }
+        }
     }
 
     @Override

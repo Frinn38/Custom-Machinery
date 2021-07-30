@@ -6,8 +6,10 @@ import fr.frinn.custommachinery.api.components.*;
 import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.util.Direction;
 
+import java.util.Random;
 import java.util.stream.Stream;
 
 public class RedstoneMachineComponent extends AbstractMachineComponent implements ITickableComponent {
@@ -18,6 +20,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     private int erroredPowerOutput;
     private MachineComponentType<?> comparatorInputType;
     private String comparatorInputID;
+    private int checkRedstoneCooldown = Utils.RAND.nextInt(20);
 
     public RedstoneMachineComponent(IMachineComponentManager manager, int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
         super(manager, ComponentIOMode.BOTH);
@@ -36,6 +39,9 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
     @Override
     public void tick() {
+        if(this.checkRedstoneCooldown-- > 0)
+            return;
+        this.checkRedstoneCooldown = 20;
         if(!getManager().getTile().isPaused() && this.shouldPauseMachine())
             getManager().getTile().setPaused(true);
         if(getManager().getTile().isPaused() && !this.shouldPauseMachine())

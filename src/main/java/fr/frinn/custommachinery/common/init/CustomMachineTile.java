@@ -94,13 +94,16 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
             return;
 
         if(!this.world.isRemote()) {
+            this.world.getProfiler().startSection("Component tick");
             this.componentManager.tick();
+            this.world.getProfiler().endStartSection("Crafting Manager tick");
             try {
                 this.craftingManager.tick();
             } catch (ComponentNotFoundException e) {
                 CustomMachinery.LOGGER.error(e.getMessage());
                 setPaused(true);
             }
+            this.world.getProfiler().endSection();
 
             if(this.needRefreshLightning())
                 this.refreshLightning();
