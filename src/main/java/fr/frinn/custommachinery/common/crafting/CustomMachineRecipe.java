@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
+import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -50,13 +51,15 @@ public class CustomMachineRecipe extends DummyRecipe {
     }
 
     public List<IJEIIngredientRequirement> getJEIIngredientRequirements() {
-        Stream<IRequirement<?>> stream = Stream.concat(this.requirements.stream(), this.jeiRequirements.stream());
-        return stream.filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
+        if(this.jeiRequirements.isEmpty())
+            return this.requirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
+        return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
     }
 
     public List<IDisplayInfoRequirement<?>> getDisplayInfoRequirements() {
-        Stream<IRequirement<?>> stream = Stream.concat(this.requirements.stream(), this.jeiRequirements.stream());
-        return stream.filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement<?>)requirement).collect(Collectors.toList());
+        if(this.jeiRequirements.isEmpty())
+            return this.requirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement<?>)requirement).collect(Collectors.toList());
+        return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement<?>)requirement).collect(Collectors.toList());
     }
 
     public boolean matches(CustomMachineTile tile, CraftingContext context) {
