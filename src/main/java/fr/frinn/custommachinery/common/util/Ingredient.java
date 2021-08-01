@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.block.Block;
@@ -50,7 +51,7 @@ public abstract class Ingredient<T> implements Predicate<T> {
 
     public static class ItemIngredient extends Ingredient<Item> {
 
-        public static final Codec<ItemIngredient> CODEC = Codec.STRING.flatXmap(encoded -> {
+        private static final Codec<ItemIngredient> CODEC_FOR_STRING = Codec.STRING.flatXmap(encoded -> {
             boolean isTag = encoded.startsWith("#");
             try {
                 ResourceLocation location = new ResourceLocation(encoded.substring(isTag ? 1 : 0));
@@ -67,6 +68,18 @@ public abstract class Ingredient<T> implements Predicate<T> {
                 return DataResult.success("#" + Utils.getItemTagID(itemIngredient.getTag()));
             return DataResult.error("ItemIngredient with no item or tag");
         });
+
+        private static final Codec<ItemIngredient> CODEC_FOR_KUBEJS = Codec.either(Codecs.ITEM_CODEC.fieldOf("item").codec(), ITag.getTagCodec(TagCollectionManager.getManager()::getItemTags).fieldOf("tag").codec())
+                .flatXmap(either -> either.map(item -> DataResult.success(new ItemIngredient(item)), tag -> DataResult.success(new ItemIngredient(tag))), ingredient -> {
+                    if(ingredient.getObject() != null)
+                        return DataResult.success(Either.left(ingredient.getObject()));
+                    if(ingredient.getTag() != null)
+                        return DataResult.success(Either.right(ingredient.getTag()));
+                    return DataResult.error("ItemIngredient with no item or tag !");
+                }).stable();
+
+        public static final Codec<ItemIngredient> CODEC = Codec.either(CODEC_FOR_STRING, CODEC_FOR_KUBEJS)
+                .xmap(either -> either.map(ingredient -> ingredient, ingredient -> ingredient), Either::left).stable();
 
         public ItemIngredient(Item object) {
             super(object);
