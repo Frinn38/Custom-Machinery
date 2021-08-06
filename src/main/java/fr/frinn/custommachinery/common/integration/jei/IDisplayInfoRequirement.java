@@ -5,5 +5,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 
 public interface IDisplayInfoRequirement<T extends IMachineComponent> extends IRequirement<T> {
 
+    void setJeiVisible(boolean jeiVisible);
+
     RequirementDisplayInfo getDisplayInfo();
 }

@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -33,7 +34,12 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                     Codecs.PARTIAL_BLOCK_STATE_CODEC.fieldOf("block").orElse((Consumer<String>) CustomMachinery.LOGGER::error, PartialBlockState.AIR).forGetter(requirement -> requirement.block),
                     Codec.doubleRange(0.0D, 1.0D).optionalFieldOf("delay", 0.0D).forGetter(requirement -> requirement.delay),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(blockRequirementInstance, BlockRequirement::new)
+            ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, delay, jei) -> {
+                    BlockRequirement requirement = new BlockRequirement(mode, action, pos, amount, comparator, block);
+                    requirement.setJeiVisible(jei);
+                    requirement.setDelay(delay);
+                    return requirement;
+            })
     );
 
     private ACTION action;
@@ -44,15 +50,13 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     private double delay;
     private boolean jeiVisible;
 
-    public BlockRequirement(MODE mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block, double delay, boolean jeiVisible) {
+    public BlockRequirement(MODE mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block) {
         super(mode);
         this.action = action;
         this.pos = pos;
         this.amount = amount;
         this.comparator = comparator;
         this.block = block;
-        this.delay = delay;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -154,6 +158,11 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     }
 
     @Override
+    public void setDelay(double delay) {
+        this.delay = MathHelper.clamp(delay, 0.0, 1.0);
+    }
+
+    @Override
     public double getDelay() {
         return this.delay;
     }
@@ -183,6 +192,11 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                 return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, new TranslationTextComponent(this.block.getBlockState().getBlock().getTranslationKey()), this.pos.toString()));
         }
         return CraftingResult.pass();
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

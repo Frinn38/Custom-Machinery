@@ -19,18 +19,21 @@ public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachi
                     Codecs.WEATHER_TYPE_CODEC.fieldOf("weather").forGetter(requirement -> requirement.weather),
                     Codec.BOOL.optionalFieldOf("onmachine", true).forGetter(requirement -> requirement.onMachine),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(weatherRequirementInstance, WeatherRequirement::new)
+            ).apply(weatherRequirementInstance, (weather, onMachine, jei) -> {
+                    WeatherRequirement requirement = new WeatherRequirement(weather, onMachine);
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private WeatherMachineComponent.WeatherType weather;
     private boolean onMachine;
     private boolean jeiVisible;
 
-    public WeatherRequirement(WeatherMachineComponent.WeatherType weather, boolean onMachine, boolean jeiVisible) {
+    public WeatherRequirement(WeatherMachineComponent.WeatherType weather, boolean onMachine) {
         super(MODE.INPUT);
         this.weather = weather;
         this.onMachine = onMachine;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -65,6 +68,11 @@ public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachi
         if(component.hasWeather(this.weather, this.onMachine))
             return CraftingResult.success();
         return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.weather.error", this.weather));
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

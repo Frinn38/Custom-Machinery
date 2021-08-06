@@ -23,16 +23,19 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
             timeRequirementInstance.group(
                     Codecs.TIME_COMPARATOR_CODEC.listOf().fieldOf("times").forGetter(requirement -> requirement.times),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(timeRequirementInstance, TimeRequirement::new)
+            ).apply(timeRequirementInstance, (times, jei) -> {
+                    TimeRequirement requirement = new TimeRequirement(times);
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private List<TimeComparator> times;
     private boolean jeiVisible;
 
-    public TimeRequirement(List<TimeComparator> times, boolean jeiVisible) {
+    public TimeRequirement(List<TimeComparator> times) {
         super(MODE.INPUT);
         this.times = times;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -61,6 +64,11 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
     @Override
     public MachineComponentType<TimeMachineComponent> getComponentType() {
         return Registration.TIME_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

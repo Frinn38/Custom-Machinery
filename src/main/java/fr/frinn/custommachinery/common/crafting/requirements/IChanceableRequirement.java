@@ -7,5 +7,7 @@ import java.util.Random;
 
 public interface IChanceableRequirement<T extends IMachineComponent> extends IRequirement<T> {
 
+    void setChance(double chance);
+
     boolean testChance(T component, Random rand, CraftingContext context);
 }

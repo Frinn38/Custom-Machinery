@@ -11,10 +11,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.energy.CapabilityEnergy;
 
 import java.util.ArrayList;
 import java.util.List;

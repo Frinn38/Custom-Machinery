@@ -3,8 +3,6 @@ package fr.frinn.custommachinery.common.data.component;
 import fr.frinn.custommachinery.api.components.*;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
-import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;

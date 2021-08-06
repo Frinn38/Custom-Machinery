@@ -27,27 +27,29 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     Ingredient.ItemIngredient.CODEC.promotePartial(CustomMachinery.LOGGER::error).fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codecs.COMPOUND_NBT_CODEC.optionalFieldOf("nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    Codec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
                     Codec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
-            ).apply(itemRequirementInstance, ItemRequirement::new)
+            ).apply(itemRequirementInstance, (mode, item, amount, nbt, chance, slot) -> {
+                    ItemRequirement requirement = new ItemRequirement(mode, item, amount, nbt, slot);
+                    requirement.setChance(chance);
+                    return requirement;
+            })
     );
 
     private Ingredient.ItemIngredient item;
     private int amount;
     private CompoundNBT nbt;
-    private double chance;
+    private double chance = 1.0D;
     private String slot;
 
-    public ItemRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, CompoundNBT nbt, double chance, String slot) {
+    public ItemRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, CompoundNBT nbt, String slot) {
         super(mode);
         if(mode == MODE.OUTPUT && item.getObject() == null)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.item = item;
         this.amount = amount;
         this.nbt = nbt == null ? new CompoundNBT() : nbt;
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
         this.slot = slot;
-        this.itemIngredientWrapper = new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, false, this.nbt, this.slot);
     }
 
     @Override
@@ -113,14 +115,18 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     }
 
     @Override
+    public void setChance(double chance) {
+        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+    }
+
+    @Override
     public boolean testChance(ItemComponentHandler component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }
 
-    private ItemIngredientWrapper itemIngredientWrapper;
     @Override
     public ItemIngredientWrapper getJEIIngredientWrapper() {
-        return this.itemIngredientWrapper;
+        return new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, false, this.nbt, this.slot);
     }
 }

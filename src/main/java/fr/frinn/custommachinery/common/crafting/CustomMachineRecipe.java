@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.crafting;
 
-import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -13,7 +12,6 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CustomMachineRecipe extends DummyRecipe {
 

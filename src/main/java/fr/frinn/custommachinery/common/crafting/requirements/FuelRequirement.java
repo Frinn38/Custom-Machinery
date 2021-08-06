@@ -16,14 +16,17 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
     public static final Codec<FuelRequirement> CODEC = RecordCodecBuilder.create(fuelRequirementInstance ->
             fuelRequirementInstance.group(
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(fuelRequirementInstance, FuelRequirement::new)
+            ).apply(fuelRequirementInstance, (jei) -> {
+                    FuelRequirement requirement = new FuelRequirement();
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private boolean jeiVisible;
 
-    public FuelRequirement(boolean jeiVisible) {
+    public FuelRequirement() {
         super(MODE.INPUT);
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -58,6 +61,11 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
     @Override
     public MachineComponentType<FuelMachineComponent> getComponentType() {
         return Registration.FUEL_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

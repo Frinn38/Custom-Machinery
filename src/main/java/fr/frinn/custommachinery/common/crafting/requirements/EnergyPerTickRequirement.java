@@ -21,18 +21,20 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
             energyPerTickRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
-            ).apply(energyPerTickRequirementInstance, EnergyPerTickRequirement::new)
+                    Codec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
+            ).apply(energyPerTickRequirementInstance, (mode, amount, chance) -> {
+                    EnergyPerTickRequirement requirement = new EnergyPerTickRequirement(mode, amount);
+                    requirement.setChance(chance);
+                    return requirement;
+            })
     );
 
     private int amount;
-    private double chance;
+    private double chance = 1.0D;
 
-    public EnergyPerTickRequirement(MODE mode, int amount, double chance) {
+    public EnergyPerTickRequirement(MODE mode, int amount) {
         super(mode);
         this.amount = amount;
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
-        this.energyIngredientWrapper = new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, true);
     }
 
     @Override
@@ -86,14 +88,18 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
     }
 
     @Override
+    public void setChance(double chance) {
+        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+    }
+
+    @Override
     public boolean testChance(EnergyMachineComponent component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }
 
-    private EnergyIngredientWrapper energyIngredientWrapper;
     @Override
     public EnergyIngredientWrapper getJEIIngredientWrapper() {
-        return this.energyIngredientWrapper;
+        return new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, true);
     }
 }

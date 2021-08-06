@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.16.5-0.4.4'
+version = '1.16.5-0.4.5'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'custommachinery'
 
@@ -117,10 +117,6 @@ minecraft {
 }
 
 repositories {
-    maven { // TOP
-        name = "tterrag maven"
-        url = "http://maven.tterrag.com/"
-    }
     maven { //JEI
         name = "Progwml6 maven"
         url = "https://dvs1.progwml6.com/files/maven/"
@@ -129,6 +125,10 @@ repositories {
         name = "Jared maven"
         url = "https://maven.blamejared.com"
     }
+    maven { // TOP
+        name = "tterrag maven"
+        url = "http://maven.tterrag.com/"
+    }
     maven { //Cursemaven
         name = "Curse maven"
         url = "https://www.cursemaven.com"
@@ -136,6 +136,12 @@ repositories {
     maven { //Mod maven
         name = "Mod maven"
         url = "https://modmaven.dev/"
+    }
+    maven { //Architectury
+        url = "https://maven.architectury.dev"
+    }
+    maven { //KubeJS/Rhino
+        url = "https://maven.saps.dev/minecraft"
     }
 }
 
@@ -167,8 +173,12 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}")
     implementation fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:${ct_version}")
+    implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
+    implementation "dev.latvian.mods:rhino:${rhino_version}"
+    implementation fg.deobf("me.shedaniel:architectury-forge:${architectury_version}")
 
     runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")
+    runtimeOnly fg.deobf("curse.maven:plates-417169:3253876")
 }
 
 def getManifestAttributes(String title) {

@@ -1,8 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.network.ISyncable;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;

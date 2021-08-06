@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Ingredient;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;

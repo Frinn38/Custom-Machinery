@@ -20,18 +20,21 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
                     Codec.INT.fieldOf("power").forGetter(requirement -> requirement.powerLevel),
                     Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparatorMode),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(redstoneRequirementInstance, RedstoneRequirement::new)
+            ).apply(redstoneRequirementInstance, (power, comparator, jei) -> {
+                    RedstoneRequirement requirement = new RedstoneRequirement(power, comparator);
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private int powerLevel;
     private ComparatorMode comparatorMode;
     private boolean jeiVisible;
 
-    public RedstoneRequirement(int powerLevel, ComparatorMode comparatorMode, boolean jeiVisible) {
+    public RedstoneRequirement(int powerLevel, ComparatorMode comparatorMode) {
         super(MODE.INPUT);
         this.powerLevel = powerLevel;
         this.comparatorMode = comparatorMode;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -69,6 +72,11 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
         if(this.test(component, context))
             return CraftingResult.success();
         return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", powerLevel));
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

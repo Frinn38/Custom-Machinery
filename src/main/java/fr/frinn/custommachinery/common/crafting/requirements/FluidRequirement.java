@@ -25,23 +25,26 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Ingredient.FluidIngredient.CODEC.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    Codec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
                     Codec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
-            ).apply(fluidRequirementInstance, FluidRequirement::new)
+            ).apply(fluidRequirementInstance, (mode, fluid, amount, chance, tank) -> {
+                    FluidRequirement requirement = new FluidRequirement(mode, fluid, amount, tank);
+                    requirement.setChance(chance);
+                    return requirement;
+            })
     );
 
     private Ingredient.FluidIngredient fluid;
     private int amount;
-    private double chance;
+    private double chance = 1.0D;
     private String tank;
 
-    public FluidRequirement(MODE mode, Ingredient.FluidIngredient fluid, int amount, double chance, String tank) {
+    public FluidRequirement(MODE mode, Ingredient.FluidIngredient fluid, int amount, String tank) {
         super(mode);
         if(mode == MODE.OUTPUT && fluid.getObject() == null)
             throw new IllegalArgumentException("You must specify a fluid for an Output Fluid Requirement");
         this.fluid = fluid;
         this.amount = amount;
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
         this.tank = tank;
         this.fluidIngredientWrapper = new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.chance, false, this.tank);
     }
@@ -108,6 +111,11 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
             } else throw new IllegalStateException("Can't use output fluid requirement with fluid tag");
         }
         return CraftingResult.pass();
+    }
+
+    @Override
+    public void setChance(double chance) {
+        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
     }
 
     @Override

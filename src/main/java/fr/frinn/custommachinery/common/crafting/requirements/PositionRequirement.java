@@ -33,7 +33,11 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
                 ResourceLocation.CODEC.listOf().optionalFieldOf("dimensions", new ArrayList<>()).forGetter(requirement -> requirement.dimensions.stream().map(RegistryKey::getLocation).collect(Collectors.toList())),
                 Codec.BOOL.optionalFieldOf("dimensionsBlacklist", false).forGetter(requirement -> requirement.dimensionsBlacklist),
                 Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-        ).apply(positionRequirementInstance, PositionRequirement::new)
+        ).apply(positionRequirementInstance, (positions, biomes, biomeBlacklist, dimensions, dimensionsBlacklist, jei) -> {
+                PositionRequirement requirement = new PositionRequirement(positions, biomes, biomeBlacklist, dimensions, dimensionsBlacklist);
+                requirement.setJeiVisible(jei);
+                return requirement;
+        })
     );
 
     private List<PositionComparator> positions;
@@ -43,14 +47,13 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     private boolean dimensionsBlacklist;
     private boolean jeiVisible;
 
-    public PositionRequirement(List<PositionComparator> positions, List<ResourceLocation> biomes, boolean biomesBlacklist, List<ResourceLocation> dimensions, boolean dimensionsBlacklist, boolean jeiVisible) {
+    public PositionRequirement(List<PositionComparator> positions, List<ResourceLocation> biomes, boolean biomesBlacklist, List<ResourceLocation> dimensions, boolean dimensionsBlacklist) {
         super(MODE.INPUT);
         this.positions = positions;
         this.biomes = biomes;
         this.biomesBlacklist = biomesBlacklist;
         this.dimensions = dimensions.stream().map(location -> RegistryKey.getOrCreateKey(Registry.WORLD_KEY, location)).collect(Collectors.toList());
         this.dimensionsBlacklist = dimensionsBlacklist;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -82,6 +85,11 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     @Override
     public MachineComponentType<PositionMachineComponent> getComponentType() {
         return Registration.POSITION_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

@@ -25,7 +25,11 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
                     Codec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
                     Codec.unboundedMap(Codecs.CHARACTER_CODEC, Codecs.PARTIAL_BLOCK_STATE_CODEC).fieldOf("keys").forGetter(requirement -> requirement.keys),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(structureRequirementInstance, StructureRequirement::new)
+            ).apply(structureRequirementInstance, (pattern, keys, jei) -> {
+                    StructureRequirement requirement = new StructureRequirement(pattern, keys);
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private List<List<String>> pattern;
@@ -33,7 +37,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
     private BlockStructure structure;
     private boolean jeiVisible;
 
-    public StructureRequirement(List<List<String>> pattern, Map<Character, PartialBlockState> keys, boolean jeiVisible) {
+    public StructureRequirement(List<List<String>> pattern, Map<Character, PartialBlockState> keys) {
         super(MODE.INPUT);
         this.pattern = pattern;
         this.keys = keys;
@@ -43,7 +47,6 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
         for(Map.Entry<Character, PartialBlockState> key : keys.entrySet())
             builder.where(key.getKey(), key.getValue());
         this.structure = builder.build();
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -76,6 +79,11 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
         if(component.checkStructure(this.structure))
             return CraftingResult.success();
         else return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.structure.error"));
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

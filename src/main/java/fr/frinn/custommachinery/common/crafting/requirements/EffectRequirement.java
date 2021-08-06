@@ -33,7 +33,11 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
                     Codecs.ENTITY_TYPE_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
                     Codec.BOOL.optionalFieldOf("finish", false).forGetter(requirement -> requirement.applyAtEnd),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(effectRequirementInstance, EffectRequirement::new)
+            ).apply(effectRequirementInstance, (effect, time, level, radius, filter, finish, jei) -> {
+                    EffectRequirement requirement = new EffectRequirement(effect, time, level, radius, filter, finish);
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private Effect effect;
@@ -44,7 +48,7 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
     private boolean applyAtEnd;
     private boolean jeiVisible;
 
-    public EffectRequirement(Effect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd, boolean jeiVisible) {
+    public EffectRequirement(Effect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd) {
         super(MODE.OUTPUT);
         this.effect = effect;
         this.time = time;
@@ -52,7 +56,6 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
         this.radius = radius;
         this.filter = filter;
         this.applyAtEnd = applyAtEnd;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -93,6 +96,11 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
     @Override
     public MachineComponentType<EffectMachineComponent> getComponentType() {
         return Registration.EFFECT_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

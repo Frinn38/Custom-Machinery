@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Ingredient;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Random;
@@ -27,25 +28,27 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
                     Codecs.COMPOUND_NBT_CODEC.optionalFieldOf("nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
                     Codec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
                     Codec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
-            ).apply(durabilityRequirementInstance, DurabilityRequirement::new)
+            ).apply(durabilityRequirementInstance, (mode, item, amount, nbt, chance, slot) -> {
+                    DurabilityRequirement requirement = new DurabilityRequirement(mode, item, amount, nbt, slot);
+                    requirement.setChance(chance);
+                    return requirement;
+            })
     );
 
     private Ingredient.ItemIngredient item;
     private int amount;
     private CompoundNBT nbt;
-    private double chance;
+    private double chance = 1.0D;
     private String slot;
 
-    public DurabilityRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, CompoundNBT nbt, double chance, String slot) {
+    public DurabilityRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, CompoundNBT nbt, String slot) {
         super(mode);
         if(item.getAll().stream().noneMatch(Item::isDamageable))
             throw new IllegalArgumentException("Invalid Item in Durability requirement: " + item + " can't be damaged !");
         this.item = item;
         this.amount = amount;
         this.nbt = nbt;
-        this.chance = chance;
         this.slot = slot;
-        this.itemIngredientWrapper = new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, true, this.nbt, this.slot);
     }
 
     @Override
@@ -114,14 +117,18 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
     }
 
     @Override
+    public void setChance(double chance) {
+        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+    }
+
+    @Override
     public boolean testChance(ItemComponentHandler component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }
 
-    private ItemIngredientWrapper itemIngredientWrapper;
     @Override
     public ItemIngredientWrapper getJEIIngredientWrapper() {
-        return this.itemIngredientWrapper;
+        return new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, true, this.nbt, this.slot);
     }
 }

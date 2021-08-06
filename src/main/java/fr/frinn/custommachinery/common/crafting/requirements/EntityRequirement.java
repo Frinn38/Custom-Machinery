@@ -31,7 +31,11 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
                     Codecs.ENTITY_TYPE_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
                     Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(entityRequirementInstance, EntityRequirement::new)
+            ).apply(entityRequirementInstance, (mode, action, amount, radius, filter, whitelist, jei) -> {
+                    EntityRequirement requirement = new EntityRequirement(mode, action, amount, radius, filter, whitelist);
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private ACTION action;
@@ -42,7 +46,7 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
     private Predicate<Entity> predicate;
     private boolean jeiVisible;
 
-    public EntityRequirement(MODE mode, ACTION action, int amount, int radius, List<EntityType<?>> filter, boolean whitelist, boolean jeiVisible) {
+    public EntityRequirement(MODE mode, ACTION action, int amount, int radius, List<EntityType<?>> filter, boolean whitelist) {
         super(mode);
         this.action = action;
         this.amount = amount;
@@ -50,7 +54,6 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
         this.filter = filter;
         this.whitelist = whitelist;
         this.predicate = entity -> filter.contains(entity.getType()) == whitelist;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -133,6 +136,11 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
             return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
         else
             return CraftingResult.pass();
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

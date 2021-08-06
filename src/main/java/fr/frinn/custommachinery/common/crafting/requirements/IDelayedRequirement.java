@@ -6,6 +6,8 @@ import fr.frinn.custommachinery.common.crafting.CraftingResult;
 
 public interface IDelayedRequirement<T extends IMachineComponent> extends IRequirement<T> {
 
+    void setDelay(double delay);
+
     double getDelay();
 
     CraftingResult execute(T component, CraftingContext context);

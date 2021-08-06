@@ -25,23 +25,26 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
                     Ingredient.FluidIngredient.CODEC.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    Codec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
                     Codec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
-            ).apply(fluidPerTickRequirementInstance, FluidPerTickRequirement::new)
+            ).apply(fluidPerTickRequirementInstance, (mode, fluid, amount, chance, tank) -> {
+                    FluidPerTickRequirement requirement = new FluidPerTickRequirement(mode, fluid, amount, tank);
+                    requirement.setChance(chance);
+                    return requirement;
+            })
     );
 
     private Ingredient.FluidIngredient fluid;
     private int amount;
-    private double chance;
+    private double chance = 1.0D;
     private String tank;
 
-    public FluidPerTickRequirement(MODE mode, Ingredient.FluidIngredient fluid, int amount, double chance, String tank) {
+    public FluidPerTickRequirement(MODE mode, Ingredient.FluidIngredient fluid, int amount, String tank) {
         super(mode);
         if(mode == MODE.OUTPUT && fluid.getObject() == null)
             throw new IllegalArgumentException("You must specify a fluid for an Output Fluid Per Tick Requirement");
         this.fluid = fluid;
         this.amount = amount;
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
         this.tank = tank;
         this.fluidIngredientWrapper = new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.chance, true, this.tank);
     }
@@ -109,6 +112,11 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     @Override
     public CraftingResult processEnd(FluidComponentHandler component, CraftingContext context) {
         return CraftingResult.pass();
+    }
+
+    @Override
+    public void setChance(double chance) {
+        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
     }
 
     @Override

@@ -27,26 +27,29 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
                 Codecs.PHASE_CODEC.fieldOf("phase").forGetter(requirement -> requirement.phase),
                 Codec.INT.optionalFieldOf("permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
                 Codec.BOOL.optionalFieldOf("log", false).forGetter(requirement -> requirement.log),
-                Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
+                Codec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
                 Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(commandRequirementInstance, CommandRequirement::new)
+            ).apply(commandRequirementInstance, (command, phase, permissionLevel, log, chance, jeiVisible) -> {
+                CommandRequirement requirement = new CommandRequirement(command, phase, permissionLevel, log);
+                requirement.setChance(chance);
+                requirement.setJeiVisible(jeiVisible);
+                return requirement;
+            })
     );
 
     private String command;
     private CraftingManager.PHASE phase;
     private int permissionLevel;
     private boolean log;
-    private double chance;
+    private double chance = 1.0D;
     private boolean jeiVisible;
 
-    public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log, double chance, boolean jeiVisible) {
+    public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log) {
         super(MODE.INPUT);
         this.command = command;
         this.phase = phase;
         this.permissionLevel = permissionLevel;
         this.log = log;
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -81,6 +84,11 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     }
 
     @Override
+    public void setChance(double chance) {
+        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+    }
+
+    @Override
     public boolean testChance(CommandMachineComponent component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
@@ -89,6 +97,11 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     @Override
     public MachineComponentType<CommandMachineComponent> getComponentType() {
         return Registration.COMMAND_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

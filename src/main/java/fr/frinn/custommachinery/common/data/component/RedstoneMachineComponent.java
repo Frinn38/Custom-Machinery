@@ -9,7 +9,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.util.Direction;
 
-import java.util.Random;
 import java.util.stream.Stream;
 
 public class RedstoneMachineComponent extends AbstractMachineComponent implements ITickableComponent {

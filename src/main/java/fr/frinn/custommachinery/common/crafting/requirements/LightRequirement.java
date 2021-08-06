@@ -21,7 +21,11 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
                     Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
                     Codec.BOOL.optionalFieldOf("sky", false).forGetter(requirement -> requirement.sky),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(lightRequirementInstance, LightRequirement::new)
+            ).apply(lightRequirementInstance, (light, comparator, sky, jei) -> {
+                    LightRequirement requirement = new LightRequirement(light, comparator, sky);
+                    requirement.setJeiVisible(jei);
+                    return requirement;
+            })
     );
 
     private int light;
@@ -29,12 +33,11 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
     private boolean sky;
     private boolean jeiVisible;
 
-    public LightRequirement(int light, ComparatorMode comparator, boolean sky, boolean jeiVisible) {
+    public LightRequirement(int light, ComparatorMode comparator, boolean sky) {
         super(MODE.INPUT);
         this.light = light;
         this.comparator = comparator;
         this.sky = sky;
-        this.jeiVisible = jeiVisible;
     }
 
     @Override
@@ -80,6 +83,11 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
             return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
         else
             return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
+    }
+
+    @Override
+    public void setJeiVisible(boolean jeiVisible) {
+        this.jeiVisible = jeiVisible;
     }
 
     @Override

@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomMachineRecipeBuilder {
 
@@ -59,5 +60,15 @@ public class CustomMachineRecipeBuilder {
 
     public CustomMachineRecipe build(ResourceLocation id) {
         return new CustomMachineRecipe(id, this.machine, this.time, this.requirements, this.jeiRequirements, this.priority);
+    }
+
+    @Override
+    public String toString() {
+        return "CustomMachineRecipe{" +
+                "machine=" + machine +
+                ", time=" + time +
+                ", requirements=" + requirements.stream().map(requirement -> requirement.getType().getRegistryName()).collect(Collectors.toList()) +
+                ", priority=" + priority +
+                '}';
     }
 }

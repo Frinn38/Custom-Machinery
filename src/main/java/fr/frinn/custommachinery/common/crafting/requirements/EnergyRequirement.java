@@ -21,18 +21,20 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
             energyRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
-            ).apply(energyRequirementInstance, EnergyRequirement::new)
+                    Codec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance)
+            ).apply(energyRequirementInstance, ((mode, amount, chance) -> {
+                    EnergyRequirement requirement = new EnergyRequirement(mode, amount);
+                    requirement.setChance(chance);
+                    return requirement;
+            }))
     );
 
     private int amount;
-    private double chance;
+    private double chance = 1.0D;
 
-    public EnergyRequirement(MODE mode, int amount, double chance) {
+    public EnergyRequirement(MODE mode, int amount) {
         super(mode);
         this.amount = amount;
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
-        this.energyIngredientWrapper = new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, false);
     }
 
     @Override
@@ -83,14 +85,18 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
     }
 
     @Override
+    public void setChance(double chance) {
+        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+    }
+
+    @Override
     public boolean testChance(EnergyMachineComponent component, Random rand, CraftingContext context) {
         double chance = context.getModifiedvalue(this.chance, this, "chance");
         return rand.nextDouble() > chance;
     }
 
-    private EnergyIngredientWrapper energyIngredientWrapper;
     @Override
     public EnergyIngredientWrapper getJEIIngredientWrapper() {
-        return this.energyIngredientWrapper;
+        return new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, false);
     }
 }

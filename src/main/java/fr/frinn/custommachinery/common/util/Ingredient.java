@@ -6,11 +6,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.block.Block;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -69,17 +72,18 @@ public abstract class Ingredient<T> implements Predicate<T> {
             return DataResult.error("ItemIngredient with no item or tag");
         });
 
-        private static final Codec<ItemIngredient> CODEC_FOR_KUBEJS = Codec.either(Codecs.ITEM_CODEC.fieldOf("item").codec(), ITag.getTagCodec(TagCollectionManager.getManager()::getItemTags).fieldOf("tag").codec())
+        private static final Codec<ItemIngredient> CODEC_FOR_KUBEJS = Codec.either(Codecs.ITEM_CODEC.fieldOf("item").codec(), Codecs.ITEM_TAG_CODEC.fieldOf("tag").codec())
                 .flatXmap(either -> either.map(item -> DataResult.success(new ItemIngredient(item)), tag -> DataResult.success(new ItemIngredient(tag))), ingredient -> {
                     if(ingredient.getObject() != null)
                         return DataResult.success(Either.left(ingredient.getObject()));
                     if(ingredient.getTag() != null)
-                        return DataResult.success(Either.right(ingredient.getTag()));
+                        return DataResult.success(Either.right((Tags.IOptionalNamedTag<Item>)ingredient.getTag()));
                     return DataResult.error("ItemIngredient with no item or tag !");
                 }).stable();
 
         public static final Codec<ItemIngredient> CODEC = Codec.either(CODEC_FOR_STRING, CODEC_FOR_KUBEJS)
-                .xmap(either -> either.map(ingredient -> ingredient, ingredient -> ingredient), Either::left).stable();
+                .xmap(either -> either.map(ingredient -> ingredient, ingredient -> ingredient), Either::left)
+                .stable();
 
         public ItemIngredient(Item object) {
             super(object);
@@ -87,6 +91,24 @@ public abstract class Ingredient<T> implements Predicate<T> {
 
         public ItemIngredient(ITag<Item> tag) {
             super(tag);
+        }
+
+        public static ItemIngredient make(String string) {
+            if(string == null || string.isEmpty())
+                throw new IllegalArgumentException("Can't make ItemIngredient with: " + string);
+            if(string.startsWith("#") && Utils.isResourceNameValid(string.substring(1))) {
+                ITag<Item> tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(string.substring(1)));
+                if(tag != null)
+                    return new ItemIngredient(tag);
+                throw new IllegalArgumentException("Item tag: " + string + " doesn't exist");
+            }
+            if(Utils.isResourceNameValid(string)) {
+                Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(string));
+                if(item != null && item != Items.AIR)
+                    return new ItemIngredient(item);
+                throw new IllegalArgumentException("Item: " + string + " doesn't exist");
+            }
+            throw new IllegalArgumentException("Can't make ItemIngredient with: " + string);
         }
 
         @Override
@@ -130,6 +152,24 @@ public abstract class Ingredient<T> implements Predicate<T> {
 
         public FluidIngredient(ITag<Fluid> tag) {
             super(tag);
+        }
+
+        public static FluidIngredient make(String string) {
+            if(string == null || string.isEmpty())
+                throw new IllegalArgumentException("Can't make FluidIngredient with: " + string);
+            if(string.startsWith("#") && Utils.isResourceNameValid(string.substring(1))) {
+                ITag<Fluid> tag = TagCollectionManager.getManager().getFluidTags().get(new ResourceLocation(string.substring(1)));
+                if(tag != null)
+                    return new FluidIngredient(tag);
+                throw new IllegalArgumentException("Fluid tag: " + string + " doesn't exist");
+            }
+            if(Utils.isResourceNameValid(string)) {
+                Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(string));
+                if(fluid != null && fluid != Fluids.EMPTY)
+                    return new FluidIngredient(fluid);
+                throw new IllegalArgumentException("Fluid: " + string + " doesn't exist");
+            }
+            throw new IllegalArgumentException("Can't make FluidIngredient with: " + string);
         }
 
         @Override
