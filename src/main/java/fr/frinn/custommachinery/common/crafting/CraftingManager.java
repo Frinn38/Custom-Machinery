@@ -188,6 +188,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                     this.recipeProgressTime = 0;
                     this.context = null;
                     this.processedRequirements.clear();
+                    this.recipeCheckCooldown = 0;
                 }
             }
         }
