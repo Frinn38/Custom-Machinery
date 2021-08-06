@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
+import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
@@ -25,9 +26,12 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
@@ -85,7 +89,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         this.craftingManager.deserializeNBT(craftingManagerNBT);
         this.componentManager.deserializeNBT(componentManagerNBT);
 
-        this.world.notifyBlockUpdate(this.pos, getBlockState(), getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
+        NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.world.getChunkAt(this.pos)), new SRefreshCustomMachineTilePacket(this.pos, id));
     }
 
     @Override
@@ -168,36 +172,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
             this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
 
-        if(nbt.contains("componentManager", Constants.NBT.TAG_COMPOUND))
-            this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
-    }
-
-    @Nullable
-    @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(getPos(), 666, getUpdateTag());
-    }
-
-    @Override
-    public void onDataPacket(net.minecraft.network.NetworkManager net, SUpdateTileEntityPacket pkt) {
-        handleUpdateTag(null, pkt.getNbtCompound());
-    }
-
-    @Override
-    public CompoundNBT getUpdateTag() {
-        CompoundNBT nbt = super.getUpdateTag();
-        nbt.putString("machineID", this.id.toString());
-        nbt.put("craftingManager", this.craftingManager.serializeNBT());
-        nbt.put("componentManager", this.componentManager.serializeNBT());
-        return nbt;
-    }
-
-    @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
-        if(nbt.contains("machineID", Constants.NBT.TAG_STRING))
-            this.setId(new ResourceLocation(nbt.getString("machineID")));
-        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
-            this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
         if(nbt.contains("componentManager", Constants.NBT.TAG_COMPOUND))
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }

@@ -7,6 +7,8 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 public class NetworkManager {
 
+    private static int index = -1;
+
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(CustomMachinery.MODID, "network_channel"))
             .clientAcceptedVersions("1"::equals)
             .serverAcceptedVersions("1"::equals)
@@ -14,12 +16,12 @@ public class NetworkManager {
             .simpleChannel();
 
     public static void registerMessages() {
-        CHANNEL.registerMessage(0, SUpdateMachinesPacket.class, SUpdateMachinesPacket::encode, SUpdateMachinesPacket::decode, SUpdateMachinesPacket::handle);
-        CHANNEL.registerMessage(1, SCraftingManagerErrorPacket.class, SCraftingManagerErrorPacket::encode, SCraftingManagerErrorPacket::decode, SCraftingManagerErrorPacket::handle);
-        CHANNEL.registerMessage(2, SUpdateCustomTilePacket.class, SUpdateCustomTilePacket::encode, SUpdateCustomTilePacket::decode, SUpdateCustomTilePacket::handle);
-        CHANNEL.registerMessage(3, SUpdateCustomTileLightPacket.class, SUpdateCustomTileLightPacket::encode, SUpdateCustomTileLightPacket::decode, SUpdateCustomTileLightPacket::handle);
-        CHANNEL.registerMessage(4, CAddMachinePacket.class, CAddMachinePacket::encode, CAddMachinePacket::decode, CAddMachinePacket::handle);
-        CHANNEL.registerMessage(5, SUpdateContainerPacket.class, SUpdateContainerPacket::encode, SUpdateContainerPacket::decode, SUpdateContainerPacket::handle);
-        CHANNEL.registerMessage(6, SUpdateUpgradesPacket.class, SUpdateUpgradesPacket::encode, SUpdateUpgradesPacket::decode, SUpdateUpgradesPacket::handle);
+        CHANNEL.registerMessage(index++, SUpdateMachinesPacket.class, SUpdateMachinesPacket::encode, SUpdateMachinesPacket::decode, SUpdateMachinesPacket::handle);
+        CHANNEL.registerMessage(index++, SUpdateCustomTileLightPacket.class, SUpdateCustomTileLightPacket::encode, SUpdateCustomTileLightPacket::decode, SUpdateCustomTileLightPacket::handle);
+        CHANNEL.registerMessage(index++, CAddMachinePacket.class, CAddMachinePacket::encode, CAddMachinePacket::decode, CAddMachinePacket::handle);
+        CHANNEL.registerMessage(index++, SUpdateContainerPacket.class, SUpdateContainerPacket::encode, SUpdateContainerPacket::decode, SUpdateContainerPacket::handle);
+        CHANNEL.registerMessage(index++, SUpdateUpgradesPacket.class, SUpdateUpgradesPacket::encode, SUpdateUpgradesPacket::decode, SUpdateUpgradesPacket::handle);
+        CHANNEL.registerMessage(index++, SCraftingManagerStatusChangedPacket.class, SCraftingManagerStatusChangedPacket::encode, SCraftingManagerStatusChangedPacket::decode, SCraftingManagerStatusChangedPacket::handle);
+        CHANNEL.registerMessage(index++, SRefreshCustomMachineTilePacket.class, SRefreshCustomMachineTilePacket::encode, SRefreshCustomMachineTilePacket::decode, SRefreshCustomMachineTilePacket::handle);
     }
 }

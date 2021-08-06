@@ -1,35 +1,38 @@
 package fr.frinn.custommachinery.common.network;
 
+import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class SUpdateCustomTilePacket {
+public class SRefreshCustomMachineTilePacket {
 
     private BlockPos pos;
-    private CompoundNBT nbt;
+    private ResourceLocation machine;
 
-    public SUpdateCustomTilePacket(BlockPos pos, CompoundNBT nbt) {
+    public SRefreshCustomMachineTilePacket(BlockPos pos, ResourceLocation machine) {
         this.pos = pos;
-        this.nbt = nbt;
+        this.machine = machine;
     }
 
-    public static void encode(SUpdateCustomTilePacket pkt, PacketBuffer buf) {
+    public static void encode(SRefreshCustomMachineTilePacket pkt, PacketBuffer buf) {
         buf.writeBlockPos(pkt.pos);
-        buf.writeCompoundTag(pkt.nbt);
+        buf.writeResourceLocation(pkt.machine);
     }
 
-    public static SUpdateCustomTilePacket decode(PacketBuffer buf) {
+    public static SRefreshCustomMachineTilePacket decode(PacketBuffer buf) {
         BlockPos pos = buf.readBlockPos();
-        CompoundNBT nbt = buf.readCompoundTag();
-        return new SUpdateCustomTilePacket(pos, nbt);
+        ResourceLocation machine = buf.readResourceLocation();
+        return new SRefreshCustomMachineTilePacket(pos, machine);
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
@@ -38,7 +41,8 @@ public class SUpdateCustomTilePacket {
                 if(Minecraft.getInstance().world != null) {
                     TileEntity tile = Minecraft.getInstance().world.getTileEntity(this.pos);
                     if(tile instanceof CustomMachineTile) {
-                        tile.handleUpdateTag(Minecraft.getInstance().world.getBlockState(this.pos), this.nbt);
+                        CustomMachineTile machineTile = (CustomMachineTile) tile;
+                        machineTile.setId(this.machine);
                     }
                 }
             });

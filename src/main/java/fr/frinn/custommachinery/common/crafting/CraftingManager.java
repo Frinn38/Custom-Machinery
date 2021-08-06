@@ -8,6 +8,8 @@ import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.ITickableRequirement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.NetworkManager;
+import fr.frinn.custommachinery.common.network.SCraftingManagerStatusChangedPacket;
 import fr.frinn.custommachinery.common.network.sync.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.sync.StringSyncable;
@@ -16,12 +18,16 @@ import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import fr.frinn.custommachinery.common.util.Utils;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -239,8 +245,11 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     private void notifyStatusChanged() {
-        if(this.tile.getWorld() != null)
-            this.tile.getWorld().notifyBlockUpdate(this.tile.getPos(), this.tile.getBlockState(), this.tile.getBlockState(), Constants.BlockFlags.BLOCK_UPDATE);
+        if(this.tile.getWorld() != null && !this.tile.getWorld().isRemote()) {
+            BlockPos pos = this.tile.getPos();
+            NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.tile.getWorld().getChunkAt(pos)), new SCraftingManagerStatusChangedPacket(pos, this.status));
+        }
+
     }
 
     public STATUS getStatus() {
