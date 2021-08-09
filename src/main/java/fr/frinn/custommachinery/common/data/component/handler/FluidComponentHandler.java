@@ -203,23 +203,13 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private List<FluidMachineComponent> outputs = new ArrayList<>();
 
     public int getFluidAmount(String tank, Fluid fluid) {
-        AtomicInteger amount = new AtomicInteger();
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == fluid && tankPredicate.test(component)).forEach(component -> amount.addAndGet(component.getFluidStack().getAmount()));
-        return amount.get();
+        return this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == fluid && tankPredicate.test(component)).mapToInt(component -> component.getFluidStack().getAmount()).sum();
     }
 
     public int getSpaceForFluid(String tank, Fluid fluid) {
-        AtomicInteger space = new AtomicInteger();
-        Predicate<FluidMachineComponent> fluidPredicate = component -> component.getFluidStack().isEmpty() || (component.getFluidStack().getFluid() == fluid && component.getRemainingSpace() > 0);
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        this.outputs.stream().filter(component -> fluidPredicate.test(component) && tankPredicate.test(component)).forEach(component -> {
-            if(component.getFluidStack().isEmpty())
-                space.addAndGet(component.getCapacity());
-            else
-                space.addAndGet(component.getRemainingSpace());
-        });
-        return space.get();
+        return this.outputs.stream().filter(component -> component.isFluidValid(new FluidStack(fluid, 1)) && tankPredicate.test(component)).mapToInt(FluidMachineComponent::getRecipeRemainingSpace).sum();
     }
 
     public void removeFromInputs(String tank, FluidStack stack) {
@@ -235,9 +225,8 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     public void addToOutputs(String tank, FluidStack stack) {
         AtomicInteger toAdd = new AtomicInteger(stack.getAmount());
-        Predicate<FluidMachineComponent> fluidPredicate = component -> component.getFluidStack().isEmpty() || (component.getFluidStack().getFluid() == stack.getFluid() && component.getRemainingSpace() > 0);
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        this.outputs.stream().filter(component -> fluidPredicate.test(component) && tankPredicate.test(component)).forEach(component -> {
+        this.outputs.stream().filter(component -> component.isFluidValid(stack) && tankPredicate.test(component)).forEach(component -> {
             int maxInsert = Math.min(component.getRecipeRemainingSpace(), toAdd.get());
             toAdd.addAndGet(-maxInsert);
             component.recipeInsert(stack.getFluid(), maxInsert);
