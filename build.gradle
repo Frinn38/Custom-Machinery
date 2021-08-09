@@ -3,9 +3,11 @@ buildscript {
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
@@ -16,6 +18,7 @@ apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'org.spongepowered.mixin'
 
 version = '1.16.5-0.4.6'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -23,13 +26,12 @@ archivesBaseName = 'custommachinery'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
-
-
 sourceSets {
     api
     main{
         runtimeClasspath += sourceSets.api.output
         compileClasspath += sourceSets.api.output
+        ext.refMap = "main.refmap.json"
     }
     test
 }
@@ -62,6 +64,8 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
+            arg "-mixin.config=custommachinery.mixins.json"
+
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
 
@@ -81,6 +85,8 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+
+            arg "-mixin.config=custommachinery.mixins.json"
 
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
@@ -179,6 +185,8 @@ dependencies {
 
     runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")
     runtimeOnly fg.deobf("curse.maven:plates-417169:3253876")
+
+    annotationProcessor "org.spongepowered:mixin:0.8.2:processor"
 }
 
 def getManifestAttributes(String title) {
@@ -189,7 +197,8 @@ def getManifestAttributes(String title) {
             "Implementation-Title"    : title,
             "Implementation-Version"  : project.version,
             "Implementation-Vendor"   : "Frinn",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "MixinConfigs"            : "custommachinery.mixins.json"
     ]
 }
 

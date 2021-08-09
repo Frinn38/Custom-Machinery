@@ -40,6 +40,7 @@ public class CustomMachineRecipeBuilder {
         this.machine = recipe.getMachine();
         this.time = recipe.getRecipeTime();
         this.requirements = recipe.getRequirements();
+        this.jeiRequirements = recipe.getJeiRequirements();
         this.priority = recipe.getPriority();
     }
 

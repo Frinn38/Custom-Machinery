@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "fr.frinn.custommachinery.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "NetworkHooksMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

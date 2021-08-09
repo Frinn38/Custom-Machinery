@@ -62,7 +62,7 @@ public class CustomMachinery {
 
         final IEventBus FORGE_BUS = MinecraftForge.EVENT_BUS;
         FORGE_BUS.addListener(this::addReloadListener);
-        FORGE_BUS.addListener(this::playerLogIn);
+        //FORGE_BUS.addListener(this::playerLogIn);
         FORGE_BUS.addListener(this::worldTick);
     }
 

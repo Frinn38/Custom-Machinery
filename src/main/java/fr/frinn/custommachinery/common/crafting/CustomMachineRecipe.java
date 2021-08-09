@@ -48,6 +48,10 @@ public class CustomMachineRecipe extends DummyRecipe {
         return this.requirements;
     }
 
+    public List<IRequirement<?>> getJeiRequirements() {
+        return this.jeiRequirements;
+    }
+
     public List<IJEIIngredientRequirement> getJEIIngredientRequirements() {
         if(this.jeiRequirements.isEmpty())
             return this.requirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement)requirement).collect(Collectors.toList());
