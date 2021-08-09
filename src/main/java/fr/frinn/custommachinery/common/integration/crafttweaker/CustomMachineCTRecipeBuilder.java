@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.integration.crafttweaker;
 
 import com.blamejared.crafttweaker.CraftTweaker;
 import com.blamejared.crafttweaker.api.CraftTweakerAPI;
-import com.blamejared.crafttweaker.api.CraftTweakerGlobals;
 import com.blamejared.crafttweaker.api.annotations.ZenRegister;
 import com.blamejared.crafttweaker.api.data.IData;
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
@@ -15,7 +14,6 @@ import com.blamejared.crafttweaker.impl.tag.MCTag;
 import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
-import dev.latvian.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
@@ -494,7 +492,7 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     private CustomMachineCTRecipeBuilder withBlockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator) {
-        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).map(Pair::getFirst).orElse(null);
+        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI::logError).map(Pair::getFirst).orElse(null);
         if(state == null) {
             CraftTweakerAPI.logError("Invalid block: " + block);
             return this;
