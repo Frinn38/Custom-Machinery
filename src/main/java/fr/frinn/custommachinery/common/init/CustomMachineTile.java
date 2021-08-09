@@ -176,6 +176,13 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }
 
+    @Override
+    public CompoundNBT getUpdateTag() {
+        CompoundNBT nbt = super.getUpdateTag();
+        nbt.putString("machineID", getId().toString());
+        return nbt;
+    }
+
     private boolean paused = false;
     public void setPaused(boolean paused) {
         this.paused = paused;

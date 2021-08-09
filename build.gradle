@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.16.5-0.4.5'
+version = '1.16.5-0.4.6'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'custommachinery'
 
@@ -242,6 +242,7 @@ if (System.getenv("CURSEFORGE")) {
                     optionalDependency "crafttweaker"
                     optionalDependency "jei"
                     optionalDependency "the-one-probe"
+                    optionalDependency "kubejs-forge"
                 }
             }
             addArtifact apiJar
