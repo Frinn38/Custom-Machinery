@@ -42,7 +42,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
                 }
             }
         });
-        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(MachineComponentType::isDefaultComponent).forEach(ACTION -> this.components.add(ACTION.getDefaultComponentBuilder().apply(this)));
+        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(type -> type.isDefaultComponent() && !this.getComponent(type).isPresent()).forEach(type -> this.components.add(type.getDefaultComponentBuilder().apply(this)));
     }
 
     @Override

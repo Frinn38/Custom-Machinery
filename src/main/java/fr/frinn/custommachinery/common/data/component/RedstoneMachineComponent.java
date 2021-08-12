@@ -31,6 +31,10 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         this.comparatorInputID = comparatorInputID;
     }
 
+    public RedstoneMachineComponent(IMachineComponentManager manager) {
+        this(manager, 999, 0, 0, 0, Registration.ENERGY_MACHINE_COMPONENT.get(), "");
+    }
+
     @Override
     public MachineComponentType<RedstoneMachineComponent> getType() {
         return Registration.REDSTONE_MACHINE_COMPONENT.get();

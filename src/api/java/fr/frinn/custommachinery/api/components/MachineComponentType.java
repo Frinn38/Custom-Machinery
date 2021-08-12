@@ -48,6 +48,17 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
     }
 
     /**
+     * Use this constructor if the component can have extra data provided by the machine maker, or use a default factory method if the user didn't specified the component in the machine json.
+     * @param codec The codec used to deserialize the component in the machine json, if specified by the user.
+     * @param defaultComponentBuilder The factory method used if the user didn't specified the component in the machine json.
+     */
+    public MachineComponentType(Codec<? extends IMachineComponentTemplate<T>> codec, Function<IMachineComponentManager, T> defaultComponentBuilder) {
+        this.codec = codec;
+        this.defaultComponent = true;
+        this.defaultComponentBuilder = defaultComponentBuilder;
+    }
+
+    /**
      * By default a IMachineComponentManager can hold only one component for each type.
      * Use this method to override the default behaviour and tell the IMachineComponentManager to use a IComponentHandler instead of a IMachineComponent.
      * The IComponentHandler will hold all components for it's type and redirect the component logic to them as needed.
