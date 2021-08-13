@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import com.google.common.collect.Lists;
+import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -57,7 +58,7 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
     }
 
     public PartialBlockState rotate(Rotation rotation) {
-        if(this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+        if(this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.getBlock() != Registration.CUSTOM_MACHINE_BLOCK.get()) {
             Direction direction = this.blockState.get(BlockStateProperties.HORIZONTAL_FACING);
             direction = rotation.rotate(direction);
             BlockState blockState = this.blockState.with(BlockStateProperties.HORIZONTAL_FACING, direction);

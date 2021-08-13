@@ -75,12 +75,11 @@ public class BlockStructure {
 
         private Builder() {
             this.symbolMap.put(' ', PartialBlockState.ANY);
-            this.symbolMap.put('m', new PartialBlockState(Registration.CUSTOM_MACHINE_BLOCK.get().getDefaultState(), new ArrayList<>(), null));
+            this.symbolMap.put('m', new PartialBlockState(Registration.CUSTOM_MACHINE_BLOCK.get()));
         }
 
         /**
-         * Adds a single aisle to this pattern, going in the z axis. (so multiple calls to this will increase the z-size by
-         * 1)
+         * Adds a single aisle to this pattern, going in the y-axis. (so multiple calls to this will increase the y-size by 1)
          */
         public Builder aisle(String... aisle) {
             if (!ArrayUtils.isEmpty(aisle) && !StringUtils.isEmpty(aisle[0])) {
