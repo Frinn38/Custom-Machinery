@@ -39,7 +39,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public void tick() {
+    public void serverTick() {
         if(this.fuel > 0 && !getManager().getTile().isPaused()) {
             this.fuel--;
             getManager().markDirty();

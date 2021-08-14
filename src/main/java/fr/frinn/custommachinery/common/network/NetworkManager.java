@@ -17,7 +17,6 @@ public class NetworkManager {
 
     public static void registerMessages() {
         CHANNEL.registerMessage(index++, SUpdateMachinesPacket.class, SUpdateMachinesPacket::encode, SUpdateMachinesPacket::decode, SUpdateMachinesPacket::handle);
-        CHANNEL.registerMessage(index++, SUpdateCustomTileLightPacket.class, SUpdateCustomTileLightPacket::encode, SUpdateCustomTileLightPacket::decode, SUpdateCustomTileLightPacket::handle);
         CHANNEL.registerMessage(index++, CAddMachinePacket.class, CAddMachinePacket::encode, CAddMachinePacket::decode, CAddMachinePacket::handle);
         CHANNEL.registerMessage(index++, SUpdateContainerPacket.class, SUpdateContainerPacket::encode, SUpdateContainerPacket::decode, SUpdateContainerPacket::handle);
         CHANNEL.registerMessage(index++, SUpdateUpgradesPacket.class, SUpdateUpgradesPacket::encode, SUpdateUpgradesPacket::decode, SUpdateUpgradesPacket::handle);

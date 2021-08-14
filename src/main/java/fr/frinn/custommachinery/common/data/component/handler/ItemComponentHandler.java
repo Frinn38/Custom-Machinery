@@ -94,7 +94,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     @Override
-    public void tick() {
+    public void serverTick() {
         this.getComponents().forEach(component -> component.getVariant().tick(component));
     }
 

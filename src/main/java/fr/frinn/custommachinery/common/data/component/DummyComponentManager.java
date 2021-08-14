@@ -92,7 +92,7 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public void tick() {
+    public void serverTick() {
 
     }
 

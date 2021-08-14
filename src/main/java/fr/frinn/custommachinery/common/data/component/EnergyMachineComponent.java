@@ -61,7 +61,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     @Override
-    public void tick() {
+    public void serverTick() {
         if(getManager().getTile().isPaused() || getManager().getTile().getWorld() == null || this.energy == 0)
             return;
 

@@ -6,7 +6,12 @@ package fr.frinn.custommachinery.api.components;
 public interface ITickableComponent extends IMachineComponent {
 
     /**
-     * Called each tick for each component that implements this interface, for each MachineTile loaded in the world.
+     * Called each tick on the logical server for each component that implements this interface, for each MachineTile loaded in the world.
      */
-    void tick();
+    default void serverTick() {}
+
+    /**
+     * Called each tick on the logical client for each component that implements this interface, for each MachineTile loaded in the world.
+     */
+    default void clientTick() {}
 }

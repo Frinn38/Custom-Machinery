@@ -1,7 +1,9 @@
 package fr.frinn.custommachinery.common.init;
 
+import fr.frinn.custommachinery.api.components.IMachineComponentManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -104,8 +106,8 @@ public class CustomMachineBlock extends Block {
     public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
         TileEntity tile = world.getTileEntity(pos);
         if(tile instanceof CustomMachineTile) {
-            CustomMachineTile machineTile = (CustomMachineTile)tile;
-            return machineTile.getLightValue();
+            IMachineComponentManager manager = ((CustomMachineTile) tile).componentManager;
+            return manager.getComponent(Registration.LIGHT_MACHINE_COMPONENT.get()).map(LightMachineComponent::getMachineLight).orElse(0);
         }
         return 0;
     }

@@ -41,7 +41,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     @Override
-    public void tick() {
+    public void serverTick() {
         if(this.checkRedstoneCooldown-- > 0)
             return;
         this.checkRedstoneCooldown = 20;

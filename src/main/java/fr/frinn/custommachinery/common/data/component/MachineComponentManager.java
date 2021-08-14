@@ -110,8 +110,12 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
         return this.tile;
     }
 
-    public void tick() {
-        getTickableComponents().forEach(ITickableComponent::tick);
+    public void serverTick() {
+        getTickableComponents().forEach(ITickableComponent::serverTick);
+    }
+
+    public void clientTick() {
+        getTickableComponents().forEach(ITickableComponent::clientTick);
     }
 
     public void markDirty() {

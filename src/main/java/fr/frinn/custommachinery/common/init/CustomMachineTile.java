@@ -15,7 +15,6 @@ import fr.frinn.custommachinery.common.data.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
-import fr.frinn.custommachinery.common.network.SUpdateCustomTileLightPacket;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,15 +22,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
@@ -99,7 +94,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
         if(!this.world.isRemote()) {
             this.world.getProfiler().startSection("Component tick");
-            this.componentManager.tick();
+            this.componentManager.serverTick();
             this.world.getProfiler().endStartSection("Crafting Manager tick");
             try {
                 this.craftingManager.tick();
@@ -108,11 +103,9 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
                 setPaused(true);
             }
             this.world.getProfiler().endSection();
-
-            if(this.needRefreshLightning())
-                this.refreshLightning();
-
         } else {
+            this.componentManager.clientTick();
+
             if(this.soundManager == null)
                 this.soundManager = new SoundManager(this.pos);
             if(getMachine().getAppearance().getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance().getSound().getName().equals(this.soundManager.getSoundID()))
@@ -190,32 +183,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
     public boolean isPaused() {
         return this.paused;
-    }
-
-    /**LIGHTNING STUFF**/
-
-    private void refreshLightning() {
-        if(world != null && !world.isRemote) {
-            this.changeLightState();
-            NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunk(pos.getX() / 16, pos.getZ() / 16)), new SUpdateCustomTileLightPacket(pos));
-        }
-
-    }
-
-    private boolean emmitLight = false;
-    public void changeLightState() {
-        this.emmitLight = !this.emmitLight;
-        if(world != null)world.getChunkProvider().getLightManager().checkBlock(pos);
-    }
-
-    private boolean needRefreshLightning() {
-        return (getMachine().getAppearance().getLightMode() == MachineAppearance.LightMode.ALWAYS || getMachine().getAppearance().getLightMode().toString().equals(this.craftingManager.getStatus().toString())) != emmitLight;
-    }
-
-    public int getLightValue() {
-        if(this.emmitLight)
-            return getMachine().getAppearance().getLightLevel();
-        else return 0;
     }
 
     /**CONTAINER STUFF**/
