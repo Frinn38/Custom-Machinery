@@ -1,21 +1,24 @@
 package fr.frinn.custommachinery.client.render;
 
+import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.model.SimpleBakedModel;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.util.math.vector.*;
+import net.minecraftforge.client.model.QuadTransformer;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
@@ -36,7 +39,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     @Override
     public boolean isAmbientOcclusion() {
-        return true;
+        return false;
     }
 
     @Override
@@ -71,35 +74,28 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
             return Minecraft.getInstance().getModelManager().getMissingModel().getQuads(state, side, rand, EmptyModelData.INSTANCE);
         IBakedModel model = getMachineModel(data.getData(APPEARANCE));
         if(state != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING))
-            model = getRotatedModel(model, state.get(BlockStateProperties.HORIZONTAL_FACING), rand);
+            return getRotatedQuadsTest(model, state.get(BlockStateProperties.HORIZONTAL_FACING), side, rand);
         return model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
     }
 
-    //TODO : Fix south rendering
-    private IBakedModel getRotatedModel(IBakedModel model, Direction machineFacing, Random random) {
-        List<BakedQuad> generalQuads = getQuadsRotated(model.getQuads(null, null, random, EmptyModelData.INSTANCE), machineFacing, null);
-        Map<Direction, List<BakedQuad>> faceQuads = new HashMap<>();
-        for(Direction side : Direction.values()) {
-            Direction rotated = getRotatedDirection(machineFacing, side);
-            faceQuads.put(rotated, getQuadsRotated(model.getQuads(null, side, random, EmptyModelData.INSTANCE), machineFacing, rotated));
-        }
-        return new SimpleBakedModel(generalQuads, faceQuads, model.isAmbientOcclusion(), model.isSideLit(), model.isGui3d(), model.getParticleTexture(EmptyModelData.INSTANCE), model.getItemCameraTransforms(), model.getOverrides());
+    private List<BakedQuad> getRotatedQuadsTest(IBakedModel model, Direction machineFacing, Direction side, Random random) {
+        //side of the model before rotation
+        Direction originalSide = getRotatedDirection(machineFacing, side);
+        List<BakedQuad> finalQuads = model.getQuads(null, originalSide, random, EmptyModelData.INSTANCE);
+        return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? quad.getFace() : side)).collect(Collectors.toList());
     }
 
-    private List<BakedQuad> getQuadsRotated(List<BakedQuad> quads, Direction machineFacing, Direction side) {
-        return quads.stream().map(quad -> {
-            Direction finalSide = side == null ? quad.getFace() : side;
-            switch (machineFacing) {
-                case SOUTH:
-                    return rotateQuad(quad, Vector3f.YN.rotationDegrees(180), finalSide);
-                case EAST:
-                    return rotateQuad(quad, Vector3f.YN.rotationDegrees(90), finalSide);
-                case WEST:
-                    return rotateQuad(quad, Vector3f.YN.rotationDegrees(270), finalSide);
-                default:
-                    return rotateQuad(quad, Vector3f.YN.rotationDegrees(0), finalSide);
-            }
-        }).collect(Collectors.toList());
+    private Quaternion getRotation(Direction machineFacing) {
+        switch (machineFacing) {
+            case EAST:
+                return Vector3f.YN.rotationDegrees(90);
+            case SOUTH:
+                return Vector3f.YN.rotationDegrees(180);
+            case WEST:
+                return Vector3f.YN.rotationDegrees(270);
+            default:
+                return Quaternion.ONE;
+        }
     }
 
     private BakedQuad rotateQuad(BakedQuad quad, Quaternion rotation, Direction side) {
@@ -111,6 +107,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
             float z = Float.intBitsToFloat(quadData[i * 8 + 2]);
             Vector4f pos = new Vector4f(x - 0.5F, y - 0.5F, z - 0.5F, 1.0F);
             pos.transform(rotation);
+            pos.perspectiveDivide();
             newQuadData[i * 8] = Float.floatToRawIntBits(pos.getX() + 0.5F);
             newQuadData[i * 8 + 1] = Float.floatToRawIntBits(pos.getY() + 0.5F);
             newQuadData[i * 8 + 2] = Float.floatToRawIntBits(pos.getZ() + 0.5F);
@@ -118,8 +115,8 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return new BakedQuad(newQuadData, quad.getTintIndex(), side, quad.getSprite(), quad.applyDiffuseLighting());
     }
 
-    public Direction getRotatedDirection(Direction machineFacing, Direction quad) {
-        if(quad.getAxis() == Direction.Axis.Y)
+    public Direction getRotatedDirection(Direction machineFacing, @Nullable Direction quad) {
+        if(quad == null || quad.getAxis() == Direction.Axis.Y)
             return quad;
 
         switch(machineFacing) {
@@ -142,7 +139,9 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return model.getParticleTexture(data);
     }
 
-    public IBakedModel getMachineModel(MachineAppearance appearance) {
+    public IBakedModel getMachineModel(@Nullable MachineAppearance appearance) {
+        if(appearance == null)
+            return Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL);
         IBakedModel machineModel;
         switch (appearance.getType()) {
             case BLOCK:
