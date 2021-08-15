@@ -125,10 +125,14 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         int maxInsert = component.getSpaceForItem(stack);
         int toInsert = Math.min(maxInsert, stack.getCount());
         if(!simulate) {
-            component.insert(new ItemStack(stack.getItem(), toInsert));
+            ItemStack stackIn = stack.copy();
+            stackIn.setCount(toInsert);
+            component.insert(stackIn);
             getManager().markDirty();
         }
-        return new ItemStack(stack.getItem(), stack.getCount() - toInsert);
+        ItemStack stackRemaining = stack.copy();
+        stackRemaining.shrink(toInsert);
+        return stackRemaining;
     }
 
     @Nonnull
@@ -137,7 +141,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         ItemMachineComponent component = this.getComponents().get(index);
         if(!component.getMode().isOutput() || component.getItemStack().isEmpty())
             return ItemStack.EMPTY;
-        ItemStack stack = new ItemStack(component.getItemStack().getItem(), Math.min(component.getItemStack().getCount(), amount));
+        ItemStack stack = component.getItemStack().copy();
+        stack.setCount(Math.min(component.getItemStack().getCount(), amount));
         if(!simulate) {
             component.extract(stack.getCount());
             getManager().markDirty();
