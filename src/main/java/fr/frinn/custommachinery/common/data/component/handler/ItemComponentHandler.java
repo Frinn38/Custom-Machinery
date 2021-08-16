@@ -236,7 +236,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             int maxInsert = Math.min(component.getSpaceForItem(item.getDefaultInstance()), toAdd.get());
             toAdd.addAndGet(-maxInsert);
             ItemStack stack = new ItemStack(item, maxInsert);
-            stack.setTag(nbt == null ? null : nbt.copy());
+            if(nbt != null && !nbt.isEmpty())
+                stack.setTag(nbt.copy());
             component.insert(stack);
         });
         getManager().markDirty();
