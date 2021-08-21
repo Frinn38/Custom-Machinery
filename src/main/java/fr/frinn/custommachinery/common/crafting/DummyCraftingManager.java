@@ -27,17 +27,7 @@ public class DummyCraftingManager extends CraftingManager {
     }
 
     @Override
-    public void setIdle() {
-
-    }
-
-    @Override
-    public void setErrored(ITextComponent message) {
-
-    }
-
-    @Override
-    public void setRunning() {
+    public void setStatus(MachineStatus status, ITextComponent mesage) {
 
     }
 

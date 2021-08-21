@@ -42,19 +42,10 @@ public class SCraftingManagerStatusChangedPacket {
                     if(tile instanceof CustomMachineTile) {
                         CustomMachineTile machineTile = (CustomMachineTile)tile;
                         CraftingManager manager = machineTile.craftingManager;
-                        if(this.status != manager.getStatus())
-                        switch (this.status) {
-                            case IDLE:
-                                manager.setIdle();
-                                break;
-                            case ERRORED:
-                                manager.setErrored(StringTextComponent.EMPTY);
-                                break;
-                            case RUNNING:
-                                manager.setRunning();
-                                break;
+                        if(this.status != manager.getStatus()) {
+                            manager.setStatus(this.status);
+                            machineTile.requestModelDataUpdate();
                         }
-                        machineTile.requestModelDataUpdate();
                     }
                 }
             });

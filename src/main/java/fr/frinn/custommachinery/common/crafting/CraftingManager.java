@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.components.ITickableComponent;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.crafting.requirements.IChanceableRequirement;
@@ -76,24 +77,18 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.status == MachineStatus.PAUSED)
             return;
         if(this.futureRecipeID != null && this.tile.getWorld() != null) {
-            this.currentRecipe = (CustomMachineRecipe) this.tile.getWorld().getRecipeManager().getRecipe(this.futureRecipeID).orElse(null);
+            CustomMachineRecipe recipe = (CustomMachineRecipe) this.tile.getWorld().getRecipeManager().getRecipe(this.futureRecipeID).orElse(null);
+            if(recipe != null) {
+                this.setRecipe(recipe);
+                this.context.setRecipeProgressTime(this.recipeProgressTime);
+            }
             this.futureRecipeID = null;
         }
         if(this.currentRecipe == null) {
             this.findRecipe().ifPresent(recipe -> {
-                this.currentRecipe = recipe;
-                this.context.setRecipe(recipe);
-                this.context.refreshModifiers(this.tile);
-                this.refreshModifiersCooldown = 20;
-                this.delayedRequirements = this.currentRecipe.getRequirements()
-                        .stream()
-                        .filter(requirement -> requirement instanceof IDelayedRequirement)
-                        .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
-                        .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
-                        .collect(Collectors.toList());
-                this.recipeTotalTime = this.currentRecipe.getRecipeTime();
+                this.setRecipe(recipe);
                 this.phase = PHASE.STARTING;
-                this.setRunning();
+                this.setStatus(MachineStatus.RUNNING);
             });
         }
         if(this.currentRecipe != null) {
@@ -111,14 +106,14 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                         }
                         CraftingResult result = ((IRequirement<IMachineComponent>)requirement).processStart(component, this.context);
                         if (!result.isSuccess()) {
-                            this.setErrored(result.getMessage());
+                            this.setStatus(MachineStatus.ERRORED, result.getMessage());
                             break;
                         } else this.processedRequirements.add(requirement);
                     }
                 }
 
                 if (this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
-                    this.setRunning();
+                    this.setStatus(MachineStatus.RUNNING);
                     this.phase = PHASE.CRAFTING_TICKABLE;
                     this.processedRequirements.clear();
                 }
@@ -139,7 +134,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                         }
                         CraftingResult result = tickableRequirement.processTick(component, this.context);
                         if (!result.isSuccess()) {
-                            this.setErrored(result.getMessage());
+                            this.setStatus(MachineStatus.ERRORED, result.getMessage());
                             break;
                         } else this.processedRequirements.add(tickableRequirement);
                     }
@@ -148,7 +143,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 if (this.processedRequirements.size() == tickableRequirements.size()) {
                     this.recipeProgressTime += this.context.getModifiedSpeed();
                     this.context.setRecipeProgressTime(this.recipeProgressTime);
-                    this.setRunning();
+                    this.setStatus(MachineStatus.RUNNING);
                     this.processedRequirements.clear();
                 }
                 this.phase = PHASE.CRAFTING_DELAYED;
@@ -160,7 +155,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                         IMachineComponent component = this.tile.componentManager.getComponent(delayedRequirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), delayedRequirement.getType()));
                         CraftingResult result = delayedRequirement.execute(component, this.context);
                         if(!result.isSuccess()) {
-                            this.setErrored(result.getMessage());
+                            this.setStatus(MachineStatus.ERRORED, result.getMessage());
                             break;
                         } else iterator.remove();
                     }
@@ -181,7 +176,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                         }
                         CraftingResult result = ((IRequirement)requirement).processEnd(component, this.context);
                         if(!result.isSuccess()) {
-                            this.setErrored(result.getMessage());
+                            this.setStatus(MachineStatus.ERRORED, result.getMessage());
                             break;
                         }
                         else this.processedRequirements.add(requirement);
@@ -197,7 +192,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 }
             }
         }
-        else this.setIdle();
+        else this.setStatus(MachineStatus.IDLE);
     }
 
     private Optional<CustomMachineRecipe> findRecipe() {
@@ -212,32 +207,32 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 .max(Comparators.CUSTOM_MACHINE_RECIPE_COMPARATOR);
     }
 
+    private void setRecipe(CustomMachineRecipe recipe) {
+        this.currentRecipe = recipe;
+        this.context.setRecipe(recipe);
+        this.context.refreshModifiers(this.tile);
+        this.refreshModifiersCooldown = 20;
+        this.delayedRequirements = this.currentRecipe.getRequirements()
+                .stream()
+                .filter(requirement -> requirement instanceof IDelayedRequirement)
+                .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
+                .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
+                .collect(Collectors.toList());
+        this.recipeTotalTime = this.currentRecipe.getRecipeTime();
+    }
+
     public ITextComponent getErrorMessage() {
         return this.errorMessage;
     }
 
-    public void setIdle() {
-        if(this.status != MachineStatus.IDLE) {
-            this.status = MachineStatus.IDLE;
-            this.errorMessage = StringTextComponent.EMPTY;
-            this.tile.markDirty();
-            notifyStatusChanged();
-        }
+    public void setStatus(MachineStatus status) {
+        this.setStatus(status, StringTextComponent.EMPTY);
     }
 
-    public void setErrored(ITextComponent message) {
-        if(this.status != MachineStatus.ERRORED || !this.errorMessage.equals(message)) {
-            this.status = MachineStatus.ERRORED;
-            this.errorMessage = message;
-            this.tile.markDirty();
-            notifyStatusChanged();
-        }
-    }
-
-    public void setRunning() {
-        if(this.status != MachineStatus.RUNNING) {
-            this.status = MachineStatus.RUNNING;
-            this.errorMessage = StringTextComponent.EMPTY;
+    public void setStatus(MachineStatus status, ITextComponent mesage) {
+        if(this.status != status) {
+            this.status = status;
+            this.errorMessage = mesage;
             this.tile.markDirty();
             notifyStatusChanged();
         }
@@ -260,15 +255,10 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void addProbeInfo(IProbeInfo info) {
-        info.text(new TranslationTextComponent("custommachinery.craftingstatus." + this.status.toString().toLowerCase(Locale.ENGLISH)));
-        switch (this.status) {
-            case RUNNING:
-                info.progress((int)this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
-                break;
-            case ERRORED:
-                info.text(this.errorMessage);
-                break;
-        }
+        info.text(this.status.getTranslatedName());
+        info.progress((int)this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
+        if(this.status == MachineStatus.ERRORED)
+            info.text(this.errorMessage);
     }
 
     @Override
@@ -290,7 +280,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(nbt.contains("phase", Constants.NBT.TAG_STRING))
             this.phase = PHASE.value(nbt.getString("phase"));
         if(nbt.contains("status", Constants.NBT.TAG_STRING))
-            this.status = MachineStatus.value(nbt.getString("status"));
+            this.setStatus(MachineStatus.value(nbt.getString("status")));
         if(nbt.contains("message", Constants.NBT.TAG_STRING))
             this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
         if(nbt.contains("recipeProgressTime", Constants.NBT.TAG_DOUBLE))
