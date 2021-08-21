@@ -27,14 +27,10 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeColors;
 import net.minecraftforge.api.distmarker.Dist;
@@ -98,8 +94,10 @@ public class ClientHandler {
                     return world.getBlockColor(pos, BiomeColors.FOLIAGE_COLOR);
                 case 4:
                     TileEntity tile = world.getTileEntity(pos);
-                    if(tile instanceof CustomMachineTile)
-                        return ((CustomMachineTile)tile).getMachine().getAppearance().getColor();
+                    if(tile instanceof CustomMachineTile) {
+                        CustomMachineTile machineTile = (CustomMachineTile)tile;
+                        return machineTile.getMachine().getAppearance(machineTile.craftingManager.getStatus()).getColor();
+                    }
                 default:
                     return 0xFFFFFF;
             }

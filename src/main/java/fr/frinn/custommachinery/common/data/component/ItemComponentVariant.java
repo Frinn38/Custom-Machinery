@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.item.ItemStack;
@@ -62,7 +62,7 @@ public abstract class ItemComponentVariant {
         @Override
         public void tick(ItemMachineComponent component) {
             if(component.getItemStack() != ItemStack.EMPTY && ForgeHooks.getBurnTime(component.getItemStack()) > 0) {
-                if(component.getManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).map(FuelMachineComponent::getFuel).orElse(0) == 0 && ((CustomMachineTile)component.getManager().getTile()).craftingManager.getStatus() != CraftingManager.STATUS.IDLE) {
+                if(component.getManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).map(FuelMachineComponent::getFuel).orElse(0) == 0 && ((CustomMachineTile)component.getManager().getTile()).craftingManager.getStatus() != MachineStatus.IDLE) {
                     component.getManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).ifPresent(fuelComponent -> {
                         fuelComponent.addFuel(ForgeHooks.getBurnTime(component.getItemStack()));
                         component.extract(1);

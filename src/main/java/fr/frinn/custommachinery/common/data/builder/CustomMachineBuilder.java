@@ -5,19 +5,24 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.IMachineComponent;
 import fr.frinn.custommachinery.api.components.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
+import fr.frinn.custommachinery.common.data.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CustomMachineBuilder {
 
     private String name;
-    private MachineAppearanceBuilder appearance;
+    private Map<MachineStatus, MachineAppearanceBuilder> appearance;
     private List<IGuiElement> guiElements;
     private List<IGuiElement> jeiElements;
     private List<IMachineComponentBuilder<? extends IMachineComponent>> componentBuilders;
@@ -25,7 +30,7 @@ public class CustomMachineBuilder {
 
     public CustomMachineBuilder() {
         this.name = "New Machine";
-        this.appearance = new MachineAppearanceBuilder();
+        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder()));
         this.guiElements = new ArrayList<>();
         this.jeiElements = new ArrayList<>();
         this.componentBuilders = new ArrayList<>();
@@ -34,7 +39,7 @@ public class CustomMachineBuilder {
 
     public CustomMachineBuilder(CustomMachine machine) {
         this.name = machine.getName();
-        this.appearance = new MachineAppearanceBuilder(machine.getAppearance());
+        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder(machine.getAppearance(status))));
         this.guiElements = machine.getGuiElements();
         this.jeiElements = machine.getJeiElements();
         this.componentBuilders = new ArrayList<>();
@@ -54,8 +59,18 @@ public class CustomMachineBuilder {
         return this;
     }
 
-    public MachineAppearanceBuilder getAppearance() {
-        return this.appearance;
+    public CustomMachineBuilder withAppearance(MachineStatus status, MachineAppearanceBuilder builder) {
+        this.appearance.put(status, builder);
+        return this;
+    }
+
+    public MachineAppearanceBuilder getAppearance(MachineStatus status) {
+        return this.appearance.get(status);
+    }
+
+    public CustomMachineBuilder withGuiElement(IGuiElement element) {
+        this.guiElements.add(element);
+        return this;
     }
 
     public List<IGuiElement> getGuiElements() {
@@ -84,7 +99,7 @@ public class CustomMachineBuilder {
 
     public CustomMachine build() {
         String name = this.name == null ? "New Machine" : this.name;
-        MachineAppearance appearance = this.appearance.build();
+        MachineAppearanceManager appearance = new MachineAppearanceManager(this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.jeiElements);
         List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = new ArrayList<>();

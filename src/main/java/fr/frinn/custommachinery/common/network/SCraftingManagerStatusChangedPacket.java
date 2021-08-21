@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.network;
 
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.client.Minecraft;
@@ -15,9 +16,9 @@ import java.util.function.Supplier;
 public class SCraftingManagerStatusChangedPacket {
 
     private BlockPos pos;
-    private CraftingManager.STATUS status;
+    private MachineStatus status;
 
-    public SCraftingManagerStatusChangedPacket(BlockPos pos, CraftingManager.STATUS status) {
+    public SCraftingManagerStatusChangedPacket(BlockPos pos, MachineStatus status) {
         this.pos = pos;
         this.status = status;
     }
@@ -29,7 +30,7 @@ public class SCraftingManagerStatusChangedPacket {
 
     public static SCraftingManagerStatusChangedPacket decode(PacketBuffer buf) {
         BlockPos pos = buf.readBlockPos();
-        CraftingManager.STATUS status = buf.readEnumValue(CraftingManager.STATUS.class);
+        MachineStatus status = buf.readEnumValue(MachineStatus.class);
         return new SCraftingManagerStatusChangedPacket(pos, status);
     }
 
@@ -39,7 +40,8 @@ public class SCraftingManagerStatusChangedPacket {
                 if(Minecraft.getInstance().world != null) {
                     TileEntity tile = Minecraft.getInstance().world.getTileEntity(this.pos);
                     if(tile instanceof CustomMachineTile) {
-                        CraftingManager manager = ((CustomMachineTile) tile).craftingManager;
+                        CustomMachineTile machineTile = (CustomMachineTile)tile;
+                        CraftingManager manager = machineTile.craftingManager;
                         if(this.status != manager.getStatus())
                         switch (this.status) {
                             case IDLE:
@@ -52,6 +54,7 @@ public class SCraftingManagerStatusChangedPacket {
                                 manager.setRunning();
                                 break;
                         }
+                        machineTile.requestModelDataUpdate();
                     }
                 }
             });

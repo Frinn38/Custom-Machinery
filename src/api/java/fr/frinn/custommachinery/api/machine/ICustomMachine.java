@@ -18,4 +18,9 @@ public interface ICustomMachine {
      * @return true if the machine is DUMMY, usually indicate that something went wrong, or a machine was not found.
      */
     boolean isDummy();
+
+    /**
+     * @return The MachineAppearance corresponding to the supplied MachineStatus.
+     */
+    IMachineAppearance getAppearance(MachineStatus status);
 }

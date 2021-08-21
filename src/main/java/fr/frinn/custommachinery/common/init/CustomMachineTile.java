@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.ICapabilityComponent;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -73,6 +74,11 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     }
 
     @Override
+    public MachineStatus getStatus() {
+        return this.craftingManager.getStatus();
+    }
+
+    @Override
     public void refreshMachine(@Nullable ResourceLocation id) {
         if(this.world == null || this.world.isRemote())
             return;
@@ -108,12 +114,12 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
             if(this.soundManager == null)
                 this.soundManager = new SoundManager(this.pos);
-            if(getMachine().getAppearance().getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance().getSound().getName().equals(this.soundManager.getSoundID()))
-                this.soundManager.setSound(getMachine().getAppearance().getSound());
+            if(getMachine().getAppearance(getStatus()).getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance(getStatus()).getSound().getName().equals(this.soundManager.getSoundID()))
+                this.soundManager.setSound(getMachine().getAppearance(getStatus()).getSound());
 
-            if (this.craftingManager.getStatus() == CraftingManager.STATUS.RUNNING && !this.soundManager.isPlaying())
+            if (this.craftingManager.getStatus() == MachineStatus.RUNNING && !this.soundManager.isPlaying())
                 this.soundManager.play();
-            else if(this.craftingManager.getStatus() != CraftingManager.STATUS.RUNNING && this.soundManager.isPlaying())
+            else if(this.craftingManager.getStatus() != MachineStatus.RUNNING && this.soundManager.isPlaying())
                 this.soundManager.stop();
         }
     }
@@ -211,7 +217,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     @Override
     public IModelData getModelData() {
         return new ModelDataMap.Builder()
-                .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance().copy())
+                .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance(getStatus()).copy())
                 .build();
     }
 }

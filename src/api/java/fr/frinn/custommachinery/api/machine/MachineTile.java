@@ -44,4 +44,9 @@ public abstract class MachineTile extends TileEntity {
      * @return true if the MachineTile is paused, false if not.
      */
     public abstract boolean isPaused();
+
+    /**
+     * @return The machine current status, available on both sides as it's synced automatically.
+     */
+    public abstract MachineStatus getStatus();
 }

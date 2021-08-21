@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.crafting.requirements.IChanceableRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.IDelayedRequirement;
@@ -18,13 +19,11 @@ import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import fr.frinn.custommachinery.common.util.Utils;
 import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -48,8 +47,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     private List<IDelayedRequirement<IMachineComponent>> delayedRequirements;
 
-    private STATUS status;
-    private STATUS prevStatus;
+    private MachineStatus status;
+    private MachineStatus prevStatus;
     private PHASE phase = PHASE.STARTING;
 
     private ITextComponent errorMessage = StringTextComponent.EMPTY;
@@ -57,7 +56,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     public CraftingManager(CustomMachineTile tile) {
         this.tile = tile;
         this.rand = tile.getWorld() != null ? tile.getWorld().rand : new Random();
-        this.status = STATUS.IDLE;
+        this.status = MachineStatus.IDLE;
         this.processedRequirements = new ArrayList<>();
         this.delayedRequirements = new ArrayList<>();
     }
@@ -65,16 +64,16 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     public void tick() {
         if(this.context == null)
             this.context = new CraftingContext(this.tile);
-        if(this.tile.isPaused() && this.status != STATUS.PAUSED) {
+        if(this.tile.isPaused() && this.status != MachineStatus.PAUSED) {
             this.prevStatus = this.status;
-            this.status = STATUS.PAUSED;
+            this.status = MachineStatus.PAUSED;
             notifyStatusChanged();
         }
-        if(!this.tile.isPaused() && this.status == STATUS.PAUSED) {
+        if(!this.tile.isPaused() && this.status == MachineStatus.PAUSED) {
             this.status = this.prevStatus;
             notifyStatusChanged();
         }
-        if(this.status == STATUS.PAUSED)
+        if(this.status == MachineStatus.PAUSED)
             return;
         if(this.futureRecipeID != null && this.tile.getWorld() != null) {
             this.currentRecipe = (CustomMachineRecipe) this.tile.getWorld().getRecipeManager().getRecipe(this.futureRecipeID).orElse(null);
@@ -218,8 +217,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void setIdle() {
-        if(this.status != STATUS.IDLE) {
-            this.status = STATUS.IDLE;
+        if(this.status != MachineStatus.IDLE) {
+            this.status = MachineStatus.IDLE;
             this.errorMessage = StringTextComponent.EMPTY;
             this.tile.markDirty();
             notifyStatusChanged();
@@ -227,8 +226,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void setErrored(ITextComponent message) {
-        if(this.status != STATUS.ERRORED || !this.errorMessage.equals(message)) {
-            this.status = STATUS.ERRORED;
+        if(this.status != MachineStatus.ERRORED || !this.errorMessage.equals(message)) {
+            this.status = MachineStatus.ERRORED;
             this.errorMessage = message;
             this.tile.markDirty();
             notifyStatusChanged();
@@ -236,8 +235,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void setRunning() {
-        if(this.status != STATUS.RUNNING) {
-            this.status = STATUS.RUNNING;
+        if(this.status != MachineStatus.RUNNING) {
+            this.status = MachineStatus.RUNNING;
             this.errorMessage = StringTextComponent.EMPTY;
             this.tile.markDirty();
             notifyStatusChanged();
@@ -252,7 +251,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     }
 
-    public STATUS getStatus() {
+    public MachineStatus getStatus() {
         return this.status;
     }
 
@@ -291,7 +290,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(nbt.contains("phase", Constants.NBT.TAG_STRING))
             this.phase = PHASE.value(nbt.getString("phase"));
         if(nbt.contains("status", Constants.NBT.TAG_STRING))
-            this.status = STATUS.value(nbt.getString("status"));
+            this.status = MachineStatus.value(nbt.getString("status"));
         if(nbt.contains("message", Constants.NBT.TAG_STRING))
             this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
         if(nbt.contains("recipeProgressTime", Constants.NBT.TAG_DOUBLE))
@@ -301,7 +300,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
         container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
-        container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = STATUS.value(status)));
+        container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = MachineStatus.value(status)));
         container.accept(StringSyncable.create(() -> TextComponentUtils.toJsonString(this.errorMessage), errorMessage -> this.errorMessage = TextComponentUtils.fromJsonString(errorMessage)));
     }
 
@@ -316,14 +315,4 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         }
     }
 
-    public enum STATUS {
-        IDLE,
-        RUNNING,
-        ERRORED,
-        PAUSED;
-
-        public static STATUS value(String string) {
-            return valueOf(string.toUpperCase(Locale.ENGLISH));
-        }
-    }
 }

@@ -1,14 +1,12 @@
 package fr.frinn.custommachinery.common.network;
 
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -43,6 +41,8 @@ public class SRefreshCustomMachineTilePacket {
                     if(tile instanceof CustomMachineTile) {
                         CustomMachineTile machineTile = (CustomMachineTile) tile;
                         machineTile.setId(this.machine);
+                        machineTile.requestModelDataUpdate();
+                        Minecraft.getInstance().world.notifyBlockUpdate(this.pos, machineTile.getBlockState(), machineTile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
                     }
                 }
             });

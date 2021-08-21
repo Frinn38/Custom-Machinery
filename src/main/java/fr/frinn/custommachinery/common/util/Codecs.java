@@ -3,17 +3,18 @@ package fr.frinn.custommachinery.common.util;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.components.ComponentIOMode;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.requirements.BlockRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.EntityRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
@@ -23,7 +24,6 @@ import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
@@ -33,14 +33,15 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.potion.Effect;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class Codecs {
@@ -51,9 +52,6 @@ public class Codecs {
     public static final Codec<Effect> EFFECT_CODEC                      = new RegistryCodec<>(ForgeRegistries.POTIONS).stable();
     public static final Codec<Fluid> FLUID_CODEC                        = new RegistryCodec<>(ForgeRegistries.FLUIDS).stable();
 
-    public static final Codec<ModelResourceLocation> MODEL_RESOURCE_LOCATION_CODEC      = Codec.STRING.comapFlatMap(Codecs::decodeModelResourceLocation, ModelResourceLocation::toString).stable();
-    public static final Codec<MachineAppearance.AppearanceType> APPEARANCE_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeAppearanceType, MachineAppearance.AppearanceType::toString).stable();
-    public static final Codec<MachineAppearance.LightMode> LIGHT_MODE_CODEC             = Codec.STRING.comapFlatMap(Codecs::decodeLightMode, MachineAppearance.LightMode::toString).stable();
     public static final Codec<ComponentIOMode> COMPONENT_MODE_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeMachineComponentMode, ComponentIOMode::toString).stable();
     public static final Codec<IRequirement.MODE> REQUIREMENT_MODE_CODEC                 = Codec.STRING.comapFlatMap(Codecs::decodeRecipeRequirementMode, IRequirement.MODE::toString).stable();
     public static final Codec<MachineLocation.Loader> LOADER_CODEC                      = Codec.STRING.comapFlatMap(Codecs::decodeLoader, MachineLocation.Loader::toString).stable();
@@ -77,35 +75,16 @@ public class Codecs {
 
     public static final Codec<AxisAlignedBB> BOX_CODEC = Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ));
 
-    private static DataResult<ModelResourceLocation> decodeModelResourceLocation(String encoded) {
-        try {
-            return DataResult.success(new ModelResourceLocation(encoded));
-        } catch (ResourceLocationException resourcelocationexception) {
-            return DataResult.error("Not a valid model resource location: " + encoded + " " + resourcelocationexception.getMessage());
-        }
-    }
+    public static final Codec<MachineStatus> STATUS_CODEC = IStringSerializable.createEnumCodec(MachineStatus::values, MachineStatus::getValueOrNull).stable();
 
-    private static DataResult<MachineAppearance.AppearanceType> decodeAppearanceType(String encoded) {
-        try {
-            return DataResult.success(MachineAppearance.AppearanceType.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Appearance Type: " + encoded + " " + e.getMessage());
-        }
-    }
+    public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = Codec.either(PARTIAL_BLOCK_STATE_CODEC, ResourceLocation.CODEC).xmap(either -> either.map(PartialBlockState::getModelLocation, Function.identity()), Either::right).stable();
+    public static final Codec<ResourceLocation> ITEM_MODEL_CODEC = Codec.either(ITEM_CODEC, ResourceLocation.CODEC).xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right).stable();
 
     private static DataResult<ComponentIOMode> decodeMachineComponentMode(String encoded) {
         try {
             return DataResult.success(ComponentIOMode.value(encoded));
         } catch (IllegalArgumentException e) {
             return DataResult.error("Not a valid Machine Component Mode: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<MachineAppearance.LightMode> decodeLightMode(String encoded) {
-        try {
-            return DataResult.success(MachineAppearance.LightMode.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid LightMode: " + encoded + " " + e.getMessage());
         }
     }
 

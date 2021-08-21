@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import mcjty.theoneprobe.api.IProbeInfo;
@@ -41,8 +42,8 @@ public class DummyCraftingManager extends CraftingManager {
     }
 
     @Override
-    public STATUS getStatus() {
-        return STATUS.IDLE;
+    public MachineStatus getStatus() {
+        return MachineStatus.IDLE;
     }
 
     @Override

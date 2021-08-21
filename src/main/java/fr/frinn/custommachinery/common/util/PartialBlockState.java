@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.state.Property;
@@ -12,11 +13,13 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.CachedBlockInfo;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -113,5 +116,30 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
         if(this.nbt != null && !this.nbt.isEmpty())
             builder.append(this.nbt);
         return builder.toString();
+    }
+
+    public ResourceLocation getModelLocation() {
+        ResourceLocation location = this.blockState.getBlock().getRegistryName();
+        if(location == null)
+            throw new IllegalStateException("Can't get location of a null block");
+        StringBuilder stringbuilder = new StringBuilder();
+
+        for(Map.Entry<Property<?>, Comparable<?>> entry : this.getBlockState().getValues().entrySet()) {
+            if (stringbuilder.length() != 0) {
+                stringbuilder.append(',');
+            }
+
+            Property<?> property = entry.getKey();
+            stringbuilder.append(property.getName());
+            stringbuilder.append('=');
+            stringbuilder.append(getPropertyValueString(property, entry.getValue()));
+        }
+
+        String properties = stringbuilder.toString();
+        return new ModelResourceLocation(location, properties);
+    }
+
+    private static <T extends Comparable<T>> String getPropertyValueString(Property<T> property, Comparable<?> value) {
+        return property.getName((T)value);
     }
 }

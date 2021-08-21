@@ -7,6 +7,8 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.IMachineComponent;
 import fr.frinn.custommachinery.api.components.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import net.minecraft.util.ResourceLocation;
 
@@ -18,25 +20,27 @@ public class CustomMachine implements ICustomMachine {
     public static final Codec<CustomMachine> CODEC = RecordCodecBuilder.create(machineCodec ->
         machineCodec.group(
             Codec.STRING.fieldOf("name").forGetter(CustomMachine::getName),
-            MachineAppearance.CODEC.fieldOf("appearance").forGetter(CustomMachine::getAppearance),
+            MachineAppearanceManager.CODEC.promotePartial(CustomMachinery.LOGGER::warn).fieldOf("appearance").forGetter(machine -> machine.appearance),
             IGuiElement.CODEC.listOf().optionalFieldOf("gui", ImmutableList.of()).forGetter(CustomMachine::getGuiElements),
             IGuiElement.CODEC.listOf().optionalFieldOf("jei", ImmutableList.of()).forGetter(CustomMachine::getJeiElements),
             IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", new ArrayList<>()).forGetter(CustomMachine::getComponentTemplates)
         ).apply(machineCodec, CustomMachine::new)
     );
 
-    public static final CustomMachine DUMMY = new CustomMachine("Dummy", MachineAppearance.DUMMY, ImmutableList.of(), ImmutableList.of(), ImmutableList.of())
-            .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")));
+    public static final CustomMachine DUMMY = new CustomMachineBuilder()
+            .setName("Dummy")
+            .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")))
+            .build();
 
     private String name;
-    private MachineAppearance appearance;
+    private MachineAppearanceManager appearance;
     private List<IGuiElement> guiElements;
     private List<IGuiElement> jeiElements;
     private List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates;
     private MachineLocation location;
 
 
-    public CustomMachine(String name, MachineAppearance appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
+    public CustomMachine(String name, MachineAppearanceManager appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
         this.name = name;
         this.appearance = appearance;
         this.guiElements = guiElements;
@@ -59,8 +63,9 @@ public class CustomMachine implements ICustomMachine {
         return this == DUMMY;
     }
 
-    public MachineAppearance getAppearance() {
-        return this.appearance;
+    @Override
+    public MachineAppearance getAppearance(MachineStatus status) {
+        return this.appearance.getAppearance(status);
     }
 
     public List<IGuiElement> getGuiElements() {

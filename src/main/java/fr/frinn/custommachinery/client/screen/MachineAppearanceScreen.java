@@ -1,27 +1,11 @@
 package fr.frinn.custommachinery.client.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
-import fr.frinn.custommachinery.client.screen.widget.EnumButton;
 import fr.frinn.custommachinery.client.screen.widget.ToogleTextFieldWidget;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
-import fr.frinn.custommachinery.common.init.CustomMachineItem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.registries.ForgeRegistries;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Arrays;
-import java.util.Locale;
 
 public class MachineAppearanceScreen extends MachineCreationTabScreen {
 
-    private EnumButton<MachineAppearance.AppearanceType> appearanceTypeButton;
     private ToogleTextFieldWidget modelPrompt;
     private ToogleTextFieldWidget blockPrompt;
     private ToogleTextFieldWidget blockStatePrompt;
@@ -29,7 +13,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
     public MachineAppearanceScreen(MachineCreationScreen parent, CustomMachineBuilder machine) {
         super(new StringTextComponent("Machine Appearance"), parent, machine);
     }
-
+    /*
     @Override
     protected void init() {
         super.init();
@@ -123,8 +107,5 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
 
         super.render(matrix, mouseX, mouseY, partialTicks);
     }
-
-    private void renderTooltip(MatrixStack matrix, int mouseX, int mouseY) {
-
-    }
+    */
 }
