@@ -11,8 +11,10 @@ import com.blamejared.crafttweaker.impl.entity.MCEntityType;
 import com.blamejared.crafttweaker.impl.helper.CraftTweakerHelper;
 import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
 import com.blamejared.crafttweaker.impl.tag.MCTag;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
@@ -31,10 +33,10 @@ import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.biome.Biome;
 import org.openzen.zencode.java.ZenCodeType.*;
+import org.openzen.zencode.java.ZenCodeType.Optional;
+import org.openzen.zencode.java.ZenCodeType.OptionalInt;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -415,6 +417,30 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder breakBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
         return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    }
+
+    /** STRUCTURE **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireStructure(String[][] pattern, Map<String, String> key) {
+        List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).collect(Collectors.toList())).collect(Collectors.toList());
+        Map<Character, PartialBlockState> keysMap = new HashMap<>();
+        for(Map.Entry<String, String> entry : key.entrySet()) {
+            if(entry.getKey().length() != 1) {
+                CraftTweakerAPI.logError("Invalid structure key: " + entry.getKey() + " Must be a single character which is not 'm'");
+                return this;
+            }
+            char keyChar = entry.getKey().charAt(0);
+            DataResult<Pair<PartialBlockState, JsonElement>> result = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
+            if(result.error().isPresent() || !result.result().isPresent()) {
+                CraftTweakerAPI.logError("Invalid structure block: " + entry.getValue());
+                CraftTweakerAPI.logError(result.error().get().message());
+                return this;
+            }
+            PartialBlockState state = result.result().get().getFirst();
+            keysMap.put(keyChar, state);
+        }
+        return addRequirement(new StructureRequirement(patternList, keysMap));
     }
 
     /** CHANCE **/

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -25,9 +26,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -642,5 +641,28 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid comparator: " + comparator);
         }
         return this;
+    }
+
+    /** STRUCTURE **/
+
+    public CustomMachineJSRecipeBuilder requireStructure(String[][] pattern, Map<String, String> key) {
+        List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).collect(Collectors.toList())).collect(Collectors.toList());
+        Map<Character, PartialBlockState> keysMap = new HashMap<>();
+        for(Map.Entry<String, String> entry : key.entrySet()) {
+            if(entry.getKey().length() != 1) {
+                ScriptType.SERVER.console.warn("Invalid structure key: " + entry.getKey() + " Must be a single character which is not 'm'");
+                return this;
+            }
+            char keyChar = entry.getKey().charAt(0);
+            DataResult<Pair<PartialBlockState, JsonElement>> result = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
+            if(result.error().isPresent() || !result.result().isPresent()) {
+                ScriptType.SERVER.console.warn("Invalid structure block: " + entry.getValue());
+                ScriptType.SERVER.console.warn(result.error().get().message());
+                return this;
+            }
+            PartialBlockState state = result.result().get().getFirst();
+            keysMap.put(keyChar, state);
+        }
+        return addRequirement(new StructureRequirement(patternList, keysMap));
     }
 }

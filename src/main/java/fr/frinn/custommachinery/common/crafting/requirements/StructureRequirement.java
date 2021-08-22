@@ -35,7 +35,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
     private List<List<String>> pattern;
     private Map<Character, PartialBlockState> keys;
     private BlockStructure structure;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public StructureRequirement(List<List<String>> pattern, Map<Character, PartialBlockState> keys) {
         super(MODE.INPUT);
