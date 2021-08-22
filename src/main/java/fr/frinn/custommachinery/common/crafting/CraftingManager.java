@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.ITickableComponent;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.crafting.requirements.IChanceableRequirement;
@@ -24,6 +23,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -255,8 +255,21 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void addProbeInfo(IProbeInfo info) {
-        info.text(this.status.getTranslatedName());
-        info.progress((int)this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
+        TranslationTextComponent status = this.status.getTranslatedName();
+        switch (this.status) {
+            case ERRORED:
+                status.mergeStyle(TextFormatting.RED);
+                break;
+            case RUNNING:
+                status.mergeStyle(TextFormatting.GREEN);
+                break;
+            case PAUSED:
+                status.mergeStyle(TextFormatting.GOLD);
+                break;
+        }
+        info.mcText(status);
+        if(this.currentRecipe != null)
+            info.progress((int)this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
         if(this.status == MachineStatus.ERRORED)
             info.text(this.errorMessage);
     }

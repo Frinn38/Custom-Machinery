@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.api.machine;
 
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -48,5 +49,9 @@ public enum MachineStatus implements IStringSerializable {
     @Override
     public String getString() {
         return toString();
+    }
+
+    public TranslationTextComponent getTranslatedName() {
+        return new TranslationTextComponent("custommachinery.craftingstatus." + this);
     }
 }

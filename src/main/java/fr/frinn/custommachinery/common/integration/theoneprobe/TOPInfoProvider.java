@@ -62,7 +62,6 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
             CustomMachineTile machine = (CustomMachineTile)tile;
             machine.componentManager.getProbeInfoComponents().forEach(component -> component.addProbeInfo(info));
             machine.craftingManager.addProbeInfo(info);
-
         }
     }
 }
