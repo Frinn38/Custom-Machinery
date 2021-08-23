@@ -32,9 +32,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.biome.Biome;
-import org.openzen.zencode.java.ZenCodeType.*;
 import org.openzen.zencode.java.ZenCodeType.Optional;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
+import org.openzen.zencode.java.ZenCodeType.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -441,6 +441,18 @@ public class CustomMachineCTRecipeBuilder {
             keysMap.put(keyChar, state);
         }
         return addRequirement(new StructureRequirement(patternList, keysMap));
+    }
+
+    /** LOOT TABLE **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder lootTableOutput(String lootTable, @OptionalFloat float luck) {
+        if(!Utils.isResourceNameValid(lootTable)) {
+            CraftTweakerAPI.logError("Invalid loot table id: " + lootTable);
+            return this;
+        }
+        ResourceLocation tableLoc = new ResourceLocation(lootTable);
+        return addRequirement(new LootTableRequirement(tableLoc, luck));
     }
 
     /** CHANCE **/

@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
-import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;

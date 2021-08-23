@@ -22,5 +22,6 @@ public class NetworkManager {
         CHANNEL.registerMessage(index++, SUpdateUpgradesPacket.class, SUpdateUpgradesPacket::encode, SUpdateUpgradesPacket::decode, SUpdateUpgradesPacket::handle);
         CHANNEL.registerMessage(index++, SCraftingManagerStatusChangedPacket.class, SCraftingManagerStatusChangedPacket::encode, SCraftingManagerStatusChangedPacket::decode, SCraftingManagerStatusChangedPacket::handle);
         CHANNEL.registerMessage(index++, SRefreshCustomMachineTilePacket.class, SRefreshCustomMachineTilePacket::encode, SRefreshCustomMachineTilePacket::decode, SRefreshCustomMachineTilePacket::handle);
+        CHANNEL.registerMessage(index++, SLootTablesPacket.class, SLootTablesPacket::encode, SLootTablesPacket::decode, SLootTablesPacket::handle);
     }
 }

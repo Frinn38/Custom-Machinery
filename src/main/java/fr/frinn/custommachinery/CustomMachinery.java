@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
+import fr.frinn.custommachinery.common.util.LootTableHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
@@ -63,6 +65,7 @@ public class CustomMachinery {
         final IEventBus FORGE_BUS = MinecraftForge.EVENT_BUS;
         FORGE_BUS.addListener(this::addReloadListener);
         //FORGE_BUS.addListener(this::playerLogIn);
+        FORGE_BUS.addListener(this::serverStarting);
         FORGE_BUS.addListener(this::worldTick);
     }
 
@@ -80,12 +83,17 @@ public class CustomMachinery {
         event.addListener(new UpgradesCustomReloadListener());
     }
 
+    //Too late for JEI, use NetworkHooksMixin instead
     public void playerLogIn(final PlayerEvent.PlayerLoggedInEvent event) {
         PlayerEntity player = event.getPlayer();
         if(!player.world.isRemote()) {
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateMachinesPacket(MACHINES));
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateUpgradesPacket(UPGRADES));
         }
+    }
+
+    public void serverStarting(final FMLServerStartingEvent event) {
+        LootTableHelper.generate(event.getServer());
     }
 
     public static boolean refreshMachines = false;

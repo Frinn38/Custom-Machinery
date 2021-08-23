@@ -8,7 +8,9 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.network.NetworkManager;
+import fr.frinn.custommachinery.common.network.SLootTablesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
+import fr.frinn.custommachinery.common.util.LootTableHelper;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
@@ -68,9 +70,12 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
 
         LOGGER.info("Finished creating custom machines.");
 
+        //will be executed only on /reload.
         if(ServerLifecycleHooks.getCurrentServer() != null) {
             NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
             CustomMachinery.refreshMachines = true;
+            LootTableHelper.generate(ServerLifecycleHooks.getCurrentServer());
+            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SLootTablesPacket(LootTableHelper.getLoots()));
         }
     }
 }

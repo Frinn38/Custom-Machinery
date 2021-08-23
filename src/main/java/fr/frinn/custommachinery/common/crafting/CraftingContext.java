@@ -15,12 +15,18 @@ public class CraftingContext {
 
     private static final Random RAND = new Random();
 
+    private CustomMachineTile tile;
     private CustomMachineRecipe recipe;
     private double recipeProgressTime = 0;
     private Map<RecipeModifier, Integer> modifiers = new HashMap<>();
 
     public CraftingContext(CustomMachineTile tile) {
+        this.tile = tile;
         this.refreshModifiers(tile);
+    }
+
+    public CustomMachineTile getTile() {
+        return this.tile;
     }
 
     public void refreshModifiers(CustomMachineTile tile) {

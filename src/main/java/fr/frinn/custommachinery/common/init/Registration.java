@@ -28,6 +28,9 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.loot.LootParameterSet;
+import net.minecraft.loot.LootParameterSets;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -61,6 +64,10 @@ public class Registration {
     };
 
     public static final IRecipeType<CustomMachineRecipe> CUSTOM_MACHINE_RECIPE = new IRecipeType<CustomMachineRecipe>(){};
+
+    public static final LootParameterSet CUSTOM_MACHINE_LOOT_PARAMERTER_SET = LootParameterSets.register("custom_machine", builder ->
+            builder.optional(LootParameters.ORIGIN).optional(LootParameters.BLOCK_ENTITY)
+    );
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, CustomMachinery.MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CustomMachinery.MODID);
@@ -132,6 +139,7 @@ public class Registration {
     public static final RegistryObject<RequirementType<SpeedRequirement>> SPEED_REQUIREMENT = REQUIREMENTS.register("speed", () -> new RequirementType<>(SpeedRequirement.CODEC));
     public static final RegistryObject<RequirementType<DurabilityRequirement>> DURABILITY_REQUIREMENT = REQUIREMENTS.register("durability", () -> new RequirementType<>(DurabilityRequirement.CODEC));
     public static final RegistryObject<RequirementType<StructureRequirement>> STRUCTURE_REQUIREMENT = REQUIREMENTS.register("structure", () -> new RequirementType<>(StructureRequirement.CODEC));
+    public static final RegistryObject<RequirementType<LootTableRequirement>> LOOT_TABLE_REQUIREMENT = REQUIREMENTS.register("loot_table", () -> new RequirementType<>(LootTableRequirement.CODEC));
 
     public static final RegistryObject<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATA.register("boolean", () -> new DataType<>(BooleanSyncable::create, BooleanData::new));
     public static final RegistryObject<DataType<IntegerData, Integer>> INTEGER_DATA = DATA.register("integer", () -> new DataType<>(IntegerSyncable::create, IntegerData::new));

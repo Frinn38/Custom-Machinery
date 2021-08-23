@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -664,5 +663,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             keysMap.put(keyChar, state);
         }
         return addRequirement(new StructureRequirement(patternList, keysMap));
+    }
+
+    /** LOOT TABLE **/
+
+    public CustomMachineJSRecipeBuilder lootTableOutput(String lootTable, float luck) {
+        if (!Utils.isResourceNameValid(lootTable)) {
+            ScriptType.SERVER.console.warn("Invalid loot table id: " + lootTable);
+            return this;
+        }
+        ResourceLocation tableLoc = new ResourceLocation(lootTable);
+        return addRequirement(new LootTableRequirement(tableLoc, luck));
     }
 }

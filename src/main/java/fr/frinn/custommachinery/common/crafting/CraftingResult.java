@@ -5,6 +5,9 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class CraftingResult {
 
+    private static final CraftingResult SUCCES = new CraftingResult(RESULT.SUCCESS, new StringTextComponent("success"));
+    private static final CraftingResult PASS = new CraftingResult(RESULT.PASS, new StringTextComponent("pass"));
+
     private RESULT result;
     private ITextComponent message;
 
@@ -14,11 +17,11 @@ public class CraftingResult {
     }
 
     public static CraftingResult success() {
-        return new CraftingResult(RESULT.SUCCESS, new StringTextComponent("success"));
+        return SUCCES;
     }
 
     public static CraftingResult pass() {
-        return new CraftingResult(RESULT.PASS, new StringTextComponent("pass"));
+        return PASS;
     }
 
     public static CraftingResult error(ITextComponent message) {
