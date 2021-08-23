@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -11,7 +12,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class MachineAppearance implements IMachineAppearance {
 
-    public static final ResourceLocation DEFAULT_MODEL = CustomMachineBakedModel.DEFAULT_MODEL;
+    public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block");
     public static final SoundEvent DEFAULT_SOUND = new SoundEvent(new ResourceLocation(""));
     public static final int DEFAULT_LIGHT_LEVEL = 0;
     public static final int DEFAULT_COLOR = 0xFFFFFF;

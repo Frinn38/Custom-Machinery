@@ -120,7 +120,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
         switch(machineFacing) {
             case WEST:
-            return Direction.byHorizontalIndex((quad.getHorizontalIndex() + 1) % 4);
+                return Direction.byHorizontalIndex((quad.getHorizontalIndex() + 1) % 4);
             case SOUTH:
                 return Direction.byHorizontalIndex((quad.getHorizontalIndex() + 2) % 4);
             case EAST:
