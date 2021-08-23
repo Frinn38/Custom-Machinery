@@ -128,7 +128,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getItem()), stack.getCount(), stack.getNbt().toNBT(), slot));
+        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount) {
@@ -144,7 +144,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getItem()), stack.getCount(), stack.getNbt().toNBT(), slot));
+        return this.addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
     }
 
     /** DURABILITY **/
@@ -154,7 +154,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getNbt().toNBT(), slot));
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount) {
@@ -170,7 +170,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getNbt().toNBT(), slot));
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount) {
