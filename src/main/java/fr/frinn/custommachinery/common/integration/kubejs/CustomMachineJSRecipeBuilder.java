@@ -667,6 +667,10 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     /** LOOT TABLE **/
 
+    public CustomMachineJSRecipeBuilder lootTableOutput(String lootTable) {
+        return this.lootTableOutput(lootTable, 0.0F);
+    }
+
     public CustomMachineJSRecipeBuilder lootTableOutput(String lootTable, float luck) {
         if (!Utils.isResourceNameValid(lootTable)) {
             ScriptType.SERVER.console.warn("Invalid loot table id: " + lootTable);
