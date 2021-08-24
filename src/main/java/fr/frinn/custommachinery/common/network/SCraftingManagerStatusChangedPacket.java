@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -44,6 +45,7 @@ public class SCraftingManagerStatusChangedPacket {
                         if(this.status != manager.getStatus()) {
                             manager.setStatus(this.status);
                             machineTile.requestModelDataUpdate();
+                            Minecraft.getInstance().world.notifyBlockUpdate(tile.getPos(), tile.getBlockState(), tile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
                         }
                     }
                 }
