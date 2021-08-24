@@ -5,13 +5,13 @@
 	"requirements": [
 		{
 			"type": "custommachinery:fluid",
-			"tag": "minecraft:water",
+			"fluid": "minecraft:water",
 			"amount": 10,
 			"mode": "input"
 		},
 		{
 			"type": "custommachinery:fluid",
-			"tag": "minecraft:lava",
+			"fluid": "minecraft:lava",
 			"amount": 10,
 			"mode": "input"
 		},

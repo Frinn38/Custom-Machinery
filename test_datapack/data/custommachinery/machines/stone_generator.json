@@ -1,9 +1,12 @@
 {
   "name": "Stone Generator",
   "appearance": {
-    "lightmode": "running",
-    "lightlevel": 7,
-    "model": "testresourcepack:machine/stone_generator_model"
+    "idle": {
+      "block": "testresourcepack:machine/stone_generator_model"
+    },
+    "running": {
+      "lightlevel": 15
+    }
   },
   "components": [
     {

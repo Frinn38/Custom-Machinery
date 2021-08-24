@@ -1,8 +1,9 @@
 {
   "name": "Power Crusher",
   "appearance": {
-    "lightmode": "running",
-    "lightlevel": 7
+    "running": {
+      "lightlevel": 15
+    }
   },
   "gui": [
     {
