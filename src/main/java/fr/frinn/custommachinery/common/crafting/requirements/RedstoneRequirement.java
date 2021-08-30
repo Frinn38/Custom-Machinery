@@ -29,7 +29,7 @@ public class RedstoneRequirement extends AbstractTickableRequirement<RedstoneMac
 
     private int powerLevel;
     private ComparatorMode comparatorMode;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public RedstoneRequirement(int powerLevel, ComparatorMode comparatorMode) {
         super(MODE.INPUT);

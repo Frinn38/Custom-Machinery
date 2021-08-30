@@ -23,7 +23,7 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
             })
     );
 
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public FuelRequirement() {
         super(MODE.INPUT);

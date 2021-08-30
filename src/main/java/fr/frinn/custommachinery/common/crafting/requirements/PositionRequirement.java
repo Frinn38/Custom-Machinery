@@ -45,7 +45,7 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     private boolean biomesBlacklist;
     private List<RegistryKey<World>> dimensions;
     private boolean dimensionsBlacklist;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public PositionRequirement(List<PositionComparator> positions, List<ResourceLocation> biomes, boolean biomesBlacklist, List<ResourceLocation> dimensions, boolean dimensionsBlacklist) {
         super(MODE.INPUT);

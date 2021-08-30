@@ -44,7 +44,7 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
     private List<EntityType<?>> filter;
     private boolean whitelist;
     private Predicate<Entity> predicate;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public EntityRequirement(MODE mode, ACTION action, int amount, int radius, List<EntityType<?>> filter, boolean whitelist) {
         super(mode);

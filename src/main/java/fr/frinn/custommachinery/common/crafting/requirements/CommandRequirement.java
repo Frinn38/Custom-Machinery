@@ -42,7 +42,7 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
     private int permissionLevel;
     private boolean log;
     private double chance = 1.0D;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log) {
         super(MODE.INPUT);

@@ -31,7 +31,7 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
     private int light;
     private ComparatorMode comparator;
     private boolean sky;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public LightRequirement(int light, ComparatorMode comparator, boolean sky) {
         super(MODE.INPUT);

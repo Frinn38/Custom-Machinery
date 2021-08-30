@@ -28,7 +28,7 @@ public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachi
 
     private WeatherMachineComponent.WeatherType weather;
     private boolean onMachine;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public WeatherRequirement(WeatherMachineComponent.WeatherType weather, boolean onMachine) {
         super(MODE.INPUT);

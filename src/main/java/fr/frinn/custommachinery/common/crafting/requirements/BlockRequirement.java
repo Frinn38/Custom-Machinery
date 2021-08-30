@@ -48,7 +48,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     private ComparatorMode comparator;
     private PartialBlockState block;
     private double delay;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public BlockRequirement(MODE mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block) {
         super(mode);

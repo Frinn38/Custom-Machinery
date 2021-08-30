@@ -46,7 +46,7 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
     private int radius;
     private List<EntityType<?>> filter;
     private boolean applyAtEnd;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public EffectRequirement(Effect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd) {
         super(MODE.OUTPUT);

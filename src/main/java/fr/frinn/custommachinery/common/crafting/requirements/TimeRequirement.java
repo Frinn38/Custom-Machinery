@@ -31,7 +31,7 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
     );
 
     private List<TimeComparator> times;
-    private boolean jeiVisible;
+    private boolean jeiVisible = true;
 
     public TimeRequirement(List<TimeComparator> times) {
         super(MODE.INPUT);
