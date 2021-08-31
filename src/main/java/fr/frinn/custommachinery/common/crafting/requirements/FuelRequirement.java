@@ -15,18 +15,21 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
 
     public static final Codec<FuelRequirement> CODEC = RecordCodecBuilder.create(fuelRequirementInstance ->
             fuelRequirementInstance.group(
+                    Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
                     Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(fuelRequirementInstance, (jei) -> {
-                    FuelRequirement requirement = new FuelRequirement();
+            ).apply(fuelRequirementInstance, (amount, jei) -> {
+                    FuelRequirement requirement = new FuelRequirement(amount);
                     requirement.setJeiVisible(jei);
                     return requirement;
             })
     );
 
+    private int amount;
     private boolean jeiVisible = true;
 
-    public FuelRequirement() {
+    public FuelRequirement(int amount) {
         super(MODE.INPUT);
+        this.amount = amount;
     }
 
     @Override
@@ -41,14 +44,12 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
 
     @Override
     public CraftingResult processStart(FuelMachineComponent component, CraftingContext context) {
-        if(component.isBurning())
-            return CraftingResult.success();
-        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fuel.error"));
+        return CraftingResult.pass();
     }
 
     @Override
     public CraftingResult processTick(FuelMachineComponent component, CraftingContext context) {
-        if(component.isBurning())
+        if(component.burn(this.amount))
             return CraftingResult.success();
         return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fuel.error"));
     }

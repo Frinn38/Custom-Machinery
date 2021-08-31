@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api.components;
 
+import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 
@@ -44,6 +45,13 @@ public interface IMachineComponentManager {
      * @return An Optional IMachineComponent.
      */
     <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type);
+
+    /**
+     * @param type The MachineComponentType to search.
+     * @param <T> The Component.
+     * @return An Optional IComponentHandler<T>.
+     */
+    <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type);
 
     /**
      * @param type The MachineComponentType to check.

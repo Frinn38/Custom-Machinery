@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeHooks;
 
@@ -30,9 +31,9 @@ public abstract class ItemComponentVariant {
 
     public abstract ResourceLocation getId();
 
-    public abstract void tick(ItemMachineComponent component);
+    public void tick(ItemMachineComponent component) {}
 
-    public abstract boolean isItemValid(ItemMachineComponent component, ItemStack stack);
+    public boolean isItemValid(ItemMachineComponent component, ItemStack stack) {return true;}
 
     private static class Default extends ItemComponentVariant {
 
@@ -41,15 +42,6 @@ public abstract class ItemComponentVariant {
             return new ResourceLocation(CustomMachinery.MODID, "default");
         }
 
-        @Override
-        public void tick(ItemMachineComponent component) {
-
-        }
-
-        @Override
-        public boolean isItemValid(ItemMachineComponent component, ItemStack stack) {
-            return true;
-        }
     }
 
     private static class Fuel extends ItemComponentVariant {
@@ -60,20 +52,8 @@ public abstract class ItemComponentVariant {
         }
 
         @Override
-        public void tick(ItemMachineComponent component) {
-            if(component.getItemStack() != ItemStack.EMPTY && ForgeHooks.getBurnTime(component.getItemStack()) > 0) {
-                if(component.getManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).map(FuelMachineComponent::getFuel).orElse(0) == 0 && ((CustomMachineTile)component.getManager().getTile()).craftingManager.getStatus() != MachineStatus.IDLE) {
-                    component.getManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).ifPresent(fuelComponent -> {
-                        fuelComponent.addFuel(ForgeHooks.getBurnTime(component.getItemStack()));
-                        component.extract(1);
-                    });
-                }
-            }
-        }
-
-        @Override
         public boolean isItemValid(ItemMachineComponent component, ItemStack stack) {
-            return ForgeHooks.getBurnTime(stack) > 0;
+            return ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING) > 0;
         }
     }
 
@@ -82,11 +62,6 @@ public abstract class ItemComponentVariant {
         @Override
         public ResourceLocation getId() {
             return new ResourceLocation(CustomMachinery.MODID, "upgrade");
-        }
-
-        @Override
-        public void tick(ItemMachineComponent component) {
-
         }
 
         @Override

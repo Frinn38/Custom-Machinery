@@ -266,8 +266,8 @@ public class CustomMachineCTRecipeBuilder {
     /** FUEL **/
 
     @Method
-    public CustomMachineCTRecipeBuilder requireFuel() {
-        return addRequirement(new FuelRequirement());
+    public CustomMachineCTRecipeBuilder requireFuel(@OptionalInt(1) int amount) {
+        return addRequirement(new FuelRequirement(amount));
     }
 
     /** COMMAND **/

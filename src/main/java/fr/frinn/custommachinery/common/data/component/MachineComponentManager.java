@@ -80,6 +80,11 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     }
 
     @Override
+    public <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type) {
+        return getComponent(type).filter(component -> component instanceof IComponentHandler).map(component -> (IComponentHandler<T>)component);
+    }
+
+    @Override
     public List<IComparatorInputComponent> getComparatorInputComponents() {
         return this.components.stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(Collectors.toList());
     }
@@ -87,18 +92,6 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     @Override
     public boolean hasComponent(MachineComponentType<?> type) {
         return this.components.stream().anyMatch(component -> component.getType() == type);
-    }
-
-    public Optional<EnergyMachineComponent> getEnergy() {
-        return getComponent(Registration.ENERGY_MACHINE_COMPONENT.get());
-    }
-
-    public Optional<FluidComponentHandler> getFluidHandler() {
-        return getComponent((MachineComponentType)Registration.FLUID_MACHINE_COMPONENT.get());
-    }
-
-    public Optional<ItemComponentHandler> getItemHandler() {
-        return getComponent((MachineComponentType)Registration.ITEM_MACHINE_COMPONENT.get());
     }
 
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {

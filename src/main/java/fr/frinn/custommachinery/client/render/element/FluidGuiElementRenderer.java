@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
+import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Color3F;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -22,7 +23,7 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
         int height = element.getHeight();
         screen.getMinecraft().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
-        screen.getTile().componentManager.getFluidHandler().flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
+        screen.getTile().componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
             FluidStack fluid = component.getFluidStack();
             ResourceLocation fluidTexture = fluid.getFluid().getAttributes().getStillTexture();
             TextureAtlasSprite sprite = screen.getMinecraft().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluidTexture);
@@ -35,7 +36,7 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
 
     @Override
     public void renderTooltip(MatrixStack matrix, FluidGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
-        screen.getTile().componentManager.getFluidHandler().flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
+        screen.getTile().componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
             String fluid = component.getFluidStack().getTranslationKey();
             int amount = component.getFluidStack().getAmount();
             int capacity = component.getCapacity();

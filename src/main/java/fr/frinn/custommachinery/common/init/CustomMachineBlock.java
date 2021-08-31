@@ -83,7 +83,7 @@ public class CustomMachineBlock extends Block {
             TileEntity tile = world.getTileEntity(pos);
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machine = (CustomMachineTile) tile;
-                machine.componentManager.getItemHandler().ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
+                machine.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
                 InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
             }
         }

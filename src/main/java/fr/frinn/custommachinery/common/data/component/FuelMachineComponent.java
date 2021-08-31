@@ -1,11 +1,17 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.function.Consumer;
@@ -40,7 +46,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public void serverTick() {
-        if(this.fuel > 0 && !getManager().getTile().isPaused()) {
+        if(this.fuel > 0 && getManager().getTile().getStatus() != MachineStatus.RUNNING) {
             this.fuel--;
             getManager().markDirty();
         }
@@ -66,7 +72,20 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
         getManager().getTile().markDirty();
     }
 
-    public boolean isBurning() {
+    public boolean burn(int amount) {
+        this.fuel -= amount;
+        getManager().markDirty();
+        if(getFuel() > 0)
+            return true;
+        getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
+            handler.getComponents().stream()
+                    .filter(component -> component.getVariant() == ItemComponentVariant.FUEL && !component.getItemStack().isEmpty())
+                    .findFirst()
+        ).ifPresent(component -> {
+            int fuel = ForgeHooks.getBurnTime(component.getItemStack(), IRecipeType.SMELTING);
+            this.addFuel(fuel);
+            component.extract(1);
+        });
         return getFuel() > 0;
     }
 }

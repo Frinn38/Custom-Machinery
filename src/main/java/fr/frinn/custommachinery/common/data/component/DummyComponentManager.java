@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
@@ -57,6 +58,11 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
+    public <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type) {
+        return Optional.empty();
+    }
+
+    @Override
     public List<IComparatorInputComponent> getComparatorInputComponents() {
         return Collections.emptyList();
     }
@@ -64,21 +70,6 @@ public class DummyComponentManager extends MachineComponentManager {
     @Override
     public boolean hasComponent(MachineComponentType<?> type) {
         return false;
-    }
-
-    @Override
-    public Optional<EnergyMachineComponent> getEnergy() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<FluidComponentHandler> getFluidHandler() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<ItemComponentHandler> getItemHandler() {
-        return Optional.empty();
     }
 
     @Override

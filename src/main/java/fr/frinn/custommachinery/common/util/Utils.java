@@ -2,10 +2,12 @@ package fr.frinn.custommachinery.common.util;
 
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -96,8 +98,8 @@ public class Utils {
     }
 
     public static Map<RecipeModifier, Integer> getModifiersForTile(CustomMachineTile tile) {
-        return tile.componentManager.getItemHandler()
-                .map(ItemComponentHandler::getComponents)
+        return tile.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .map(IComponentHandler::getComponents)
                 .orElse(new ArrayList<>())
                 .stream()
                 .filter(component -> component.getVariant() == ItemComponentVariant.UPGRADE)

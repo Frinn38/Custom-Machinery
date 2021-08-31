@@ -337,7 +337,11 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     /** FUEL **/
 
     public CustomMachineJSRecipeBuilder requireFuel() {
-        return this.addRequirement(new FuelRequirement());
+        return requireFuel(1);
+    }
+
+    public CustomMachineJSRecipeBuilder requireFuel(int amount) {
+        return this.addRequirement(new FuelRequirement(amount));
     }
 
     /** COMMAND **/
