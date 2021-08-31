@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.network.NetworkManager;
+import fr.frinn.custommachinery.common.network.SLootTablesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
@@ -17,8 +18,10 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.LogicalSide;
@@ -64,9 +67,9 @@ public class CustomMachinery {
 
         final IEventBus FORGE_BUS = MinecraftForge.EVENT_BUS;
         FORGE_BUS.addListener(this::addReloadListener);
-        //FORGE_BUS.addListener(this::playerLogIn);
         FORGE_BUS.addListener(this::serverStarting);
         FORGE_BUS.addListener(this::worldTick);
+        FORGE_BUS.addListener(EventPriority.HIGHEST, this::datapackSync);
     }
 
     public void commonSetup(final FMLCommonSetupEvent event) {
@@ -83,15 +86,6 @@ public class CustomMachinery {
         event.addListener(new UpgradesCustomReloadListener());
     }
 
-    //Too late for JEI, use NetworkHooksMixin instead
-    public void playerLogIn(final PlayerEvent.PlayerLoggedInEvent event) {
-        PlayerEntity player = event.getPlayer();
-        if(!player.world.isRemote()) {
-            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateMachinesPacket(MACHINES));
-            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player), new SUpdateUpgradesPacket(UPGRADES));
-        }
-    }
-
     public void serverStarting(final FMLServerStartingEvent event) {
         LootTableHelper.generate(event.getServer());
     }
@@ -101,6 +95,21 @@ public class CustomMachinery {
         if(refreshMachines && event.phase == TickEvent.Phase.END && event.side == LogicalSide.SERVER && !event.world.isRemote()) {
             refreshMachines = false;
             event.world.tickableTileEntities.stream().filter(tile -> tile instanceof CustomMachineTile).map(tile -> (CustomMachineTile)tile).forEach(tile -> tile.refreshMachine(null));
+        }
+    }
+
+    public void datapackSync(final OnDatapackSyncEvent event) {
+        if(event.getPlayer() != null) {
+            ServerPlayerEntity player = event.getPlayer();
+            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
+            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateUpgradesPacket(CustomMachinery.UPGRADES));
+            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SLootTablesPacket(LootTableHelper.getLoots()));
+        } else {
+            refreshMachines = true;
+            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
+            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateUpgradesPacket(CustomMachinery.UPGRADES));
+            LootTableHelper.generate(event.getPlayerList().getServer());
+            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SLootTablesPacket(LootTableHelper.getLoots()));
         }
     }
 }

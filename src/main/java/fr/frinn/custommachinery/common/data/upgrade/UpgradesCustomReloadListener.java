@@ -68,8 +68,5 @@ public class UpgradesCustomReloadListener extends JsonReloadListener {
         });
 
         LOGGER.info("Finished creating custom machine upgrades.");
-
-        if(ServerLifecycleHooks.getCurrentServer() != null)
-            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
     }
 }

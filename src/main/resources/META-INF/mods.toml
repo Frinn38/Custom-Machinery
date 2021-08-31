@@ -43,6 +43,6 @@ A Mod for creating custom machines and recipes for them.
 [[dependencies.custommachinery]]
     modId="forge"
     mandatory=true
-    versionRange="[35,)"
+    versionRange="[36.2.4,)"
     ordering="NONE"
     side="BOTH"

@@ -4,7 +4,6 @@
   "package": "fr.frinn.custommachinery.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "NetworkHooksMixin"
   ],
   "client": [
   ],

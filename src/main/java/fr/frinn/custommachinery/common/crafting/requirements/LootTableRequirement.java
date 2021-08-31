@@ -44,7 +44,7 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
     }
 
     @Override
-    public RequirementType<?> getType() {
+    public RequirementType<LootTableRequirement> getType() {
         return Registration.LOOT_TABLE_REQUIREMENT.get();
     }
 

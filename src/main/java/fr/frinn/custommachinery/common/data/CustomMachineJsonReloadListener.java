@@ -15,6 +15,7 @@ import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
@@ -69,13 +70,5 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
         });
 
         LOGGER.info("Finished creating custom machines.");
-
-        //will be executed only on /reload.
-        if(ServerLifecycleHooks.getCurrentServer() != null) {
-            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
-            CustomMachinery.refreshMachines = true;
-            LootTableHelper.generate(ServerLifecycleHooks.getCurrentServer());
-            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SLootTablesPacket(LootTableHelper.getLoots()));
-        }
     }
 }
