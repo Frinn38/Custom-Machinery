@@ -81,15 +81,15 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
         @Override
         public void render(MatrixStack matrix, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean isFocused, float partialTicks) {
             if(this.machineBuilder != null) {
-                int nameWidth = Minecraft.getInstance().fontRenderer.getStringWidth(this.machineBuilder.getName());
+                int nameWidth = Minecraft.getInstance().fontRenderer.getStringWidth(this.machineBuilder.getName().getString());
                 float scale = MathHelper.clamp((float)(width - 6) / (float) nameWidth, 0, 2.0F);
                 matrix.push();
                 matrix.translate(x, y, 0);
                 matrix.scale(scale, scale, 0.0F);
                 if(this.machineList.getSelected() != this)
-                    Minecraft.getInstance().fontRenderer.drawString(matrix, this.machineBuilder.getName(), 0, 0, 0);
+                    Minecraft.getInstance().fontRenderer.drawText(matrix, this.machineBuilder.getName(), 0, 0, 0);
                 else
-                    Minecraft.getInstance().fontRenderer.drawStringWithShadow(matrix, this.machineBuilder.getName(), 0, 0, Color.RED.getRGB());
+                    Minecraft.getInstance().fontRenderer.drawTextWithShadow(matrix, this.machineBuilder.getName(), 0, 0, Color.RED.getRGB());
                 matrix.scale(0.8F, 0.8F, 0.0F);
                 Minecraft.getInstance().fontRenderer.drawString(matrix, this.machineBuilder.getLocation().getLoader().getTranslatedName().getString(), 0, 11, this.machineBuilder.getLocation().getLoader().getColor());
                 matrix.pop();

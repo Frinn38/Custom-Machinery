@@ -11,6 +11,8 @@ import fr.frinn.custommachinery.common.data.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class CustomMachineBuilder {
 
-    private String name;
+    private ITextComponent name;
     private Map<MachineStatus, MachineAppearanceBuilder> appearance;
     private List<IGuiElement> guiElements;
     private List<IGuiElement> jeiElements;
@@ -29,7 +31,7 @@ public class CustomMachineBuilder {
     private MachineLocation location;
 
     public CustomMachineBuilder() {
-        this.name = "New Machine";
+        this.name = new StringTextComponent("New Machine");
         this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder()));
         this.guiElements = new ArrayList<>();
         this.jeiElements = new ArrayList<>();
@@ -50,11 +52,11 @@ public class CustomMachineBuilder {
         this.location = machine.getLocation();
     }
 
-    public String getName() {
+    public ITextComponent getName() {
         return this.name;
     }
 
-    public CustomMachineBuilder setName(String name) {
+    public CustomMachineBuilder setName(ITextComponent name) {
         this.name = name;
         return this;
     }
@@ -98,7 +100,7 @@ public class CustomMachineBuilder {
     }
 
     public CustomMachine build() {
-        String name = this.name == null ? "New Machine" : this.name;
+        ITextComponent name = this.name == null ? new StringTextComponent("New Machine") : this.name;
         MachineAppearanceManager appearance = new MachineAppearanceManager(this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.jeiElements);

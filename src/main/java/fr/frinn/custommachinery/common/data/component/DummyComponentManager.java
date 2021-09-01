@@ -4,8 +4,6 @@ import fr.frinn.custommachinery.api.components.*;
 import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import net.minecraft.nbt.CompoundNBT;

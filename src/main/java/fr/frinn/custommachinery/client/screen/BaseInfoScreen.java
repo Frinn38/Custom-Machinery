@@ -35,8 +35,8 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
                 20,
                 StringTextComponent.EMPTY
         ));
-        this.namePrompt.setText(this.machine.getName());
-        this.namePrompt.setResponder(this.machine::setName);
+        this.namePrompt.setText(this.machine.getName().getString());
+        this.namePrompt.setResponder(s -> this.machine.setName(new StringTextComponent(s)));
         this.namespacePrompt = this.addListener(new TextFieldWidget(
                 this.font,
                 this.xPos + 65,

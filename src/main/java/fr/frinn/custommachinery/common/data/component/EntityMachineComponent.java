@@ -21,7 +21,7 @@ public class EntityMachineComponent extends AbstractMachineComponent {
 
     public EntityMachineComponent(IMachineComponentManager manager) {
         super(manager, ComponentIOMode.BOTH);
-        this.damageSource = Lazy.of(() -> new CustomMachineDamageSource(manager.getTile().getMachine().getName()));
+        this.damageSource = Lazy.of(() -> new CustomMachineDamageSource(manager.getTile().getMachine().getName().getString()));
     }
 
     @Override

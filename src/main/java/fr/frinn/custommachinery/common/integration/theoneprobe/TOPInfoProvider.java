@@ -9,7 +9,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
 import java.util.function.Function;
@@ -25,7 +24,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
                     CustomMachineTile customMachineTile = (CustomMachineTile)tile;
                     CustomMachine machine = customMachineTile.getMachine();
                     if(machine != null)
-                        info.horizontal().item(data.getPickBlock()).vertical().text(new StringTextComponent(machine.getName())).text(CompoundText.create().style(TextStyleClass.MODNAME).text("Custom Machinery"));
+                        info.horizontal().item(data.getPickBlock()).vertical().mcText(machine.getName()).text(CompoundText.create().style(TextStyleClass.MODNAME).text("Custom Machinery"));
                 }
                 return true;
             }

@@ -10,7 +10,10 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
+import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +22,7 @@ public class CustomMachine implements ICustomMachine {
 
     public static final Codec<CustomMachine> CODEC = RecordCodecBuilder.create(machineCodec ->
         machineCodec.group(
-            Codec.STRING.fieldOf("name").forGetter(CustomMachine::getName),
+            TextComponentUtils.CODEC.fieldOf("name").forGetter(machine -> machine.name),
             MachineAppearanceManager.CODEC.promotePartial(CustomMachinery.LOGGER::warn).fieldOf("appearance").forGetter(machine -> machine.appearance),
             IGuiElement.CODEC.listOf().optionalFieldOf("gui", ImmutableList.of()).forGetter(CustomMachine::getGuiElements),
             IGuiElement.CODEC.listOf().optionalFieldOf("jei", ImmutableList.of()).forGetter(CustomMachine::getJeiElements),
@@ -28,11 +31,11 @@ public class CustomMachine implements ICustomMachine {
     );
 
     public static final CustomMachine DUMMY = new CustomMachineBuilder()
-            .setName("Dummy")
+            .setName(new StringTextComponent("Dummy"))
             .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")))
             .build();
 
-    private String name;
+    private ITextComponent name;
     private MachineAppearanceManager appearance;
     private List<IGuiElement> guiElements;
     private List<IGuiElement> jeiElements;
@@ -40,7 +43,7 @@ public class CustomMachine implements ICustomMachine {
     private MachineLocation location;
 
 
-    public CustomMachine(String name, MachineAppearanceManager appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
+    public CustomMachine(ITextComponent name, MachineAppearanceManager appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
         this.name = name;
         this.appearance = appearance;
         this.guiElements = guiElements;
@@ -54,7 +57,7 @@ public class CustomMachine implements ICustomMachine {
     }
 
     @Override
-    public String getName() {
+    public ITextComponent getName() {
         return this.name;
     }
 

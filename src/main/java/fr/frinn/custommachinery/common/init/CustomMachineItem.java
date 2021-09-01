@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
@@ -77,7 +78,7 @@ public class CustomMachineItem extends BlockItem {
 
 
     @Override
-    public String getTranslationKey(ItemStack stack) {
-        return getMachine(stack).map(CustomMachine::getName).orElse(super.getTranslationKey(stack));
+    public ITextComponent getDisplayName(ItemStack stack) {
+        return getMachine(stack).map(CustomMachine::getName).orElse(super.getDisplayName(stack));
     }
 }

@@ -86,7 +86,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
     @Override
     public String getTitle() {
-        return this.machine.getName();
+        return this.machine.getName().getString();
     }
 
     @Override

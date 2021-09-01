@@ -27,7 +27,6 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
@@ -195,7 +194,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
     @Override
     public ITextComponent getDisplayName() {
-        return new StringTextComponent(getMachine().getName());
+        return getMachine().getName();
     }
 
     @ParametersAreNonnullByDefault

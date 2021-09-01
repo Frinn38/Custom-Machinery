@@ -7,17 +7,10 @@ import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.network.NetworkManager;
-import fr.frinn.custommachinery.common.network.SLootTablesPacket;
-import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
-import fr.frinn.custommachinery.common.util.LootTableHelper;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.concurrent.TickDelayedTask;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

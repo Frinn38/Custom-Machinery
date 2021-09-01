@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -10,6 +11,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
+
+import java.util.function.Function;
 
 public class TextComponentUtils {
 
@@ -52,6 +55,9 @@ public class TextComponentUtils {
                     }
             )
     );
+
+    public static final Codec<ITextComponent> CODEC = Codec.either(TEXT_COMPONENT_CODEC, Codec.STRING)
+            .xmap(either -> either.map(Function.identity(), TranslationTextComponent::new), Either::left).stable();
 
     public static String toJsonString(ITextComponent component) {
         DataResult<JsonElement> result = TEXT_COMPONENT_CODEC.encodeStart(JsonOps.INSTANCE, component);
