@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -30,7 +31,14 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
             int color = fluid.getFluid().getAttributes().getColor();
             float filledPercent = (float) fluid.getAmount() / (float) component.getCapacity();
             int fluidHeight = (int) (height * filledPercent);
-            ClientHandler.renderFluidInTank(matrix, posX + 1, posY + 1, height - fluidHeight, fluidHeight - 2, sprite, Color3F.of(color));
+            int textureWidth = TextureSizeHelper.getTextureWidth(element.getTexture());
+            float xScale = (float) width / (float) textureWidth;
+            matrix.push();
+            matrix.translate(posX, posY, 0);
+            matrix.scale(xScale, 1.0F, 1.0F);
+            matrix.translate(-posX, -posY, 0);
+            ClientHandler.renderFluidInTank(matrix, posX + 1, posY + height - 1, fluidHeight - 2, sprite, Color3F.of(color));
+            matrix.pop();
         });
     }
 

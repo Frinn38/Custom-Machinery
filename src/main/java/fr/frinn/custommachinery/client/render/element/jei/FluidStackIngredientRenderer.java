@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Color3F;
@@ -47,7 +48,14 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
             int color = fluid.getFluid().getAttributes().getColor();
             float filledPercent = (float)fluid.getAmount() / (float)fluid.getAmount();
             int fluidHeight = (int)(height * filledPercent);
-            ClientHandler.renderFluidInTank(matrix, x, y, height - fluidHeight, fluidHeight - 2, sprite, Color3F.of(color));
+            int textureWidth = TextureSizeHelper.getTextureWidth(element.getTexture());
+            float xScale = (float) width / (float) textureWidth;
+            matrix.push();
+            matrix.translate(x - 1, y - 1, 0);
+            matrix.scale(xScale, 1.0F, 1.0F);
+            matrix.translate(-x + 1, -y + 1, 0);
+            ClientHandler.renderFluidInTank(matrix, x, y + height - 2, fluidHeight - 2, sprite, Color3F.of(color));
+            matrix.pop();
         }
     }
 

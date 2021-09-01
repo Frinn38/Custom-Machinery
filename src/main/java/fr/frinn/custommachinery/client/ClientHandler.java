@@ -238,6 +238,36 @@ public class ClientHandler {
         Tessellator.getInstance().draw();
     }
 
+    public static void renderFluidInTank(MatrixStack matrix, int left, int bottom, int height, TextureAtlasSprite sprite, Color3F color) {
+        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+
+        int verticalAmount = height / 16;
+        int verticalRemainder = height - (verticalAmount * 16);
+        int top = bottom - height;
+
+        BufferBuilder builder = Tessellator.getInstance().getBuffer();
+        builder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
+        Matrix4f matrix4f = matrix.getLast().getMatrix();
+
+        for(int i = 0; i < verticalAmount; i++) {
+            builder.pos(matrix4f, left, top + i * 16 + 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), sprite.getMaxV()).endVertex();
+            builder.pos(matrix4f, left + 16, top + i * 16 + 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), sprite.getMaxV()).endVertex();
+            builder.pos(matrix4f, left + 16, top + i * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), sprite.getMinV()).endVertex();
+            builder.pos(matrix4f, left, top + i * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), sprite.getMinV()).endVertex();
+        }
+
+        if(verticalRemainder != 0) {
+            float maxV = sprite.getMinV() + (sprite.getMaxV() - sprite.getMinV()) * (float)verticalRemainder / 16.0F;
+            builder.pos(matrix4f, left, top + verticalAmount * 16 + verticalRemainder, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), maxV).endVertex();
+            builder.pos(matrix4f, left + 16, top + verticalAmount * 16 + verticalRemainder, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), maxV).endVertex();
+            builder.pos(matrix4f, left + 16, top + verticalAmount * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), sprite.getMinV()).endVertex();
+            builder.pos(matrix4f, left, top + verticalAmount * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), sprite.getMinV()).endVertex();
+        }
+
+        builder.finishDrawing();
+        WorldVertexBufferUploader.draw(builder);
+    }
+/*
     public static void renderFluidInTank(MatrixStack matrix, int x, int y, int yOffset, int fluidHeight, TextureAtlasSprite sprite, Color3F color) {
         Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
 
@@ -266,5 +296,5 @@ public class ClientHandler {
 
         builder.finishDrawing();
         WorldVertexBufferUploader.draw(builder);
-    }
+    }*/
 }
