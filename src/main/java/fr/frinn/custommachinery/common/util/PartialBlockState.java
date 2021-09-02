@@ -15,6 +15,9 @@ import net.minecraft.util.CachedBlockInfo;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -118,6 +121,10 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
         return builder.toString();
     }
 
+    public IFormattableTextComponent getName() {
+        return new TranslationTextComponent(this.blockState.getBlock().getTranslationKey());
+    }
+
     public ResourceLocation getModelLocation() {
         ResourceLocation location = this.blockState.getBlock().getRegistryName();
         if(location == null)
@@ -125,9 +132,8 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
         StringBuilder stringbuilder = new StringBuilder();
 
         for(Map.Entry<Property<?>, Comparable<?>> entry : this.getBlockState().getValues().entrySet()) {
-            if (stringbuilder.length() != 0) {
+            if (stringbuilder.length() != 0)
                 stringbuilder.append(',');
-            }
 
             Property<?> property = entry.getKey();
             stringbuilder.append(property.getName());

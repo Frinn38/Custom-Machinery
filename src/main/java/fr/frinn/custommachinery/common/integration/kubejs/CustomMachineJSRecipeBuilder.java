@@ -639,7 +639,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         }
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
         try {
-            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state));
+            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, Collections.emptyList(), true));
         } catch (IllegalArgumentException e) {
             ScriptType.SERVER.console.warn("Invalid comparator: " + comparator);
         }

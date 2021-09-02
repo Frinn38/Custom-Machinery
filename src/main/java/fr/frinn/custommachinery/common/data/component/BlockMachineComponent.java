@@ -7,11 +7,13 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.CachedBlockInfo;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BlockMachineComponent extends AbstractMachineComponent {
@@ -25,12 +27,15 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         return Registration.BLOCK_MACHINE_COMPONENT.get();
     }
 
-    public long getBlockAmount(AxisAlignedBB box, PartialBlockState block) {
+    public long getBlockAmount(AxisAlignedBB box, List<PartialBlockState> filter, boolean whitelist) {
         if(getManager().getTile().getWorld() == null)
             return 0;
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
-        return BlockPos.getAllInBox(box).map(pos -> new CachedBlockInfo(getManager().getTile().getWorld(), pos, false)).filter(block).count();
+        return BlockPos.getAllInBox(box)
+                .map(pos -> new CachedBlockInfo(getManager().getTile().getWorld(), pos, false))
+                .filter(block -> filter.stream().anyMatch(state -> state.test(block)) == whitelist)
+                .count();
     }
 
     public boolean placeBlock(AxisAlignedBB box, PartialBlockState block, int amount) {
@@ -50,37 +55,40 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         return true;
     }
 
-    public boolean replaceBlock(AxisAlignedBB box, PartialBlockState block, int amount, boolean drop) {
-        if(getManager().getTile().getWorld() == null)
+    public boolean replaceBlock(AxisAlignedBB box, PartialBlockState block, int amount, boolean drop, List<PartialBlockState> filter, boolean whitelist) {
+        if(getManager().getTile().getWorld() == null || getBlockAmount(box, filter, whitelist) < amount)
             return false;
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
-        if(BlockPos.getAllInBox(box).map(getManager().getTile().getWorld()::getBlockState).count() < amount)
-            return false;
         AtomicInteger toPlace = new AtomicInteger(amount);
         BlockPos.getAllInBox(box).forEach(pos -> {
             if(toPlace.get() > 0) {
-                if(getManager().getTile().getWorld().getBlockState(pos).getBlock() != Blocks.AIR)
-                    getManager().getTile().getWorld().destroyBlock(pos, drop);
-                getManager().getTile().getWorld().setBlockState(pos, block.getBlockState());
-                toPlace.addAndGet(-1);
+                CachedBlockInfo cached = new CachedBlockInfo(getManager().getTile().getWorld(), pos, false);
+                if(filter.stream().anyMatch(state -> state.test(cached)) == whitelist) {
+                    if(cached.getBlockState().getMaterial() != Material.AIR)
+                        getManager().getTile().getWorld().destroyBlock(pos, drop);
+                    getManager().getTile().getWorld().setBlockState(pos, block.getBlockState());
+                    toPlace.addAndGet(-1);
+                }
             }
         });
         return true;
     }
 
-    public boolean breakBlock(AxisAlignedBB box, PartialBlockState block, int amount, boolean drop) {
-        if(getManager().getTile().getWorld() == null)
+    public boolean breakBlock(AxisAlignedBB box, List<PartialBlockState> filter, boolean whitelist, int amount, boolean drop) {
+        if(getManager().getTile().getWorld() == null || getBlockAmount(box, filter, whitelist) < amount)
             return false;
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         box = box.offset(getManager().getTile().getPos());
-        if(BlockPos.getAllInBox(box).map(pos -> new CachedBlockInfo(getManager().getTile().getWorld(), pos, false)).filter(block).count() < amount)
-            return false;
         AtomicInteger toPlace = new AtomicInteger(amount);
         BlockPos.getAllInBox(box).forEach(pos -> {
-            if(toPlace.get() > 0 && block.test(new CachedBlockInfo(getManager().getTile().getWorld(), pos, false))) {
-                getManager().getTile().getWorld().destroyBlock(pos, drop);
-                toPlace.addAndGet(-1);
+            if(toPlace.get() > 0) {
+                CachedBlockInfo cached = new CachedBlockInfo(getManager().getTile().getWorld(), pos, false);
+                if(filter.stream().anyMatch(state -> state.test(cached)) == whitelist) {
+                    if(cached.getBlockState().getMaterial() != Material.AIR)
+                        getManager().getTile().getWorld().destroyBlock(pos, drop);
+                    toPlace.addAndGet(-1);
+                }
             }
         });
         return true;
