@@ -36,7 +36,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                     CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
                     CodecLogger.loggedOptional(Codecs.PARTIAL_BLOCK_STATE_CODEC, "block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
                     CodecLogger.loggedOptional(Codecs.list(Codecs.PARTIAL_BLOCK_STATE_CODEC), "filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL, "whitelist", true).forGetter(requirement -> requirement.whitelist),
+                    CodecLogger.loggedOptional(Codec.BOOL, "whitelist", false).forGetter(requirement -> requirement.whitelist),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay),
                     CodecLogger.loggedOptional(Codec.BOOL, "jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, filter, whitelist, delay, jei) -> {
@@ -79,11 +79,10 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
         switch (this.action) {
             case CHECK:
                 return this.comparator.compare((int)component.getBlockAmount(this.pos, this.filter, this.whitelist), amount);
-            case BREAK:
-            case DESTROY:
-                return this.delay != 0 || (int)component.getBlockAmount(this.pos, Collections.singletonList(this.block), true) >= amount;
             case PLACE:
                 return  this.delay != 0 || (int)component.getBlockAmount(this.pos, Collections.singletonList(PartialBlockState.AIR), true) >= amount;
+            case BREAK:
+            case DESTROY:
             case REPLACE_BREAK:
             case REPLACE_DESTROY:
                 return this.delay != 0 || (int)component.getBlockAmount(this.pos, this.filter, this.whitelist) >= amount;

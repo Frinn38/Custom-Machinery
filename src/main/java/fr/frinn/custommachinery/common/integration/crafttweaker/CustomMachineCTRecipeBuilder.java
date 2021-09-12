@@ -365,58 +365,58 @@ public class CustomMachineCTRecipeBuilder {
     /** BLOCK **/
 
     @Method
-    public CustomMachineCTRecipeBuilder requireBlock(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalString(">=") String comparator) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, block, startX, startY, startZ, endX, endY, endZ, amount, comparator);
+    public CustomMachineCTRecipeBuilder requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalString(">=") String comparator) {
+        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
+        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
+        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
+        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
+        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder destroyBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder breakBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==");
+    public CustomMachineCTRecipeBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
+        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     /** STRUCTURE **/
@@ -529,15 +529,16 @@ public class CustomMachineCTRecipeBuilder {
         }
     }
 
-    private CustomMachineCTRecipeBuilder withBlockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator) {
-        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI::logError).map(Pair::getFirst).orElse(null);
+    private CustomMachineCTRecipeBuilder withBlockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
+        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI::logError).orElse(null);
         if(state == null) {
             CraftTweakerAPI.logError("Invalid block: " + block);
             return this;
         }
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
+        List<PartialBlockState> filter = Arrays.stream(stringFilter).map(s -> Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
         try {
-            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, Collections.emptyList(), true));
+            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.logError("Invalid comparator: " + comparator);
         }

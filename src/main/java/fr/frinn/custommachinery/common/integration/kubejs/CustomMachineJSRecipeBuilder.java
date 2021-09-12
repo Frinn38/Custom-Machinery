@@ -586,59 +586,140 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     /** BLOCK **/
 
-    public CustomMachineJSRecipeBuilder requireBlock(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, block, startX, startY, startZ, endX, endY, endZ, amount, comparator);
+    public CustomMachineJSRecipeBuilder requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.requireBlock(filter, whitelist, startX, startY, startZ, endX, endY, endZ, 1, ">=");
+    }
+
+    public CustomMachineJSRecipeBuilder requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
+        return this.requireBlock(filter, whitelist, startX, startY, startZ, endX, endY, endZ, amount, ">=");
+    }
+
+    public CustomMachineJSRecipeBuilder requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator) {
+        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
+    }
+
+    public CustomMachineJSRecipeBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.placeBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, 1);
     }
 
     public CustomMachineJSRecipeBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
+    }
+
+    public CustomMachineJSRecipeBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.placeBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, 1);
     }
 
     public CustomMachineJSRecipeBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
+    }
+
+    public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.breakAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, 1);
     }
 
     public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+        return this.breakAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, amount, new String[]{});
+    }
+
+    public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter) {
+        return this.breakAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, amount, filter, false);
+    }
+
+    public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
+        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+    }
+
+    public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.breakAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, 1);
     }
 
     public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+        return this.breakAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, amount, new String[]{});
+    }
+
+    public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter) {
+        return this.breakAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, amount, filter, false);
+    }
+
+    public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
+        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+    }
+
+    public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.destroyAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, 1);
     }
 
     public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+        return this.destroyAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, amount, new String[]{});
+    }
+
+    public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter) {
+        return this.destroyAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, amount, filter, false);
+    }
+
+    public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
+        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+    }
+
+    public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.destroyAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, 1);
     }
 
     public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+        return this.destroyAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, amount, new String[]{});
     }
 
-    public CustomMachineJSRecipeBuilder destroyBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+    public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter) {
+        return this.destroyAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, amount, filter, false);
     }
 
-    public CustomMachineJSRecipeBuilder destroyBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+    public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
+        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
-    public CustomMachineJSRecipeBuilder breakBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+    public CustomMachineJSRecipeBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.destroyBlockOnStart(filter, whitelist, startX, startY, startZ, endX, endY, endZ, 1);
     }
 
-    public CustomMachineJSRecipeBuilder breakBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString());
+    public CustomMachineJSRecipeBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
+        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
-    private CustomMachineJSRecipeBuilder blockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator) {
-        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).map(Pair::getFirst).orElse(null);
+    public CustomMachineJSRecipeBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.destroyBlockOnEnd(filter, whitelist, startX, startY, startZ, endX, endY, endZ, 1);
+    }
+
+    public CustomMachineJSRecipeBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
+        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+    }
+
+    public CustomMachineJSRecipeBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.breakBlockOnStart(filter, whitelist, startX, startY, startZ, endX, endY, endZ, 1);
+    }
+
+    public CustomMachineJSRecipeBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
+        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+    }
+
+    public CustomMachineJSRecipeBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
+        return this.breakBlockOnEnd(filter, whitelist, startX, startY, startZ, endX, endY, endZ, 1);
+    }
+
+    public CustomMachineJSRecipeBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
+        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+    }
+
+    private CustomMachineJSRecipeBuilder blockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
+        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null);
         if(state == null) {
             ScriptType.SERVER.console.warn("Invalid block: " + block);
             return this;
         }
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
+        List<PartialBlockState> filter = Arrays.stream(stringFilter).map(s -> Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
         try {
-            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, Collections.emptyList(), true));
+            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {
             ScriptType.SERVER.console.warn("Invalid comparator: " + comparator);
         }
