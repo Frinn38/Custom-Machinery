@@ -58,6 +58,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         this.tile = tile;
         this.rand = tile.getWorld() != null ? tile.getWorld().rand : new Random();
         this.status = MachineStatus.IDLE;
+        this.prevStatus = this.status;
         this.processedRequirements = new ArrayList<>();
         this.delayedRequirements = new ArrayList<>();
     }
