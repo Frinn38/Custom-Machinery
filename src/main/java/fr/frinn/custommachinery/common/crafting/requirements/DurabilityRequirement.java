@@ -17,6 +17,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Random;
 
 public class DurabilityRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement<ItemComponentHandler>, IJEIIngredientRequirement {
@@ -42,13 +44,13 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
     private double chance = 1.0D;
     private String slot;
 
-    public DurabilityRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, CompoundNBT nbt, String slot) {
+    public DurabilityRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, @Nullable CompoundNBT nbt, String slot) {
         super(mode);
         if(item.getAll().stream().noneMatch(Item::isDamageable))
             throw new IllegalArgumentException("Invalid Item in Durability requirement: " + item + " can't be damaged !");
         this.item = item;
         this.amount = amount;
-        this.nbt = nbt;
+        this.nbt = nbt == null ? new CompoundNBT() : nbt;
         this.slot = slot;
     }
 

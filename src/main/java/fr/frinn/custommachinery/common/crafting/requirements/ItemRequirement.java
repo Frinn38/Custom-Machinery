@@ -17,6 +17,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nullable;
 import java.util.Random;
 
 public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement<ItemComponentHandler>, IJEIIngredientRequirement {
@@ -42,7 +43,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     private double chance = 1.0D;
     private String slot;
 
-    public ItemRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, CompoundNBT nbt, String slot) {
+    public ItemRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, @Nullable CompoundNBT nbt, String slot) {
         super(mode);
         if(mode == MODE.OUTPUT && item.getObject() == null)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
