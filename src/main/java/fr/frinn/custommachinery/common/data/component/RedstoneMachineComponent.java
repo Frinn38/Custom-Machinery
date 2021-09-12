@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.*;
 import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -93,12 +95,12 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
         public static final Codec<Template> CODEC = RecordCodecBuilder.create(templateInstance ->
                 templateInstance.group(
-                        Codec.INT.optionalFieldOf("powertopause", 1).forGetter(template -> template.powerToPause),
-                        Codec.INT.optionalFieldOf("craftingpoweroutput", 0).forGetter(template -> template.craftingPowerOutput),
-                        Codec.INT.optionalFieldOf("idlepoweroutput", 0).forGetter(template -> template.idlePowerOutput),
-                        Codec.INT.optionalFieldOf("erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
-                        MachineComponentType.CODEC.optionalFieldOf("comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
-                        Codec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputID)
+                        CodecLogger.loggedOptional(Codec.INT,"powertopause", 1).forGetter(template -> template.powerToPause),
+                        CodecLogger.loggedOptional(Codec.INT,"craftingpoweroutput", 0).forGetter(template -> template.craftingPowerOutput),
+                        CodecLogger.loggedOptional(Codec.INT,"idlepoweroutput", 0).forGetter(template -> template.idlePowerOutput),
+                        CodecLogger.loggedOptional(Codec.INT,"erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
+                        CodecLogger.loggedOptional(RegistryCodec.MACHINE_COMPONENT_TYPE,"comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
+                        CodecLogger.loggedOptional(Codec.STRING,"comparatorinputid", "").forGetter(template -> template.comparatorInputID)
                 ).apply(templateInstance, Template::new)
         );
 

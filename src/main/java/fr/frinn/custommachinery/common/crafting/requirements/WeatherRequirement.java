@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
@@ -17,8 +18,8 @@ public class WeatherRequirement extends AbstractTickableRequirement<WeatherMachi
     public static final Codec<WeatherRequirement> CODEC = RecordCodecBuilder.create(weatherRequirementInstance ->
             weatherRequirementInstance.group(
                     Codecs.WEATHER_TYPE_CODEC.fieldOf("weather").forGetter(requirement -> requirement.weather),
-                    Codec.BOOL.optionalFieldOf("onmachine", true).forGetter(requirement -> requirement.onMachine),
-                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                    CodecLogger.loggedOptional(Codec.BOOL,"onmachine", true).forGetter(requirement -> requirement.onMachine),
+                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(weatherRequirementInstance, (weather, onMachine, jei) -> {
                     WeatherRequirement requirement = new WeatherRequirement(weather, onMachine);
                     requirement.setJeiVisible(jei);

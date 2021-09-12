@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
@@ -18,9 +19,9 @@ public class LightRequirement extends AbstractTickableRequirement<LightMachineCo
     public static final Codec<LightRequirement> CODEC = RecordCodecBuilder.create(lightRequirementInstance ->
             lightRequirementInstance.group(
                     Codec.INT.fieldOf("light").forGetter(requirement -> requirement.light),
-                    Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
-                    Codec.BOOL.optionalFieldOf("sky", false).forGetter(requirement -> requirement.sky),
-                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                    CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
+                    CodecLogger.loggedOptional(Codec.BOOL,"sky", false).forGetter(requirement -> requirement.sky),
+                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(lightRequirementInstance, (light, comparator, sky, jei) -> {
                     LightRequirement requirement = new LightRequirement(light, comparator, sky);
                     requirement.setJeiVisible(jei);

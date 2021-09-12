@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -22,9 +23,9 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
 
     public static final Codec<StructureRequirement> CODEC = RecordCodecBuilder.create(structureRequirementInstance ->
             structureRequirementInstance.group(
-                    Codec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
+                    Codecs.list(Codecs.list(Codec.STRING)).fieldOf("pattern").forGetter(requirement -> requirement.pattern),
                     Codec.unboundedMap(Codecs.CHARACTER_CODEC, Codecs.PARTIAL_BLOCK_STATE_CODEC).fieldOf("keys").forGetter(requirement -> requirement.keys),
-                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(structureRequirementInstance, (pattern, keys, jei) -> {
                     StructureRequirement requirement = new StructureRequirement(pattern, keys);
                     requirement.setJeiVisible(jei);

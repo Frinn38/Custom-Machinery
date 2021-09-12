@@ -4,7 +4,16 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Lifecycle;
+import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.api.components.MachineComponentType;
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.item.Item;
+import net.minecraft.potion.Effect;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
@@ -14,9 +23,20 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
  */
 public class RegistryCodec<T extends IForgeRegistryEntry<T>> implements Codec<T> {
 
+    public static final Codec<Item> ITEM                                      = of(ForgeRegistries.ITEMS);
+    public static final Codec<Block> BLOCK                                    = of(ForgeRegistries.BLOCKS);
+    public static final Codec<EntityType<?>> ENTITY_TYPE                      = of(ForgeRegistries.ENTITIES);
+    public static final Codec<Effect> EFFECT                                  = of(ForgeRegistries.POTIONS);
+    public static final Codec<Fluid> FLUID                                    = of(ForgeRegistries.FLUIDS);
+    public static final Codec<MachineComponentType<?>> MACHINE_COMPONENT_TYPE = of(CustomMachineryAPI.COMPONENT_TYPE_REGISTRY);
+
     private IForgeRegistry<T> registry;
 
-    public RegistryCodec(IForgeRegistry<T> registry) {
+    public static <T extends IForgeRegistryEntry<T>> RegistryCodec<T> of(IForgeRegistry<T> registry) {
+        return new RegistryCodec<>(registry);
+    }
+
+    private RegistryCodec(IForgeRegistry<T> registry) {
         this.registry = registry;
     }
 
@@ -30,7 +50,7 @@ public class RegistryCodec<T extends IForgeRegistryEntry<T>> implements Codec<T>
             return DataResult.error("Unknown registry element " + input);
         }
         D toMerge = ops.createString(key.toString());
-        return ops.mergeToPrimitive(prefix, toMerge);
+        return ops.mergeToPrimitive(prefix, toMerge).setLifecycle(Lifecycle.stable());
     }
 
     @Override
@@ -39,6 +59,11 @@ public class RegistryCodec<T extends IForgeRegistryEntry<T>> implements Codec<T>
             throw new IllegalArgumentException("This codec does not support integer ids for registry entries");
         return ResourceLocation.CODEC.decode(ops, input).flatMap(keyValuePair -> !registry.containsKey(keyValuePair.getFirst()) ?
                 DataResult.error("Unknown registry key: " + keyValuePair.getFirst()) :
-                DataResult.success(keyValuePair.mapFirst(registry::getValue)));
+                DataResult.success(keyValuePair.mapFirst(registry::getValue))).setLifecycle(Lifecycle.stable());
+    }
+
+    @Override
+    public String toString() {
+        return this.registry.getRegistryName().toString();
     }
 }

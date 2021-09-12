@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import net.minecraft.block.Block;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -72,7 +73,7 @@ public abstract class Ingredient<T> implements Predicate<T> {
             return DataResult.error("ItemIngredient with no item or tag");
         });
 
-        private static final Codec<ItemIngredient> CODEC_FOR_KUBEJS = Codec.either(Codecs.ITEM_CODEC.fieldOf("item").codec(), Codecs.ITEM_TAG_CODEC.fieldOf("tag").codec())
+        private static final Codec<ItemIngredient> CODEC_FOR_KUBEJS = Codec.either(RegistryCodec.ITEM.fieldOf("item").codec(), Codecs.ITEM_TAG_CODEC.fieldOf("tag").codec())
                 .flatXmap(either -> either.map(item -> DataResult.success(new ItemIngredient(item)), tag -> DataResult.success(new ItemIngredient(tag))), ingredient -> {
                     if(ingredient.getObject() != null)
                         return DataResult.success(Either.left(ingredient.getObject()));

@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.TimeMachineComponent;
@@ -21,8 +22,8 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
 
     public static final Codec<TimeRequirement> CODEC = RecordCodecBuilder.create(timeRequirementInstance ->
             timeRequirementInstance.group(
-                    Codecs.TIME_COMPARATOR_CODEC.listOf().fieldOf("times").forGetter(requirement -> requirement.times),
-                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                    Codecs.list(Codecs.TIME_COMPARATOR_CODEC).fieldOf("times").forGetter(requirement -> requirement.times),
+                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(timeRequirementInstance, (times, jei) -> {
                     TimeRequirement requirement = new TimeRequirement(times);
                     requirement.setJeiVisible(jei);

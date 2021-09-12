@@ -12,7 +12,6 @@ import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.ListJS;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.crafting.requirements.*;
@@ -47,13 +46,13 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     @Override
     public void deserialize() {
         DataResult<Pair<CustomMachineRecipeBuilder, JsonElement>> result = CustomMachineRecipeBuilder.CODEC.decode(JsonOps.INSTANCE, this.json);
-        this.builder = result.resultOrPartial(CustomMachinery.LOGGER::error).orElseThrow(() -> new RecipeExceptionJS("Invalid Custom Machine Recipe")).getFirst();
+        this.builder = result.resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new RecipeExceptionJS("Invalid Custom Machine Recipe")).getFirst();
     }
 
     @Override
     public void serialize() {
         DataResult<JsonElement> result = CustomMachineRecipeBuilder.CODEC.encodeStart(JsonOps.INSTANCE, this.builder);
-        this.json = (JsonObject) result.resultOrPartial(CustomMachinery.LOGGER::error).orElseThrow(() -> new RecipeExceptionJS("Invalid Custom Machine Recipe"));
+        this.json = (JsonObject) result.resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new RecipeExceptionJS("Invalid Custom Machine Recipe"));
     }
 
     @Override

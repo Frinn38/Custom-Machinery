@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
+import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.data.gui.IComponentGuiElement;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
@@ -127,7 +128,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         AtomicInteger index = new AtomicInteger(0);
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         elements.stream().filter(element -> element.getType().hasJEIRenderer()).forEach(element -> {
-            JEIIngredientRenderer<?, ?> renderer = element.getType().getJeiRenderer(element);
+            JEIIngredientRenderer<?, ?> renderer = ((GuiElementType)element.getType()).getJeiRenderer(element);
             IIngredientType ingredientType = renderer.getType();
             layout.getIngredientsGroup(ingredientType).init(
                     index.get(),

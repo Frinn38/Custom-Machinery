@@ -3,6 +3,8 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EntityMachineComponent;
@@ -15,7 +17,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
@@ -28,9 +30,9 @@ public class EntityRequirement extends AbstractTickableRequirement<EntityMachine
                     Codecs.ENTITY_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    Codecs.ENTITY_TYPE_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
-                    Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist),
-                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                    CodecLogger.loggedOptional(Codecs.list(RegistryCodec.ENTITY_TYPE),"filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(requirement -> requirement.whitelist),
+                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(entityRequirementInstance, (mode, action, amount, radius, filter, whitelist, jei) -> {
                     EntityRequirement requirement = new EntityRequirement(mode, action, amount, radius, filter, whitelist);
                     requirement.setJeiVisible(jei);

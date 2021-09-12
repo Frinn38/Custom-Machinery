@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
@@ -19,7 +20,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,12 +28,12 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
 
     public static final Codec<PositionRequirement> CODEC = RecordCodecBuilder.create(positionRequirementInstance ->
         positionRequirementInstance.group(
-                Codecs.POSITION_COMPARATOR_CODEC.listOf().optionalFieldOf("positions", new ArrayList<>()).forGetter(requirement -> requirement.positions),
-                ResourceLocation.CODEC.listOf().optionalFieldOf("biomes", new ArrayList<>()).forGetter(requirement -> requirement.biomes),
-                Codec.BOOL.optionalFieldOf("biomesBlacklist", false).forGetter(requirement -> requirement.biomesBlacklist),
-                ResourceLocation.CODEC.listOf().optionalFieldOf("dimensions", new ArrayList<>()).forGetter(requirement -> requirement.dimensions.stream().map(RegistryKey::getLocation).collect(Collectors.toList())),
-                Codec.BOOL.optionalFieldOf("dimensionsBlacklist", false).forGetter(requirement -> requirement.dimensionsBlacklist),
-                Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                CodecLogger.loggedOptional(Codecs.list(Codecs.POSITION_COMPARATOR_CODEC),"positions", Collections.emptyList()).forGetter(requirement -> requirement.positions),
+                CodecLogger.loggedOptional(Codecs.list(ResourceLocation.CODEC),"biomes", Collections.emptyList()).forGetter(requirement -> requirement.biomes),
+                CodecLogger.loggedOptional(Codec.BOOL,"biomesBlacklist", false).forGetter(requirement -> requirement.biomesBlacklist),
+                CodecLogger.loggedOptional(Codecs.list(ResourceLocation.CODEC),"dimensions", Collections.emptyList()).forGetter(requirement -> requirement.dimensions.stream().map(RegistryKey::getLocation).collect(Collectors.toList())),
+                CodecLogger.loggedOptional(Codec.BOOL,"dimensionsBlacklist", false).forGetter(requirement -> requirement.dimensionsBlacklist),
+                CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
         ).apply(positionRequirementInstance, (positions, biomes, biomeBlacklist, dimensions, dimensionsBlacklist, jei) -> {
                 PositionRequirement requirement = new PositionRequirement(positions, biomes, biomeBlacklist, dimensions, dimensionsBlacklist);
                 requirement.setJeiVisible(jei);

@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
@@ -16,17 +17,17 @@ public class FluidGuiElement extends TexturedGuiElement implements IComponentGui
             fluidGuiElementInstance.group(
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
-                    Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
-                    Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID),
-                    ResourceLocation.CODEC.optionalFieldOf("texture", BASE_FLUID_STORAGE_TEXTURE).forGetter(FluidGuiElement::getTexture)
+                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
+                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
+                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
+                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_FLUID_STORAGE_TEXTURE).forGetter(FluidGuiElement::getTexture)
             ).apply(fluidGuiElementInstance, FluidGuiElement::new)
     );
 
     private String id;
 
-    public FluidGuiElement(int x, int y, int width, int height, int priority, String id, ResourceLocation texture) {
+    public FluidGuiElement(int x, int y, String id, int width, int height, int priority, ResourceLocation texture) {
         super(x, y, width, height, priority, texture);
         this.id = id;
     }

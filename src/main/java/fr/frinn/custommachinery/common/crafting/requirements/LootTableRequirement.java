@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
@@ -28,7 +29,7 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
     public static final Codec<LootTableRequirement> CODEC = RecordCodecBuilder.create(lootTableRequirementInstance ->
             lootTableRequirementInstance.group(
                     ResourceLocation.CODEC.fieldOf("table").forGetter(requirement -> requirement.lootTable),
-                    Codec.FLOAT.optionalFieldOf("luck", 0.0F).forGetter(requirement -> requirement.luck)
+                    CodecLogger.loggedOptional(Codec.FLOAT,"luck", 0.0F).forGetter(requirement -> requirement.luck)
             ).apply(lootTableRequirementInstance, LootTableRequirement::new)
     );
 

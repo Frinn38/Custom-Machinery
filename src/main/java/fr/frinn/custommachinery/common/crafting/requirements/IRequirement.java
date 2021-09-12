@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.IMachineComponent;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -12,9 +13,9 @@ import java.util.Locale;
 
 public interface IRequirement<T extends IMachineComponent> {
 
-    Codec<IRequirement<?>> CODEC = Codecs.REQUIREMENT_TYPE_CODEC.dispatch("type",IRequirement::getType, RequirementType::getCodec);
+    Codec<IRequirement<?>> CODEC = CodecLogger.loggedDispatch(Codecs.REQUIREMENT_TYPE, IRequirement::getType, RequirementType::getCodec, "Requirement");
 
-    RequirementType<?> getType();
+    RequirementType<? extends IRequirement<?>> getType();
 
     boolean test(T component, CraftingContext context);
 

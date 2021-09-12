@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.data.gui;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.text.ITextComponent;
@@ -15,10 +16,10 @@ public class TextGuiElement extends AbstractGuiElement {
             textGuiElementCodec.group(
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("text").forGetter(element -> element.text.getKey()),
-                    Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment",Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
-                    Codec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor)
+                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
+                    CodecLogger.loggedOptional(Codecs.ALIGNMENT_CODEC,"alignment",Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
+                    CodecLogger.loggedOptional(Codec.INT,"color", 0).forGetter(TextGuiElement::getColor)
             ).apply(textGuiElementCodec, TextGuiElement::new)
     );
 
@@ -26,7 +27,7 @@ public class TextGuiElement extends AbstractGuiElement {
     private Alignment alignment;
     private int color;
 
-    public TextGuiElement(int x, int y, int priority, String text, Alignment alignment, int color) {
+    public TextGuiElement(int x, int y, String text, int priority, Alignment alignment, int color) {
         super(x, y, 0, 0, priority);
         this.text = new TranslationTextComponent(text);
         this.alignment = alignment;

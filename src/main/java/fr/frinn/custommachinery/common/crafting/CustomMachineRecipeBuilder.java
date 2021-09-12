@@ -2,10 +2,13 @@ package fr.frinn.custommachinery.common.crafting;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
+import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,9 +17,9 @@ public class CustomMachineRecipeBuilder {
     public static final Codec<CustomMachineRecipeBuilder> CODEC = RecordCodecBuilder.create(recipeBuilderInstance -> recipeBuilderInstance.group(
             ResourceLocation.CODEC.fieldOf("machine").forGetter(builder -> builder.machine),
             Codec.INT.fieldOf("time").forGetter(builder -> builder.time),
-            IRequirement.CODEC.listOf().optionalFieldOf("requirements", new ArrayList<>()).forGetter(builder -> builder.requirements),
-            IRequirement.CODEC.listOf().optionalFieldOf("jei", new ArrayList<>()).forGetter(builder -> builder.jeiRequirements),
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(builder -> builder.priority)
+            CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"requirements", Collections.emptyList()).forGetter(builder -> builder.requirements),
+            CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"jei", Collections.emptyList()).forGetter(builder -> builder.jeiRequirements),
+            CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(builder -> builder.priority)
     ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority) -> {
         CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
         requirements.forEach(builder::withRequirement);

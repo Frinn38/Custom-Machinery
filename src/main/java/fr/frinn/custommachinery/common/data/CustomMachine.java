@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.data;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
@@ -8,25 +7,27 @@ import fr.frinn.custommachinery.api.components.IMachineComponent;
 import fr.frinn.custommachinery.api.components.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
+import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CustomMachine implements ICustomMachine {
 
     public static final Codec<CustomMachine> CODEC = RecordCodecBuilder.create(machineCodec ->
         machineCodec.group(
-            TextComponentUtils.CODEC.fieldOf("name").forGetter(machine -> machine.name),
-            MachineAppearanceManager.CODEC.promotePartial(CustomMachinery.LOGGER::warn).fieldOf("appearance").forGetter(machine -> machine.appearance),
-            IGuiElement.CODEC.listOf().optionalFieldOf("gui", ImmutableList.of()).forGetter(CustomMachine::getGuiElements),
-            IGuiElement.CODEC.listOf().optionalFieldOf("jei", ImmutableList.of()).forGetter(CustomMachine::getJeiElements),
-            IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", new ArrayList<>()).forGetter(CustomMachine::getComponentTemplates)
+                TextComponentUtils.CODEC.fieldOf("name").forGetter(machine -> machine.name),
+                MachineAppearanceManager.CODEC.fieldOf("appearance").forGetter(machine -> machine.appearance),
+                CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"gui", Collections.emptyList()).forGetter(CustomMachine::getGuiElements),
+                CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"jei", Collections.emptyList()).forGetter(CustomMachine::getJeiElements),
+                CodecLogger.loggedOptional(Codecs.list(IMachineComponentTemplate.CODEC),"components", Collections.emptyList()).forGetter(CustomMachine::getComponentTemplates)
         ).apply(machineCodec, CustomMachine::new)
     );
 

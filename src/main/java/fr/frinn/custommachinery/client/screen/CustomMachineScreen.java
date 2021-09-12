@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.Comparators;
@@ -35,7 +36,7 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         this.machine.getGuiElements()
                 .stream()
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
-                .forEach(element -> element.getType().getRenderer().renderElement(matrix, element, this));
+                .forEach(element -> ((GuiElementType)element.getType()).getRenderer().renderElement(matrix, element, this));
         matrix.pop();
     }
 
@@ -47,9 +48,9 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         this.renderHoveredTooltip(matrix, mouseX, mouseY);
         this.machine.getGuiElements()
                 .stream()
-                .filter(element -> element.getType().getRenderer().isHovered(element, this, mouseX - this.guiLeft, mouseY - this.guiTop))
+                .filter(element -> ((GuiElementType)element.getType()).getRenderer().isHovered(element, this, mouseX - this.guiLeft, mouseY - this.guiTop))
                 .max(Comparators.GUI_ELEMENTS_COMPARATOR)
-                .ifPresent(element -> element.getType().getRenderer().renderTooltip(matrix, element, this, mouseX, mouseY));
+                .ifPresent(element -> ((GuiElementType)element.getType()).getRenderer().renderTooltip(matrix, element, this, mouseX, mouseY));
         matrix.pop();
     }
 

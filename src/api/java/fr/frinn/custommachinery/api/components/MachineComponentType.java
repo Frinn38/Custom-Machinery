@@ -1,10 +1,8 @@
 package fr.frinn.custommachinery.api.components;
 
 import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
 import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
-import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -18,8 +16,6 @@ import java.util.function.Supplier;
  * @param <T> The component handled by this type.
  */
 public class MachineComponentType<T extends IMachineComponent> extends ForgeRegistryEntry<MachineComponentType<? extends IMachineComponent>> {
-
-    public static final Codec<MachineComponentType<?>> CODEC = new RegistryCodec<>(CustomMachineryAPI.getComponentTypeRegistry());
 
     private Codec<? extends IMachineComponentTemplate<T>> codec;
     private boolean isSingle = true;

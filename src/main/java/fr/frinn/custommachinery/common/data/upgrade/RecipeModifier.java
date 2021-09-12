@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.data.upgrade;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -18,12 +19,12 @@ public class RecipeModifier {
 
     public static final Codec<RecipeModifier> CODEC = RecordCodecBuilder.create(energyModifierInstance ->
             energyModifierInstance.group(
-                    Codecs.REQUIREMENT_TYPE_CODEC.fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
-                    Codec.STRING.optionalFieldOf("target", "").forGetter(modifier -> modifier.target),
+                    Codecs.REQUIREMENT_TYPE.fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(modifier -> modifier.mode),
                     Codecs.MODIFIER_OPERATION_CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
                     Codec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
-                    Codec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(modifier -> modifier.chance)
+                    CodecLogger.loggedOptional(Codec.STRING,"target", "").forGetter(modifier -> modifier.target),
+                    CodecLogger.loggedOptional(Codec.DOUBLE,"chance", 1.0D).forGetter(modifier -> modifier.chance)
             ).apply(energyModifierInstance, RecipeModifier::new)
     );
 
@@ -34,7 +35,7 @@ public class RecipeModifier {
     private double modifier;
     private double chance;
 
-    public RecipeModifier(RequirementType<?> requirementType, String target, IRequirement.MODE mode, OPERATION operation, double modifier, double chance) {
+    public RecipeModifier(RequirementType<?> requirementType, IRequirement.MODE mode, OPERATION operation, double modifier, String target, double chance) {
         this.requirementType = requirementType;
         this.target = target;
         this.mode = mode;

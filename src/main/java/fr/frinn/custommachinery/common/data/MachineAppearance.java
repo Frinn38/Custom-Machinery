@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
@@ -18,11 +19,11 @@ public class MachineAppearance implements IMachineAppearance {
 
     public static final Codec<MachineAppearance> CODEC = RecordCodecBuilder.create(machineAppearanceCodec ->
             machineAppearanceCodec.group(
-                    Codecs.BLOCK_MODEL_CODEC.optionalFieldOf("block", DEFAULT_MODEL).forGetter(appearance -> appearance.blockModel),
-                    Codecs.ITEM_MODEL_CODEC.optionalFieldOf("item", DEFAULT_MODEL).forGetter(appearance -> appearance.itemModel),
-                    SoundEvent.CODEC.optionalFieldOf("sound", DEFAULT_SOUND).forGetter(appearance -> appearance.sound),
-                    Codec.INT.optionalFieldOf("lightlevel", DEFAULT_LIGHT_LEVEL).forGetter(appearance -> appearance.lightLevel),
-                    Codec.INT.optionalFieldOf("color", DEFAULT_COLOR).forGetter(appearance -> appearance.color)
+                    CodecLogger.loggedOptional(Codecs.BLOCK_MODEL_CODEC,"block", DEFAULT_MODEL).forGetter(appearance -> appearance.blockModel),
+                    CodecLogger.loggedOptional(Codecs.ITEM_MODEL_CODEC,"item", DEFAULT_MODEL).forGetter(appearance -> appearance.itemModel),
+                    CodecLogger.loggedOptional(SoundEvent.CODEC,"sound", DEFAULT_SOUND).forGetter(appearance -> appearance.sound),
+                    CodecLogger.loggedOptional(Codec.INT,"lightlevel", DEFAULT_LIGHT_LEVEL).forGetter(appearance -> appearance.lightLevel),
+                    CodecLogger.loggedOptional(Codec.INT,"color", DEFAULT_COLOR).forGetter(appearance -> appearance.color)
             ).apply(machineAppearanceCodec, MachineAppearance::new)
     );
 
@@ -38,7 +39,7 @@ public class MachineAppearance implements IMachineAppearance {
     public MachineAppearance(ResourceLocation blockModel, ResourceLocation itemModel, SoundEvent sound, int lightLevel, int color) {
         this.blockModel = blockModel;
         if(blockModel != DEFAULT_MODEL && itemModel == DEFAULT_MODEL)
-            this.itemModel = blockModel;
+            this.itemModel = new ResourceLocation(blockModel.getNamespace(), blockModel.getPath());
         else
             this.itemModel = itemModel;
         this.sound = sound;

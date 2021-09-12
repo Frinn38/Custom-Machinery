@@ -4,9 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
@@ -19,19 +20,19 @@ public class SlotGuiElement extends TexturedGuiElement implements IComponentGuiE
             slotGuiElementCodec.group(
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
                     Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
-                    Codec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
-                    Codec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID),
-                    ResourceLocation.CODEC.optionalFieldOf("texture", BASE_SLOT_TEXTURE).forGetter(SlotGuiElement::getTexture),
-                    Codecs.ITEM_CODEC.optionalFieldOf("item",Items.AIR).forGetter(SlotGuiElement::getItem)
+                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
+                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
+                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
+                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_SLOT_TEXTURE).forGetter(SlotGuiElement::getTexture),
+                    CodecLogger.loggedOptional(RegistryCodec.ITEM,"item",Items.AIR).forGetter(SlotGuiElement::getItem)
             ).apply(slotGuiElementCodec, SlotGuiElement::new)
     );
 
     private String id;
     private Item item;
 
-    public SlotGuiElement(int x, int y, int width, int height, int priority, String id, ResourceLocation texture, Item item) {
+    public SlotGuiElement(int x, int y, String id, int width, int height, int priority, ResourceLocation texture, Item item) {
         super(x, y, width, height, priority, texture);
         this.id = id;
         this.item = item;

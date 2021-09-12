@@ -52,7 +52,7 @@ public class CustomMachineCTUpgradeBuilder {
         } catch (Exception e) {
             tooltip = new TranslationTextComponent(this.tooltip);
         }
-        MachineUpgrade upgrade = new MachineUpgrade(this.item, tooltip, this.machines, this.modifiers, this.maxAmount);
+        MachineUpgrade upgrade = new MachineUpgrade(this.item, this.machines, this.modifiers, tooltip, this.maxAmount);
         CraftTweakerAPI.apply(new AddMachineUpgradeAction(upgrade));
     }
 
@@ -76,28 +76,28 @@ public class CustomMachineCTUpgradeBuilder {
 
     @Method
     public CustomMachineCTUpgradeBuilder addInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.INPUT, RecipeModifier.OPERATION.ADDITION, value, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.INPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
     public CustomMachineCTUpgradeBuilder mulInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
     public CustomMachineCTUpgradeBuilder addOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
     public CustomMachineCTUpgradeBuilder mulOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), target, IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }

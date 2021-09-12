@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -16,12 +16,14 @@ import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 public class BlockRequirement extends AbstractTickableRequirement<BlockMachineComponent> implements IDelayedRequirement<BlockMachineComponent>, IDisplayInfoRequirement<BlockMachineComponent> {
 
@@ -30,13 +32,13 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
                     Codecs.BLOCK_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
                     Codecs.BOX_CODEC.fieldOf("pos").forGetter(requirement -> requirement.pos),
-                    Codec.INT.optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
-                    Codecs.COMPARATOR_MODE_CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
-                    Codecs.PARTIAL_BLOCK_STATE_CODEC.fieldOf("block").orElse((Consumer<String>) CustomMachinery.LOGGER::error, PartialBlockState.AIR).forGetter(requirement -> requirement.block),
-                    Codecs.PARTIAL_BLOCK_STATE_CODEC.promotePartial(CustomMachinery.LOGGER::error).listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
-                    Codec.BOOL.optionalFieldOf("whitelist", true).forGetter(requirement -> requirement.whitelist),
-                    Codec.doubleRange(0.0D, 1.0D).optionalFieldOf("delay", 0.0D).forGetter(requirement -> requirement.delay),
-                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                    CodecLogger.loggedOptional(Codec.INT,"amount", 1).forGetter(requirement -> requirement.amount),
+                    CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
+                    CodecLogger.loggedOptional(Codecs.PARTIAL_BLOCK_STATE_CODEC, "block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
+                    CodecLogger.loggedOptional(Codecs.list(Codecs.PARTIAL_BLOCK_STATE_CODEC), "filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    CodecLogger.loggedOptional(Codec.BOOL, "whitelist", true).forGetter(requirement -> requirement.whitelist),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay),
+                    CodecLogger.loggedOptional(Codec.BOOL, "jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, filter, whitelist, delay, jei) -> {
                     BlockRequirement requirement = new BlockRequirement(mode, action, pos, amount, comparator, block, filter, whitelist);
                     requirement.setJeiVisible(jei);

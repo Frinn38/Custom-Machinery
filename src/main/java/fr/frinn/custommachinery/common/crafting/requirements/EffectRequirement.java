@@ -3,6 +3,8 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.data.component.EffectMachineComponent;
@@ -26,14 +28,14 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
 
     public static final Codec<EffectRequirement> CODEC = RecordCodecBuilder.create(effectRequirementInstance ->
             effectRequirementInstance.group(
-                    Codecs.EFFECT_CODEC.fieldOf("effect").forGetter(requirement -> requirement.effect),
+                    RegistryCodec.EFFECT.fieldOf("effect").forGetter(requirement -> requirement.effect),
                     Codec.INT.fieldOf("time").forGetter(requirement -> requirement.time),
-                    Codec.INT.optionalFieldOf("level", 1).forGetter(requirement -> requirement.level),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    Codecs.ENTITY_TYPE_CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
-                    Codec.BOOL.optionalFieldOf("finish", false).forGetter(requirement -> requirement.applyAtEnd),
-                    Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(effectRequirementInstance, (effect, time, level, radius, filter, finish, jei) -> {
+                    CodecLogger.loggedOptional(Codec.INT,"level", 1).forGetter(requirement -> requirement.level),
+                    CodecLogger.loggedOptional(Codecs.list(RegistryCodec.ENTITY_TYPE),"filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
+                    CodecLogger.loggedOptional(Codec.BOOL,"finish", false).forGetter(requirement -> requirement.applyAtEnd),
+                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
+            ).apply(effectRequirementInstance, (effect, time, radius, level, filter, finish, jei) -> {
                     EffectRequirement requirement = new EffectRequirement(effect, time, level, radius, filter, finish);
                     requirement.setJeiVisible(jei);
                     return requirement;

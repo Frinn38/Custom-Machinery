@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -23,12 +24,12 @@ public class CommandRequirement extends AbstractTickableRequirement<CommandMachi
 
     public static final Codec<CommandRequirement> CODEC = RecordCodecBuilder.create(commandRequirementInstance ->
             commandRequirementInstance.group(
-                Codec.STRING.fieldOf("command").forGetter(requirement -> requirement.command),
-                Codecs.PHASE_CODEC.fieldOf("phase").forGetter(requirement -> requirement.phase),
-                Codec.INT.optionalFieldOf("permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
-                Codec.BOOL.optionalFieldOf("log", false).forGetter(requirement -> requirement.log),
-                Codec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
-                Codec.BOOL.optionalFieldOf("jei", true).forGetter(requirement -> requirement.jeiVisible)
+                    Codec.STRING.fieldOf("command").forGetter(requirement -> requirement.command),
+                    Codecs.PHASE_CODEC.fieldOf("phase").forGetter(requirement -> requirement.phase),
+                    CodecLogger.loggedOptional(Codec.INT,"permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
+                    CodecLogger.loggedOptional(Codec.BOOL,"log", false).forGetter(requirement -> requirement.log),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(commandRequirementInstance, (command, phase, permissionLevel, log, chance, jeiVisible) -> {
                 CommandRequirement requirement = new CommandRequirement(command, phase, permissionLevel, log);
                 requirement.setChance(chance);

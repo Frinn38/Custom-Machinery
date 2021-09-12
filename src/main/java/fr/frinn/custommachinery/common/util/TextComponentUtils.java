@@ -9,6 +9,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 
@@ -25,13 +26,13 @@ public class TextComponentUtils {
 
     public static final MapCodec<Style> STYLE_CODEC = RecordCodecBuilder.mapCodec(styleInstance ->
             styleInstance.group(
-                    Codec.BOOL.optionalFieldOf("bold", false).forGetter(Style::getBold),
-                    Codec.BOOL.optionalFieldOf("italic", false).forGetter(Style::getItalic),
-                    Codec.BOOL.optionalFieldOf("underlined", false).forGetter(Style::getUnderlined),
-                    Codec.BOOL.optionalFieldOf("strikethrough", false).forGetter(Style::getStrikethrough),
-                    Codec.BOOL.optionalFieldOf("obfuscated", false).forGetter(Style::getObfuscated),
-                    COLOR_CODEC.optionalFieldOf("color", Color.fromTextFormatting(TextFormatting.WHITE)).forGetter(style -> style.getColor() == null ? Color.fromTextFormatting(TextFormatting.WHITE) : style.getColor()),
-                    ResourceLocation.CODEC.optionalFieldOf("font", new ResourceLocation("default")).forGetter(Style::getFontId)
+                    CodecLogger.loggedOptional(Codec.BOOL,"bold", false).forGetter(Style::getBold),
+                    CodecLogger.loggedOptional(Codec.BOOL,"italic", false).forGetter(Style::getItalic),
+                    CodecLogger.loggedOptional(Codec.BOOL,"underlined", false).forGetter(Style::getUnderlined),
+                    CodecLogger.loggedOptional(Codec.BOOL,"strikethrough", false).forGetter(Style::getStrikethrough),
+                    CodecLogger.loggedOptional(Codec.BOOL,"obfuscated", false).forGetter(Style::getObfuscated),
+                    CodecLogger.loggedOptional(COLOR_CODEC,"color", Color.fromTextFormatting(TextFormatting.WHITE)).forGetter(style -> style.getColor() == null ? Color.fromTextFormatting(TextFormatting.WHITE) : style.getColor()),
+                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"font", new ResourceLocation("default")).forGetter(Style::getFontId)
             ).apply(styleInstance, (bold, italic, underlined, strikethrough, obfuscated, color, font) ->
                     Style.EMPTY
                     .setBold(bold)

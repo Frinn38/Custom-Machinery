@@ -4,11 +4,15 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import fr.frinn.custommachinery.api.components.ComponentIOMode;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.api.utils.EnhancedEitherCodec;
+import fr.frinn.custommachinery.api.utils.EnhancedListCodec;
 import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.requirements.BlockRequirement;
@@ -23,91 +27,96 @@ import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.block.Block;
 import net.minecraft.command.arguments.BlockStateParser;
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.potion.Effect;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class Codecs {
 
-    public static final Codec<Item> ITEM_CODEC                          = new RegistryCodec<>(ForgeRegistries.ITEMS).stable();
-    public static final Codec<Block> BLOCK_CODEC                        = new RegistryCodec<>(ForgeRegistries.BLOCKS).stable();
-    public static final Codec<EntityType<?>> ENTITY_TYPE_CODEC          = new RegistryCodec<>(ForgeRegistries.ENTITIES).stable();
-    public static final Codec<Effect> EFFECT_CODEC                      = new RegistryCodec<>(ForgeRegistries.POTIONS).stable();
-    public static final Codec<Fluid> FLUID_CODEC                        = new RegistryCodec<>(ForgeRegistries.FLUIDS).stable();
+    public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE      = RegistryCodec.of(Registration.GUI_ELEMENT_TYPE_REGISTRY.get());
+    public static final Codec<RequirementType<? extends IRequirement<?>>> REQUIREMENT_TYPE = RegistryCodec.of(Registration.REQUIREMENT_TYPE_REGISTRY.get());
 
-    public static final Codec<ComponentIOMode> COMPONENT_MODE_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeMachineComponentMode, ComponentIOMode::toString).stable();
-    public static final Codec<IRequirement.MODE> REQUIREMENT_MODE_CODEC                 = Codec.STRING.comapFlatMap(Codecs::decodeRecipeRequirementMode, IRequirement.MODE::toString).stable();
-    public static final Codec<MachineLocation.Loader> LOADER_CODEC                      = Codec.STRING.comapFlatMap(Codecs::decodeLoader, MachineLocation.Loader::toString).stable();
-    public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC             = Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString).stable();
-    public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString).stable();
-    public static final Codec<TextGuiElement.Alignment> ALIGNMENT_CODEC                 = Codec.STRING.comapFlatMap(Codecs::decodeAlignment, TextGuiElement.Alignment::toString).stable();
-    public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = Codec.STRING.comapFlatMap(Codecs::decodePhase, CraftingManager.PHASE::toString).stable();
-    public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeWeather, WeatherMachineComponent.WeatherType::toString).stable();
-    public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC                     = Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::toString).stable();
-    public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString).stable();
-    public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = Codec.STRING.comapFlatMap(Codecs::decodeEntityRequirementAction, EntityRequirement.ACTION::toString).stable();
-    public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = Codec.STRING.comapFlatMap(Codecs::decodeBlockRequirementAction, BlockRequirement.ACTION::toString).stable();
-    public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = Codec.STRING.comapFlatMap(Codecs::decodeModifierOperation, RecipeModifier.OPERATION::toString).stable();
-    public static final Codec<Character> CHARACTER_CODEC                                = Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString).stable();
-    public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString).stable();
+    public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC             = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString), "Position Comparator");
+    public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString), "Time Comparator");
+    public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString), "NBT");
+    public static final Codec<Character> CHARACTER_CODEC                                = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
+    public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
 
-    public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_CODEC                            = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeGuiElementType, GuiElementType::getRegistryName).stable();
-    public static final Codec<RequirementType<? extends IRequirement>> REQUIREMENT_TYPE_CODEC                          = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeRecipeRequirementType, RequirementType::getRegistryName).stable();
-    public static final Codec<ItemComponentVariant> ITEM_COMPONENT_VARIANT_CODEC                                       = ResourceLocation.CODEC.comapFlatMap(Codecs::decodeItemComponentVariant, ItemComponentVariant::getId).stable();
-    public static final Codec<Tags.IOptionalNamedTag<Item>> ITEM_TAG_CODEC = ResourceLocation.CODEC.xmap(ItemTags::createOptional, ITag.INamedTag::getName).stable();
+    public static final Codec<ItemComponentVariant> ITEM_COMPONENT_VARIANT_CODEC = CodecLogger.namedCodec(ResourceLocation.CODEC.comapFlatMap(Codecs::decodeItemComponentVariant, ItemComponentVariant::getId), "Item Component Variant");
+    public static final Codec<Tags.IOptionalNamedTag<Item>> ITEM_TAG_CODEC       = CodecLogger.namedCodec(ResourceLocation.CODEC.xmap(ItemTags::createOptional, ITag.INamedTag::getName), "Item Tag");
 
-    public static final Codec<AxisAlignedBB> BOX_CODEC = Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ));
+    public static final Codec<BlockPos> BLOCK_POS       = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
+    public static final Codec<AxisAlignedBB> AABB_CODEC = CodecLogger.namedCodec(Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ)), "Box");
+    public static final Codec<AxisAlignedBB> BOX_CODEC  = either(BLOCK_POS, AABB_CODEC, "Box").xmap(either -> either.map(pos -> new AxisAlignedBB(pos, pos), Function.identity()), Either::right);
 
-    public static final Codec<MachineStatus> STATUS_CODEC = IStringSerializable.createEnumCodec(MachineStatus::values, MachineStatus::getValueOrNull).stable();
+    public static final Codec<MachineStatus> STATUS_CODEC                               = fromEnum(MachineStatus.class);
+    public static final Codec<ComponentIOMode> COMPONENT_MODE_CODEC                     = fromEnum(ComponentIOMode.class);
+    public static final Codec<IRequirement.MODE> REQUIREMENT_MODE_CODEC                 = fromEnum(IRequirement.MODE.class);
+    public static final Codec<MachineLocation.Loader> LOADER_CODEC                      = fromEnum(MachineLocation.Loader.class);
+    public static final Codec<TextGuiElement.Alignment> ALIGNMENT_CODEC                 = fromEnum(TextGuiElement.Alignment.class);
+    public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = fromEnum(CraftingManager.PHASE.class);
+    public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = fromEnum(WeatherMachineComponent.WeatherType.class);
+    public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC                     = fromEnum(ComparatorMode.class);
+    public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = fromEnum(EntityRequirement.ACTION.class);
+    public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = fromEnum(BlockRequirement.ACTION.class);
+    public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = fromEnum(RecipeModifier.OPERATION.class);
 
-    public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = Codec.either(PARTIAL_BLOCK_STATE_CODEC, ResourceLocation.CODEC).xmap(either -> either.map(PartialBlockState::getModelLocation, Function.identity()), Either::right).stable();
-    public static final Codec<ResourceLocation> ITEM_MODEL_CODEC = Codec.either(ITEM_CODEC, ResourceLocation.CODEC).xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right).stable();
+    public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(PARTIAL_BLOCK_STATE_CODEC, ResourceLocation.CODEC, "Block Model").xmap(either -> either.map(PartialBlockState::getModelLocation, Function.identity()), Either::right);
+    public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(RegistryCodec.ITEM, ResourceLocation.CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
 
-    private static DataResult<ComponentIOMode> decodeMachineComponentMode(String encoded) {
-        try {
-            return DataResult.success(ComponentIOMode.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Machine Component Mode: " + encoded + " " + e.getMessage());
-        }
+    public static <E extends Enum<E>> Codec<E> fromEnum(Class<E> enumClass) {
+        return new Codec<E>() {
+            @Override
+            public <T> DataResult<Pair<E, T>> decode(DynamicOps<T> ops, T input) {
+                return ops.getStringValue(input).flatMap(s -> {
+                    try {
+                        return DataResult.success(Pair.of(Enum.valueOf(enumClass, s.toUpperCase(Locale.ENGLISH)), input));
+                    } catch (IllegalArgumentException e) {
+                        return DataResult.error(String.format("Not a valid %s: %s%n%s", enumClass.getSimpleName(), s, e.getMessage()));
+                    }
+                });
+            }
+
+            @Override
+            public <T> DataResult<T> encode(E input, DynamicOps<T> ops, T prefix) {
+                T string = ops.createString(input.toString());
+                return ops.mergeToPrimitive(prefix, string);
+            }
+
+            @Override
+            public String toString() {
+                return enumClass.getSimpleName();
+            }
+        };
     }
 
-    private static DataResult<IRequirement.MODE> decodeRecipeRequirementMode(String encoded) {
-        try {
-            return DataResult.success(IRequirement.MODE.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Requirement Mode: " + encoded + " " + e.getMessage());
-        }
+    public static <F, S> Codec<Either<F, S>> either(final Codec<F> first, final Codec<S> second, String name) {
+        return new EnhancedEitherCodec<>(first, second, name);
     }
-    private static DataResult<MachineLocation.Loader> decodeLoader(String encoded) {
-        try {
-            return DataResult.success(MachineLocation.Loader.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Loader: " + encoded + " " + e.getMessage());
-        }
+
+    public static <T> Codec<List<T>> list(Codec<T> codec) {
+        return new EnhancedListCodec<>(codec);
     }
 
     private static DataResult<PositionComparator> decodePositionComparator(String encoded) {
         try {
             return DataResult.success(new PositionComparator(encoded));
         } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Position Comparator: " + encoded + " " + e.getMessage());
+            return DataResult.error(String.format("Not a valid Position Comparator: %s%n%s", encoded, e.getMessage()));
         }
     }
 
@@ -115,63 +124,7 @@ public class Codecs {
         try {
             return DataResult.success(new TimeComparator(encoded));
         } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Time Comparator: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<TextGuiElement.Alignment> decodeAlignment(String encoded) {
-        try {
-            return DataResult.success(TextGuiElement.Alignment.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Alignment: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<GuiElementType<?>> decodeGuiElementType(ResourceLocation encoded) {
-        try {
-            return DataResult.success(Objects.requireNonNull(Registration.GUI_ELEMENT_TYPE_REGISTRY.get().getValue(encoded)));
-        } catch (NullPointerException e) {
-            return DataResult.error("Not a valid Gui Element Type: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<MachineComponentType<?>> decodeMachineComponentType(ResourceLocation encoded) {
-        try {
-            return DataResult.success(Objects.requireNonNull(Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValue(encoded)));
-        } catch (NullPointerException e) {
-            return DataResult.error("Not a valid Machine Component Type: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<RequirementType<?>> decodeRecipeRequirementType(ResourceLocation encoded) {
-        try {
-            return DataResult.success(Objects.requireNonNull(Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(encoded)));
-        } catch (NullPointerException e) {
-            return DataResult.error("Not a valid Recipe Requirement Type: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<CraftingManager.PHASE> decodePhase(String encoded) {
-        try {
-            return DataResult.success(CraftingManager.PHASE.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Phase: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<WeatherMachineComponent.WeatherType> decodeWeather(String encoded) {
-        try {
-            return DataResult.success(WeatherMachineComponent.WeatherType.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Weather Type: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<ComparatorMode> decodeComparatorMode(String encoded) {
-        try {
-            return DataResult.success(ComparatorMode.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Comparator Mode: " + encoded + " " + e.getMessage());
+            return DataResult.error(String.format("Not a valid Time Comparator: %s%n%s", encoded, e.getMessage()));
         }
     }
 
@@ -180,30 +133,6 @@ public class Codecs {
             return DataResult.success(JsonToNBT.getTagFromJson(encoded));
         } catch (CommandSyntaxException e) {
             return DataResult.error("Not a valid NBT: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<EntityRequirement.ACTION> decodeEntityRequirementAction(String encoded) {
-        try {
-            return DataResult.success(EntityRequirement.ACTION.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Entity Requirement Mode: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<BlockRequirement.ACTION> decodeBlockRequirementAction(String encoded) {
-        try {
-            return DataResult.success(BlockRequirement.ACTION.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid Block Requirement Mode: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<RecipeModifier.OPERATION> decodeModifierOperation(String encoded) {
-        try {
-            return DataResult.success(RecipeModifier.OPERATION.value(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error("Not a valid modifier operation: " + encoded + " " + e.getMessage());
         }
     }
 

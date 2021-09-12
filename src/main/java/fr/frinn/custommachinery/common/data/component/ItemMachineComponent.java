@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.*;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -15,7 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -128,12 +129,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         public static final Codec<ItemMachineComponent.Template> CODEC = RecordCodecBuilder.create(itemMachineComponentTemplate ->
                 itemMachineComponentTemplate.group(
-                        Codecs.COMPONENT_MODE_CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
-                        Codec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        Ingredient.ItemIngredient.CODEC.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(template -> template.filter),
-                        Codec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
-                        Codecs.ITEM_COMPONENT_VARIANT_CODEC.optionalFieldOf("variant", ItemComponentVariant.DEFAULT).forGetter(template -> template.variant)
+                        CodecLogger.loggedOptional(Codecs.COMPONENT_MODE_CODEC,"mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
+                        CodecLogger.loggedOptional(Codec.INT,"capacity", 64).forGetter(template -> template.capacity),
+                        CodecLogger.loggedOptional(Codecs.list(Ingredient.ItemIngredient.CODEC),"filter", Collections.emptyList()).forGetter(template -> template.filter),
+                        CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
+                        CodecLogger.loggedOptional(Codecs.ITEM_COMPONENT_VARIANT_CODEC,"variant", ItemComponentVariant.DEFAULT).forGetter(template -> template.variant)
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
 
@@ -144,7 +145,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         private boolean whitelist;
         private ItemComponentVariant variant;
 
-        public Template(ComponentIOMode mode, String id, int capacity, List<Ingredient.ItemIngredient> filter, boolean whitelist, ItemComponentVariant variant) {
+        public Template(String id, ComponentIOMode mode, int capacity, List<Ingredient.ItemIngredient> filter, boolean whitelist, ItemComponentVariant variant) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;

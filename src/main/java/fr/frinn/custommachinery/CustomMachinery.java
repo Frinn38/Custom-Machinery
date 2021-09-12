@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery;
 
+import fr.frinn.custommachinery.api.CustomMachineryAPI;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
@@ -17,6 +18,7 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -68,6 +70,7 @@ public class CustomMachinery {
         FORGE_BUS.addListener(this::serverStarting);
         FORGE_BUS.addListener(this::worldTick);
         FORGE_BUS.addListener(EventPriority.HIGHEST, this::datapackSync);
+        FORGE_BUS.addListener(this::beforeReload);
     }
 
     public void commonSetup(final FMLCommonSetupEvent event) {
@@ -109,5 +112,10 @@ public class CustomMachinery {
             LootTableHelper.generate(event.getPlayerList().getServer());
             NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SLootTablesPacket(LootTableHelper.getLoots()));
         }
+    }
+
+    public void beforeReload(final CommandEvent event) {
+        if(event.getParseResults().getReader().getString().startsWith("/reload"))
+            CustomMachineryAPI.LOGGER.reset();
     }
 }
