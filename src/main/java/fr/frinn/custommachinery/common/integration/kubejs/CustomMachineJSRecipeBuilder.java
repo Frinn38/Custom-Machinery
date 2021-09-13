@@ -18,6 +18,10 @@ import fr.frinn.custommachinery.common.crafting.requirements.*;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.util.*;
+import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -126,7 +130,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount) {
@@ -134,7 +138,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, Ingredient.ItemIngredient.make(tag), amount, new CompoundNBT(), slot));
+        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, new CompoundNBT(), slot));
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack) {
@@ -142,7 +146,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
     }
 
     /** DURABILITY **/
@@ -152,7 +156,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount) {
@@ -160,7 +164,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, Ingredient.ItemIngredient.make(tag), amount, new CompoundNBT(), slot));
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, new CompoundNBT(), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount) {
@@ -168,7 +172,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount) {
@@ -176,7 +180,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, Ingredient.ItemIngredient.make(tag), amount, new CompoundNBT(), slot));
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemTagIngredient(tag), amount, new CompoundNBT(), slot));
     }
 
     /** FLUID **/
@@ -186,7 +190,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount) {
@@ -194,7 +198,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, Ingredient.FluidIngredient.make(tag), amount, tank));
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, tank));
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack) {
@@ -202,7 +206,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.OUTPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack) {
@@ -210,7 +214,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount) {
@@ -218,7 +222,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, Ingredient.FluidIngredient.make(tag), amount, tank));
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, tank));
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack) {
@@ -226,7 +230,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.OUTPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
     }
 
     /** ENERGY **/

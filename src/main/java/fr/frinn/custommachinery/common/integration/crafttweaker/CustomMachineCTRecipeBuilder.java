@@ -24,6 +24,7 @@ import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.util.*;
+import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
@@ -104,71 +105,71 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), false, tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidTag(MCTag<Fluid> tag, int amount, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(CraftTweakerHelper.getITag(tag)), amount, false, tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag.getId()), amount, false, tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), false, tank);
+        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), true, tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidTagPerTick(MCTag<Fluid> tag, int amount, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new Ingredient.FluidIngredient(tag.getInternalRaw()), amount, true, tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag.getId()), amount, true, tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new Ingredient.FluidIngredient(stack.getFluid()), stack.getAmount(), true, tank);
+        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, tank);
     }
 
     /** ITEM **/
 
     @Method
     public CustomMachineCTRecipeBuilder requireItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getDefinition()), stack.getAmount(), (CompoundNBT) stack.getOrCreateTag().getInternal(), slot));
+        return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireItemTag(MCTag<Item> tag, int amount, @Optional IData nbt, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(CraftTweakerHelper.getITag(tag)), amount, nbt == null ? new CompoundNBT() : (CompoundNBT) nbt.getInternal(), slot));
+        return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag.getId()), amount, nbt instanceof CompoundNBT ? (CompoundNBT) nbt.getInternal() : new CompoundNBT(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getDefinition()), stack.getAmount(), (CompoundNBT) stack.getOrCreateTag().getInternal(), slot));
+        return addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
     }
 
     /** DURABILITY **/
 
     @Method
     public CustomMachineCTRecipeBuilder damageItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(stack.getDefinition()), amount, (CompoundNBT) stack.getOrCreateTag().getInternal(), slot));
+        return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder damageItemTag(MCTag<Item> tag, int amount, @Optional IData nbt, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new Ingredient.ItemIngredient(CraftTweakerHelper.getITag(tag)), amount, nbt == null ? null : (CompoundNBT) nbt.getInternal(), slot));
+        return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag.getId()), amount, nbt instanceof CompoundNBT ? (CompoundNBT) nbt.getInternal() : new CompoundNBT(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder repairItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(stack.getDefinition()), amount, (CompoundNBT) stack.getOrCreateTag().getInternal(), slot));
+        return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder repairItemTag(MCTag<Item> tag, int amount, @Optional IData nbt, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new Ingredient.ItemIngredient(CraftTweakerHelper.getITag(tag)), amount, nbt == null ? null : (CompoundNBT) nbt.getInternal(), slot));
+        return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemTagIngredient(tag.getId()), amount, nbt instanceof CompoundNBT ? (CompoundNBT) nbt.getInternal() : new CompoundNBT(), slot));
     }
 
     /** TIME **/
@@ -521,7 +522,7 @@ public class CustomMachineCTRecipeBuilder {
             return addRequirement(new EnergyRequirement(mode, amount));
     }
 
-    private CustomMachineCTRecipeBuilder withFluidRequirement(IRequirement.MODE mode, Ingredient.FluidIngredient fluid, int amount, boolean isPerTick, String tank) {
+    private CustomMachineCTRecipeBuilder withFluidRequirement(IRequirement.MODE mode, IIngredient<Fluid> fluid, int amount, boolean isPerTick, String tank) {
         if(isPerTick) {
             return addRequirement(new FluidPerTickRequirement(mode, fluid, amount, tank));
         } else {

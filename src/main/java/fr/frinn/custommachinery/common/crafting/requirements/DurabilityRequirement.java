@@ -11,14 +11,13 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.Ingredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.Random;
 
 public class DurabilityRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement<ItemComponentHandler>, IJEIIngredientRequirement {
@@ -26,7 +25,7 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
     public static final Codec<DurabilityRequirement> CODEC = RecordCodecBuilder.create(durabilityRequirementInstance ->
             durabilityRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    Ingredient.ItemIngredient.CODEC.fieldOf("item").forGetter(requirement -> requirement.item),
+                    IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D),"chance", 1.0D).forGetter(requirement -> requirement.chance),
@@ -38,13 +37,13 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
             })
     );
 
-    private Ingredient.ItemIngredient item;
+    private IIngredient<Item> item;
     private int amount;
     private CompoundNBT nbt;
     private double chance = 1.0D;
     private String slot;
 
-    public DurabilityRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, @Nullable CompoundNBT nbt, String slot) {
+    public DurabilityRequirement(MODE mode, IIngredient<Item> item, int amount, @Nullable CompoundNBT nbt, String slot) {
         super(mode);
         if(item.getAll().stream().noneMatch(Item::isDamageable))
             throw new IllegalArgumentException("Invalid Item in Durability requirement: " + item + " can't be damaged !");

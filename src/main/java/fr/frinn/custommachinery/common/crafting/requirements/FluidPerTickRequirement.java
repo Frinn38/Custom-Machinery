@@ -11,7 +11,8 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.Ingredient;
+import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -24,7 +25,7 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
     public static final Codec<FluidPerTickRequirement> CODEC = RecordCodecBuilder.create(fluidPerTickRequirementInstance ->
             fluidPerTickRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractTickableRequirement::getMode),
-                    Ingredient.FluidIngredient.CODEC.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
+                    IIngredient.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
                     CodecLogger.loggedOptional(Codec.STRING,"tank", "").forGetter(requirement -> requirement.tank)
@@ -35,15 +36,15 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
             })
     );
 
-    private Ingredient.FluidIngredient fluid;
+    private IIngredient<Fluid> fluid;
     private int amount;
     private double chance = 1.0D;
     private String tank;
 
-    public FluidPerTickRequirement(MODE mode, Ingredient.FluidIngredient fluid, int amount, String tank) {
+    public FluidPerTickRequirement(MODE mode, IIngredient<Fluid> fluid, int amount, String tank) {
         super(mode);
-        if(mode == MODE.OUTPUT && fluid.getObject() == null)
-            throw new IllegalArgumentException("You must specify a fluid for an Output Fluid Per Tick Requirement");
+        if(mode == MODE.OUTPUT && fluid instanceof FluidTagIngredient)
+            throw new IllegalArgumentException("You can't use a tag for an Output Fluid Per Tick Requirement");
         this.fluid = fluid;
         this.amount = amount;
         this.tank = tank;
@@ -66,8 +67,8 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
         if(getMode() == MODE.INPUT)
             return this.fluid.getAll().stream().mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
         else {
-            if(this.fluid.getObject() != null)
-                return component.getSpaceForFluid(this.tank, this.fluid.getObject()) >= amount;
+            if(this.fluid.getAll().get(0) != null)
+                return component.getSpaceForFluid(this.tank, this.fluid.getAll().get(0)) >= amount;
             throw new IllegalStateException("Can't use output fluid per tick requirement with fluid tag");
         }
     }
@@ -97,8 +98,8 @@ public class FluidPerTickRequirement extends AbstractTickableRequirement<FluidCo
             }
             return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
         } else {
-            if(this.fluid.getObject() != null) {
-                Fluid fluid = this.fluid.getObject();
+            if(this.fluid.getAll().get(0) != null) {
+                Fluid fluid = this.fluid.getAll().get(0);
                 FluidStack stack = new FluidStack(fluid, amount);
                 int canInsert = component.getSpaceForFluid(this.tank, fluid);
                 if(canInsert >= amount) {

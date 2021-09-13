@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
-import fr.frinn.custommachinery.common.util.Ingredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.fluid.Fluid;
@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack> {
 
     private IRequirement.MODE mode;
-    private Ingredient.FluidIngredient fluid;
+    private IIngredient<Fluid> fluid;
     private int amount;
     private double chance;
     private boolean isPerTick;
     private String tank;
 
-    public FluidIngredientWrapper(IRequirement.MODE mode, Ingredient.FluidIngredient fluid, int amount, double chance, boolean isPerTick, String tank) {
+    public FluidIngredientWrapper(IRequirement.MODE mode, IIngredient<Fluid> fluid, int amount, double chance, boolean isPerTick, String tank) {
         this.mode = mode;
         this.fluid = fluid;
         this.amount = amount;

@@ -2,9 +2,10 @@ package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
-import fr.frinn.custommachinery.common.util.Ingredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 
@@ -16,14 +17,14 @@ import java.util.stream.Collectors;
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     private IRequirement.MODE mode;
-    private Ingredient.ItemIngredient item;
+    private IIngredient<Item> item;
     private int amount;
     private double chance;
     private boolean useDurability;
     private CompoundNBT nbt;
     private String slot;
 
-    public ItemIngredientWrapper(IRequirement.MODE mode, Ingredient.ItemIngredient item, int amount, double chance, boolean useDurability, @Nullable CompoundNBT nbt, String slot) {
+    public ItemIngredientWrapper(IRequirement.MODE mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundNBT nbt, String slot) {
         this.mode = mode;
         this.item = item;
         this.amount = amount;

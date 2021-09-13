@@ -27,17 +27,20 @@ import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.block.Block;
 import net.minecraft.command.arguments.BlockStateParser;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.Tags;
 
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +60,10 @@ public class Codecs {
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
 
     public static final Codec<ItemComponentVariant> ITEM_COMPONENT_VARIANT_CODEC = CodecLogger.namedCodec(ResourceLocation.CODEC.comapFlatMap(Codecs::decodeItemComponentVariant, ItemComponentVariant::getId), "Item Component Variant");
-    public static final Codec<Tags.IOptionalNamedTag<Item>> ITEM_TAG_CODEC       = CodecLogger.namedCodec(ResourceLocation.CODEC.xmap(ItemTags::createOptional, ITag.INamedTag::getName), "Item Tag");
+
+    public static final Codec<ITag.INamedTag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(ItemTags::createOptional), "Item Tag");
+    public static final Codec<ITag.INamedTag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(FluidTags::createOptional), "Fluid Tag");
+    public static final Codec<ITag.INamedTag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(BlockTags::createOptional), "Block Tag");
 
     public static final Codec<BlockPos> BLOCK_POS       = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
     public static final Codec<AxisAlignedBB> AABB_CODEC = CodecLogger.namedCodec(Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ)), "Box");
@@ -110,6 +116,16 @@ public class Codecs {
 
     public static <T> Codec<List<T>> list(Codec<T> codec) {
         return new EnhancedListCodec<>(codec);
+    }
+
+    public static <E> Codec<ITag.INamedTag<E>> tagCodec(Function<ResourceLocation, ITag.INamedTag<E>> tagBuilder) {
+        return Codec.STRING.comapFlatMap(string -> {
+            if(string.startsWith("#"))
+                string = string.substring(1);
+            if(!Utils.isResourceNameValid(string))
+                return DataResult.error(String.format("Invalid tag : %s is not a valid tag id !", string));
+            return DataResult.success(tagBuilder.apply(new ResourceLocation(string)));
+        }, tag -> tag.getName().toString());
     }
 
     private static DataResult<PositionComparator> decodePositionComparator(String encoded) {

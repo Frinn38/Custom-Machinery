@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class CMLogger {
 
     private FileChannel channel;
-    private ByteBuffer buffer = ByteBuffer.allocate(1024);
+    private ByteBuffer buffer = ByteBuffer.allocate(Short.MAX_VALUE);
 
     public CMLogger() {
         reset();

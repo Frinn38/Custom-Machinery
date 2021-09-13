@@ -11,7 +11,8 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.Ingredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
@@ -25,7 +26,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public static final Codec<ItemRequirement> CODEC = RecordCodecBuilder.create(itemRequirementInstance ->
             itemRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    Ingredient.ItemIngredient.CODEC.fieldOf("item").forGetter(requirement -> requirement.item),
+                    IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
@@ -37,15 +38,15 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
             })
     );
 
-    private Ingredient.ItemIngredient item;
+    private IIngredient<Item> item;
     private int amount;
     private CompoundNBT nbt;
     private double chance = 1.0D;
     private String slot;
 
-    public ItemRequirement(MODE mode, Ingredient.ItemIngredient item, int amount, @Nullable CompoundNBT nbt, String slot) {
+    public ItemRequirement(MODE mode, IIngredient<Item> item, int amount, @Nullable CompoundNBT nbt, String slot) {
         super(mode);
-        if(mode == MODE.OUTPUT && item.getObject() == null)
+        if(mode == MODE.OUTPUT && item instanceof ItemTagIngredient)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.item = item;
         this.amount = amount;
@@ -69,8 +70,8 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         if(getMode() == MODE.INPUT) {
             return this.item.getAll().stream().mapToInt(item -> component.getItemAmount(this.slot, item, this.nbt)).sum() >= amount;
         } else {
-            if(this.item.getObject() != null)
-                return component.getSpaceForItem(this.slot, this.item.getObject(), this.nbt) >= amount;
+            if(this.item.getAll().get(0) != null)
+                return component.getSpaceForItem(this.slot, this.item.getAll().get(0), this.nbt) >= amount;
             else throw new IllegalStateException("Can't use output item requirement with item tag");
         }
     }
@@ -102,8 +103,8 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     public CraftingResult processEnd(ItemComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.OUTPUT) {
-            if(this.item.getObject() != null) {
-                Item item = this.item.getObject();
+            if(this.item.getAll().get(0) != null) {
+                Item item = this.item.getAll().get(0);
                 int canInsert = component.getSpaceForItem(this.slot, item, this.nbt);
                 if(canInsert >= amount) {
                     component.addToOutputs(this.slot, item, amount, this.nbt);

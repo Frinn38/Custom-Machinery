@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.FluidStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.Ingredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
@@ -32,11 +32,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private long actualTick;
     private int actualTickInput;
     private int actualTickOutput;
-    private List<Ingredient.FluidIngredient> filter;
+    private List<IIngredient<Fluid>> filter;
     private boolean whitelist;
     private FluidStack fluidStack = FluidStack.EMPTY;
 
-    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<Ingredient.FluidIngredient> filter, boolean whitelist) {
+    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -208,7 +208,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                         Codec.INT.fieldOf("capacity").forGetter(template -> template.capacity),
                         CodecLogger.loggedOptional(Codec.INT,"maxInput").forGetter(template -> Optional.of(template.maxInput)),
                         CodecLogger.loggedOptional(Codec.INT,"maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
-                        CodecLogger.loggedOptional(Codecs.list(Ingredient.FluidIngredient.CODEC),"filter", Collections.emptyList()).forGetter(template -> template.filter),
+                        CodecLogger.loggedOptional(Codecs.list(IIngredient.FLUID),"filter", Collections.emptyList()).forGetter(template -> template.filter),
                         CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
                         CodecLogger.loggedOptional(Codecs.COMPONENT_MODE_CODEC,"mode", ComponentIOMode.BOTH).forGetter(template -> template.mode)
                 ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode) ->
@@ -220,11 +220,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         private int capacity;
         private int maxInput;
         private int maxOutput;
-        private List<Ingredient.FluidIngredient> filter;
+        private List<IIngredient<Fluid>> filter;
         private boolean whitelist;
         private ComponentIOMode mode;
 
-        public Template(String id, int capacity, int maxInput, int maxOutput, List<Ingredient.FluidIngredient> filter, boolean whitelist, ComponentIOMode mode) {
+        public Template(String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, ComponentIOMode mode) {
             this.id = id;
             this.capacity = capacity;
             this.maxInput = maxInput;

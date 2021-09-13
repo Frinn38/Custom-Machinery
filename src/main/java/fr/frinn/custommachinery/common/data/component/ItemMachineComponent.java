@@ -9,9 +9,10 @@ import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.Ingredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
@@ -25,12 +26,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     private String id;
     private int capacity;
-    private List<Ingredient.ItemIngredient> filter;
+    private List<IIngredient<Item>> filter;
     private boolean whitelist;
     private ItemStack stack = ItemStack.EMPTY;
     private ItemComponentVariant variant;
 
-    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<Ingredient.ItemIngredient> filter, boolean whitelist, ItemComponentVariant variant) {
+    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant) {
         super(manager, mode);
         this.id = id;
         this.capacity = MathHelper.clamp(capacity, 0, 64);
@@ -132,7 +133,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                         Codec.STRING.fieldOf("id").forGetter(template -> template.id),
                         CodecLogger.loggedOptional(Codecs.COMPONENT_MODE_CODEC,"mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         CodecLogger.loggedOptional(Codec.INT,"capacity", 64).forGetter(template -> template.capacity),
-                        CodecLogger.loggedOptional(Codecs.list(Ingredient.ItemIngredient.CODEC),"filter", Collections.emptyList()).forGetter(template -> template.filter),
+                        CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"filter", Collections.emptyList()).forGetter(template -> template.filter),
                         CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
                         CodecLogger.loggedOptional(Codecs.ITEM_COMPONENT_VARIANT_CODEC,"variant", ItemComponentVariant.DEFAULT).forGetter(template -> template.variant)
                 ).apply(itemMachineComponentTemplate, Template::new)
@@ -141,11 +142,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         private ComponentIOMode mode;
         private String id;
         private int capacity;
-        private List<Ingredient.ItemIngredient> filter;
+        private List<IIngredient<Item>> filter;
         private boolean whitelist;
         private ItemComponentVariant variant;
 
-        public Template(String id, ComponentIOMode mode, int capacity, List<Ingredient.ItemIngredient> filter, boolean whitelist, ItemComponentVariant variant) {
+        public Template(String id, ComponentIOMode mode, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
