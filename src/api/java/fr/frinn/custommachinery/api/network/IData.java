@@ -43,7 +43,7 @@ public interface IData<T> {
      */
     static IData<?> readData(PacketBuffer buffer) {
         ResourceLocation typeId = buffer.readResourceLocation();
-        DataType<?, ?> type = CustomMachineryAPI.DATA_REGISTRY.getValue(typeId);
+        DataType<?, ?> type = CustomMachineryAPI.getDataRegistry().getValue(typeId);
         if(type == null)
             throw new IllegalStateException("Attempting to read invalid IData : " + typeId + " is not a valid registered DataType !");
         short id = buffer.readShort();

@@ -34,7 +34,7 @@ public class CodecLogger {
             public <T> DataResult<T> coApply(DynamicOps<T> ops, V input, DataResult<T> t) {
                 return t.mapError(s -> String.format("Error while serializing %s: %s%n%s", name, type.apply(input).result().orElse(null), s));
             }
-        }).promotePartial(CustomMachineryAPI::error);
+        }).promotePartial(CustomMachineryAPI.getLogger()::error);
     }
     @SuppressWarnings("unchecked")
     private static <K, V> DataResult<? extends Encoder<V>> getCodec(final Function<? super V, ? extends DataResult<? extends K>> type, final Function<? super K, ? extends DataResult<? extends Encoder<? extends V>>> encoder, final V input) {
@@ -94,13 +94,13 @@ public class CodecLogger {
             public <T> DataResult<E> decode(DynamicOps<T> ops, MapLike<T> input) {
                 T value = input.get(field);
                 if(value == null) {
-                    if(CMLogger.shouldLogMissingOptionals())
-                        CustomMachineryAPI.warn("Missing optional property: \"%s\" of type: %s%nUsing default value: %s", field, codec, defaultValue);
+                    if(CustomMachineryAPI.getLogger().logMissingOptional())
+                        CustomMachineryAPI.getLogger().warn("Missing optional property: \"%s\" of type: %s%nUsing default value: %s", field, codec, defaultValue);
                     return DataResult.success(defaultValue);
                 }
                 DataResult<E> result = codec.parse(ops, value);
                 if(result.error().isPresent()) {
-                    CustomMachineryAPI.warn("Error while deserializing optional property \"%s\" of type: %s%n%s%nUsing default value: %s", field, codec, result.error().get().message(), defaultValue);
+                    CustomMachineryAPI.getLogger().warn("Error while deserializing optional property \"%s\" of type: %s%n%s%nUsing default value: %s", field, codec, result.error().get().message(), defaultValue);
                     return DataResult.success(defaultValue);
                 }
                 return result;

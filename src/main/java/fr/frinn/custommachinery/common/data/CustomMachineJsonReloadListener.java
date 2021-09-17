@@ -28,7 +28,7 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
     @ParametersAreNonnullByDefault
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager resourceManager, IProfiler profiler) {
-        CustomMachineryAPI.info("Reading Custom Machinery Machines...");
+        CustomMachineryAPI.getLogger().info("Reading Custom Machinery Machines...");
 
         CustomMachinery.MACHINES.clear();
 
@@ -39,15 +39,15 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            CustomMachineryAPI.info("Parsing machine json: %s in datapack: %s", id, packName);
+            CustomMachineryAPI.getLogger().info("Parsing machine json: %s in datapack: %s", id, packName);
 
             if(!json.isJsonObject()) {
-                CustomMachineryAPI.error("Bad machine JSON: %s must be a json object and not an array or primitive, skipping...", id);
+                CustomMachineryAPI.getLogger().error("Bad machine JSON: %s must be a json object and not an array or primitive, skipping...", id);
                 return;
             }
 
             if(CustomMachinery.MACHINES.containsKey(id)) {
-                CustomMachineryAPI.error("A machine with id: %s already exists, skipping...", id);
+                CustomMachineryAPI.getLogger().error("A machine with id: %s already exists, skipping...", id);
                 return;
             }
 
@@ -59,14 +59,14 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
                 else
                     machine.setLocation(MachineLocation.fromDatapack(id, packName));
                 CustomMachinery.MACHINES.put(id, machine);
-                CustomMachineryAPI.info("Successfully parsed machine json: %s", id);
+                CustomMachineryAPI.getLogger().info("Successfully parsed machine json: %s", id);
                 return;
             } else if(result.error().isPresent()) {
-                CustomMachineryAPI.error("Error while parsing machine json: %s, skipping...%n%s", id, result.error().get().message());
+                CustomMachineryAPI.getLogger().error("Error while parsing machine json: %s, skipping...%n%s", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
-        CustomMachineryAPI.info("Finished creating custom machines.");
+        CustomMachineryAPI.getLogger().info("Finished creating custom machines.");
     }
 }

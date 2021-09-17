@@ -29,7 +29,7 @@ public class UpgradesCustomReloadListener extends JsonReloadListener {
     @ParametersAreNonnullByDefault
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager resourceManager, IProfiler profiler) {
-        CustomMachineryAPI.info("Reading Custom Machinery Upgrades...");
+        CustomMachineryAPI.getLogger().info("Reading Custom Machinery Upgrades...");
 
         CustomMachinery.UPGRADES.clear();
 
@@ -40,10 +40,10 @@ public class UpgradesCustomReloadListener extends JsonReloadListener {
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            CustomMachineryAPI.info("Parsing upgrade json: %s in datapack: %s", id, packName);
+            CustomMachineryAPI.getLogger().info("Parsing upgrade json: %s in datapack: %s", id, packName);
 
             if(!json.isJsonObject()) {
-                CustomMachineryAPI.error("Bad upgrade JSON: %s must be a json object and not an array or primitive, skipping..." + id);
+                CustomMachineryAPI.getLogger().error("Bad upgrade JSON: %s must be a json object and not an array or primitive, skipping..." + id);
                 return;
             }
 
@@ -51,19 +51,19 @@ public class UpgradesCustomReloadListener extends JsonReloadListener {
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
                 if(upgrade.getItem() == Items.AIR) {
-                    CustomMachineryAPI.error("Invalid item: %s, defined for upgrade: %s", upgrade.getItem().getRegistryName(), id);
+                    CustomMachineryAPI.getLogger().error("Invalid item: %s, defined for upgrade: %s", upgrade.getItem().getRegistryName(), id);
                     return;
                 }
-                CustomMachineryAPI.info("Successfully parsed upgrade json: %s", id);
+                CustomMachineryAPI.getLogger().info("Successfully parsed upgrade json: %s", id);
                 CustomMachinery.UPGRADES.add(upgrade);
                 return;
             } else if(result.error().isPresent()) {
-                CustomMachineryAPI.error("Error while parsing upgrade json: %s, skipping...%n%s", id, result.error().get().message());
+                CustomMachineryAPI.getLogger().error("Error while parsing upgrade json: %s, skipping...%n%s", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
 
-        CustomMachineryAPI.info("Finished creating custom machine upgrades.");
+        CustomMachineryAPI.getLogger().info("Finished creating custom machine upgrades.");
     }
 }

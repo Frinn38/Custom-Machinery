@@ -31,8 +31,8 @@ public class EnhancedEitherCodec<F, S> implements Codec<Either<F, S>> {
         if (firstRead.result().isPresent())
             return firstRead;
         String firstError = firstRead.error().map(DataResult.PartialResult::message).orElse("");
-        if(CMLogger.shouldLogFirstEitherError())
-            CustomMachineryAPI.warn("Can't deserialize %s with %s, trying with %s now.%n%s", this, first, second, firstError);
+        if(CustomMachineryAPI.getLogger().logFirstEitherError())
+            CustomMachineryAPI.getLogger().warn("Can't deserialize %s with %s, trying with %s now.%n%s", this, first, second, firstError);
         return second.decode(ops, input).mapError(s -> String.format(error, this, first, second, firstError, s)).map(vo -> vo.mapFirst(Either::right));
     }
 

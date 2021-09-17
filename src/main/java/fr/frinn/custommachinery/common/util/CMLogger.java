@@ -1,18 +1,21 @@
-package fr.frinn.custommachinery.api.utils;
+package fr.frinn.custommachinery.common.util;
 
+import fr.frinn.custommachinery.api.utils.ICMLogger;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class CMLogger {
+public class CMLogger implements ICMLogger {
+
+    public static final CMLogger INSTANCE = new CMLogger();
 
     private BufferedWriter writer;
 
@@ -20,20 +23,23 @@ public class CMLogger {
         reset();
     }
 
+    @Override
     public void info(String message, Object... args) {
         log("INFO", message, args);
     }
 
+    @Override
     public void warn(String message, Object... args) {
         log("WARN", message, args);
     }
 
+    @Override
     public void error(String message, Object... args) {
         log("ERROR", message, args);
     }
 
     public void log(String type, String message, Object... args) {
-        if(!shouldLog())
+        if(!enableLogging() || !shouldLog(type))
             return;
 
         message = String.format("[%s][%s][%s]: %s", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")), EffectiveSide.get(), type, String.format(message, args));
@@ -56,15 +62,23 @@ public class CMLogger {
         }
     }
 
-    public static boolean shouldLog() {
-        return true;
+    @Override
+    public boolean enableLogging() {
+        return CMConfig.INSTANCE.enableLogging.get();
     }
 
-    public static boolean shouldLogMissingOptionals() {
-        return false;
+    @Override
+    public boolean logMissingOptional() {
+        return CMConfig.INSTANCE.logMissingOptional.get();
     }
 
-    public static boolean shouldLogFirstEitherError() {
-        return false;
+    @Override
+    public boolean logFirstEitherError() {
+        return CMConfig.INSTANCE.logFirstEitherError.get();
+    }
+
+    @Override
+    public boolean shouldLog(String type) {
+        return CMConfig.INSTANCE.allowedLogs.get().contains(type);
     }
 }

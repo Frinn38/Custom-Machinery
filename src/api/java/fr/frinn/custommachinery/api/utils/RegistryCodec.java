@@ -28,7 +28,7 @@ public class RegistryCodec<T extends IForgeRegistryEntry<T>> implements Codec<T>
     public static final Codec<EntityType<?>> ENTITY_TYPE                      = of(ForgeRegistries.ENTITIES);
     public static final Codec<Effect> EFFECT                                  = of(ForgeRegistries.POTIONS);
     public static final Codec<Fluid> FLUID                                    = of(ForgeRegistries.FLUIDS);
-    public static final Codec<MachineComponentType<?>> MACHINE_COMPONENT_TYPE = of(CustomMachineryAPI.COMPONENT_TYPE_REGISTRY);
+    public static final Codec<MachineComponentType<?>> MACHINE_COMPONENT_TYPE = of(CustomMachineryAPI.getComponentRegistry());
 
     private IForgeRegistry<T> registry;
 

@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery;
 
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SLootTablesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
+import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -26,7 +27,9 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -71,6 +74,8 @@ public class CustomMachinery {
         FORGE_BUS.addListener(this::worldTick);
         FORGE_BUS.addListener(EventPriority.HIGHEST, this::datapackSync);
         FORGE_BUS.addListener(this::beforeReload);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CMConfig.INSTANCE.getSpec());
     }
 
     public void commonSetup(final FMLCommonSetupEvent event) {
@@ -116,6 +121,6 @@ public class CustomMachinery {
 
     public void beforeReload(final CommandEvent event) {
         if(event.getParseResults().getReader().getString().startsWith("/reload"))
-            CustomMachineryAPI.LOGGER.reset();
+            CMLogger.INSTANCE.reset();
     }
 }
