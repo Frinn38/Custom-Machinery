@@ -2,18 +2,19 @@ package fr.frinn.custommachinery.api.utils;
 
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class CMLogger {
 
-    private FileChannel channel;
-    private ByteBuffer buffer = ByteBuffer.allocate(Short.MAX_VALUE);
+    private BufferedWriter writer;
 
     public CMLogger() {
         reset();
@@ -32,24 +33,31 @@ public class CMLogger {
     }
 
     public void log(String type, String message, Object... args) {
-        message = String.format("[%s][%s][%s]: %s%n", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")), EffectiveSide.get(), type, String.format(message, args));
-        this.buffer.put(message.getBytes(StandardCharsets.UTF_8));
-        this.buffer.flip();
+        if(!shouldLog())
+            return;
+
+        message = String.format("[%s][%s][%s]: %s", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")), EffectiveSide.get(), type, String.format(message, args));
         try {
-            this.channel.write(this.buffer);
-            this.channel.force(true);
+            this.writer.append(message);
+            this.writer.newLine();
+            this.writer.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.buffer.clear();
     }
 
     public void reset() {
         try {
-            this.channel = new FileOutputStream("logs/custommachinery.log").getChannel();
-        } catch (FileNotFoundException e) {
+            if(this.writer != null)
+                this.writer.close();
+            this.writer = Files.newBufferedWriter(new File("logs/custommachinery.log").toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
             System.out.println("Can't create custommachinery.log file");
         }
+    }
+
+    public static boolean shouldLog() {
+        return true;
     }
 
     public static boolean shouldLogMissingOptionals() {
