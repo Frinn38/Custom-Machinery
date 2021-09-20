@@ -46,4 +46,9 @@ public class ItemTagIngredient implements IIngredient<Item> {
     public boolean test(Item item) {
         return this.tag.contains(item);
     }
+
+    @Override
+    public String toString() {
+        return "#" + this.tag.getName();
+    }
 }

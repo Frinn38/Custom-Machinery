@@ -32,4 +32,9 @@ public class FluidIngredient implements IIngredient<Fluid> {
     public boolean test(Fluid fluid) {
         return this.fluid == fluid;
     }
+
+    @Override
+    public String toString() {
+        return this.fluid.getRegistryName().toString();
+    }
 }

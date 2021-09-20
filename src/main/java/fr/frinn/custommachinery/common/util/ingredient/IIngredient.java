@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.PartialBlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 
@@ -31,7 +32,18 @@ public interface IIngredient<T> extends Predicate<T> {
                     return DataResult.success(Either.left((FluidIngredient)ingredient));
                 else if(ingredient instanceof FluidTagIngredient)
                     return DataResult.success(Either.right((FluidTagIngredient)ingredient));
-                return DataResult.error(String.format("Fluid Ingredient : %s is not an fluid nor a tag !", ingredient));
+                return DataResult.error(String.format("Fluid Ingredient : %s is not a fluid nor a tag !", ingredient));
+            }
+    );
+
+    Codec<IIngredient<PartialBlockState>> BLOCK = Codecs.either(BlockIngredient.CODEC, BlockTagIngredient.CODEC, "Block Ingredient").flatComapMap(
+            either -> either.map(Function.identity(), Function.identity()),
+            ingredient -> {
+                if(ingredient instanceof BlockIngredient)
+                    return DataResult.success(Either.left((BlockIngredient)ingredient));
+                else if(ingredient instanceof BlockTagIngredient)
+                    return DataResult.success(Either.right((BlockTagIngredient)ingredient));
+                return DataResult.error(String.format("Block Ingredient : %s is not a block nor a tag !", ingredient));
             }
     );
 

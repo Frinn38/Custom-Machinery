@@ -46,4 +46,9 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
     public boolean test(Fluid fluid) {
         return this.tag.contains(fluid);
     }
+
+    @Override
+    public String toString() {
+        return "#" + this.tag.getName();
+    }
 }

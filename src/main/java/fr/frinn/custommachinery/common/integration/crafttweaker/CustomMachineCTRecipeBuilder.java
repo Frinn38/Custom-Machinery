@@ -11,9 +11,7 @@ import com.blamejared.crafttweaker.impl.entity.MCEntityType;
 import com.blamejared.crafttweaker.impl.helper.CraftTweakerHelper;
 import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
 import com.blamejared.crafttweaker.impl.tag.MCTag;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
@@ -425,21 +423,20 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireStructure(String[][] pattern, Map<String, String> key) {
         List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).collect(Collectors.toList())).collect(Collectors.toList());
-        Map<Character, PartialBlockState> keysMap = new HashMap<>();
+        Map<Character, IIngredient<PartialBlockState>> keysMap = new HashMap<>();
         for(Map.Entry<String, String> entry : key.entrySet()) {
             if(entry.getKey().length() != 1) {
                 CraftTweakerAPI.logError("Invalid structure key: " + entry.getKey() + " Must be a single character which is not 'm'");
                 return this;
             }
             char keyChar = entry.getKey().charAt(0);
-            DataResult<Pair<PartialBlockState, JsonElement>> result = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
+            DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
             if(result.error().isPresent() || !result.result().isPresent()) {
                 CraftTweakerAPI.logError("Invalid structure block: " + entry.getValue());
                 CraftTweakerAPI.logError(result.error().get().message());
                 return this;
             }
-            PartialBlockState state = result.result().get().getFirst();
-            keysMap.put(keyChar, state);
+            keysMap.put(keyChar, result.result().get());
         }
         return addRequirement(new StructureRequirement(patternList, keysMap));
     }
@@ -537,7 +534,7 @@ public class CustomMachineCTRecipeBuilder {
             return this;
         }
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        List<PartialBlockState> filter = Arrays.stream(stringFilter).map(s -> Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
         try {
             return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {

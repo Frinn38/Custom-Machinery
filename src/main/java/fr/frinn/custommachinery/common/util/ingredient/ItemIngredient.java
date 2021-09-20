@@ -32,4 +32,9 @@ public class ItemIngredient implements IIngredient<Item> {
     public boolean test(Item item) {
         return this.item == item;
     }
+
+    @Override
+    public String toString() {
+        return this.item.getRegistryName().toString();
+    }
 }

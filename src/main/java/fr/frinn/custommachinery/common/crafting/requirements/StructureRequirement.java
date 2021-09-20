@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
     public static final Codec<StructureRequirement> CODEC = RecordCodecBuilder.create(structureRequirementInstance ->
             structureRequirementInstance.group(
                     Codecs.list(Codecs.list(Codec.STRING)).fieldOf("pattern").forGetter(requirement -> requirement.pattern),
-                    Codec.unboundedMap(Codecs.CHARACTER_CODEC, Codecs.PARTIAL_BLOCK_STATE_CODEC).fieldOf("keys").forGetter(requirement -> requirement.keys),
+                    Codec.unboundedMap(Codecs.CHARACTER_CODEC, IIngredient.BLOCK).fieldOf("keys").forGetter(requirement -> requirement.keys),
                     CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(structureRequirementInstance, (pattern, keys, jei) -> {
                     StructureRequirement requirement = new StructureRequirement(pattern, keys);
@@ -34,18 +35,18 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
     );
 
     private List<List<String>> pattern;
-    private Map<Character, PartialBlockState> keys;
+    private Map<Character, IIngredient<PartialBlockState>> keys;
     private BlockStructure structure;
     private boolean jeiVisible = true;
 
-    public StructureRequirement(List<List<String>> pattern, Map<Character, PartialBlockState> keys) {
+    public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys) {
         super(MODE.INPUT);
         this.pattern = pattern;
         this.keys = keys;
         BlockStructure.Builder builder = BlockStructure.Builder.start();
         for(List<String> levels : pattern)
             builder.aisle(levels.toArray(new String[0]));
-        for(Map.Entry<Character, PartialBlockState> key : keys.entrySet())
+        for(Map.Entry<Character, IIngredient<PartialBlockState>> key : keys.entrySet())
             builder.where(key.getKey(), key.getValue());
         this.structure = builder.build();
     }

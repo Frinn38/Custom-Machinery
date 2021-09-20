@@ -18,10 +18,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.*;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.util.*;
-import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -721,7 +718,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        List<PartialBlockState> filter = Arrays.stream(stringFilter).map(s -> Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
         try {
             return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {
@@ -734,21 +731,20 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder requireStructure(String[][] pattern, Map<String, String> key) {
         List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).collect(Collectors.toList())).collect(Collectors.toList());
-        Map<Character, PartialBlockState> keysMap = new HashMap<>();
+        Map<Character, IIngredient<PartialBlockState>> keysMap = new HashMap<>();
         for(Map.Entry<String, String> entry : key.entrySet()) {
             if(entry.getKey().length() != 1) {
                 ScriptType.SERVER.console.warn("Invalid structure key: " + entry.getKey() + " Must be a single character which is not 'm'");
                 return this;
             }
             char keyChar = entry.getKey().charAt(0);
-            DataResult<Pair<PartialBlockState, JsonElement>> result = Codecs.PARTIAL_BLOCK_STATE_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
+            DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
             if(result.error().isPresent() || !result.result().isPresent()) {
                 ScriptType.SERVER.console.warn("Invalid structure block: " + entry.getValue());
                 ScriptType.SERVER.console.warn(result.error().get().message());
                 return this;
             }
-            PartialBlockState state = result.result().get().getFirst();
-            keysMap.put(keyChar, state);
+            keysMap.put(keyChar, result.result().get());
         }
         return addRequirement(new StructureRequirement(patternList, keysMap));
     }

@@ -14,6 +14,8 @@ import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -35,7 +37,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
                     CodecLogger.loggedOptional(Codec.INT,"amount", 1).forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
                     CodecLogger.loggedOptional(Codecs.PARTIAL_BLOCK_STATE_CODEC, "block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
-                    CodecLogger.loggedOptional(Codecs.list(Codecs.PARTIAL_BLOCK_STATE_CODEC), "filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    CodecLogger.loggedOptional(Codecs.list(IIngredient.BLOCK), "filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
                     CodecLogger.loggedOptional(Codec.BOOL, "whitelist", false).forGetter(requirement -> requirement.whitelist),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay),
                     CodecLogger.loggedOptional(Codec.BOOL, "jei", true).forGetter(requirement -> requirement.jeiVisible)
@@ -52,12 +54,12 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
     private int amount;
     private ComparatorMode comparator;
     private PartialBlockState block;
-    private List<PartialBlockState> filter;
+    private List<IIngredient<PartialBlockState>> filter;
     private boolean whitelist;
     private double delay;
     private boolean jeiVisible = true;
 
-    public BlockRequirement(MODE mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<PartialBlockState> filter, boolean whitelist) {
+    public BlockRequirement(MODE mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<IIngredient<PartialBlockState>> filter, boolean whitelist) {
         super(mode);
         this.action = action;
         this.pos = pos;
@@ -80,7 +82,7 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
             case CHECK:
                 return this.comparator.compare((int)component.getBlockAmount(this.pos, this.filter, this.whitelist), amount);
             case PLACE:
-                return  this.delay != 0 || (int)component.getBlockAmount(this.pos, Collections.singletonList(PartialBlockState.AIR), true) >= amount;
+                return  this.delay != 0 || (int)component.getBlockAmount(this.pos, Collections.singletonList(BlockIngredient.AIR), true) >= amount;
             case BREAK:
             case DESTROY:
             case REPLACE_BREAK:
@@ -247,13 +249,14 @@ public class BlockRequirement extends AbstractTickableRequirement<BlockMachineCo
         if(action != null)
             info.addTooltip(action.mergeStyle(TextFormatting.AQUA));
         if(this.action != ACTION.PLACE) {
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block." + (this.whitelist ? "allowed" : "denied")).mergeStyle(this.whitelist ? TextFormatting.GREEN : TextFormatting.RED));
+            if(this.action != ACTION.CHECK)
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block." + (this.whitelist ? "allowed" : "denied")).mergeStyle(this.whitelist ? TextFormatting.GREEN : TextFormatting.RED));
             if(this.whitelist && this.filter.isEmpty())
                 info.addTooltip(new StringTextComponent("-").appendSibling(new TranslationTextComponent("custommachinery.requirements.block.none")));
             else if(!this.whitelist && this.filter.isEmpty())
                 info.addTooltip(new StringTextComponent("-").appendSibling(new TranslationTextComponent("custommachinery.requirements.block.all")));
             else
-                this.filter.forEach(block -> info.addTooltip(new StringTextComponent("-" + block.toString())));
+                this.filter.forEach(block -> info.addTooltip(new StringTextComponent("- " + block.toString())));
         }
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.info.box").mergeStyle(TextFormatting.GOLD));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));

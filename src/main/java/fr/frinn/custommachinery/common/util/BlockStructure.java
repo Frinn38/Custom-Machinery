@@ -4,6 +4,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.util.CachedBlockInfo;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
@@ -18,19 +20,19 @@ import java.util.Map;
 
 public class BlockStructure {
 
-    private final Map<BlockPos, PartialBlockState> blocks_north;
-    private final Map<BlockPos, PartialBlockState> blocks_east;
-    private final Map<BlockPos, PartialBlockState> blocks_south;
-    private final Map<BlockPos, PartialBlockState> blocks_west;
+    private final Map<BlockPos, IIngredient<PartialBlockState>> blocks_north;
+    private final Map<BlockPos, IIngredient<PartialBlockState>> blocks_east;
+    private final Map<BlockPos, IIngredient<PartialBlockState>> blocks_south;
+    private final Map<BlockPos, IIngredient<PartialBlockState>> blocks_west;
 
-    public BlockStructure(Map<BlockPos, PartialBlockState> blocks) {
+    public BlockStructure(Map<BlockPos, IIngredient<PartialBlockState>> blocks) {
         this.blocks_south = blocks;
         this.blocks_west = rotate(blocks, Rotation.CLOCKWISE_90);
         this.blocks_north = rotate(blocks, Rotation.CLOCKWISE_180);
         this.blocks_east = rotate(blocks, Rotation.COUNTERCLOCKWISE_90);
     }
 
-    public Map<BlockPos, PartialBlockState> getBlocks(Direction direction) {
+    public Map<BlockPos, IIngredient<PartialBlockState>> getBlocks(Direction direction) {
         switch (direction) {
             case SOUTH:
                 return blocks_south;
@@ -44,22 +46,25 @@ public class BlockStructure {
     }
 
     public boolean match(IWorldReader world, BlockPos machinePos, Direction machineFacing) {
-        Map<BlockPos, PartialBlockState> blocks = getBlocks(machineFacing);
+        Map<BlockPos, IIngredient<PartialBlockState>> blocks = getBlocks(machineFacing);
         BlockPos.Mutable worldPos = new BlockPos.Mutable();
         for(BlockPos pos : blocks.keySet()) {
-            PartialBlockState state = blocks.get(pos);
+            IIngredient<PartialBlockState> ingredient = blocks.get(pos);
             worldPos.setPos(pos.getX() + machinePos.getX(), pos.getY() + machinePos.getY(), pos.getZ() + machinePos.getZ());
             CachedBlockInfo info = new CachedBlockInfo(world, worldPos, false);
-            if(!state.test(info))
+            if(ingredient.getAll().stream().noneMatch(state -> state.test(info)));
                 return false;
         }
         return true;
     }
 
-    private Map<BlockPos, PartialBlockState> rotate(Map<BlockPos, PartialBlockState> blocks, Rotation rotation) {
-        Map<BlockPos, PartialBlockState> rotated = new HashMap<>();
-        blocks.forEach((pos, state) -> {
-            rotated.put(pos.rotate(rotation), state.rotate(rotation));
+    private Map<BlockPos, IIngredient<PartialBlockState>> rotate(Map<BlockPos, IIngredient<PartialBlockState>> blocks, Rotation rotation) {
+        Map<BlockPos, IIngredient<PartialBlockState>> rotated = new HashMap<>();
+        blocks.forEach((pos, ingredient) -> {
+            if(ingredient instanceof BlockIngredient)
+                rotated.put(pos.rotate(rotation), new BlockIngredient(ingredient.getAll().get(0).rotate(rotation)));
+            else
+                rotated.put(pos.rotate(rotation), ingredient);
         });
         return rotated;
     }
@@ -68,13 +73,13 @@ public class BlockStructure {
 
         private static final Joiner COMMA_JOIN = Joiner.on(",");
         private final List<String[]> depth = Lists.newArrayList();
-        private final Map<Character, PartialBlockState> symbolMap = Maps.newHashMap();
+        private final Map<Character, IIngredient<PartialBlockState>> symbolMap = Maps.newHashMap();
         private int aisleHeight;
         private int rowWidth;
 
         private Builder() {
-            this.symbolMap.put(' ', PartialBlockState.ANY);
-            this.symbolMap.put('m', new PartialBlockState(Registration.CUSTOM_MACHINE_BLOCK.get()));
+            this.symbolMap.put(' ', BlockIngredient.ANY);
+            this.symbolMap.put('m', new BlockIngredient(new PartialBlockState(Registration.CUSTOM_MACHINE_BLOCK.get())));
         }
 
         /**
@@ -114,7 +119,7 @@ public class BlockStructure {
             return new Builder();
         }
 
-        public Builder where(char symbol, PartialBlockState blockMatcher) {
+        public Builder where(char symbol, IIngredient<PartialBlockState> blockMatcher) {
             this.symbolMap.put(symbol, blockMatcher);
             return this;
         }
@@ -122,7 +127,7 @@ public class BlockStructure {
         public BlockStructure build() {
             this.checkMissingPredicates();
             BlockPos machinePos = this.getMachinePos();
-            Map<BlockPos, PartialBlockState> blocks = new HashMap<>();
+            Map<BlockPos, IIngredient<PartialBlockState>> blocks = new HashMap<>();
             for(int i = 0; i < this.depth.size(); ++i) {
                 for(int j = 0; j < this.aisleHeight; ++j) {
                     for(int k = 0; k < this.rowWidth; ++k) {
@@ -154,7 +159,7 @@ public class BlockStructure {
         private void checkMissingPredicates() {
             List<Character> list = Lists.newArrayList();
 
-            for(Map.Entry<Character, PartialBlockState> entry : this.symbolMap.entrySet()) {
+            for(Map.Entry<Character, IIngredient<PartialBlockState>> entry : this.symbolMap.entrySet()) {
                 if (entry.getValue() == null) {
                     list.add(entry.getKey());
                 }
