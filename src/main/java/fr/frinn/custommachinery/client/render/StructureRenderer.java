@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.RenderTypes;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
@@ -37,7 +38,7 @@ public class StructureRenderer {
         this.time = time;
         this.start = System.currentTimeMillis();
         this.blocksGetter = blocksGetter;
-        this.timer = new CycleTimer(0);
+        this.timer = new CycleTimer(CMConfig.INSTANCE.blockTagCycleTime.get());
     }
 
     public void render(MatrixStack matrix, IRenderTypeBuffer buffer, Direction direction, World world, BlockPos machinePos) {

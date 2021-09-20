@@ -7,14 +7,15 @@ import java.util.List;
 
 public class CycleTimer {
     /* the amount of time in ms to display one thing before cycling to the next one */
-    private static final int cycleTime = 1000;
+    private final int cycleTime;
     private long startTime;
     private long drawTime;
     private long pausedDuration = 0;
 
-    public CycleTimer(int offset) {
+    public CycleTimer(int cycleTime) {
+        this.cycleTime = cycleTime;
         long time = System.currentTimeMillis();
-        this.startTime = time - ((long) offset * cycleTime);
+        this.startTime = time - cycleTime;
         this.drawTime = time;
     }
 
