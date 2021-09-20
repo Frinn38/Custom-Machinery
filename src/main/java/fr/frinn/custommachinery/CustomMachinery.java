@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery;
 
+import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.CustomMachineJsonReloadListener;
@@ -18,10 +19,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.CommandEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.*;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
@@ -73,6 +71,7 @@ public class CustomMachinery {
         FORGE_BUS.addListener(this::serverStarting);
         FORGE_BUS.addListener(this::worldTick);
         FORGE_BUS.addListener(EventPriority.HIGHEST, this::datapackSync);
+        FORGE_BUS.addListener(this::registerCommands);
         FORGE_BUS.addListener(this::beforeReload);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CMConfig.INSTANCE.getSpec());
@@ -117,6 +116,11 @@ public class CustomMachinery {
             LootTableHelper.generate(event.getPlayerList().getServer());
             NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SLootTablesPacket(LootTableHelper.getLoots()));
         }
+    }
+
+    public void registerCommands(final RegisterCommandsEvent event) {
+        event.getDispatcher().register(CMCommand.register("custommachinery"));
+        event.getDispatcher().register(CMCommand.register("cm"));
     }
 
     public void beforeReload(final CommandEvent event) {
