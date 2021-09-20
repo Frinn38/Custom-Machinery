@@ -21,7 +21,6 @@ import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.util.*;
 import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -132,11 +131,18 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount) {
-        return this.requireItemTag(tag, amount,"");
+        return this.requireItemTag(tag, amount, new MapJS(), "");
     }
 
-    public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, new CompoundNBT(), slot));
+    public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, Object thing) {
+        if(thing instanceof String)
+            return this.requireItemTag(tag, amount, new MapJS(), (String)thing);
+        else
+            return this.requireItemTag(tag, amount, MapJS.of(thing), "");
+    }
+
+    public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, MapJS nbt, String slot) {
+        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, MapJS.nbt(nbt), slot));
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack) {
@@ -158,11 +164,18 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount) {
-        return this.damageItemTag(tag, amount, "");
+        return this.damageItemTag(tag, amount, new MapJS(), "");
     }
 
-    public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, new CompoundNBT(), slot));
+    public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, Object thing) {
+        if(thing instanceof String)
+            return this.damageItemTag(tag, amount, new MapJS(), (String)thing);
+        else
+            return this.damageItemTag(tag, amount, MapJS.of(thing), "");
+    }
+
+    public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, MapJS nbt, String slot) {
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, MapJS.nbt(nbt), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount) {
@@ -174,11 +187,18 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount) {
-        return this.repairItemTag(tag, amount, "");
+        return this.repairItemTag(tag, amount, new MapJS(), "");
     }
 
-    public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemTagIngredient(tag), amount, new CompoundNBT(), slot));
+    public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, Object thing) {
+        if(thing instanceof String)
+            return this.repairItemTag(tag, amount, new MapJS(), (String)thing);
+        else
+            return this.repairItemTag(tag, amount, MapJS.of(thing), "");
+    }
+
+    public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, MapJS nbt, String slot) {
+        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemTagIngredient(tag), amount, MapJS.nbt(nbt), slot));
     }
 
     /** FLUID **/
@@ -195,12 +215,11 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         return this.requireFluidTag(tag, amount, new MapJS(), "");
     }
 
-    public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, MapJS nbt) {
-        return this.requireFluidTag(tag, amount, nbt, "");
-    }
-
-    public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, String tank) {
-        return this.requireFluidTag(tag, amount, new MapJS(), tank);
+    public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, Object thing) {
+        if(thing instanceof String)
+            return this.requireFluidTag(tag, amount, new MapJS(), (String)thing);
+        else
+            return this.requireFluidTag(tag, amount, MapJS.of(thing), "");
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, MapJS nbt, String tank) {
@@ -227,12 +246,11 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         return this.requireFluidTagPerTick(tag, amount, new MapJS(), "");
     }
 
-    public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, MapJS nbt) {
-        return this.requireFluidTagPerTick(tag, amount, nbt, "");
-    }
-
-    public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, String tank) {
-        return this.requireFluidTagPerTick(tag, amount, new MapJS(), tank);
+    public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, Object thing) {
+        if(thing instanceof String)
+            return this.requireFluidTagPerTick(tag, amount, new MapJS(), (String)thing);
+        else
+            return this.requireFluidTagPerTick(tag, amount, MapJS.of(thing), "");
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, MapJS nbt, String tank) {

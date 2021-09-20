@@ -45,8 +45,6 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
 
     public DurabilityRequirement(MODE mode, IIngredient<Item> item, int amount, @Nullable CompoundNBT nbt, String slot) {
         super(mode);
-        if(item.getAll().stream().noneMatch(Item::isDamageable))
-            throw new IllegalArgumentException("Invalid Item in Durability requirement: " + item + " can't be damaged !");
         this.item = item;
         this.amount = amount;
         this.nbt = nbt == null ? new CompoundNBT() : nbt;
