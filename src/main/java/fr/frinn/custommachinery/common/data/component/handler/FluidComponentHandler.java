@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
@@ -202,14 +203,16 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private List<FluidMachineComponent> inputs = new ArrayList<>();
     private List<FluidMachineComponent> outputs = new ArrayList<>();
 
-    public int getFluidAmount(String tank, Fluid fluid) {
+    public int getFluidAmount(String tank, Fluid fluid, @Nullable CompoundNBT nbt) {
+        Predicate<FluidMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getFluidStack().getTag() != null && Utils.testNBT(component.getFluidStack().getTag(), nbt));
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        return this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == fluid && tankPredicate.test(component)).mapToInt(component -> component.getFluidStack().getAmount()).sum();
+        return this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == fluid && nbtPredicate.test(component) && tankPredicate.test(component)).mapToInt(component -> component.getFluidStack().getAmount()).sum();
     }
 
-    public int getSpaceForFluid(String tank, Fluid fluid) {
+    public int getSpaceForFluid(String tank, Fluid fluid, @Nullable CompoundNBT nbt) {
+        Predicate<FluidMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getFluidStack().getTag() != null && Utils.testNBT(component.getFluidStack().getTag(), nbt));
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        return this.outputs.stream().filter(component -> component.isFluidValid(new FluidStack(fluid, 1)) && tankPredicate.test(component)).mapToInt(FluidMachineComponent::getRecipeRemainingSpace).sum();
+        return this.outputs.stream().filter(component -> component.isFluidValid(new FluidStack(fluid, 1)) && nbtPredicate.test(component) && tankPredicate.test(component)).mapToInt(FluidMachineComponent::getRecipeRemainingSpace).sum();
     }
 
     public void removeFromInputs(String tank, FluidStack stack) {

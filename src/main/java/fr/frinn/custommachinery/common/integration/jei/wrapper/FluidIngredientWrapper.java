@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -18,14 +19,16 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     private int amount;
     private double chance;
     private boolean isPerTick;
+    private CompoundNBT nbt;
     private String tank;
 
-    public FluidIngredientWrapper(IRequirement.MODE mode, IIngredient<Fluid> fluid, int amount, double chance, boolean isPerTick, String tank) {
+    public FluidIngredientWrapper(IRequirement.MODE mode, IIngredient<Fluid> fluid, int amount, double chance, boolean isPerTick, CompoundNBT nbt, String tank) {
         this.mode = mode;
         this.fluid = fluid;
         this.amount = amount;
         this.chance = chance;
         this.isPerTick = isPerTick;
+        this.nbt = nbt;
         this.tank = tank;
     }
 
@@ -37,7 +40,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     @Override
     public Object asJEIIngredient() {
         return this.fluid.getAll().stream().map(fluid ->
-            new FluidStackWrapper(fluid, this.amount).setPerTick(this.isPerTick).setSpecificTank(!this.tank.isEmpty()).setChance(this.chance)
+            new FluidStackWrapper(fluid, this.amount, this.nbt).setPerTick(this.isPerTick).setSpecificTank(!this.tank.isEmpty()).setChance(this.chance)
         ).collect(Collectors.toList());
     }
 
@@ -58,8 +61,8 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         private boolean specificTank;
         private double chance;
 
-        public FluidStackWrapper(Fluid fluid, int amount) {
-            super(fluid, amount);
+        public FluidStackWrapper(Fluid fluid, int amount, CompoundNBT nbt) {
+            super(fluid, amount, nbt);
         }
 
         public boolean isPerTick() {

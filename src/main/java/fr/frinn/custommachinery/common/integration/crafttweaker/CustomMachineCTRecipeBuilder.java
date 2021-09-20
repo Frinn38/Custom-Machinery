@@ -103,32 +103,32 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getOrCreateTag(), tank);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireFluidTag(MCTag<Fluid> tag, int amount, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag.getId()), amount, false, tank);
+    public CustomMachineCTRecipeBuilder requireFluidTag(MCTag<Fluid> tag, int amount, @Optional IData data, @OptionalString String tank) {
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag.getId()), amount, false, getNBT(data), tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, tank);
+        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getOrCreateTag(), tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getOrCreateTag(), tank);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireFluidTagPerTick(MCTag<Fluid> tag, int amount, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag.getId()), amount, true, tank);
+    public CustomMachineCTRecipeBuilder requireFluidTagPerTick(MCTag<Fluid> tag, int amount, @Optional IData data, @OptionalString String tank) {
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag.getId()), amount, true, getNBT(data), tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, tank);
+        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getOrCreateTag(), tank);
     }
 
     /** ITEM **/
@@ -139,8 +139,8 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireItemTag(MCTag<Item> tag, int amount, @Optional IData nbt, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag.getId()), amount, nbt instanceof CompoundNBT ? (CompoundNBT) nbt.getInternal() : new CompoundNBT(), slot));
+    public CustomMachineCTRecipeBuilder requireItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
+        return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag.getId()), amount, getNBT(data), slot));
     }
 
     @Method
@@ -156,8 +156,8 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder damageItemTag(MCTag<Item> tag, int amount, @Optional IData nbt, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag.getId()), amount, nbt instanceof CompoundNBT ? (CompoundNBT) nbt.getInternal() : new CompoundNBT(), slot));
+    public CustomMachineCTRecipeBuilder damageItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
+        return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag.getId()), amount, getNBT(data), slot));
     }
 
     @Method
@@ -166,8 +166,8 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder repairItemTag(MCTag<Item> tag, int amount, @Optional IData nbt, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemTagIngredient(tag.getId()), amount, nbt instanceof CompoundNBT ? (CompoundNBT) nbt.getInternal() : new CompoundNBT(), slot));
+    public CustomMachineCTRecipeBuilder repairItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
+        return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemTagIngredient(tag.getId()), amount, getNBT(data), slot));
     }
 
     /** TIME **/
@@ -503,6 +503,10 @@ public class CustomMachineCTRecipeBuilder {
 
     /** INTERNAL **/
 
+    private CompoundNBT getNBT(IData data) {
+        return data.getInternal() instanceof CompoundNBT ? (CompoundNBT) data.getInternal() : new CompoundNBT();
+    }
+
     private CustomMachineCTRecipeBuilder addRequirement(IRequirement<?> requirement) {
         this.lastRequirement = requirement;
         if(!this.jei)
@@ -519,11 +523,11 @@ public class CustomMachineCTRecipeBuilder {
             return addRequirement(new EnergyRequirement(mode, amount));
     }
 
-    private CustomMachineCTRecipeBuilder withFluidRequirement(IRequirement.MODE mode, IIngredient<Fluid> fluid, int amount, boolean isPerTick, String tank) {
+    private CustomMachineCTRecipeBuilder withFluidRequirement(IRequirement.MODE mode, IIngredient<Fluid> fluid, int amount, boolean isPerTick, CompoundNBT nbt, String tank) {
         if(isPerTick) {
-            return addRequirement(new FluidPerTickRequirement(mode, fluid, amount, tank));
+            return addRequirement(new FluidPerTickRequirement(mode, fluid, amount, nbt, tank));
         } else {
-            return addRequirement(new FluidRequirement(mode, fluid, amount, tank));
+            return addRequirement(new FluidRequirement(mode, fluid, amount, nbt, tank));
         }
     }
 

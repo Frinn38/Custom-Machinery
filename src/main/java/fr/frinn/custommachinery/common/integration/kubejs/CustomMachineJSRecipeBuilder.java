@@ -12,6 +12,7 @@ import dev.latvian.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.ListJS;
+import dev.latvian.kubejs.util.MapJS;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.crafting.requirements.*;
@@ -187,15 +188,23 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount) {
-        return this.requireFluidTag(tag, amount, "");
+        return this.requireFluidTag(tag, amount, new MapJS(), "");
+    }
+
+    public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, MapJS nbt) {
+        return this.requireFluidTag(tag, amount, nbt, "");
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, tank));
+        return this.requireFluidTag(tag, amount, new MapJS(), tank);
+    }
+
+    public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, MapJS nbt, String tank) {
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, MapJS.nbt(nbt), tank));
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack) {
@@ -203,7 +212,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack) {
@@ -211,15 +220,23 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount) {
-        return this.requireFluidTagPerTick(tag, amount, "");
+        return this.requireFluidTagPerTick(tag, amount, new MapJS(), "");
+    }
+
+    public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, MapJS nbt) {
+        return this.requireFluidTagPerTick(tag, amount, nbt, "");
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, tank));
+        return this.requireFluidTagPerTick(tag, amount, new MapJS(), tank);
+    }
+
+    public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, MapJS nbt, String tank) {
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, MapJS.nbt(nbt), tank));
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack) {
@@ -227,7 +244,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
     }
 
     /** ENERGY **/

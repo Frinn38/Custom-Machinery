@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
@@ -28,9 +29,10 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                     IIngredient.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
                     CodecLogger.loggedOptional(Codec.STRING,"tank", "").forGetter(requirement -> requirement.tank)
-            ).apply(fluidRequirementInstance, (mode, fluid, amount, chance, tank) -> {
-                    FluidRequirement requirement = new FluidRequirement(mode, fluid, amount, tank);
+            ).apply(fluidRequirementInstance, (mode, fluid, amount, chance, nbt, tank) -> {
+                    FluidRequirement requirement = new FluidRequirement(mode, fluid, amount, nbt, tank);
                     requirement.setChance(chance);
                     return requirement;
             })
@@ -39,16 +41,18 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     private IIngredient<Fluid> fluid;
     private int amount;
     private double chance = 1.0D;
+    private CompoundNBT nbt;
     private String tank;
 
-    public FluidRequirement(MODE mode, IIngredient<Fluid> fluid, int amount, String tank) {
+    public FluidRequirement(MODE mode, IIngredient<Fluid> fluid, int amount, CompoundNBT nbt, String tank) {
         super(mode);
         if(mode == MODE.OUTPUT && fluid instanceof FluidTagIngredient)
             throw new IllegalArgumentException("You must specify a fluid for an Output Fluid Requirement");
         this.fluid = fluid;
         this.amount = amount;
+        this.nbt = nbt;
         this.tank = tank;
-        this.fluidIngredientWrapper = new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.chance, false, this.tank);
+        this.fluidIngredientWrapper = new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.chance, false, this.nbt, this.tank);
     }
 
     @Override
@@ -65,11 +69,11 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     public boolean test(FluidComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
-            return this.fluid.getAll().stream().mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
+            return this.fluid.getAll().stream().mapToInt(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum() >= amount;
         }
         else {
             if(this.fluid.getAll().get(0) != null)
-                return component.getSpaceForFluid(this.tank, this.fluid.getAll().get(0)) >= amount;
+                return component.getSpaceForFluid(this.tank, this.fluid.getAll().get(0), this.nbt) >= amount;
             else throw new IllegalStateException("Can't use output fluid requirement with fluid tag");
         }
     }
@@ -78,14 +82,14 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     public CraftingResult processStart(FluidComponentHandler component, CraftingContext context) {
         int amount = (int)context.getModifiedvalue(this.amount, this, null);
         if(getMode() == MODE.INPUT) {
-            int maxDrain = this.fluid.getAll().stream().mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
+            int maxDrain = this.fluid.getAll().stream().mapToInt(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum();
             if(maxDrain >= amount) {
                 int toDrain = amount;
                 for (Fluid fluid : this.fluid.getAll()) {
-                    int canDrain = component.getFluidAmount(this.tank, fluid);
+                    int canDrain = component.getFluidAmount(this.tank, fluid, this.nbt);
                     if(canDrain > 0) {
                         canDrain = Math.min(canDrain, toDrain);
-                        component.removeFromInputs(this.tank, new FluidStack(fluid, canDrain));
+                        component.removeFromInputs(this.tank, new FluidStack(fluid, canDrain, this.nbt));
                         toDrain -= canDrain;
                         if(toDrain == 0)
                             return CraftingResult.success();
@@ -103,9 +107,9 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
         if(getMode() == MODE.OUTPUT) {
             if(this.fluid.getAll().get(0) != null) {
                 Fluid fluid = this.fluid.getAll().get(0);
-                FluidStack stack = new FluidStack(fluid, amount);
-                int canFill =  component.getSpaceForFluid(this.tank, fluid);
+                int canFill =  component.getSpaceForFluid(this.tank, fluid, this.nbt);
                 if(canFill >= amount) {
+                    FluidStack stack = new FluidStack(fluid, amount, this.nbt);
                     component.addToOutputs(this.tank, stack);
                     return CraftingResult.success();
                 }
