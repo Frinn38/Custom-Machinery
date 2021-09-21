@@ -62,6 +62,10 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
         return this.properties.stream().map(property -> property.getName() + "=" + this.blockState.get(property)).collect(Collectors.toList());
     }
 
+    public CompoundNBT getNbt() {
+        return this.nbt;
+    }
+
     public PartialBlockState rotate(Rotation rotation) {
         if(this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.getBlock() != Registration.CUSTOM_MACHINE_BLOCK.get()) {
             Direction direction = this.blockState.get(BlockStateProperties.HORIZONTAL_FACING);

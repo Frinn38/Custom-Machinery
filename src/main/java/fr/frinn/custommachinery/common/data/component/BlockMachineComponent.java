@@ -9,10 +9,13 @@ import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.CachedBlockInfo;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,7 +52,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         AtomicInteger toPlace = new AtomicInteger(amount);
         BlockPos.getAllInBox(box).forEach(pos -> {
             if(toPlace.get() > 0 && getManager().getTile().getWorld().getBlockState(pos).getBlock() == Blocks.AIR) {
-                getManager().getTile().getWorld().setBlockState(pos, block.getBlockState());
+                setBlock(getManager().getTile().getWorld(), pos, block);
                 toPlace.addAndGet(-1);
             }
         });
@@ -68,7 +71,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
                 if(filter.stream().flatMap(ingredient -> ingredient.getAll().stream()).anyMatch(state -> state.test(cached)) == whitelist) {
                     if(cached.getBlockState().getMaterial() != Material.AIR)
                         getManager().getTile().getWorld().destroyBlock(pos, drop);
-                    getManager().getTile().getWorld().setBlockState(pos, block.getBlockState());
+                    setBlock(getManager().getTile().getWorld(), pos, block);
                     toPlace.addAndGet(-1);
                 }
             }
@@ -93,5 +96,17 @@ public class BlockMachineComponent extends AbstractMachineComponent {
             }
         });
         return true;
+    }
+
+    private void setBlock(World world, BlockPos pos, PartialBlockState state) {
+        world.setBlockState(pos, state.getBlockState());
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile != null && state.getNbt() != null && !state.getNbt().isEmpty()) {
+            CompoundNBT nbt = state.getNbt().copy();
+            nbt.putInt("x", pos.getX());
+            nbt.putInt("y", pos.getY());
+            nbt.putInt("z", pos.getZ());
+            tile.read(state.getBlockState(), nbt);
+        }
     }
 }
