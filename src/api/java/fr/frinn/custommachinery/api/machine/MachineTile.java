@@ -49,4 +49,9 @@ public abstract class MachineTile extends TileEntity {
      * @return The machine current status, available on both sides as it's synced automatically.
      */
     public abstract MachineStatus getStatus();
+
+    /**
+     * Stop the current recipe processing and reset the crafting manager to it's idle state.
+     */
+    public abstract void resetProcess();
 }

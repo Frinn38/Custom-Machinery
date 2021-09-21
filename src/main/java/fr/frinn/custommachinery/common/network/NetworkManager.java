@@ -24,5 +24,6 @@ public class NetworkManager {
         CHANNEL.registerMessage(index++, SRefreshCustomMachineTilePacket.class, SRefreshCustomMachineTilePacket::encode, SRefreshCustomMachineTilePacket::decode, SRefreshCustomMachineTilePacket::handle);
         CHANNEL.registerMessage(index++, SLootTablesPacket.class, SLootTablesPacket::encode, SLootTablesPacket::decode, SLootTablesPacket::handle);
         CHANNEL.registerMessage(index++, SOpenFilePacket.class, SOpenFilePacket::encode, SOpenFilePacket::decode, SOpenFilePacket::handle);
+        CHANNEL.registerMessage(index++, CGuiElementClickPacket.class, CGuiElementClickPacket::encode, CGuiElementClickPacket::decode, CGuiElementClickPacket::handle);
     }
 }

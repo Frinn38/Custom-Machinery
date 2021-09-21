@@ -6,6 +6,8 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
+import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.util.Comparators;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -40,7 +42,7 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         matrix.pop();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY) {
         matrix.push();
@@ -71,5 +73,15 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         RenderSystem.depthFunc(516);
         AbstractGui.fill(matrix, posX, posY, posX + 16, posY + 16, 822083583);
         RenderSystem.depthFunc(515);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        this.machine.getGuiElements().stream()
+                .filter(element -> ((GuiElementType)element.getType()).getRenderer().isHovered(element, this, (int)mouseX - this.guiLeft, (int)mouseY - this.guiTop))
+                .findFirst()
+                .ifPresent(element -> NetworkManager.CHANNEL.sendToServer(new CGuiElementClickPacket(this.machine.getGuiElements().indexOf(element), (byte) button)));
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }

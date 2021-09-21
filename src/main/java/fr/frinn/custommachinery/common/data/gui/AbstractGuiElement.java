@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery.common.data.gui;
 
+import fr.frinn.custommachinery.api.machine.MachineTile;
+
 public abstract class AbstractGuiElement implements IGuiElement {
 
     private int x;
@@ -39,5 +41,10 @@ public abstract class AbstractGuiElement implements IGuiElement {
     @Override
     public int getPriority() {
         return this.priority;
+    }
+
+    @Override
+    public void handleClick(byte button, MachineTile tile) {
+
     }
 }

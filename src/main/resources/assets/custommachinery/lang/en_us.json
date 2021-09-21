@@ -33,6 +33,8 @@
   "custommachinery.gui.element.energy.tooltip": "Energy: %sFE / %sFE",
   "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
   "custommachinery.gui.element.fuel.tooltip": "Burn Time: %s",
+  "custommachinery.gui.element.reset.name": "Reset",
+  "custommachinery.gui.element.reset.tooltip": "All already consumed inputs will be lost !",
 
   "custommachinery.gui.baseinfo.name": "Name:",
   "custommachinery.gui.baseinfo.namespace": "NameSpace:",

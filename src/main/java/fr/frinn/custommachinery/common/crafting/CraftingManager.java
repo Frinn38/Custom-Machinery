@@ -251,6 +251,18 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         return this.status;
     }
 
+    public void reset() {
+        this.currentRecipe = null;
+        this.futureRecipeID = null;
+        this.setStatus(MachineStatus.IDLE);
+        this.prevStatus = MachineStatus.IDLE;
+        this.recipeProgressTime = 0;
+        this.recipeTotalTime = 0;
+        this.processedRequirements.clear();
+        this.context = null;
+        this.errorMessage = StringTextComponent.EMPTY;
+    }
+
     public CustomMachineRecipe getCurrentRecipe() {
         return this.currentRecipe;
     }

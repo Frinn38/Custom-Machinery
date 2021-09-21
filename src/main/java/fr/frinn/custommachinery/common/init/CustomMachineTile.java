@@ -93,6 +93,13 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     }
 
     @Override
+    public void resetProcess() {
+        if(this.world == null || this.world.isRemote())
+            return;
+        this.craftingManager.reset();
+    }
+
+    @Override
     public void tick() {
         if(this.world == null || this.componentManager == null || this.craftingManager == null)
             return;
