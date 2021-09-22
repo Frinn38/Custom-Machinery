@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.network.sync;
 
-import fr.frinn.custommachinery.api.network.AbstractSyncable;
 import fr.frinn.custommachinery.common.network.sync.data.StringData;
+import fr.frinn.custommachinery.impl.network.AbstractSyncable;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

@@ -10,8 +10,8 @@ import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.common.data.builder.component.property.IntComponentBuilderProperty;
 import fr.frinn.custommachinery.common.data.builder.component.property.ModeComponentBuilderProperty;
 import fr.frinn.custommachinery.common.data.builder.component.property.StringComponentBuilderProperty;
-import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 
 import java.util.ArrayList;
@@ -46,6 +46,6 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
     @Override
     public IMachineComponentTemplate<ItemMachineComponent> build() {
-        return new ItemMachineComponent.Template(id.get(), mode.get(), capacity.get(), new ArrayList<>(), false, ItemComponentVariant.DEFAULT);
+        return new ItemMachineComponent.Template(id.get(), mode.get(), capacity.get(), new ArrayList<>(), false, DefaultItemComponentVariant.INSTANCE);
     }
 }

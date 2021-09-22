@@ -4,8 +4,10 @@ import fr.frinn.custommachinery.api.components.*;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.data.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.IntegerSyncable;
+import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.ForgeHooks;
@@ -76,7 +78,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
             return true;
         getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
             handler.getComponents().stream()
-                    .filter(component -> component.getVariant() == ItemComponentVariant.FUEL && !component.getItemStack().isEmpty())
+                    .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && !component.getItemStack().isEmpty())
                     .findFirst()
         ).ifPresent(component -> {
             int fuel = ForgeHooks.getBurnTime(component.getItemStack(), IRecipeType.SMELTING);

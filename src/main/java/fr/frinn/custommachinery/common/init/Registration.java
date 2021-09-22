@@ -18,6 +18,9 @@ import fr.frinn.custommachinery.common.data.builder.component.ItemComponentBuild
 import fr.frinn.custommachinery.common.data.component.*;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
+import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemComponentVariant;
+import fr.frinn.custommachinery.common.data.component.variant.item.FuelItemComponentVariant;
+import fr.frinn.custommachinery.common.data.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.data.gui.*;
 import fr.frinn.custommachinery.common.network.sync.*;
 import fr.frinn.custommachinery.common.network.sync.data.*;
@@ -151,5 +154,11 @@ public class Registration {
 
     public static void registerRecipeType(final RegistryEvent<IRecipeSerializer<?>> event) {
         Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CUSTOM_MACHINE_RECIPE);
+    }
+
+    public static void registerComponentVariants() {
+        ITEM_MACHINE_COMPONENT.get().addVariant(DefaultItemComponentVariant.INSTANCE);
+        ITEM_MACHINE_COMPONENT.get().addVariant(FuelItemComponentVariant.INSTANCE);
+        ITEM_MACHINE_COMPONENT.get().addVariant(UpgradeItemComponentVariant.INSTANCE);
     }
 }

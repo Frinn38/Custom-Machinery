@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.components.ComponentIOMode;
 import fr.frinn.custommachinery.api.components.IMachineComponentManager;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 
 public class TimeMachineComponent extends AbstractMachineComponent {
 

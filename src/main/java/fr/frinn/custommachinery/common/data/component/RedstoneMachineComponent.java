@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.util.Direction;
 
 import java.util.stream.Stream;

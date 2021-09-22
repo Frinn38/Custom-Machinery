@@ -3,13 +3,17 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.components.variant.IComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.sync.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
@@ -22,7 +26,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
+public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IFilterComponent, IVariableComponent<ItemComponentVariant> {
 
     private String id;
     private int capacity;
@@ -49,12 +53,13 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return this.id;
     }
 
+    @Override
     public ItemComponentVariant getVariant() {
         return this.variant;
     }
 
     public boolean isItemValid(ItemStack stack) {
-        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getItem())) == this.whitelist && this.variant.isItemValid(this, stack);
+        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getItem())) == this.whitelist && this.variant.isItemValid(getManager(), stack);
     }
 
     public ItemStack getItemStack() {
@@ -135,7 +140,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                         CodecLogger.loggedOptional(Codec.INT,"capacity", 64).forGetter(template -> template.capacity),
                         CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"filter", Collections.emptyList()).forGetter(template -> template.filter),
                         CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
-                        CodecLogger.loggedOptional(Codecs.ITEM_COMPONENT_VARIANT_CODEC,"variant", ItemComponentVariant.DEFAULT).forGetter(template -> template.variant)
+                        CodecLogger.loggedOptional(IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT, ItemComponentVariant.class),"variant", DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant)
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
 

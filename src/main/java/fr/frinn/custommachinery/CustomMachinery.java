@@ -79,6 +79,7 @@ public class CustomMachinery {
 
     public void commonSetup(final FMLCommonSetupEvent event) {
         NetworkManager.registerMessages();
+        Registration.registerComponentVariants();
     }
 
     public void sendIMCMessages(final InterModEnqueueEvent event) {

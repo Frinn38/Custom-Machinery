@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data.component;
+package fr.frinn.custommachinery.impl.component;
 
 import fr.frinn.custommachinery.api.components.ComponentIOMode;
 import fr.frinn.custommachinery.api.components.IMachineComponent;

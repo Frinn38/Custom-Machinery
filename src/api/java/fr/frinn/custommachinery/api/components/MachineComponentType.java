@@ -3,9 +3,13 @@ package fr.frinn.custommachinery.api.components;
 import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.components.variant.IComponentVariant;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -23,6 +27,7 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
     private boolean defaultComponent = false;
     private Function<IMachineComponentManager, T> defaultComponentBuilder;
     private Supplier<IMachineComponentBuilder<T>> GUIComponentBuilder;
+    private final Map<ResourceLocation, IComponentVariant> variants = new ConcurrentHashMap<>();
 
     /**
      * Use this constructor if you need to parse extra data inside the machine json.
@@ -144,5 +149,25 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
         if(getRegistryName() == null)
             throw new IllegalStateException("Trying to get the registry name of an unregistered MachineComponentType");
         return new TranslationTextComponent(getRegistryName().getNamespace() + ".machine.component." + getRegistryName().getPath());
+    }
+
+    /**
+     * Add a variant to this component type.
+     * The variant must be a singleton, and it's id unique.
+     * This method is thread-safe, but must be used after registration (common setup is good).
+     * @param variant The variant to register.
+     */
+    public IComponentVariant addVariant(IComponentVariant variant) {
+        if(this.variants.containsKey(variant.getId()))
+            throw new IllegalArgumentException("A component variant of type: " + getRegistryName() + " with id: " + variant.getId() + " is already registered !");
+        this.variants.put(variant.getId(), variant);
+        return variant;
+    }
+
+    /**
+     * @return A component variant for this component type, or null if no component variant is registered with this id.
+     */
+    public IComponentVariant getVariant(ResourceLocation id) {
+        return this.variants.get(id);
     }
 }

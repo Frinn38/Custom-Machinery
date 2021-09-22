@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.components.IMachineComponentManager;
 import fr.frinn.custommachinery.api.components.ITickableComponent;
 import fr.frinn.custommachinery.api.components.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.world.LightType;
 
 public class LightMachineComponent extends AbstractMachineComponent implements ITickableComponent {

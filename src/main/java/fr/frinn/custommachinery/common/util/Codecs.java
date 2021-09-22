@@ -20,7 +20,6 @@ import fr.frinn.custommachinery.common.crafting.requirements.EntityRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.data.MachineLocation;
-import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.data.gui.IGuiElement;
@@ -44,7 +43,6 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -58,8 +56,6 @@ public class Codecs {
     public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString), "NBT");
     public static final Codec<Character> CHARACTER_CODEC                                = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
-
-    public static final Codec<ItemComponentVariant> ITEM_COMPONENT_VARIANT_CODEC = CodecLogger.namedCodec(ResourceLocation.CODEC.comapFlatMap(Codecs::decodeItemComponentVariant, ItemComponentVariant::getId), "Item Component Variant");
 
     public static final Codec<ITag.INamedTag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(ItemTags::createOptional), "Item Tag");
     public static final Codec<ITag.INamedTag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(FluidTags::createOptional), "Fluid Tag");
@@ -149,14 +145,6 @@ public class Codecs {
             return DataResult.success(JsonToNBT.getTagFromJson(encoded));
         } catch (CommandSyntaxException e) {
             return DataResult.error("Not a valid NBT: " + encoded + " " + e.getMessage());
-        }
-    }
-
-    private static DataResult<ItemComponentVariant> decodeItemComponentVariant(ResourceLocation encoded) {
-        try {
-            return DataResult.success(Objects.requireNonNull(ItemComponentVariant.getVariant(encoded)));
-        } catch (NullPointerException e) {
-            return DataResult.error("Not a valid Item component variant: " + encoded + " " + e.getMessage());
         }
     }
 

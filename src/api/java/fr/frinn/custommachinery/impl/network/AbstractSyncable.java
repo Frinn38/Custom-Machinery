@@ -1,4 +1,7 @@
-package fr.frinn.custommachinery.api.network;
+package fr.frinn.custommachinery.impl.network;
+
+import fr.frinn.custommachinery.api.network.IData;
+import fr.frinn.custommachinery.api.network.ISyncable;
 
 /**
  * Default implementation of ISyncable.

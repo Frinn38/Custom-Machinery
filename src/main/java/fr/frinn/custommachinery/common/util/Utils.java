@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.util;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
-import fr.frinn.custommachinery.common.data.component.ItemComponentVariant;
+import fr.frinn.custommachinery.common.data.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -101,7 +101,7 @@ public class Utils {
                 .map(IComponentHandler::getComponents)
                 .orElse(new ArrayList<>())
                 .stream()
-                .filter(component -> component.getVariant() == ItemComponentVariant.UPGRADE)
+                .filter(component -> component.getVariant() == UpgradeItemComponentVariant.INSTANCE)
                 .map(component -> Pair.of(component.getItemStack().getItem(), component.getItemStack().getCount()))
                 .flatMap(pair -> CustomMachinery.UPGRADES.stream().filter(upgrade -> upgrade.getItem() == pair.getFirst() && upgrade.getMachines().contains(tile.getMachine().getId())).flatMap(upgrade -> upgrade.getModifiers().stream()).map(modifier -> Pair.of(modifier, pair.getSecond())))
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
