@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.api.network.IData;
-import fr.frinn.custommachinery.common.network.sync.SyncableContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.PacketBuffer;

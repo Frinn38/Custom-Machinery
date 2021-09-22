@@ -1,7 +1,6 @@
-package fr.frinn.custommachinery.common.network.sync;
+package fr.frinn.custommachinery.impl.network.syncable;
 
-import fr.frinn.custommachinery.common.network.sync.data.BooleanData;
-import fr.frinn.custommachinery.impl.network.AbstractSyncable;
+import fr.frinn.custommachinery.impl.network.data.BooleanData;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

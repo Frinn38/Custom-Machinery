@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.network.sync.data;
+package fr.frinn.custommachinery.impl.network.data;
 
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.network.IData;

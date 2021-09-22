@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.init;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
-import fr.frinn.custommachinery.common.network.sync.SyncableContainer;
+import fr.frinn.custommachinery.common.network.SyncableContainer;
 import fr.frinn.custommachinery.common.util.SlotItemComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery;
 
+import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.CustomMachine;
@@ -63,7 +64,7 @@ public class CustomMachinery {
         Registration.GUI_ELEMENTS.register(MOD_BUS);
         Registration.MACHINE_COMPONENTS.register(MOD_BUS);
         Registration.REQUIREMENTS.register(MOD_BUS);
-        Registration.DATA.register(MOD_BUS);
+        DataType.DATA.register(MOD_BUS);
         MOD_BUS.addGenericListener(IRecipeSerializer.class, Registration::registerRecipeType);
 
         final IEventBus FORGE_BUS = MinecraftForge.EVENT_BUS;

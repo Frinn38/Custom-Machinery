@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data.builder.component.property;
+package fr.frinn.custommachinery.impl.component.builder;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.TextFieldWidget;

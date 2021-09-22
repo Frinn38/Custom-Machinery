@@ -1,6 +1,6 @@
-package fr.frinn.custommachinery.common.network.sync.data;
+package fr.frinn.custommachinery.impl.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.api.network.DataType;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -9,7 +9,7 @@ public class FluidStackData extends Data<FluidStack> {
     private FluidStack value;
 
     public FluidStackData(short id, FluidStack value) {
-        super(Registration.FLUIDSTACK_DATA.get(), id);
+        super(DataType.FLUIDSTACK_DATA.get(), id);
         this.value = value;
     }
 

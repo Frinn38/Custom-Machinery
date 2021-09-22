@@ -1,6 +1,6 @@
-package fr.frinn.custommachinery.common.network.sync.data;
+package fr.frinn.custommachinery.impl.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.api.network.DataType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 
@@ -9,7 +9,7 @@ public class ItemStackData extends Data<ItemStack> {
     private ItemStack value;
 
     public ItemStackData(short id, ItemStack value) {
-        super(Registration.ITEMSTACK_DATA.get(), id);
+        super(DataType.ITEMSTACK_DATA.get(), id);
         this.value = value;
     }
 

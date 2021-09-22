@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data.builder.component.property;
+package fr.frinn.custommachinery.impl.component.builder;
 
 import fr.frinn.custommachinery.api.components.builder.IComponentBuilderProperty;
 

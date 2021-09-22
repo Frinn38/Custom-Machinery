@@ -1,10 +1,9 @@
-package fr.frinn.custommachinery.common.network.sync;
+package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.network.NetworkManager;
-import fr.frinn.custommachinery.common.network.SUpdateContainerPacket;
+import fr.frinn.custommachinery.impl.network.syncable.IntegerSyncable;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;

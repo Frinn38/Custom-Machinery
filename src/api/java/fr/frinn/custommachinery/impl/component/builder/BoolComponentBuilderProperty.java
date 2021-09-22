@@ -1,6 +1,6 @@
-package fr.frinn.custommachinery.common.data.builder.component.property;
+package fr.frinn.custommachinery.impl.component.builder;
 
-import fr.frinn.custommachinery.client.screen.widget.EnumButton;
+import fr.frinn.custommachinery.api.utils.EnumButton;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -17,6 +17,7 @@ public class BoolComponentBuilderProperty extends AbstractComponentBuilderProper
         return Boolean.TYPE;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Widget getAsWidget(int x, int y, int width, int height) {
         return new EnumButton<>(

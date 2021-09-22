@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.impl.network;
+package fr.frinn.custommachinery.impl.network.syncable;
 
 import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.api.network.ISyncable;

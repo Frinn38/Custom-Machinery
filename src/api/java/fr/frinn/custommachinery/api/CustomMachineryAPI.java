@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.api;
 
 import fr.frinn.custommachinery.api.components.MachineComponentType;
-import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.utils.ICMLogger;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
@@ -12,7 +11,6 @@ public class CustomMachineryAPI {
 
     private static ICMLogger LOGGER;
     private static IForgeRegistry<MachineComponentType<?>> COMPONENT_REGISTRY;
-    private static IForgeRegistry<DataType<?, ?>> DATA_REGISTRY;
 
     public static ICMLogger getLogger() {
         if(LOGGER == null) {
@@ -26,15 +24,14 @@ public class CustomMachineryAPI {
         return LOGGER;
     }
 
+    /**
+     * @return The forge registry for machine component types.
+     * Do not use this for creating a DefferedRegister, it will probably return null at that time (before RegistryEvent.NewRegistry is run).
+     * Instead, use DeferredRegister.create((Class)MachineComponentType.class, modid); (the cast is needed to stop generics for complaining.
+     */
     public static IForgeRegistry<MachineComponentType<?>> getComponentRegistry() {
         if(COMPONENT_REGISTRY == null)
             COMPONENT_REGISTRY = RegistryManager.ACTIVE.getRegistry(MachineComponentType.class);
         return COMPONENT_REGISTRY;
-    }
-
-    public static IForgeRegistry<DataType<?, ?>> getDataRegistry() {
-        if(DATA_REGISTRY == null)
-            DATA_REGISTRY = RegistryManager.ACTIVE.getRegistry(DataType.class);
-        return DATA_REGISTRY;
     }
 }

@@ -1,6 +1,6 @@
-package fr.frinn.custommachinery.common.network.sync.data;
+package fr.frinn.custommachinery.impl.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.api.network.DataType;
 import net.minecraft.network.PacketBuffer;
 
 public class StringData extends Data<String> {
@@ -8,7 +8,7 @@ public class StringData extends Data<String> {
     private String value;
 
     public StringData(short id, String value) {
-        super(Registration.STRING_DATA.get(), id);
+        super(DataType.STRING_DATA.get(), id);
         this.value = value;
     }
 

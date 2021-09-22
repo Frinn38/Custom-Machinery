@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client.screen.widget;
+package fr.frinn.custommachinery.api.utils;
 
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
