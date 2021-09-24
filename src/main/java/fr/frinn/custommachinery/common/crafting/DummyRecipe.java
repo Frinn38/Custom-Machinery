@@ -1,10 +1,15 @@
 package fr.frinn.custommachinery.common.crafting;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.world.World;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public abstract class DummyRecipe implements IRecipe<IInventory> {
 
     @Override

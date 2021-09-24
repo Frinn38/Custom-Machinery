@@ -188,7 +188,6 @@ dependencies {
     implementation fg.deobf("me.shedaniel:architectury-forge:${architectury_version}")
 
     runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")
-    runtimeOnly fg.deobf("curse.maven:plates-417169:3253876")
 
     annotationProcessor "org.spongepowered:mixin:0.8.2:processor"
 }
