@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -38,11 +38,11 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
             })
     );
 
-    private IIngredient<Item> item;
-    private int amount;
-    private CompoundNBT nbt;
+    private final IIngredient<Item> item;
+    private final int amount;
+    private final CompoundNBT nbt;
     private double chance = 1.0D;
-    private String slot;
+    private final String slot;
 
     public ItemRequirement(MODE mode, IIngredient<Item> item, int amount, @Nullable CompoundNBT nbt, String slot) {
         super(mode);
@@ -59,6 +59,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         return Registration.ITEM_REQUIREMENT.get();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public MachineComponentType getComponentType() {
         return Registration.ITEM_MACHINE_COMPONENT.get();

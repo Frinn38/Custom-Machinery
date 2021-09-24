@@ -1,15 +1,25 @@
-package fr.frinn.custommachinery.api.components.variant;
+package fr.frinn.custommachinery.api.component.variant;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.function.Supplier;
 
+/**
+ * Implements this to make a variant for a IMachineComponent.
+ * Exemple of component variants : fuel and upgrade for the item component.
+ * All variants must be singletons and registered to the corresponding MachineComponentType AFTER registry events are fired (common setup is fine).
+ */
 public interface IComponentVariant {
 
+    /**
+     * A codec used to parse a component variant for a specific MachineComponentType.
+     * The MachineComponentType must be passed as a supplied (RegistryObject is fine to use) because the codec is usually loaded statically before registry events are fired.
+     * The class is used to cast the resulting variant to a specific class, like ItemComponentVariant.
+     */
     static <T extends IMachineComponent, V extends IComponentVariant> Codec<V> codec(Supplier<MachineComponentType<T>> type, Class<V> variantClass){
         return ResourceLocation.CODEC.comapFlatMap(id -> {
             IComponentVariant variant = type.get().getVariant(id);
@@ -21,5 +31,8 @@ public interface IComponentVariant {
         }, IComponentVariant::getId);
     }
 
+    /**
+     * @return The id of this variant, all variant of a component must have differents ids.
+     */
     ResourceLocation getId();
 }

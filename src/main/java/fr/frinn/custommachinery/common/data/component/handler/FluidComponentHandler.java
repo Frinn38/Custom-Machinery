@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.api.components.ICapabilityComponent;
-import fr.frinn.custommachinery.api.components.IMachineComponentManager;
-import fr.frinn.custommachinery.api.components.ISerializableComponent;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.ICapabilityComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;

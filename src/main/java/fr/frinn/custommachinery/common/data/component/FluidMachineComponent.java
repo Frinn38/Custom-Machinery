@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.data.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.components.*;
+import fr.frinn.custommachinery.api.component.*;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.api.utils.CodecLogger;
@@ -85,6 +85,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return (int) (15 * ((double)this.fluidStack.getAmount() / (double)this.capacity));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Predicate<Object> getFilter() {
         return object -> {
@@ -109,6 +110,9 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int getRemainingSpace() {
+        if(getManager().getTile().getWorld() == null)
+            return 0;
+
         if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
             this.actualTick = this.getManager().getTile().getWorld().getGameTime();
             this.actualTickInput = 0;
@@ -127,7 +131,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int insert(Fluid fluid, int amount, FluidAction action) {
-        if (amount <= 0)
+        if (amount <= 0 || getManager().getTile().getWorld() == null)
             return 0;
 
         if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
@@ -155,7 +159,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public FluidStack extract(int amount, FluidAction action) {
-        if(amount <= 0)
+        if(amount <= 0 || getManager().getTile().getWorld() == null)
             return FluidStack.EMPTY;
 
         if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {

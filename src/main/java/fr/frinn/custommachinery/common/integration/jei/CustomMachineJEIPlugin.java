@@ -2,14 +2,15 @@ package fr.frinn.custommachinery.common.integration.jei;
 
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
-import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.energy.EnergyIngredientHelper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.registration.*;
@@ -23,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 @JeiPlugin
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class CustomMachineJEIPlugin implements IModPlugin {
 
     public static final ResourceLocation PLUGIN_ID = new ResourceLocation(CustomMachinery.MODID, "jei_plugin");
@@ -32,21 +35,20 @@ public class CustomMachineJEIPlugin implements IModPlugin {
         return PLUGIN_ID;
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registration.useNbtForSubtypes(Registration.CUSTOM_MACHINE_ITEM.get());
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void registerCategories(IRecipeCategoryRegistration registry) {
         CustomMachinery.MACHINES.forEach((id, machine) -> registry.addRecipeCategories(new CustomMachineRecipeCategory(machine, registry.getJeiHelpers().getGuiHelper())));
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void registerRecipes(IRecipeRegistration registry) {
+        if(Minecraft.getInstance().world == null)
+            return;
         Minecraft.getInstance().world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE).forEach(recipe -> {
             if(CustomMachinery.MACHINES.containsKey(recipe.getMachine()))
                 registry.addRecipes(Lists.newArrayList(recipe), recipe.getMachine());
@@ -55,13 +57,11 @@ public class CustomMachineJEIPlugin implements IModPlugin {
         });
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void registerIngredients(IModIngredientRegistration registry) {
         registry.register(CustomIngredientTypes.ENERGY, new ArrayList<>(), new EnergyIngredientHelper(), new DummyIngredientRenderer<>());
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGuiContainerHandler(CustomMachineScreen.class, new IGuiContainerHandler<CustomMachineScreen>() {
@@ -76,7 +76,6 @@ public class CustomMachineJEIPlugin implements IModPlugin {
         });
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         CustomMachinery.MACHINES.forEach((id, machine) -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), id));

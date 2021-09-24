@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.components;
+package fr.frinn.custommachinery.api.component;
 
 /**
  * Used to define a custom comparator behaviour for this component.

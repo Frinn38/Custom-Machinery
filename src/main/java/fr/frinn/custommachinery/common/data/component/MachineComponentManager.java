@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import com.google.common.collect.Lists;
-import fr.frinn.custommachinery.api.components.*;
-import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
@@ -19,9 +19,10 @@ import java.util.stream.Collectors;
 
 public class MachineComponentManager implements IMachineComponentManager, INBTSerializable<CompoundNBT> {
 
-    private List<IMachineComponent> components;
-    private CustomMachineTile tile;
+    private final List<IMachineComponent> components;
+    private final CustomMachineTile tile;
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
         this.tile = tile;
         this.components = new ArrayList<>();
@@ -72,11 +73,13 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
         return this.components.stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type) {
         return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type) {
         return getComponent(type).filter(component -> component instanceof IComponentHandler).map(component -> (IComponentHandler<T>)component);

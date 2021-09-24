@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.api.network;
 
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
@@ -43,7 +42,7 @@ public interface IData<T> {
      */
     static IData<?> readData(PacketBuffer buffer) {
         ResourceLocation typeId = buffer.readResourceLocation();
-        DataType<?, ?> type = CustomMachineryAPI.getDataRegistry().getValue(typeId);
+        DataType<?, ?> type = DataType.DATA_REGISTRY.get().getValue(typeId);
         if(type == null)
             throw new IllegalStateException("Attempting to read invalid IData : " + typeId + " is not a valid registered DataType !");
         short id = buffer.readShort();

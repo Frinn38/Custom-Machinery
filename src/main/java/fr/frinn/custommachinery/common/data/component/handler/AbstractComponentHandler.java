@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
 import com.google.common.collect.ImmutableList;
-import fr.frinn.custommachinery.api.components.ComponentIOMode;
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.IMachineComponentManager;
-import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 
 import java.util.ArrayList;
 import java.util.List;

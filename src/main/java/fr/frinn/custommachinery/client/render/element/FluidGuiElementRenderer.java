@@ -1,12 +1,14 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
+import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.TextureSizeHelper;
-import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Color3F;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.inventory.container.PlayerContainer;
@@ -17,17 +19,17 @@ import net.minecraftforge.fluids.FluidStack;
 public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElement> {
 
     @Override
-    public void renderElement(MatrixStack matrix, FluidGuiElement element, CustomMachineScreen screen) {
+    public void renderElement(MatrixStack matrix, FluidGuiElement element, IMachineScreen screen) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
         int height = element.getHeight();
-        screen.getMinecraft().getTextureManager().bindTexture(element.getTexture());
+        Minecraft.getInstance().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
-        screen.getTile().componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
+        screen.getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
             FluidStack fluid = component.getFluidStack();
             ResourceLocation fluidTexture = fluid.getFluid().getAttributes().getStillTexture();
-            TextureAtlasSprite sprite = screen.getMinecraft().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluidTexture);
+            TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluidTexture);
             int color = fluid.getFluid().getAttributes().getColor();
             float filledPercent = (float) fluid.getAmount() / (float) component.getCapacity();
             int fluidHeight = (int) (height * filledPercent);
@@ -43,17 +45,17 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
     }
 
     @Override
-    public void renderTooltip(MatrixStack matrix, FluidGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
-        screen.getTile().componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
+    public void renderTooltip(MatrixStack matrix, FluidGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
+        screen.getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
             String fluid = component.getFluidStack().getTranslationKey();
             int amount = component.getFluidStack().getAmount();
             int capacity = component.getCapacity();
-            screen.renderTooltip(matrix, new TranslationTextComponent(fluid).appendSibling(new TranslationTextComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
+            screen.getScreen().renderTooltip(matrix, new TranslationTextComponent(fluid).appendSibling(new TranslationTextComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
         });
     }
 
     @Override
-    public boolean isHovered(FluidGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
+    public boolean isHovered(FluidGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();

@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.impl.component.builder;
 
-import fr.frinn.custommachinery.api.components.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.utils.EnumButton;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.text.StringTextComponent;

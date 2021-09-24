@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.components;
+package fr.frinn.custommachinery.api.component;
 
 import net.minecraft.nbt.CompoundNBT;
 

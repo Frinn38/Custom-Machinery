@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -33,8 +33,8 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
             ).apply(lootTableRequirementInstance, LootTableRequirement::new)
     );
 
-    private ResourceLocation lootTable;
-    private float luck;
+    private final ResourceLocation lootTable;
+    private final float luck;
     private List<ItemStack> toOutput = Collections.emptyList();
 
     public LootTableRequirement(ResourceLocation lootTable, float luck) {
@@ -61,7 +61,7 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
 
     @Override
     public CraftingResult processEnd(ItemComponentHandler component, CraftingContext context) {
-        if(getMode() == MODE.INPUT)
+        if(getMode() == MODE.INPUT || context.getTile().getWorld() == null || context.getTile().getWorld().getServer() == null)
             return CraftingResult.pass();
 
         if(toOutput.isEmpty()) {
@@ -85,6 +85,7 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
         return CraftingResult.success();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public MachineComponentType getComponentType() {
         return Registration.ITEM_MACHINE_COMPONENT.get();

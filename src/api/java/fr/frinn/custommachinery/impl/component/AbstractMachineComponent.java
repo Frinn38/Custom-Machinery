@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.impl.component;
 
-import fr.frinn.custommachinery.api.components.ComponentIOMode;
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 
 public abstract class AbstractMachineComponent implements IMachineComponent {
 

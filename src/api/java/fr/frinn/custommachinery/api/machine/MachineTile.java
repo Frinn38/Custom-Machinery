@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api.machine;
 
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
@@ -54,4 +55,6 @@ public abstract class MachineTile extends TileEntity {
      * Stop the current recipe processing and reset the crafting manager to it's idle state.
      */
     public abstract void resetProcess();
+
+    public abstract IMachineComponentManager getComponentManager();
 }

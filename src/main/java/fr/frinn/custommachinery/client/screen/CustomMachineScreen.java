@@ -2,8 +2,9 @@ package fr.frinn.custommachinery.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.api.guielement.GuiElementType;
+import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
@@ -15,7 +16,10 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 
-public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer> {
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer> implements IMachineScreen {
 
     private CustomMachineTile tile;
     private CustomMachine machine;
@@ -28,7 +32,7 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         this.ySize = 192;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
         this.renderBackground(matrix);
@@ -56,12 +60,19 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         matrix.pop();
     }
 
+    @Override
     public CustomMachine getMachine() {
         return this.machine;
     }
 
+    @Override
     public CustomMachineTile getTile() {
         return this.tile;
+    }
+
+    @Override
+    public CustomMachineScreen getScreen() {
+        return this;
     }
 
     @SuppressWarnings("deprecation")

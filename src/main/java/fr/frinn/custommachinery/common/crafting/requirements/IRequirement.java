@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingResult;
@@ -41,7 +41,7 @@ public interface IRequirement<T extends IMachineComponent> {
         }
 
         public String getTranslationKey() {
-            return CustomMachinery.MODID + ".requirement.mode." + toString();
+            return CustomMachinery.MODID + ".requirement.mode." + this;
         }
     }
 }

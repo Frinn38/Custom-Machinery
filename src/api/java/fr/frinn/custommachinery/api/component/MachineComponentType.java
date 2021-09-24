@@ -1,9 +1,9 @@
-package fr.frinn.custommachinery.api.components;
+package fr.frinn.custommachinery.api.component;
 
 import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
-import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
-import fr.frinn.custommachinery.api.components.variant.IComponentVariant;
+import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 /**
  * Used to build and/or compare IMachineComponent.
  * An IMachineComponent can have only one type.
- * All instances of this class must be registered using RegistryEvent or DeferredRegister.
+ * All instances of this class must be created and registered using RegistryEvent or DeferredRegister.
  * @param <T> The component handled by this type.
  */
 public class MachineComponentType<T extends IMachineComponent> extends ForgeRegistryEntry<MachineComponentType<? extends IMachineComponent>> {

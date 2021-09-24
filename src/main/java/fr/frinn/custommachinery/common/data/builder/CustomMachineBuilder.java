@@ -2,14 +2,14 @@ package fr.frinn.custommachinery.common.data.builder;
 
 import com.google.common.collect.ImmutableList;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.IMachineComponentTemplate;
-import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.data.MachineLocation;
-import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;

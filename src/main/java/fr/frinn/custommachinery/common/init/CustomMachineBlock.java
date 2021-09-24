@@ -1,10 +1,11 @@
 package fr.frinn.custommachinery.common.init;
 
-import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -34,6 +35,8 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class CustomMachineBlock extends Block {
 
     public CustomMachineBlock() {
@@ -42,13 +45,11 @@ public class CustomMachineBlock extends Block {
 
     @SuppressWarnings("deprecation")
     @Override
-    @ParametersAreNonnullByDefault
     public BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
     }
 
     @SuppressWarnings("deprecation")
-    @ParametersAreNonnullByDefault
     @Override
     public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         TileEntity tile = world.getTileEntity(pos);
@@ -77,7 +78,6 @@ public class CustomMachineBlock extends Block {
         return super.getPickBlock(state, target, world, pos, player);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void onBlockHarvested(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         super.onBlockHarvested(world, pos, state, player);
@@ -91,7 +91,6 @@ public class CustomMachineBlock extends Block {
         }
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
@@ -131,21 +130,18 @@ public class CustomMachineBlock extends Block {
     }
 
     @SuppressWarnings("deprecation")
-    @ParametersAreNonnullByDefault
     @Override
     public boolean canProvidePower(BlockState state) {
         return true;
     }
 
     @SuppressWarnings("deprecation")
-    @ParametersAreNonnullByDefault
     @Override
     public boolean hasComparatorInputOverride(BlockState state) {
         return true;
     }
 
     @SuppressWarnings("deprecation")
-    @ParametersAreNonnullByDefault
     @Override
     public int getComparatorInputOverride(BlockState state, World world, BlockPos pos) {
         TileEntity tile = world.getTileEntity(pos);
@@ -155,7 +151,6 @@ public class CustomMachineBlock extends Block {
     }
 
     @SuppressWarnings("deprecation")
-    @ParametersAreNonnullByDefault
     @Override
     public int getStrongPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity tile = world.getTileEntity(pos);
@@ -165,7 +160,6 @@ public class CustomMachineBlock extends Block {
     }
 
     @SuppressWarnings("deprecation")
-    @ParametersAreNonnullByDefault
     @Override
     public int getWeakPower(BlockState state, IBlockReader world, BlockPos pos, Direction side) {
         TileEntity tile = world.getTileEntity(pos);

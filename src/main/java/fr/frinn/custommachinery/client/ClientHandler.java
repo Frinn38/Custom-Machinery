@@ -4,13 +4,16 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.guielement.RegisterGuiElementRendererEvent;
 import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
+import fr.frinn.custommachinery.client.render.element.*;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Color3F;
+import fr.frinn.custommachinery.impl.guielement.GuiElementRendererRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -57,6 +60,8 @@ public class ClientHandler {
             ScreenManager.registerFactory(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
 
             RenderTypeLookup.setRenderLayer(Registration.CUSTOM_MACHINE_BLOCK.get(), RenderType.getTranslucent());
+
+            GuiElementRendererRegistry.init();
         });
     }
 
@@ -112,6 +117,20 @@ public class ClientHandler {
             BlockPos pos = Minecraft.getInstance().player.getPosition();
             return Minecraft.getInstance().getBlockColors().getColor(state, world, pos, tintIndex);
         }, Registration.CUSTOM_MACHINE_ITEM::get);
+    }
+
+    @SubscribeEvent
+    public static void registerGuiElementRenderers(final RegisterGuiElementRendererEvent event) {
+        event.register(Registration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementRenderer());
+        event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementRenderer());
+        event.register(Registration.PLAYER_INVENTORY_GUI_ELEMENT.get(), new PlayerInventoryGuiElementRenderer());
+        event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressGuiElementRenderer());
+        event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementRenderer());
+        event.register(Registration.STATUS_GUI_ELEMENT.get(), new StatusGuiElementRenderer());
+        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementRenderer());
+        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementRenderer());
+        event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementRenderer());
+        event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementRenderer());
     }
 
     public static void openMachineLoadingScreen() {

@@ -2,8 +2,10 @@ package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
+import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
@@ -20,6 +22,8 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemStack, SlotGuiElement> {
 
     public ItemStackJEIIngredientRenderer(SlotGuiElement element) {
@@ -31,7 +35,6 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
         return VanillaTypes.ITEM;
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void render(MatrixStack matrix, int x, int y, SlotGuiElement element, @Nullable ItemStack ingredient) {
         int width = element.getWidth();
@@ -44,7 +47,6 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
         }
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag flag) {
         List<ITextComponent> tooltips = ingredient.getTooltip(null, flag);

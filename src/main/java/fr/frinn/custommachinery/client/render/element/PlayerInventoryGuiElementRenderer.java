@@ -1,7 +1,8 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
+import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.PlayerInventoryGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -9,7 +10,7 @@ import net.minecraft.client.gui.AbstractGui;
 public class PlayerInventoryGuiElementRenderer implements IGuiElementRenderer<PlayerInventoryGuiElement> {
 
     @Override
-    public void renderElement(MatrixStack matrix, PlayerInventoryGuiElement element, CustomMachineScreen screen) {
+    public void renderElement(MatrixStack matrix, PlayerInventoryGuiElement element, IMachineScreen screen) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
@@ -20,12 +21,12 @@ public class PlayerInventoryGuiElementRenderer implements IGuiElementRenderer<Pl
     }
 
     @Override
-    public void renderTooltip(MatrixStack matrix, PlayerInventoryGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
+    public void renderTooltip(MatrixStack matrix, PlayerInventoryGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
 
     }
 
     @Override
-    public boolean isHovered(PlayerInventoryGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
+    public boolean isHovered(PlayerInventoryGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
         return false;
     }
 }

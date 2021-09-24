@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.components;
+package fr.frinn.custommachinery.api.component;
 
 /**
  * Used to do some logic each tick of the MachineTile.

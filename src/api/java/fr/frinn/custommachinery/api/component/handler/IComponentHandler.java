@@ -1,6 +1,6 @@
-package fr.frinn.custommachinery.api.components.handler;
+package fr.frinn.custommachinery.api.component.handler;
 
-import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
 
 import java.util.List;
 import java.util.Optional;

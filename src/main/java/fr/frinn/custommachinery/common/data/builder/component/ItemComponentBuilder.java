@@ -1,12 +1,12 @@
 package fr.frinn.custommachinery.common.data.builder.component;
 
 import com.google.common.collect.Lists;
-import fr.frinn.custommachinery.api.components.ComponentIOMode;
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.IMachineComponentTemplate;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
-import fr.frinn.custommachinery.api.components.builder.IComponentBuilderProperty;
-import fr.frinn.custommachinery.api.components.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.builder.IComponentBuilderProperty;
+import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;

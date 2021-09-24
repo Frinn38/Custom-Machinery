@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.data.gui;
 
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 
 public interface IComponentGuiElement<T extends IMachineComponent> {
 

@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.data.component.variant.item;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.components.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeType;

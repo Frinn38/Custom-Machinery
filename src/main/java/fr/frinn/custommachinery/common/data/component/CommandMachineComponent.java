@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.data.component;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.components.ComponentIOMode;
-import fr.frinn.custommachinery.api.components.IMachineComponentManager;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -15,8 +15,10 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Lazy;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class CommandMachineComponent extends AbstractMachineComponent {
 
     private static final ICommandSource COMMAND_SOURCE_LOG = new ICommandSource() {
@@ -61,6 +63,8 @@ public class CommandMachineComponent extends AbstractMachineComponent {
     }
 
     public void sendCommand(String command, int permissionLevel, boolean log) {
+        if(getManager().getTile().getWorld() == null || getManager().getTile().getWorld().getServer() == null)
+            return;
         if(log)
             getManager().getTile().getWorld().getServer().getCommandManager().handleCommand(sourceLog.get().withPermissionLevel(permissionLevel), command);
         else

@@ -1,18 +1,18 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.api.components.IFilterComponent;
-import fr.frinn.custommachinery.api.components.IMachineComponent;
-import fr.frinn.custommachinery.api.components.handler.IComponentHandler;
-import fr.frinn.custommachinery.client.render.element.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.client.render.element.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.api.component.IFilterComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
+import fr.frinn.custommachinery.api.guielement.GuiElementType;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.api.guielement.jei.IJEIElementRenderer;
+import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
-import fr.frinn.custommachinery.common.data.gui.GuiElementType;
 import fr.frinn.custommachinery.common.data.gui.IComponentGuiElement;
-import fr.frinn.custommachinery.common.data.gui.IGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.IJEIIngredientWrapper;

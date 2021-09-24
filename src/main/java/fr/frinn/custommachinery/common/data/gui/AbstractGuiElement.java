@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.data.gui;
 
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 
 public abstract class AbstractGuiElement implements IGuiElement {

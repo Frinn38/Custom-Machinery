@@ -1,7 +1,8 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
+import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.data.gui.ResetGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -15,7 +16,7 @@ import java.util.List;
 public class ResetGuiElementRenderer implements IGuiElementRenderer<ResetGuiElement> {
 
     @Override
-    public void renderElement(MatrixStack matrix, ResetGuiElement element, CustomMachineScreen screen) {
+    public void renderElement(MatrixStack matrix, ResetGuiElement element, IMachineScreen screen) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
@@ -26,15 +27,15 @@ public class ResetGuiElementRenderer implements IGuiElementRenderer<ResetGuiElem
     }
 
     @Override
-    public void renderTooltip(MatrixStack matrix, ResetGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
+    public void renderTooltip(MatrixStack matrix, ResetGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(new TranslationTextComponent("custommachinery.gui.element.reset.name"));
         tooltips.add(new TranslationTextComponent("custommachinery.gui.element.reset.tooltip").mergeStyle(TextFormatting.DARK_RED));
-        screen.func_243308_b(matrix, tooltips, mouseX, mouseY);
+        screen.getScreen().func_243308_b(matrix, tooltips, mouseX, mouseY);
     }
 
     @Override
-    public boolean isHovered(ResetGuiElement element, CustomMachineScreen screen, int mouseX, int mouseY) {
+    public boolean isHovered(ResetGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();

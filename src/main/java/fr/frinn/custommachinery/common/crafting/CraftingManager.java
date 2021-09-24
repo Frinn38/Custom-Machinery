@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
-import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.crafting.requirements.IChanceableRequirement;

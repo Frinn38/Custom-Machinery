@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.components;
+package fr.frinn.custommachinery.api.component;
 
 /**
  * Implements this interface to define a Custom Machine component.

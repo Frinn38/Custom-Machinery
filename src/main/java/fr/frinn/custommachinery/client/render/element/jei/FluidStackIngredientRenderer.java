@@ -1,11 +1,13 @@
 package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Color3F;
+import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
@@ -24,6 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
 public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidStack, FluidGuiElement> {
 
     public FluidStackIngredientRenderer(FluidGuiElement element) {

@@ -1,11 +1,13 @@
 package fr.frinn.custommachinery.common.crafting;
 
+import fr.frinn.custommachinery.api.recipe.IMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.util.Comparators;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
@@ -13,14 +15,15 @@ import net.minecraft.util.ResourceLocation;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CustomMachineRecipe extends DummyRecipe {
+@MethodsReturnNonnullByDefault
+public class CustomMachineRecipe extends DummyRecipe implements IMachineRecipe {
 
-    private ResourceLocation id;
-    private ResourceLocation machine;
-    private int time;
-    private List<IRequirement<?>> requirements;
-    private List<IRequirement<?>> jeiRequirements;
-    private int priority;
+    private final ResourceLocation id;
+    private final ResourceLocation machine;
+    private final int time;
+    private final List<IRequirement<?>> requirements;
+    private final List<IRequirement<?>> jeiRequirements;
+    private final int priority;
 
     public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority) {
         this.id = id;
@@ -40,6 +43,7 @@ public class CustomMachineRecipe extends DummyRecipe {
         return this.id;
     }
 
+    @Override
     public int getRecipeTime() {
         return this.time;
     }
@@ -64,6 +68,7 @@ public class CustomMachineRecipe extends DummyRecipe {
         return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement<?>)requirement).collect(Collectors.toList());
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public boolean matches(CustomMachineTile tile, CraftingContext context) {
         return this.getMachine().equals(tile.getMachine().getId()) && this.requirements.stream().allMatch(requirement ->
             tile.componentManager.getComponent(requirement.getComponentType())

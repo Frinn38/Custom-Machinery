@@ -180,7 +180,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api")
     runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
-    compileOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}:api")
+    implementation fg.deobf("mezz.jei:jei-1.16.5:${jei_version}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}")
     implementation fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:${ct_version}")
     implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")

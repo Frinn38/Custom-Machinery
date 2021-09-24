@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
-import fr.frinn.custommachinery.api.components.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
 
 public abstract class AbstractRequirement<T extends IMachineComponent> implements IRequirement<T> {
 

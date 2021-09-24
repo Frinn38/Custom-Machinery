@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.components.ICapabilityComponent;
+import fr.frinn.custommachinery.api.component.ICapabilityComponent;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -97,6 +97,11 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         if(this.world == null || this.world.isRemote())
             return;
         this.craftingManager.reset();
+    }
+
+    @Override
+    public MachineComponentManager getComponentManager() {
+        return this.componentManager;
     }
 
     @Override

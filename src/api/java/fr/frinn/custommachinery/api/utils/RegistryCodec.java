@@ -6,7 +6,8 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import fr.frinn.custommachinery.api.CustomMachineryAPI;
-import fr.frinn.custommachinery.api.components.MachineComponentType;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
@@ -29,6 +30,7 @@ public class RegistryCodec<T extends IForgeRegistryEntry<T>> implements Codec<T>
     public static final Codec<Effect> EFFECT                                  = of(ForgeRegistries.POTIONS);
     public static final Codec<Fluid> FLUID                                    = of(ForgeRegistries.FLUIDS);
     public static final Codec<MachineComponentType<?>> MACHINE_COMPONENT_TYPE = of(CustomMachineryAPI.getComponentRegistry());
+    public static final Codec<GuiElementType<?>> GUI_ELEMENT_TYPE_CODEC       = of(CustomMachineryAPI.getGuiElementRegistry());
 
     private IForgeRegistry<T> registry;
 
