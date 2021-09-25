@@ -32,10 +32,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -57,9 +54,9 @@ public class Codecs {
     public static final Codec<Character> CHARACTER_CODEC                                = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
 
-    public static final Codec<ITag.INamedTag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(ItemTags::createOptional), "Item Tag");
-    public static final Codec<ITag.INamedTag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(FluidTags::createOptional), "Fluid Tag");
-    public static final Codec<ITag.INamedTag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(BlockTags::createOptional), "Block Tag");
+    public static final Codec<ITag.INamedTag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(TagHelper::getItemTag), "Item Tag");
+    public static final Codec<ITag.INamedTag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(TagHelper::getFluidTag), "Fluid Tag");
+    public static final Codec<ITag.INamedTag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(TagHelper::getBlockTag), "Block Tag");
 
     public static final Codec<BlockPos> BLOCK_POS       = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
     public static final Codec<AxisAlignedBB> AABB_CODEC = CodecLogger.namedCodec(Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ)), "Box");

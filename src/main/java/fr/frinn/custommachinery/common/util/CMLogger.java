@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -39,7 +38,7 @@ public class CMLogger implements ICMLogger {
     }
 
     public void log(String type, String message, Object... args) {
-        if(!enableLogging() || !shouldLog(type))
+        if(!enableLogging() || !shouldLog(type) || this.writer == null)
             return;
 
         message = String.format("[%s][%s][%s]: %s", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")), EffectiveSide.get(), type, String.format(message, args));
@@ -56,9 +55,11 @@ public class CMLogger implements ICMLogger {
         try {
             if(this.writer != null)
                 this.writer.close();
-            this.writer = Files.newBufferedWriter(new File("logs/custommachinery.log").toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+            File log = new File("logs/custommachinery.log");
+            this.writer = Files.newBufferedWriter(log.toPath(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             System.out.println("Can't create custommachinery.log file");
+            e.printStackTrace();
         }
     }
 
