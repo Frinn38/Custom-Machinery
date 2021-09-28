@@ -27,6 +27,7 @@ public class CustomMachine implements ICustomMachine {
                 MachineAppearanceManager.CODEC.fieldOf("appearance").forGetter(machine -> machine.appearance),
                 CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"gui", Collections.emptyList()).forGetter(CustomMachine::getGuiElements),
                 CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"jei", Collections.emptyList()).forGetter(CustomMachine::getJeiElements),
+                CodecLogger.loggedOptional(Codecs.list(ResourceLocation.CODEC), "catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
                 CodecLogger.loggedOptional(Codecs.list(IMachineComponentTemplate.CODEC),"components", Collections.emptyList()).forGetter(CustomMachine::getComponentTemplates)
         ).apply(machineCodec, CustomMachine::new)
     );
@@ -36,19 +37,21 @@ public class CustomMachine implements ICustomMachine {
             .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")))
             .build();
 
-    private ITextComponent name;
-    private MachineAppearanceManager appearance;
-    private List<IGuiElement> guiElements;
-    private List<IGuiElement> jeiElements;
-    private List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates;
+    private final ITextComponent name;
+    private final MachineAppearanceManager appearance;
+    private final List<IGuiElement> guiElements;
+    private final List<IGuiElement> jeiElements;
+    private final List<ResourceLocation> catalysts;
+    private final List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates;
     private MachineLocation location;
 
 
-    public CustomMachine(ITextComponent name, MachineAppearanceManager appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
+    public CustomMachine(ITextComponent name, MachineAppearanceManager appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
         this.name = name;
         this.appearance = appearance;
         this.guiElements = guiElements;
         this.jeiElements = jeiElements;
+        this.catalysts = catalysts;
         this.componentTemplates = componentTemplates;
     }
 
@@ -78,6 +81,10 @@ public class CustomMachine implements ICustomMachine {
 
     public List<IGuiElement> getJeiElements() {
         return this.jeiElements;
+    }
+
+    public List<ResourceLocation> getCatalysts() {
+        return this.catalysts;
     }
 
     public List<IMachineComponentTemplate<? extends IMachineComponent>> getComponentTemplates() {

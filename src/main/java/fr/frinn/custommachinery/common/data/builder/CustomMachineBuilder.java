@@ -27,6 +27,7 @@ public class CustomMachineBuilder {
     private Map<MachineStatus, MachineAppearanceBuilder> appearance;
     private List<IGuiElement> guiElements;
     private List<IGuiElement> jeiElements;
+    private List<ResourceLocation> catalysts;
     private List<IMachineComponentBuilder<? extends IMachineComponent>> componentBuilders;
     private MachineLocation location;
 
@@ -35,6 +36,7 @@ public class CustomMachineBuilder {
         this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder()));
         this.guiElements = new ArrayList<>();
         this.jeiElements = new ArrayList<>();
+        this.catalysts = new ArrayList<>();
         this.componentBuilders = new ArrayList<>();
         this.location = MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "new_machine"));
     }
@@ -44,6 +46,7 @@ public class CustomMachineBuilder {
         this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder(machine.getAppearance(status))));
         this.guiElements = machine.getGuiElements();
         this.jeiElements = machine.getJeiElements();
+        this.catalysts = machine.getCatalysts();
         this.componentBuilders = new ArrayList<>();
         machine.getComponentTemplates().forEach(template -> {
             if(template.getType().haveGUIBuilder())
@@ -104,8 +107,9 @@ public class CustomMachineBuilder {
         MachineAppearanceManager appearance = new MachineAppearanceManager(this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.jeiElements);
+        List<ResourceLocation> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);
         List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = new ArrayList<>();
         this.componentBuilders.forEach(builder -> componentTemplates.add(builder.build()));
-        return new CustomMachine(name, appearance, guiElements, jeiElements, componentTemplates).setLocation(this.location);
+        return new CustomMachine(name, appearance, guiElements, jeiElements, catalysts, componentTemplates).setLocation(this.location);
     }
 }

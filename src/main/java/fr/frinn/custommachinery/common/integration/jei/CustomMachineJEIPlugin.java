@@ -84,6 +84,9 @@ public class CustomMachineJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        CustomMachinery.MACHINES.forEach((id, machine) -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), id));
+        CustomMachinery.MACHINES.forEach((id, machine) -> {
+            registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), id);
+            machine.getCatalysts().stream().filter(catalyst -> CustomMachinery.MACHINES.containsKey(catalyst) && !catalyst.equals(id)).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id));
+        });
     }
 }
