@@ -69,9 +69,15 @@ public class CustomMachineJEIPlugin implements IModPlugin {
             public Collection<IGuiClickableArea> getGuiClickableAreas(CustomMachineScreen screen, double mouseX, double mouseY) {
                 List<IGuiElement> elements = screen.getMachine().getJeiElements().isEmpty() ? screen.getMachine().getGuiElements() : screen.getMachine().getJeiElements();
                 ProgressBarGuiElement progress = (ProgressBarGuiElement) elements.stream().filter(element -> element.getType() == Registration.PROGRESS_GUI_ELEMENT.get()).findFirst().orElse(null);
-                if(progress != null)
-                    return Collections.singleton(IGuiClickableArea.createBasic(progress.getX(), progress.getY(), progress.getWidth(), progress.getHeight(), screen.getMachine().getId()));
-                return new ArrayList<>();
+                if(progress != null) {
+                    int posX = progress.getX();
+                    int posY = progress.getY();
+                    boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && progress.getDirection() != ProgressBarGuiElement.Direction.RIGHT && progress.getDirection() != ProgressBarGuiElement.Direction.LEFT;
+                    int width = invertAxis ? progress.getHeight() : progress.getWidth();
+                    int height = invertAxis ? progress.getWidth() : progress.getHeight();
+                    return Collections.singleton(IGuiClickableArea.createBasic(posX, posY, width, height, screen.getMachine().getId()));
+                }
+                return Collections.emptyList();
             }
         });
     }

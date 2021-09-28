@@ -196,7 +196,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                     matrix.translate(-this.offsetX, -this.offsetY, 0);
                     renderer.renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY);
                     matrix.pop();
-                    if(mouseX >= x && mouseX <= x + element.getWidth() && mouseY >= y && mouseY <= y + element.getHeight())
+                    if(renderer.isHoveredInJei(element, x, y, (int)mouseX, (int)mouseY))
                         GuiUtils.drawHoveringText(matrix, renderer.getJEITooltips(element, recipe), (int)mouseX, (int)mouseY, TOOLTIP_WIDTH, TOOLTIP_HEIGHT, TOOLTIP_WIDTH, Minecraft.getInstance().fontRenderer);
                 });
 

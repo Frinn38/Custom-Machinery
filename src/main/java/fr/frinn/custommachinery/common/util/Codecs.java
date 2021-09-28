@@ -23,6 +23,7 @@ import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
+import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -73,6 +74,7 @@ public class Codecs {
     public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = fromEnum(EntityRequirement.ACTION.class);
     public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = fromEnum(BlockRequirement.ACTION.class);
     public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = fromEnum(RecipeModifier.OPERATION.class);
+    public static final Codec<ProgressBarGuiElement.Direction> PROGRESS_DIRECTION       = fromEnum(ProgressBarGuiElement.Direction.class);
 
     public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(PARTIAL_BLOCK_STATE_CODEC, ResourceLocation.CODEC, "Block Model").xmap(either -> either.map(PartialBlockState::getModelLocation, Function.identity()), Either::right);
     public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(RegistryCodec.ITEM, ResourceLocation.CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);

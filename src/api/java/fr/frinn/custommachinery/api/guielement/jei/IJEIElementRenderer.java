@@ -20,6 +20,14 @@ public interface IJEIElementRenderer<T extends IGuiElement> {
     void renderElementInJEI(MatrixStack matrix, T element, IMachineRecipe recipe, int mouseX, int mouseY);
 
     /**
+     * Called to check if the mouse cursor currently hover this element on a jei recipe.
+     * If this method return true the element tooltips returned by getJeiTooltips method will be rendered at mouse cursor position.
+     */
+    default boolean isHoveredInJei(T element, int posX, int posY, int mouseX, int mouseY) {
+        return mouseX >= posX && mouseX <= posX + element.getWidth() && mouseY >= posY && mouseY <= posY + element.getHeight();
+    }
+
+    /**
      * @return A list of text components that will be displayed as tooltips when the mouse cursor hover the gui element.
      */
     List<ITextComponent> getJEITooltips(T element, IMachineRecipe recipe);
