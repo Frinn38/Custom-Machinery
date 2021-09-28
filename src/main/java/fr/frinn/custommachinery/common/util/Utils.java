@@ -49,6 +49,18 @@ public class Utils {
         return TagCollectionManager.getManager().getBlockTags().getValidatedIdFromTag(tag);
     }
 
+    public static ITag<Item> getItemTag(ResourceLocation loc) {
+        return TagCollectionManager.getManager().getItemTags().get(loc);
+    }
+
+    public static ITag<Fluid> getFluidTag(ResourceLocation loc) {
+        return TagCollectionManager.getManager().getFluidTags().get(loc);
+    }
+
+    public static ITag<Block> getBlockTag(ResourceLocation loc) {
+        return TagCollectionManager.getManager().getBlockTags().get(loc);
+    }
+
     public static Vector3d vec3dFromBlockPos(BlockPos pos) {
         return new Vector3d(pos.getX(), pos.getY(), pos.getZ());
     }

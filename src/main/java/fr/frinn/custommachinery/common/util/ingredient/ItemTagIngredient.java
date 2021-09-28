@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.item.Item;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
@@ -19,9 +19,9 @@ public class ItemTagIngredient implements IIngredient<Item> {
     public static final Codec<ItemTagIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Item Tag Ingredient")
             .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
 
-    private ITag.INamedTag<Item> tag;
+    private ITag<Item> tag;
 
-    public ItemTagIngredient(ITag.INamedTag<Item> tag) {
+    public ItemTagIngredient(ITag<Item> tag) {
         this.tag = tag;
     }
 
@@ -30,11 +30,11 @@ public class ItemTagIngredient implements IIngredient<Item> {
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        this.tag = ItemTags.createOptional(new ResourceLocation(s));
+        this.tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(s));
     }
 
     public ItemTagIngredient(ResourceLocation loc) {
-        this.tag = ItemTags.createOptional(loc);
+        this.tag = TagCollectionManager.getManager().getItemTags().get(loc);
     }
 
     @Override
@@ -49,6 +49,6 @@ public class ItemTagIngredient implements IIngredient<Item> {
 
     @Override
     public String toString() {
-        return "#" + this.tag.getName();
+        return "#" + TagCollectionManager.getManager().getItemTags().getDirectIdFromTag(this.tag);
     }
 }

@@ -5,8 +5,8 @@ import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ITag;
+import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
@@ -19,9 +19,9 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
     public static final Codec<FluidTagIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Tag Ingredient")
             .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
 
-    private ITag.INamedTag<Fluid> tag;
+    private ITag<Fluid> tag;
 
-    public FluidTagIngredient(ITag.INamedTag<Fluid> tag) {
+    public FluidTagIngredient(ITag<Fluid> tag) {
         this.tag = tag;
     }
 
@@ -30,11 +30,11 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        this.tag = FluidTags.createOptional(new ResourceLocation(s));
+        this.tag = TagCollectionManager.getManager().getFluidTags().get(new ResourceLocation(s));
     }
 
     public FluidTagIngredient(ResourceLocation loc) {
-        this.tag = FluidTags.createOptional(loc);
+        this.tag = TagCollectionManager.getManager().getFluidTags().get(loc);
     }
 
     @Override
@@ -49,6 +49,6 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
 
     @Override
     public String toString() {
-        return "#" + this.tag.getName();
+        return "#" + TagCollectionManager.getManager().getFluidTags().getDirectIdFromTag(this.tag);
     }
 }

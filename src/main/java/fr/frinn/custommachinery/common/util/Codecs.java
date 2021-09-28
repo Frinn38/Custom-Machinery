@@ -54,9 +54,9 @@ public class Codecs {
     public static final Codec<Character> CHARACTER_CODEC                                = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
 
-    public static final Codec<ITag.INamedTag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(TagHelper::getItemTag), "Item Tag");
-    public static final Codec<ITag.INamedTag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(TagHelper::getFluidTag), "Fluid Tag");
-    public static final Codec<ITag.INamedTag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(TagHelper::getBlockTag), "Block Tag");
+    public static final Codec<ITag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(Utils::getItemTag, Utils::getItemTagID), "Item Tag");
+    public static final Codec<ITag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getFluidTag, Utils::getFluidTagID), "Fluid Tag");
+    public static final Codec<ITag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getBlockTag, Utils::getBlockTagID), "Block Tag");
 
     public static final Codec<BlockPos> BLOCK_POS       = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
     public static final Codec<AxisAlignedBB> AABB_CODEC = CodecLogger.namedCodec(Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ)), "Box");
@@ -111,14 +111,17 @@ public class Codecs {
         return new EnhancedListCodec<>(codec);
     }
 
-    public static <E> Codec<ITag.INamedTag<E>> tagCodec(Function<ResourceLocation, ITag.INamedTag<E>> tagBuilder) {
+    public static <E> Codec<ITag<E>> tagCodec(Function<ResourceLocation, ITag<E>> tagGetter, Function<ITag<E>, ResourceLocation> idGetter) {
         return Codec.STRING.comapFlatMap(string -> {
             if(string.startsWith("#"))
                 string = string.substring(1);
             if(!Utils.isResourceNameValid(string))
                 return DataResult.error(String.format("Invalid tag : %s is not a valid tag id !", string));
-            return DataResult.success(tagBuilder.apply(new ResourceLocation(string)));
-        }, tag -> tag.getName().toString());
+            ITag<E> tag = tagGetter.apply(new ResourceLocation(string));
+            if(tag == null)
+                return DataResult.error("Unknown tag : " + string);
+            return DataResult.success(tag);
+        }, tag -> idGetter.apply(tag).toString());
     }
 
     private static DataResult<PositionComparator> decodePositionComparator(String encoded) {
