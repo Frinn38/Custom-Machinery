@@ -532,7 +532,11 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     private CustomMachineCTRecipeBuilder withBlockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
-        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI::logError).orElse(null);
+        PartialBlockState state;
+        if(block.isEmpty())
+            state = PartialBlockState.AIR;
+        else
+            state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI::logError).orElse(null);
         if(state == null) {
             CraftTweakerAPI.logError("Invalid block: " + block);
             return this;

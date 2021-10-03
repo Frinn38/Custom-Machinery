@@ -747,7 +747,11 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     private CustomMachineJSRecipeBuilder blockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
-        PartialBlockState state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null);
+        PartialBlockState state;
+        if(block.isEmpty())
+            state = PartialBlockState.AIR;
+        else
+            state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null);
         if(state == null) {
             ScriptType.SERVER.console.warn("Invalid block: " + block);
             return this;
