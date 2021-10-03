@@ -127,7 +127,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public boolean isFluidValid(@Nonnull FluidStack stack) {
-        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) == this.whitelist && (this.fluidStack.isFluidEqual(stack) || this.fluidStack.isEmpty());
+        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) == this.whitelist && (this.fluidStack.getFluid() == stack.getFluid() || this.fluidStack.isEmpty());
     }
 
     public int insert(Fluid fluid, int amount, FluidAction action) {
