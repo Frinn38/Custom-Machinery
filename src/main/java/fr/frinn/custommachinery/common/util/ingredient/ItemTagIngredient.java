@@ -25,16 +25,22 @@ public class ItemTagIngredient implements IIngredient<Item> {
         this.tag = tag;
     }
 
-    public ItemTagIngredient(String s) {
+    public static ItemTagIngredient create(String s) throws IllegalArgumentException {
         if(s.startsWith("#"))
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        this.tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(s));
+        ITag<Item> tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(s));
+        if(tag == null)
+            throw new IllegalArgumentException(String.format("Tag: %s does not exist", s));
+        return new ItemTagIngredient(tag);
     }
 
-    public ItemTagIngredient(ResourceLocation loc) {
-        this.tag = TagCollectionManager.getManager().getItemTags().get(loc);
+    public static ItemTagIngredient create(ResourceLocation loc) throws IllegalArgumentException {
+        ITag<Item> tag = TagCollectionManager.getManager().getItemTags().get(loc);
+        if(tag == null)
+            throw new IllegalArgumentException(String.format("Tag: %s does not exist", loc));
+        return new ItemTagIngredient(tag);
     }
 
     @Override

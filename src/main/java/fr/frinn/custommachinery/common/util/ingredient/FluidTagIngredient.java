@@ -25,16 +25,22 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
         this.tag = tag;
     }
 
-    public FluidTagIngredient(String s) {
+    public  static FluidTagIngredient create(String s) throws IllegalArgumentException {
         if(s.startsWith("#"))
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        this.tag = TagCollectionManager.getManager().getFluidTags().get(new ResourceLocation(s));
+        ITag<Fluid> tag = TagCollectionManager.getManager().getFluidTags().get(new ResourceLocation(s));
+        if(tag == null)
+            throw new IllegalArgumentException(String.format("Tag: %s does not exist", s));
+        return new FluidTagIngredient(tag);
     }
 
-    public FluidTagIngredient(ResourceLocation loc) {
-        this.tag = TagCollectionManager.getManager().getFluidTags().get(loc);
+    public static FluidTagIngredient create(ResourceLocation loc) throws IllegalArgumentException {
+        ITag<Fluid> tag = TagCollectionManager.getManager().getFluidTags().get(loc);
+        if(tag == null)
+            throw new IllegalArgumentException(String.format("Tag: %s does not exist", loc));
+        return new FluidTagIngredient(tag);
     }
 
     @Override

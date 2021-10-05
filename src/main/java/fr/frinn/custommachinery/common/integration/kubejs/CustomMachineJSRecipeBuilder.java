@@ -142,7 +142,12 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, MapJS nbt, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, MapJS.nbt(nbt), slot));
+        try {
+            return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
+        } catch (IllegalArgumentException e) {
+            ScriptType.SERVER.console.warn(e.getMessage());
+            return this;
+        }
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack) {
@@ -175,7 +180,12 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, MapJS nbt, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemTagIngredient(tag), amount, MapJS.nbt(nbt), slot));
+        try {
+            return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
+        } catch (IllegalArgumentException e) {
+            ScriptType.SERVER.console.warn(e.getMessage());
+            return this;
+        }
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount) {
@@ -198,7 +208,12 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, MapJS nbt, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemTagIngredient(tag), amount, MapJS.nbt(nbt), slot));
+        try {
+            return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
+        } catch (IllegalArgumentException e) {
+            ScriptType.SERVER.console.warn(e.getMessage());
+            return this;
+        }
     }
 
     /** FLUID **/
@@ -223,7 +238,12 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, MapJS nbt, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, MapJS.nbt(nbt), tank));
+        try {
+            return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, FluidTagIngredient.create(tag), amount, MapJS.nbt(nbt), tank));
+        } catch (IllegalArgumentException e) {
+            ScriptType.SERVER.console.warn(e.getMessage());
+            return this;
+        }
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack) {
@@ -254,7 +274,12 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, MapJS nbt, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidTagIngredient(tag), amount, MapJS.nbt(nbt), tank));
+        try {
+            return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, FluidTagIngredient.create(tag), amount, MapJS.nbt(nbt), tank));
+        } catch (IllegalArgumentException e) {
+            ScriptType.SERVER.console.warn(e.getMessage());
+            return this;
+        }
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack) {
