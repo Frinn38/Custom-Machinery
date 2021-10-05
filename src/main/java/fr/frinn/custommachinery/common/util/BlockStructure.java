@@ -52,7 +52,7 @@ public class BlockStructure {
             IIngredient<PartialBlockState> ingredient = blocks.get(pos);
             worldPos.setPos(pos.getX() + machinePos.getX(), pos.getY() + machinePos.getY(), pos.getZ() + machinePos.getZ());
             CachedBlockInfo info = new CachedBlockInfo(world, worldPos, false);
-            if(ingredient.getAll().stream().noneMatch(state -> state.test(info)));
+            if(ingredient.getAll().stream().noneMatch(state -> state.test(info)))
                 return false;
         }
         return true;
