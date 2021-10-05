@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.data.gui.IComponentGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.IJEIIngredientWrapper;
 import mezz.jei.api.gui.IRecipeLayout;
@@ -49,7 +50,9 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     public CustomMachineRecipeCategory(CustomMachine machine, IGuiHelper guiHelper) {
         this.machine = machine;
         this.guiHelper = guiHelper;
-        this.components = new MachineComponentManager(machine.getComponentTemplates(),null);
+        CustomMachineTile tile = new CustomMachineTile();
+        tile.setId(machine.getId());
+        this.components = new MachineComponentManager(machine.getComponentTemplates(),tile);
         this.setupRecipeDimensions();
     }
 
