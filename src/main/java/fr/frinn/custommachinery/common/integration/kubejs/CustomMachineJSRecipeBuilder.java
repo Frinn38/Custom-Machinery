@@ -310,10 +310,6 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     /** TIME **/
 
-    public CustomMachineJSRecipeBuilder requireTime(String time) {
-        return this.requireTime(new String[]{time});
-    }
-
     public CustomMachineJSRecipeBuilder requireTime(String[] times) {
         List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).collect(Collectors.toList());
         if(!timeComparators.isEmpty())
@@ -323,22 +319,14 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     /** POSITION **/
 
-    public CustomMachineJSRecipeBuilder requirePosition(String position) {
-        return this.requirePosition(new String[]{position});
-    }
-
     public CustomMachineJSRecipeBuilder requirePosition(String[] position) {
         List<PositionComparator> positionComparators = Stream.of(position).map(s -> Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s)).getFirst()).collect(Collectors.toList());
         if(!positionComparators.isEmpty())
-            return this.addRequirement(new PositionRequirement(positionComparators, Collections.emptyList(), false, Collections.emptyList(), false));
+            return this.addRequirement(new PositionRequirement(positionComparators));
         return this;
     }
 
     /** BIOME **/
-
-    public CustomMachineJSRecipeBuilder biomeWhitelist(String biome) {
-        return this.biomeWhitelist(new String[]{biome});
-    }
 
     public CustomMachineJSRecipeBuilder biomeWhitelist(String[] biomes) {
         List<ResourceLocation> biomesID = Arrays.stream(biomes).filter(biome -> {
@@ -347,11 +335,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid biome ID: " + biome);
             return false;
         }).map(ResourceLocation::new).collect(Collectors.toList());
-        return this.addRequirement(new PositionRequirement(Collections.emptyList(), biomesID, false, Collections.emptyList(), false));
-    }
-
-    public CustomMachineJSRecipeBuilder biomeBlacklist(String biome) {
-        return this.biomeBlacklist(new String[]{biome});
+        return this.addRequirement(new BiomeRequirement(biomesID, false));
     }
 
     public CustomMachineJSRecipeBuilder biomeBlacklist(String[] biomes) {
@@ -361,14 +345,10 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid biome ID: " + biome);
             return false;
         }).map(ResourceLocation::new).collect(Collectors.toList());
-        return this.addRequirement(new PositionRequirement(Collections.emptyList(), biomesID, true, Collections.emptyList(), false));
+        return this.addRequirement(new BiomeRequirement(biomesID, true));
     }
 
     /** DIMENSION **/
-
-    public CustomMachineJSRecipeBuilder dimensionWhitelist(String dimension) {
-        return this.dimensionWhitelist(new String[]{dimension});
-    }
 
     public CustomMachineJSRecipeBuilder dimensionWhitelist(String[] dimensions) {
         List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).filter(dimension -> {
@@ -377,11 +357,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid dimension ID: " + dimension);
             return false;
         }).map(ResourceLocation::new).collect(Collectors.toList());
-        return this.addRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, dimensionsID, false));
-    }
-
-    public CustomMachineJSRecipeBuilder dimensionBlacklist(String dimension) {
-        return this.dimensionBlacklist(new String[]{dimension});
+        return this.addRequirement(new DimensionRequirement(dimensionsID, false));
     }
 
     public CustomMachineJSRecipeBuilder dimensionBlacklist(String[] dimensions) {
@@ -391,7 +367,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid dimension ID: " + dimension);
             return false;
         }).map(ResourceLocation::new).collect(Collectors.toList());
-        return this.addRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, dimensionsID, true));
+        return this.addRequirement(new DimensionRequirement(dimensionsID, true));
     }
 
     /** FUEL **/

@@ -11,43 +11,45 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.RequirementDisplayInfo;
 import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.PositionComparator;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.Collections;
 import java.util.List;
 
-public class PositionRequirement extends AbstractRequirement<PositionMachineComponent> implements IDisplayInfoRequirement<PositionMachineComponent> {
+public class DimensionRequirement extends AbstractRequirement<PositionMachineComponent> implements IDisplayInfoRequirement<PositionMachineComponent> {
 
-    public static final Codec<PositionRequirement> CODEC = RecordCodecBuilder.create(positionRequirementInstance ->
-        positionRequirementInstance.group(
-                CodecLogger.loggedOptional(Codecs.list(Codecs.POSITION_COMPARATOR_CODEC),"positions", Collections.emptyList()).forGetter(requirement -> requirement.positions),
-                CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-        ).apply(positionRequirementInstance, (positions, jei) -> {
-                PositionRequirement requirement = new PositionRequirement(positions);
+    public static final Codec<DimensionRequirement> CODEC = RecordCodecBuilder.create(dimensionRequirementInstance ->
+            dimensionRequirementInstance.group(
+                    Codecs.list(ResourceLocation.CODEC).fieldOf("filter").forGetter(requirement -> requirement.filter),
+                    CodecLogger.loggedOptional(Codec.BOOL, "blacklist", false).forGetter(requirement -> requirement.blacklist),
+                    CodecLogger.loggedOptional(Codec.BOOL, "jei", true).forGetter(requirement -> requirement.jeiVisible)
+            ).apply(dimensionRequirementInstance, (filter, blacklist, jei) -> {
+                DimensionRequirement requirement = new DimensionRequirement(filter, blacklist);
                 requirement.setJeiVisible(jei);
                 return requirement;
-        })
+            })
     );
 
-    private final List<PositionComparator> positions;
+    private final List<ResourceLocation> filter;
+    private final boolean blacklist;
     private boolean jeiVisible = true;
 
-    public PositionRequirement(List<PositionComparator> positions) {
+    public DimensionRequirement(List<ResourceLocation> filter, boolean blacklist) {
         super(MODE.INPUT);
-        this.positions = positions;
+        this.filter = filter;
+        this.blacklist = blacklist;
     }
 
     @Override
-    public RequirementType<PositionRequirement> getType() {
-        return Registration.POSITION_REQUIREMENT.get();
+    public RequirementType<DimensionRequirement> getType() {
+        return Registration.DIMENSION_REQUIREMENT.get();
     }
 
     @Override
     public boolean test(PositionMachineComponent component, CraftingContext context) {
-        return this.positions.stream().allMatch(comparator -> comparator.compare(component.getPosition()));
+        return this.filter.contains(component.getDimension().getLocation()) != this.blacklist;
     }
 
     @Override
@@ -72,10 +74,13 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
 
     @Override
     public RequirementDisplayInfo getDisplayInfo() {
-        RequirementDisplayInfo info =  new RequirementDisplayInfo();
-        if(!this.positions.isEmpty()) {
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.pos").mergeStyle(TextFormatting.AQUA));
-            this.positions.forEach(pos -> info.addTooltip(new StringTextComponent("* ").appendSibling(pos.getText())));
+        RequirementDisplayInfo info = new RequirementDisplayInfo();
+        if(!this.filter.isEmpty()) {
+            if(this.blacklist)
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.blacklist").mergeStyle(TextFormatting.AQUA));
+            else
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.whitelist").mergeStyle(TextFormatting.AQUA));
+            this.filter.forEach(dimension -> info.addTooltip(new StringTextComponent("* " + dimension)));
         }
         info.setVisible(this.jeiVisible);
         return info;

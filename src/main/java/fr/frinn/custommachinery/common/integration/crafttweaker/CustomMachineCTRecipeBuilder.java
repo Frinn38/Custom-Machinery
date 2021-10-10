@@ -217,43 +217,47 @@ public class CustomMachineCTRecipeBuilder {
     public CustomMachineCTRecipeBuilder requirePosition(String[] positions) {
         List<PositionComparator> positionComparators = Stream.of(positions).map(s -> Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s)).getFirst()).collect(Collectors.toList());
         if(!positionComparators.isEmpty())
-            return addRequirement(new PositionRequirement(positionComparators, Collections.emptyList(), false, Collections.emptyList(), false));
+            return addRequirement(new PositionRequirement(positionComparators));
         return this;
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requirePosition(String position) {
         PositionComparator positionComparator = Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(position)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + position)).getFirst();
-        return addRequirement(new PositionRequirement(Collections.singletonList(positionComparator), Collections.emptyList(), false, Collections.emptyList(), false));
+        return addRequirement(new PositionRequirement(Collections.singletonList(positionComparator)));
     }
+
+    /** BIOME **/
 
     @Method
     public CustomMachineCTRecipeBuilder biomeWhitelist(Biome[] biomes) {
         List<ResourceLocation> biomesID = Arrays.stream(biomes).map(Biome::getRegistryName).collect(Collectors.toList());
-        return addRequirement(new PositionRequirement(Collections.emptyList(), biomesID, false, Collections.emptyList(), false));
+        return addRequirement(new BiomeRequirement(biomesID, false));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder biomeWhitelist(Biome biome) {
-        return addRequirement(new PositionRequirement(Collections.emptyList(), Collections.singletonList(biome.getRegistryName()), false, Collections.emptyList(), false));
+        return addRequirement(new BiomeRequirement(Collections.singletonList(biome.getRegistryName()), false));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder biomeBlacklist(Biome[] biomes) {
         List<ResourceLocation> biomesID = Arrays.stream(biomes).map(Biome::getRegistryName).collect(Collectors.toList());
-        return addRequirement(new PositionRequirement(Collections.emptyList(), biomesID, true, Collections.emptyList(), false));
+        return addRequirement(new BiomeRequirement(biomesID, true));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder biomeBlacklist(Biome biome) {
-        return addRequirement(new PositionRequirement(Collections.emptyList(), Collections.singletonList(biome.getRegistryName()), true, Collections.emptyList(), false));
+        return addRequirement(new BiomeRequirement(Collections.singletonList(biome.getRegistryName()), true));
     }
+
+    /** DIMENSION **/
 
     @Method
     public CustomMachineCTRecipeBuilder dimensionWhitelist(String[] dimensions) {
         try {
             List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).map(ResourceLocation::new).collect(Collectors.toList());
-            return addRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, dimensionsID, false));
+            return addRequirement(new DimensionRequirement(dimensionsID, false));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimension ID: " + e.getMessage());
         }
@@ -262,7 +266,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder dimensionWhitelist(String dimension) {
         try {
-            return addRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, Collections.singletonList(new ResourceLocation(dimension)), false));
+            return addRequirement(new DimensionRequirement(Collections.singletonList(new ResourceLocation(dimension)), false));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimensions ID: " + e.getMessage());
         }
@@ -272,7 +276,7 @@ public class CustomMachineCTRecipeBuilder {
     public CustomMachineCTRecipeBuilder dimensionBlacklist(String[] dimensions) {
         try {
             List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).map(ResourceLocation::new).collect(Collectors.toList());
-            return addRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, dimensionsID, false));
+            return addRequirement(new DimensionRequirement(dimensionsID, false));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimension ID: " + e.getMessage());
         }
@@ -281,7 +285,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder dimensionBlacklist(String dimension) {
         try {
-            return addRequirement(new PositionRequirement(Collections.emptyList(), Collections.emptyList(), false, Collections.singletonList(new ResourceLocation(dimension)), false));
+            return addRequirement(new DimensionRequirement(Collections.singletonList(new ResourceLocation(dimension)), false));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimensions ID: " + e.getMessage());
         }

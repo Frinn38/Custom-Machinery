@@ -139,6 +139,8 @@ public class Registration {
     public static final RegistryObject<RequirementType<DurabilityRequirement>> DURABILITY_REQUIREMENT = REQUIREMENTS.register("durability", () -> new RequirementType<>(DurabilityRequirement.CODEC));
     public static final RegistryObject<RequirementType<StructureRequirement>> STRUCTURE_REQUIREMENT = REQUIREMENTS.register("structure", () -> new RequirementType<>(StructureRequirement.CODEC));
     public static final RegistryObject<RequirementType<LootTableRequirement>> LOOT_TABLE_REQUIREMENT = REQUIREMENTS.register("loot_table", () -> new RequirementType<>(LootTableRequirement.CODEC));
+    public static final RegistryObject<RequirementType<BiomeRequirement>> BIOME_REQUIREMENT = REQUIREMENTS.register("biome", () -> new RequirementType<>(BiomeRequirement.CODEC));
+    public static final RegistryObject<RequirementType<DimensionRequirement>> DIMENSION_REQUIREMENT = REQUIREMENTS.register("dimension", () -> new RequirementType<>(DimensionRequirement.CODEC));
 
     public static void registerRecipeType(final RegistryEvent<IRecipeSerializer<?>> event) {
         Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CUSTOM_MACHINE_RECIPE);

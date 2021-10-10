@@ -34,10 +34,12 @@ import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.tags.ITag;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 
 import java.util.List;
 import java.util.Locale;
@@ -124,6 +126,10 @@ public class Codecs {
                 return DataResult.error("Unknown tag : " + string);
             return DataResult.success(tag);
         }, tag -> idGetter.apply(tag).toString());
+    }
+
+    public static <T> Codec<RegistryKey<T>> registryKeyCodec(RegistryKey<Registry<T>> keyRegistry) {
+        return ResourceLocation.CODEC.xmap(loc -> RegistryKey.getOrCreateKey(keyRegistry, loc), RegistryKey::getLocation);
     }
 
     private static DataResult<PositionComparator> decodePositionComparator(String encoded) {
