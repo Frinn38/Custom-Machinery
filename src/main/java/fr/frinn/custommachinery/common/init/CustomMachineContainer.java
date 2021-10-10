@@ -130,7 +130,9 @@ public class CustomMachineContainer extends SyncableContainer {
     }
 
     public double getRecipeProgressPercent() {
-        return (double) this.tile.craftingManager.recipeProgressTime / (double) this.tile.craftingManager.recipeTotalTime;
+        if(this.tile.craftingManager.recipeTotalTime > 0)
+            return this.tile.craftingManager.recipeProgressTime / (double) this.tile.craftingManager.recipeTotalTime;
+        return 0;
     }
 
     public void elementClicked(int element, byte button) {
