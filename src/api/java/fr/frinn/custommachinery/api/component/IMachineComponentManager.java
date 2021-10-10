@@ -3,6 +3,8 @@ package fr.frinn.custommachinery.api.component;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +65,16 @@ public interface IMachineComponentManager {
      * @return The MachineTile that hold this manager.
      */
     MachineTile getTile();
+
+    /**
+     * @return The world the machine is in.
+     */
+    World getWorld();
+
+    /**
+     * @return The server currently running (integrated or dedicated).
+     */
+    MinecraftServer getServer();
 
     /**
      * Mark the tile as dirty, meaning some data changed and need to be written on disk on next tile unload.

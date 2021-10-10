@@ -20,8 +20,6 @@ public class StructureMachineComponent extends AbstractMachineComponent {
     }
 
     public boolean checkStructure(BlockStructure pattern) {
-        if(getManager().getTile().getWorld() == null)
-            return false;
         return pattern.match(getManager().getTile().getWorld(), getManager().getTile().getPos(), getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
     }
 }

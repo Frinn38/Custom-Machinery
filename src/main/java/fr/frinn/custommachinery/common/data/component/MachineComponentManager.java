@@ -9,6 +9,8 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
@@ -102,6 +104,16 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     @Override
     public CustomMachineTile getTile() {
         return this.tile;
+    }
+
+    @Override
+    public World getWorld() {
+        return getTile().getWorld();
+    }
+
+    @Override
+    public MinecraftServer getServer() {
+        return getWorld().getServer();
     }
 
     public void serverTick() {

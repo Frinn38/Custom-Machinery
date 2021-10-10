@@ -26,10 +26,8 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
     }
 
     public boolean hasWeather(WeatherType weather, boolean onTile) {
-        World world = this.getManager().getTile().getWorld();
+        World world = this.getManager().getWorld();
         BlockPos pos = this.getManager().getTile().getPos();
-        if(world == null)
-            return false;
         if(onTile) {
             if(weather == WeatherType.RAIN)
                 return world.isRainingAt(pos.up());

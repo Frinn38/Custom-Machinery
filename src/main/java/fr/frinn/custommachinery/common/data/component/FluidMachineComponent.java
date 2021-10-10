@@ -26,15 +26,16 @@ import java.util.function.Predicate;
 
 public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
 
-    private String id;
-    private int capacity;
-    private int maxInput;
-    private int maxOutput;
+    private final String id;
+    private final int capacity;
+    private final int maxInput;
+    private final int maxOutput;
+    private final List<IIngredient<Fluid>> filter;
+    private final boolean whitelist;
+
     private long actualTick;
     private int actualTickInput;
     private int actualTickOutput;
-    private List<IIngredient<Fluid>> filter;
-    private boolean whitelist;
     private FluidStack fluidStack = FluidStack.EMPTY;
 
     public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist) {
@@ -110,11 +111,8 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int getRemainingSpace() {
-        if(getManager().getTile().getWorld() == null)
-            return 0;
-
-        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getWorld().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -131,11 +129,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int insert(Fluid fluid, int amount, FluidAction action) {
-        if (amount <= 0 || getManager().getTile().getWorld() == null)
+        if (amount <= 0)
             return 0;
 
-        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getWorld().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -159,11 +157,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public FluidStack extract(int amount, FluidAction action) {
-        if(amount <= 0 || getManager().getTile().getWorld() == null)
+        if(amount <= 0)
             return FluidStack.EMPTY;
 
-        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getWorld().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -221,13 +219,13 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                 )
         );
 
-        private String id;
-        private int capacity;
-        private int maxInput;
-        private int maxOutput;
-        private List<IIngredient<Fluid>> filter;
-        private boolean whitelist;
-        private ComponentIOMode mode;
+        private final String id;
+        private final int capacity;
+        private final int maxInput;
+        private final int maxOutput;
+        private final List<IIngredient<Fluid>> filter;
+        private final boolean whitelist;
+        private final ComponentIOMode mode;
 
         public Template(String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, ComponentIOMode mode) {
             this.id = id;

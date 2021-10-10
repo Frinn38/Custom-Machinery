@@ -25,11 +25,9 @@ public class EffectMachineComponent extends AbstractMachineComponent {
     }
 
     public void applyEffect(EffectInstance effect, int radius, Predicate<Entity> filter) {
-        if(getManager().getTile().getWorld() == null)
-            return;
         BlockPos machinePos = getManager().getTile().getPos();
         AxisAlignedBB bb = new AxisAlignedBB(machinePos).grow(radius);
-        getManager().getTile().getWorld().getEntitiesWithinAABB(LivingEntity.class, bb, filter).stream()
+        getManager().getWorld().getEntitiesWithinAABB(LivingEntity.class, bb, filter).stream()
                 .filter(entity -> entity.getDistanceSq(machinePos.getX(), machinePos.getY(), machinePos.getZ()) < radius * radius)
                 .filter(entity -> entity.getActivePotionEffect(effect.getPotion()) == null)
                 .forEach(entity -> entity.addPotionEffect(effect));

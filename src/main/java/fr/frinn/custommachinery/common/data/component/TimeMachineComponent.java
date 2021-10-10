@@ -18,8 +18,6 @@ public class TimeMachineComponent extends AbstractMachineComponent {
     }
 
     public long getTime() {
-        if(getManager().getTile().getWorld() == null)
-            return 0;
-        return getManager().getTile().getWorld().getDayTime();
+        return getManager().getWorld().getDayTime();
     }
 }

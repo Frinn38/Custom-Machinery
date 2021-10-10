@@ -64,7 +64,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public void serverTick() {
-        if(getManager().getTile().isPaused() || getManager().getTile().getWorld() == null || this.energy == 0)
+        if(getManager().getTile().isPaused() || this.energy == 0)
             return;
 
         AtomicInteger maxExtract = new AtomicInteger(extractEnergy(Integer.MAX_VALUE, true));
@@ -91,7 +91,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         for(Direction direction : Direction.values()) {
             if(this.neighborStorages.get(direction) != null)
                 continue;
-            World world = getManager().getTile().getWorld();
+            World world = getManager().getWorld();
             BlockPos pos = getManager().getTile().getPos();
             LazyOptional<IEnergyStorage> neighborStorage = Optional.ofNullable(world.getTileEntity(pos.offset(direction))).map(tile -> tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite())).orElse(null);
             if(neighborStorage != null && neighborStorage.isPresent()) {
@@ -141,8 +141,8 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!canReceive())
             return 0;
 
-        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getWorld().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -164,8 +164,8 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!canExtract())
             return 0;
 
-        if(this.actualTick != this.getManager().getTile().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getTile().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
+            this.actualTick = this.getManager().getWorld().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -238,9 +238,9 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
                 ).apply(templateInstance, (capacity, maxInput, maxOutput) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity)))
         );
 
-        private int capacity;
-        private int maxInput;
-        private int maxOutput;
+        private final int capacity;
+        private final int maxInput;
+        private final int maxOutput;
 
         public Template(int capacity, int maxInput, int maxOutput) {
             this.capacity = capacity;

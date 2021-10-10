@@ -58,17 +58,17 @@ public class CommandMachineComponent extends AbstractMachineComponent {
 
     public CommandMachineComponent(IMachineComponentManager manager) {
         super(manager, ComponentIOMode.NONE);
-        sourceLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getTile().getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getTile().getWorld().getServer(), null));
-        sourceNoLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getTile().getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getTile().getWorld().getServer(), null));
+        sourceLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getServer(), null));
+        sourceNoLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getServer(), null));
     }
 
     public void sendCommand(String command, int permissionLevel, boolean log) {
-        if(getManager().getTile().getWorld() == null || getManager().getTile().getWorld().getServer() == null)
+        if(getManager().getWorld().getServer() == null)
             return;
         if(log)
-            getManager().getTile().getWorld().getServer().getCommandManager().handleCommand(sourceLog.get().withPermissionLevel(permissionLevel), command);
+            getManager().getWorld().getServer().getCommandManager().handleCommand(sourceLog.get().withPermissionLevel(permissionLevel), command);
         else
-            getManager().getTile().getWorld().getServer().getCommandManager().handleCommand(sourceNoLog.get().withPermissionLevel(permissionLevel), command);
+            getManager().getWorld().getServer().getCommandManager().handleCommand(sourceNoLog.get().withPermissionLevel(permissionLevel), command);
     }
 
     @Override

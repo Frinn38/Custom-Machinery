@@ -16,12 +16,12 @@ import java.util.stream.Stream;
 
 public class RedstoneMachineComponent extends AbstractMachineComponent implements ITickableComponent {
 
-    private int powerToPause;
-    private int craftingPowerOutput;
-    private int idlePowerOutput;
-    private int erroredPowerOutput;
-    private MachineComponentType<?> comparatorInputType;
-    private String comparatorInputID;
+    private final int powerToPause;
+    private final int craftingPowerOutput;
+    private final int idlePowerOutput;
+    private final int erroredPowerOutput;
+    private final MachineComponentType<?> comparatorInputType;
+    private final String comparatorInputID;
     private int checkRedstoneCooldown = Utils.RAND.nextInt(20);
 
     public RedstoneMachineComponent(IMachineComponentManager manager, int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
@@ -55,9 +55,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     private boolean shouldPauseMachine() {
-        if(getManager().getTile().getWorld() == null)
-            return false;
-        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getTile().getWorld().getRedstonePower(getManager().getTile().getPos(), direction)).max().orElse(0) >=
+        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getWorld().getRedstonePower(getManager().getTile().getPos(), direction)).max().orElse(0) >=
                 getManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerToPause).orElse(1);
     }
 
@@ -89,7 +87,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getMachinePower() {
-        return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getTile().getWorld().getRedstonePower(this.getManager().getTile().getPos(), direction)).max().orElse(0);
+        return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getWorld().getRedstonePower(this.getManager().getTile().getPos(), direction)).max().orElse(0);
     }
 
     public static class Template implements IMachineComponentTemplate<RedstoneMachineComponent> {
@@ -105,12 +103,12 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
                 ).apply(templateInstance, Template::new)
         );
 
-        private int powerToPause;
-        private int craftingPowerOutput;
-        private int idlePowerOutput;
-        private int erroredPowerOutput;
-        private MachineComponentType<?> comparatorInputType;
-        private String comparatorInputID;
+        private final int powerToPause;
+        private final int craftingPowerOutput;
+        private final int idlePowerOutput;
+        private final int erroredPowerOutput;
+        private final MachineComponentType<?> comparatorInputType;
+        private final String comparatorInputID;
 
         public Template(int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
             this.powerToPause = powerToPause;
