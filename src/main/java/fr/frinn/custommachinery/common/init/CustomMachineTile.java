@@ -23,6 +23,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -44,6 +45,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     public static final ResourceLocation DUMMY = new ResourceLocation(CustomMachinery.MODID, "dummy");
 
     private ResourceLocation id = DUMMY;
+    private boolean paused = false;
 
     public CraftingManager craftingManager = new DummyCraftingManager(this);
     public MachineComponentManager componentManager = new DummyComponentManager(this);
@@ -62,6 +64,8 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         this.craftingManager = new CraftingManager(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
     }
+
+    /** MachineTile Implementation **/
 
     @Override
     public CustomMachine getMachine() {
@@ -93,6 +97,16 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     }
 
     @Override
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
+    @Override
+    public boolean isPaused() {
+        return this.paused;
+    }
+
+    @Override
     public void resetProcess() {
         if(this.world == null || this.world.isRemote())
             return;
@@ -103,6 +117,8 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     public MachineComponentManager getComponentManager() {
         return this.componentManager;
     }
+
+    /** TileEntity Stuff **/
 
     @Override
     public void tick() {
@@ -186,6 +202,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }
 
+    //Needed for multiplayer sync
     @Override
     public CompoundNBT getUpdateTag() {
         CompoundNBT nbt = super.getUpdateTag();
@@ -193,13 +210,17 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         return nbt;
     }
 
-    private boolean paused = false;
-    public void setPaused(boolean paused) {
-        this.paused = paused;
+    //Needed for multiplayer sync
+    @Nullable
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(this.pos, 666, getUpdateTag());
     }
 
-    public boolean isPaused() {
-        return this.paused;
+    //Needed for multiplayer sync
+    @Override
+    public void onDataPacket(net.minecraft.network.NetworkManager net, SUpdateTileEntityPacket pkt) {
+        this.read(Registration.CUSTOM_MACHINE_BLOCK.get().getDefaultState(), pkt.getNbtCompound());
     }
 
     /**CONTAINER STUFF**/

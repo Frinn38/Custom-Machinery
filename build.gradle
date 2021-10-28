@@ -79,6 +79,32 @@ minecraft {
             accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
         }
 
+        client2 {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            //property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            arg "-mixin.config=custommachinery.mixins.json"
+
+            args '--username', 'Dev2'
+
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+
+            mods {
+                custommachinery {
+                    source sourceSets.main
+                    source sourceSets.api
+                }
+            }
+
+            accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+        }
+
         server {
             workingDirectory project.file('run')
 
