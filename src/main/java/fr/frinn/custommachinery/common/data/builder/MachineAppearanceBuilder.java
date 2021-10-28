@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraftforge.common.ToolType;
 
 public class MachineAppearanceBuilder {
 
@@ -66,6 +67,6 @@ public class MachineAppearanceBuilder {
     }
 
     public MachineAppearance build() {
-        return new MachineAppearance(this.blockModel, this.itemModel, this.sound, this.lightLevel, this.color);
+        return new MachineAppearance(this.blockModel, this.itemModel, this.sound, this.lightLevel, this.color, 3.5F, 3.5F, ToolType.PICKAXE, 1);
     }
 }

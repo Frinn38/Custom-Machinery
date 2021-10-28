@@ -3,15 +3,24 @@ package fr.frinn.custommachinery.common.util;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
+import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.TieredItem;
 import net.minecraft.nbt.*;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.EffectUtils;
+import net.minecraft.potion.Effects;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.Direction;
@@ -20,7 +29,10 @@ import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.IBlockReader;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -142,5 +154,78 @@ public class Utils {
         } catch (ResourceLocationException e) {
             return false;
         }
+    }
+
+    public static float getMachineBreakSpeed(MachineAppearance appearance, IBlockReader world, BlockPos pos, PlayerEntity player) {
+        float digSpeed = getPlayerDigSpeed(appearance, player, pos);
+        float hardness = appearance.getHardness();
+        float canHarvest = canPlayerHarvestMachine(appearance, player, world, pos) ? 30 : 100;
+        return digSpeed / hardness / canHarvest;
+    }
+
+    private static float getPlayerDigSpeed(MachineAppearance appearance, PlayerEntity player, BlockPos pos) {
+        float f = 1.0F;
+
+        ItemStack stack = player.getHeldItemMainhand();
+        ToolType tool = appearance.getTool();
+        if(!stack.isEmpty() && stack.getToolTypes().contains(tool) && stack.getHarvestLevel(tool, player, player.world.getBlockState(pos)) >= appearance.getMiningLevel() && stack.getItem() instanceof TieredItem)
+            f = ((TieredItem)stack.getItem()).getTier().getEfficiency();
+
+        if (f > 1.0F) {
+            int i = EnchantmentHelper.getEfficiencyModifier(player);
+            ItemStack itemstack = player.getHeldItemMainhand();
+            if (i > 0 && !itemstack.isEmpty()) {
+                f += (float)(i * i + 1);
+            }
+        }
+
+        if (EffectUtils.hasMiningSpeedup(player)) {
+            f *= 1.0F + (float)(EffectUtils.getMiningSpeedup(player) + 1) * 0.2F;
+        }
+
+        EffectInstance miningFatigue = player.getActivePotionEffect(Effects.MINING_FATIGUE);
+        if (miningFatigue != null) {
+            switch (miningFatigue.getAmplifier()) {
+                case 0:
+                    f *= 0.3F;
+                    break;
+                case 1:
+                    f *= 0.09F;
+                    break;
+                case 2:
+                    f *= 0.0027F;
+                    break;
+                case 3:
+                default:
+                    f *= 8.1E-4F;
+            }
+        }
+
+        if (player.areEyesInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(player))
+            f /= 5.0F;
+
+        if (!player.isOnGround())
+            f /= 5.0F;
+
+        f = net.minecraftforge.event.ForgeEventFactory.getBreakSpeed(player, player.world.getBlockState(pos), f, pos);
+        return f;
+    }
+
+    public static boolean canPlayerHarvestMachine(MachineAppearance appearance, PlayerEntity player, IBlockReader world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+        ToolType tool = appearance.getTool();
+
+        if (tool.getName().equals("hand"))
+            return ForgeEventFactory.doPlayerHarvestCheck(player, state, true);
+
+        ItemStack stack = player.getHeldItemMainhand();
+        if(stack.isEmpty())
+            return ForgeEventFactory.doPlayerHarvestCheck(player, state, false);
+
+        int toolLevel = stack.getHarvestLevel(tool, player, state);
+        if (toolLevel < 0)
+            return ForgeEventFactory.doPlayerHarvestCheck(player, state, false);
+
+        return ForgeEventFactory.doPlayerHarvestCheck(player, state, toolLevel >= appearance.getMiningLevel());
     }
 }

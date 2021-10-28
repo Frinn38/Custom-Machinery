@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
+import fr.frinn.custommachinery.common.util.Utils;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -25,6 +26,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockDisplayReader;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -34,6 +36,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -86,7 +89,8 @@ public class CustomMachineBlock extends Block {
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machine = (CustomMachineTile) tile;
                 machine.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
-                InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
+                if(Utils.canPlayerHarvestMachine(machine.getMachine().getAppearance(machine.getStatus()), player, world, pos))
+                    InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
             }
         }
     }
@@ -171,5 +175,24 @@ public class CustomMachineBlock extends Block {
     @Override
     public boolean shouldDisplayFluidOverlay(BlockState state, IBlockDisplayReader world, BlockPos pos, FluidState fluidState) {
         return true;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public float getPlayerRelativeBlockHardness(BlockState state, PlayerEntity player, IBlockReader world, BlockPos pos) {
+        return Optional.ofNullable(world.getTileEntity(pos))
+                .filter(tile -> tile instanceof CustomMachineTile)
+                .map(tile -> (CustomMachineTile)tile)
+                .map(tile -> tile.getMachine().getAppearance(tile.getStatus()))
+                .map(appearance -> Utils.getMachineBreakSpeed(appearance, world, pos, player))
+                .orElse(super.getPlayerRelativeBlockHardness(state, player, world, pos));
+    }
+
+    @Override
+    public float getExplosionResistance(BlockState state, IBlockReader world, BlockPos pos, Explosion explosion) {
+        return Optional.ofNullable(world.getTileEntity(pos))
+                .filter(tile -> tile instanceof CustomMachineTile)
+                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getResistance())
+                .orElse(super.getExplosionResistance(state, world, pos, explosion));
     }
 }

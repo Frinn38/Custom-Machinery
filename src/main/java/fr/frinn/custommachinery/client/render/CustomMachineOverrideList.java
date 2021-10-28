@@ -14,10 +14,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 public class CustomMachineOverrideList extends ItemOverrideList {
 
-    public CustomMachineOverrideList() {
-        super();
-    }
-
     @ParametersAreNonnullByDefault
     @Nullable
     @Override

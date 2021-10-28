@@ -40,6 +40,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.common.ToolType;
 
 import java.util.List;
 import java.util.Locale;
@@ -51,11 +52,12 @@ public class Codecs {
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE      = RegistryCodec.of(Registration.GUI_ELEMENT_TYPE_REGISTRY.get());
     public static final Codec<RequirementType<? extends IRequirement<?>>> REQUIREMENT_TYPE = RegistryCodec.of(Registration.REQUIREMENT_TYPE_REGISTRY.get());
 
-    public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC             = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString), "Position Comparator");
-    public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString), "Time Comparator");
-    public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC                           = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString), "NBT");
-    public static final Codec<Character> CHARACTER_CODEC                                = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
-    public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC              = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
+    public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString), "Position Comparator");
+    public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString), "Time Comparator");
+    public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC               = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString), "NBT");
+    public static final Codec<Character> CHARACTER_CODEC                    = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
+    public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC  = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
+    public static final Codec<ToolType> TOOL_TYPE_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeToolType, ToolType::getName), "Tool Type");
 
     public static final Codec<ITag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(Utils::getItemTag, Utils::getItemTagID), "Item Tag");
     public static final Codec<ITag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getFluidTag, Utils::getFluidTagID), "Fluid Tag");
@@ -169,6 +171,14 @@ public class Codecs {
             return DataResult.success(new PartialBlockState(parser.getState(), Lists.newArrayList(parser.getProperties().keySet()), parser.getNbt()));
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception.getMessage());
+        }
+    }
+
+    private static DataResult<ToolType> decodeToolType(String encoded) {
+        try {
+            return DataResult.success(ToolType.get(encoded.toLowerCase(Locale.ENGLISH)));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error(e.getMessage());
         }
     }
 }
