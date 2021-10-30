@@ -24,6 +24,7 @@ public class CMConfig {
     public final IntValue boxRenderTime;
     public final IntValue structureRenderTime;
     public final IntValue blockTagCycleTime;
+    public final IntValue itemSlotCycleTime;
 
     public CMConfig()  {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -46,6 +47,8 @@ public class CMConfig {
                 .defineInRange("structureRenderTime", 10000, 0, Integer.MAX_VALUE);
         this.blockTagCycleTime = builder.comment("The time in milliseconds each blocks will be shown when using a block tag in a structure.")
                 .defineInRange("blockTagCycleTime", 1000, 0, Integer.MAX_VALUE);
+        this.itemSlotCycleTime = builder.comment("The time in milliseconds the ghost item will be shown in a slot when a tag or more than 1 item is specified.")
+                .defineInRange("itemSlotCycleTime", 1000, 0, Integer.MAX_VALUE);
         builder.pop();
 
         this.spec = builder.build();

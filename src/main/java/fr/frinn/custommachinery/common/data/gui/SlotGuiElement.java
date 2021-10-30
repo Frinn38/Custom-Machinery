@@ -9,9 +9,14 @@ import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.api.utils.RegistryCodec;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
+
+import java.util.Collections;
+import java.util.List;
 
 public class SlotGuiElement extends TexturedGuiElement implements IComponentGuiElement<ItemMachineComponent> {
 
@@ -26,14 +31,14 @@ public class SlotGuiElement extends TexturedGuiElement implements IComponentGuiE
                     CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
                     CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
                     CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_SLOT_TEXTURE).forGetter(SlotGuiElement::getTexture),
-                    CodecLogger.loggedOptional(RegistryCodec.ITEM,"item",Items.AIR).forGetter(SlotGuiElement::getItem)
+                    CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"item", Collections.emptyList()).forGetter(SlotGuiElement::getItems)
             ).apply(slotGuiElementCodec, SlotGuiElement::new)
     );
 
     private String id;
-    private Item item;
+    private List<IIngredient<Item>> item;
 
-    public SlotGuiElement(int x, int y, String id, int width, int height, int priority, ResourceLocation texture, Item item) {
+    public SlotGuiElement(int x, int y, String id, int width, int height, int priority, ResourceLocation texture, List<IIngredient<Item>> item) {
         super(x, y, width, height, priority, texture);
         this.id = id;
         this.item = item;
@@ -54,7 +59,7 @@ public class SlotGuiElement extends TexturedGuiElement implements IComponentGuiE
         return Registration.ITEM_MACHINE_COMPONENT.get();
     }
 
-    public Item getItem() {
+    public List<IIngredient<Item>> getItems() {
         return this.item;
     }
 }

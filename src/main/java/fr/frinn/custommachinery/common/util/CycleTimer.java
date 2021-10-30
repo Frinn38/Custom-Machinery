@@ -4,6 +4,7 @@ import net.minecraft.client.gui.screen.Screen;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 public class CycleTimer {
     /* the amount of time in ms to display one thing before cycling to the next one */
@@ -20,12 +21,16 @@ public class CycleTimer {
     }
 
     @Nullable
-    public <T> T getCycledItem(List<T> list) {
+    public <T> T get(List<T> list) {
         if (list.isEmpty()) {
             return null;
         }
         long index = ((drawTime - startTime) / cycleTime) % list.size();
         return list.get(Math.toIntExact(index));
+    }
+
+    public <T> T getOrDefault(List<T> list, T defaultObject) {
+        return Optional.ofNullable(get(list)).orElse(defaultObject);
     }
 
     public void onDraw() {

@@ -48,7 +48,7 @@ public class StructureRenderer {
             matrix.push();
             matrix.translate(pos.getX(), pos.getY(), pos.getZ());
             if(!(pos.getX() == 0 && pos.getY() == 0 && pos.getZ() == 0) && ingredient != BlockIngredient.ANY) {
-                PartialBlockState state = timer.getCycledItem(ingredient.getAll());
+                PartialBlockState state = timer.get(ingredient.getAll());
                 BlockPos blockPos = machinePos.add(pos);
                 if(state != null && state != PartialBlockState.ANY && state.getBlockState().getMaterial() != Material.AIR) {
                     if(world.getBlockState(blockPos).getMaterial() == Material.AIR)
