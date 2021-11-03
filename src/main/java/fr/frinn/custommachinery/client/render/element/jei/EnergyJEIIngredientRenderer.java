@@ -45,32 +45,14 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     public void render(MatrixStack matrix, int x, int y, EnergyGuiElement element, @Nullable Energy ingredient) {
         int width = element.getWidth();
         int height = element.getHeight();
-        Minecraft.getInstance().getTextureManager().bindTexture(element.getTexture());
+        Minecraft.getInstance().getTextureManager().bindTexture(element.getEmptyTexture());
         AbstractGui.blit(matrix, x - 1, y - 1, 0, 0, width, height, width, height);
         if(ingredient != null) {
             double fillPercent = 1.0D;
             int eneryHeight = (int)(fillPercent * (double)(height - 2));
-            drawTransparentRec(matrix, x - 1 + 1, y - 1 + height - eneryHeight - 1, width - 2, eneryHeight);
+            Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
+            AbstractGui.blit(matrix, x, y + height - eneryHeight, 0, height - eneryHeight, width, eneryHeight, width, height);
         }
-    }
-
-    private void drawTransparentRec(MatrixStack matrix, int x, int y, int width, int height) {
-        RenderSystem.enableBlend();
-
-        Minecraft.getInstance().getTextureManager().bindTexture(EMPTY);
-
-        BufferBuilder builder = Tessellator.getInstance().getBuffer();
-        builder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-
-        builder.pos(matrix.getLast().getMatrix(), x, y + height, 0).color(255, 0, 0, 200).endVertex();
-        builder.pos(matrix.getLast().getMatrix(), x + width, y + height, 0).color(255, 0, 0, 200).endVertex();
-        builder.pos(matrix.getLast().getMatrix(), x + width, y, 0).color(255, 0, 0, 200).endVertex();
-        builder.pos(matrix.getLast().getMatrix(), x, y, 0).color(255, 0, 0, 200).endVertex();
-
-        builder.finishDrawing();
-        WorldVertexBufferUploader.draw(builder);
-
-        RenderSystem.disableBlend();
     }
 
     @Override

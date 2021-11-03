@@ -27,8 +27,8 @@ public class EnergyGuiElement extends TexturedGuiElement implements IComponentGu
             ).apply(energyGuiElementCodec, EnergyGuiElement::new)
     );
 
-    private ResourceLocation emptyTexture;
-    private ResourceLocation filledTexture;
+    private final ResourceLocation emptyTexture;
+    private final ResourceLocation filledTexture;
 
     public EnergyGuiElement(int x, int y, int width, int height, int priority, ResourceLocation emptyTexture, ResourceLocation filledTexture) {
         super(x, y, width, height, priority, emptyTexture);
