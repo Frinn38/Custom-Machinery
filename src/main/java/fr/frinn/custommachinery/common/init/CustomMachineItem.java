@@ -57,15 +57,11 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     protected boolean onBlockPlaced(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
-        if(player == null)
-            return false;
-
         getMachine(stack).ifPresent(machine -> {
             TileEntity tile = world.getTileEntity(pos);
             if(tile instanceof CustomMachineTile) {
-                if(player.getHeldItem(Hand.MAIN_HAND) == stack)
-                    ((CustomMachineTile)tile).setId(machine.getId());
-                else if(!world.isRemote() && world.getServer() != null)
+                ((CustomMachineTile)tile).setId(machine.getId());
+                if(!world.isRemote() && world.getServer() != null && player != null && player.getHeldItem(Hand.OFF_HAND) == stack)
                     world.getServer().enqueue(new TickDelayedTask(1, () -> NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(pos)), new SRefreshCustomMachineTilePacket(pos, machine.getId()))));
             }
         });
