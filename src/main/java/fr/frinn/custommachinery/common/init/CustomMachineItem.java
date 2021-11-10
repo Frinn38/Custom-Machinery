@@ -2,6 +2,8 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.network.NetworkManager;
+import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -12,12 +14,15 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -52,12 +57,19 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     protected boolean onBlockPlaced(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
+        if(player == null)
+            return false;
+
         getMachine(stack).ifPresent(machine -> {
             TileEntity tile = world.getTileEntity(pos);
-            if(tile instanceof CustomMachineTile)
-                ((CustomMachineTile)tile).setId(machine.getId());
+            if(tile instanceof CustomMachineTile) {
+                if(player.getHeldItem(Hand.MAIN_HAND) == stack)
+                    ((CustomMachineTile)tile).setId(machine.getId());
+                else if(!world.isRemote() && world.getServer() != null)
+                    world.getServer().enqueue(new TickDelayedTask(1, () -> NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(pos)), new SRefreshCustomMachineTilePacket(pos, machine.getId()))));
+            }
         });
-        return super.onBlockPlaced(pos, world, player, stack, state);
+        return true;
     }
 
     @Override
