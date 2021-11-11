@@ -30,7 +30,7 @@ public class EnergyPerTickRequirement extends AbstractTickableRequirement<Energy
             })
     );
 
-    private int amount;
+    private final int amount;
     private double chance = 1.0D;
 
     public EnergyPerTickRequirement(MODE mode, int amount) {

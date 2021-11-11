@@ -15,7 +15,7 @@ public class CraftingContext {
 
     private static final Random RAND = new Random();
 
-    private CustomMachineTile tile;
+    private final CustomMachineTile tile;
     private CustomMachineRecipe recipe;
     private double recipeProgressTime = 0;
     private Map<RecipeModifier, Integer> modifiers = new HashMap<>();
@@ -73,7 +73,9 @@ public class CraftingContext {
     }
 
     public double getPerTickModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
-        return getModifiedvalue(value, requirement, target) * Math.min(this.getModifiedSpeed(), this.getRemainingTime());
+        if(this.getRemainingTime() > 0)
+            return getModifiedvalue(value, requirement, target) * Math.min(this.getModifiedSpeed(), this.getRemainingTime());
+        return getModifiedvalue(value, requirement, target) * this.getModifiedSpeed();
     }
 
     public double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, @Nullable IRequirement.MODE mode) {
