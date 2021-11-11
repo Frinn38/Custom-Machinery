@@ -11,9 +11,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressBarGuiElement>, IJEIElementRenderer<ProgressBarGuiElement> {
@@ -127,7 +129,11 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
 
     @Override
     public List<ITextComponent> getJEITooltips(ProgressBarGuiElement element, IMachineRecipe recipe) {
-        return Collections.singletonList(new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
+        List<ITextComponent> tooltips = new ArrayList<>();
+        tooltips.add(new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
+        if(Minecraft.getInstance().gameSettings.advancedItemTooltips)
+            tooltips.add(new StringTextComponent(recipe.getId().toString()).mergeStyle(TextFormatting.DARK_GRAY));
+        return tooltips;
     }
 
     private void rotate(MatrixStack matrix, ProgressBarGuiElement.Direction direction, int posX, int posY, int width, int height) {
