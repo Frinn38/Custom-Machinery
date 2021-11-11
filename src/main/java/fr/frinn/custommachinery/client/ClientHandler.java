@@ -19,6 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
@@ -135,6 +136,10 @@ public class ClientHandler {
 
     public static void openMachineLoadingScreen() {
         Minecraft.getInstance().displayGuiScreen(MachineLoadingScreen.INSTANCE);
+    }
+
+    public static boolean isShifting() {
+        return Screen.hasControlDown();
     }
 
     @Nonnull

@@ -15,10 +15,14 @@ import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class StructureRequirement extends AbstractTickableRequirement<StructureMachineComponent> implements IDisplayInfoRequirement<StructureMachineComponent> {
 
@@ -34,9 +38,9 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
             })
     );
 
-    private List<List<String>> pattern;
-    private Map<Character, IIngredient<PartialBlockState>> keys;
-    private BlockStructure structure;
+    private final List<List<String>> pattern;
+    private final Map<Character, IIngredient<PartialBlockState>> keys;
+    private final BlockStructure structure;
     private boolean jeiVisible = true;
 
     public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys) {
@@ -93,6 +97,11 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
         RequirementDisplayInfo info = new RequirementDisplayInfo();
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.info"));
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.click"));
+        this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {
+            IIngredient<PartialBlockState> ingredient = this.keys.get(key);
+            if(ingredient != null && amount > 0)
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.list", amount, new StringTextComponent(ingredient.toString()).mergeStyle(TextFormatting.GOLD)));
+        });
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
         info.setVisible(this.jeiVisible);
         return info;
