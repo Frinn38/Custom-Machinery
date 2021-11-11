@@ -18,16 +18,11 @@ import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
@@ -40,7 +35,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
-public class CustomMachineTile extends MachineTile implements ITickableTileEntity, INamedContainerProvider, ISyncableStuff {
+public class CustomMachineTile extends MachineTile implements ITickableTileEntity, ISyncableStuff {
 
     public static final ResourceLocation DUMMY = new ResourceLocation(CustomMachinery.MODID, "dummy");
 
@@ -224,18 +219,6 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     }
 
     /**CONTAINER STUFF**/
-
-    @Override
-    public ITextComponent getDisplayName() {
-        return getMachine().getName();
-    }
-
-    @ParametersAreNonnullByDefault
-    @Nullable
-    @Override
-    public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
-        return new CustomMachineContainer(id, inv, this);
-    }
 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {

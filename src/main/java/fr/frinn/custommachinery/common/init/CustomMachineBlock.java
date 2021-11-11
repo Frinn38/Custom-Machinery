@@ -12,9 +12,12 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateContainer;
@@ -26,6 +29,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockDisplayReader;
 import net.minecraft.world.IBlockReader;
@@ -62,7 +66,18 @@ public class CustomMachineBlock extends Block {
                 return ActionResultType.SUCCESS;
             }
             if(!world.isRemote() && !machine.getMachine().getGuiElements().isEmpty()) {
-                NetworkHooks.openGui((ServerPlayerEntity)player, machine, pos);
+                NetworkHooks.openGui((ServerPlayerEntity) player, new INamedContainerProvider() {
+                    @Override
+                    public ITextComponent getDisplayName() {
+                        return machine.getMachine().getName();
+                    }
+
+                    @Nullable
+                    @Override
+                    public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
+                        return new CustomMachineContainer(id, inv, machine);
+                    }
+                }, pos);
                 return ActionResultType.SUCCESS;
             }
             return ActionResultType.SUCCESS;
