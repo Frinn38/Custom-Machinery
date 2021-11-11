@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.guielement.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.recipe.IMachineRecipe;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import net.minecraft.client.Minecraft;
@@ -131,7 +132,7 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
     public List<ITextComponent> getJEITooltips(ProgressBarGuiElement element, IMachineRecipe recipe) {
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
-        if(Minecraft.getInstance().gameSettings.advancedItemTooltips)
+        if(!CMConfig.INSTANCE.needAdvancedInfoForRecipeID.get() || Minecraft.getInstance().gameSettings.advancedItemTooltips)
             tooltips.add(new StringTextComponent(recipe.getId().toString()).mergeStyle(TextFormatting.DARK_GRAY));
         return tooltips;
     }

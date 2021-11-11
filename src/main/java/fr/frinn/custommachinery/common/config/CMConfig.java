@@ -25,6 +25,7 @@ public class CMConfig {
     public final IntValue structureRenderTime;
     public final IntValue blockTagCycleTime;
     public final IntValue itemSlotCycleTime;
+    public final BooleanValue needAdvancedInfoForRecipeID;
 
     public CMConfig()  {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -49,6 +50,8 @@ public class CMConfig {
                 .defineInRange("blockTagCycleTime", 1000, 0, Integer.MAX_VALUE);
         this.itemSlotCycleTime = builder.comment("The time in milliseconds the ghost item will be shown in a slot when a tag or more than 1 item is specified.")
                 .defineInRange("itemSlotCycleTime", 1000, 0, Integer.MAX_VALUE);
+        this.needAdvancedInfoForRecipeID = builder.comment("If true the player will need to enable advanced item tooltips (F3 + H) to see the recipe name when hovering the progress arrow on a recipe in jei")
+                .define("needAdvancedInfoForRecipeID", true);
         builder.pop();
 
         this.spec = builder.build();
