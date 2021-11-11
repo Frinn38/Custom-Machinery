@@ -20,6 +20,8 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
@@ -64,8 +66,18 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
             double chance = nbt.getDouble("chance");
             if(chance == 0)
                 tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
-            else
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int) (chance * 100)));
+            else {
+                double percentage = chance * 100;
+                if(percentage < 0.01F)
+                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", "<0.01"));
+                else {
+                    BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
+                    if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
+                        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
+                    else
+                        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
+                }
+            }
         }
         if(nbt.contains("specificSlot", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificSlot") && flag.isAdvanced())
             tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.specificSlot").mergeStyle(TextFormatting.DARK_RED));

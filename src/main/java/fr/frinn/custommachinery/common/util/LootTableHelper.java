@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public class LootTableHelper {
 
     private static final List<ResourceLocation> tables = new ArrayList<>();
-    private static Map<ResourceLocation, List<Pair<ItemStack, Float>>> lootsMap = new HashMap<>();
+    private static Map<ResourceLocation, List<Pair<ItemStack, Double>>> lootsMap = new HashMap<>();
 
     public static void addTable(ResourceLocation table) {
         if(!tables.contains(table))
@@ -31,13 +31,13 @@ public class LootTableHelper {
         lootsMap.clear();
         LootContext context = new LootContext.Builder(server.getWorld(World.OVERWORLD)).build(Registration.CUSTOM_MACHINE_LOOT_PARAMERTER_SET);
         for (ResourceLocation table : tables) {
-            List<Pair<ItemStack, Float>> loots = getLoots(table, server, context);
+            List<Pair<ItemStack, Double>> loots = getLoots(table, server, context);
             lootsMap.put(table, loots);
         }
     }
 
-    private static List<Pair<ItemStack, Float>> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
-        List<Pair<ItemStack, Float>> loots = new ArrayList<>();
+    private static List<Pair<ItemStack, Double>> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
+        List<Pair<ItemStack, Double>> loots = new ArrayList<>();
         LootTable lootTable = server.getLootTableManager().getLootTableFromLocation(table);
         BiFunction<ItemStack, LootContext, ItemStack> globalFunction = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "field_216129_g");
         List<LootPool> pools = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "field_186466_c");
@@ -48,7 +48,7 @@ public class LootTableHelper {
             entries.stream().filter(entry -> entry instanceof ItemLootEntry)
                     .map(entry -> (ItemLootEntry)entry)
                     .forEach(entry -> {
-                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, entry.weight / total));
+                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total)));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
                         entry.func_216154_a(consumer, context);
                     });
@@ -56,7 +56,7 @@ public class LootTableHelper {
             entries.stream().filter(entry -> entry instanceof TagLootEntry)
                     .map(entry -> (TagLootEntry)entry)
                     .forEach(entry -> {
-                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, entry.weight / total / (entry.expand ? entry.tag.getAllElements().size() : 1)));
+                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total / (entry.expand ? entry.tag.getAllElements().size() : 1))));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
                         entry.func_216154_a(consumer, context);
                     });
@@ -75,15 +75,15 @@ public class LootTableHelper {
         return ILootFunction.func_215858_a(globalFunction, consumer, context);
     }
 
-    public static Map<ResourceLocation, List<Pair<ItemStack, Float>>> getLoots() {
+    public static Map<ResourceLocation, List<Pair<ItemStack, Double>>> getLoots() {
         return lootsMap;
     }
 
-    public static void receiveLoots(Map<ResourceLocation, List<Pair<ItemStack, Float>>> newLoots) {
+    public static void receiveLoots(Map<ResourceLocation, List<Pair<ItemStack, Double>>> newLoots) {
         lootsMap = newLoots;
     }
 
-    public static List<Pair<ItemStack, Float>> getLootsForTable(ResourceLocation table) {
+    public static List<Pair<ItemStack, Double>> getLootsForTable(ResourceLocation table) {
         return lootsMap.get(table);
     }
 }

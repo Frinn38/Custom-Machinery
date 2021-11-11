@@ -16,9 +16,9 @@ import java.util.function.Supplier;
 
 public class SLootTablesPacket {
 
-    private Map<ResourceLocation, List<Pair<ItemStack, Float>>> loots;
+    private final Map<ResourceLocation, List<Pair<ItemStack, Double>>> loots;
 
-    public SLootTablesPacket(Map<ResourceLocation, List<Pair<ItemStack, Float>>> loots) {
+    public SLootTablesPacket(Map<ResourceLocation, List<Pair<ItemStack, Double>>> loots) {
         this.loots = loots;
     }
 
@@ -29,20 +29,20 @@ public class SLootTablesPacket {
             buf.writeVarInt(loots.size());
             loots.forEach(pair -> {
                 buf.writeItemStack(pair.getFirst(), false);
-                buf.writeFloat(pair.getSecond());
+                buf.writeDouble(pair.getSecond());
             });
         });
     }
 
     public static SLootTablesPacket decode(PacketBuffer buf) {
-        Map<ResourceLocation, List<Pair<ItemStack, Float>>> loots = new HashMap<>();
+        Map<ResourceLocation, List<Pair<ItemStack, Double>>> loots = new HashMap<>();
         int lootSize = buf.readVarInt();
         for(int i = 0; i < lootSize; i++) {
             ResourceLocation id = buf.readResourceLocation();
-            List<Pair<ItemStack, Float>> stacks = new ArrayList<>();
+            List<Pair<ItemStack, Double>> stacks = new ArrayList<>();
             int stackSize = buf.readVarInt();
             for(int j = 0; j < stackSize; j++) {
-                stacks.add(Pair.of(buf.readItemStack(), buf.readFloat()));
+                stacks.add(Pair.of(buf.readItemStack(), buf.readDouble()));
             }
             loots.put(id, stacks);
         }

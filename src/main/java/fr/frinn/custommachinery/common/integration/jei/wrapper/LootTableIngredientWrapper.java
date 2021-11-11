@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
-    private ResourceLocation lootTable;
+    private final ResourceLocation lootTable;
 
     public LootTableIngredientWrapper(ResourceLocation lootTable) {
         this.lootTable = lootTable;
@@ -28,7 +28,7 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
     @Override
     public Object asJEIIngredient() {
         return LootTableHelper.getLootsForTable(this.lootTable).stream().map(pair -> {
-            ItemStack stack = pair.getFirst();
+            ItemStack stack = pair.getFirst().copy();
             stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", pair.getSecond());
             return stack;
         }).collect(Collectors.toList());
