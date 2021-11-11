@@ -109,7 +109,10 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     /** PRIORITY **/
 
     public CustomMachineJSRecipeBuilder priority(int priority) {
-        this.builder.withPriority(priority);
+        if(!this.jei)
+            this.builder.withPriority(priority);
+        else
+            this.builder.withJeiPriority(priority);
         return this;
     }
 

@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.energy.EnergyIngredientHelper;
+import fr.frinn.custommachinery.common.util.Comparators;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.MethodsReturnNonnullByDefault;
@@ -49,12 +50,17 @@ public class CustomMachineJEIPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registry) {
         if(Minecraft.getInstance().world == null)
             return;
-        Minecraft.getInstance().world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE).forEach(recipe -> {
-            if(CustomMachinery.MACHINES.containsKey(recipe.getMachine()))
-                registry.addRecipes(Lists.newArrayList(recipe), recipe.getMachine());
-            else
-                CustomMachinery.LOGGER.error("Invalid machine ID: " + recipe.getMachine() + " in recipe: " + recipe.getId());
-        });
+        Minecraft.getInstance().world.getRecipeManager()
+                .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
+                .stream()
+                .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
+                .forEach(recipe -> {
+                    if(CustomMachinery.MACHINES.containsKey(recipe.getMachine()))
+                        registry.addRecipes(Lists.newArrayList(recipe), recipe.getMachine());
+                    else
+                        CustomMachinery.LOGGER.error("Invalid machine ID: " + recipe.getMachine() + " in recipe: " + recipe.getId());
+                }
+        );
     }
 
     @Override

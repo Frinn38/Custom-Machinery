@@ -205,7 +205,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
                 .stream()
                 .filter(recipe -> recipe.matches(this.tile, this.context))
-                .max(Comparators.CUSTOM_MACHINE_RECIPE_COMPARATOR);
+                .max(Comparators.RECIPE_PRIORITY_COMPARATOR);
     }
 
     private void setRecipe(CustomMachineRecipe recipe) {

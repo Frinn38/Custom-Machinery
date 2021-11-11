@@ -525,8 +525,12 @@ public class CustomMachineCTRecipeBuilder {
 
     /** PRIORITY **/
 
-    @Method CustomMachineCTRecipeBuilder priority(int priority) {
-        this.builder.withPriority(priority);
+    @Method
+    public CustomMachineCTRecipeBuilder priority(int priority) {
+        if(!this.jei)
+            this.builder.withPriority(priority);
+        else
+            this.builder.withJeiPriority(priority);
         return this;
     }
 

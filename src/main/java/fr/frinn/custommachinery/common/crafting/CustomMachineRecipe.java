@@ -24,14 +24,16 @@ public class CustomMachineRecipe extends DummyRecipe implements IMachineRecipe {
     private final List<IRequirement<?>> requirements;
     private final List<IRequirement<?>> jeiRequirements;
     private final int priority;
+    private final int jeiPriority;
 
-    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority) {
+    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority) {
         this.id = id;
         this.machine = machine;
         this.time = time;
         this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).collect(Collectors.toList());
         this.jeiRequirements = jeiRequirements;
         this.priority = priority;
+        this.jeiPriority = priority;
     }
 
     public ResourceLocation getMachine() {
@@ -79,6 +81,10 @@ public class CustomMachineRecipe extends DummyRecipe implements IMachineRecipe {
 
     public int getPriority() {
         return this.priority;
+    }
+
+    public int getJeiPriority() {
+        return this.jeiPriority;
     }
 
     @Override

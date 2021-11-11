@@ -11,7 +11,9 @@ public class Comparators {
 
     public static final Comparator<IGuiElement> GUI_ELEMENTS_COMPARATOR = Comparator.comparingInt(IGuiElement::getPriority);
 
-    public static final Comparator<CustomMachineRecipe> CUSTOM_MACHINE_RECIPE_COMPARATOR = Comparator.comparingInt(CustomMachineRecipe::getPriority);
+    public static final Comparator<CustomMachineRecipe> RECIPE_PRIORITY_COMPARATOR = Comparator.comparingInt(CustomMachineRecipe::getPriority);
+
+    public static final Comparator<CustomMachineRecipe> JEI_PRIORITY_COMPARATOR = Comparator.comparingInt(CustomMachineRecipe::getJeiPriority);
 
     public static final Comparator<IRequirement<?>> REQUIREMENT_COMPARATOR = Comparator.comparing(requirement -> requirement.getType() == Registration.COMMAND_REQUIREMENT.get() ? 1 : -1);
 }
