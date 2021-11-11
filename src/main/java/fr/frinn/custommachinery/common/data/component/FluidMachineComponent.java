@@ -125,10 +125,10 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public boolean isFluidValid(@Nonnull FluidStack stack) {
-        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) == this.whitelist && (this.fluidStack.getFluid() == stack.getFluid() || this.fluidStack.isEmpty());
+        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) == this.whitelist && (this.fluidStack.isEmpty() || stack.isFluidEqual(this.fluidStack));
     }
 
-    public int insert(Fluid fluid, int amount, FluidAction action) {
+    public int insert(Fluid fluid, int amount, CompoundNBT nbt, FluidAction action) {
         if (amount <= 0)
             return 0;
 
@@ -142,7 +142,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if(this.fluidStack.isEmpty()) {
             amount = Math.min(amount, maxInsert);
             if(action.execute()) {
-                this.fluidStack = new FluidStack(fluid, amount);
+                this.fluidStack = new FluidStack(fluid, amount, nbt);
                 this.actualTickInput += amount;
             }
         }
@@ -172,7 +172,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             this.fluidStack.shrink(amount);
             this.actualTickOutput += amount;
         }
-        return new FluidStack(this.fluidStack.getFluid(), amount);
+        return new FluidStack(this.fluidStack.getFluid(), amount, this.fluidStack.getTag());
     }
 
     /** Recipe Stuff **/
@@ -183,12 +183,12 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.capacity;
     }
 
-    public void recipeInsert(Fluid fluid, int amount) {
+    public void recipeInsert(Fluid fluid, int amount, CompoundNBT nbt) {
         if(amount <= 0)
             return;
 
         if(this.fluidStack.isEmpty())
-            this.fluidStack = new FluidStack(fluid, amount);
+            this.fluidStack = new FluidStack(fluid, amount, nbt);
         else {
             amount = MathHelper.clamp(amount, 0, getRecipeRemainingSpace());
             this.fluidStack.grow(amount);

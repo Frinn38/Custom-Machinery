@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.Direction;
@@ -32,7 +31,7 @@ import java.util.function.Predicate;
 
 public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityComponent, ISerializableComponent, ISyncableStuff {
 
-    private LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);
+    private final LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);
 
     public FluidComponentHandler(IMachineComponentManager manager) {
         super(manager);
@@ -128,11 +127,11 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         AtomicInteger remaining = new AtomicInteger(stack.getAmount());
         this.getComponents().forEach(component -> {
             if(component.isFluidValid(stack) && component.getRemainingSpace() > 0 && component.getMode().isInput()) {
-                int toInput = Math.min(remaining.get(), component.insert(stack.getFluid(), stack.getAmount(), FluidAction.SIMULATE));
+                int toInput = Math.min(remaining.get(), component.insert(stack.getFluid(), stack.getAmount(), stack.getTag(), FluidAction.SIMULATE));
                 if(toInput > 0) {
                     remaining.addAndGet(-toInput);
                     if (action.execute()) {
-                        component.insert(stack.getFluid(), toInput, FluidAction.EXECUTE);
+                        component.insert(stack.getFluid(), toInput, stack.getTag(), FluidAction.EXECUTE);
                         getManager().markDirty();
                     }
                 }
@@ -165,25 +164,26 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         if(remainingToDrain == maxDrain.getAmount())
             return FluidStack.EMPTY;
         else
-            return new FluidStack(maxDrain.getFluid(), maxDrain.getAmount() - remainingToDrain);
+            return new FluidStack(maxDrain.getFluid(), maxDrain.getAmount() - remainingToDrain, maxDrain.getTag());
     }
 
     @Nonnull
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
-        Fluid fluid = Fluids.EMPTY;
+        FluidStack toDrain = FluidStack.EMPTY;
         int remainingToDrain = maxDrain;
         for (FluidMachineComponent component : this.getComponents()) {
-            if(!component.getFluidStack().isEmpty() && component.getMode().isOutput() && (fluid == Fluids.EMPTY || fluid == component.getFluidStack().getFluid())) {
+            if(!component.getFluidStack().isEmpty() && component.getMode().isOutput() && (toDrain.isEmpty() || component.getFluidStack().isFluidEqual(toDrain))) {
                 FluidStack stack = component.extract(remainingToDrain, FluidAction.SIMULATE);
                 if(stack.getAmount() > remainingToDrain) {
                     if(action.execute()) {
                         component.extract(maxDrain, FluidAction.EXECUTE);
                         getManager().markDirty();
                     }
-                    return new FluidStack(stack.getFluid(), maxDrain);
+                    return new FluidStack(stack.getFluid(), maxDrain, stack.getTag());
                 } else {
-                    fluid = stack.getFluid();
+                    if(toDrain.isEmpty())
+                        toDrain = stack;
                     if(action.execute()) {
                         component.extract(stack.getAmount(), FluidAction.EXECUTE);
                         getManager().markDirty();
@@ -192,16 +192,16 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 }
             }
         }
-        if(fluid == null || remainingToDrain == maxDrain)
+        if(toDrain.isEmpty() || remainingToDrain == maxDrain)
             return FluidStack.EMPTY;
         else
-            return new FluidStack(fluid, maxDrain - remainingToDrain);
+            return new FluidStack(toDrain.getFluid(), maxDrain - remainingToDrain, toDrain.getTag());
     }
 
     /** RECIPE STUFF **/
 
-    private List<FluidMachineComponent> inputs = new ArrayList<>();
-    private List<FluidMachineComponent> outputs = new ArrayList<>();
+    private final List<FluidMachineComponent> inputs = new ArrayList<>();
+    private final List<FluidMachineComponent> outputs = new ArrayList<>();
 
     public int getFluidAmount(String tank, Fluid fluid, @Nullable CompoundNBT nbt) {
         Predicate<FluidMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getFluidStack().getTag() != null && Utils.testNBT(component.getFluidStack().getTag(), nbt));
@@ -210,9 +210,8 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     }
 
     public int getSpaceForFluid(String tank, Fluid fluid, @Nullable CompoundNBT nbt) {
-        Predicate<FluidMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getFluidStack().getTag() != null && Utils.testNBT(component.getFluidStack().getTag(), nbt));
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        return this.outputs.stream().filter(component -> component.isFluidValid(new FluidStack(fluid, 1)) && nbtPredicate.test(component) && tankPredicate.test(component)).mapToInt(FluidMachineComponent::getRecipeRemainingSpace).sum();
+        return this.outputs.stream().filter(component -> component.isFluidValid(new FluidStack(fluid, 1, nbt)) && tankPredicate.test(component)).mapToInt(FluidMachineComponent::getRecipeRemainingSpace).sum();
     }
 
     public void removeFromInputs(String tank, FluidStack stack) {
@@ -232,7 +231,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         this.outputs.stream().filter(component -> component.isFluidValid(stack) && tankPredicate.test(component)).forEach(component -> {
             int maxInsert = Math.min(component.getRecipeRemainingSpace(), toAdd.get());
             toAdd.addAndGet(-maxInsert);
-            component.recipeInsert(stack.getFluid(), maxInsert);
+            component.recipeInsert(stack.getFluid(), maxInsert, stack.getTag());
         });
         getManager().markDirty();
     }
