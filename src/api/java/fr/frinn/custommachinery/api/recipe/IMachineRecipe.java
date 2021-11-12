@@ -1,16 +1,12 @@
 package fr.frinn.custommachinery.api.recipe;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.crafting.IRecipe;
 
-public interface IMachineRecipe {
+public interface IMachineRecipe extends IRecipe<IInventory> {
 
     /**
      * @return The duration (in ticks) of the recipe.
      */
     int getRecipeTime();
-
-    /**
-     * @return The ID of the recipe (path to the json file, or the ID given by CT or Kubejs depending on how the recipe is created).
-     */
-    ResourceLocation getId();
 }

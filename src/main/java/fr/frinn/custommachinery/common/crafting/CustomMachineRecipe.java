@@ -8,15 +8,20 @@ import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.common.util.Comparators;
 import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class CustomMachineRecipe extends DummyRecipe implements IMachineRecipe {
+public class CustomMachineRecipe implements IMachineRecipe {
 
     private final ResourceLocation id;
     private final ResourceLocation machine;
@@ -95,5 +100,25 @@ public class CustomMachineRecipe extends DummyRecipe implements IMachineRecipe {
     @Override
     public IRecipeType<?> getType() {
         return Registration.CUSTOM_MACHINE_RECIPE;
+    }
+
+    @Override
+    public boolean matches(IInventory inv, World worldIn) {
+        return false;
+    }
+
+    @Override
+    public ItemStack getCraftingResult(IInventory inv) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean canFit(int width, int height) {
+        return false;
+    }
+
+    @Override
+    public ItemStack getRecipeOutput() {
+        return ItemStack.EMPTY;
     }
 }
