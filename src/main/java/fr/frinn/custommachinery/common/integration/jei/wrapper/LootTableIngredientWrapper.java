@@ -1,15 +1,27 @@
 package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
 import com.mojang.datafixers.util.Pair;
-import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
+import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.RecipeHelper;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
 import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TranslationTextComponent;
 
-import javax.annotation.Nonnull;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
@@ -26,22 +38,42 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
     }
 
     @Override
-    public Object asJEIIngredient() {
-        return LootTableHelper.getLootsForTable(this.lootTable).stream().map(pair -> {
-            ItemStack stack = pair.getFirst().copy();
-            stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", pair.getSecond());
-            return stack;
-        }).collect(Collectors.toList());
+    public void setIngredient(IIngredients ingredients) {
+        List<ItemStack> items = LootTableHelper.getLootsForTable(this.lootTable).stream().map(Pair::getFirst).collect(Collectors.toList());
+        ingredients.setOutputs(VanillaTypes.ITEM, items);
     }
 
     @Override
-    public List<ItemStack> getJeiIngredients() {
-        return LootTableHelper.getLootsForTable(this.lootTable).stream().map(Pair::getFirst).collect(Collectors.toList());
-    }
+    public boolean setupRecipe(int index, IRecipeLayout layout, IGuiElement element, RecipeHelper helper) {
+        if(!(element instanceof SlotGuiElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
+            return false;
 
-    @Nonnull
-    @Override
-    public String getComponentID() {
-        return "";
+        Map<ItemStack, Double> ingredients = LootTableHelper.getLootsForTable(this.lootTable).stream().collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+        SlotGuiElement slotElement = (SlotGuiElement)element;
+        Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
+        if(template.map(t -> t.canAccept(new ArrayList<>(ingredients.keySet()), false, helper.getDummyManager())).orElse(false)) {
+            IGuiIngredientGroup<ItemStack> group = layout.getIngredientsGroup(VanillaTypes.ITEM);
+            group.set(index, new ArrayList<>(ingredients.keySet()));
+            group.addTooltipCallback(((slotIndex, input, ingredient, tooltips) -> {
+                if(slotIndex != index)
+                    return;
+
+                double chance = ingredients.get(ingredient);
+                if(chance != 1){
+                    double percentage = chance * 100;
+                    if(percentage < 0.01F)
+                        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", "<0.01"));
+                    else {
+                        BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
+                        if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
+                            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
+                        else
+                            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
+                    }
+                }
+            }));
+            return true;
+        }
+        return false;
     }
 }

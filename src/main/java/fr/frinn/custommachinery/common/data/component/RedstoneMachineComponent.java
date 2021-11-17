@@ -125,6 +125,16 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         }
 
         @Override
+        public String getId() {
+            return "";
+        }
+
+        @Override
+        public boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager) {
+            return false;
+        }
+
+        @Override
         public RedstoneMachineComponent build(IMachineComponentManager manager) {
             return new RedstoneMachineComponent(manager, this.powerToPause, this.craftingPowerOutput, this.idlePowerOutput, this.erroredPowerOutput, this.comparatorInputType, this.comparatorInputID);
         }

@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.api.utils.CodecLogger;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.network.syncable.IntegerSyncable;
@@ -251,6 +252,16 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         @Override
         public MachineComponentType<EnergyMachineComponent> getType() {
             return Registration.ENERGY_MACHINE_COMPONENT.get();
+        }
+
+        @Override
+        public String getId() {
+            return "";
+        }
+
+        @Override
+        public boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager) {
+            return ingredient instanceof Energy;
         }
 
         @Override

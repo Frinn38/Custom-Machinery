@@ -228,4 +228,10 @@ public class Utils {
 
         return ForgeEventFactory.doPlayerHarvestCheck(player, state, toolLevel >= appearance.getMiningLevel());
     }
+
+    public static ItemStack makeItemStack(Item item, int amount, @Nullable CompoundNBT nbt) {
+        ItemStack stack = new ItemStack(item, amount);
+        stack.setTag(nbt);
+        return stack;
+    }
 }

@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
-import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Color3F;
 import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.constants.VanillaTypes;
@@ -17,8 +16,6 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -26,6 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidStack, FluidGuiElement> {
 
@@ -38,7 +36,6 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
         return VanillaTypes.FLUID;
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void render(MatrixStack matrix, int x, int y, FluidGuiElement element, @Nullable FluidStack fluid) {
         int width = element.getWidth();
@@ -62,26 +59,10 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
         }
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public List<ITextComponent> getTooltip(FluidStack ingredient, FluidGuiElement element, ITooltipFlag flag) {
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(ingredient.getDisplayName());
-        if(ingredient instanceof FluidIngredientWrapper.FluidStackWrapper) {
-            FluidIngredientWrapper.FluidStackWrapper wrapper = (FluidIngredientWrapper.FluidStackWrapper)ingredient;
-            if(wrapper.isPerTick())
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.pertick", wrapper.getAmount()));
-            else
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid", wrapper.getAmount()));
-
-            if(wrapper.getChance() == 0)
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
-            else if(wrapper.getChance() != 1.0)
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(wrapper.getChance() * 100)));
-
-            if(wrapper.isSpecificTank() && flag.isAdvanced())
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.specificTank").mergeStyle(TextFormatting.DARK_RED));
-        }
         return tooltips;
     }
 }

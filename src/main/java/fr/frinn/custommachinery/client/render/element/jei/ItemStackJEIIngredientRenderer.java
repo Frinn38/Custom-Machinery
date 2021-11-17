@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
@@ -10,19 +9,15 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -51,36 +46,11 @@ public class ItemStackJEIIngredientRenderer extends JEIIngredientRenderer<ItemSt
 
     @Override
     public List<ITextComponent> getTooltip(ItemStack ingredient, SlotGuiElement element, ITooltipFlag flag) {
-        List<ITextComponent> tooltips = ingredient.getTooltip(null, flag);
-        CompoundNBT nbt = ingredient.getChildTag(CustomMachinery.MODID);
-        if(nbt == null)
-            return tooltips;
-        if(nbt.contains("consumeDurability", Constants.NBT.TAG_INT)) {
-            int durability = nbt.getInt("consumeDurability");
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.consume", durability));
-        } else if(nbt.contains("repairDurability", Constants.NBT.TAG_INT)) {
-            int durability = nbt.getInt("repairDurability");
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.repair", durability));
-        }
-        if(nbt.contains("chance", Constants.NBT.TAG_DOUBLE)) {
-            double chance = nbt.getDouble("chance");
-            if(chance == 0)
-                tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
-            else {
-                double percentage = chance * 100;
-                if(percentage < 0.01F)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", "<0.01"));
-                else {
-                    BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
-                    if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
-                        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
-                    else
-                        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
-                }
-            }
-        }
-        if(nbt.contains("specificSlot", Constants.NBT.TAG_BYTE) && nbt.getBoolean("specificSlot") && flag.isAdvanced())
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.specificSlot").mergeStyle(TextFormatting.DARK_RED));
-        return tooltips;
+        return ingredient.getTooltip(null, flag);
+    }
+
+    @Override
+    public FontRenderer getFontRenderer(Minecraft minecraft, ItemStack ingredient) {
+        return Optional.ofNullable(ingredient.getItem().getFontRenderer(ingredient)).orElse(super.getFontRenderer(minecraft, ingredient));
     }
 }

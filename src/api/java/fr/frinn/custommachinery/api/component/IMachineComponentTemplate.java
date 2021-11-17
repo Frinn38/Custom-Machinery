@@ -28,6 +28,24 @@ public interface IMachineComponentTemplate<T extends IMachineComponent> {
     MachineComponentType<T> getType();
 
     /**
+     * Used by the JEI integration to find a specific component from a GuiElement.
+     * For example, to display an item in the correct slot in a jei recipe.
+     * @return The string ID of this component, or "" if this component type is unique or don't have an ID.
+     */
+    String getId();
+
+    /**
+     * Used by the JEI integration to find a specific component from a GuiElement.
+     * For example, to display an item in the correct slot in a jei recipe.
+     * @param ingredient The ingredient (ItemStack, FluidStack...) JEI is trying to fit in that component. Can be a List<>
+     * @param isInput True if the component MUST be an input. False if the component MUST be an output.
+     * @param manager A dummy IMachineComponentManager (not linked to any real IMachineTile) used for some checks that needs a machine context.
+     * @return True if this ingredient can be put in this component, false otherwise.
+     * If true is returned by this method, the JEI integration will assume that this component can't accept another ingredient and will not check it for remaining recipe ingredients.
+     */
+    boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager);
+
+    /**
      * Create a new IMachineComponent using this template.
      * @param manager The IMachineComponentManager that will hold this component.
      * @return The created ImachineComponent.

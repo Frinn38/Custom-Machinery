@@ -22,9 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IFilterComponent {
+public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent {
 
     private final String id;
     private final int capacity;
@@ -84,20 +83,6 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     @Override
     public int getComparatorInput() {
         return (int) (15 * ((double)this.fluidStack.getAmount() / (double)this.capacity));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Predicate<Object> getFilter() {
-        return object -> {
-            if(object instanceof FluidStack) {
-                return isFluidValid((FluidStack)object);
-            }
-            else if(object instanceof List) {
-                return ((List<Object>)object).stream().allMatch(o -> o instanceof FluidStack && isFluidValid((FluidStack)o));
-            }
-            else return false;
-        };
     }
 
     /** FLUID HANDLER STUFF **/
@@ -240,6 +225,31 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         @Override
         public MachineComponentType<FluidMachineComponent> getType() {
             return Registration.FLUID_MACHINE_COMPONENT.get();
+        }
+
+        @Override
+        public String getId() {
+            return this.id;
+        }
+
+        @Override
+        public boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager) {
+            if(isInput != this.mode.isInput())
+                return false;
+            if(ingredient instanceof FluidStack) {
+                FluidStack stack = (FluidStack)ingredient;
+                return this.filter.stream().flatMap(f -> f.getAll().stream()).anyMatch(f -> f == stack.getFluid()) == this.whitelist;
+            } else if(ingredient instanceof List) {
+                List<?> list = (List<?>)ingredient;
+                return list.stream().allMatch(object -> {
+                    if(object instanceof FluidStack) {
+                        FluidStack stack = (FluidStack)object;
+                        return this.filter.stream().flatMap(f -> f.getAll().stream()).anyMatch(f -> f == stack.getFluid()) == this.whitelist;
+                    }
+                    return false;
+                });
+            }
+            return false;
         }
 
         @Override

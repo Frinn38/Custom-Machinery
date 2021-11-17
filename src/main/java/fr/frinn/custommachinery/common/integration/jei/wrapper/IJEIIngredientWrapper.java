@@ -1,18 +1,16 @@
 package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.common.integration.jei.RecipeHelper;
+import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredientType;
-
-import javax.annotation.Nonnull;
-import java.util.List;
+import mezz.jei.api.ingredients.IIngredients;
 
 public interface IJEIIngredientWrapper<T> {
 
     IIngredientType<T> getJEIIngredientType();
 
-    Object asJEIIngredient();
+    void setIngredient(IIngredients ingredients);
 
-    List<T> getJeiIngredients();
-
-    @Nonnull
-    String getComponentID();
+    boolean setupRecipe(int index, IRecipeLayout layout, IGuiElement element, RecipeHelper helper);
 }

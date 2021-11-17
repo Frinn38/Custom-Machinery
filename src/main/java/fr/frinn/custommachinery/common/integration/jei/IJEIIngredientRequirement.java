@@ -4,5 +4,5 @@ import fr.frinn.custommachinery.common.integration.jei.wrapper.IJEIIngredientWra
 
 public interface IJEIIngredientRequirement {
 
-    IJEIIngredientWrapper getJEIIngredientWrapper();
+    IJEIIngredientWrapper<?> getJEIIngredientWrapper();
 }

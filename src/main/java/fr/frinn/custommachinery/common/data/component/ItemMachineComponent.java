@@ -24,16 +24,15 @@ import net.minecraft.util.math.MathHelper;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IFilterComponent, IVariableComponent<ItemComponentVariant> {
+public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IVariableComponent<ItemComponentVariant> {
 
-    private String id;
-    private int capacity;
-    private List<IIngredient<Item>> filter;
-    private boolean whitelist;
+    private final String id;
+    private final int capacity;
+    private final List<IIngredient<Item>> filter;
+    private final boolean whitelist;
     private ItemStack stack = ItemStack.EMPTY;
-    private ItemComponentVariant variant;
+    private final ItemComponentVariant variant;
 
     public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant) {
         super(manager, mode);
@@ -118,19 +117,6 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return Container.calcRedstoneFromInventory(new Inventory(this.stack));
     }
 
-    @Override
-    public Predicate<Object> getFilter() {
-        return object -> {
-            if(object instanceof ItemStack) {
-                return isItemValid((ItemStack)object);
-            }
-            else if(object instanceof List) {
-                return ((List<Object>)object).stream().allMatch(o -> o instanceof ItemStack && isItemValid((ItemStack)o));
-            }
-            else return false;
-        };
-    }
-
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
 
         public static final Codec<ItemMachineComponent.Template> CODEC = RecordCodecBuilder.create(itemMachineComponentTemplate ->
@@ -144,12 +130,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
 
-        private ComponentIOMode mode;
-        private String id;
-        private int capacity;
-        private List<IIngredient<Item>> filter;
-        private boolean whitelist;
-        private ItemComponentVariant variant;
+        private final ComponentIOMode mode;
+        private final String id;
+        private final int capacity;
+        private final List<IIngredient<Item>> filter;
+        private final boolean whitelist;
+        private final ItemComponentVariant variant;
 
         public Template(String id, ComponentIOMode mode, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant) {
             this.mode = mode;
@@ -163,6 +149,31 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
             return Registration.ITEM_MACHINE_COMPONENT.get();
+        }
+
+        @Override
+        public String getId() {
+            return this.id;
+        }
+
+        @Override
+        public boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager) {
+            if(isInput != this.mode.isInput())
+                return false;
+            if(ingredient instanceof ItemStack) {
+                ItemStack stack = (ItemStack)ingredient;
+                return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.isItemValid(manager, stack);
+            } else if(ingredient instanceof List) {
+                List<?> list = (List<?>)ingredient;
+                return list.stream().allMatch(object -> {
+                    if(object instanceof ItemStack) {
+                        ItemStack stack = (ItemStack)object;
+                        return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.isItemValid(manager, stack);
+                    }
+                    return false;
+                });
+            }
+            return false;
         }
 
         @Override
