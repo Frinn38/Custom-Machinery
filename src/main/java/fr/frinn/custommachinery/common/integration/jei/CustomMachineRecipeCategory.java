@@ -107,6 +107,9 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     //Set slots, fluid and energy in the layout
     @Override
     public void setRecipe(IRecipeLayout layout, CustomMachineRecipe recipe, IIngredients ingredients) {
+        //Set the transfer item button to its place
+        layout.moveRecipeTransferButton(this.width - 11, this.height - 11);
+
         List<IJEIIngredientRequirement> requirements = recipe.getJEIIngredientRequirements();
         AtomicInteger index = new AtomicInteger(0);
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();

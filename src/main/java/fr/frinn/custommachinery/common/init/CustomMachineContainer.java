@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
 import fr.frinn.custommachinery.common.util.SlotItemComponent;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
@@ -16,15 +17,17 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CustomMachineContainer extends SyncableContainer {
 
-    private PlayerInventory playerInv;
+    private final PlayerInventory playerInv;
     public CustomMachineTile tile;
     private boolean hasPlayerInventory = false;
-    private List<SlotItemComponent> inputSlots = new ArrayList<>();
+    private final Map<String, SlotItemComponent> inputSlots = new HashMap<>();
 
     public CustomMachineContainer(int id, PlayerInventory playerInv, CustomMachineTile tile) {
         super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id, tile);
@@ -70,7 +73,7 @@ public class CustomMachineContainer extends SyncableContainer {
                     SlotItemComponent slotComponent = new SlotItemComponent(component, slotX, slotY);
                     this.addSlot(slotComponent);
                     if (component.getMode().isInput())
-                        this.inputSlots.add(slotComponent);
+                        this.inputSlots.put(component.getId(), slotComponent);
                 });
             }
         );
@@ -80,14 +83,12 @@ public class CustomMachineContainer extends SyncableContainer {
         this(id, playerInv, ClientHandler.getClientSideCustomMachineTile(extraData.readBlockPos()));
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, PlayerEntity player) {
         this.tile.markDirty();
         return super.slotClick(slotId, dragType, clickTypeIn, player);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public ItemStack transferStackInSlot(PlayerEntity player, int index) {
         if(!this.hasPlayerInventory)
@@ -99,7 +100,7 @@ public class CustomMachineContainer extends SyncableContainer {
 
         if(clickedSlot.inventory == this.playerInv) {
             ItemStack stack = clickedSlot.getStack().copy();
-            for (SlotItemComponent slotComponent : this.inputSlots) {
+            for (SlotItemComponent slotComponent : this.inputSlots.values()) {
                 int maxInput = slotComponent.getComponent().getSpaceForItem(stack);
                 if(maxInput > 0) {
                     int toInsert = Math.min(maxInput, stack.getCount());
@@ -129,7 +130,6 @@ public class CustomMachineContainer extends SyncableContainer {
         return ItemStack.EMPTY;
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public boolean canInteractWith(PlayerEntity player) {
         return isWithinUsableDistance(IWorldPosCallable.of(player.world, this.tile.getPos()), player, Registration.CUSTOM_MACHINE_BLOCK.get());
@@ -145,5 +145,9 @@ public class CustomMachineContainer extends SyncableContainer {
         if(element < 0 || element >= this.tile.getMachine().getGuiElements().size())
             throw new IllegalArgumentException("Invalid gui element ID: " + element);
         this.tile.getMachine().getGuiElements().get(element).handleClick(button, this.tile);
+    }
+
+    public Map<String, SlotItemComponent> getInputSlots() {
+        return this.inputSlots;
     }
 }

@@ -1,17 +1,22 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SlotItemComponent extends Slot {
 
     private static final IInventory EMPTY = new Inventory(0);
 
-    private ItemMachineComponent component;
+    private final ItemMachineComponent component;
 
     public SlotItemComponent(ItemMachineComponent component, int x, int y) {
         super(EMPTY, 0, x, y);

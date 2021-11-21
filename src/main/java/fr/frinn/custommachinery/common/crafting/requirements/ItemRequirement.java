@@ -51,7 +51,23 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         this.item = item;
         this.amount = amount;
         this.nbt = nbt == null ? new CompoundNBT() : nbt;
-        this.slot = slot;
+        this.slot = slot == null ? "" : slot;
+    }
+
+    public String getSlot() {
+        return this.slot;
+    }
+
+    public IIngredient<Item> getItem() {
+        return this.item;
+    }
+
+    public CompoundNBT getNbt() {
+        return this.nbt;
+    }
+
+    public int getAmount() {
+        return this.amount;
     }
 
     @Override

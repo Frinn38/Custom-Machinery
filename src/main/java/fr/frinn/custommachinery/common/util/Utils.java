@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.common.data.component.variant.item.UpgradeItemCo
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -39,7 +40,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Utils {
 
@@ -77,7 +80,9 @@ public class Utils {
         return new Vector3d(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public static boolean testNBT(CompoundNBT nbt, CompoundNBT tested) {
+    public static boolean testNBT(CompoundNBT nbt, @Nullable CompoundNBT tested) {
+        if(tested == null)
+            return false;
         for (String key : tested.keySet()) {
             if(!nbt.contains(key) || nbt.getTagId(key) != tested.getTagId(key) || !testINBT(nbt.get(key), tested.get(key)))
                 return false;
@@ -233,5 +238,26 @@ public class Utils {
         ItemStack stack = new ItemStack(item, amount);
         stack.setTag(nbt);
         return stack;
+    }
+
+    public static int getPlayerInventoryItemStackAmount(PlayerEntity player, IIngredient<Item> item, CompoundNBT nbt) {
+        return Stream.concat(player.inventory.mainInventory.stream(), player.inventory.offHandInventory.stream())
+                .filter(stack -> item.test(stack.getItem()) && testNBT(nbt, stack.getTag()))
+                .mapToInt(ItemStack::getCount)
+                .sum();
+    }
+
+    public static void moveStackFromPlayerInvToSlot(PlayerEntity player, SlotItemComponent slot, IIngredient<Item> item, int amount, CompoundNBT nbt) {
+        AtomicInteger toMove = new AtomicInteger(amount);
+        Stream.concat(player.inventory.mainInventory.stream(), player.inventory.offHandInventory.stream())
+                .filter(stack -> item.test(stack.getItem()) && testNBT(nbt, stack.getTag()) && slot.isItemValid(stack))
+                .forEach(stack -> {
+                    int canMove = Math.min(stack.getCount(), toMove.get());
+                    ItemStack toInsert = stack.copy();
+                    toInsert.setCount(canMove);
+                    slot.putStack(toInsert);
+                    stack.shrink(canMove);
+                    toMove.getAndAdd(-canMove);
+                });
     }
 }
