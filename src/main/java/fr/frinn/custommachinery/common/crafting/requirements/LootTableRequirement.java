@@ -70,7 +70,7 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
                     .withParameter(LootParameters.ORIGIN, Vector3d.copyCentered(context.getTile().getPos()))
                     .withParameter(LootParameters.BLOCK_ENTITY, context.getTile())
                     .withLuck((float) context.getModifiedvalue(this.luck, this, "luck"))
-                    .build(Registration.CUSTOM_MACHINE_LOOT_PARAMERTER_SET);
+                    .build(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
             toOutput = table.generate(lootContext);
         }
 

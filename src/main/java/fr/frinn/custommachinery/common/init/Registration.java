@@ -65,7 +65,7 @@ public class Registration {
 
     public static final IRecipeType<CustomMachineRecipe> CUSTOM_MACHINE_RECIPE = new IRecipeType<CustomMachineRecipe>(){};
 
-    public static final LootParameterSet CUSTOM_MACHINE_LOOT_PARAMERTER_SET = LootParameterSets.register("custom_machine", builder ->
+    public static final LootParameterSet CUSTOM_MACHINE_LOOT_PARAMETER_SET = LootParameterSets.register("custom_machine", builder ->
             builder.optional(LootParameters.ORIGIN).optional(LootParameters.BLOCK_ENTITY)
     );
 

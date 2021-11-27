@@ -29,7 +29,7 @@ public class LootTableHelper {
 
     public static void generate(MinecraftServer server) {
         lootsMap.clear();
-        LootContext context = new LootContext.Builder(server.getWorld(World.OVERWORLD)).build(Registration.CUSTOM_MACHINE_LOOT_PARAMERTER_SET);
+        LootContext context = new LootContext.Builder(server.getWorld(World.OVERWORLD)).build(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
         for (ResourceLocation table : tables) {
             List<Pair<ItemStack, Double>> loots = getLoots(table, server, context);
             lootsMap.put(table, loots);
