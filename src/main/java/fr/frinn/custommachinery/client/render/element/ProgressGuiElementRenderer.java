@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.client.render.element;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
-import fr.frinn.custommachinery.api.guielement.jei.IJEIElementRenderer;
+import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.recipe.IMachineRecipe;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;

@@ -22,6 +22,7 @@ import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemCo
 import fr.frinn.custommachinery.common.data.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.data.gui.*;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
@@ -51,6 +52,7 @@ import java.util.function.Supplier;
 public class Registration {
 
     public static final ItemGroup GROUP = new ItemGroup(CustomMachinery.MODID) {
+        @MethodsReturnNonnullByDefault
         @Override
         public ItemStack createIcon() {
             return CustomMachineItem.makeMachineItem(CustomMachine.DUMMY.getId());

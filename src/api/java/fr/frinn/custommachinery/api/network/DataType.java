@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.network;
 
 import fr.frinn.custommachinery.api.CustomMachineryAPI;
-import fr.frinn.custommachinery.impl.network.data.*;
-import fr.frinn.custommachinery.impl.network.syncable.*;
+import fr.frinn.custommachinery.apiimpl.network.data.*;
+import fr.frinn.custommachinery.apiimpl.network.syncable.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;

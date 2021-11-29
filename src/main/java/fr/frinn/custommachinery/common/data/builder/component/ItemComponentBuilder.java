@@ -7,12 +7,12 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.builder.IComponentBuilderProperty;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.apiimpl.component.builder.IntComponentBuilderProperty;
+import fr.frinn.custommachinery.apiimpl.component.builder.ModeComponentBuilderProperty;
+import fr.frinn.custommachinery.apiimpl.component.builder.StringComponentBuilderProperty;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.component.builder.IntComponentBuilderProperty;
-import fr.frinn.custommachinery.impl.component.builder.ModeComponentBuilderProperty;
-import fr.frinn.custommachinery.impl.component.builder.StringComponentBuilderProperty;
 
 import java.util.ArrayList;
 import java.util.List;

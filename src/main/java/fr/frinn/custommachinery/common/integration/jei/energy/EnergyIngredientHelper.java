@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.integration.jei.energy;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 

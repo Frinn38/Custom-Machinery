@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.apiimpl.integration.jei.CustomIngredientTypes;
+import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
-import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
-import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;

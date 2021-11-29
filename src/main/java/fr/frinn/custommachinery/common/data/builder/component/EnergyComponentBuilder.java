@@ -6,9 +6,9 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.builder.IComponentBuilderProperty;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.apiimpl.component.builder.IntComponentBuilderProperty;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.component.builder.IntComponentBuilderProperty;
 
 import java.util.List;
 

@@ -17,8 +17,9 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -27,7 +28,7 @@ public class CustomMachineContainer extends SyncableContainer {
     private final PlayerInventory playerInv;
     public CustomMachineTile tile;
     private boolean hasPlayerInventory = false;
-    private final Map<String, SlotItemComponent> inputSlots = new HashMap<>();
+    private final List<SlotItemComponent> inputSlotComponents = new ArrayList<>();
 
     public CustomMachineContainer(int id, PlayerInventory playerInv, CustomMachineTile tile) {
         super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id, tile);
@@ -35,6 +36,8 @@ public class CustomMachineContainer extends SyncableContainer {
         this.tile = tile;
 
         CustomMachine machine = tile.getMachine();
+
+        AtomicInteger slotIndex = new AtomicInteger(0);
 
         machine.getGuiElements()
             .stream()
@@ -46,14 +49,12 @@ public class CustomMachineContainer extends SyncableContainer {
                 int x = element.getX() + 1;
                 int y = element.getY() + 1;
 
-                for(int i= 0; i < 3; ++i) {
-                    for(int j = 0; j < 9; ++j) {
-                        this.addSlot(new Slot(playerInv, j + i * 9 + 9, x + j * 18, y + i * 18));
-                    }
-                }
+                for(int k = 0; k < 9; ++k)
+                    this.addSlot(new Slot(playerInv, slotIndex.getAndIncrement(), x + k * 18, y + 58));
 
-                for(int k = 0; k < 9; ++k) {
-                    this.addSlot(new Slot(playerInv, k, x + k * 18, y + 58));
+                for(int i= 0; i < 3; ++i) {
+                    for(int j = 0; j < 9; ++j)
+                        this.addSlot(new Slot(playerInv, slotIndex.getAndIncrement(), x + j * 18, y + i * 18));
                 }
             }
         );
@@ -70,10 +71,10 @@ public class CustomMachineContainer extends SyncableContainer {
                     int height = element.getHeight();
                     int slotX = x + (width - 16) / 2;
                     int slotY = y + (height - 16) / 2;
-                    SlotItemComponent slotComponent = new SlotItemComponent(component, slotX, slotY);
+                    SlotItemComponent slotComponent = new SlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
                     this.addSlot(slotComponent);
                     if (component.getMode().isInput())
-                        this.inputSlots.put(component.getId(), slotComponent);
+                        this.inputSlotComponents.add(slotComponent);
                 });
             }
         );
@@ -100,7 +101,7 @@ public class CustomMachineContainer extends SyncableContainer {
 
         if(clickedSlot.inventory == this.playerInv) {
             ItemStack stack = clickedSlot.getStack().copy();
-            for (SlotItemComponent slotComponent : this.inputSlots.values()) {
+            for (SlotItemComponent slotComponent : this.inputSlotComponents) {
                 int maxInput = slotComponent.getComponent().getSpaceForItem(stack);
                 if(maxInput > 0) {
                     int toInsert = Math.min(maxInput, stack.getCount());
@@ -145,9 +146,5 @@ public class CustomMachineContainer extends SyncableContainer {
         if(element < 0 || element >= this.tile.getMachine().getGuiElements().size())
             throw new IllegalArgumentException("Invalid gui element ID: " + element);
         this.tile.getMachine().getGuiElements().get(element).handleClick(button, this.tile);
-    }
-
-    public Map<String, SlotItemComponent> getInputSlots() {
-        return this.inputSlots;
     }
 }

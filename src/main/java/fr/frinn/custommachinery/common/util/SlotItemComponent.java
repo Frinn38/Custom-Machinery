@@ -18,8 +18,8 @@ public class SlotItemComponent extends Slot {
 
     private final ItemMachineComponent component;
 
-    public SlotItemComponent(ItemMachineComponent component, int x, int y) {
-        super(EMPTY, 0, x, y);
+    public SlotItemComponent(ItemMachineComponent component, int index, int x, int y) {
+        super(EMPTY, index, x, y);
         this.component = component;
     }
 

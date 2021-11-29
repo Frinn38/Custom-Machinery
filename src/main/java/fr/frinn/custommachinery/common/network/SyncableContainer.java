@@ -3,7 +3,8 @@ package fr.frinn.custommachinery.common.network;
 import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.impl.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.apiimpl.network.syncable.IntegerSyncable;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
@@ -17,15 +18,15 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public abstract class SyncableContainer extends Container {
 
-    private List<ServerPlayerEntity> players = new ArrayList<>();
-    private ISyncableStuff syncableStuff;
-    private List<ISyncable<?, ?>> stuffToSync = new ArrayList<>();
+    private final List<ServerPlayerEntity> players = new ArrayList<>();
+    private final List<ISyncable<?, ?>> stuffToSync = new ArrayList<>();
 
     public SyncableContainer(@Nullable ContainerType<?> type, int id, ISyncableStuff syncableStuff) {
         super(type, id);
-        this.syncableStuff = syncableStuff;
         syncableStuff.getStuffToSync(this.stuffToSync::add);
         this.detectAndSendChanges();
     }
@@ -43,6 +44,7 @@ public abstract class SyncableContainer extends Container {
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void handleData(IData<?> data) {
         short id = data.getID();
         ISyncable syncable = this.stuffToSync.get(id);
@@ -50,14 +52,12 @@ public abstract class SyncableContainer extends Container {
             syncable.set(data.getValue());
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     protected IntReferenceHolder trackInt(IntReferenceHolder intReferenceHolder) {
         this.stuffToSync.add(IntegerSyncable.create(intReferenceHolder::get, intReferenceHolder::set));
         return intReferenceHolder;
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     protected void trackIntArray(IIntArray array) {
         for(int i = 0; i < array.size(); i++) {
@@ -66,7 +66,6 @@ public abstract class SyncableContainer extends Container {
         }
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void addListener(IContainerListener listener) {
         super.addListener(listener);
@@ -74,10 +73,10 @@ public abstract class SyncableContainer extends Container {
             this.players.add((ServerPlayerEntity)listener);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void removeListener(IContainerListener listener) {
         super.removeListener(listener);
-        this.players.remove(listener);
+        if(listener instanceof ServerPlayerEntity)
+            this.players.remove(listener);
     }
 }

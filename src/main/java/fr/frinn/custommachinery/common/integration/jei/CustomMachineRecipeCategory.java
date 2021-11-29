@@ -3,12 +3,12 @@ package fr.frinn.custommachinery.common.integration.jei;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.api.guielement.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
+import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
-import fr.frinn.custommachinery.common.integration.jei.wrapper.IJEIIngredientWrapper;
 import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -116,28 +116,32 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         elements.stream().filter(element -> element.getType().hasJEIRenderer()).forEach(element -> {
             JEIIngredientRenderer<?, ?> renderer = ((GuiElementType)element.getType()).getJeiRenderer(element);
             IIngredientType<?> ingredientType = renderer.getType();
-            //Put each jei element to their place in the recipe gui, and use our custom ingredient renderer to pass the element to render.
-            layout.getIngredientsGroup(ingredientType).init(
-                    index.get(),
-                    true,
-                    (IIngredientRenderer)renderer,
-                    element.getX() - this.offsetX,
-                    element.getY() - this.offsetY,
-                    element.getWidth() - 2,
-                    element.getHeight() - 2,
-                    0,
-                    0);
 
             //Search for ingredients to put in the corresponding slots/fluid and energy bars.
+            boolean handled = false;
             Iterator<IJEIIngredientRequirement> iterator = requirements.iterator();
             while (iterator.hasNext()) {
                 IJEIIngredientWrapper<?> wrapper = iterator.next().getJEIIngredientWrapper();
                 //Delegate the element check to the ingredient wrapper, which will delegate to the component template if needed.
-                if(wrapper.getJEIIngredientType() == ingredientType && wrapper.setupRecipe(index.get(), layout, element, recipeHelper)) {
+                if(wrapper.getJEIIngredientType() == ingredientType && wrapper.setupRecipe(index.get(), layout, this.offsetX, this.offsetY, element, (IIngredientRenderer)renderer, recipeHelper)) {
                     //If an ingredient is found for this element, remove it from the list, so it can't be added again to another element.
                     iterator.remove();
+                    handled = true;
                     break;
                 }
+            }
+            if(!handled) {
+                layout.getIngredientsGroup(ingredientType).init(
+                        index.get(),
+                        true,
+                        (IIngredientRenderer) renderer,
+                        element.getX() - this.offsetX,
+                        element.getY() - this.offsetY,
+                        element.getWidth() - 2,
+                        element.getHeight() - 2,
+                        0,
+                        0
+                );
             }
             index.incrementAndGet();
         });

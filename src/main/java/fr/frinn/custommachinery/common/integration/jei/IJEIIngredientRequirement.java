@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
-import fr.frinn.custommachinery.common.integration.jei.wrapper.IJEIIngredientWrapper;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 
 public interface IJEIIngredientRequirement {
 

@@ -3,13 +3,15 @@ package fr.frinn.custommachinery.common.integration.jei.wrapper;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
+import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.RecipeHelper;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
+import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.item.ItemStack;
@@ -44,7 +46,7 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
     }
 
     @Override
-    public boolean setupRecipe(int index, IRecipeLayout layout, IGuiElement element, RecipeHelper helper) {
+    public boolean setupRecipe(int index, IRecipeLayout layout, int xOffset, int yOffset, IGuiElement element, IIngredientRenderer<ItemStack> renderer, IRecipeHelper helper) {
         if(!(element instanceof SlotGuiElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
             return false;
 
@@ -52,6 +54,7 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
         SlotGuiElement slotElement = (SlotGuiElement)element;
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
         if(template.map(t -> t.canAccept(new ArrayList<>(ingredients.keySet()), false, helper.getDummyManager())).orElse(false)) {
+            layout.getIngredientsGroup(getJEIIngredientType()).init(index, false, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
             IGuiIngredientGroup<ItemStack> group = layout.getIngredientsGroup(VanillaTypes.ITEM);
             group.set(index, new ArrayList<>(ingredients.keySet()));
             group.addTooltipCallback(((slotIndex, input, ingredient, tooltips) -> {

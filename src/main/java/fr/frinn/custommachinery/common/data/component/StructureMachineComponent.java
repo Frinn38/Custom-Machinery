@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.common.data.component;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.BlockStructure;
-import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.state.properties.BlockStateProperties;
 
 public class StructureMachineComponent extends AbstractMachineComponent {

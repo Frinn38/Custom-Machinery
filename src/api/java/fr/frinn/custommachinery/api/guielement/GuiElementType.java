@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.guielement;
 
 import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.api.guielement.jei.JEIIngredientRenderer;
-import fr.frinn.custommachinery.impl.guielement.GuiElementRendererRegistry;
+import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.apiimpl.guielement.GuiElementRendererRegistry;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.Function;
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 public class GuiElementType<T extends IGuiElement> extends ForgeRegistryEntry<GuiElementType<? extends IGuiElement>> {
 
     //Used to parse the machine json file gui property entry to create the corresponding gui element.
-    private Codec<T> codec;
+    private final Codec<T> codec;
     private Supplier<Function<T, JEIIngredientRenderer<?, ?>>> jeiRenderer;
 
     public GuiElementType(Codec<T> codec) {

@@ -1,13 +1,15 @@
 package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
+import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
+import fr.frinn.custommachinery.apiimpl.integration.jei.CustomIngredientTypes;
+import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.CustomIngredientTypes;
-import fr.frinn.custommachinery.common.integration.jei.RecipeHelper;
-import fr.frinn.custommachinery.common.integration.jei.energy.Energy;
 import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.IIngredients;
 
@@ -35,10 +37,11 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
     }
 
     @Override
-    public boolean setupRecipe(int index, IRecipeLayout layout, IGuiElement element, RecipeHelper helper) {
+    public boolean setupRecipe(int index, IRecipeLayout layout, int xOffset, int yOffset, IGuiElement element, IIngredientRenderer<Energy> renderer, IRecipeHelper helper) {
         if(!(element instanceof EnergyGuiElement) || element.getType() != Registration.ENERGY_GUI_ELEMENT.get())
             return false;
 
+        layout.getIngredientsGroup(getJEIIngredientType()).init(index, this.mode == IRequirement.MODE.INPUT, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
         layout.getIngredientsGroup(CustomIngredientTypes.ENERGY).set(index, this.energy);
         return true;
     }

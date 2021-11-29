@@ -72,7 +72,6 @@ public class CustomMachineBlock extends Block {
                         return machine.getMachine().getName();
                     }
 
-                    @Nullable
                     @Override
                     public Container createMenu(int id, PlayerInventory inv, PlayerEntity player) {
                         return new CustomMachineContainer(id, inv, machine);
