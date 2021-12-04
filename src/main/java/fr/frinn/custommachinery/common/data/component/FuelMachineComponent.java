@@ -71,20 +71,38 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
         getManager().getTile().markDirty();
     }
 
+    //Return true if the component successfully burned the required fuel amount
     public boolean burn(int amount) {
-        this.fuel -= amount;
-        getManager().markDirty();
-        if(getFuel() > 0)
+        //If the machine have sufficient fuel, just burn it and return true
+        if(this.fuel >= amount) {
+            this.fuel -= amount;
+            getManager().markDirty();
             return true;
+        }
+
+        //Else we try to burn a fuel item to add some fuel
+        tryBurnItem();
+
+        //Then we check again
+        if(this.fuel >= amount) {
+            this.fuel -= amount;
+            getManager().markDirty();
+            return true;
+        }
+
+        //If the machine still don't have the required fuel amount return false, the fuel requirement will error
+        return false;
+    }
+
+    private void tryBurnItem() {
         getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
-            handler.getComponents().stream()
-                    .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && !component.getItemStack().isEmpty())
-                    .findFirst()
+                handler.getComponents().stream()
+                        .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && !component.getItemStack().isEmpty())
+                        .findFirst()
         ).ifPresent(component -> {
             int fuel = ForgeHooks.getBurnTime(component.getItemStack(), IRecipeType.SMELTING);
             this.addFuel(fuel);
             component.extract(1);
         });
-        return getFuel() > 0;
     }
 }

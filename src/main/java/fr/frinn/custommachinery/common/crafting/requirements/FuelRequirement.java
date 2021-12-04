@@ -25,7 +25,7 @@ public class FuelRequirement extends AbstractTickableRequirement<FuelMachineComp
             })
     );
 
-    private int amount;
+    private final int amount;
     private boolean jeiVisible = true;
 
     public FuelRequirement(int amount) {
