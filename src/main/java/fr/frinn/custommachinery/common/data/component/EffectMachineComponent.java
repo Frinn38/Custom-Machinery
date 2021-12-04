@@ -29,7 +29,6 @@ public class EffectMachineComponent extends AbstractMachineComponent {
         AxisAlignedBB bb = new AxisAlignedBB(machinePos).grow(radius);
         getManager().getWorld().getEntitiesWithinAABB(LivingEntity.class, bb, filter).stream()
                 .filter(entity -> entity.getDistanceSq(machinePos.getX(), machinePos.getY(), machinePos.getZ()) < radius * radius)
-                .filter(entity -> entity.getActivePotionEffect(effect.getPotion()) == null)
                 .forEach(entity -> entity.addPotionEffect(effect));
     }
 }

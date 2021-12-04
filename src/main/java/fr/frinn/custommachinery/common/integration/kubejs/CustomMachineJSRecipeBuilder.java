@@ -414,7 +414,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder runCommandEachTick(String command, int permissionLevel, boolean log) {
-        return this.addRequirement(new CommandRequirement(command, CraftingManager.PHASE.ENDING, permissionLevel, log));
+        return this.addRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING_TICKABLE, permissionLevel, log));
     }
 
     public CustomMachineJSRecipeBuilder runCommandOnEnd(String command) {
@@ -455,7 +455,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(Utils.isResourceNameValid(effect) && ForgeRegistries.POTIONS.containsKey(new ResourceLocation(effect)))
-            return this.addRequirement(new EffectRequirement(ForgeRegistries.POTIONS.getValue(new ResourceLocation(effect)), time, radius, level, entityFilter, true));
+            return this.addRequirement(new EffectRequirement(ForgeRegistries.POTIONS.getValue(new ResourceLocation(effect)), time, level, radius, entityFilter, true));
         else
             ScriptType.SERVER.console.warn("Invalid effect ID: " + effect);
         return this;
@@ -465,12 +465,15 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         return this.giveEffectEachTick(effect, time, radius, 1, new String[]{});
     }
 
-    public CustomMachineJSRecipeBuilder giveEffectEachTick(String effect, int time, int radius, int level) {
-        return this.giveEffectEachTick(effect, time, radius, level, new String[]{});
-    }
-
-    public CustomMachineJSRecipeBuilder giveEffectEachTick(String effect, int time, int radius, String[] filter) {
-        return this.giveEffectEachTick(effect, time, radius, 1, filter);
+    public CustomMachineJSRecipeBuilder giveEffectEachTick(String effect, int time, int radius, Object levelOrFilter) {
+        if(levelOrFilter instanceof Number)
+            return this.giveEffectEachTick(effect, time, radius, ((Number)levelOrFilter).intValue(), new String[]{});
+        else if(levelOrFilter instanceof String)
+            return this.giveEffectEachTick(effect, time, radius, 1, new String[]{(String)levelOrFilter});
+        else if(levelOrFilter instanceof String[])
+            return this.giveEffectEachTick(effect, time, radius, 1, (String[])levelOrFilter);
+        ScriptType.SERVER.console.error("Invalid 4th param given to 'giveEffectEachTick' : " + levelOrFilter.toString());
+        return this;
     }
 
     public CustomMachineJSRecipeBuilder giveEffectEachTick(String effect, int time, int radius, int level, String[] filter) {
@@ -481,7 +484,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(Utils.isResourceNameValid(effect) && ForgeRegistries.POTIONS.containsKey(new ResourceLocation(effect)))
-            return this.addRequirement(new EffectRequirement(ForgeRegistries.POTIONS.getValue(new ResourceLocation(effect)), time, radius, level, entityFilter, false));
+            return this.addRequirement(new EffectRequirement(ForgeRegistries.POTIONS.getValue(new ResourceLocation(effect)), time, level, radius, entityFilter, false));
         else
             ScriptType.SERVER.console.warn("Invalid effect ID: " + effect);
         return this;

@@ -16,6 +16,7 @@ import fr.frinn.custommachinery.common.util.RomanNumber;
 import net.minecraft.entity.EntityType;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -42,12 +43,12 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
             })
     );
 
-    private Effect effect;
-    private int time;
-    private int level;
-    private int radius;
-    private List<EntityType<?>> filter;
-    private boolean applyAtEnd;
+    private final Effect effect;
+    private final int time;
+    private final int level;
+    private final int radius;
+    private final List<EntityType<?>> filter;
+    private final boolean applyAtEnd;
     private boolean jeiVisible = true;
 
     public EffectRequirement(Effect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd) {
@@ -77,21 +78,23 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
 
     @Override
     public CraftingResult processEnd(EffectMachineComponent component, CraftingContext context) {
-        int time = (int)context.getModifiedvalue(this.time, this, "time");
-        int level = (int)context.getModifiedvalue(this.level, this, "level");
-        int radius = (int)context.getModifiedvalue(this.radius, this, "radius");
-        if(this.applyAtEnd)
-            component.applyEffect(new EffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
+        if(this.applyAtEnd) {
+            int time = (int)context.getModifiedvalue(this.time, this, "time");
+            int level = MathHelper.clamp((int)context.getModifiedvalue(this.level, this, "level") - 1, 0, 255);
+            int radius = (int)context.getModifiedvalue(this.radius, this, "radius");
+            component.applyEffect(new EffectInstance(this.effect, time, level - 1), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
+        }
         return CraftingResult.success();
     }
 
     @Override
     public CraftingResult processTick(EffectMachineComponent component, CraftingContext context) {
-        int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
-        int level = (int)context.getPerTickModifiedValue(this.level, this, "level");
-        int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
-        if(!this.applyAtEnd)
+        if(!this.applyAtEnd) {
+            int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
+            int level = MathHelper.clamp((int)context.getPerTickModifiedValue(this.level, this, "level") - 1, 0, 255);
+            int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
             component.applyEffect(new EffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
+        }
         return CraftingResult.success();
     }
 
@@ -109,7 +112,7 @@ public class EffectRequirement extends AbstractTickableRequirement<EffectMachine
     public RequirementDisplayInfo getDisplayInfo() {
         RequirementDisplayInfo info = new RequirementDisplayInfo();
         ITextComponent effect = new StringTextComponent(this.effect.getDisplayName().getString()).mergeStyle(TextFormatting.AQUA);
-        ITextComponent level = new StringTextComponent(RomanNumber.toRoman(this.level)).mergeStyle(TextFormatting.GOLD);
+        ITextComponent level = this.level <= 0 ? StringTextComponent.EMPTY : new StringTextComponent(RomanNumber.toRoman(this.level)).mergeStyle(TextFormatting.GOLD);
         if(this.applyAtEnd)
             info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.end", effect, level, this.time, this.radius));
         else

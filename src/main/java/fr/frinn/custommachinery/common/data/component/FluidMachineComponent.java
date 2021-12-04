@@ -129,6 +129,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             if(action.execute()) {
                 this.fluidStack = new FluidStack(fluid, amount, nbt);
                 this.actualTickInput += amount;
+                getManager().markDirty();
             }
         }
         else {
@@ -136,6 +137,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             if(action.execute()) {
                 this.fluidStack.grow(amount);
                 this.actualTickInput += amount;
+                getManager().markDirty();
             }
         }
         return amount;
@@ -156,6 +158,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if(action.execute()) {
             this.fluidStack.shrink(amount);
             this.actualTickOutput += amount;
+            getManager().markDirty();
         }
         return new FluidStack(this.fluidStack.getFluid(), amount, this.fluidStack.getTag());
     }
@@ -178,6 +181,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             amount = MathHelper.clamp(amount, 0, getRecipeRemainingSpace());
             this.fluidStack.grow(amount);
         }
+        getManager().markDirty();
     }
 
     public void recipeExtract(int amount) {
@@ -186,6 +190,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         amount = MathHelper.clamp(amount, 0, this.fluidStack.getAmount());
         this.fluidStack.shrink(amount);
+        getManager().markDirty();
     }
 
     public static class Template implements IMachineComponentTemplate<FluidMachineComponent> {
