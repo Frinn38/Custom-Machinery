@@ -37,6 +37,8 @@
   "custommachinery.gui.element.fuel.tooltip": "Burn Time: %s",
   "custommachinery.gui.element.reset.name": "Reset",
   "custommachinery.gui.element.reset.tooltip": "All already consumed inputs will be lost !",
+  "custommachinery.gui.element.dump.name": "Dump",
+  "custommachinery.gui.element.dump.tooltip": "All fluids will be lost",
 
   "custommachinery.gui.baseinfo.name": "Name:",
   "custommachinery.gui.baseinfo.namespace": "NameSpace:",

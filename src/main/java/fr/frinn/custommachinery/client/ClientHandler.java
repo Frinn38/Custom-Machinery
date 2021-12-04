@@ -132,6 +132,7 @@ public class ClientHandler {
         event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementRenderer());
         event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementRenderer());
         event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementRenderer());
+        event.register(Registration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementRenderer());
     }
 
     public static void openMachineLoadingScreen() {

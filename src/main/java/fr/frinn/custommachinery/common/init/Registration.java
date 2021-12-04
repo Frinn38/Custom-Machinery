@@ -106,6 +106,7 @@ public class Registration {
     public static final RegistryObject<GuiElementType<TextGuiElement>> TEXT_GUI_ELEMENT = GUI_ELEMENTS.register("text", () -> new GuiElementType<>(TextGuiElement.CODEC));
     public static final RegistryObject<GuiElementType<FuelGuiElement>> FUEL_GUI_ELEMENT = GUI_ELEMENTS.register("fuel", () -> new GuiElementType<>(FuelGuiElement.CODEC));
     public static final RegistryObject<GuiElementType<ResetGuiElement>> RESET_GUI_ELEMENT = GUI_ELEMENTS.register("reset", () -> new GuiElementType<>(ResetGuiElement.CODEC));
+    public static final RegistryObject<GuiElementType<DumpGuiElement>> DUMP_GUI_ELEMENT = GUI_ELEMENTS.register("dump", () -> new GuiElementType<>(DumpGuiElement.CODEC));
 
     public static final RegistryObject<MachineComponentType<EnergyMachineComponent>> ENERGY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("energy", () -> new MachineComponentType<>(EnergyMachineComponent.Template.CODEC).setGUIBuilder(EnergyComponentBuilder::new));
     public static final RegistryObject<MachineComponentType<FluidMachineComponent>> FLUID_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fluid", () -> new MachineComponentType<>(FluidMachineComponent.Template.CODEC).setNotSingle(FluidComponentHandler::new).setGUIBuilder(FluidComponentBuilder::new));

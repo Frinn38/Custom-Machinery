@@ -21,7 +21,7 @@ public class GuiElementRendererRegistry {
 
     /**
      * Note: don't throw here, the exception will just be ignored by forge.
-     * Instead just log an error, and register a dummy renderer to avoid NPE when trying to render an element with no renderer.
+     * Instead, just log an error, and register a dummy renderer to avoid NPE when trying to render an element with no renderer.
      */
     public static void init() {
         RegisterGuiElementRendererEvent event = new RegisterGuiElementRendererEvent();

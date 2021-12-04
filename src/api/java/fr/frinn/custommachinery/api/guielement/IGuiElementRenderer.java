@@ -26,7 +26,8 @@ public interface IGuiElementRenderer<E extends IGuiElement> {
 
     /**
      * Calculate if the mouse cursor is hovering the element and return true if so.
-     * default behaviour is: return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height
      */
-    boolean isHovered(E element, IMachineScreen screen, int mouseX, int mouseY);
+    default boolean isHovered(E element, IMachineScreen screen, int mouseX, int mouseY) {
+        return mouseX >= element.getX() && mouseX <= element.getX() + element.getWidth() && mouseY >= element.getY() && mouseY <= element.getY() + element.getHeight();
+    }
 }
