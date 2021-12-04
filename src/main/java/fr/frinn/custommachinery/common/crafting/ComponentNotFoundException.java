@@ -6,9 +6,9 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class ComponentNotFoundException extends RuntimeException {
 
-    private CustomMachineRecipe currentRecipe;
-    private CustomMachine machine;
-    private RequirementType<?> requirementType;
+    private final CustomMachineRecipe currentRecipe;
+    private final CustomMachine machine;
+    private final RequirementType<?> requirementType;
 
     public ComponentNotFoundException(CustomMachineRecipe currentRecipe, CustomMachine machine, RequirementType<?> requirementType) {
         this.currentRecipe = currentRecipe;
@@ -23,7 +23,7 @@ public class ComponentNotFoundException extends RuntimeException {
         builder.append("Invalid Custom Machine recipe: ");
         builder.append(this.currentRecipe.getId());
         builder.append(" | Requirement: ");
-        builder.append(new TranslationTextComponent(this.requirementType.getTranslationKey()));
+        builder.append(this.requirementType.getName());
         builder.append(" try to use a component the machine: ");
         builder.append(this.machine.getId());
         builder.append(" doesn't have !");

@@ -17,11 +17,6 @@ public class DefaultItemComponentVariant extends ItemComponentVariant {
     }
 
     @Override
-    public void tick(IMachineComponentManager manager) {
-
-    }
-
-    @Override
     public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
         return true;
     }

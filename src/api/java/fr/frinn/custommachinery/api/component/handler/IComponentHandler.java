@@ -20,12 +20,6 @@ public interface IComponentHandler<T extends IMachineComponent> extends IMachine
     List<T> getComponents();
 
     /**
-     * Used by the IMachineComponentManager to add a component in this handler.
-     * @param component The IMachineComponent that should be handled.
-     */
-    void putComponent(T component);
-
-    /**
      * Used to get a component by it's String id.
      * @param id The id of the component to find.
      * @return An Optional component.

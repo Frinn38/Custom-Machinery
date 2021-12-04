@@ -151,7 +151,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         int maxTickInput = this.maxInput - this.actualTickInput;
 
         int energyReceived = Math.min(this.capacity - this.energy, Math.min(maxTickInput, maxReceive));
-        if (!simulate) {
+        if (!simulate && energyReceived > 0) {
             this.energy += energyReceived;
             this.actualTickInput += energyReceived;
             getManager().markDirty();

@@ -8,8 +8,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -23,7 +25,7 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
 
     private Codec<? extends IMachineComponentTemplate<T>> codec;
     private boolean isSingle = true;
-    private Function<IMachineComponentManager, IComponentHandler<T>> handlerBuilder;
+    private BiFunction<IMachineComponentManager, List<T>, IComponentHandler<T>> handlerBuilder;
     private boolean defaultComponent = false;
     private Function<IMachineComponentManager, T> defaultComponentBuilder;
     private Supplier<IMachineComponentBuilder<T>> GUIComponentBuilder;
@@ -60,14 +62,14 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
     }
 
     /**
-     * By default a IMachineComponentManager can hold only one component for each type.
+     * By default, a IMachineComponentManager can hold only one component for each type.
      * Use this method to override the default behaviour and tell the IMachineComponentManager to use a IComponentHandler instead of a IMachineComponent.
      * The IComponentHandler will hold all components for it's type and redirect the component logic to them as needed.
      * @param handlerBuilder Usually a method reference to the IComponentHandler constructor.
      *                       This will be used to build the component handler when the machine tile is created.
      * @return this
      */
-    public MachineComponentType<T> setNotSingle(Function<IMachineComponentManager, IComponentHandler<T>> handlerBuilder) {
+    public MachineComponentType<T> setNotSingle(BiFunction<IMachineComponentManager, List<T>, IComponentHandler<T>> handlerBuilder) {
         this.isSingle = false;
         this.handlerBuilder = handlerBuilder;
         return this;
@@ -93,12 +95,14 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
     /**
      * Used by the IMachineComponentManager to create a IComponentHandler to hold several components of the same type.
      * @param manager The IMachineComponentManager, should be passed to the IComponentHandler as every IMachineComponent.
+     * @param components All the components of the same type that will be handled by this handler.
+     *                   This is an unmodifiable list.
      * @return The Created IComponentHandler that will be put inside the IMachineComponentManager and hold all components for this type.
      */
-    public IComponentHandler<T> getHandler(IMachineComponentManager manager) {
+    public IComponentHandler<T> getHandler(IMachineComponentManager manager, List<T> components) {
         if(this.isSingle || this.handlerBuilder == null)
             return null;
-        return this.handlerBuilder.apply(manager);
+        return this.handlerBuilder.apply(manager, components);
     }
 
     /**

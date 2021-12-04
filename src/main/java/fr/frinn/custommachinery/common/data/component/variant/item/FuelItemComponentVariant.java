@@ -19,11 +19,6 @@ public class FuelItemComponentVariant extends ItemComponentVariant {
     }
 
     @Override
-    public void tick(IMachineComponentManager manager) {
-
-    }
-
-    @Override
     public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
         return ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING) > 0;
     }

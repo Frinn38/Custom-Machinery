@@ -213,7 +213,8 @@ dependencies {
     implementation "dev.latvian.mods:rhino:${rhino_version}"
     implementation fg.deobf("me.shedaniel:architectury-forge:${architectury_version}")
 
-    runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")
+    runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")//Mekanism
+    runtimeOnly fg.deobf("curse.maven:spark-361579:3337641")//Spark profiler
 
     annotationProcessor "org.spongepowered:mixin:0.8.2:processor"
 }

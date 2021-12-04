@@ -1,10 +1,13 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
 import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.CMCollectors;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -26,28 +29,28 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityComponent, ISerializableComponent, ITickableComponent, ISyncableStuff {
 
-    private LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
+    private final LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
     private final Random rand = new Random();
+    private final List<ITickableComponentVariant> tickableVariants;
 
-    public ItemComponentHandler(IMachineComponentManager manager) {
-        super(manager);
+    public ItemComponentHandler(IMachineComponentManager manager, List<ItemMachineComponent> components) {
+        super(manager, components);
+        components.forEach(component -> {
+            if(component.getMode().isInput())
+                this.inputs.add(component);
+            if(component.getMode().isOutput())
+                this.outputs.add(component);
+        });
+        this.tickableVariants = components.stream().map(ItemMachineComponent::getVariant).filter(variant -> variant instanceof ITickableComponentVariant).map(variant -> (ITickableComponentVariant)variant).collect(CMCollectors.toImmutableList());
     }
 
     @Override
     public MachineComponentType<ItemMachineComponent> getType() {
         return Registration.ITEM_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public void putComponent(ItemMachineComponent component) {
-        super.putComponent(component);
-        if(component.getMode().isInput())
-            this.inputs.add(component);
-        if(component.getMode().isOutput())
-            this.outputs.add(component);
     }
 
     @Override
@@ -95,7 +98,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     @Override
     public void serverTick() {
-        this.getComponents().forEach(component -> component.getVariant().tick(getManager()));
+        this.tickableVariants.forEach(variant -> variant.tick(getManager()));
     }
 
     @Override

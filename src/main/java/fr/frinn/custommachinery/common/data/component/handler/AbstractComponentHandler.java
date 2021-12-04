@@ -1,21 +1,20 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import com.google.common.collect.ImmutableList;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractComponentHandler<T extends IMachineComponent> implements IComponentHandler<T> {
 
-    private IMachineComponentManager manager;
-    private List<T> components = new ArrayList<>();
+    private final IMachineComponentManager manager;
+    private final List<T> components;
 
-    public AbstractComponentHandler(IMachineComponentManager manager) {
+    public AbstractComponentHandler(IMachineComponentManager manager, List<T> components) {
         this.manager = manager;
+        this.components = components;
     }
 
     public IMachineComponentManager getManager() {
@@ -29,11 +28,6 @@ public abstract class AbstractComponentHandler<T extends IMachineComponent> impl
 
     @Override
     public List<T> getComponents() {
-        return ImmutableList.copyOf(this.components);
-    }
-
-    @Override
-    public void putComponent(T component) {
-        this.components.add(component);
+        return this.components;
     }
 }

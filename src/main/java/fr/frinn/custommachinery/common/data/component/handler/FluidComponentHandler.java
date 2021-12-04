@@ -33,8 +33,14 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     private final LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);
 
-    public FluidComponentHandler(IMachineComponentManager manager) {
-        super(manager);
+    public FluidComponentHandler(IMachineComponentManager manager, List<FluidMachineComponent> components) {
+        super(manager, components);
+        components.forEach(component -> {
+            if(component.getMode().isInput())
+                this.inputs.add(component);
+            if(component.getMode().isOutput())
+                this.outputs.add(component);
+        });
     }
 
     @Override
@@ -45,15 +51,6 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     @Override
     public Optional<FluidMachineComponent> getComponentForID(String id) {
         return this.getComponents().stream().filter(component -> component.getId().equals(id)).findFirst();
-    }
-
-    @Override
-    public void putComponent(FluidMachineComponent component) {
-        super.putComponent(component);
-        if(component.getMode().isInput())
-            this.inputs.add(component);
-        if(component.getMode().isOutput())
-            this.outputs.add(component);
     }
 
     @Override

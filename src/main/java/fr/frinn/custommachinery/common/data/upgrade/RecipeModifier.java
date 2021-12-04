@@ -73,7 +73,7 @@ public class RecipeModifier {
         StringTextComponent tooltip = new StringTextComponent(tooltipModifier >= 0 ? "+" : "");
         tooltip.appendString(this.operation == OPERATION.ADDITION ? String.valueOf(tooltipModifier) : tooltipModifier + "%");
         tooltip.appendString(" ");
-        tooltip.appendSibling(new TranslationTextComponent(this.requirementType.getTranslationKey()));
+        tooltip.appendSibling(this.requirementType.getName());
         if(this.requirementType != Registration.SPEED_REQUIREMENT.get()) {
             tooltip.appendString(" ");
             tooltip.appendSibling(new TranslationTextComponent(this.mode.getTranslationKey()));

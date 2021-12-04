@@ -15,50 +15,46 @@ public class CraftingContext {
 
     private static final Random RAND = new Random();
 
-    private final CustomMachineTile tile;
-    private CustomMachineRecipe recipe;
-    private double recipeProgressTime = 0;
+    private final CraftingManager manager;
+    private final CustomMachineRecipe recipe;
     private Map<RecipeModifier, Integer> modifiers = new HashMap<>();
+    private int modifiersCheckCooldown;
 
-    public CraftingContext(CustomMachineTile tile) {
-        this.tile = tile;
-        this.refreshModifiers(tile);
+    public CraftingContext(CraftingManager manager, CustomMachineRecipe recipe) {
+        this.manager = manager;
+        this.recipe = recipe;
+        this.modifiersCheckCooldown = Utils.RAND.nextInt(20);
     }
 
     public CustomMachineTile getTile() {
-        return this.tile;
+        return this.manager.getTile();
     }
 
-    public void refreshModifiers(CustomMachineTile tile) {
-        this.modifiers = Utils.getModifiersForTile(tile);
+    public void tickModifiers() {
+        if(this.modifiersCheckCooldown-- <= 0) {
+            this.refreshModifiers();
+            this.modifiersCheckCooldown = 20;
+        }
     }
 
-    public void setRecipe(CustomMachineRecipe recipe) {
-        this.recipe = recipe;
+    public void refreshModifiers() {
+        this.modifiers = Utils.getModifiersForTile(manager.getTile());
     }
 
     public CustomMachineRecipe getRecipe() {
         return this.recipe;
     }
 
-    public void setRecipeProgressTime(double recipeProgressTime) {
-        this.recipeProgressTime = recipeProgressTime;
-    }
-
-    public double getRecipeProgressTime() {
-        return this.recipeProgressTime;
-    }
-
     public double getRemainingTime() {
-        if(this.recipe == null)
+        if(getRecipe() == null)
             return 0;
-        return this.recipe.getRecipeTime() - this.recipeProgressTime;
+        return getRecipe().getRecipeTime() - this.manager.recipeProgressTime;
     }
 
     public double getModifiedSpeed() {
-        if(this.recipe == null)
+        if(getRecipe() == null)
             return 1;
-        int baseTime = this.recipe.getRecipeTime();
+        int baseTime = getRecipe().getRecipeTime();
         double modifiedTime = getModifiedValue(baseTime, Registration.SPEED_REQUIREMENT.get(), null, null);
         double speed = baseTime / modifiedTime;
         return Math.max(0.01, speed);
@@ -100,5 +96,29 @@ public class CraftingContext {
             }
         }
         return (value + toAdd) * toMult;
+    }
+
+    public static class Mutable extends CraftingContext {
+
+        private CustomMachineRecipe recipe;
+
+        public Mutable(CraftingManager manager) {
+            super(manager, null);
+        }
+
+        public Mutable setRecipe(CustomMachineRecipe recipe) {
+            this.recipe = recipe;
+            return this;
+        }
+
+        @Override
+        public CustomMachineRecipe getRecipe() {
+            return this.recipe;
+        }
+
+        @Override
+        public void refreshModifiers() {
+
+        }
     }
 }

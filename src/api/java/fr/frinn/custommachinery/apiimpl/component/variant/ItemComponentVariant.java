@@ -6,7 +6,5 @@ import net.minecraft.item.ItemStack;
 
 public abstract class ItemComponentVariant implements IComponentVariant {
 
-    public abstract void tick(IMachineComponentManager manager);
-
     public abstract boolean isItemValid(IMachineComponentManager manager, ItemStack stack);
 }

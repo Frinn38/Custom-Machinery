@@ -1,26 +1,57 @@
 package fr.frinn.custommachinery.common.crafting.requirements;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
 public class RequirementType<T extends IRequirement<?>> extends ForgeRegistryEntry<RequirementType<? extends IRequirement<?>>> {
 
-    private Codec<T> codec;
+    private final Codec<T> codec;
+    private boolean isWorldRequirement = false;
 
     public RequirementType(@Nonnull Codec<T> codec) {
         this.codec = codec;
     }
 
+    /**
+     * Set this requirement type as a world requirement, which mean that this requirement does not depend on the machine inventory, but rather on something checked in-world.
+     * @return Itself.
+     */
+    public RequirementType<T> setWorldRequirement() {
+        this.isWorldRequirement = true;
+        return this;
+    }
+
+    /**
+     * Used by the dispatch codec that deserialize all requirements from the recipe json.
+     * @return A codec that can deserialize a requirement of this type from json.
+     */
     @Nonnull
     public Codec<T> getCodec() {
         return this.codec;
     }
 
-    public String getTranslationKey() {
+    /**
+     * Used by the machine crafting manager to determinate if a recipe should be checked.
+     * Requirements that return true from this method will always be checked.
+     * Otherwise, the requirement will be checked only if the machine inventory changed since last check.
+     * @return Whether this requirement check something in-world or in the machine inventory.
+     */
+    public boolean isWorldRequirement() {
+        return isWorldRequirement;
+    }
+
+    /**
+     * Used to display the name of this requirement to the player, either in a gui or in the log.
+     * @return A text component representing the name of this requirement.
+     */
+    public ITextComponent getName() {
         if(getRegistryName() == null)
-            return "unknown";
-        return "requirement." + getRegistryName().getNamespace() + "." + getRegistryName().getPath();
+            return new StringTextComponent("unknown");
+        return new TranslationTextComponent("requirement." + getRegistryName().getNamespace() + "." + getRegistryName().getPath());
     }
 }
