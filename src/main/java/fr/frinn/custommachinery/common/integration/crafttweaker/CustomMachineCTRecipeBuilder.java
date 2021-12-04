@@ -103,7 +103,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getOrCreateTag(), tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getTag(), tank);
     }
 
     @Method
@@ -118,12 +118,12 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getOrCreateTag(), tank);
+        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getTag(), tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getOrCreateTag(), tank);
+        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getTag(), tank);
     }
 
     @Method
@@ -138,7 +138,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getOrCreateTag(), tank);
+        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getTag(), tank);
     }
 
     /** ITEM **/

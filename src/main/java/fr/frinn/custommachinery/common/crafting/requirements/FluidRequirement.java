@@ -19,6 +19,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Random;
 
 public class FluidRequirement extends AbstractRequirement<FluidComponentHandler> implements IChanceableRequirement<FluidComponentHandler>, IJEIIngredientRequirement {
@@ -29,22 +31,23 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                     IIngredient.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
+                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.STRING,"tank", "").forGetter(requirement -> requirement.tank)
             ).apply(fluidRequirementInstance, (mode, fluid, amount, chance, nbt, tank) -> {
-                    FluidRequirement requirement = new FluidRequirement(mode, fluid, amount, nbt, tank);
+                    FluidRequirement requirement = new FluidRequirement(mode, fluid, amount, nbt.orElse(null), tank);
                     requirement.setChance(chance);
                     return requirement;
             })
     );
 
-    private IIngredient<Fluid> fluid;
-    private int amount;
+    private final IIngredient<Fluid> fluid;
+    private final int amount;
     private double chance = 1.0D;
-    private CompoundNBT nbt;
-    private String tank;
+    @Nullable
+    private final CompoundNBT nbt;
+    private final String tank;
 
-    public FluidRequirement(MODE mode, IIngredient<Fluid> fluid, int amount, CompoundNBT nbt, String tank) {
+    public FluidRequirement(MODE mode, IIngredient<Fluid> fluid, int amount, @Nullable CompoundNBT nbt, String tank) {
         super(mode);
         if(mode == MODE.OUTPUT && fluid instanceof FluidTagIngredient)
             throw new IllegalArgumentException("You must specify a fluid for an Output Fluid Requirement");

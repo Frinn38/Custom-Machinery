@@ -37,6 +37,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     private final int amount;
     private final double chance;
     private final boolean useDurability;
+    @Nullable
     private final CompoundNBT nbt;
     private final String slot;
 
@@ -46,32 +47,13 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         this.amount = amount;
         this.chance = chance;
         this.useDurability = useDurability;
-        this.nbt = nbt == null ? new CompoundNBT() : nbt.copy();
+        this.nbt = nbt;
         this.slot = slot;
     }
 
     @Override
     public IIngredientType<ItemStack> getJEIIngredientType() {
         return VanillaTypes.ITEM;
-    }
-
-    public Object asJEIIngredient() {
-        List<ItemStack> stacks = this.item.getAll().stream().map(item -> new ItemStack(item, this.amount)).collect(Collectors.toList());
-        stacks.forEach(stack -> {
-            stack.setTag(this.nbt.copy());
-            if(this.useDurability) {
-                stack.setCount(1);
-                if(this.mode == IRequirement.MODE.INPUT)
-                    stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("consumeDurability", this.amount);
-                else if(this.mode == IRequirement.MODE.OUTPUT)
-                    stack.getOrCreateChildTag(CustomMachinery.MODID).putInt("repairDurability", this.amount);
-            }
-            if(this.chance != 1.0D)
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putDouble("chance", this.chance);
-            if(!this.slot.isEmpty())
-                stack.getOrCreateChildTag(CustomMachinery.MODID).putBoolean("specificSlot", true);
-        });
-        return stacks;
     }
 
     @Override

@@ -226,16 +226,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount) {
-        return this.requireFluidTag(tag, amount, new MapJS(), "");
+        return this.requireFluidTag(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.requireFluidTag(tag, amount, new MapJS(), (String)thing);
+            return this.requireFluidTag(tag, amount, null, (String)thing);
         else
             return this.requireFluidTag(tag, amount, MapJS.of(thing), "");
     }
@@ -254,7 +254,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
+        return this.addRequirement(new FluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack) {
@@ -262,16 +262,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount) {
-        return this.requireFluidTagPerTick(tag, amount, new MapJS(), "");
+        return this.requireFluidTagPerTick(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.requireFluidTagPerTick(tag, amount, new MapJS(), (String)thing);
+            return this.requireFluidTagPerTick(tag, amount, null, (String)thing);
         else
             return this.requireFluidTagPerTick(tag, amount, MapJS.of(thing), "");
     }
@@ -290,7 +290,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getOrCreateTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     /** ENERGY **/

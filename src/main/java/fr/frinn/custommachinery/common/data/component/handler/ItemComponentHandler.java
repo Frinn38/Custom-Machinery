@@ -165,8 +165,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     /** RECIPE STUFF **/
 
-    private List<ItemMachineComponent> inputs = new ArrayList<>();
-    private List<ItemMachineComponent> outputs = new ArrayList<>();
+    private final List<ItemMachineComponent> inputs = new ArrayList<>();
+    private final List<ItemMachineComponent> outputs = new ArrayList<>();
 
     public int getItemAmount(String slot, Item item, @Nullable CompoundNBT nbt) {
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
@@ -186,7 +186,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     public int getSpaceForItem(String slot, Item item, @Nullable CompoundNBT nbt) {
         ItemStack stack = item.getDefaultInstance();
-        stack.setTag(nbt == null ? null : nbt.copy());
+        stack.setTag(nbt);
         int maxStackSize = stack.getMaxStackSize();
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);

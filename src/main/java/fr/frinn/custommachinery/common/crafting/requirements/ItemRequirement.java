@@ -19,6 +19,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Random;
 
 public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement<ItemComponentHandler>, IJEIIngredientRequirement {
@@ -28,11 +29,11 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
+                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
                     CodecLogger.loggedOptional(Codec.STRING,"slot", "").forGetter(requirement -> requirement.slot)
             ).apply(itemRequirementInstance, (mode, item, amount, nbt, chance, slot) -> {
-                    ItemRequirement requirement = new ItemRequirement(mode, item, amount, nbt, slot);
+                    ItemRequirement requirement = new ItemRequirement(mode, item, amount, nbt.orElse(null), slot);
                     requirement.setChance(chance);
                     return requirement;
             })
@@ -40,6 +41,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
 
     private final IIngredient<Item> item;
     private final int amount;
+    @Nullable
     private final CompoundNBT nbt;
     private double chance = 1.0D;
     private final String slot;
@@ -50,24 +52,8 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.item = item;
         this.amount = amount;
-        this.nbt = nbt == null ? new CompoundNBT() : nbt;
+        this.nbt = nbt;
         this.slot = slot == null ? "" : slot;
-    }
-
-    public String getSlot() {
-        return this.slot;
-    }
-
-    public IIngredient<Item> getItem() {
-        return this.item;
-    }
-
-    public CompoundNBT getNbt() {
-        return this.nbt;
-    }
-
-    public int getAmount() {
-        return this.amount;
     }
 
     @Override
