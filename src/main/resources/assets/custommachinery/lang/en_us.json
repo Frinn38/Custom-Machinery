@@ -1,6 +1,7 @@
 {
   "item.custommachinery.machine_creator_item": "Machine Creator",
   "item.custommachinery.box_creator_item": "Box Creator",
+  "item.custommachinery.structure_creator": "Structure Creator",
   "itemGroup.custommachinery": "Custom Machinery",
 
   "custommachinery.box_creator.first_block": "First Block : %s",
@@ -11,6 +12,10 @@
   "custommachinery.box_creator.reset": "Click in the air while crouching to reset",
   "custommachinery.box_creator.create_box": "The selected box is : %s",
   "custommachinery.box_creator.copy": "Click to copy to clipboard",
+
+  "custommachinery.structure_creator.no_blocks": "No blocks are selected",
+  "custommachinery.structure_creator.amount": "%s blocks selected",
+  "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s %s",
 
   "custommachinery.machine_creator.warning": "Warning : This is heavily WIP and can break your machines. Use it at your own risk and often backup your machine json",
 

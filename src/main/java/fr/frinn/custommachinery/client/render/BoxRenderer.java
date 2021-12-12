@@ -10,9 +10,9 @@ import net.minecraft.util.math.vector.Vector3f;
 
 public class BoxRenderer {
 
-    private int time;
-    private long start;
-    private AxisAlignedBB box;
+    private final int time;
+    private final long start;
+    private final AxisAlignedBB box;
 
     public BoxRenderer(int time, AxisAlignedBB box) {
         this.time = time;
