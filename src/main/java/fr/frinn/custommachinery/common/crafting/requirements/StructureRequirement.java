@@ -48,6 +48,7 @@ public class StructureRequirement extends AbstractTickableRequirement<StructureM
         this.pattern = pattern;
         this.keys = keys;
         BlockStructure.Builder builder = BlockStructure.Builder.start();
+        //TODO: iterate list in inverse order in 1.18 to make the pattern from top to bottom instead of from bottom to top (current)
         for(List<String> levels : pattern)
             builder.aisle(levels.toArray(new String[0]));
         for(Map.Entry<Character, IIngredient<PartialBlockState>> key : keys.entrySet())

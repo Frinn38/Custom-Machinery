@@ -2,10 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
@@ -23,9 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Util;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -171,18 +166,19 @@ public class StructureCreatorItem extends Item {
                 partial = new PartialBlockState(state, Lists.newArrayList(state.getProperties()), Optional.ofNullable(world.getTileEntity(p)).map(tile -> tile.write(new CompoundNBT())).orElse(null));
                 cache.put(state, partial);
             }
+            //TODO: change "p.getY() - minY" to "maxY - p.getY()" in 1.18 to make the pattern from top to bottom instead of from bottom to top (current)
             switch (machineFacing) {
                 case WEST:
-                    states[maxY - p.getY()][p.getX() - minX][p.getZ() - minZ] = partial;
+                    states[p.getY() - minY][p.getX() - minX][p.getZ() - minZ] = partial;
                     break;
                 case EAST:
-                    states[maxY - p.getY()][maxX - p.getX()][maxZ - p.getZ()] = partial;
+                    states[p.getY() - minY][maxX - p.getX()][maxZ - p.getZ()] = partial;
                     break;
                 case SOUTH:
-                    states[maxY - p.getY()][p.getZ() - minZ][p.getX() - minX] = partial;
+                    states[p.getY() - minY][p.getZ() - minZ][p.getX() - minX] = partial;
                     break;
                 case NORTH:
-                    states[maxY - p.getY()][maxZ - p.getZ()][maxX - p.getX()] = partial;
+                    states[p.getY() - minY][maxZ - p.getZ()][maxX - p.getX()] = partial;
                     break;
             }
         });
@@ -192,5 +188,16 @@ public class StructureCreatorItem extends Item {
     @Override
     public void addInformation(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
         tooltip.add(new TranslationTextComponent("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()));
+        tooltip.add(new TranslationTextComponent("custommachinery.structure_creator.reset"));
+    }
+
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
+        if(player.isCrouching() && player.getHeldItem(hand).getItem() == this) {
+            ItemStack stack = player.getHeldItem(hand);
+            stack.getOrCreateChildTag(CustomMachinery.MODID).remove("blocks");
+            return ActionResult.resultSuccess(stack);
+        }
+        return super.onItemRightClick(world, player, hand);
     }
 }

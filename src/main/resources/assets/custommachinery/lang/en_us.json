@@ -16,6 +16,7 @@
   "custommachinery.structure_creator.no_blocks": "No blocks are selected",
   "custommachinery.structure_creator.amount": "%s blocks selected",
   "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s %s",
+  "custommachinery.structure_creator.reset": "Sneak + right click to reset",
 
   "custommachinery.machine_creator.warning": "Warning : This is heavily WIP and can break your machines. Use it at your own risk and often backup your machine json",
 
