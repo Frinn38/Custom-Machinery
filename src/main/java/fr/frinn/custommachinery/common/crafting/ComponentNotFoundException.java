@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import net.minecraft.util.text.TranslationTextComponent;
 
 public class ComponentNotFoundException extends RuntimeException {
 

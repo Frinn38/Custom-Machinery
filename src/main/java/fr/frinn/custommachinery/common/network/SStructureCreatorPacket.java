@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.network;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import fr.frinn.custommachinery.client.ClientPacketHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -29,9 +30,8 @@ public class SStructureCreatorPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
-        if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
+        if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT)
             context.get().enqueueWork(() -> ClientPacketHandler.handleStructureCreatorPacket(this.keysJson, this.patternJson));
-        }
         context.get().setPacketHandled(true);
     }
 }

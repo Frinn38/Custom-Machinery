@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class SUpdateUpgradesPacket {
 
-    private List<MachineUpgrade> upgrades;
+    private final List<MachineUpgrade> upgrades;
 
     public SUpdateUpgradesPacket(List<MachineUpgrade> upgrades) {
         this.upgrades = upgrades;

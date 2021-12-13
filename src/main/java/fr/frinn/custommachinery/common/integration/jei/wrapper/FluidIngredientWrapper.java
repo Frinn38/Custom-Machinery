@@ -91,42 +91,4 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         }
         return false;
     }
-
-    public static class FluidStackWrapper extends FluidStack {
-
-        private boolean isPerTick;
-        private boolean specificTank;
-        private double chance;
-
-        public FluidStackWrapper(Fluid fluid, int amount, CompoundNBT nbt) {
-            super(fluid, amount, nbt);
-        }
-
-        public boolean isPerTick() {
-            return this.isPerTick;
-        }
-
-        public FluidStackWrapper setPerTick(boolean perTick) {
-            this.isPerTick = perTick;
-            return this;
-        }
-
-        public boolean isSpecificTank() {
-            return this.specificTank;
-        }
-
-        public FluidStackWrapper setSpecificTank(boolean specificTank) {
-            this.specificTank = specificTank;
-            return this;
-        }
-
-        public double getChance() {
-            return this.chance;
-        }
-
-        public FluidStackWrapper setChance(double chance) {
-            this.chance = chance;
-            return this;
-        }
-    }
 }

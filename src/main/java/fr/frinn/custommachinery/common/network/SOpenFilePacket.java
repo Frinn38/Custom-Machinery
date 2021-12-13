@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.network;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Util;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -23,9 +24,8 @@ public class SOpenFilePacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> {
-            Util.getOSType().openURI(this.path);
-        });
+        if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT)
+            context.get().enqueueWork(() -> Util.getOSType().openURI(this.path));
         context.get().setPacketHandled(true);
     }
 }

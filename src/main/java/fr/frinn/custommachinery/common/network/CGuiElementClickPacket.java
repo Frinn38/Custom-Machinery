@@ -10,8 +10,8 @@ import java.util.function.Supplier;
 
 public class CGuiElementClickPacket {
 
-    private int element;
-    private byte type;
+    private final int element;
+    private final byte type;
 
     public CGuiElementClickPacket(int element, byte type) {
         this.element = element;

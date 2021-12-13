@@ -17,10 +17,10 @@ import java.util.function.Supplier;
 
 public class CAddMachinePacket {
 
-    private ResourceLocation id;
-    private CustomMachine machine;
-    private boolean shouldReload;
-    private boolean writeToFile;
+    private final ResourceLocation id;
+    private final CustomMachine machine;
+    private final boolean shouldReload;
+    private final boolean writeToFile;
 
     public CAddMachinePacket(ResourceLocation id, CustomMachine machine, boolean shouldReload, boolean writeToFile) {
         this.id = id;

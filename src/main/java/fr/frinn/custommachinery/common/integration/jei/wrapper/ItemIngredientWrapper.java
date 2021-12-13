@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.integration.jei.wrapper;
 
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;

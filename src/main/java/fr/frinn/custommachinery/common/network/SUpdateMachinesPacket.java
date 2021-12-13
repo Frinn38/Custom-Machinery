@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 public class SUpdateMachinesPacket {
 
-    private Map<ResourceLocation, CustomMachine> machines;
+    private final Map<ResourceLocation, CustomMachine> machines;
 
     public SUpdateMachinesPacket(Map<ResourceLocation, CustomMachine> machines) {
         this.machines = new HashMap<>(machines);

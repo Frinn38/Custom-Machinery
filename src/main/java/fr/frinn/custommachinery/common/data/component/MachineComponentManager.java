@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.data.component;
 
-import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.api.component.*;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -16,7 +15,6 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class MachineComponentManager implements IMachineComponentManager, INBTSerializable<CompoundNBT> {
 

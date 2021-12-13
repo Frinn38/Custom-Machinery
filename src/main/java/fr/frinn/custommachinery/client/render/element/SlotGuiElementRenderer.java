@@ -7,11 +7,9 @@ import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import fr.frinn.custommachinery.common.util.CycleTimer;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
 import java.util.List;

@@ -4,7 +4,6 @@ import fr.frinn.custommachinery.api.component.*;
 import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CMCollectors;
@@ -29,7 +28,6 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityComponent, ISerializableComponent, ITickableComponent, ISyncableStuff {
 
