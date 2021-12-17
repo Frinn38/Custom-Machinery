@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.api.integration.jei;
 
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 
 /**
  * This class link one recipe requirement to a JEI ingredient.
@@ -25,7 +25,7 @@ public interface IJEIIngredientWrapper<T> {
      * The wrapper should take care only of its requirement, other requirements should have their own wrapper.
      * @param ingredients Use this to specify all inputs and outputs required or produced by this requirement.
      */
-    void setIngredient(IIngredients ingredients);
+    void setIngredient(Ingredients ingredients);
 
     /**
      * Called by the JEI integration to gather all ingredients that will be displayed in a certain GuiElement of the recipe layout (the rectangle around the recipe in the JEI gui).

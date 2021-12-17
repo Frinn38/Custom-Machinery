@@ -20,7 +20,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.5-0.5.5'
+version = '1.16.5-0.5.6'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'custommachinery'
 
@@ -276,7 +276,7 @@ if (System.getenv("CURSEFORGE")) {
             changelog = file("run/changelog.md")
             releaseType = "beta"
             mainArtifact(jar) {
-                displayName = "Custom-Machinery-1.16.5-${project.version}"
+                displayName = "Custom-Machinery-${project.version}"
                 relations {
                     optionalDependency "crafttweaker"
                     optionalDependency "jei"
@@ -284,7 +284,9 @@ if (System.getenv("CURSEFORGE")) {
                     optionalDependency "kubejs-forge"
                 }
             }
-            addArtifact apiJar
+            addArtifact(apiJar) {
+                displayName = "Custom-Machinery-${project.version}-api"
+            }
         }
     }
 }

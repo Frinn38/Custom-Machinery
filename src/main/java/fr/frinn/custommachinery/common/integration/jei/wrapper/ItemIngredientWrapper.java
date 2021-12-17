@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
+import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -14,7 +15,6 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -56,12 +56,12 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     }
 
     @Override
-    public void setIngredient(IIngredients ingredients) {
+    public void setIngredient(Ingredients ingredients) {
         List<ItemStack> items = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.amount, this.nbt)).collect(Collectors.toList());
         if(this.mode == IRequirement.MODE.INPUT)
-            ingredients.setInputs(VanillaTypes.ITEM, items);
+            ingredients.addInputs(VanillaTypes.ITEM, items);
         else
-            ingredients.setOutputs(VanillaTypes.ITEM, items);
+            ingredients.addOutputs(VanillaTypes.ITEM, items);
     }
 
     @Override

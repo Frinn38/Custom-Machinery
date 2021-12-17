@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
@@ -101,7 +102,9 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     //Give all ingredients to jei for a recipe, used when searching for uses or recipes for an ingredient (player press U or R).
     @Override
     public void setIngredients(CustomMachineRecipe recipe, IIngredients ingredients) {
-        recipe.getJEIIngredientRequirements().forEach(requirement -> requirement.getJEIIngredientWrapper().setIngredient(ingredients));
+        Ingredients builder = new Ingredients();
+        recipe.getJEIIngredientRequirements().forEach(requirement -> requirement.getJEIIngredientWrapper().setIngredient(builder));
+        builder.finish(ingredients);
     }
 
     //Set slots, fluid and energy in the layout

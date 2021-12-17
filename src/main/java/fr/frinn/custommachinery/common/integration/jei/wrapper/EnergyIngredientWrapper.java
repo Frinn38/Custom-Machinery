@@ -5,13 +5,13 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.apiimpl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
+import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
 
 public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
@@ -29,11 +29,11 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
     }
 
     @Override
-    public void setIngredient(IIngredients ingredients) {
+    public void setIngredient(Ingredients ingredients) {
         if(this.mode == IRequirement.MODE.INPUT)
-            ingredients.setInput(CustomIngredientTypes.ENERGY, this.energy);
+            ingredients.addInput(CustomIngredientTypes.ENERGY, this.energy);
         else
-            ingredients.setOutput(CustomIngredientTypes.ENERGY, this.energy);
+            ingredients.addOutput(CustomIngredientTypes.ENERGY, this.energy);
     }
 
     @Override
