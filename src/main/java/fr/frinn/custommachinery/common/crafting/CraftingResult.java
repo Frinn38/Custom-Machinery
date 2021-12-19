@@ -8,8 +8,8 @@ public class CraftingResult {
     private static final CraftingResult SUCCES = new CraftingResult(RESULT.SUCCESS, new StringTextComponent("success"));
     private static final CraftingResult PASS = new CraftingResult(RESULT.PASS, new StringTextComponent("pass"));
 
-    private RESULT result;
-    private ITextComponent message;
+    private final RESULT result;
+    private final ITextComponent message;
 
     public CraftingResult(RESULT result, ITextComponent message) {
         this.result = result;

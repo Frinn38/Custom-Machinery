@@ -159,9 +159,16 @@
   "custommachinery.requirements.entity.kill.info": "Kill %s entities in %s blocks radius",
   "custommachinery.requirements.entity.check_health.info": "Requires %s entity HP in a %s blocks radius (not consumed)",
   "custommachinery.requirements.entity.check_amount.info": "Requires %s entities in a %s blocks radius",
-  "custommachinery.requirements.entity.consume_healh.info": "Requires and consume %s entity HP in a %s blocks radius",
+  "custommachinery.requirements.entity.consume_health.info": "Requires and consume %s entity HP in a %s blocks radius",
   "custommachinery.requirements.entity.whitelist": "Entity whitelist:",
   "custommachinery.requirements.entity.blacklist": "Entity blacklist:",
+  "custommachinery.requirements.drop.error.input": "Not enough drops around the machine, %s needed but %s found !",
+  "custommachinery.requirements.drop.error.output": "Cannot drop %s",
+  "custommachinery.requirements.drop.info.check": "Requires %s dropped item in a radius of %s blocks",
+  "custommachinery.requirements.drop.info.consume": "Consume %s dropped item in a radius of %s blocks",
+  "custommachinery.requirements.drop.info.produce": "Drop %s",
+  "custommachinery.requirements.drop.info.whitelist": "Accepted items :",
+  "custommachinery.requirements.drop.info.blacklist": "Denied items :",
 
   "custommachinery.upgrade.tooltip": "(Shift) Custom Machine Upgrade",
 
