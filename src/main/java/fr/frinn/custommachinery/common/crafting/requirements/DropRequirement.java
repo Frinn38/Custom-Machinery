@@ -23,12 +23,9 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
-public class DropRequirement extends AbstractTickableRequirement<DropMachineComponent> implements IDelayedRequirement<DropMachineComponent>, IDisplayInfoRequirement<DropMachineComponent> {
+public class DropRequirement extends AbstractTickableRequirement<DropMachineComponent> implements IDelayedRequirement<DropMachineComponent>, IChanceableRequirement<DropMachineComponent>, IDisplayInfoRequirement<DropMachineComponent> {
 
     public static final Codec<DropRequirement> CODEC = RecordCodecBuilder.create(dropRequirementInstance ->
             dropRequirementInstance.group(
@@ -40,9 +37,11 @@ public class DropRequirement extends AbstractTickableRequirement<DropMachineComp
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "amount", 1).forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "radius", 1).forGetter(requirement -> requirement.radius),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "chance", 1.0).forGetter(requirement -> requirement.chance),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "delay", 0.0).forGetter(IDelayedRequirement::getDelay)
-            ).apply(dropRequirementInstance, (mode, action, input, whitelist, output, nbt, amount, radius, delay) -> {
+            ).apply(dropRequirementInstance, (mode, action, input, whitelist, output, nbt, amount, radius, chance, delay) -> {
                 DropRequirement requirement = new DropRequirement(mode, action, input, whitelist, output, nbt.orElse(null), amount, radius);
+                requirement.setChance(chance);
                 requirement.setDelay(delay);
                 return requirement;
             })
@@ -56,7 +55,8 @@ public class DropRequirement extends AbstractTickableRequirement<DropMachineComp
     private final CompoundNBT nbt;
     private final int amount;
     private final int radius;
-    private double delay;
+    private double chance = 1.0D;
+    private double delay = 0.0D;
 
     public DropRequirement(MODE mode, Action action, List<IIngredient<Item>> input, boolean whitelist, Item output, @Nullable CompoundNBT nbt, int amount, int radius) {
         super(mode);
@@ -152,6 +152,19 @@ public class DropRequirement extends AbstractTickableRequirement<DropMachineComp
             return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", amount, found));
         }
         return CraftingResult.pass();
+    }
+
+    /** CHANCE **/
+
+    @Override
+    public void setChance(double chance) {
+        this.chance = chance;
+    }
+
+    @Override
+    public boolean testChance(DropMachineComponent component, Random rand, CraftingContext context) {
+        double chance = context.getModifiedvalue(this.chance, this, "chance");
+        return rand.nextDouble() > chance;
     }
 
     /** DELAY **/
