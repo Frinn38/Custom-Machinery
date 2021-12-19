@@ -25,6 +25,7 @@ import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.command.arguments.BlockStateParser;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -55,6 +56,7 @@ public class Codecs {
     public static final Codec<Character> CHARACTER_CODEC                    = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC  = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
     public static final Codec<ToolType> TOOL_TYPE_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeToolType, ToolType::getName), "Tool Type");
+    public static final Codec<ResourceLocation> RESOURCE_LOCATION_CODEC     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeResourceLocation, ResourceLocation::toString), "Resource Location");
 
     public static final Codec<ITag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(Utils::getItemTag, Utils::getItemTagID), "Item Tag");
     public static final Codec<ITag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getFluidTag, Utils::getFluidTagID), "Fluid Tag");
@@ -78,8 +80,8 @@ public class Codecs {
     public static final Codec<ProgressBarGuiElement.Direction> PROGRESS_DIRECTION       = fromEnum(ProgressBarGuiElement.Direction.class);
     public static final Codec<DropRequirement.Action> DROP_REQUIREMENT_ACTION_CODEC    = fromEnum(DropRequirement.Action.class);
 
-    public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(PARTIAL_BLOCK_STATE_CODEC, ResourceLocation.CODEC, "Block Model").xmap(either -> either.map(PartialBlockState::getModelLocation, Function.identity()), Either::right);
-    public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(RegistryCodec.ITEM, ResourceLocation.CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
+    public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(RESOURCE_LOCATION_CODEC, PARTIAL_BLOCK_STATE_CODEC, "Block Model").xmap(either -> either.map(Function.identity(), PartialBlockState::getModelLocation), Either::left);
+    public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(RegistryCodec.ITEM, RESOURCE_LOCATION_CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
 
     public static <E extends Enum<E>> Codec<E> fromEnum(Class<E> enumClass) {
         return new Codec<E>() {
@@ -176,6 +178,17 @@ public class Codecs {
         try {
             return DataResult.success(ToolType.get(encoded.toLowerCase(Locale.ENGLISH)));
         } catch (IllegalArgumentException e) {
+            return DataResult.error(e.getMessage());
+        }
+    }
+
+    private static DataResult<ResourceLocation> decodeResourceLocation(String encoded) {
+        try {
+            if(encoded.contains("#"))
+                return DataResult.success(new ModelResourceLocation(encoded));
+            else
+                return DataResult.success(new ResourceLocation(encoded));
+        } catch (Exception e) {
             return DataResult.error(e.getMessage());
         }
     }
