@@ -8,6 +8,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.PrimitiveCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
@@ -34,7 +35,6 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
@@ -43,15 +43,39 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.ToolType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 public class Codecs {
 
     public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE      = RegistryCodec.of(Registration.GUI_ELEMENT_TYPE_REGISTRY.get());
     public static final Codec<RequirementType<? extends IRequirement<?>>> REQUIREMENT_TYPE = RegistryCodec.of(Registration.REQUIREMENT_TYPE_REGISTRY.get());
+
+    public static final Codec<DoubleStream> DOUBLE_STREAM = new PrimitiveCodec<DoubleStream>() {
+        @Override
+        public <T> DataResult<DoubleStream> read(final DynamicOps<T> ops, final T input) {
+            return ops.getStream(input).flatMap(stream -> {
+                final List<T> list = stream.collect(Collectors.toList());
+                if (list.stream().allMatch(element -> ops.getNumberValue(element).result().isPresent()))
+                    return DataResult.success(list.stream().mapToDouble(element -> ops.getNumberValue(element).result().get().doubleValue()));
+                return DataResult.error("Some elements are not doubles: " + input);
+            });
+        }
+
+        @Override
+        public <T> T write(final DynamicOps<T> ops, final DoubleStream value) {
+            return ops.createList(value.mapToObj(ops::createDouble));
+        }
+
+        @Override
+        public String toString() {
+            return "DoubleStream";
+        }
+    };
 
     public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString), "Position Comparator");
     public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString), "Time Comparator");
@@ -65,10 +89,6 @@ public class Codecs {
     public static final Codec<ITag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getFluidTag, Utils::getFluidTagID), "Fluid Tag");
     public static final Codec<ITag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getBlockTag, Utils::getBlockTagID), "Block Tag");
 
-    public static final Codec<BlockPos> BLOCK_POS       = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
-    public static final Codec<AxisAlignedBB> AABB_CODEC = CodecLogger.namedCodec(Codec.INT_STREAM.comapFlatMap(stream -> Util.validateIntStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> IntStream.of((int)box.minX, (int)box.minY, (int)box.minZ, (int)box.maxX, (int)box.maxY, (int)box.maxZ)), "Box");
-    public static final Codec<AxisAlignedBB> BOX_CODEC  = either(BLOCK_POS, AABB_CODEC, "Box").xmap(either -> either.map(pos -> new AxisAlignedBB(pos, pos), Function.identity()), Either::right);
-
     public static final Codec<MachineStatus> STATUS_CODEC                               = fromEnum(MachineStatus.class);
     public static final Codec<ComponentIOMode> COMPONENT_MODE_CODEC                     = fromEnum(ComponentIOMode.class);
     public static final Codec<IRequirement.MODE> REQUIREMENT_MODE_CODEC                 = fromEnum(IRequirement.MODE.class);
@@ -81,12 +101,14 @@ public class Codecs {
     public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = fromEnum(BlockRequirement.ACTION.class);
     public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = fromEnum(RecipeModifier.OPERATION.class);
     public static final Codec<ProgressBarGuiElement.Direction> PROGRESS_DIRECTION       = fromEnum(ProgressBarGuiElement.Direction.class);
-    public static final Codec<DropRequirement.Action> DROP_REQUIREMENT_ACTION_CODEC    = fromEnum(DropRequirement.Action.class);
+    public static final Codec<DropRequirement.Action> DROP_REQUIREMENT_ACTION_CODEC     = fromEnum(DropRequirement.Action.class);
 
+    public static final Codec<BlockPos> BLOCK_POS                 = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
+    public static final Codec<AxisAlignedBB> AABB_CODEC           = CodecLogger.namedCodec(DOUBLE_STREAM.comapFlatMap(stream -> validateDoubleStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> DoubleStream.of(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ)), "Box");
+    public static final Codec<AxisAlignedBB> BOX_CODEC            = either(BLOCK_POS, AABB_CODEC, "Box").xmap(either -> either.map(pos -> new AxisAlignedBB(pos, pos), Function.identity()), Either::right);
     public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(RESOURCE_LOCATION_CODEC, PARTIAL_BLOCK_STATE_CODEC, "Block Model").xmap(either -> either.map(Function.identity(), PartialBlockState::getModelLocation), Either::left);
     public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(RegistryCodec.ITEM, RESOURCE_LOCATION_CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
-    public static final Codec<VoxelShape> VOXEL_SHAPE_CODEC       = Codecs.either(Codecs.PARTIAL_BLOCK_STATE_CODEC, Codecs.list(Codecs.BOX_CODEC), "Machine Shape").comapFlatMap(either -> either.map(Codecs::decodeFromBlock, Codecs::decodeFromAABBList), shape -> Either.right(shape.toBoundingBoxList()));
-
+    public static final Codec<VoxelShape> VOXEL_SHAPE_CODEC       = either(Codecs.PARTIAL_BLOCK_STATE_CODEC, Codecs.list(Codecs.BOX_CODEC), "Machine Shape").comapFlatMap(either -> either.map(Codecs::decodeFromBlock, Codecs::decodeFromAABBList), shape -> Either.right(shape.toBoundingBoxList()));
 
     public static <E extends Enum<E>> Codec<E> fromEnum(Class<E> enumClass) {
         return new Codec<E>() {
@@ -210,8 +232,18 @@ public class Codecs {
         VoxelShape shape = VoxelShapes.empty();
         for(AxisAlignedBB box : boxes) {
             VoxelShape partial = VoxelShapes.create(box);
-            shape = VoxelShapes.combine(shape, partial, IBooleanFunction.TRUE);
+            shape = VoxelShapes.combine(shape, partial, IBooleanFunction.OR);
         }
         return DataResult.success(shape);
+    }
+
+    public static DataResult<double[]> validateDoubleStreamSize(DoubleStream stream, int size) {
+        double[] array = stream.limit(size + 1).toArray();
+        if (array.length != size) {
+            String s = "Input is not a list of " + size + " doubles";
+            return array.length >= size ? DataResult.error(s, Arrays.copyOf(array, size)) : DataResult.error(s);
+        } else {
+            return DataResult.success(array);
+        }
     }
 }
