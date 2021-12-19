@@ -37,6 +37,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.ToolType;
 
@@ -82,6 +85,8 @@ public class Codecs {
 
     public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(RESOURCE_LOCATION_CODEC, PARTIAL_BLOCK_STATE_CODEC, "Block Model").xmap(either -> either.map(Function.identity(), PartialBlockState::getModelLocation), Either::left);
     public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(RegistryCodec.ITEM, RESOURCE_LOCATION_CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
+    public static final Codec<VoxelShape> VOXEL_SHAPE_CODEC       = Codecs.either(Codecs.PARTIAL_BLOCK_STATE_CODEC, Codecs.list(Codecs.BOX_CODEC), "Machine Shape").comapFlatMap(either -> either.map(Codecs::decodeFromBlock, Codecs::decodeFromAABBList), shape -> Either.right(shape.toBoundingBoxList()));
+
 
     public static <E extends Enum<E>> Codec<E> fromEnum(Class<E> enumClass) {
         return new Codec<E>() {
@@ -191,5 +196,22 @@ public class Codecs {
         } catch (Exception e) {
             return DataResult.error(e.getMessage());
         }
+    }
+
+    public static DataResult<VoxelShape> decodeFromBlock(PartialBlockState state) {
+        try {
+            return DataResult.success(state.getBlockState().getShape(null, null));
+        } catch (Exception e) {
+            return DataResult.error("Impossible to get shape from block : " + state);
+        }
+    }
+
+    public static DataResult<VoxelShape> decodeFromAABBList(List<AxisAlignedBB> boxes) {
+        VoxelShape shape = VoxelShapes.empty();
+        for(AxisAlignedBB box : boxes) {
+            VoxelShape partial = VoxelShapes.create(box);
+            shape = VoxelShapes.combine(shape, partial, IBooleanFunction.TRUE);
+        }
+        return DataResult.success(shape);
     }
 }

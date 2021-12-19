@@ -9,6 +9,8 @@ import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraftforge.common.ToolType;
 
 public class MachineAppearance implements IMachineAppearance {
@@ -21,6 +23,7 @@ public class MachineAppearance implements IMachineAppearance {
     public static final float DEFAULT_RESISTANCE = 3.5F;
     public static final ToolType DEFAULT_TOOL = ToolType.PICKAXE;
     public static final int DEFAULT_MINING_LEVEL = 1;
+    public static final VoxelShape DEFAULT_VOXEL_SHAPE = VoxelShapes.fullCube();
 
     public static final Codec<MachineAppearance> CODEC = RecordCodecBuilder.create(machineAppearanceCodec ->
             machineAppearanceCodec.group(
@@ -32,12 +35,13 @@ public class MachineAppearance implements IMachineAppearance {
                     CodecLogger.loggedOptional(Codec.FLOAT, "hardness", DEFAULT_HARDNESS).forGetter(appearance -> appearance.hardness),
                     CodecLogger.loggedOptional(Codec.FLOAT, "resistance", DEFAULT_RESISTANCE).forGetter(appearance -> appearance.resistance),
                     CodecLogger.loggedOptional(Codecs.TOOL_TYPE_CODEC, "tool", DEFAULT_TOOL).forGetter(appearance -> appearance.tool),
-                    CodecLogger.loggedOptional(Codec.INT, "mininglevel", DEFAULT_MINING_LEVEL).forGetter(appearance -> appearance.miningLevel)
+                    CodecLogger.loggedOptional(Codec.INT, "mininglevel", DEFAULT_MINING_LEVEL).forGetter(appearance -> appearance.miningLevel),
+                    CodecLogger.loggedOptional(Codecs.VOXEL_SHAPE_CODEC, "shape", DEFAULT_VOXEL_SHAPE).forGetter(appearance -> appearance.shape)
             ).apply(machineAppearanceCodec, MachineAppearance::new)
     );
 
 
-    public static final MachineAppearance DEFAULT = new MachineAppearance(DEFAULT_MODEL, DEFAULT_MODEL, DEFAULT_SOUND, DEFAULT_LIGHT_LEVEL, DEFAULT_COLOR, DEFAULT_HARDNESS, DEFAULT_RESISTANCE, DEFAULT_TOOL, DEFAULT_MINING_LEVEL);
+    public static final MachineAppearance DEFAULT = new MachineAppearance(DEFAULT_MODEL, DEFAULT_MODEL, DEFAULT_SOUND, DEFAULT_LIGHT_LEVEL, DEFAULT_COLOR, DEFAULT_HARDNESS, DEFAULT_RESISTANCE, DEFAULT_TOOL, DEFAULT_MINING_LEVEL, DEFAULT_VOXEL_SHAPE);
 
     private final ResourceLocation blockModel;
     private final ResourceLocation itemModel;
@@ -48,8 +52,9 @@ public class MachineAppearance implements IMachineAppearance {
     private final float resistance;
     private final ToolType tool;
     private final int miningLevel;
+    private final VoxelShape shape;
 
-    public MachineAppearance(ResourceLocation blockModel, ResourceLocation itemModel, SoundEvent sound, int lightLevel, int color, float hardness, float resistance, ToolType tool, int miningLevel) {
+    public MachineAppearance(ResourceLocation blockModel, ResourceLocation itemModel, SoundEvent sound, int lightLevel, int color, float hardness, float resistance, ToolType tool, int miningLevel, VoxelShape shape) {
         this.blockModel = blockModel;
         if(blockModel != DEFAULT_MODEL && itemModel == DEFAULT_MODEL)
             this.itemModel = new ResourceLocation(blockModel.getNamespace(), blockModel.getPath());
@@ -62,6 +67,7 @@ public class MachineAppearance implements IMachineAppearance {
         this.resistance = resistance;
         this.tool = tool;
         this.miningLevel = miningLevel;
+        this.shape = shape;
     }
 
     @Override
@@ -109,7 +115,13 @@ public class MachineAppearance implements IMachineAppearance {
         return this.miningLevel;
     }
 
+    @Override
+    public VoxelShape getShape() {
+        return this.shape;
+    }
+
+    @Override
     public MachineAppearance copy() {
-        return new MachineAppearance(this.blockModel, this.itemModel, this.sound, this.lightLevel, this.color, this.hardness, this.resistance, this.tool, this.miningLevel);
+        return new MachineAppearance(this.blockModel, this.itemModel, this.sound, this.lightLevel, this.color, this.hardness, this.resistance, this.tool, this.miningLevel, this.shape);
     }
 }

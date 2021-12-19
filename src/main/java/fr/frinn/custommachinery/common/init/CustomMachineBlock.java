@@ -29,6 +29,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockDisplayReader;
@@ -208,5 +210,14 @@ public class CustomMachineBlock extends Block {
                 .filter(tile -> tile instanceof CustomMachineTile)
                 .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getResistance())
                 .orElse(super.getExplosionResistance(state, world, pos, explosion));
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+        return Optional.ofNullable(world.getTileEntity(pos))
+                .filter(tile -> tile instanceof CustomMachineTile)
+                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getShape())
+                .orElse(super.getShape(state, world, pos, context));
     }
 }

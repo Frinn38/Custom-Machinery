@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.api.machine;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.common.ToolType;
 
 /**
@@ -54,6 +55,11 @@ public interface IMachineAppearance {
      * @return The minimal mining level the tool need to be able to break effectively the machine.
      */
     int getMiningLevel();
+
+    /**
+     * @return The shape of the machine, used for collisions and block outline.
+     */
+    VoxelShape getShape();
 
     /**
      * @return An exact copy of this IMachineAppearance, this must create a new instance and copy all the properties from the copied IMachineAppearance.
