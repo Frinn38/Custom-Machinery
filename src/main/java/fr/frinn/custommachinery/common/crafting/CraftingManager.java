@@ -1,15 +1,17 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
+import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
+import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.apiimpl.network.syncable.DoubleSyncable;
 import fr.frinn.custommachinery.apiimpl.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.apiimpl.network.syncable.StringSyncable;
-import fr.frinn.custommachinery.common.crafting.requirements.IChanceableRequirement;
-import fr.frinn.custommachinery.common.crafting.requirements.IDelayedRequirement;
-import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
-import fr.frinn.custommachinery.common.crafting.requirements.ITickableRequirement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SCraftingManagerStatusChangedPacket;
@@ -132,7 +134,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         for (IRequirement<?> requirement : this.currentRecipe.getRequirements()) {
             if (!this.processedRequirements.contains(requirement)) {
                 IMachineComponent component = this.tile.componentManager.getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), requirement.getType()));
-                if (requirement instanceof IChanceableRequirement && ((IChanceableRequirement<IMachineComponent>) requirement).testChance(component, this.rand, this.context)) {
+                if (requirement instanceof IChanceableRequirement && ((IChanceableRequirement<IMachineComponent>) requirement).shouldSkip(component, this.rand, this.context)) {
                     this.processedRequirements.add(requirement);
                     continue;
                 }
@@ -155,7 +157,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         for (ITickableRequirement<IMachineComponent> tickableRequirement : this.tickableRequirements) {
             if (!this.processedRequirements.contains(tickableRequirement)) {
                 IMachineComponent component = this.tile.componentManager.getComponent(tickableRequirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), tickableRequirement.getType()));
-                if (tickableRequirement instanceof IChanceableRequirement && ((IChanceableRequirement<IMachineComponent>) tickableRequirement).testChance(component, this.rand, this.context)) {
+                if (tickableRequirement instanceof IChanceableRequirement && ((IChanceableRequirement<IMachineComponent>) tickableRequirement).shouldSkip(component, this.rand, this.context)) {
                     this.processedRequirements.add(tickableRequirement);
                     continue;
                 }
@@ -198,7 +200,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         for(IRequirement<?> requirement : this.currentRecipe.getRequirements()) {
             if(!this.processedRequirements.contains(requirement)) {
                 IMachineComponent component = this.tile.componentManager.getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), requirement.getType()));
-                if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).testChance(component, this.rand, this.context)) {
+                if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).shouldSkip(component, this.rand, this.context)) {
                     this.processedRequirements.add(requirement);
                     continue;
                 }

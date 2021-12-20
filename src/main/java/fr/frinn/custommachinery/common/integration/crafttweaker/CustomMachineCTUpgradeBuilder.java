@@ -4,7 +4,7 @@ import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.actions.IRuntimeAction;
 import com.blamejared.crafttweaker.api.annotations.ZenRegister;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import net.minecraft.item.Item;
@@ -76,28 +76,28 @@ public class CustomMachineCTUpgradeBuilder {
 
     @Method
     public CustomMachineCTUpgradeBuilder addInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.INPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.INPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
     public CustomMachineCTUpgradeBuilder mulInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
     public CustomMachineCTUpgradeBuilder addOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
     public CustomMachineCTUpgradeBuilder mulOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), IRequirement.MODE.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
+        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }

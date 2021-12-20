@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.client.render.element.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.api.utils.TextureSizeHelper;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.client.TextureSizeHelper;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
 import fr.frinn.custommachinery.common.util.Color3F;
 import mezz.jei.api.MethodsReturnNonnullByDefault;

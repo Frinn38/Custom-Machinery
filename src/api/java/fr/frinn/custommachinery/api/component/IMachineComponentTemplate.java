@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.component;
 
 import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.api.utils.CodecLogger;
-import fr.frinn.custommachinery.api.utils.RegistryCodec;
+import fr.frinn.custommachinery.api.codec.CodecLogger;
+import fr.frinn.custommachinery.api.codec.RegistryCodec;
 
 /**
  * A template for a specific MachineComponentType.

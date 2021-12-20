@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.common.data.upgrade;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.utils.CodecLogger;
-import fr.frinn.custommachinery.api.utils.RegistryCodec;
+import fr.frinn.custommachinery.api.codec.CodecLogger;
+import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.item.Item;

@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.api.guielement;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.CodecLogger;
+import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.api.utils.CodecLogger;
-import fr.frinn.custommachinery.api.utils.RegistryCodec;
 
 /**
  * A part of the Custom Machine data, used to display things on the machine gui and/or in jei.
@@ -17,7 +17,7 @@ public interface IGuiElement {
     /**
      * A dispatch codec, used to create all IGuiElement from the machine json.
      */
-    Codec<IGuiElement> CODEC = CodecLogger.loggedDispatch(RegistryCodec.GUI_ELEMENT_TYPE_CODEC, IGuiElement::getType, GuiElementType::getCodec, "Gui Element");
+    Codec<IGuiElement> CODEC = CodecLogger.loggedDispatch(RegistryCodec.GUI_ELEMENT_TYPE, IGuiElement::getType, GuiElementType::getCodec, "Gui Element");
 
     /**
      * @return A registered GuiElementType corresponding to this IGuiElement.

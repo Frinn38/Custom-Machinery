@@ -4,8 +4,8 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
-import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
-    private final IRequirement.MODE mode;
+    private final RequirementIOMode mode;
     private final IIngredient<Item> item;
     private final int amount;
     private final double chance;
@@ -40,7 +40,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     private final CompoundNBT nbt;
     private final String slot;
 
-    public ItemIngredientWrapper(IRequirement.MODE mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundNBT nbt, String slot) {
+    public ItemIngredientWrapper(RequirementIOMode mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundNBT nbt, String slot) {
         this.mode = mode;
         this.item = item;
         this.amount = amount;
@@ -58,7 +58,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     @Override
     public void setIngredient(Ingredients ingredients) {
         List<ItemStack> items = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.amount, this.nbt)).collect(Collectors.toList());
-        if(this.mode == IRequirement.MODE.INPUT)
+        if(this.mode == RequirementIOMode.INPUT)
             ingredients.addInputs(VanillaTypes.ITEM, items);
         else
             ingredients.addOutputs(VanillaTypes.ITEM, items);
@@ -72,16 +72,16 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         List<ItemStack> ingredients = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.useDurability ? 1 : this.amount, this.nbt)).collect(Collectors.toList());
         SlotGuiElement slotElement = (SlotGuiElement)element;
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(template.map(t -> t.canAccept(ingredients, this.mode == IRequirement.MODE.INPUT, helper.getDummyManager())).orElse(false)) {
-            layout.getIngredientsGroup(getJEIIngredientType()).init(index, this.mode == IRequirement.MODE.INPUT, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
+        if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager())).orElse(false)) {
+            layout.getIngredientsGroup(getJEIIngredientType()).init(index, this.mode == RequirementIOMode.INPUT, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
             IGuiIngredientGroup<ItemStack> group = layout.getIngredientsGroup(VanillaTypes.ITEM);
             group.set(index, ingredients);
             group.addTooltipCallback(((slotIndex, input, ingredient, tooltips) -> {
                 if(slotIndex != index)
                     return;
-                if(this.useDurability && this.mode == IRequirement.MODE.INPUT)
+                if(this.useDurability && this.mode == RequirementIOMode.INPUT)
                     tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.consume", this.amount));
-                else if(this.useDurability && this.mode == IRequirement.MODE.OUTPUT)
+                else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)
                     tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.repair", this.amount));
 
                 if(this.chance == 0)

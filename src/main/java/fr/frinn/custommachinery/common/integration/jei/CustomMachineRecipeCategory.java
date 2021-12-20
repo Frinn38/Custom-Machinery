@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
@@ -113,7 +114,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         //Set the transfer item button to its place
         layout.moveRecipeTransferButton(this.width - 11, this.height - 11);
 
-        List<IJEIIngredientRequirement> requirements = recipe.getJEIIngredientRequirements();
+        List<IJEIIngredientRequirement<?>> requirements = recipe.getJEIIngredientRequirements();
         AtomicInteger index = new AtomicInteger(0);
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         elements.stream().filter(element -> element.getType().hasJEIRenderer()).forEach(element -> {
@@ -122,7 +123,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
             //Search for ingredients to put in the corresponding slots/fluid and energy bars.
             boolean handled = false;
-            Iterator<IJEIIngredientRequirement> iterator = requirements.iterator();
+            Iterator<IJEIIngredientRequirement<?>> iterator = requirements.iterator();
             while (iterator.hasNext()) {
                 IJEIIngredientWrapper<?> wrapper = iterator.next().getJEIIngredientWrapper();
                 //Delegate the element check to the ingredient wrapper, which will delegate to the component template if needed.
@@ -174,7 +175,11 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
         //Render the requirements that doesn't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
-        recipe.getDisplayInfoRequirements().stream().map(IDisplayInfoRequirement::getDisplayInfo).filter(RequirementDisplayInfo::isVisible).forEach(info -> {
+        recipe.getDisplayInfoRequirements().stream().map(requirement -> {
+            RequirementDisplayInfo info = new RequirementDisplayInfo();
+            requirement.getDisplayInfo(info);
+            return info;
+        }).filter(RequirementDisplayInfo::isVisible).forEach(info -> {
             int x = index.get() * (ICON_SIZE + 2);
             if(info.getIcon() != null) {
                 Minecraft.getInstance().getTextureManager().bindTexture(info.getIcon());
@@ -189,7 +194,11 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     @Override
     public boolean handleClick(CustomMachineRecipe recipe, double mouseX, double mouseY, int mouseButton) {
         AtomicInteger index = new AtomicInteger();
-        return recipe.getDisplayInfoRequirements().stream().map(IDisplayInfoRequirement::getDisplayInfo).filter(RequirementDisplayInfo::isVisible).anyMatch(info -> {
+        return recipe.getDisplayInfoRequirements().stream().map(requirement -> {
+            RequirementDisplayInfo info = new RequirementDisplayInfo();
+            requirement.getDisplayInfo(info);
+            return info;
+        }).filter(RequirementDisplayInfo::isVisible).anyMatch(info -> {
             int x = index.get() * (ICON_SIZE + 2);
             if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height)
                 return info.handleClick(this.machine, mouseButton);

@@ -1,7 +1,9 @@
 package fr.frinn.custommachinery.common.crafting;
 
-import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
-import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
+import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -11,7 +13,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class CraftingContext {
+public class CraftingContext implements ICraftingContext {
 
     private static final Random RAND = new Random();
 
@@ -26,7 +28,8 @@ public class CraftingContext {
         this.modifiersCheckCooldown = Utils.RAND.nextInt(20);
     }
 
-    public CustomMachineTile getTile() {
+    @Override
+    public CustomMachineTile getMachineTile() {
         return this.manager.getTile();
     }
 
@@ -41,16 +44,19 @@ public class CraftingContext {
         this.modifiers = Utils.getModifiersForTile(manager.getTile());
     }
 
+    @Override
     public CustomMachineRecipe getRecipe() {
         return this.recipe;
     }
 
+    @Override
     public double getRemainingTime() {
         if(getRecipe() == null)
             return 0;
         return getRecipe().getRecipeTime() - this.manager.recipeProgressTime;
     }
 
+    @Override
     public double getModifiedSpeed() {
         if(getRecipe() == null)
             return 1;
@@ -64,17 +70,19 @@ public class CraftingContext {
         return this.modifiers.keySet();
     }
 
-    public double getModifiedvalue(double value, IRequirement<?> requirement, @Nullable String target) {
+    @Override
+    public double getModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
         return getModifiedValue(value, requirement.getType(), target, requirement.getMode());
     }
 
+    @Override
     public double getPerTickModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
         if(this.getRemainingTime() > 0)
-            return getModifiedvalue(value, requirement, target) * Math.min(this.getModifiedSpeed(), this.getRemainingTime());
-        return getModifiedvalue(value, requirement, target) * this.getModifiedSpeed();
+            return getModifiedValue(value, requirement, target) * Math.min(this.getModifiedSpeed(), this.getRemainingTime());
+        return getModifiedValue(value, requirement, target) * this.getModifiedSpeed();
     }
 
-    public double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, @Nullable IRequirement.MODE mode) {
+    private double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, @Nullable RequirementIOMode mode) {
         List<RecipeModifier> toApply = new ArrayList<>();
         this.modifiers.entrySet().stream()
                 .filter(entry -> type == null || entry.getKey().getRequirementType() == type)

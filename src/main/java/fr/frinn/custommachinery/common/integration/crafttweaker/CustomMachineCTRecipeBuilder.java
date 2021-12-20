@@ -14,13 +14,17 @@ import com.blamejared.crafttweaker.impl.tag.MCTag;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
+import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.crafting.requirements.*;
+import fr.frinn.custommachinery.common.crafting.requirement.*;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.util.*;
 import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.fluid.Fluid;
@@ -81,35 +85,35 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireEnergy(int amount) {
-        return withEnergyRequirement(IRequirement.MODE.INPUT, amount, false);
+        return withEnergyRequirement(RequirementIOMode.INPUT, amount, false);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireEnergyPerTick(int amount) {
-        return withEnergyRequirement(IRequirement.MODE.INPUT, amount, true);
+        return withEnergyRequirement(RequirementIOMode.INPUT, amount, true);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceEnergy(int amount) {
-        return withEnergyRequirement(IRequirement.MODE.OUTPUT, amount, false);
+        return withEnergyRequirement(RequirementIOMode.OUTPUT, amount, false);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder produceEnergyPerTick(int amount) {
-        return withEnergyRequirement(IRequirement.MODE.OUTPUT, amount, true);
+        return withEnergyRequirement(RequirementIOMode.OUTPUT, amount, true);
     }
 
     /** FLUIDS **/
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getTag(), tank);
+        return withFluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getTag(), tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidTag(MCTag<Fluid> tag, int amount, @Optional IData data, @OptionalString String tank) {
         try {
-            return withFluidRequirement(IRequirement.MODE.INPUT, FluidTagIngredient.create(tag.getId()), amount, false, getNBT(data), tank);
+            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getId()), amount, false, getNBT(data), tank);
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.logError(e.getMessage());
             return this;
@@ -118,18 +122,18 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluid(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getTag(), tank);
+        return withFluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), false, stack.getInternal().getTag(), tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getTag(), tank);
+        return withFluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getTag(), tank);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireFluidTagPerTick(MCTag<Fluid> tag, int amount, @Optional IData data, @OptionalString String tank) {
         try {
-            return withFluidRequirement(IRequirement.MODE.INPUT, FluidTagIngredient.create(tag.getId()), amount, true, getNBT(data), tank);
+            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getId()), amount, true, getNBT(data), tank);
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.logError(e.getMessage());
             return this;
@@ -138,20 +142,20 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder produceFluidPerTick(IFluidStack stack, @OptionalString String tank) {
-        return withFluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getTag(), tank);
+        return withFluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), true, stack.getInternal().getTag(), tank);
     }
 
     /** ITEM **/
 
     @Method
     public CustomMachineCTRecipeBuilder requireItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
+            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.logError(e.getMessage());
             return this;
@@ -160,20 +164,20 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder produceItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
     }
 
     /** DURABILITY **/
 
     @Method
     public CustomMachineCTRecipeBuilder damageItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder damageItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.logError(e.getMessage());
             return this;
@@ -182,13 +186,13 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder repairItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder repairItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.logError(e.getMessage());
             return this;
@@ -350,32 +354,32 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireEntities(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder requireEntitiesHealth(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CHECK_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder consumeEntityHealthOnStart(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder consumeEntityHealthOnEnd(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(IRequirement.MODE.OUTPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+        return addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder killEntityOnStart(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.KILL, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.KILL, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder killEntityOnEnd(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(IRequirement.MODE.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+        return addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
     }
 
     /** LIGHT **/
@@ -394,57 +398,57 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalString(">=") String comparator) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
+        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     /** STRUCTURE **/
@@ -498,7 +502,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder hide() {
         if(this.lastRequirement != null && this.lastRequirement instanceof IDisplayInfoRequirement)
-            ((IDisplayInfoRequirement<?>)this.lastRequirement).setJeiVisible(false);
+            ((IDisplayInfoRequirement)this.lastRequirement).setJeiVisible(false);
         else
             CraftTweakerAPI.logError("Can't hide requirement: " + this.lastRequirement);
         return this;
@@ -549,14 +553,14 @@ public class CustomMachineCTRecipeBuilder {
         return this;
     }
 
-    private CustomMachineCTRecipeBuilder withEnergyRequirement(IRequirement.MODE mode, int amount, boolean isPerTick) {
+    private CustomMachineCTRecipeBuilder withEnergyRequirement(RequirementIOMode mode, int amount, boolean isPerTick) {
         if(isPerTick)
             return addRequirement(new EnergyPerTickRequirement(mode, amount));
         else
             return addRequirement(new EnergyRequirement(mode, amount));
     }
 
-    private CustomMachineCTRecipeBuilder withFluidRequirement(IRequirement.MODE mode, IIngredient<Fluid> fluid, int amount, boolean isPerTick, CompoundNBT nbt, String tank) {
+    private CustomMachineCTRecipeBuilder withFluidRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, boolean isPerTick, CompoundNBT nbt, String tank) {
         if(isPerTick) {
             return addRequirement(new FluidPerTickRequirement(mode, fluid, amount, nbt, tank));
         } else {
@@ -564,7 +568,7 @@ public class CustomMachineCTRecipeBuilder {
         }
     }
 
-    private CustomMachineCTRecipeBuilder withBlockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
+    private CustomMachineCTRecipeBuilder withBlockRequirement(RequirementIOMode mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
         PartialBlockState state;
         if(block.isEmpty())
             state = PartialBlockState.AIR;

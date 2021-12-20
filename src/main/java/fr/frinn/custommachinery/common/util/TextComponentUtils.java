@@ -9,7 +9,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.api.codec.CodecLogger;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 

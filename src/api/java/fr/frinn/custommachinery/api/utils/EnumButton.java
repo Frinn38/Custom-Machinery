@@ -9,8 +9,8 @@ import java.util.function.Function;
 
 public class EnumButton<E> extends Button {
 
-    private Function<E, ITextComponent> messageFunction;
-    private List<E> values;
+    private final Function<E, ITextComponent> messageFunction;
+    private final List<E> values;
     private E value;
 
     public EnumButton(int x, int y, int width, int height, IPressable pressedAction, ITooltip onTooltip, Function<E, ITextComponent> messageFunction, List<E> values, E defaultValue) {

@@ -2,9 +2,9 @@ package fr.frinn.custommachinery.common.data.upgrade;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.utils.CodecLogger;
-import fr.frinn.custommachinery.common.crafting.requirements.IRequirement;
-import fr.frinn.custommachinery.common.crafting.requirements.RequirementType;
+import fr.frinn.custommachinery.api.codec.CodecLogger;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.util.text.ITextComponent;
@@ -30,12 +30,12 @@ public class RecipeModifier {
 
     private RequirementType<?> requirementType;
     private String target;
-    private IRequirement.MODE mode;
+    private RequirementIOMode mode;
     private OPERATION operation;
     private double modifier;
     private double chance;
 
-    public RecipeModifier(RequirementType<?> requirementType, IRequirement.MODE mode, OPERATION operation, double modifier, String target, double chance) {
+    public RecipeModifier(RequirementType<?> requirementType, RequirementIOMode mode, OPERATION operation, double modifier, String target, double chance) {
         this.requirementType = requirementType;
         this.target = target;
         this.mode = mode;
@@ -52,7 +52,7 @@ public class RecipeModifier {
         return this.target;
     }
 
-    public IRequirement.MODE getMode() {
+    public RequirementIOMode getMode() {
         return this.mode;
     }
 

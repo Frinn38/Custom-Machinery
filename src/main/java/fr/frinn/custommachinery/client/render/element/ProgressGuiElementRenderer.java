@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.api.recipe.IMachineRecipe;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
@@ -133,7 +133,7 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
         if(!CMConfig.INSTANCE.needAdvancedInfoForRecipeID.get() || Minecraft.getInstance().gameSettings.advancedItemTooltips)
-            tooltips.add(new StringTextComponent(recipe.getId().toString()).mergeStyle(TextFormatting.DARK_GRAY));
+            tooltips.add(new StringTextComponent(recipe.getRecipeId().toString()).mergeStyle(TextFormatting.DARK_GRAY));
         return tooltips;
     }
 

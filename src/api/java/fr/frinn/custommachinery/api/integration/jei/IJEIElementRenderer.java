@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.integration.jei;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.api.recipe.IMachineRecipe;
 import net.minecraft.util.text.ITextComponent;
 
 import java.util.List;

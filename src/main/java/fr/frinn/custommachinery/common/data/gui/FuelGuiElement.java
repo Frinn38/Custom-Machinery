@@ -3,12 +3,14 @@ package fr.frinn.custommachinery.common.data.gui;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.api.utils.CodecLogger;
+import fr.frinn.custommachinery.apiimpl.guielement.AbstractGuiElement;
+import fr.frinn.custommachinery.apiimpl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
 
-public class FuelGuiElement extends TexturedGuiElement {
+public class FuelGuiElement extends AbstractTexturedGuiElement {
 
     private static final ResourceLocation BASE_EMPTY_TEXURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_empty.png");
     private static final ResourceLocation BASE_FILLED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_filled.png");

@@ -13,11 +13,15 @@ import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
+import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.crafting.requirements.*;
+import fr.frinn.custommachinery.common.crafting.requirement.*;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
-import fr.frinn.custommachinery.common.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.common.util.*;
 import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.entity.EntityType;
@@ -90,7 +94,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder hide() {
         if(this.lastRequirement != null && this.lastRequirement instanceof IDisplayInfoRequirement)
-            ((IDisplayInfoRequirement<?>)this.lastRequirement).setJeiVisible(false);
+            ((IDisplayInfoRequirement)this.lastRequirement).setJeiVisible(false);
         else
             ScriptType.SERVER.console.warn("Can't hide requirement: " + this.lastRequirement);
         return this;
@@ -130,7 +134,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount) {
@@ -146,7 +150,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, MapJS nbt, String slot) {
         try {
-            return this.addRequirement(new ItemRequirement(IRequirement.MODE.INPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
+            return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
         } catch (IllegalArgumentException e) {
             ScriptType.SERVER.console.warn(e.getMessage());
             return this;
@@ -158,7 +162,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
     }
 
     /** DURABILITY **/
@@ -168,7 +172,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount) {
@@ -184,7 +188,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, MapJS nbt, String slot) {
         try {
-            return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.INPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
+            return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
         } catch (IllegalArgumentException e) {
             ScriptType.SERVER.console.warn(e.getMessage());
             return this;
@@ -196,7 +200,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount) {
@@ -212,7 +216,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, MapJS nbt, String slot) {
         try {
-            return this.addRequirement(new DurabilityRequirement(IRequirement.MODE.OUTPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
+            return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag), amount, MapJS.nbt(nbt), slot));
         } catch (IllegalArgumentException e) {
             ScriptType.SERVER.console.warn(e.getMessage());
             return this;
@@ -226,7 +230,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount) {
@@ -242,7 +246,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount, MapJS nbt, String tank) {
         try {
-            return this.addRequirement(new FluidRequirement(IRequirement.MODE.INPUT, FluidTagIngredient.create(tag), amount, MapJS.nbt(nbt), tank));
+            return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag), amount, MapJS.nbt(nbt), tank));
         } catch (IllegalArgumentException e) {
             ScriptType.SERVER.console.warn(e.getMessage());
             return this;
@@ -254,7 +258,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack) {
@@ -262,7 +266,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount) {
@@ -278,7 +282,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount, MapJS nbt, String tank) {
         try {
-            return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.INPUT, FluidTagIngredient.create(tag), amount, MapJS.nbt(nbt), tank));
+            return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag), amount, MapJS.nbt(nbt), tank));
         } catch (IllegalArgumentException e) {
             ScriptType.SERVER.console.warn(e.getMessage());
             return this;
@@ -290,25 +294,25 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(IRequirement.MODE.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     /** ENERGY **/
 
     public CustomMachineJSRecipeBuilder requireEnergy(int amount) {
-        return this.addRequirement(new EnergyRequirement(IRequirement.MODE.INPUT, amount));
+        return this.addRequirement(new EnergyRequirement(RequirementIOMode.INPUT, amount));
     }
 
     public CustomMachineJSRecipeBuilder requireEnergyPerTick(int amount) {
-        return this.addRequirement(new EnergyPerTickRequirement(IRequirement.MODE.INPUT, amount));
+        return this.addRequirement(new EnergyPerTickRequirement(RequirementIOMode.INPUT, amount));
     }
 
     public CustomMachineJSRecipeBuilder produceEnergy(int amount) {
-        return this.addRequirement(new EnergyRequirement(IRequirement.MODE.OUTPUT, amount));
+        return this.addRequirement(new EnergyRequirement(RequirementIOMode.OUTPUT, amount));
     }
 
     public CustomMachineJSRecipeBuilder produceEnergyPerTick(int amount) {
-        return this.addRequirement(new EnergyPerTickRequirement(IRequirement.MODE.OUTPUT, amount));
+        return this.addRequirement(new EnergyPerTickRequirement(RequirementIOMode.OUTPUT, amount));
     }
 
     /** TIME **/
@@ -563,7 +567,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(!entityFilter.isEmpty())
-            return this.addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, entityFilter, whitelist));
+            return this.addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, entityFilter, whitelist));
         return this;
     }
 
@@ -575,7 +579,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(!entityFilter.isEmpty())
-            return this.addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CHECK_HEALTH, amount, radius, entityFilter, whitelist));
+            return this.addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_HEALTH, amount, radius, entityFilter, whitelist));
         return this;
     }
 
@@ -587,7 +591,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(!entityFilter.isEmpty())
-            return this.addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, entityFilter, whitelist));
+            return this.addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, entityFilter, whitelist));
         return this;
     }
 
@@ -599,7 +603,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(!entityFilter.isEmpty())
-            return this.addRequirement(new EntityRequirement(IRequirement.MODE.OUTPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, entityFilter, whitelist));
+            return this.addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, entityFilter, whitelist));
         return this;
     }
 
@@ -611,7 +615,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(!entityFilter.isEmpty())
-            return this.addRequirement(new EntityRequirement(IRequirement.MODE.INPUT, EntityRequirement.ACTION.KILL, amount, radius, entityFilter, whitelist));
+            return this.addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.KILL, amount, radius, entityFilter, whitelist));
         return this;
     }
 
@@ -623,7 +627,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
         if(!entityFilter.isEmpty())
-            return this.addRequirement(new EntityRequirement(IRequirement.MODE.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, entityFilter, whitelist));
+            return this.addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, entityFilter, whitelist));
         return this;
     }
 
@@ -638,7 +642,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -646,7 +650,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
+        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
     }
 
     public CustomMachineJSRecipeBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -654,7 +658,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
     }
 
     public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -670,7 +674,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -686,7 +690,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -702,7 +706,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -718,7 +722,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -726,7 +730,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -734,7 +738,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -742,7 +746,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     public CustomMachineJSRecipeBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -750,10 +754,10 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(IRequirement.MODE.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
-    private CustomMachineJSRecipeBuilder blockRequirement(IRequirement.MODE mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
+    private CustomMachineJSRecipeBuilder blockRequirement(RequirementIOMode mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
         PartialBlockState state;
         if(block.isEmpty())
             state = PartialBlockState.AIR;

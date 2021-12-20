@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.util.ingredient;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.api.utils.RegistryCodec;
+import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.item.Item;
 
