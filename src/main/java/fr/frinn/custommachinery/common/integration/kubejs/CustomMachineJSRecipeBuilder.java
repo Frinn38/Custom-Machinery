@@ -566,7 +566,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid entity ID: " + type);
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
-        if(!entityFilter.isEmpty())
+        if(!entityFilter.isEmpty() || !whitelist)
             return this.addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, entityFilter, whitelist));
         return this;
     }

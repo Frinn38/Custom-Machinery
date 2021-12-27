@@ -21,6 +21,7 @@ import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -265,6 +266,7 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
         info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.info.box").mergeStyle(TextFormatting.GOLD));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
         info.setVisible(this.jeiVisible);
+        info.setItemIcon(Items.GRASS_BLOCK);
     }
 
     public enum ACTION {

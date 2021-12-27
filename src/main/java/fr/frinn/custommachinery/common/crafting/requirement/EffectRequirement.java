@@ -18,8 +18,12 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.RomanNumber;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.PotionUtils;
+import net.minecraft.potion.Potions;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -125,5 +129,6 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
             this.filter.forEach(type -> info.addTooltip(new StringTextComponent("* ").appendSibling(new TranslationTextComponent(type.getTranslationKey()))));
         }
         info.setVisible(this.jeiVisible);
+        info.setItemIcon(PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), Potions.HEALING));
     }
 }

@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.data.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TimeComparator;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -82,5 +83,6 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
             this.times.forEach(time -> info.addTooltip(new StringTextComponent("* ").appendSibling(time.getText())));
         }
         info.setVisible(this.jeiVisible);
+        info.setItemIcon(Items.CLOCK);
     }
 }

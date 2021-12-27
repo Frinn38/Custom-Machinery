@@ -11,6 +11,7 @@ import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
+import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -44,6 +45,8 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     private int offsetY;
     private int width;
     private int height;
+    private int rowY;
+    private int maxIconPerRow;
 
     public CustomMachineRecipeCategory(CustomMachine machine, IGuiHelper guiHelper) {
         this.machine = machine;
@@ -69,10 +72,20 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
             maxX = Math.max(maxX, element.getX() + element.getWidth());
             maxY = Math.max(maxY, element.getY() + element.getHeight());
         }
+
+        this.rowY = Math.max(maxY - minY, 20);
         this.offsetX = Math.max(minX, 0);
         this.offsetY = Math.max(minY, 0);
         this.width = Math.max(maxX - minX, 20);
-        this.height = Math.max(maxY - minY, 20) + ICON_SIZE + 4;
+        this.maxIconPerRow = this.width / (ICON_SIZE + 2);
+        int maxDisplayRequirement = Minecraft.getInstance().world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
+                .stream()
+                .filter(recipe -> recipe.getMachine().equals(this.machine.getId()))
+                .mapToInt(recipe -> recipe.getDisplayInfoRequirements().size())
+                .max()
+                .orElse(1);
+        int rows = maxDisplayRequirement / this.maxIconPerRow + 1;
+        this.height = this.rowY + (ICON_SIZE + 2) * rows;
     }
 
     @Override
@@ -92,7 +105,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
     @Override
     public IDrawable getBackground() {
-        return guiHelper.createBlankDrawable(this.width, this.height);
+        return this.guiHelper.createBlankDrawable(this.width, this.height);
     }
 
     @Override
@@ -171,38 +184,48 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                 });
 
         //Render the line between the gui elements and the requirements icons
-        AbstractGui.fill(matrix, -3, this.height - ICON_SIZE - 3, this.width + 3, this.height - ICON_SIZE - 2, 0x30000000);
+        AbstractGui.fill(matrix, -3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
 
         //Render the requirements that doesn't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
+        AtomicInteger row = new AtomicInteger(0);
         recipe.getDisplayInfoRequirements().stream().map(requirement -> {
             RequirementDisplayInfo info = new RequirementDisplayInfo();
             requirement.getDisplayInfo(info);
             return info;
         }).filter(RequirementDisplayInfo::isVisible).forEach(info -> {
-            int x = index.get() * (ICON_SIZE + 2);
-            if(info.getIcon() != null) {
-                Minecraft.getInstance().getTextureManager().bindTexture(info.getIcon());
-                AbstractGui.blit(matrix, x, this.height - ICON_SIZE, info.getU(), info.getV(), ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+            int x = index.get() * (ICON_SIZE + 2) - 2;
+            int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
+            if(index.incrementAndGet() >= this.maxIconPerRow) {
+                index.set(0);
+                row.incrementAndGet();
             }
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height && !info.getTooltips().isEmpty() && Minecraft.getInstance().currentScreen != null)
-                GuiUtils.drawHoveringText(matrix, info.getTooltips(), (int)mouseX, (int)mouseY, TOOLTIP_WIDTH, TOOLTIP_HEIGHT, TOOLTIP_WIDTH, Minecraft.getInstance().fontRenderer);
-            index.incrementAndGet();
+            matrix.push();
+            matrix.translate(x, y, 0.0D);
+            info.renderIcon(matrix, ICON_SIZE);
+            matrix.pop();
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().currentScreen != null)
+                info.renderTooltips(matrix, (int)mouseX, (int)mouseY, TOOLTIP_WIDTH, TOOLTIP_HEIGHT);
         });
     }
 
     @Override
     public boolean handleClick(CustomMachineRecipe recipe, double mouseX, double mouseY, int mouseButton) {
         AtomicInteger index = new AtomicInteger();
+        AtomicInteger row = new AtomicInteger(0);
         return recipe.getDisplayInfoRequirements().stream().map(requirement -> {
             RequirementDisplayInfo info = new RequirementDisplayInfo();
             requirement.getDisplayInfo(info);
             return info;
         }).filter(RequirementDisplayInfo::isVisible).anyMatch(info -> {
-            int x = index.get() * (ICON_SIZE + 2);
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= this.height - ICON_SIZE && mouseY <= this.height)
+            int x = index.get() * (ICON_SIZE + 2) - 2;
+            int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
+            if(index.incrementAndGet() >= this.maxIconPerRow) {
+                index.set(0);
+                row.incrementAndGet();
+            }
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().currentScreen != null)
                 return info.handleClick(this.machine, mouseButton);
-            index.incrementAndGet();
             return false;
         });
     }

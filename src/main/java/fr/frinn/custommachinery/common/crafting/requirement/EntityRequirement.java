@@ -19,6 +19,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -161,6 +162,7 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
                 info.addTooltip(new TranslationTextComponent("custommachinery.requirements.entity.blacklist"));
         }
         this.filter.forEach(type -> info.addTooltip(new StringTextComponent("*").appendSibling(type.getName())));
+        info.setItemIcon(Items.COW_SPAWN_EGG);
     }
 
     public enum ACTION {

@@ -19,6 +19,7 @@ import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -108,5 +109,6 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
         });
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
         info.setVisible(this.jeiVisible);
+        info.setItemIcon(Items.STRUCTURE_BLOCK);
     }
 }

@@ -16,6 +16,7 @@ import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComponent> implements ITickableRequirement<RedstoneMachineComponent>, IDisplayInfoRequirement {
@@ -87,6 +88,7 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
         info.setVisible(this.jeiVisible)
-                .addTooltip(new TranslationTextComponent("custommachinery.requirements.redstone.info", new TranslationTextComponent(this.comparatorMode.getTranslationKey()), this.powerLevel));
+                .addTooltip(new TranslationTextComponent("custommachinery.requirements.redstone.info", new TranslationTextComponent(this.comparatorMode.getTranslationKey()), this.powerLevel))
+                .setItemIcon(Items.REDSTONE);
     }
 }

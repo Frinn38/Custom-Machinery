@@ -119,7 +119,7 @@
   "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day",
   "custommachinery.requirements.time.info": "Time :",
   "custommachinery.requirements.effect.info.tick": "Give %s %s for %s ticks in a radius of %s blocks each tick",
-  "custommachinery.requirements.effect.info.end": "Give %s %s for %s ticks in a radius of %s blocks on finish",
+  "custommachinery.requirements.effect.info.end": "Give %s %s for %s ticks in a radius of %s blocks on end",
   "custommachinery.requirements.effect.info.whitelist": "Entity Whitelist :",
   "custommachinery.requirements.weather.error": "This recipe cannot be processed with this weather, need: %s",
   "custommachinery.requirements.weather.info": "Require weather: %s",

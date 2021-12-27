@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class WeatherRequirement extends AbstractRequirement<WeatherMachineComponent> implements ITickableRequirement<WeatherMachineComponent>, IDisplayInfoRequirement {
@@ -86,5 +87,6 @@ public class WeatherRequirement extends AbstractRequirement<WeatherMachineCompon
         if(this.onMachine)
             info.addTooltip(new TranslationTextComponent("custommachinery.requirements.weather.info.sky"));
         info.setVisible(this.jeiVisible);
+        info.setItemIcon(Items.SUNFLOWER);
     }
 }

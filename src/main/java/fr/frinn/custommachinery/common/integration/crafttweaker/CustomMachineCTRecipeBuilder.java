@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 public class CustomMachineCTRecipeBuilder {
 
     private static int index = 0;
-    private CustomMachineRecipeBuilder builder;
+    private final CustomMachineRecipeBuilder builder;
     private IRequirement<?> lastRequirement;
     private boolean jei = false;
 

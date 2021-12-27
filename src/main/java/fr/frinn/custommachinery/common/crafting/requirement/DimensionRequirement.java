@@ -14,6 +14,8 @@ import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.client.Minecraft;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -79,11 +81,12 @@ public class DimensionRequirement extends AbstractRequirement<PositionMachineCom
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.filter.isEmpty()) {
             if(this.blacklist)
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.blacklist").mergeStyle(TextFormatting.AQUA));
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.blacklist").mergeStyle(TextFormatting.DARK_RED));
             else
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.whitelist").mergeStyle(TextFormatting.AQUA));
+                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.whitelist").mergeStyle(TextFormatting.DARK_GREEN));
             this.filter.forEach(dimension -> info.addTooltip(new StringTextComponent("* " + dimension)));
         }
         info.setVisible(this.jeiVisible);
+        info.setSpriteIcon(Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("block/nether_portal")));
     }
 }

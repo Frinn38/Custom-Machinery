@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PositionComparator;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -80,5 +81,6 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
             this.positions.forEach(pos -> info.addTooltip(new StringTextComponent("* ").appendSibling(pos.getText())));
         }
         info.setVisible(this.jeiVisible);
+        info.setItemIcon(Items.COMPASS);
     }
 }

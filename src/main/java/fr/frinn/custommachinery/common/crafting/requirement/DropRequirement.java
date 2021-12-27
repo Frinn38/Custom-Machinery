@@ -215,14 +215,17 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                 info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info.check", this.amount, this.radius));
                 info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).mergeStyle(this.whitelist ? TextFormatting.DARK_GREEN : TextFormatting.DARK_RED));
                 this.input.forEach(ingredient -> info.addTooltip(new StringTextComponent(ingredient.toString())));
+                info.setItemIcon(Items.OAK_PRESSURE_PLATE);
                 break;
             case CONSUME:
                 info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
                 info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).mergeStyle(this.whitelist ? TextFormatting.DARK_GREEN : TextFormatting.DARK_RED));
                 this.input.forEach(ingredient -> info.addTooltip(new StringTextComponent("- " + ingredient.toString())));
+                info.setItemIcon(Items.HOPPER);
                 break;
             case PRODUCE:
                 info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info.produce", new StringTextComponent(this.amount + "x ").appendSibling(new TranslationTextComponent(this.output.getTranslationKey())).mergeStyle(TextFormatting.GOLD)));
+                info.setItemIcon(Items.DROPPER);
                 break;
         }
     }

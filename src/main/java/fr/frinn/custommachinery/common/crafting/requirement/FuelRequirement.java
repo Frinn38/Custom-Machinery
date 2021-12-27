@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> implements ITickableRequirement<FuelMachineComponent>, IDisplayInfoRequirement {
@@ -77,6 +78,7 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
         info.setVisible(this.jeiVisible)
-                .addTooltip(new TranslationTextComponent("custommachinery.requirements.fuel.info"));
+                .addTooltip(new TranslationTextComponent("custommachinery.requirements.fuel.info"))
+                .setItemIcon(Items.COAL);
     }
 }
