@@ -22,17 +22,11 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
 
     public static final Codec<FuelRequirement> CODEC = RecordCodecBuilder.create(fuelRequirementInstance ->
             fuelRequirementInstance.group(
-                    CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"amount", 1).forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(fuelRequirementInstance, (amount, jei) -> {
-                    FuelRequirement requirement = new FuelRequirement(amount);
-                    //requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"amount", 1).forGetter(requirement -> requirement.amount)
+            ).apply(fuelRequirementInstance, FuelRequirement::new)
     );
 
     private final int amount;
-    private boolean jeiVisible = true;
     private final FuelItemIngredientWrapper wrapper;
 
     public FuelRequirement(int amount) {
@@ -76,19 +70,6 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
     public MachineComponentType<FuelMachineComponent> getComponentType() {
         return Registration.FUEL_MACHINE_COMPONENT.get();
     }
-
-    /*
-    @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
-    public void getDisplayInfo(IDisplayInfo info) {
-        info.setVisible(this.jeiVisible)
-                .addTooltip(new TranslationTextComponent("custommachinery.requirements.fuel.info"))
-                .setItemIcon(Items.COAL);
-    }*/
 
     @Override
     public IJEIIngredientWrapper<ItemStack> getJEIIngredientWrapper() {
