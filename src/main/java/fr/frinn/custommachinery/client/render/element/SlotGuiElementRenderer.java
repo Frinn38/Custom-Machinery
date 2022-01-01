@@ -39,14 +39,4 @@ public class SlotGuiElementRenderer implements IGuiElementRenderer<SlotGuiElemen
     public void renderTooltip(MatrixStack matrix, SlotGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
 
     }
-
-    @Override
-    public boolean isHovered(SlotGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        int posX = element.getX();
-        int posY = element.getY();
-
-        int width = element.getWidth();
-        int height = element.getHeight();
-        return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
-    }
 }

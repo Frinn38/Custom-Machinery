@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.render.element;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
@@ -10,10 +11,14 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ResetGuiElementRenderer implements IGuiElementRenderer<ResetGuiElement> {
+
+    private static final List<ITextComponent> TOOLTIPS = Lists.newArrayList(
+            new TranslationTextComponent("custommachinery.gui.element.reset.name"),
+            new TranslationTextComponent("custommachinery.gui.element.reset.tooltip").mergeStyle(TextFormatting.DARK_RED)
+    );
 
     @Override
     public void renderElement(MatrixStack matrix, ResetGuiElement element, IMachineScreen screen) {
@@ -28,9 +33,6 @@ public class ResetGuiElementRenderer implements IGuiElementRenderer<ResetGuiElem
 
     @Override
     public void renderTooltip(MatrixStack matrix, ResetGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        List<ITextComponent> tooltips = new ArrayList<>();
-        tooltips.add(new TranslationTextComponent("custommachinery.gui.element.reset.name"));
-        tooltips.add(new TranslationTextComponent("custommachinery.gui.element.reset.tooltip").mergeStyle(TextFormatting.DARK_RED));
-        screen.getScreen().func_243308_b(matrix, tooltips, mouseX, mouseY);
+        screen.getScreen().func_243308_b(matrix, TOOLTIPS, mouseX, mouseY);
     }
 }

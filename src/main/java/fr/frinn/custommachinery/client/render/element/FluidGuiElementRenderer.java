@@ -53,13 +53,4 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
             screen.getScreen().renderTooltip(matrix, new TranslationTextComponent(fluid).appendSibling(new TranslationTextComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
         });
     }
-
-    @Override
-    public boolean isHovered(FluidGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        int posX = element.getX();
-        int posY = element.getY();
-        int width = element.getWidth();
-        int height = element.getHeight();
-        return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
-    }
 }

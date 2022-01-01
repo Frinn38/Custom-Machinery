@@ -47,14 +47,4 @@ public class StatusGuiElementRenderer implements IGuiElementRenderer<StatusGuiEl
             tooltips.add(((CustomMachineTile)screen.getTile()).craftingManager.getErrorMessage());
         screen.getScreen().func_243308_b(matrix, tooltips, mouseX, mouseY);
     }
-
-    @Override
-    public boolean isHovered(StatusGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        int posX = element.getX();
-        int posY = element.getY();
-        int width = element.getWidth();
-        int height = element.getHeight();
-
-        return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
-    }
 }

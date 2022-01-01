@@ -35,13 +35,4 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
             screen.getScreen().renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.element.energy.tooltip", energy, maxEnergy), mouseX, mouseY);
         });
     }
-
-    @Override
-    public boolean isHovered(EnergyGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        int posX = element.getX();
-        int posY = element.getY();
-        int width = element.getWidth();
-        int height = element.getHeight();
-        return mouseX >= posX && mouseX <= posX + width && mouseY >= posY && mouseY <= posY + height;
-    }
 }

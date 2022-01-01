@@ -1,12 +1,12 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
-import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
-import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.api.integration.jei.*;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.CustomMachine;
@@ -41,6 +41,9 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     private final CustomMachine machine;
     private final IGuiHelper guiHelper;
     private final RecipeHelper recipeHelper;
+    private final LoadingCache<CustomMachineRecipe, Ingredients> ingredientsCache;
+    private final LoadingCache<IDisplayInfoRequirement, RequirementDisplayInfo> infoCache;
+
     private int offsetX;
     private int offsetY;
     private int width;
@@ -53,6 +56,22 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         this.guiHelper = guiHelper;
         this.recipeHelper = new RecipeHelper(machine);
         this.setupRecipeDimensions();
+        this.ingredientsCache = CacheBuilder.newBuilder().build(new CacheLoader<CustomMachineRecipe, Ingredients>() {
+            @Override
+            public Ingredients load(CustomMachineRecipe recipe) {
+                Ingredients ingredients = new Ingredients();
+                recipe.getJEIIngredientRequirements().forEach(requirement -> requirement.getJEIIngredientWrapper().setIngredient(ingredients));
+                return ingredients;
+            }
+        });
+        this.infoCache = CacheBuilder.newBuilder().build(new CacheLoader<IDisplayInfoRequirement, RequirementDisplayInfo>() {
+            @Override
+            public RequirementDisplayInfo load(IDisplayInfoRequirement requirement) {
+                RequirementDisplayInfo info = new RequirementDisplayInfo();
+                requirement.getDisplayInfo(info);
+                return info;
+            }
+        });
     }
 
     //Find the minimal size for the recipe layout
@@ -116,9 +135,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     //Give all ingredients to jei for a recipe, used when searching for uses or recipes for an ingredient (player press U or R).
     @Override
     public void setIngredients(CustomMachineRecipe recipe, IIngredients ingredients) {
-        Ingredients builder = new Ingredients();
-        recipe.getJEIIngredientRequirements().forEach(requirement -> requirement.getJEIIngredientWrapper().setIngredient(builder));
-        builder.finish(ingredients);
+        this.ingredientsCache.getUnchecked(recipe).finish(ingredients);
     }
 
     //Set slots, fluid and energy in the layout
@@ -186,14 +203,10 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         //Render the line between the gui elements and the requirements icons
         AbstractGui.fill(matrix, -3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
 
-        //Render the requirements that doesn't have a gui element such as command, position, weather etc... with a little icon and a tooltip
+        //Render the requirements that don't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
-        recipe.getDisplayInfoRequirements().stream().map(requirement -> {
-            RequirementDisplayInfo info = new RequirementDisplayInfo();
-            requirement.getDisplayInfo(info);
-            return info;
-        }).filter(RequirementDisplayInfo::isVisible).forEach(info -> {
+        recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::isVisible).forEach(info -> {
             int x = index.get() * (ICON_SIZE + 2) - 2;
             int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
             if(index.incrementAndGet() >= this.maxIconPerRow) {
@@ -213,11 +226,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     public boolean handleClick(CustomMachineRecipe recipe, double mouseX, double mouseY, int mouseButton) {
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
-        return recipe.getDisplayInfoRequirements().stream().map(requirement -> {
-            RequirementDisplayInfo info = new RequirementDisplayInfo();
-            requirement.getDisplayInfo(info);
-            return info;
-        }).filter(RequirementDisplayInfo::isVisible).anyMatch(info -> {
+        return recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::isVisible).anyMatch(info -> {
             int x = index.get() * (ICON_SIZE + 2) - 2;
             int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
             if(index.incrementAndGet() >= this.maxIconPerRow) {
