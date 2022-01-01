@@ -12,7 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -133,7 +132,7 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
         List<ITextComponent> tooltips = new ArrayList<>();
         tooltips.add(new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
         if(!CMConfig.INSTANCE.needAdvancedInfoForRecipeID.get() || Minecraft.getInstance().gameSettings.advancedItemTooltips)
-            tooltips.add(new StringTextComponent(recipe.getRecipeId().toString()).mergeStyle(TextFormatting.DARK_GRAY));
+            tooltips.add(new TranslationTextComponent("custommachinery.jei.recipe.id", recipe.getRecipeId().toString()).mergeStyle(TextFormatting.DARK_GRAY));
         return tooltips;
     }
 

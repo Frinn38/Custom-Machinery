@@ -1,10 +1,12 @@
 package fr.frinn.custommachinery.client.render.element;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
+import fr.frinn.custommachinery.common.crafting.requirement.FuelRequirement;
 import fr.frinn.custommachinery.common.data.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.data.gui.FuelGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -58,6 +60,9 @@ public class FuelGuiElementRenderer implements IGuiElementRenderer<FuelGuiElemen
 
     @Override
     public List<ITextComponent> getJEITooltips(FuelGuiElement element, IMachineRecipe recipe) {
+        int amount = recipe.getRequirements().stream().filter(requirement -> requirement instanceof FuelRequirement).findFirst().map(requirement -> ((FuelRequirement)requirement).getAmount()).orElse(0);
+        if(amount > 0)
+            return Lists.newArrayList(new TranslationTextComponent("custommachinery.jei.ingredient.fuel.amount", amount));
         return Collections.emptyList();
     }
 }

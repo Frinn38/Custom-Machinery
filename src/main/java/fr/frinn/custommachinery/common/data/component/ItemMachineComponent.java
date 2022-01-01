@@ -149,6 +149,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
             this.variant = variant;
         }
 
+        public ItemComponentVariant getVariant() {
+            return this.variant;
+        }
+
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
             return Registration.ITEM_MACHINE_COMPONENT.get();

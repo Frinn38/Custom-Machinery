@@ -6,18 +6,19 @@ import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.item.Items;
+import fr.frinn.custommachinery.common.integration.jei.wrapper.FuelItemIngredientWrapper;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> implements ITickableRequirement<FuelMachineComponent>, IDisplayInfoRequirement {
+public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> implements ITickableRequirement<FuelMachineComponent>, IJEIIngredientRequirement<ItemStack> {
 
     public static final Codec<FuelRequirement> CODEC = RecordCodecBuilder.create(fuelRequirementInstance ->
             fuelRequirementInstance.group(
@@ -25,17 +26,23 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
                     CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(fuelRequirementInstance, (amount, jei) -> {
                     FuelRequirement requirement = new FuelRequirement(amount);
-                    requirement.setJeiVisible(jei);
+                    //requirement.setJeiVisible(jei);
                     return requirement;
             })
     );
 
     private final int amount;
     private boolean jeiVisible = true;
+    private final FuelItemIngredientWrapper wrapper;
 
     public FuelRequirement(int amount) {
         super(RequirementIOMode.INPUT);
         this.amount = amount;
+        this.wrapper = new FuelItemIngredientWrapper(this.amount);
+    }
+
+    public int getAmount() {
+        return this.amount;
     }
 
     @Override
@@ -70,6 +77,7 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
         return Registration.FUEL_MACHINE_COMPONENT.get();
     }
 
+    /*
     @Override
     public void setJeiVisible(boolean jeiVisible) {
         this.jeiVisible = jeiVisible;
@@ -80,5 +88,10 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
         info.setVisible(this.jeiVisible)
                 .addTooltip(new TranslationTextComponent("custommachinery.requirements.fuel.info"))
                 .setItemIcon(Items.COAL);
+    }*/
+
+    @Override
+    public IJEIIngredientWrapper<ItemStack> getJEIIngredientWrapper() {
+        return this.wrapper;
     }
 }

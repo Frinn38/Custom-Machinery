@@ -13,11 +13,15 @@ import fr.frinn.custommachinery.common.util.Comparators;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.MethodsReturnNonnullByDefault;
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -31,6 +35,7 @@ import java.util.List;
 public class CustomMachineJEIPlugin implements IModPlugin {
 
     public static final ResourceLocation PLUGIN_ID = new ResourceLocation(CustomMachinery.MODID, "jei_plugin");
+    public static final List<ItemStack> FUEL_INGREDIENTS = Lists.newArrayList();
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -62,6 +67,7 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                         CustomMachinery.LOGGER.error("Invalid machine ID: " + recipe.getMachine() + " in recipe: " + recipe.getId());
                 }
         );
+        registry.getIngredientManager().getAllIngredients(VanillaTypes.ITEM).stream().filter(stack -> ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING) > 0).forEach(FUEL_INGREDIENTS::add);
     }
 
     @Override
