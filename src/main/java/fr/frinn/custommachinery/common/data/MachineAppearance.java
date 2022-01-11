@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;

@@ -1,1 +1,3 @@
-{}
+{
+  "parent": "custommachinery:block/custom_machine_block"
+}

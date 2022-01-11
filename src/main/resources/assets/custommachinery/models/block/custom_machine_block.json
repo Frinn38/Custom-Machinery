@@ -1,12 +1,6 @@
 {
-  "parent": "block/cube",
-  "textures": {
-    "particle": "custommachinery:block/custom_machine_side",
-    "up": "custommachinery:block/custom_machine_side",
-    "down": "custommachinery:block/custom_machine_side",
-    "north": "custommachinery:block/custom_machine_front",
-    "east": "custommachinery:block/custom_machine_side",
-    "south": "custommachinery:block/custom_machine_side",
-    "west": "custommachinery:block/custom_machine_side"
+  "loader": "custommachinery:custom_machine",
+  "defaults": {
+    "": "custommachinery:default/custom_machine_default"
   }
 }

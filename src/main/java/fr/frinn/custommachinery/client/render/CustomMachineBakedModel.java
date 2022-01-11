@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.client.render;
 
+import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -25,16 +27,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     public static final ModelProperty<MachineAppearance> APPEARANCE = new ModelProperty<>();
-    public static final CustomMachineBakedModel INSTANCE = new CustomMachineBakedModel();
-    public static final ResourceLocation DEFAULT_MODEL = new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block");
+    public static final ModelProperty<MachineStatus> STATUS = new ModelProperty<>();
 
     private final CustomMachineOverrideList overrideList = new CustomMachineOverrideList();
+    private final Map<MachineStatus, ResourceLocation> defaults;
+
+    public CustomMachineBakedModel(Map<MachineStatus, ResourceLocation> defaults) {
+        this.defaults = defaults;
+    }
 
     @Override
     public boolean isAmbientOcclusion() {
@@ -69,9 +76,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     @Nonnull
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData data) {
-        if(!data.hasProperty(APPEARANCE) || data.getData(APPEARANCE) == null)
-            return Minecraft.getInstance().getModelManager().getMissingModel().getQuads(state, side, rand, EmptyModelData.INSTANCE);
-        IBakedModel model = getMachineBlockModel(data.getData(APPEARANCE));
+        IBakedModel model = getMachineBlockModel(data);
         if(state != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING))
             return getRotatedQuadsTest(model, state.get(BlockStateProperties.HORIZONTAL_FACING), side, rand);
         return model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
@@ -132,34 +137,35 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        if(!data.hasProperty(APPEARANCE) || data.getData(APPEARANCE) == null)
-            return Minecraft.getInstance().getModelManager().getMissingModel().getParticleTexture(data);
-        IBakedModel model = getMachineBlockModel(data.getData(APPEARANCE));
-        return model.getParticleTexture(data);
+        return getMachineBlockModel(data).getParticleTexture(data);
     }
 
-    public static IBakedModel getMachineBlockModel(@Nullable MachineAppearance appearance) {
-        if(appearance == null)
-            return Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL);
-        IBakedModel machineModel = Minecraft.getInstance().getModelManager().getModel(appearance.getBlockModel());
-
-        if(machineModel == Minecraft.getInstance().getModelManager().getMissingModel())
-            machineModel = Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL);
-
-        return machineModel;
+    public IBakedModel getMachineBlockModel(@Nullable IModelData data) {
+        if(data == null)
+            return Minecraft.getInstance().getModelManager().getMissingModel();
+        IBakedModel model = Minecraft.getInstance().getModelManager().getMissingModel();
+        if(data.hasProperty(APPEARANCE) && data.getData(APPEARANCE) != null)
+            model = Minecraft.getInstance().getModelManager().getModel(data.getData(APPEARANCE).getBlockModel());
+        if(model == Minecraft.getInstance().getModelManager().getMissingModel() && data.hasProperty(STATUS) && data.getData(STATUS) != null)
+            model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(data.getData(STATUS)));
+        return model;
     }
 
-    public static IBakedModel getMachineItemModel(@Nullable MachineAppearance appearance) {
-        if(appearance == null)
-            return Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL);
+    public IBakedModel getMachineItemModel(@Nullable MachineAppearance appearance) {
+        IBakedModel model = Minecraft.getInstance().getModelManager().getMissingModel();
 
-        Item item = ForgeRegistries.ITEMS.getValue(appearance.getItemModel());
-        if(item != null && Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item) != null)
-            return Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item);
+        if(appearance != null) {
+            Item item = ForgeRegistries.ITEMS.getValue(appearance.getItemModel());
+            if(item != null && Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item) != null)
+                model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item);
 
-        IBakedModel model = Minecraft.getInstance().getModelManager().getModel(appearance.getItemModel());
+            if(model == Minecraft.getInstance().getModelManager().getMissingModel())
+                model = Minecraft.getInstance().getModelManager().getModel(appearance.getItemModel());
+        }
+
+
         if(model == Minecraft.getInstance().getModelManager().getMissingModel())
-            model = Minecraft.getInstance().getModelManager().getModel(DEFAULT_MODEL);
+            model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(MachineStatus.IDLE));
 
         return model;
     }

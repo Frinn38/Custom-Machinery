@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementRendererEvent;
 import fr.frinn.custommachinery.apiimpl.guielement.GuiElementRendererRegistry;
 import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
+import fr.frinn.custommachinery.client.render.CustomMachineModelLoader;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.render.element.*;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
@@ -42,6 +43,7 @@ import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -55,12 +57,10 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
+        ClientRegistry.bindTileEntityRenderer(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
+        RenderTypeLookup.setRenderLayer(Registration.CUSTOM_MACHINE_BLOCK.get(), RenderType.getTranslucent());
         event.enqueueWork(() -> {
-            ClientRegistry.bindTileEntityRenderer(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
-
             ScreenManager.registerFactory(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
-
-            RenderTypeLookup.setRenderLayer(Registration.CUSTOM_MACHINE_BLOCK.get(), RenderType.getTranslucent());
 
             GuiElementRendererRegistry.init();
         });
@@ -68,22 +68,12 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void modelRegistry(final ModelRegistryEvent event) {
-        ModelLoader.addSpecialModel(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"));
+        ModelLoaderRegistry.registerLoader(new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CustomMachineModelLoader.INSTANCE);
         ModelLoader.addSpecialModel(new ResourceLocation(CustomMachinery.MODID, "block/nope"));
         Minecraft.getInstance().getResourceManager().getAllResourceLocations("models/machine", s -> s.endsWith(".json")).forEach(rl -> {
             ResourceLocation modelRL = new ResourceLocation(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
             ModelLoader.addSpecialModel(modelRL);
         });
-    }
-
-    @SubscribeEvent
-    public static void modelBake(final ModelBakeEvent event) {
-        IBakedModel model = CustomMachineBakedModel.INSTANCE;
-        Registration.CUSTOM_MACHINE_BLOCK.get().getStateContainer().getValidStates().forEach(state -> {
-            ModelResourceLocation modelLocation = BlockModelShapes.getModelLocation(state);
-            event.getModelRegistry().put(modelLocation, model);
-        });
-        event.getModelRegistry().put(new ModelResourceLocation(Registration.CUSTOM_MACHINE_ITEM.getId(), "inventory"), model);
     }
 
     @SubscribeEvent

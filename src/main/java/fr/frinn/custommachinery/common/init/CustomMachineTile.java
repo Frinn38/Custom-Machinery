@@ -233,6 +233,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     public IModelData getModelData() {
         return new ModelDataMap.Builder()
                 .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance(getStatus()).copy())
+                .withInitial(CustomMachineBakedModel.STATUS, getStatus())
                 .build();
     }
 }
