@@ -7,11 +7,13 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.item.Items;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.ModList;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
@@ -65,5 +67,8 @@ public class UpgradesCustomReloadListener extends JsonReloadListener {
         });
 
         CustomMachineryAPI.getLogger().info("Finished creating custom machine upgrades.");
+
+        if(ModList.get().isLoaded("kubejs"))
+            CustomMachinery.UPGRADES.addAll(KubeJSIntegration.collectMachineUpgrades());
     }
 }

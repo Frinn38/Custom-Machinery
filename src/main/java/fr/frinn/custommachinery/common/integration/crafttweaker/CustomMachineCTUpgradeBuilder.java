@@ -21,11 +21,11 @@ import java.util.List;
 @Name("mods.custommachinery.CMUpgradeBuilder")
 public class CustomMachineCTUpgradeBuilder {
 
-    private Item item;
+    private final Item item;
     private String tooltip;
-    private List<ResourceLocation> machines;
-    private List<RecipeModifier> modifiers;
-    private int maxAmount;
+    private final List<ResourceLocation> machines;
+    private final List<RecipeModifier> modifiers;
+    private final int maxAmount;
 
     public CustomMachineCTUpgradeBuilder(Item item, int maxAmount) {
         this.item = item;
@@ -104,7 +104,7 @@ public class CustomMachineCTUpgradeBuilder {
 
     public static class AddMachineUpgradeAction implements IRuntimeAction {
 
-        private MachineUpgrade upgrade;
+        private final MachineUpgrade upgrade;
 
         public AddMachineUpgradeAction(MachineUpgrade upgrade) {
             this.upgrade = upgrade;
