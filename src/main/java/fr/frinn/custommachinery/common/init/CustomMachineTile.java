@@ -136,7 +136,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
             if(this.soundManager == null)
                 this.soundManager = new SoundManager(this.pos);
-            if(getMachine().getAppearance(getStatus()).getSound() != MachineAppearance.DEFAULT_SOUND && !getMachine().getAppearance(getStatus()).getSound().getName().equals(this.soundManager.getSoundID()))
+            if(getMachine().getAppearance(getStatus()).getSound() != Registration.SOUND_PROPERTY.get().getDefaultValue() && !getMachine().getAppearance(getStatus()).getSound().getName().equals(this.soundManager.getSoundID()))
                 this.soundManager.setSound(getMachine().getAppearance(getStatus()).getSound());
 
             if (this.craftingManager.getStatus() == MachineStatus.RUNNING && !this.soundManager.isPlaying())

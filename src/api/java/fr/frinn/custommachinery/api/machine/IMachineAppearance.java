@@ -8,8 +8,19 @@ import net.minecraftforge.common.ToolType;
 /**
  * Define the appearance of the machine.
  * The appearance of the machine is depending on it's MachineStatus.
+ * Each {@link MachineStatus} have their own instance of IMachineAppearance.
  */
 public interface IMachineAppearance {
+
+    /**
+     * Default method to get a property of this machine appearance.
+     * A machine appearance always contains one instance of each registered property.
+     * For properties registered by Custom Machinery use the helpers methods below.
+     * @param property The property to get the value from this appearance, MUST be registered in the forge registry.
+     * @param <T> The type of property.
+     * @return The value of the given property for this appearance.
+     */
+    <T> T getProperty(MachineAppearanceProperty<T> property);
 
     /**
      * @return The location of the model of the machine block.

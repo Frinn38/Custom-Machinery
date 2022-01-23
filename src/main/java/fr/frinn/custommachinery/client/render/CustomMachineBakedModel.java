@@ -4,11 +4,14 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.Item;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -144,8 +147,18 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         if(data == null)
             return Minecraft.getInstance().getModelManager().getMissingModel();
         IBakedModel model = Minecraft.getInstance().getModelManager().getMissingModel();
-        if(data.hasProperty(APPEARANCE) && data.getData(APPEARANCE) != null)
-            model = Minecraft.getInstance().getModelManager().getModel(data.getData(APPEARANCE).getBlockModel());
+        if(data.hasProperty(APPEARANCE) && data.getData(APPEARANCE) != null) {
+            ResourceLocation blockModelLocation = data.getData(APPEARANCE).getBlockModel();
+            if(blockModelLocation instanceof ModelResourceLocation)
+                model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
+            else {
+                Block block = ForgeRegistries.BLOCKS.getValue(blockModelLocation);
+                if(block != null)
+                    model = Minecraft.getInstance().getModelManager().getModel(BlockModelShapes.getModelLocation(block.getDefaultState()));
+                else
+                    model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
+            }
+        }
         if(model == Minecraft.getInstance().getModelManager().getMissingModel() && data.hasProperty(STATUS) && data.getData(STATUS) != null)
             model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(data.getData(STATUS)));
         return model;

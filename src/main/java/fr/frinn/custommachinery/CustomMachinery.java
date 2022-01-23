@@ -64,6 +64,7 @@ public class CustomMachinery {
         Registration.GUI_ELEMENTS.register(MOD_BUS);
         Registration.MACHINE_COMPONENTS.register(MOD_BUS);
         Registration.REQUIREMENTS.register(MOD_BUS);
+        Registration.APPEARANCE_PROPERTIES.register(MOD_BUS);
         DataType.DATA.register(MOD_BUS);
         MOD_BUS.addGenericListener(IRecipeSerializer.class, Registration::registerRecipeType);
 

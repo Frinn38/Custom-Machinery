@@ -1,10 +1,12 @@
 package fr.frinn.custommachinery.common.init;
 
+import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.render.element.jei.EnergyJEIIngredientRenderer;
@@ -24,6 +26,7 @@ import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemCo
 import fr.frinn.custommachinery.common.data.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.data.gui.*;
+import fr.frinn.custommachinery.common.util.Codecs;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
@@ -38,7 +41,11 @@ import net.minecraft.loot.LootParameters;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.RegistryObject;
@@ -81,10 +88,12 @@ public class Registration {
     public static final DeferredRegister<GuiElementType<? extends IGuiElement>> GUI_ELEMENTS = DeferredRegister.create((Class)GuiElementType.class, CustomMachinery.MODID);
     public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS = DeferredRegister.create((Class)MachineComponentType.class, CustomMachinery.MODID);
     public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create((Class)RequirementType.class, CustomMachinery.MODID);
+    public static final DeferredRegister<MachineAppearanceProperty<?>> APPEARANCE_PROPERTIES = DeferredRegister.create((Class)MachineAppearanceProperty.class, CustomMachinery.MODID);
 
     public static final Supplier<IForgeRegistry<GuiElementType<? extends IGuiElement>>> GUI_ELEMENT_TYPE_REGISTRY = GUI_ELEMENTS.makeRegistry("gui_element_type", RegistryBuilder::new);
     public static final Supplier<IForgeRegistry<MachineComponentType<? extends IMachineComponent>>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry("component_type", RegistryBuilder::new);
     public static final Supplier<IForgeRegistry<RequirementType<? extends IRequirement<?>>>> REQUIREMENT_TYPE_REGISTRY = REQUIREMENTS.makeRegistry("requirement_type", RegistryBuilder::new);
+    public static final Supplier<IForgeRegistry<MachineAppearanceProperty<?>>> APPEARANCE_PROPERTY_REGISTRY = APPEARANCE_PROPERTIES.makeRegistry("appearance_property", RegistryBuilder::new);
 
     public static final RegistryObject<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", CustomMachineBlock::new);
 
@@ -149,6 +158,17 @@ public class Registration {
     public static final RegistryObject<RequirementType<BiomeRequirement>> BIOME_REQUIREMENT = REQUIREMENTS.register("biome", () -> new RequirementType<>(BiomeRequirement.CODEC).setWorldRequirement());
     public static final RegistryObject<RequirementType<DimensionRequirement>> DIMENSION_REQUIREMENT = REQUIREMENTS.register("dimension", () -> new RequirementType<>(DimensionRequirement.CODEC).setWorldRequirement());
     public static final RegistryObject<RequirementType<DropRequirement>> DROP_REQUIREMENT = REQUIREMENTS.register("drop", () -> new RequirementType<>(DropRequirement.CODEC).setWorldRequirement());
+
+    public static final RegistryObject<MachineAppearanceProperty<ResourceLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> new MachineAppearanceProperty<>(Codecs.BLOCK_MODEL_CODEC, new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")));
+    public static final RegistryObject<MachineAppearanceProperty<ResourceLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> new MachineAppearanceProperty<>(Codecs.ITEM_MODEL_CODEC, new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")));
+    public static final RegistryObject<MachineAppearanceProperty<SoundEvent>> SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("sound", () -> new MachineAppearanceProperty<>(SoundEvent.CODEC, new SoundEvent(new ResourceLocation(""))));
+    public static final RegistryObject<MachineAppearanceProperty<Integer>> LIGHT_PROPERTY = APPEARANCE_PROPERTIES.register("light", () -> new MachineAppearanceProperty<>(Codec.intRange(0, 15), 0));
+    public static final RegistryObject<MachineAppearanceProperty<Integer>> COLOR_PROPERTY = APPEARANCE_PROPERTIES.register("color", () -> new MachineAppearanceProperty<>(Codec.INT, 0xFFFFFF));
+    public static final RegistryObject<MachineAppearanceProperty<Float>> HARDNESS_PROPERTY = APPEARANCE_PROPERTIES.register("hardness", () -> new MachineAppearanceProperty<>(Codec.floatRange(0, Float.MAX_VALUE), 3.5F));
+    public static final RegistryObject<MachineAppearanceProperty<Float>> RESISTANCE_PROPERTY = APPEARANCE_PROPERTIES.register("resistance", () -> new MachineAppearanceProperty<>(Codec.floatRange(0, Float.MAX_VALUE), 3.5F));
+    public static final RegistryObject<MachineAppearanceProperty<ToolType>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> new MachineAppearanceProperty<>(Codecs.TOOL_TYPE_CODEC, ToolType.PICKAXE));
+    public static final RegistryObject<MachineAppearanceProperty<Integer>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> new MachineAppearanceProperty<>(Codec.INT, 1));
+    public static final RegistryObject<MachineAppearanceProperty<VoxelShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> new MachineAppearanceProperty<>(Codecs.VOXEL_SHAPE_CODEC, VoxelShapes.fullCube()));
 
     public static void registerRecipeType(final RegistryEvent<IRecipeSerializer<?>> event) {
         Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CUSTOM_MACHINE_RECIPE);

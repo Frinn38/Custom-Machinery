@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.data.builder;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
@@ -104,7 +105,7 @@ public class CustomMachineBuilder {
 
     public CustomMachine build() {
         ITextComponent name = this.name == null ? new StringTextComponent("New Machine") : this.name;
-        MachineAppearanceManager appearance = new MachineAppearanceManager(this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
+        MachineAppearanceManager appearance = new MachineAppearanceManager(Maps.newHashMap(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.jeiElements);
         List<ResourceLocation> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);
