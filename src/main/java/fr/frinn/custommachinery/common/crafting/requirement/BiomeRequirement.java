@@ -81,7 +81,7 @@ public class BiomeRequirement extends AbstractRequirement<PositionMachineCompone
             this.filter.forEach(biome -> info.addTooltip(new StringTextComponent("* ").appendSibling(new TranslationTextComponent("biome." + biome.getNamespace() + "." + biome.getPath()))));
         }
         info.setVisible(this.jeiVisible);
-        info.setItemIcon(Items.POPPY);
+        info.setItemIcon(Items.MAP);
     }
 
     @Override

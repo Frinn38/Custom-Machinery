@@ -103,6 +103,6 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
             info.addTooltip(new TranslationTextComponent("custommachinery.requirements.light.sky.info", new TranslationTextComponent(this.comparator.getTranslationKey()), this.light));
         else
             info.addTooltip(new TranslationTextComponent("custommachinery.requirements.light.block.info", new TranslationTextComponent(this.comparator.getTranslationKey()), this.light));
-        info.setItemIcon(Items.DAYLIGHT_DETECTOR);
+        info.setItemIcon(Items.TORCH);
     }
 }
