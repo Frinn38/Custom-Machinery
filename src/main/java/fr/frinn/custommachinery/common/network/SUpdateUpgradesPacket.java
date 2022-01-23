@@ -20,7 +20,7 @@ public class SUpdateUpgradesPacket {
     }
 
     public static void encode(SUpdateUpgradesPacket pkt, PacketBuffer buf) {
-        buf.writeInt(pkt.upgrades.size());
+        buf.writeVarInt(pkt.upgrades.size());
         pkt.upgrades.forEach(upgrade -> {
             try {
                 buf.func_240629_a_(MachineUpgrade.CODEC, upgrade);
@@ -32,7 +32,7 @@ public class SUpdateUpgradesPacket {
 
     public static SUpdateUpgradesPacket decode(PacketBuffer buf) {
         List<MachineUpgrade> upgrades = new ArrayList<>();
-        int size = buf.readInt();
+        int size = buf.readVarInt();
         for(int i = 0; i < size; i++) {
             try {
                 MachineUpgrade upgrade = buf.func_240628_a_(MachineUpgrade.CODEC);
@@ -50,5 +50,6 @@ public class SUpdateUpgradesPacket {
                 CustomMachinery.UPGRADES.clear();
                 CustomMachinery.UPGRADES.addAll(this.upgrades);
             });
+        context.get().setPacketHandled(true);
     }
 }
