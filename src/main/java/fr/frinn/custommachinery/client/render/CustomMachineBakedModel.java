@@ -1,11 +1,10 @@
 package fr.frinn.custommachinery.client.render;
 
-import com.google.common.collect.Maps;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.BakedQuad;
@@ -153,7 +152,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
                 model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
             else {
                 Block block = ForgeRegistries.BLOCKS.getValue(blockModelLocation);
-                if(block != null)
+                if(block != null && block != Blocks.AIR)
                     model = Minecraft.getInstance().getModelManager().getModel(BlockModelShapes.getModelLocation(block.getDefaultState()));
                 else
                     model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
