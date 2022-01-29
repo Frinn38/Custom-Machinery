@@ -29,6 +29,8 @@ import fr.frinn.custommachinery.common.util.*;
 import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.Effect;
 import net.minecraft.util.ResourceLocation;
@@ -43,7 +45,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("unchecked")
 @ZenRegister
 @Name("mods.custommachinery.CMRecipeBuilder")
 public class CustomMachineCTRecipeBuilder {
@@ -486,6 +487,78 @@ public class CustomMachineCTRecipeBuilder {
         return addRequirement(new LootTableRequirement(tableLoc, luck));
     }
 
+    /** DROP **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder checkDrop(ItemStack item, int amount, int radius) {
+        return checkDrops(new ItemStack[]{item}, amount, radius, true);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder checkAnyDrop(int amount, int radius) {
+        return checkDrops(new ItemStack[]{}, amount, radius, false);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder checkDrops(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
+        if(items.length == 0 && whitelist) {
+            CraftTweakerAPI.logError("Invalid Drop requirement, checkDrop method must have at least 1 item defined when using whitelist mode");
+            return this;
+        }
+        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropOnStart(ItemStack item, int amount, int radius) {
+        return consumeDropsOnStart(new ItemStack[]{item}, amount, radius, true);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropOnStart(int amount, int radius) {
+        return consumeDropsOnStart(new ItemStack[]{}, amount, radius, false);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropsOnStart(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
+        if(items.length == 0 && whitelist) {
+            CraftTweakerAPI.logError("Invalid Drop requirement, consumeDropOnStart method must have at least 1 item defined when using whitelist mode");
+            return this;
+        }
+        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropOnEnd(ItemStack item, int amount, int radius) {
+        return consumeDropsOnEnd(new ItemStack[]{item}, amount, radius, true);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropOnEnd(int amount, int radius) {
+        return consumeDropsOnEnd(new ItemStack[]{}, amount, radius, false);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropsOnEnd(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
+        if(items.length == 0 && whitelist) {
+            CraftTweakerAPI.logError("Invalid Drop requirement, consumeDropOnEnd method must have at least 1 item defined when using whitelist mode");
+            return this;
+        }
+        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder dropItemOnStart(ItemStack stack) {
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getTag(), stack.getCount(), 1));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder dropItemOnEnd(ItemStack stack) {
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getTag(), stack.getCount(), 1));
+    }
+
     /** CHANCE **/
 
     @Method
@@ -579,7 +652,11 @@ public class CustomMachineCTRecipeBuilder {
             return this;
         }
         AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<IIngredient<PartialBlockState>> filter;
+        if(stringFilter != null)
+            filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
+        else
+            filter = Collections.emptyList();
         try {
             return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {

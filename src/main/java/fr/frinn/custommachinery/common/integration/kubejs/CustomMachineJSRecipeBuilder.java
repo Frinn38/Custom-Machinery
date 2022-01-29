@@ -25,6 +25,8 @@ import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.util.*;
 import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -812,5 +814,78 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         }
         ResourceLocation tableLoc = new ResourceLocation(lootTable);
         return addRequirement(new LootTableRequirement(tableLoc, luck));
+    }
+
+    /** DROP **/
+
+    public CustomMachineJSRecipeBuilder checkDrop(ItemStackJS item, int amount, int radius) {
+        return checkDrops(new ItemStackJS[]{item}, amount, radius, true);
+    }
+
+    public CustomMachineJSRecipeBuilder checkAnyDrop(int amount, int radius) {
+        return checkDrops(new ItemStackJS[]{}, amount, radius, false);
+    }
+
+    public CustomMachineJSRecipeBuilder checkDrops(ItemStackJS[] items, int amount, int radius) {
+        return checkDrops(items, amount, radius, true);
+    }
+
+    public CustomMachineJSRecipeBuilder checkDrops(ItemStackJS[] items, int amount, int radius, boolean whitelist) {
+        if(items.length == 0) {
+            ScriptType.SERVER.console.warn("Invalid Drop requirement, checkDrop method must have at least 1 item defined when using whitelist mode");
+            return this;
+        }
+        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+    }
+
+    public CustomMachineJSRecipeBuilder consumeDropOnStart(ItemStackJS item, int amount, int radius) {
+        return consumeDropsOnStart(new ItemStackJS[]{item}, amount, radius, true);
+    }
+
+    public CustomMachineJSRecipeBuilder consumeAnyDropOnStart(int amount, int radius) {
+        return consumeDropsOnStart(new ItemStackJS[]{}, amount, radius, false);
+    }
+
+    public CustomMachineJSRecipeBuilder consumeDropsOnStart(ItemStackJS[] items, int amount, int radius) {
+        return consumeDropsOnStart(items, amount, radius, true);
+    }
+
+    public CustomMachineJSRecipeBuilder consumeDropsOnStart(ItemStackJS[] items, int amount, int radius, boolean whitelist) {
+        if(items.length == 0) {
+            ScriptType.SERVER.console.warn("Invalid Drop requirement, consumeDropOnStart method must have at least 1 item defined when using whitelist mode");
+            return this;
+        }
+        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+    }
+
+    public CustomMachineJSRecipeBuilder consumeDropOnEnd(ItemStackJS item, int amount, int radius) {
+        return consumeDropsOnEnd(new ItemStackJS[]{item}, amount, radius, true);
+    }
+
+    public CustomMachineJSRecipeBuilder consumeAnyDropOnEnd(int amount, int radius) {
+        return consumeDropsOnEnd(new ItemStackJS[]{}, amount, radius, false);
+    }
+
+    public CustomMachineJSRecipeBuilder consumeDropsOnEnd(ItemStackJS[] items, int amount, int radius) {
+        return consumeDropsOnEnd(items, amount, radius, true);
+    }
+
+    public CustomMachineJSRecipeBuilder consumeDropsOnEnd(ItemStackJS[] items, int amount, int radius, boolean whitelist) {
+        if(items.length == 0) {
+            ScriptType.SERVER.console.warn("Invalid Drop requirement, consumeDropOnEnd method must have at least 1 item defined when using whitelist mode");
+            return this;
+        }
+        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+    }
+
+    public CustomMachineJSRecipeBuilder dropItemOnStart(ItemStackJS stack) {
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getMinecraftNbt(), stack.getCount(), 1));
+    }
+
+    public CustomMachineJSRecipeBuilder dropItemOnEnd(ItemStackJS stack) {
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getMinecraftNbt(), stack.getCount(), 1));
     }
 }
