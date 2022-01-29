@@ -8,10 +8,13 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractChanceableRequirement;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -25,7 +28,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.Locale;
 import java.util.Random;
 
-public class CommandRequirement extends AbstractChanceableRequirement<CommandMachineComponent> implements ITickableRequirement<CommandMachineComponent>, IDisplayInfoRequirement {
+public class CommandRequirement extends AbstractDelayedChanceableRequirement<CommandMachineComponent> implements ITickableRequirement<CommandMachineComponent>, IDisplayInfoRequirement {
 
     public static final Codec<CommandRequirement> CODEC = RecordCodecBuilder.create(commandRequirementInstance ->
             commandRequirementInstance.group(
@@ -34,10 +37,12 @@ public class CommandRequirement extends AbstractChanceableRequirement<CommandMac
                     CodecLogger.loggedOptional(Codec.INT,"permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
                     CodecLogger.loggedOptional(Codec.BOOL,"log", false).forGetter(requirement -> requirement.log),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "delay", 0.0).forGetter(AbstractDelayedRequirement::getDelay),
                     CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(commandRequirementInstance, (command, phase, permissionLevel, log, chance, jeiVisible) -> {
+            ).apply(commandRequirementInstance, (command, phase, permissionLevel, log, chance, delay, jeiVisible) -> {
                 CommandRequirement requirement = new CommandRequirement(command, phase, permissionLevel, log);
                 requirement.setChance(chance);
+                requirement.setDelay(delay);
                 requirement.setJeiVisible(jeiVisible);
                 return requirement;
             })
@@ -86,6 +91,12 @@ public class CommandRequirement extends AbstractChanceableRequirement<CommandMac
     public CraftingResult processEnd(CommandMachineComponent component, ICraftingContext context) {
         if(this.phase == CraftingManager.PHASE.ENDING)
             component.sendCommand(this.command, this.permissionLevel, this.log);
+        return CraftingResult.pass();
+    }
+
+    @Override
+    public CraftingResult execute(CommandMachineComponent component, ICraftingContext context) {
+        component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
