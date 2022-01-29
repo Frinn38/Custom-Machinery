@@ -36,7 +36,7 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
                     Codecs.PHASE_CODEC.fieldOf("phase").forGetter(requirement -> requirement.phase),
                     CodecLogger.loggedOptional(Codec.INT,"permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
                     CodecLogger.loggedOptional(Codec.BOOL,"log", false).forGetter(requirement -> requirement.log),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "delay", 0.0).forGetter(AbstractDelayedRequirement::getDelay),
                     CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(commandRequirementInstance, (command, phase, permissionLevel, log, chance, delay, jeiVisible) -> {
@@ -52,7 +52,6 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
     private final CraftingManager.PHASE phase;
     private final int permissionLevel;
     private final boolean log;
-    private double chance = 1.0D;
     private boolean jeiVisible = true;
 
     public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log) {
@@ -75,21 +74,21 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
 
     @Override
     public CraftingResult processStart(CommandMachineComponent component, ICraftingContext context) {
-        if(this.phase == CraftingManager.PHASE.STARTING)
+        if(this.phase == CraftingManager.PHASE.STARTING && !isDelayed())
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
     @Override
     public CraftingResult processTick(CommandMachineComponent component, ICraftingContext context) {
-        if(this.phase == CraftingManager.PHASE.CRAFTING_TICKABLE)
+        if(this.phase == CraftingManager.PHASE.CRAFTING_TICKABLE && !isDelayed())
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
     @Override
     public CraftingResult processEnd(CommandMachineComponent component, ICraftingContext context) {
-        if(this.phase == CraftingManager.PHASE.ENDING)
+        if(this.phase == CraftingManager.PHASE.ENDING && !isDelayed())
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
@@ -98,17 +97,6 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
     public CraftingResult execute(CommandMachineComponent component, ICraftingContext context) {
         component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
-    }
-
-    @Override
-    public void setChance(double chance) {
-        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
-    }
-
-    @Override
-    public boolean shouldSkip(CommandMachineComponent component, Random rand, ICraftingContext context) {
-        double chance = context.getModifiedValue(this.chance, this, "chance");
-        return rand.nextDouble() > chance;
     }
 
     @Override
@@ -123,9 +111,11 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.setVisible(this.jeiVisible)
-                .addTooltip(new TranslationTextComponent("custommachinery.requirements.command.info", new StringTextComponent(this.command).mergeStyle(TextFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)))
-                //.setSpriteIcon(Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("block/command_block_front")));
-                .setItemIcon(Items.COMMAND_BLOCK);
+        info.setVisible(this.jeiVisible);
+        info.setItemIcon(Items.COMMAND_BLOCK);
+        if(!isDelayed())
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.command.info", new StringTextComponent(this.command).mergeStyle(TextFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));
+        else
+            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.command.delay", new StringTextComponent(this.command).mergeStyle(TextFormatting.AQUA), (int)(getDelay() * 100) + "%"));
     }
 }

@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ICommandSource;
 import net.minecraft.util.math.vector.Vector2f;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
@@ -53,22 +54,16 @@ public class CommandMachineComponent extends AbstractMachineComponent {
         public boolean allowLogging() {return false;}
     };
 
-    private final Lazy<CommandSource> sourceLog;
-    private final Lazy<CommandSource> sourceNoLog;
-
     public CommandMachineComponent(IMachineComponentManager manager) {
         super(manager, ComponentIOMode.NONE);
-        sourceLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getServer(), null));
-        sourceNoLog = Lazy.of(() -> new CommandSource(COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(manager.getTile().getPos()), Vector2f.ZERO, (ServerWorld)manager.getWorld(), 2, "Custom Machinery", new StringTextComponent("Custom Machinery"), manager.getServer(), null));
     }
 
     public void sendCommand(String command, int permissionLevel, boolean log) {
         if(getManager().getWorld().getServer() == null)
             return;
-        if(log)
-            getManager().getWorld().getServer().getCommandManager().handleCommand(sourceLog.get().withPermissionLevel(permissionLevel), command);
-        else
-            getManager().getWorld().getServer().getCommandManager().handleCommand(sourceNoLog.get().withPermissionLevel(permissionLevel), command);
+
+        CommandSource source = new CommandSource(log ? COMMAND_SOURCE_LOG : COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(getManager().getTile().getPos()), Vector2f.ZERO, (ServerWorld)getManager().getWorld(), permissionLevel, "Custom Machinery", getManager().getTile().getMachine().getName(), getManager().getServer(), null);
+        getManager().getWorld().getServer().getCommandManager().handleCommand(source, command);
     }
 
     @Override

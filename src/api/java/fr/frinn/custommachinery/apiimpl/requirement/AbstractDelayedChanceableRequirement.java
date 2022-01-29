@@ -21,6 +21,10 @@ public abstract class AbstractDelayedChanceableRequirement<T extends IMachineCom
         this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
     }
 
+    public double getChance() {
+        return this.chance;
+    }
+
     @Override
     public boolean shouldSkip(T component, Random rand, ICraftingContext context) {
         double chance = context.getModifiedValue(this.chance, this, "chance");

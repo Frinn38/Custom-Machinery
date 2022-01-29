@@ -22,4 +22,8 @@ public abstract class AbstractDelayedRequirement<T extends IMachineComponent> ex
     public double getDelay() {
         return this.delay;
     }
+
+    public boolean isDelayed() {
+        return this.delay != 0.0D;
+    }
 }
