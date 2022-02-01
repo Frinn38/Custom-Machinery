@@ -488,7 +488,7 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     /** DROP **/
-
+    //TODO : remove amount and use the stack count, Replace ItemStack by IItemStack
     @Method
     public CustomMachineCTRecipeBuilder checkDrop(ItemStack item, int amount, int radius) {
         return checkDrops(new ItemStack[]{item}, amount, radius, true);
@@ -513,7 +513,7 @@ public class CustomMachineCTRecipeBuilder {
     public CustomMachineCTRecipeBuilder consumeDropOnStart(ItemStack item, int amount, int radius) {
         return consumeDropsOnStart(new ItemStack[]{item}, amount, radius, true);
     }
-
+    //TODO: rename consumeAnyDropOnStart
     @Method
     public CustomMachineCTRecipeBuilder consumeDropOnStart(int amount, int radius) {
         return consumeDropsOnStart(new ItemStack[]{}, amount, radius, false);
@@ -534,6 +534,7 @@ public class CustomMachineCTRecipeBuilder {
         return consumeDropsOnEnd(new ItemStack[]{item}, amount, radius, true);
     }
 
+    //Todo: rename consumeAnyDropOnEnd
     @Method
     public CustomMachineCTRecipeBuilder consumeDropOnEnd(int amount, int radius) {
         return consumeDropsOnEnd(new ItemStack[]{}, amount, radius, false);

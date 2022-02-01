@@ -154,6 +154,7 @@
   "custommachinery.requirements.block.replace.info.output": "Replace %s blocks by %s on end",
   "custommachinery.requirements.block.info.box": "Click to show nearby machines working area",
   "custommachinery.requirements.command.info": "Run %s on %s",
+  "custommachinery.requirements.command.delay": "Run %s at %s",
   "custommachinery.requirements.structure.error": "Invalid structure !",
   "custommachinery.requirements.structure.info": "Requires a structure",
   "custommachinery.requirements.structure.click": "Click to view the required structure",

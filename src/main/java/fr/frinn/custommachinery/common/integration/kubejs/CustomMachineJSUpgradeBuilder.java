@@ -47,6 +47,7 @@ public class CustomMachineJSUpgradeBuilder {
         return new MachineUpgrade(this.item, this.machines, this.modifiers, tooltip, this.maxAmount);
     }
 
+    //TODO: add method that accept a list of machines
     public CustomMachineJSUpgradeBuilder machine(String string) {
         final ResourceLocation machine;
         try {
@@ -150,6 +151,7 @@ public class CustomMachineJSUpgradeBuilder {
 
         private final List<CustomMachineJSUpgradeBuilder> builders = new ArrayList<>();
 
+        //TODO: add default method with maxAmount = 64
         public CustomMachineJSUpgradeBuilder create(Item item, int maxAmount) {
             CustomMachineJSUpgradeBuilder builder = new CustomMachineJSUpgradeBuilder(item, maxAmount);
             this.builders.add(builder);
