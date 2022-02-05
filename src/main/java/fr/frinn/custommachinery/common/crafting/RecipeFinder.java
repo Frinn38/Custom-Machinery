@@ -26,7 +26,7 @@ public class RecipeFinder {
     }
 
     private void init(World world) {
-        this.allRecipes = world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE).stream().filter(recipe -> recipe.getMachine().equals(tile.getId())).sorted(Comparators.RECIPE_PRIORITY_COMPARATOR).collect(Collectors.toList());
+        this.allRecipes = world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE).stream().filter(recipe -> recipe.getMachine().equals(tile.getId())).sorted(Comparators.RECIPE_PRIORITY_COMPARATOR.reversed()).collect(Collectors.toList());
         this.worldOnlyRecipes = allRecipes.stream().filter(recipe -> recipe.getRequirements().stream().map(IRequirement::getType).allMatch(RequirementType::isWorldRequirement)).collect(Collectors.toList());
         this.recipeCheckCooldown = world.rand.nextInt(20);
         this.initialized = true;
