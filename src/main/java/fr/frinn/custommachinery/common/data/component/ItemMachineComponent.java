@@ -37,7 +37,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant) {
         super(manager, mode);
         this.id = id;
-        this.capacity = MathHelper.clamp(capacity, 0, 64);
+        this.capacity = capacity;
         this.filter = filter;
         this.whitelist = whitelist;
         this.variant = variant;
