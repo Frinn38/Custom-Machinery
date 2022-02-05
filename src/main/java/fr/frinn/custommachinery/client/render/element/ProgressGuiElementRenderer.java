@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -26,8 +27,8 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
         int posY = element.getY();
         int width = element.getWidth();
         int height = element.getHeight();
-        int filledWidth = (int)(width * ((CustomMachineContainer)screen.getScreen().getContainer()).getRecipeProgressPercent());
-        int filledHeight = (int)(height * ((CustomMachineContainer)screen.getScreen().getContainer()).getRecipeProgressPercent());
+        int filledWidth = (int)(width * MathHelper.clamp(((CustomMachineContainer)screen.getScreen().getContainer()).getRecipeProgressPercent(), 0.0D, 1.0D));
+        int filledHeight = (int)(height * MathHelper.clamp(((CustomMachineContainer)screen.getScreen().getContainer()).getRecipeProgressPercent(), 0.0D, 1.0D));
 
         Minecraft.getInstance().getTextureManager().bindTexture(element.getEmptyTexture());
 
