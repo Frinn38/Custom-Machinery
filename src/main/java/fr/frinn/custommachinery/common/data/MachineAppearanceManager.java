@@ -60,7 +60,7 @@ public class MachineAppearanceManager {
         ImmutableMap.Builder<MachineAppearanceProperty<?>, Object> properties = ImmutableMap.builder();
         for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY.get()) {
             Object value = specifics.get(property);
-            if(value == null)
+            if(value == null || value == property.getDefaultValue())
                 properties.put(property, defaults.get(property));
             else
                 properties.put(property, value);
