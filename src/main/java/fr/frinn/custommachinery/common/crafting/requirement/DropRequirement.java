@@ -63,12 +63,12 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     public DropRequirement(RequirementIOMode mode, Action action, List<IIngredient<Item>> input, boolean whitelist, Item output, @Nullable CompoundNBT nbt, int amount, int radius) {
         super(mode);
         this.action = action;
-        if(mode == RequirementIOMode.INPUT && input.isEmpty())
-            throw new IllegalArgumentException("Drop requirement in input mode MUST have at least one input item ingredient !");
+        if((action == Action.CHECK || action == Action.CONSUME) && input.isEmpty())
+            throw new IllegalArgumentException("Drop requirement in" + action + "  mode MUST have at least one input item ingredient !");
         this.input = input;
         this.whitelist = whitelist;
-        if(mode == RequirementIOMode.OUTPUT && output == Items.AIR)
-            throw new IllegalArgumentException("Drop requirement in output mode MUST have an output item specified !");
+        if(action == Action.PRODUCE && output == Items.AIR)
+            throw new IllegalArgumentException("Drop requirement in " + action + " mode MUST have an output item specified !");
         this.output = output;
         this.nbt = nbt;
         this.amount = amount;
