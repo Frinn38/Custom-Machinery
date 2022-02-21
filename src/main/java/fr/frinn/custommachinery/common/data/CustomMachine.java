@@ -25,6 +25,7 @@ public class CustomMachine implements ICustomMachine {
         machineCodec.group(
                 TextComponentUtils.CODEC.fieldOf("name").forGetter(machine -> machine.name),
                 MachineAppearanceManager.CODEC.fieldOf("appearance").forGetter(machine -> machine.appearance),
+                CodecLogger.loggedOptional(Codecs.list(TextComponentUtils.CODEC), "tooltips", Collections.emptyList()).forGetter(CustomMachine::getTooltips),
                 CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"gui", Collections.emptyList()).forGetter(CustomMachine::getGuiElements),
                 CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"jei", Collections.emptyList()).forGetter(CustomMachine::getJeiElements),
                 CodecLogger.loggedOptional(Codecs.list(ResourceLocation.CODEC), "catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
@@ -39,6 +40,7 @@ public class CustomMachine implements ICustomMachine {
 
     private final ITextComponent name;
     private final MachineAppearanceManager appearance;
+    private final List<ITextComponent> tooltips;
     private final List<IGuiElement> guiElements;
     private final List<IGuiElement> jeiElements;
     private final List<ResourceLocation> catalysts;
@@ -46,9 +48,10 @@ public class CustomMachine implements ICustomMachine {
     private MachineLocation location;
 
 
-    public CustomMachine(ITextComponent name, MachineAppearanceManager appearance, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
+    public CustomMachine(ITextComponent name, MachineAppearanceManager appearance, List<ITextComponent> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
         this.name = name;
         this.appearance = appearance;
+        this.tooltips = tooltips;
         this.guiElements = guiElements;
         this.jeiElements = jeiElements;
         this.catalysts = catalysts;
@@ -73,6 +76,10 @@ public class CustomMachine implements ICustomMachine {
     @Override
     public MachineAppearance getAppearance(MachineStatus status) {
         return this.appearance.getAppearance(status);
+    }
+
+    public List<ITextComponent> getTooltips() {
+        return this.tooltips;
     }
 
     public List<IGuiElement> getGuiElements() {

@@ -5,8 +5,10 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.Utils;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -26,9 +28,11 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 import java.util.Optional;
 
 @ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class CustomMachineItem extends BlockItem {
 
     public static final String MACHINE_TAG_KEY = "machine";
@@ -88,5 +92,10 @@ public class CustomMachineItem extends BlockItem {
     @Override
     public ITextComponent getDisplayName(ItemStack stack) {
         return getMachine(stack).map(CustomMachine::getName).orElse(super.getDisplayName(stack));
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+        getMachine(stack).map(CustomMachine::getTooltips).ifPresent(tooltip::addAll);
     }
 }
