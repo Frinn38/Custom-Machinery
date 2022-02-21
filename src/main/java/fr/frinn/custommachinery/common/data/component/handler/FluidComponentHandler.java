@@ -23,11 +23,13 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityComponent, ISerializableComponent, ISyncableStuff {
 
@@ -232,5 +234,98 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
             component.recipeInsert(stack.getFluid(), maxInsert, stack.getTag());
         });
         getManager().markDirty();
+    }
+
+    /** Right click with fluid handler compat **/
+
+    private final IFluidHandler interactionHandler = new IFluidHandler() {
+        @Override
+        public int getTanks() {
+            return FluidComponentHandler.this.getTanks();
+        }
+
+        @Nonnull
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return FluidComponentHandler.this.getFluidInTank(tank);
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return FluidComponentHandler.this.getTankCapacity(tank);
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
+            return FluidComponentHandler.this.isFluidValid(tank, stack);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return FluidComponentHandler.this.fill(resource, action);
+        }
+
+        @Nonnull
+        @Override
+        public FluidStack drain(FluidStack maxDrain, FluidAction action) {
+            int remainingToDrain = maxDrain.getAmount();
+            for (FluidMachineComponent component : FluidComponentHandler.this.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? 1 : -1)).collect(Collectors.toList())) {
+                if(!component.getFluidStack().isEmpty() && component.isFluidValid(maxDrain)) {
+                    FluidStack stack = component.extract(maxDrain.getAmount(), FluidAction.SIMULATE);
+                    if(stack.getAmount() > remainingToDrain) {
+                        if(action.execute()) {
+                            component.extract(maxDrain.getAmount(), FluidAction.EXECUTE);
+                            getManager().markDirty();
+                        }
+                        return maxDrain;
+                    } else {
+                        if(action.execute()) {
+                            component.extract(stack.getAmount(), FluidAction.EXECUTE);
+                            getManager().markDirty();
+                        }
+                        remainingToDrain -= stack.getAmount();
+                    }
+                }
+            }
+            if(remainingToDrain == maxDrain.getAmount())
+                return FluidStack.EMPTY;
+            else
+                return new FluidStack(maxDrain.getFluid(), maxDrain.getAmount() - remainingToDrain, maxDrain.getTag());
+        }
+
+        @Nonnull
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            FluidStack toDrain = FluidStack.EMPTY;
+            int remainingToDrain = maxDrain;
+            for (FluidMachineComponent component : FluidComponentHandler.this.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? 1 : -1)).collect(Collectors.toList())) {
+                if(!component.getFluidStack().isEmpty() && (toDrain.isEmpty() || component.getFluidStack().isFluidEqual(toDrain))) {
+                    FluidStack stack = component.extract(remainingToDrain, FluidAction.SIMULATE);
+                    if(stack.getAmount() > remainingToDrain) {
+                        if(action.execute()) {
+                            component.extract(maxDrain, FluidAction.EXECUTE);
+                            getManager().markDirty();
+                        }
+                        return new FluidStack(stack.getFluid(), maxDrain, stack.getTag());
+                    } else {
+                        if(toDrain.isEmpty())
+                            toDrain = stack;
+                        if(action.execute()) {
+                            component.extract(stack.getAmount(), FluidAction.EXECUTE);
+                            getManager().markDirty();
+                        }
+                        remainingToDrain -= stack.getAmount();
+                    }
+                }
+            }
+            if(toDrain.isEmpty() || remainingToDrain == maxDrain)
+                return FluidStack.EMPTY;
+            else
+                return new FluidStack(toDrain.getFluid(), maxDrain - remainingToDrain, toDrain.getTag());
+        }
+    };
+
+    public IFluidHandler getInteractionHandler() {
+        return this.interactionHandler;
     }
 }

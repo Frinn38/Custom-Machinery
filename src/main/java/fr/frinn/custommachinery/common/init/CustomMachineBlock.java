@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
+import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.util.Utils;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
@@ -64,7 +65,7 @@ public class CustomMachineBlock extends Block {
         TileEntity tile = world.getTileEntity(pos);
         if(tile instanceof CustomMachineTile) {
             CustomMachineTile machine = (CustomMachineTile)tile;
-            if(machine.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler)).orElse(false)) {
+            if(machine.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler.getInteractionHandler())).orElse(false)) {
                 return ActionResultType.SUCCESS;
             }
             if(!world.isRemote() && !machine.getMachine().getGuiElements().isEmpty()) {
