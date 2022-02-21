@@ -147,6 +147,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 if(stack.getAmount() > remainingToDrain) {
                     if(action.execute()) {
                         component.extract(maxDrain.getAmount(), FluidAction.EXECUTE);
+                        getManager().markDirty();
                     }
                     return maxDrain;
                 } else {
