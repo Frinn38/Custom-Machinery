@@ -67,7 +67,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         List<FluidStack> ingredients = this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount, this.nbt)).collect(Collectors.toList());
         FluidGuiElement fluidElement = (FluidGuiElement)element;
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
-        if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager())).orElse(false)) {
+        if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
             layout.getIngredientsGroup(getJEIIngredientType()).init(index, this.mode == RequirementIOMode.INPUT, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
             IGuiIngredientGroup<FluidStack> group = layout.getIngredientsGroup(VanillaTypes.FLUID);
             group.set(index, ingredients);

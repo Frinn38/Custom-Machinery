@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
@@ -72,7 +73,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         List<ItemStack> ingredients = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.useDurability ? 1 : this.amount, this.nbt)).collect(Collectors.toList());
         SlotGuiElement slotElement = (SlotGuiElement)element;
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager())).orElse(false)) {
+        if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             layout.getIngredientsGroup(getJEIIngredientType()).init(index, this.mode == RequirementIOMode.INPUT, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
             IGuiIngredientGroup<ItemStack> group = layout.getIngredientsGroup(VanillaTypes.ITEM);
             group.set(index, ingredients);
