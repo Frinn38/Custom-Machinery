@@ -186,9 +186,10 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         ItemStack stack = item.getDefaultInstance();
         stack.setTag(nbt);
         int maxStackSize = stack.getMaxStackSize();
+        Predicate<ItemMachineComponent> itemPredicate = component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()));
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.outputs.stream().filter(component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()) && nbtPredicate.test(component) && slotPredicate.test(component)))
+        return this.outputs.stream().filter(component -> itemPredicate.and(nbtPredicate).and(slotPredicate).test(component))
                 .mapToInt(component -> {
                     if(component.getItemStack().isEmpty())
                         return Math.min(component.getCapacity(), maxStackSize);
@@ -227,13 +228,16 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             toRemove.addAndGet(-maxRemove);
             component.getItemStack().attemptDamageItem(maxRemove, rand, null);
         });
+        getManager().markDirty();
     }
 
     public void addToOutputs(String slot, Item item, int amount, @Nullable CompoundNBT nbt) {
         AtomicInteger toAdd = new AtomicInteger(amount);
+        int maxStackSize = Utils.makeItemStack(item, amount, nbt).getMaxStackSize();
+        Predicate<ItemMachineComponent> itemPredicate = component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()));
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        this.outputs.stream().filter(component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getSpaceForItem(item.getDefaultInstance()) > 0 && nbtPredicate.test(component) && slotPredicate.test(component))).forEach(component -> {
+        this.outputs.stream().filter(component -> itemPredicate.and(nbtPredicate).and(slotPredicate).test(component)).forEach(component -> {
             int maxInsert = Math.min(component.getSpaceForItem(item.getDefaultInstance()), toAdd.get());
             toAdd.addAndGet(-maxInsert);
             ItemStack stack = new ItemStack(item, maxInsert);
