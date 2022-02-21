@@ -13,6 +13,7 @@ import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
+import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
@@ -27,11 +28,14 @@ import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,6 +64,11 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     public void serialize() {
         DataResult<JsonElement> result = CustomMachineRecipeBuilder.CODEC.encodeStart(JsonOps.INSTANCE, this.builder);
         this.json = (JsonObject) result.resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new RecipeExceptionJS("Invalid Custom Machine Recipe"));
+    }
+
+    @Override
+    public IRecipe<?> createRecipe() {
+        return this.builder.build(getOrCreateId());
     }
 
     @Override
@@ -888,4 +897,24 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     public CustomMachineJSRecipeBuilder dropItemOnEnd(ItemStackJS stack) {
         return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getMinecraftNbt(), stack.getCount(), 1));
     }
+
+    /** FUNCTION **/
+
+    public CustomMachineJSRecipeBuilder requireFunctionToStart(KubeJSIntegration.RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.CHECK, new KubeJSIntegration.KJSFunction(function)));
+    }
+
+    public CustomMachineJSRecipeBuilder requireFunctionOnStart(KubeJSIntegration.RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.START, new KubeJSIntegration.KJSFunction(function)));
+    }
+
+    public CustomMachineJSRecipeBuilder requireFunctionEachTick(KubeJSIntegration.RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.TICK, new KubeJSIntegration.KJSFunction(function)));
+    }
+
+    public CustomMachineJSRecipeBuilder requireFunctionOnEnd(KubeJSIntegration.RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.END, new KubeJSIntegration.KJSFunction(function)));
+    }
+
+
 }

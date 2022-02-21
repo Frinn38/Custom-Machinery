@@ -11,9 +11,13 @@ import com.blamejared.crafttweaker.impl.entity.MCEntityType;
 import com.blamejared.crafttweaker.impl.helper.CraftTweakerHelper;
 import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
 import com.blamejared.crafttweaker.impl.tag.MCTag;
+import com.blamejared.crafttweaker.impl.util.text.MCTextComponent;
+import com.blamejared.crafttweaker_annotations.annotations.NativeTypeRegistration;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import fr.frinn.custommachinery.api.crafting.CraftingResult;
+import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
@@ -33,15 +37,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.Effect;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import org.openzen.zencode.java.ZenCodeType.Optional;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
 import org.openzen.zencode.java.ZenCodeType.*;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -560,6 +568,28 @@ public class CustomMachineCTRecipeBuilder {
         return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getTag(), stack.getCount(), 1));
     }
 
+    /** FUNCTION **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireFunctionToStart(Function<Context, CraftingResult> function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.CHECK, new CTFunction(function)));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireFunctionOnStart(Function<Context, CraftingResult> function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.START, new CTFunction(function)));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireFunctionEachTick(Function<Context, CraftingResult> function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.TICK, new CTFunction(function)));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder requireFunctionOnEnd(Function<Context, CraftingResult> function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.END, new CTFunction(function)));
+    }
+
     /** CHANCE **/
 
     @Method
@@ -664,5 +694,63 @@ public class CustomMachineCTRecipeBuilder {
             CraftTweakerAPI.logError("Invalid comparator: " + comparator);
         }
         return this;
+    }
+
+    public static class CTFunction implements Function<ICraftingContext, CraftingResult> {
+
+        private final Function<Context, CraftingResult> function;
+
+        public CTFunction(Function<Context, CraftingResult> function) {
+            this.function = function;
+        }
+
+        @Method
+        @Override
+        public CraftingResult apply(ICraftingContext context) {
+            return this.function.apply(new Context(context));
+        }
+    }
+
+    @ZenRegister
+    @Name("mods.custommachinery.Result")
+    public static class Result {
+
+        @Method
+        public static CraftingResult success() {
+            return CraftingResult.success();
+        }
+
+        @Method
+        public static CraftingResult error(MCTextComponent error) {
+            return CraftingResult.error(error.getInternal());
+        }
+
+        @Method
+        public static CraftingResult error(String error) {
+            return CraftingResult.error(new TranslationTextComponent(error));
+        }
+    }
+
+    @ZenRegister
+    @Name("mods.custommachinery.Context")
+    public static class Context {
+
+        private final ICraftingContext internal;
+
+        public Context(ICraftingContext internal) {
+            this.internal = internal;
+        }
+
+        @Getter("remainingTime")
+        @Method
+        public double getRemainingTime() {
+            return internal.getRemainingTime();
+        }
+
+        @Getter("machine")
+        @Method
+        public TileEntity getMachine() {
+            return internal.getMachineTile();
+        }
     }
 }
