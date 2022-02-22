@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 
 public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
+    private static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private CustomMachineRecipeBuilder builder;
     private IRequirement<?> lastRequirement;
     private boolean jei = false;
@@ -52,6 +53,9 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         ResourceLocation machine = new ResourceLocation((String) listJS.get(0));
         int time = ((Number)listJS.get(1)).intValue();
         this.builder = new CustomMachineRecipeBuilder(machine, time);
+        int uniqueID = IDS.computeIfAbsent(machine, m -> 0);
+        IDS.put(machine, uniqueID + 1);
+        this.id(new ResourceLocation("kubejs", "custom_machine/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID));
     }
 
     @Override
