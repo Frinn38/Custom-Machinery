@@ -90,6 +90,8 @@ public class Codecs {
     public static final Codec<ToolType> TOOL_TYPE_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeToolType, ToolType::getName), "Tool Type");
     public static final Codec<ResourceLocation> RESOURCE_LOCATION_CODEC     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeResourceLocation, ResourceLocation::toString), "Resource Location");
 
+    public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::getPrefix), "Comparator Mode");
+
     public static final Codec<ITag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(Utils::getItemTag, Utils::getItemTagID), "Item Tag");
     public static final Codec<ITag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getFluidTag, Utils::getFluidTagID), "Fluid Tag");
     public static final Codec<ITag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getBlockTag, Utils::getBlockTagID), "Block Tag");
@@ -101,7 +103,6 @@ public class Codecs {
     public static final Codec<TextGuiElement.Alignment> ALIGNMENT_CODEC                 = fromEnum(TextGuiElement.Alignment.class);
     public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = fromEnum(CraftingManager.PHASE.class);
     public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = fromEnum(WeatherMachineComponent.WeatherType.class);
-    public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC                     = fromEnum(ComparatorMode.class);
     public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = fromEnum(EntityRequirement.ACTION.class);
     public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = fromEnum(BlockRequirement.ACTION.class);
     public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = fromEnum(RecipeModifier.OPERATION.class);
@@ -249,6 +250,14 @@ public class Codecs {
             return array.length >= size ? DataResult.error(s, Arrays.copyOf(array, size)) : DataResult.error(s);
         } else {
             return DataResult.success(array);
+        }
+    }
+
+    public static DataResult<ComparatorMode> decodeComparatorMode(String encoded) {
+        try {
+            return DataResult.success(ComparatorMode.value(encoded));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error("Invalid Comparator mode : " + encoded);
         }
     }
 }

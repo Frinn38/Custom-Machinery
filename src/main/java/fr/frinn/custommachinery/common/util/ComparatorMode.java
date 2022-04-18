@@ -12,7 +12,7 @@ public enum ComparatorMode {
     LESSER_OR_EQUALS("<="),
     LESSER("<<");
 
-    private String prefix;
+    private final String prefix;
 
     ComparatorMode(String prefix) {
         this.prefix = prefix;
