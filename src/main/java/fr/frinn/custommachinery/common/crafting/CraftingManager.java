@@ -42,7 +42,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private final CraftingContext.Mutable mutableCraftingContext;
     private CustomMachineRecipe currentRecipe;
     //Recipe that was processed when the machine was unloaded, and we need to resume
-    private CustomMachineRecipe lastRecipe;
     private ResourceLocation futureRecipeID;
     public double recipeProgressTime = 0;
     public int recipeTotalTime = 0;
@@ -99,6 +98,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
 
     private void init() {
         this.initialized = true;
+        this.recipeFinder.init();
         if(this.futureRecipeID != null && this.tile.getWorld() != null) {
             CustomMachineRecipe recipe = (CustomMachineRecipe) this.tile.getWorld().getRecipeManager().getRecipe(this.futureRecipeID).orElse(null);
             if(recipe != null) {
@@ -122,10 +122,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     private void searchForRecipe() {
-        if(this.lastRecipe != null && this.lastRecipe.matches(this.tile, this.mutableCraftingContext.setRecipe(this.lastRecipe))) {
-            this.setRecipe(this.lastRecipe);
-            this.lastRecipe = null;
-        }
         if(this.currentRecipe == null)
             this.recipeFinder.findRecipe(this.mutableCraftingContext, this.status == MachineStatus.RUNNING).ifPresent(this::setRecipe);
     }
@@ -214,7 +210,6 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         }
 
         if(this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
-            this.lastRecipe = this.currentRecipe;
             this.currentRecipe = null;
             this.recipeProgressTime = 0;
             this.context = null;
@@ -345,7 +340,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void setMachineInventoryChanged() {
-        this.recipeFinder.setInventoryChanged();
+        this.recipeFinder.setInventoryChanged(true);
     }
 
     public enum PHASE {

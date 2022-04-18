@@ -15,9 +15,11 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
@@ -82,20 +84,12 @@ public class CustomMachineRecipe implements IRecipe<IInventory>, IMachineRecipe 
         return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement)requirement).collect(Collectors.toList());
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public boolean matches(CustomMachineTile tile, CraftingContext context) {
-        return this.getMachine().equals(tile.getMachine().getId()) && this.requirements.stream().allMatch(requirement ->
-            tile.componentManager.getComponent(requirement.getComponentType())
-                    .map(component -> ((IRequirement)requirement).test(component, context))
-                    .orElse(false)
-        );
-    }
-
     @Override
     public int getPriority() {
         return this.priority;
     }
 
+    @Override
     public int getJeiPriority() {
         return this.jeiPriority;
     }
@@ -128,5 +122,10 @@ public class CustomMachineRecipe implements IRecipe<IInventory>, IMachineRecipe 
     @Override
     public ItemStack getRecipeOutput() {
         return ItemStack.EMPTY;
+    }
+
+    private final Lazy<RecipeChecker> checker = Lazy.of(() -> new RecipeChecker(this));
+    public RecipeChecker checker() {
+        return checker.get();
     }
 }

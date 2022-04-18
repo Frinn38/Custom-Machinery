@@ -29,4 +29,10 @@ public interface IMachineRecipe {
      * @return The priority of this recipe, default : 0.
      */
     int getPriority();
+
+    /**
+     * Recipes with higher priorities will be shown first in jei recipe gui.
+     * @return The priority of this recipe to be shown in jei, default : 0.
+     */
+    int getJeiPriority();
 }
