@@ -17,21 +17,15 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
 
     private static final ResourceLocation BASE_FLUID_STORAGE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
 
-    public static final Codec<FluidGuiElement> CODEC = RecordCodecBuilder.create(fluidGuiElementInstance ->
-            fluidGuiElementInstance.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    Codec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_FLUID_STORAGE_TEXTURE).forGetter(FluidGuiElement::getTexture)
-            ).apply(fluidGuiElementInstance, FluidGuiElement::new)
+    public static final Codec<FluidGuiElement> CODEC = RecordCodecBuilder.create(fluidGuiElement ->
+            makeBaseTexturedCodec(fluidGuiElement, BASE_FLUID_STORAGE_TEXTURE).and(
+                    Codec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID)
+            ).apply(fluidGuiElement, FluidGuiElement::new)
     );
 
-    private String id;
+    private final String id;
 
-    public FluidGuiElement(int x, int y, String id, int width, int height, int priority, ResourceLocation texture) {
+    public FluidGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, String id) {
         super(x, y, width, height, priority, texture);
         this.id = id;
     }

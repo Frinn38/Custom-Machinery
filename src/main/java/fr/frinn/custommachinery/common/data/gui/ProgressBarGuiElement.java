@@ -16,17 +16,14 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
     public static final ResourceLocation BASE_EMPTY_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_progress_empty.png");
     public static final ResourceLocation BASE_FILLED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_progress_filled.png");
 
-    public static final Codec<ProgressBarGuiElement> CODEC = RecordCodecBuilder.create(progressGuiElementCodec ->
-            progressGuiElementCodec.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"emptyTexture", BASE_EMPTY_TEXTURE).forGetter(ProgressBarGuiElement::getEmptyTexture),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"filledTexture", BASE_FILLED_TEXTURE).forGetter(ProgressBarGuiElement::getFilledTexture),
-                    CodecLogger.loggedOptional(Codecs.PROGRESS_DIRECTION, "direction", Direction.RIGHT).forGetter(ProgressBarGuiElement::getDirection)
-            ).apply(progressGuiElementCodec, ProgressBarGuiElement::new)
+    public static final Codec<ProgressBarGuiElement> CODEC = RecordCodecBuilder.create(progressGuiElement ->
+            makeBaseCodec(progressGuiElement).and(
+                    progressGuiElement.group(
+                            CodecLogger.loggedOptional(ResourceLocation.CODEC,"emptyTexture", BASE_EMPTY_TEXTURE).forGetter(ProgressBarGuiElement::getEmptyTexture),
+                            CodecLogger.loggedOptional(ResourceLocation.CODEC,"filledTexture", BASE_FILLED_TEXTURE).forGetter(ProgressBarGuiElement::getFilledTexture),
+                            CodecLogger.loggedOptional(Codecs.PROGRESS_DIRECTION, "direction", Direction.RIGHT).forGetter(ProgressBarGuiElement::getDirection)
+                    )
+            ).apply(progressGuiElement, ProgressBarGuiElement::new)
     );
 
     private final ResourceLocation emptyTexture;

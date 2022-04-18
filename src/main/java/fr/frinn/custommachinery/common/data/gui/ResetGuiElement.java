@@ -16,14 +16,8 @@ public class ResetGuiElement extends AbstractTexturedGuiElement {
     private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_reset.png");
 
     public static final Codec<ResetGuiElement> CODEC = RecordCodecBuilder.create(resetGuiElement ->
-            resetGuiElement.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_TEXTURE).forGetter(AbstractTexturedGuiElement::getTexture)
-            ).apply(resetGuiElement, ResetGuiElement::new)
+            makeBaseTexturedCodec(resetGuiElement, BASE_TEXTURE)
+                .apply(resetGuiElement, ResetGuiElement::new)
     );
 
     public ResetGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture) {

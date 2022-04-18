@@ -25,9 +25,9 @@ public class TextGuiElement extends AbstractGuiElement {
             ).apply(textGuiElementCodec, TextGuiElement::new)
     );
 
-    private TranslationTextComponent text;
-    private Alignment alignment;
-    private int color;
+    private final TranslationTextComponent text;
+    private final Alignment alignment;
+    private final int color;
 
     public TextGuiElement(int x, int y, String text, int priority, Alignment alignment, int color) {
         super(x, y, 0, 0, priority);

@@ -11,18 +11,13 @@ import net.minecraft.util.ResourceLocation;
 
 public class TextureGuiElement extends AbstractTexturedGuiElement {
 
-    public static final Codec<TextureGuiElement> CODEC = RecordCodecBuilder.create(textureGuiElementCodec ->
-            textureGuiElementCodec.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    ResourceLocation.CODEC.fieldOf("texture").forGetter(TextureGuiElement::getTexture),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority)
-            ).apply(textureGuiElementCodec, TextureGuiElement::new)
+    public static final Codec<TextureGuiElement> CODEC = RecordCodecBuilder.create(textureGuiElement ->
+            makeBaseCodec(textureGuiElement).and(
+                    ResourceLocation.CODEC.fieldOf("texture").forGetter(AbstractTexturedGuiElement::getTexture)
+            ).apply(textureGuiElement, TextureGuiElement::new)
     );
 
-    public TextureGuiElement(int x, int y, ResourceLocation texture, int width, int height, int priority) {
+    public TextureGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture) {
         super(x, y, width, height, priority, texture);
     }
 

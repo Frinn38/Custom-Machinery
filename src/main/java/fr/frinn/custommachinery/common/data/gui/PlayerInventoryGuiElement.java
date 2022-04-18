@@ -14,15 +14,9 @@ public class PlayerInventoryGuiElement extends AbstractTexturedGuiElement {
 
     private static final ResourceLocation BASE_PLAYER_INVENTORY_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_inventory.png");
 
-    public static final Codec<PlayerInventoryGuiElement> CODEC = RecordCodecBuilder.create(playerInventoryGuiElementInstance ->
-            playerInventoryGuiElementInstance.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_PLAYER_INVENTORY_TEXTURE).forGetter(PlayerInventoryGuiElement::getTexture)
-            ).apply(playerInventoryGuiElementInstance, PlayerInventoryGuiElement::new)
+    public static final Codec<PlayerInventoryGuiElement> CODEC = RecordCodecBuilder.create(playerInventoryGuiElement ->
+            makeBaseTexturedCodec(playerInventoryGuiElement, BASE_PLAYER_INVENTORY_TEXTURE)
+                .apply(playerInventoryGuiElement, PlayerInventoryGuiElement::new)
     );
 
     public PlayerInventoryGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture) {

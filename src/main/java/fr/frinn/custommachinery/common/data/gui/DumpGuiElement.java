@@ -19,20 +19,14 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
     private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_dump.png");
 
     public static final Codec<DumpGuiElement> CODEC = RecordCodecBuilder.create(dumpGuiElement ->
-            dumpGuiElement.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    Codecs.list(Codec.STRING).fieldOf("id").forGetter(element -> element.id),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_TEXTURE).forGetter(AbstractTexturedGuiElement::getTexture)
+            makeBaseTexturedCodec(dumpGuiElement, BASE_TEXTURE).and(
+                    Codecs.list(Codec.STRING).fieldOf("id").forGetter(element -> element.id)
             ).apply(dumpGuiElement, DumpGuiElement::new)
     );
 
     private final List<String> id;
 
-    public DumpGuiElement(int x, int y, List<String> id, int width, int height, int priority, ResourceLocation texture) {
+    public DumpGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, List<String> id) {
         super(x, y, width, height, priority, texture);
         this.id = id;
     }

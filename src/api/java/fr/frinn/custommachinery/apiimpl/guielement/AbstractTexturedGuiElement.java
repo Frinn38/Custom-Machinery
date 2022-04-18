@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.apiimpl.guielement;
 
+import com.mojang.datafixers.Products;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.utils.TextureSizeHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.DistExecutor;
@@ -25,5 +28,11 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
     @Override
     public int getHeight() {
         return super.getHeight() >= 0 ? super.getHeight() : DistExecutor.unsafeRunForDist(() -> () -> TextureSizeHelper.getTextureHeight(this.texture), () -> () -> -1);
+    }
+
+    public static <T extends AbstractTexturedGuiElement> Products.P6<RecordCodecBuilder.Mu<T>, Integer, Integer, Integer, Integer, Integer, ResourceLocation> makeBaseTexturedCodec(RecordCodecBuilder.Instance<T> texturedGuiElement, ResourceLocation defaultTexture) {
+        return makeBaseCodec(texturedGuiElement).and(
+                CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", defaultTexture).forGetter(AbstractTexturedGuiElement::getTexture)
+        );
     }
 }

@@ -24,22 +24,18 @@ public class SlotGuiElement extends AbstractTexturedGuiElement implements ICompo
     private static final ResourceLocation BASE_SLOT_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_slot.png");
 
     public static final Codec<SlotGuiElement> CODEC = RecordCodecBuilder.create(slotGuiElementCodec ->
-            slotGuiElementCodec.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    Codec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                    CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", BASE_SLOT_TEXTURE).forGetter(SlotGuiElement::getTexture),
-                    CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"item", Collections.emptyList()).forGetter(SlotGuiElement::getItems)
+            makeBaseTexturedCodec(slotGuiElementCodec, BASE_SLOT_TEXTURE).and(
+                    slotGuiElementCodec.group(
+                            Codec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID),
+                            CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"item", Collections.emptyList()).forGetter(SlotGuiElement::getItems)
+                    )
             ).apply(slotGuiElementCodec, SlotGuiElement::new)
     );
 
-    private String id;
-    private List<IIngredient<Item>> item;
+    private final String id;
+    private final List<IIngredient<Item>> item;
 
-    public SlotGuiElement(int x, int y, String id, int width, int height, int priority, ResourceLocation texture, List<IIngredient<Item>> item) {
+    public SlotGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, String id, List<IIngredient<Item>> item) {
         super(x, y, width, height, priority, texture);
         this.id = id;
         this.item = item;
