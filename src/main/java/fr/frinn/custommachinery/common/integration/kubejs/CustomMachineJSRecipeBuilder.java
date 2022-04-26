@@ -13,7 +13,6 @@ import dev.latvian.kubejs.recipe.RecipeJS;
 import dev.latvian.kubejs.script.ScriptType;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
-import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
@@ -23,6 +22,8 @@ import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.crafting.requirement.*;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
+import fr.frinn.custommachinery.common.integration.kubejs.function.KJSFunction;
+import fr.frinn.custommachinery.common.integration.kubejs.function.RecipeFunction;
 import fr.frinn.custommachinery.common.util.*;
 import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.entity.EntityType;
@@ -34,8 +35,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -904,20 +903,20 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     /** FUNCTION **/
 
-    public CustomMachineJSRecipeBuilder requireFunctionToStart(KubeJSIntegration.RecipeFunction function) {
-        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.CHECK, new KubeJSIntegration.KJSFunction(function)));
+    public CustomMachineJSRecipeBuilder requireFunctionToStart(RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.CHECK, new KJSFunction(function)));
     }
 
-    public CustomMachineJSRecipeBuilder requireFunctionOnStart(KubeJSIntegration.RecipeFunction function) {
-        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.START, new KubeJSIntegration.KJSFunction(function)));
+    public CustomMachineJSRecipeBuilder requireFunctionOnStart(RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.START, new KJSFunction(function)));
     }
 
-    public CustomMachineJSRecipeBuilder requireFunctionEachTick(KubeJSIntegration.RecipeFunction function) {
-        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.TICK, new KubeJSIntegration.KJSFunction(function)));
+    public CustomMachineJSRecipeBuilder requireFunctionEachTick(RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.TICK, new KJSFunction(function)));
     }
 
-    public CustomMachineJSRecipeBuilder requireFunctionOnEnd(KubeJSIntegration.RecipeFunction function) {
-        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.END, new KubeJSIntegration.KJSFunction(function)));
+    public CustomMachineJSRecipeBuilder requireFunctionOnEnd(RecipeFunction function) {
+        return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.END, new KJSFunction(function)));
     }
 
 
