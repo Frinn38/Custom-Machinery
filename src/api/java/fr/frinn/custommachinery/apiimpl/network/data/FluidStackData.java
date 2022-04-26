@@ -6,7 +6,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class FluidStackData extends Data<FluidStack> {
 
-    private FluidStack value;
+    private final FluidStack value;
 
     public FluidStackData(short id, FluidStack value) {
         super(DataType.FLUIDSTACK_DATA.get(), id);

@@ -6,7 +6,7 @@ import net.minecraft.network.PacketBuffer;
 
 public class ItemStackData extends Data<ItemStack> {
 
-    private ItemStack value;
+    private final ItemStack value;
 
     public ItemStackData(short id, ItemStack value) {
         super(DataType.ITEMSTACK_DATA.get(), id);

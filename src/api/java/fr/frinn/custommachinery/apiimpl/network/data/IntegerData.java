@@ -5,7 +5,7 @@ import net.minecraft.network.PacketBuffer;
 
 public class IntegerData extends Data<Integer> {
 
-    private int value;
+    private final int value;
 
     public IntegerData(short id, int value) {
         super(DataType.INTEGER_DATA.get(), id);

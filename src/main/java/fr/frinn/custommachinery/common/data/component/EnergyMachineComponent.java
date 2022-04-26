@@ -9,7 +9,9 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
 import fr.frinn.custommachinery.apiimpl.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.apiimpl.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -31,18 +33,18 @@ import java.util.function.Consumer;
 
 public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ITickableComponent, ICapabilityComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent {
 
-    private int energy;
-    private int capacity;
-    private int maxInput;
-    private int maxOutput;
+    private long energy;
+    private final long capacity;
+    private final int maxInput;
+    private final int maxOutput;
     private long actualTick;
     private int actualTickInput;
     private int actualTickOutput;
     private int searchNeighborCooldown = Utils.RAND.nextInt(20);
-    private LazyOptional<EnergyMachineComponent> capability = LazyOptional.of(() -> this);
-    private Map<Direction, LazyOptional<IEnergyStorage>> neighborStorages = new HashMap<>();
+    private final LazyOptional<EnergyMachineComponent> capability = LazyOptional.of(() -> this);
+    private final Map<Direction, LazyOptional<IEnergyStorage>> neighborStorages = new HashMap<>();
 
-    public EnergyMachineComponent(IMachineComponentManager manager, int capacity, int maxInput, int maxOutput) {
+    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, int maxInput, int maxOutput) {
         super(manager, ComponentIOMode.BOTH);
         this.energy = 0;
         this.capacity = capacity;
@@ -56,6 +58,19 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     public int getMaxOutput() {
         return this.maxOutput;
+    }
+
+    //For GUI element rendering
+    public double getFillPercent() {
+        return (double)this.energy / this.capacity;
+    }
+
+    public long getEnergy() {
+        return this.energy;
+    }
+
+    public long getCapacity() {
+        return this.capacity;
     }
 
     @Override
@@ -116,18 +131,18 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public void serialize(CompoundNBT nbt) {
-        nbt.putInt("energy", this.energy);
+        nbt.putLong("energy", this.energy);
     }
 
     @Override
     public void deserialize(CompoundNBT nbt) {
-        if(nbt.contains("energy", Constants.NBT.TAG_INT))
-            this.energy = nbt.getInt("energy");
+        if(nbt.contains("energy", Constants.NBT.TAG_LONG))
+            this.energy = nbt.getLong("energy");
     }
 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(IntegerSyncable.create(() -> this.energy, energy -> this.energy = energy));
+        container.accept(LongSyncable.create(() -> this.energy, energy -> this.energy = energy));
     }
 
     @Override
@@ -150,7 +165,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         int maxTickInput = this.maxInput - this.actualTickInput;
 
-        int energyReceived = Math.min(this.capacity - this.energy, Math.min(maxTickInput, maxReceive));
+        int energyReceived = Math.min(Utils.toInt(this.capacity - this.energy), Math.min(maxTickInput, maxReceive));
         if (!simulate && energyReceived > 0) {
             this.energy += energyReceived;
             this.actualTickInput += energyReceived;
@@ -173,7 +188,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         int maxTickOutput = this.maxOutput - this.actualTickOutput;
 
-        int energyExtracted = Math.min(this.energy, Math.min(maxTickOutput, maxExtract));
+        int energyExtracted = Math.min(Utils.toInt(this.energy), Math.min(maxTickOutput, maxExtract));
         if (!simulate) {
             this.energy -= energyExtracted;
             this.actualTickOutput += energyExtracted;
@@ -185,12 +200,12 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public int getEnergyStored() {
-        return this.energy;
+        return Utils.toInt(this.energy);
     }
 
     @Override
     public int getMaxEnergyStored() {
-        return this.capacity;
+        return Utils.toInt(this.capacity);
     }
 
     @Override
@@ -209,7 +224,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if(!canReceive())
             return 0;
 
-        int energyReceived = Math.min(this.capacity - this.energy, maxReceive);
+        int energyReceived = Math.min(Utils.toInt(this.capacity - this.energy), maxReceive);
         if(!simulate) {
             this.energy += energyReceived;
             getManager().markDirty();
@@ -221,7 +236,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!canExtract())
             return 0;
 
-        int energyExtracted = Math.min(this.energy, maxExtract);
+        int energyExtracted = Math.min(Utils.toInt(this.energy), maxExtract);
         if (!simulate) {
             this.energy -= energyExtracted;
             getManager().markDirty();
@@ -233,17 +248,17 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         public static final Codec<Template> CODEC = RecordCodecBuilder.create(templateInstance ->
                 templateInstance.group(
-                        Codec.INT.fieldOf("capacity").forGetter(template -> template.capacity),
-                        CodecLogger.loggedOptional(Codec.INT,"maxInput").forGetter(template -> Optional.of(template.maxInput)),
-                        CodecLogger.loggedOptional(Codec.INT,"maxOutput").forGetter(template -> Optional.of(template.maxOutput))
-                ).apply(templateInstance, (capacity, maxInput, maxOutput) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity)))
+                        Codecs.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
+                        CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"maxInput").forGetter(template -> Optional.of(template.maxInput)),
+                        CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"maxOutput").forGetter(template -> Optional.of(template.maxOutput))
+                ).apply(templateInstance, (capacity, maxInput, maxOutput) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(Utils.toInt(capacity)), maxOutput.orElse(Utils.toInt(capacity))))
         );
 
-        private final int capacity;
+        private final long capacity;
         private final int maxInput;
         private final int maxOutput;
 
-        public Template(int capacity, int maxInput, int maxOutput) {
+        public Template(long capacity, int maxInput, int maxOutput) {
             this.capacity = capacity;
             this.maxInput = maxInput;
             this.maxOutput = maxOutput;

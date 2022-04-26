@@ -3,27 +3,27 @@ package fr.frinn.custommachinery.apiimpl.network.data;
 import fr.frinn.custommachinery.api.network.DataType;
 import net.minecraft.network.PacketBuffer;
 
-public class StringData extends Data<String> {
+public class LongData extends Data<Long> {
 
-    private final String value;
+    private final long value;
 
-    public StringData(short id, String value) {
-        super(DataType.STRING_DATA.get(), id);
+    public LongData(short id, long value) {
+        super(DataType.LONG_DATA.get(), id);
         this.value = value;
     }
 
-    public StringData(short id, PacketBuffer buffer) {
-        this(id, buffer.readString());
+    public LongData(short id, PacketBuffer buffer) {
+        this(id, buffer.readLong());
     }
 
     @Override
     public void writeData(PacketBuffer buffer) {
         super.writeData(buffer);
-        buffer.writeString(this.value);
+        buffer.writeLong(this.value);
     }
 
     @Override
-    public String getValue() {
+    public Long getValue() {
         return this.value;
     }
 }

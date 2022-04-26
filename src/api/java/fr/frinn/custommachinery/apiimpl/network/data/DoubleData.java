@@ -5,7 +5,7 @@ import net.minecraft.network.PacketBuffer;
 
 public class DoubleData extends Data<Double> {
 
-    private double value;
+    private final double value;
 
     public DoubleData(short id, double value) {
         super(DataType.DOUBLE_DATA.get(), id);

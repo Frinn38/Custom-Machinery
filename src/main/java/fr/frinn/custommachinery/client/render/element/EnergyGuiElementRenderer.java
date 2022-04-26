@@ -20,7 +20,7 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
         Minecraft.getInstance().getTextureManager().bindTexture(element.getEmptyTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
         screen.getTile().getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(energy -> {
-            double fillPercent = (double)energy.getEnergyStored() / (double)energy.getMaxEnergyStored();
+            double fillPercent = energy.getFillPercent();
             int eneryHeight = (int)(fillPercent * (double)(height));
             Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
             AbstractGui.blit(matrix, posX, posY + height - eneryHeight, 0, height - eneryHeight, width, eneryHeight, width, height);
@@ -30,8 +30,8 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
     @Override
     public void renderTooltip(MatrixStack matrix, EnergyGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
         screen.getTile().getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(energyComponent -> {
-            int energy = energyComponent.getEnergyStored();
-            int maxEnergy = energyComponent.getMaxEnergyStored();
+            long energy = energyComponent.getEnergy();
+            long maxEnergy = energyComponent.getCapacity();
             screen.getScreen().renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.element.energy.tooltip", energy, maxEnergy), mouseX, mouseY);
         });
     }

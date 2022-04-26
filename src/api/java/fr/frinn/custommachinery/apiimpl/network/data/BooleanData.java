@@ -5,7 +5,7 @@ import net.minecraft.network.PacketBuffer;
 
 public class BooleanData extends Data<Boolean> {
 
-    private boolean value;
+    private final boolean value;
 
     public BooleanData(short id, boolean value) {
         super(DataType.BOOLEAN_DATA.get(), id);

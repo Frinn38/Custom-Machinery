@@ -30,6 +30,7 @@ public class DataType<D extends IData<T>, T> extends ForgeRegistryEntry<DataType
     public static final RegistryObject<DataType<ItemStackData, ItemStack>> ITEMSTACK_DATA = DATA.register("itemstack", () -> new DataType<>(ItemStackSyncable::create, ItemStackData::new));
     public static final RegistryObject<DataType<FluidStackData, FluidStack>> FLUIDSTACK_DATA = DATA.register("fluidstack", () -> new DataType<>(FluidStackSyncable::create, FluidStackData::new));
     public static final RegistryObject<DataType<StringData, String>> STRING_DATA = DATA.register("string", () -> new DataType<>(StringSyncable::create, StringData::new));
+    public static final RegistryObject<DataType<LongData, Long>> LONG_DATA = DATA.register("long", () -> new DataType<>(LongSyncable::create, LongData::new));
 
     private final BiFunction<Supplier<T>, Consumer<T>, ISyncable<D, T>> builder;
     private final BiFunction<Short, PacketBuffer, D> reader;

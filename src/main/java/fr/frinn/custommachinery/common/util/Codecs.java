@@ -82,6 +82,11 @@ public class Codecs {
         }
     };
 
+    public static Codec<Long> longRange(final long minInclusive, final long maxInclusive) {
+        final Function<Long, DataResult<Long>> checker = checkRange(minInclusive, maxInclusive);
+        return Codec.LONG.flatXmap(checker, checker);
+    }
+
     public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString), "Position Comparator");
     public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString), "Time Comparator");
     public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC               = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString), "NBT");
@@ -259,5 +264,14 @@ public class Codecs {
         } catch (IllegalArgumentException e) {
             return DataResult.error("Invalid Comparator mode : " + encoded);
         }
+    }
+
+    public static <N extends Number & Comparable<N>> Function<N, DataResult<N>> checkRange(final N minInclusive, final N maxInclusive) {
+        return value -> {
+            if (value.compareTo(minInclusive) >= 0 && value.compareTo(maxInclusive) <= 0) {
+                return DataResult.success(value);
+            }
+            return DataResult.error("Value " + value + " outside of range [" + minInclusive + ":" + maxInclusive + "]", value);
+        };
     }
 }

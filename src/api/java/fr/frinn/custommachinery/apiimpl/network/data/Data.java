@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.api.network.IData;
 
 public abstract class Data<T> implements IData<T> {
 
-    private DataType<?, T> type;
-    private short id;
+    private final DataType<?, T> type;
+    private final short id;
 
     public Data(DataType<?, T> type, short id) {
         this.type = type;

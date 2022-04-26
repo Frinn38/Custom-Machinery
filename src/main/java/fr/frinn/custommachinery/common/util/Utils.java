@@ -260,4 +260,12 @@ public class Utils {
                     toMove.getAndAdd(-canMove);
                 });
     }
+
+    public static int toInt(long l) {
+        try {
+            return Math.toIntExact(l);
+        } catch (ArithmeticException e) {
+            return Integer.MAX_VALUE;
+        }
+    }
 }
