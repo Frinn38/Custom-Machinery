@@ -123,6 +123,7 @@ public class ClientHandler {
         event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementRenderer());
         event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementRenderer());
         event.register(Registration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementRenderer());
+        event.register(Registration.SIZE_GUI_ELEMENT.get(), new SizeGuiElementRenderer());
     }
 
     public static void openMachineLoadingScreen() {

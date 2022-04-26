@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.gui.SizeGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
@@ -21,8 +22,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer> implements IMachineScreen {
 
-    private CustomMachineTile tile;
-    private CustomMachine machine;
+    private final CustomMachineTile tile;
+    private final CustomMachine machine;
 
     public CustomMachineScreen(CustomMachineContainer container, PlayerInventory inv, ITextComponent name) {
         super(container, inv, name);
@@ -30,6 +31,14 @@ public class CustomMachineScreen extends ContainerScreen<CustomMachineContainer>
         this.machine = container.tile.getMachine();
         this.xSize = 256;
         this.ySize = 192;
+        this.machine.getGuiElements().stream()
+                .filter(element -> element instanceof SizeGuiElement)
+                .map(element -> (SizeGuiElement)element)
+                .findFirst()
+                .ifPresent(size -> {
+                    this.xSize = size.getWidth();
+                    this.ySize = size.getHeight();
+                });
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
