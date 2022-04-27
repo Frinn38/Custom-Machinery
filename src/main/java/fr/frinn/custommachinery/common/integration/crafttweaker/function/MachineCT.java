@@ -58,7 +58,6 @@ public class MachineCT {
 
     /** FLUID STUFF **/
 
-    @ZenCodeType.Getter("fluidStored")
     @ZenCodeType.Method
     public IFluidStack getFluidStored(String tank) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).map(component -> {
@@ -67,7 +66,6 @@ public class MachineCT {
         }).orElse(FLUID_EMPTY);
     }
 
-    @ZenCodeType.Getter("fluidCapacity")
     @ZenCodeType.Method
     public int getFluidCapacity(String tank) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).map(FluidMachineComponent::getCapacity).orElse(0);
@@ -113,7 +111,6 @@ public class MachineCT {
 
     /** ITEM STUFF **/
 
-    @ZenCodeType.Getter("itemStored")
     @ZenCodeType.Method
     public IItemStack getItemStored(String slot) {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
@@ -122,7 +119,6 @@ public class MachineCT {
                 .orElse(ITEM_EMPTY);
     }
 
-    @ZenCodeType.Getter("itemCapacity")
     @ZenCodeType.Method
     public int getItemCapacity(String slot) {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
