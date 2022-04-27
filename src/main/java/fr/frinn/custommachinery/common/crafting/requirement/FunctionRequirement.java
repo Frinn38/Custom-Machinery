@@ -17,7 +17,7 @@ public class FunctionRequirement extends AbstractDelayedChanceableRequirement<Fu
 
     public static final Codec<FunctionRequirement> CODEC = Codec.unit(() -> {throw new IllegalStateException("Function requirement cannot be used in json");});
 
-    private final Phase phase;
+    private Phase phase;
     private final Function<ICraftingContext, CraftingResult> function;
 
     public FunctionRequirement(Phase phase, Function<ICraftingContext, CraftingResult> function) {
@@ -33,7 +33,7 @@ public class FunctionRequirement extends AbstractDelayedChanceableRequirement<Fu
 
     @Override
     public CraftingResult execute(FunctionMachineComponent component, ICraftingContext context) {
-        if(getDelay() == 0.0D)
+        if(this.phase != Phase.DELAY)
             return CraftingResult.pass();
         return this.function.apply(context);
     }
@@ -71,7 +71,13 @@ public class FunctionRequirement extends AbstractDelayedChanceableRequirement<Fu
         return this.function.apply(context);
     }
 
+    @Override
+    public void setDelay(double delay) {
+        super.setDelay(delay);
+        this.phase = Phase.DELAY;
+    }
+
     public enum Phase {
-        CHECK, START, TICK, END
+        CHECK, START, TICK, END, DELAY
     }
 }
