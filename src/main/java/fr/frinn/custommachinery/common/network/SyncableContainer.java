@@ -31,9 +31,18 @@ public abstract class SyncableContainer extends Container {
         this.detectAndSendChanges();
     }
 
+    public abstract boolean needFullSync();
+
     @Override
     public void detectAndSendChanges() {
         if(!this.players.isEmpty()) {
+            if(this.needFullSync()) {
+                List<IData<?>> toSync = new ArrayList<>();
+                for(short id = 0; id < this.stuffToSync.size(); id++)
+                    toSync.add(this.stuffToSync.get(id).getData(id));
+                this.players.forEach(player -> NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateContainerPacket(this.windowId, toSync)));
+                return;
+            }
             List<IData<?>> toSync = new ArrayList<>();
             for(short id = 0; id < this.stuffToSync.size(); id++) {
                 if(this.stuffToSync.get(id).needSync())

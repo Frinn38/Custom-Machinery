@@ -136,6 +136,11 @@ public class CustomMachineContainer extends SyncableContainer {
         return isWithinUsableDistance(IWorldPosCallable.of(player.world, this.tile.getPos()), player, Registration.CUSTOM_MACHINE_BLOCK.get());
     }
 
+    @Override
+    public boolean needFullSync() {
+        return this.tile.getWorld() != null && this.tile.getWorld().getGameTime() % 100 == 0;
+    }
+
     public double getRecipeProgressPercent() {
         if(this.tile.craftingManager.recipeTotalTime > 0)
             return this.tile.craftingManager.recipeProgressTime / (double) this.tile.craftingManager.recipeTotalTime;
