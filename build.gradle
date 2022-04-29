@@ -20,7 +20,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.5-0.5.8b'
+version = '1.16.5-0.5.8c'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'custommachinery'
 
@@ -215,6 +215,7 @@ dependencies {
     implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
     implementation "dev.latvian.mods:rhino:${rhino_version}"
     implementation fg.deobf("me.shedaniel:architectury-forge:${architectury_version}")
+    implementation(fg.deobf("curse.maven:gadgets-298187:3498508"))
 
     runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")//Mekanism
     runtimeOnly fg.deobf("curse.maven:spark-361579:3337641")//Spark profiler

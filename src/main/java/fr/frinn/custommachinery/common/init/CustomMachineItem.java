@@ -60,19 +60,6 @@ public class CustomMachineItem extends BlockItem {
     }
 
     @Override
-    protected boolean onBlockPlaced(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
-        getMachine(stack).ifPresent(machine -> {
-            TileEntity tile = world.getTileEntity(pos);
-            if(tile instanceof CustomMachineTile) {
-                ((CustomMachineTile)tile).setId(machine.getId());
-                if(!world.isRemote() && world.getServer() != null && player != null && player.getHeldItem(Hand.OFF_HAND) == stack)
-                    world.getServer().enqueue(new TickDelayedTask(1, () -> NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(pos)), new SRefreshCustomMachineTilePacket(pos, machine.getId()))));
-            }
-        });
-        return true;
-    }
-
-    @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         if(this.isInGroup(group))
             CustomMachinery.MACHINES.keySet().forEach(id -> items.add(makeMachineItem(id)));

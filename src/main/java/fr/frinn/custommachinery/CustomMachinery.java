@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.data.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.buildinggadgets.BuildingGadgetsIntegration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SLootTablesPacket;
@@ -68,6 +69,9 @@ public class CustomMachinery {
         DataType.DATA.register(MOD_BUS);
         MOD_BUS.addGenericListener(IRecipeSerializer.class, Registration::registerRecipeType);
 
+        if(ModList.get().isLoaded("buildinggadgets"))
+            BuildingGadgetsIntegration.init(MOD_BUS);
+
         final IEventBus FORGE_BUS = MinecraftForge.EVENT_BUS;
         FORGE_BUS.addListener(this::addReloadListener);
         FORGE_BUS.addListener(this::serverStarting);
@@ -87,6 +91,9 @@ public class CustomMachinery {
     public void sendIMCMessages(final InterModEnqueueEvent event) {
         if(ModList.get().isLoaded("theoneprobe"))
             InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPInfoProvider::new);
+
+        if(ModList.get().isLoaded("buildinggadgets"))
+            BuildingGadgetsIntegration.sendIMC();
     }
 
     public void addReloadListener(final AddReloadListenerEvent event) {

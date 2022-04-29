@@ -28,10 +28,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CustomMachineBakedModel implements IDynamicBakedModel {
@@ -145,9 +142,15 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     private IBakedModel getMachineModel(@Nonnull IModelData data) {
         MachineAppearance appearance = data.getData(APPEARANCE);
+        MachineStatus status = data.getData(STATUS);
+        IBakedModel model;
         if(appearance != null)
-            return getMachineBlockModel(appearance, data.getData(STATUS));
-        return Minecraft.getInstance().getModelManager().getMissingModel();
+            model = getMachineBlockModel(appearance, data.getData(STATUS));
+        else if(data.getData(STATUS) != null)
+            model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(status));
+        else
+            model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(MachineStatus.IDLE));
+        return model;
     }
 
     public IBakedModel getMachineBlockModel(MachineAppearance appearance, @Nullable MachineStatus status) {

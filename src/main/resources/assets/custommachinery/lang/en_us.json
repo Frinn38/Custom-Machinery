@@ -1,4 +1,5 @@
 {
+  "block.custommachinery.custom_machine_block": "Some machine block",
   "item.custommachinery.machine_creator_item": "Machine Creator",
   "item.custommachinery.box_creator_item": "Box Creator",
   "item.custommachinery.structure_creator": "Structure Creator",

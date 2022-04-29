@@ -6,12 +6,15 @@ import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
+import fr.frinn.custommachinery.common.network.NetworkManager;
+import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.Utils;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -27,6 +30,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -40,6 +44,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -85,6 +90,18 @@ public class CustomMachineBlock extends Block {
             return ActionResultType.SUCCESS;
         }
         return super.onBlockActivated(state, world, pos, player, hand, hit);
+    }
+
+    @Override
+    public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        CustomMachineItem.getMachine(stack).ifPresent(machine -> {
+            TileEntity tile = world.getTileEntity(pos);
+            if(tile instanceof CustomMachineTile) {
+                ((CustomMachineTile)tile).setId(machine.getId());
+                if(!world.isRemote() && world.getServer() != null && placer != null && placer.getHeldItem(Hand.OFF_HAND) == stack)
+                    world.getServer().enqueue(new TickDelayedTask(1, () -> NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(pos)), new SRefreshCustomMachineTilePacket(pos, machine.getId()))));
+            }
+        });
     }
 
     @Override
