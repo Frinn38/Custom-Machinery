@@ -6,11 +6,13 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.api.utils.ICMLogger;
+import fr.frinn.custommachinery.api.utils.ICMConfig;
+import fr.frinn.custommachinery.common.config.CMConfigImpl;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
+import org.apache.logging.log4j.Logger;
 
 public class CustomMachineryAPI implements ICustomMachineryAPI {
 
@@ -25,8 +27,13 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
     }
 
     @Override
-    public ICMLogger logger() {
+    public Logger logger() {
         return CMLogger.INSTANCE;
+    }
+
+    @Override
+    public ICMConfig config() {
+        return CMConfigImpl.INSTANCE;
     }
 
     @Override

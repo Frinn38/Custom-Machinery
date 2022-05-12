@@ -1,85 +1,52 @@
 package fr.frinn.custommachinery.common.util;
 
-import fr.frinn.custommachinery.api.utils.ICMLogger;
-import fr.frinn.custommachinery.common.config.CMConfig;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
+import fr.frinn.custommachinery.CustomMachinery;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+public class CMLogger {
 
-public class CMLogger implements ICMLogger {
+    public static final Logger INSTANCE = CustomMachinery.LOGGER;
 
-    public static final CMLogger INSTANCE = new CMLogger();
+    public static void init() {
+        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        final Configuration config = ctx.getConfiguration();
 
-    private BufferedWriter writer;
+        PatternLayout logPattern = PatternLayout.newBuilder()
+                .withPattern("[%d{HH:mm:ss.SSS}][%level]: %msg%n%throwable")
+                .build();
 
-    public CMLogger() {
-        reset();
-    }
+        Appender cmAppender = FileAppender.newBuilder()
+                .withFileName("logs/custommachinery.log")
+                .withAppend(false)
+                .setName("Custom Machinery")
+                .withImmediateFlush(true)
+                .setIgnoreExceptions(false)
+                .setConfiguration(config)
+                .setLayout(logPattern)
+                .build();
 
-    @Override
-    public void info(String message, Object... args) {
-        log("INFO", message, args);
-    }
+        cmAppender.start();
 
-    @Override
-    public void warn(String message, Object... args) {
-        log("WARN", message, args);
-    }
+        config.addAppender(cmAppender);
 
-    @Override
-    public void error(String message, Object... args) {
-        log("ERROR", message, args);
-    }
+        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, "Custom Machinery", "true", new AppenderRef[0], null, config, null);
 
-    public void log(String type, String message, Object... args) {
-        if(!enableLogging() || !shouldLog(type) || this.writer == null)
-            return;
+        loggerConfig.addAppender(cmAppender, Level.ALL, null);
+        loggerConfig.addAppender(config.getAppender("DebugFile"), Level.DEBUG, null);
+        loggerConfig.addAppender(config.getAppender("File"), Level.INFO, null);
+        loggerConfig.addAppender(config.getAppender("Console"), Level.DEBUG, null);
+        loggerConfig.addAppender(config.getAppender("ServerGuiConsole"), Level.INFO, null);
 
-        message = String.format("[%s][%s][%s]: %s", LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS")), EffectiveSide.get(), type, String.format(message, args));
-        try {
-            this.writer.append(message);
-            this.writer.newLine();
-            this.writer.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void reset() {
-        try {
-            if(this.writer != null)
-                this.writer.close();
-            File log = new File("logs/custommachinery.log");
-            this.writer = Files.newBufferedWriter(log.toPath(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            System.out.println("Can't create custommachinery.log file");
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean enableLogging() {
-        return CMConfig.INSTANCE.enableLogging.get();
-    }
-
-    @Override
-    public boolean logMissingOptional() {
-        return CMConfig.INSTANCE.logMissingOptional.get();
-    }
-
-    @Override
-    public boolean logFirstEitherError() {
-        return CMConfig.INSTANCE.logFirstEitherError.get();
-    }
-
-    @Override
-    public boolean shouldLog(String type) {
-        return CMConfig.INSTANCE.allowedLogs.get().contains(type);
+        config.addLogger("Custom Machinery", loggerConfig);
+        ctx.updateLoggers();
     }
 }

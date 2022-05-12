@@ -158,7 +158,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireFluidTag(MCTag tag, int amount, @Optional IData data, @OptionalString String tank) {
         try {
-            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getTagKey().location()), amount, false, getNBT(data), tank);
+            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getTagKey()), amount, false, getNBT(data), tank);
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
@@ -178,7 +178,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireFluidTagPerTick(MCTag tag, int amount, @Optional IData data, @OptionalString String tank) {
         try {
-            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getTagKey().location()), amount, true, getNBT(data), tank);
+            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getTagKey()), amount, true, getNBT(data), tank);
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
@@ -200,7 +200,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder requireItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey().location()), amount, getNBT(data), slot));
+            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
@@ -222,7 +222,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder damageItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey().location()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
@@ -237,7 +237,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder repairItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag.getTagKey().location()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;

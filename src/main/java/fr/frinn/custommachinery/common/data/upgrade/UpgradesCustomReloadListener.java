@@ -42,10 +42,10 @@ public class UpgradesCustomReloadListener extends SimpleJsonResourceReloadListen
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            ICustomMachineryAPI.INSTANCE.logger().info("Parsing upgrade json: %s in datapack: %s", id, packName);
+            ICustomMachineryAPI.INSTANCE.logger().info("Parsing upgrade json: {} in datapack: {}", id, packName);
 
             if(!json.isJsonObject()) {
-                ICustomMachineryAPI.INSTANCE.logger().error("Bad upgrade JSON: %s must be a json object and not an array or primitive, skipping..." + id);
+                ICustomMachineryAPI.INSTANCE.logger().error("Bad upgrade JSON: {} must be a json object and not an array or primitive, skipping...", id);
                 return;
             }
 
@@ -53,14 +53,14 @@ public class UpgradesCustomReloadListener extends SimpleJsonResourceReloadListen
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
                 if(upgrade.getItem() == Items.AIR) {
-                    ICustomMachineryAPI.INSTANCE.logger().error("Invalid item: %s, defined for upgrade: %s", upgrade.getItem().getRegistryName(), id);
+                    ICustomMachineryAPI.INSTANCE.logger().error("Invalid item: {}, defined for upgrade: {}", upgrade.getItem().getRegistryName(), id);
                     return;
                 }
-                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed upgrade json: %s", id);
+                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed upgrade json: {}", id);
                 CustomMachinery.UPGRADES.add(upgrade);
                 return;
             } else if(result.error().isPresent()) {
-                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing upgrade json: %s, skipping...%n%s", id, result.error().get().message());
+                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing upgrade json: {}, skipping...\n{}", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");

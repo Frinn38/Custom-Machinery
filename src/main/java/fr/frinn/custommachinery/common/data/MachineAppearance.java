@@ -38,7 +38,7 @@ public class MachineAppearance implements IMachineAppearance {
                     if(result.result().isPresent())
                         properties.put(property, result.result().get());
                     else if(result.error().isPresent()) {
-                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property: %s, invalid value: %s, error: %s, using default value instead.", property.getRegistryName(), input.get(property.getRegistryName().toString()), result.error().get().message());
+                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property: {}, invalid value: {}, error: {}, using default value instead.", property.getRegistryName(), input.get(property.getRegistryName().toString()), result.error().get().message());
                         properties.put(property, property.getDefaultValue());
                     }
                 } else if(property.getRegistryName() != null && input.get(property.getRegistryName().getPath()) != null) {
@@ -46,7 +46,7 @@ public class MachineAppearance implements IMachineAppearance {
                     if(result.result().isPresent())
                         properties.put(property, result.result().get());
                     else if(result.error().isPresent()) {
-                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property: %s, invalid value: %s, error: %s, using default value instead.", property.getRegistryName(), input.get(property.getRegistryName().getPath()), result.error().get().message());
+                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property: {}, invalid value: {}, error: {}, using default value instead.", property.getRegistryName(), input.get(property.getRegistryName().getPath()), result.error().get().message());
                         properties.put(property, property.getDefaultValue());
                     }
                 } else {

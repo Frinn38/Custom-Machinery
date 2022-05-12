@@ -23,13 +23,13 @@ public class CustomMachineRecipeSerializer extends ForgeRegistryEntry<RecipeSeri
     @ParametersAreNonnullByDefault
     @Override
     public CustomMachineRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-        ICustomMachineryAPI.INSTANCE.logger().info("Parsing recipe json: %s", recipeId);
+        ICustomMachineryAPI.INSTANCE.logger().info("Parsing recipe json: {}", recipeId);
         DataResult<Pair<CustomMachineRecipeBuilder, JsonElement>> result = CustomMachineRecipeBuilder.CODEC.decode(JsonOps.INSTANCE, json);
         if(result.result().isPresent()) {
-            ICustomMachineryAPI.INSTANCE.logger().info("Successfully read recipe json: %s", recipeId);
+            ICustomMachineryAPI.INSTANCE.logger().info("Successfully read recipe json: {}", recipeId);
             return result.result().get().getFirst().build(recipeId);
         } else if(result.error().isPresent()) {
-            ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing recipe json: %s, skipping...%n%s", recipeId, result.error().get().message());
+            ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing recipe json: {}, skipping...\n{}", recipeId, result.error().get().message());
             throw new JsonParseException("Error while parsing Custom Machine Recipe json: " + recipeId + " error: " + result.error().get().message());
         }
         throw new IllegalStateException("No success nor error when parsing Custom Machine Recipe json: " + recipeId + "This can't happen");
@@ -39,13 +39,13 @@ public class CustomMachineRecipeSerializer extends ForgeRegistryEntry<RecipeSeri
     @Nullable
     @Override
     public CustomMachineRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
-        ICustomMachineryAPI.INSTANCE.logger().info("Receiving recipe: %s from server.", recipeId);
+        ICustomMachineryAPI.INSTANCE.logger().info("Receiving recipe: {} from server.", recipeId);
         DataResult<CustomMachineRecipeBuilder> result = CustomMachineRecipeBuilder.CODEC.parse(NbtOps.INSTANCE, buffer.readAnySizeNbt());
         if(result.result().isPresent()) {
-            ICustomMachineryAPI.INSTANCE.logger().info("Sucessfully received recipe: %s from server.", recipeId);
+            ICustomMachineryAPI.INSTANCE.logger().info("Sucessfully received recipe: {} from server.", recipeId);
             return result.result().get().build(recipeId);
         } else if(result.error().isPresent()) {
-            ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing recipe json: %s, skipping...%n%s", recipeId, result.error().get().message());
+            ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing recipe json: {}, skipping...\n{}", recipeId, result.error().get().message());
             throw new IllegalArgumentException("Error while receiving Custom Machine Recipe from server: " + recipeId + " error: " + result.error().get().message());
         }
         throw new IllegalStateException("No success nor error when receiving Custom Machine Recipe: " + recipeId + "from server. This can't happen");
@@ -54,14 +54,14 @@ public class CustomMachineRecipeSerializer extends ForgeRegistryEntry<RecipeSeri
     @ParametersAreNonnullByDefault
     @Override
     public void toNetwork(FriendlyByteBuf buffer, CustomMachineRecipe recipe) {
-        ICustomMachineryAPI.INSTANCE.logger().info("Sending recipe: %s to clients", recipe.getId());
+        ICustomMachineryAPI.INSTANCE.logger().info("Sending recipe: {} to clients", recipe.getId());
         DataResult<Tag> result = CustomMachineRecipeBuilder.CODEC.encodeStart(NbtOps.INSTANCE, new CustomMachineRecipeBuilder(recipe));
         if(result.result().isPresent()) {
-            ICustomMachineryAPI.INSTANCE.logger().info("Sucessfully send recipe: %s to clients.", recipe.getId());
+            ICustomMachineryAPI.INSTANCE.logger().info("Sucessfully send recipe: {} to clients.", recipe.getId());
             buffer.writeNbt((CompoundTag) result.result().get());
             return;
         } else if(result.error().isPresent()) {
-            ICustomMachineryAPI.INSTANCE.logger().error("Error while sending recipe: %s to clients.%n%s", recipe.getId(), result.error().get().message());
+            ICustomMachineryAPI.INSTANCE.logger().error("Error while sending recipe: {} to clients.%n{}", recipe.getId(), result.error().get().message());
             throw new IllegalArgumentException("Error while sending Custom Machine Recipe to clients: " + recipe.getId() + " error: " + result.error().get().message());
         }
         throw new IllegalStateException("No success nor error when sending Custom Machine Recipe: " + recipe.getId() + "to clients. This can't happen");

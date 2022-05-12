@@ -39,15 +39,15 @@ public class CustomMachineJsonReloadListener extends SimpleJsonResourceReloadLis
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: %s in datapack: %s", id, packName);
+            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: {} in datapack: {}", id, packName);
 
             if(!json.isJsonObject()) {
-                ICustomMachineryAPI.INSTANCE.logger().error("Bad machine JSON: %s must be a json object and not an array or primitive, skipping...", id);
+                ICustomMachineryAPI.INSTANCE.logger().error("Bad machine JSON: {} must be a json object and not an array or primitive, skipping...", id);
                 return;
             }
 
             if(CustomMachinery.MACHINES.containsKey(id)) {
-                ICustomMachineryAPI.INSTANCE.logger().error("A machine with id: %s already exists, skipping...", id);
+                ICustomMachineryAPI.INSTANCE.logger().error("A machine with id: {} already exists, skipping...", id);
                 return;
             }
 
@@ -59,10 +59,10 @@ public class CustomMachineJsonReloadListener extends SimpleJsonResourceReloadLis
                 else
                     machine.setLocation(MachineLocation.fromDatapack(id, packName));
                 CustomMachinery.MACHINES.put(id, machine);
-                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: %s", id);
+                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
                 return;
             } else if(result.error().isPresent()) {
-                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing machine json: %s, skipping...%n%s", id, result.error().get().message());
+                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing machine json: {}, skipping...\n{}", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");

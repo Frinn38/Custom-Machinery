@@ -5,10 +5,11 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.api.utils.ICMLogger;
+import fr.frinn.custommachinery.api.utils.ICMConfig;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
+import org.apache.logging.log4j.Logger;
 
 public interface ICustomMachineryAPI {
 
@@ -37,7 +38,13 @@ public interface ICustomMachineryAPI {
      * Use this logger to write something to the custommachinery.log file.
      * @return The Custom Machinery logger.
      */
-    ICMLogger logger();
+    Logger logger();
+
+    /**
+     * Use this to access some CM config options.
+     * @return The CM config.
+     */
+    ICMConfig config();
 
     /**
      * @return The forge registry for machine component types.

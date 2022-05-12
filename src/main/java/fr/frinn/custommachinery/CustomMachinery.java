@@ -19,7 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -47,12 +46,14 @@ public class CustomMachinery {
 
     public static final String MODID = "custommachinery";
 
-    public static final Logger LOGGER = LogManager.getLogger(MODID);
+    public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
     public static final List<MachineUpgrade> UPGRADES = new ArrayList<>();
 
     public CustomMachinery() {
+        CMLogger.init();
+
         final IEventBus MOD_BUS = FMLJavaModLoadingContext.get().getModEventBus();
         MOD_BUS.addListener(this::commonSetup);
         MOD_BUS.addListener(this::sendIMCMessages);
@@ -76,7 +77,6 @@ public class CustomMachinery {
         FORGE_BUS.addListener(this::serverStarting);
         FORGE_BUS.addListener(EventPriority.HIGHEST, this::datapackSync);
         FORGE_BUS.addListener(this::registerCommands);
-        FORGE_BUS.addListener(this::beforeReload);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CMConfig.INSTANCE.getSpec());
     }
@@ -120,10 +120,5 @@ public class CustomMachinery {
     public void registerCommands(final RegisterCommandsEvent event) {
         event.getDispatcher().register(CMCommand.register("custommachinery"));
         event.getDispatcher().register(CMCommand.register("cm"));
-    }
-
-    public void beforeReload(final CommandEvent event) {
-        if(event.getParseResults().getReader().getString().startsWith("/reload"))
-            CMLogger.INSTANCE.reset();
     }
 }

@@ -19,9 +19,13 @@ public class BlockTagIngredient implements IIngredient<PartialBlockState> {
     private final TagKey<Block> tag;
     private final Lazy<List<PartialBlockState>> ingredients;
 
-    public BlockTagIngredient(TagKey<Block> tag) {
+    private BlockTagIngredient(TagKey<Block> tag) {
         this.tag = tag;
         this.ingredients = Lazy.of(() -> TagUtil.getBlocks(this.tag).map(PartialBlockState::new).collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf)));
+    }
+
+    public BlockTagIngredient create(TagKey<Block> tag) {
+        return new BlockTagIngredient(tag);
     }
 
     @Override

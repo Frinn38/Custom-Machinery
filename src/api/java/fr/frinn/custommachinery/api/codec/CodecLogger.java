@@ -112,13 +112,13 @@ public class CodecLogger {
             public <T> DataResult<E> decode(DynamicOps<T> ops, MapLike<T> input) {
                 T value = input.get(field);
                 if(value == null) {
-                    if(ICustomMachineryAPI.INSTANCE.logger().logMissingOptional())
-                        ICustomMachineryAPI.INSTANCE.logger().warn("Missing optional property: \"%s\" of type: %s%nUsing default value: %s", field, codec, defaultValue);
+                    if(ICustomMachineryAPI.INSTANCE.config().logMissingOptional())
+                        ICustomMachineryAPI.INSTANCE.logger().warn("Missing optional property: \"{}\" of type: {}\nUsing default value: {}", field, codec, defaultValue);
                     return DataResult.success(defaultValue);
                 }
                 DataResult<E> result = codec.parse(ops, value);
                 if(result.error().isPresent()) {
-                    ICustomMachineryAPI.INSTANCE.logger().warn("Error while deserializing optional property \"%s\" of type: %s%n%s%nUsing default value: %s", field, codec, result.error().get().message(), defaultValue);
+                    ICustomMachineryAPI.INSTANCE.logger().warn("Error while deserializing optional property \"{}\" of type: {}\n{}\nUsing default value: {}", field, codec, result.error().get().message(), defaultValue);
                     return DataResult.success(defaultValue);
                 }
                 return result;

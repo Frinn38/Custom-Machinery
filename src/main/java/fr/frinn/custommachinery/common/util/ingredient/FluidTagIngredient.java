@@ -9,7 +9,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.function.Function;
@@ -23,7 +22,7 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
 
     private final TagKey<Fluid> tag;
 
-    public FluidTagIngredient(TagKey<Fluid> tag) {
+    private FluidTagIngredient(TagKey<Fluid> tag) {
         this.tag = tag;
     }
 
@@ -33,15 +32,10 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
         TagKey<Fluid> tag = TagKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(s));
-        if(!ForgeRegistries.FLUIDS.tags().isKnownTagName(tag))
-            throw new IllegalArgumentException(String.format("Tag: %s does not exist", s));
         return new FluidTagIngredient(tag);
     }
 
-    public static FluidTagIngredient create(ResourceLocation loc) throws IllegalArgumentException {
-        TagKey<Fluid> tag = TagKey.create(Registry.FLUID_REGISTRY, loc);
-        if(!ForgeRegistries.FLUIDS.tags().isKnownTagName(tag))
-            throw new IllegalArgumentException(String.format("Tag: %s does not exist", loc));
+    public static FluidTagIngredient create(TagKey<Fluid> tag) throws IllegalArgumentException {
         return new FluidTagIngredient(tag);
     }
 

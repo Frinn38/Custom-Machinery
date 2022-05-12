@@ -9,7 +9,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.function.Function;
@@ -24,7 +23,7 @@ public class ItemTagIngredient implements IIngredient<Item> {
 
     private final TagKey<Item> tag;
 
-    public ItemTagIngredient(TagKey<Item> tag) {
+    private ItemTagIngredient(TagKey<Item> tag) {
         this.tag = tag;
     }
 
@@ -34,15 +33,10 @@ public class ItemTagIngredient implements IIngredient<Item> {
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
         TagKey<Item> tag = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(s));
-        if(!ForgeRegistries.ITEMS.tags().isKnownTagName(tag))
-            throw new IllegalArgumentException(String.format("Tag: %s does not exist", s));
         return new ItemTagIngredient(tag);
     }
 
-    public static ItemTagIngredient create(ResourceLocation loc) throws IllegalArgumentException {
-        TagKey<Item> tag = TagKey.create(Registry.ITEM_REGISTRY, loc);
-        if(!ForgeRegistries.ITEMS.tags().isKnownTagName(tag))
-            throw new IllegalArgumentException(String.format("Tag: %s does not exist", loc));
+    public static ItemTagIngredient create(TagKey<Item> tag) throws IllegalArgumentException {
         return new ItemTagIngredient(tag);
     }
 
