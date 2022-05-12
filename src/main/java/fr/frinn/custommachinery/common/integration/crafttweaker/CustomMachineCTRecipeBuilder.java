@@ -7,8 +7,6 @@ import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.blamejared.crafttweaker.api.data.base.IData;
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import com.blamejared.crafttweaker.api.item.IItemStack;
-import com.blamejared.crafttweaker.api.recipe.manager.RecipeManagerWrapper;
-import com.blamejared.crafttweaker.api.recipe.manager.base.IRecipeManager;
 import com.blamejared.crafttweaker.api.tag.MCTag;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.DataResult;
@@ -43,7 +41,6 @@ import fr.frinn.custommachinery.common.crafting.requirement.StructureRequirement
 import fr.frinn.custommachinery.common.crafting.requirement.TimeRequirement;
 import fr.frinn.custommachinery.common.crafting.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -59,11 +56,11 @@ import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
@@ -75,6 +72,7 @@ import org.openzen.zencode.java.ZenCodeType.OptionalFloat;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -107,8 +105,6 @@ public class CustomMachineCTRecipeBuilder {
         }
     }
 
-    //TODO : Improve
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Method
     public void build(@OptionalString String name) {
         final ResourceLocation recipeID;
@@ -121,8 +117,7 @@ public class CustomMachineCTRecipeBuilder {
             throw new IllegalArgumentException("Invalid Recipe name: " + name + "\n" + e.getMessage());
         }
         CustomMachineRecipe recipe = this.builder.build(recipeID);
-        IRecipeManager manager = new RecipeManagerWrapper((RecipeType)Registration.CUSTOM_MACHINE_RECIPE.get());
-        ActionAddRecipe<CustomMachineRecipe> action =  new ActionAddRecipe<>(manager, recipe);
+        ActionAddRecipe<CustomMachineRecipe> action =  new ActionAddRecipe<>(CustomMachineryCTRecipeManager.INSTANCE, recipe);
         CraftTweakerAPI.apply(action);
     }
 
@@ -194,7 +189,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), nbtFromStack(stack), slot));
     }
 
     @Method
@@ -209,14 +204,14 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder produceItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), nbtFromStack(stack), slot));
     }
 
     /** DURABILITY **/
 
     @Method
     public CustomMachineCTRecipeBuilder damageItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), slot));
     }
 
     @Method
@@ -231,7 +226,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder repairItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), slot));
     }
 
     @Method
@@ -532,76 +527,75 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     /** DROP **/
-    //TODO : remove amount and use the stack count, Replace ItemStack by IItemStack
+
     @Method
-    public CustomMachineCTRecipeBuilder checkDrop(ItemStack item, int amount, int radius) {
-        return checkDrops(new ItemStack[]{item}, amount, radius, true);
+    public CustomMachineCTRecipeBuilder checkDrop(IItemStack item, int radius) {
+        return checkDrops(new IItemStack[]{item}, item.getAmount(), radius, true);
     }
 
     @Method
     public CustomMachineCTRecipeBuilder checkAnyDrop(int amount, int radius) {
-        return checkDrops(new ItemStack[]{}, amount, radius, false);
+        return checkDrops(new IItemStack[]{}, amount, radius, false);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder checkDrops(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
+    public CustomMachineCTRecipeBuilder checkDrops(IItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
         if(items.length == 0 && whitelist) {
             CraftTweakerAPI.LOGGER.error("Invalid Drop requirement, checkDrop method must have at least 1 item defined when using whitelist mode");
             return this;
         }
-        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+        List<IIngredient<Item>> input = Arrays.stream(items).map(IItemStack::getDefinition).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder consumeDropOnStart(ItemStack item, int amount, int radius) {
-        return consumeDropsOnStart(new ItemStack[]{item}, amount, radius, true);
-    }
-    //TODO: rename consumeAnyDropOnStart
-    @Method
-    public CustomMachineCTRecipeBuilder consumeDropOnStart(int amount, int radius) {
-        return consumeDropsOnStart(new ItemStack[]{}, amount, radius, false);
+    public CustomMachineCTRecipeBuilder consumeDropOnStart(IItemStack item, int radius) {
+        return consumeDropsOnStart(new IItemStack[]{item}, item.getAmount(), radius, true);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder consumeDropsOnStart(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
+    public CustomMachineCTRecipeBuilder consumeAnyDropOnStart(int amount, int radius) {
+        return consumeDropsOnStart(new IItemStack[]{}, amount, radius, false);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropsOnStart(IItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
         if(items.length == 0 && whitelist) {
             CraftTweakerAPI.LOGGER.error("Invalid Drop requirement, consumeDropOnStart method must have at least 1 item defined when using whitelist mode");
             return this;
         }
-        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+        List<IIngredient<Item>> input = Arrays.stream(items).map(IItemStack::getDefinition).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder consumeDropOnEnd(ItemStack item, int amount, int radius) {
-        return consumeDropsOnEnd(new ItemStack[]{item}, amount, radius, true);
-    }
-
-    //Todo: rename consumeAnyDropOnEnd
-    @Method
-    public CustomMachineCTRecipeBuilder consumeDropOnEnd(int amount, int radius) {
-        return consumeDropsOnEnd(new ItemStack[]{}, amount, radius, false);
+    public CustomMachineCTRecipeBuilder consumeDropOnEnd(IItemStack item, int radius) {
+        return consumeDropsOnEnd(new IItemStack[]{item}, item.getAmount(), radius, true);
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder consumeDropsOnEnd(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
+    public CustomMachineCTRecipeBuilder consumeAnyDropOnEnd(int amount, int radius) {
+        return consumeDropsOnEnd(new IItemStack[]{}, amount, radius, false);
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder consumeDropsOnEnd(IItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
         if(items.length == 0 && whitelist) {
             CraftTweakerAPI.LOGGER.error("Invalid Drop requirement, consumeDropOnEnd method must have at least 1 item defined when using whitelist mode");
             return this;
         }
-        List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+        List<IIngredient<Item>> input = Arrays.stream(items).map(IItemStack::getDefinition).map(ItemIngredient::new).collect(Collectors.toList());
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder dropItemOnStart(ItemStack stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getTag(), stack.getCount(), 1));
+    public CustomMachineCTRecipeBuilder dropItemOnStart(IItemStack stack) {
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getDefinition(), nbtFromStack(stack), stack.getAmount(), 1));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder dropItemOnEnd(ItemStack stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getTag(), stack.getCount(), 1));
+    public CustomMachineCTRecipeBuilder dropItemOnEnd(IItemStack stack) {
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getDefinition(), nbtFromStack(stack), stack.getAmount(), 1));
     }
 
     /** FUNCTION **/
@@ -680,8 +674,27 @@ public class CustomMachineCTRecipeBuilder {
 
     /** INTERNAL **/
 
+    @Nullable
     private CompoundTag getNBT(IData data) {
-        return data.getInternal() instanceof CompoundTag ? (CompoundTag) data.getInternal() : new CompoundTag();
+        if(data == null) return null;
+        return data.getInternal() instanceof CompoundTag ? (CompoundTag) data.getInternal() : null;
+    }
+
+    @Nullable
+    private CompoundTag nbtFromStack(IItemStack stack) {
+        return nbtFromStack(stack.getInternal());
+    }
+
+    @Nullable
+    private CompoundTag nbtFromStack(ItemStack stack) {
+        CompoundTag nbt = stack.getTag();
+        if(nbt == null || nbt.isEmpty())
+            return null;
+        if(nbt.contains("Damage", Tag.TAG_INT) && nbt.getInt("Damage") == 0)
+            nbt.remove("Damage");
+        if(nbt.isEmpty())
+            return null;
+        return nbt;
     }
 
     private CustomMachineCTRecipeBuilder addRequirement(IRequirement<?> requirement) {

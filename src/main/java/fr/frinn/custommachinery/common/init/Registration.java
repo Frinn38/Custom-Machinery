@@ -173,7 +173,7 @@ public class Registration {
 
     public static final RegistryObject<CustomMachineRecipeSerializer> CUSTOM_MACHINE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_machine", CustomMachineRecipeSerializer::new);
 
-    public static final RegistryObject<RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine_recipe", () -> new RecipeType<CustomMachineRecipe>() {});
+    public static final RegistryObject<RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine_recipe", () -> new RecipeType<>() {});
 
     public static final RegistryObject<GuiElementType<EnergyGuiElement>> ENERGY_GUI_ELEMENT = GUI_ELEMENTS.register("energy", () -> new GuiElementType<>(EnergyGuiElement.CODEC).setJeiIngredientType(() -> EnergyJEIIngredientRenderer::new));
     public static final RegistryObject<GuiElementType<FluidGuiElement>> FLUID_GUI_ELEMENT = GUI_ELEMENTS.register("fluid", () -> new GuiElementType<>(FluidGuiElement.CODEC).setJeiIngredientType(() -> FluidStackIngredientRenderer::new));

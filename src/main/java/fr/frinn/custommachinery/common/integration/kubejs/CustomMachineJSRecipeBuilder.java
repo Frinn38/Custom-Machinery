@@ -56,6 +56,8 @@ import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -64,6 +66,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -183,16 +186,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), nbtFromStack(stack), slot));
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount) {
-        return this.requireItemTag(tag, amount, new MapJS(), "");
+        return this.requireItemTag(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.requireItemTag(tag, amount, new MapJS(), (String)thing);
+            return this.requireItemTag(tag, amount, null, (String)thing);
         else
             return this.requireItemTag(tag, amount, MapJS.of(thing), "");
     }
@@ -211,7 +214,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), nbtFromStack(stack), slot));
     }
 
     /** DURABILITY **/
@@ -221,16 +224,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), amount, stack.getNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), amount, nbtFromStack(stack), slot));
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount) {
-        return this.damageItemTag(tag, amount, new MapJS(), "");
+        return this.damageItemTag(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.damageItemTag(tag, amount, new MapJS(), (String)thing);
+            return this.damageItemTag(tag, amount, null, (String)thing);
         else
             return this.damageItemTag(tag, amount, MapJS.of(thing), "");
     }
@@ -249,16 +252,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), amount, stack.getNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), amount, nbtFromStack(stack), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount) {
-        return this.repairItemTag(tag, amount, new MapJS(), "");
+        return this.repairItemTag(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.repairItemTag(tag, amount, new MapJS(), (String)thing);
+            return this.repairItemTag(tag, amount, null, (String)thing);
         else
             return this.repairItemTag(tag, amount, MapJS.of(thing), "");
     }
@@ -838,7 +841,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             }
             char keyChar = entry.getKey().charAt(0);
             DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
-            if(result.error().isPresent() || !result.result().isPresent()) {
+            if(result.error().isPresent() || result.result().isEmpty()) {
                 ScriptType.SERVER.console.warn("Invalid structure block: " + entry.getValue());
                 ScriptType.SERVER.console.warn(result.error().get().message());
                 return this;
@@ -883,7 +886,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder consumeDropOnStart(ItemStackJS item, int amount, int radius) {
@@ -904,7 +907,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder consumeDropOnEnd(ItemStackJS item, int amount, int radius) {
@@ -925,15 +928,15 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder dropItemOnStart(ItemStackJS stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getNbt(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), nbtFromStack(stack), stack.getCount(), 1));
     }
 
     public CustomMachineJSRecipeBuilder dropItemOnEnd(ItemStackJS stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getNbt(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), nbtFromStack(stack), stack.getCount(), 1));
     }
 
     /** FUNCTION **/
@@ -954,5 +957,14 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.END, new KJSFunction(function)));
     }
 
-
+    private @Nullable CompoundTag nbtFromStack(ItemStackJS stack) {
+        CompoundTag nbt = stack.getNbt();
+        if(nbt == null || nbt.isEmpty())
+            return null;
+        if(nbt.contains("Damage", Tag.TAG_INT) && nbt.getInt("Damage") == 0)
+            nbt.remove("Damage");
+        if(nbt.isEmpty())
+            return null;
+        return nbt;
+    }
 }

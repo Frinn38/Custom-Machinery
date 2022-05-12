@@ -54,7 +54,7 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
         super(mode);
         this.item = item;
         this.amount = amount;
-        this.nbt = nbt == null ? new CompoundTag() : nbt;
+        this.nbt = nbt;
         this.slot = slot;
         this.wrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, true, this.nbt, this.slot));
     }

@@ -82,36 +82,22 @@ public class Utils {
     public static <T extends Tag> boolean testINBT(@Nullable T inbt, @Nullable T tested) {
         if(inbt == null || tested == null)
             return false;
-        switch (inbt.getId()) {
-            case Tag.TAG_BYTE:
-                return ((ByteTag)inbt).getAsByte() == ((ByteTag)tested).getAsByte();
-            case Tag.TAG_SHORT:
-                return ((ShortTag)inbt).getAsShort() == ((ShortTag)tested).getAsShort();
-            case Tag.TAG_INT:
-                return ((IntTag)inbt).getAsInt() == ((IntTag)tested).getAsInt();
-            case Tag.TAG_LONG:
-                return ((LongTag)inbt).getAsLong() == ((LongTag)tested).getAsLong();
-            case Tag.TAG_FLOAT:
-                return ((FloatTag)inbt).getAsFloat() == ((FloatTag)tested).getAsFloat();
-            case Tag.TAG_DOUBLE:
-                return ((DoubleTag)inbt).getAsDouble() == ((DoubleTag)tested).getAsDouble();
-            case Tag.TAG_BYTE_ARRAY:
-                return ((ByteArrayTag)inbt).containsAll((ByteArrayTag)tested);
-            case Tag.TAG_STRING:
-                return inbt.getAsString().equals(tested.getAsString());
-            case Tag.TAG_LIST:
-                return ((ListTag)inbt).containsAll((ListTag)tested);
-            case Tag.TAG_COMPOUND:
-                return testNBT((CompoundTag)inbt, (CompoundTag)tested);
-            case Tag.TAG_INT_ARRAY:
-                return ((IntArrayTag)inbt).containsAll((IntArrayTag)tested);
-            case Tag.TAG_LONG_ARRAY:
-                return ((LongArrayTag)inbt).containsAll((LongArrayTag)tested);
-            case Tag.TAG_ANY_NUMERIC:
-                return ((NumericTag)inbt).getAsNumber().equals(((NumericTag)tested).getAsNumber());
-            default:
-                return false;
-        }
+        return switch (inbt.getId()) {
+            case Tag.TAG_BYTE -> ((ByteTag) inbt).getAsByte() == ((ByteTag) tested).getAsByte();
+            case Tag.TAG_SHORT -> ((ShortTag) inbt).getAsShort() == ((ShortTag) tested).getAsShort();
+            case Tag.TAG_INT -> ((IntTag) inbt).getAsInt() == ((IntTag) tested).getAsInt();
+            case Tag.TAG_LONG -> ((LongTag) inbt).getAsLong() == ((LongTag) tested).getAsLong();
+            case Tag.TAG_FLOAT -> ((FloatTag) inbt).getAsFloat() == ((FloatTag) tested).getAsFloat();
+            case Tag.TAG_DOUBLE -> ((DoubleTag) inbt).getAsDouble() == ((DoubleTag) tested).getAsDouble();
+            case Tag.TAG_BYTE_ARRAY -> ((ByteArrayTag) inbt).containsAll((ByteArrayTag) tested);
+            case Tag.TAG_STRING -> inbt.getAsString().equals(tested.getAsString());
+            case Tag.TAG_LIST -> ((ListTag) inbt).containsAll((ListTag) tested);
+            case Tag.TAG_COMPOUND -> testNBT((CompoundTag) inbt, (CompoundTag) tested);
+            case Tag.TAG_INT_ARRAY -> ((IntArrayTag) inbt).containsAll((IntArrayTag) tested);
+            case Tag.TAG_LONG_ARRAY -> ((LongArrayTag) inbt).containsAll((LongArrayTag) tested);
+            case Tag.TAG_ANY_NUMERIC -> ((NumericTag) inbt).getAsNumber().equals(((NumericTag) tested).getAsNumber());
+            default -> false;
+        };
     }
 
     public static Map<RecipeModifier, Integer> getModifiersForTile(CustomMachineTile tile) {
@@ -128,17 +114,15 @@ public class Utils {
 
     public static AABB rotateBox(AABB box, Direction to) {
         //Based on south, positive Z
-        switch (to) {
-            case EAST: //90° CCW
-                return new AABB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
-            case NORTH: //180° CCW
-                return new AABB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
-            case WEST: //270° CCW
-                return new AABB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
-            case SOUTH: //No changes
-            default:
-                return new AABB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
-        }
+        return switch (to) {
+            case EAST -> //90° CCW
+                    new AABB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
+            case NORTH -> //180° CCW
+                    new AABB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
+            case WEST -> //270° CCW
+                    new AABB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX); //No changes
+            default -> new AABB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+        };
     }
 
     public static boolean isResourceNameValid(String resourceLocation) {
@@ -222,7 +206,7 @@ public class Utils {
 
     public static ItemStack makeItemStack(Item item, int amount, @Nullable CompoundTag nbt) {
         ItemStack stack = new ItemStack(item, amount);
-        stack.setTag(nbt);
+        stack.setTag(nbt == null ? null : nbt.copy());
         return stack;
     }
 

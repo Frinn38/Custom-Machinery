@@ -10,7 +10,12 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 public class CraftingContext implements ICraftingContext {
@@ -26,6 +31,7 @@ public class CraftingContext implements ICraftingContext {
         this.manager = manager;
         this.recipe = recipe;
         this.modifiersCheckCooldown = Utils.RAND.nextInt(20);
+        refreshModifiers();
     }
 
     @Override
@@ -95,12 +101,8 @@ public class CraftingContext implements ICraftingContext {
         double toMult = 1.0D;
         for(RecipeModifier modifier : toApply) {
             switch (modifier.getOperation()) {
-                case ADDITION:
-                    toAdd += modifier.getModifier();
-                    break;
-                case MULTIPLICATION:
-                    toMult *= modifier.getModifier();
-                    break;
+                case ADDITION -> toAdd += modifier.getModifier();
+                case MULTIPLICATION -> toMult *= modifier.getModifier();
             }
         }
         return (value + toAdd) * toMult;
