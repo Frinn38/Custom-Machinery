@@ -2,14 +2,12 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 
 import dev.latvian.kubejs.fluid.EmptyFluidStackJS;
 import dev.latvian.kubejs.fluid.FluidStackJS;
-import dev.latvian.kubejs.item.BoundItemStackJS;
 import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -60,7 +58,7 @@ public class MachineJS {
 
     //Return amount of fluid that was NOT added.
     public int addFluid(FluidStackJS stackJS, boolean simulate) {
-        FluidStack stack = new FluidStack(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt().toNBT());
+        FluidStack stack = new FluidStack(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt());
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.fill(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE)).orElse(stack.getAmount());
     }
 
@@ -68,13 +66,13 @@ public class MachineJS {
     public int addFluidToTank(String tank, FluidStackJS stackJS, boolean simulate) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(component -> component.insert(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt().toNBT(), simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE))
+                .map(component -> component.insert(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt(), simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE))
                 .orElse(stackJS.getAmount());
     }
 
     //Return fluid that was successfully removed.
     public FluidStackJS removeFluid(FluidStackJS stackJS, boolean simulate) {
-        FluidStack stack = new FluidStack(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt().toNBT());
+        FluidStack stack = new FluidStack(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt());
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> {
             FluidStack removed = handler.drain(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
             return FluidStackJS.of(removed.getFluid(), removed.getAmount(), removed.getTag());

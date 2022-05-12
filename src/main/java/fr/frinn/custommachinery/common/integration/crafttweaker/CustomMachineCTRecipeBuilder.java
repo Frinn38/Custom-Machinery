@@ -23,13 +23,43 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.crafting.requirement.*;
+import fr.frinn.custommachinery.common.crafting.requirement.BiomeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.CommandRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DimensionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DropRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DurabilityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EffectRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EntityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FuelRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FunctionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.ItemRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LightRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LootTableRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.PositionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.RedstoneRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.StructureRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.TimeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
-import fr.frinn.custommachinery.common.util.*;
-import fr.frinn.custommachinery.common.util.ingredient.*;
+import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.ComparatorMode;
+import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.PositionComparator;
+import fr.frinn.custommachinery.common.util.TimeComparator;
+import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -40,11 +70,22 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.util.Constants.NBT;
+import org.openzen.zencode.java.ZenCodeType.Method;
+import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.Optional;
+import org.openzen.zencode.java.ZenCodeType.OptionalBoolean;
+import org.openzen.zencode.java.ZenCodeType.OptionalFloat;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
-import org.openzen.zencode.java.ZenCodeType.*;
+import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
-import java.util.*;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -154,7 +195,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), nbtFromStack(stack), slot));
     }
 
     @Method
@@ -169,14 +210,14 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder produceItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), nbtFromStack(stack), slot));
     }
 
     /** DURABILITY **/
 
     @Method
     public CustomMachineCTRecipeBuilder damageItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), slot));
     }
 
     @Method
@@ -191,7 +232,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder repairItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, stack.getInternal().getOrCreateTag(), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), slot));
     }
 
     @Method
@@ -510,7 +551,7 @@ public class CustomMachineCTRecipeBuilder {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     @Method
@@ -530,7 +571,7 @@ public class CustomMachineCTRecipeBuilder {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     @Method
@@ -551,17 +592,17 @@ public class CustomMachineCTRecipeBuilder {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getTag(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder dropItemOnStart(ItemStack stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getTag(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), nbtFromStack(stack), stack.getCount(), 1));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder dropItemOnEnd(ItemStack stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getTag(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), nbtFromStack(stack), stack.getCount(), 1));
     }
 
     /** FUNCTION **/
@@ -639,9 +680,26 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     /** INTERNAL **/
-
+    @Nullable
     private CompoundNBT getNBT(IData data) {
-        return data.getInternal() instanceof CompoundNBT ? (CompoundNBT) data.getInternal() : new CompoundNBT();
+        return data.getInternal() instanceof CompoundNBT ? (CompoundNBT) data.getInternal() : null;
+    }
+
+    @Nullable
+    private CompoundNBT nbtFromStack(IItemStack stack) {
+        return nbtFromStack(stack.getInternal());
+    }
+
+    @Nullable
+    private CompoundNBT nbtFromStack(ItemStack stack) {
+        CompoundNBT nbt = stack.getTag();
+        if(nbt == null || nbt.isEmpty())
+            return null;
+        if(nbt.contains("Damage", NBT.TAG_INT) && nbt.getInt("Damage") == 0)
+            nbt.remove("Damage");
+        if(nbt.isEmpty())
+            return null;
+        return nbt;
     }
 
     private CustomMachineCTRecipeBuilder addRequirement(IRequirement<?> requirement) {

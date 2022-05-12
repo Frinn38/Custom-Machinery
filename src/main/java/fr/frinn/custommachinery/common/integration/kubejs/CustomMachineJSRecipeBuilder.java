@@ -20,21 +20,59 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.crafting.requirement.*;
+import fr.frinn.custommachinery.common.crafting.requirement.BiomeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.CommandRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DimensionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DropRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DurabilityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EffectRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EntityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FuelRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FunctionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.ItemRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LightRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LootTableRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.PositionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.RedstoneRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.StructureRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.TimeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.KJSFunction;
 import fr.frinn.custommachinery.common.integration.kubejs.function.RecipeFunction;
-import fr.frinn.custommachinery.common.util.*;
-import fr.frinn.custommachinery.common.util.ingredient.*;
+import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.ComparatorMode;
+import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.PositionComparator;
+import fr.frinn.custommachinery.common.util.TimeComparator;
+import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.*;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -148,16 +186,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), nbtFromStack(stack), slot));
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount) {
-        return this.requireItemTag(tag, amount, new MapJS(), "");
+        return this.requireItemTag(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.requireItemTag(tag, amount, new MapJS(), (String)thing);
+            return this.requireItemTag(tag, amount, null, (String)thing);
         else
             return this.requireItemTag(tag, amount, MapJS.of(thing), "");
     }
@@ -176,7 +214,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), nbtFromStack(stack), slot));
     }
 
     /** DURABILITY **/
@@ -186,16 +224,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), amount, nbtFromStack(stack), slot));
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount) {
-        return this.damageItemTag(tag, amount, new MapJS(), "");
+        return this.damageItemTag(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.damageItemTag(tag, amount, new MapJS(), (String)thing);
+            return this.damageItemTag(tag, amount, null, (String)thing);
         else
             return this.damageItemTag(tag, amount, MapJS.of(thing), "");
     }
@@ -214,16 +252,16 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), amount, nbtFromStack(stack), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount) {
-        return this.repairItemTag(tag, amount, new MapJS(), "");
+        return this.repairItemTag(tag, amount, null, "");
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount, Object thing) {
         if(thing instanceof String)
-            return this.repairItemTag(tag, amount, new MapJS(), (String)thing);
+            return this.repairItemTag(tag, amount, null, (String)thing);
         else
             return this.repairItemTag(tag, amount, MapJS.of(thing), "");
     }
@@ -848,7 +886,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder consumeDropOnStart(ItemStackJS item, int amount, int radius) {
@@ -869,7 +907,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder consumeDropOnEnd(ItemStackJS item, int amount, int radius) {
@@ -890,15 +928,15 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder dropItemOnStart(ItemStackJS stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getMinecraftNbt(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), nbtFromStack(stack), stack.getCount(), 1));
     }
 
     public CustomMachineJSRecipeBuilder dropItemOnEnd(ItemStackJS stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getMinecraftNbt(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), nbtFromStack(stack), stack.getCount(), 1));
     }
 
     /** FUNCTION **/
@@ -919,5 +957,14 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.END, new KJSFunction(function)));
     }
 
-
+    private @Nullable CompoundNBT nbtFromStack(ItemStackJS stack) {
+        CompoundNBT nbt = stack.getNbt();
+        if(nbt == null || nbt.isEmpty())
+            return null;
+        if(nbt.contains("Damage", NBT.TAG_INT) && nbt.getInt("Damage") == 0)
+            nbt.remove("Damage");
+        if(nbt.isEmpty())
+            return null;
+        return nbt;
+    }
 }
