@@ -5,14 +5,14 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import io.netty.handler.codec.EncoderException;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.PacketDistributor;
 
-import java.io.IOException;
 import java.util.function.Supplier;
 
 public class CAddMachinePacket {
@@ -29,25 +29,25 @@ public class CAddMachinePacket {
         this.writeToFile = writeToFile;
     }
 
-    public static void encode(CAddMachinePacket pkt, PacketBuffer buf) {
+    public static void encode(CAddMachinePacket pkt, FriendlyByteBuf buf) {
         buf.writeResourceLocation(pkt.id);
         try {
-            buf.func_240629_a_(MachineLocation.CODEC, pkt.machine.getLocation());
-            buf.func_240629_a_(CustomMachine.CODEC, pkt.machine);
-        } catch (IOException e) {
+            buf.writeWithCodec(MachineLocation.CODEC, pkt.machine.getLocation());
+            buf.writeWithCodec(CustomMachine.CODEC, pkt.machine);
+        } catch (EncoderException e) {
             e.printStackTrace();
         }
         buf.writeBoolean(pkt.shouldReload);
         buf.writeBoolean(pkt.writeToFile);
     }
 
-    public static CAddMachinePacket decode(PacketBuffer buf) {
+    public static CAddMachinePacket decode(FriendlyByteBuf buf) {
         ResourceLocation id = buf.readResourceLocation();
         CustomMachine machine = CustomMachine.DUMMY;
         try {
-            MachineLocation location = buf.func_240628_a_(MachineLocation.CODEC);
-            machine = buf.func_240628_a_(CustomMachine.CODEC).setLocation(location);
-        } catch (IOException e) {
+            MachineLocation location = buf.readWithCodec(MachineLocation.CODEC);
+            machine = buf.readWithCodec(CustomMachine.CODEC).setLocation(location);
+        } catch (EncoderException e) {
             e.printStackTrace();
         }
         boolean shouldReload = buf.readBoolean();
@@ -57,8 +57,8 @@ public class CAddMachinePacket {
 
     public void handle(Supplier<NetworkEvent.Context> context) {
         if (context.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
-            ServerPlayerEntity player = context.get().getSender();
-            if(player != null && player.world.getServer() != null && Utils.canPlayerManageMachines(player) && this.machine != CustomMachine.DUMMY)
+            ServerPlayer player = context.get().getSender();
+            if(player != null && player.level.getServer() != null && Utils.canPlayerManageMachines(player) && this.machine != CustomMachine.DUMMY)
             context.get().enqueueWork(() -> {
                 CustomMachinery.LOGGER.info("Player: " + player.getDisplayName().getString() + " added new Machine: " + id);
                 CustomMachinery.MACHINES.put(this.id, this.machine);

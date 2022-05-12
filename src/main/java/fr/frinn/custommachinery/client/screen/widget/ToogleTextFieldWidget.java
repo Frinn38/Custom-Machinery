@@ -1,22 +1,22 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Predicate;
 
-public class ToogleTextFieldWidget extends TextFieldWidget {
+public class ToogleTextFieldWidget extends EditBox {
 
     private Predicate<ToogleTextFieldWidget> toogle;
 
-    public ToogleTextFieldWidget(FontRenderer font, int x, int y, int width, int height, ITextComponent title, Predicate<ToogleTextFieldWidget> toogle) {
+    public ToogleTextFieldWidget(Font font, int x, int y, int width, int height, Component title, Predicate<ToogleTextFieldWidget> toogle) {
         super(font, x, y, width, height, title);
         this.toogle = toogle;
     }
 
     @Override
-    public boolean getVisible() {
+    public boolean isVisible() {
         return this.toogle.test(this);
     }
 }

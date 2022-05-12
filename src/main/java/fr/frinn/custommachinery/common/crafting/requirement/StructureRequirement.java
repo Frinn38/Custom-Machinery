@@ -19,10 +19,10 @@ import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 import java.util.Map;
@@ -90,7 +90,7 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
     public CraftingResult processTick(StructureMachineComponent component, ICraftingContext context) {
         if(component.checkStructure(this.structure))
             return CraftingResult.success();
-        else return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.structure.error"));
+        else return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.structure.error"));
     }
 
     @Override
@@ -100,12 +100,12 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.info"));
-        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.click"));
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.info"));
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.click"));
         this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {
             IIngredient<PartialBlockState> ingredient = this.keys.get(key);
             if(ingredient != null && amount > 0)
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.structure.list", amount, new StringTextComponent(ingredient.toString()).mergeStyle(TextFormatting.GOLD)));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.list", amount, new TextComponent(ingredient.toString()).withStyle(ChatFormatting.GOLD)));
         });
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
         info.setVisible(this.jeiVisible);

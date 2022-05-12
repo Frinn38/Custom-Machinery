@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.common.util;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class PositionComparator {
 
@@ -38,7 +38,7 @@ public class PositionComparator {
         return this.mode.compare(toCompare, this.coordinate);
     }
 
-    public ITextComponent getText() {
-        return new StringTextComponent(this.axis.getString() + " " + new TranslationTextComponent(this.mode.getTranslationKey()).getString() + " " + this.coordinate);
+    public Component getText() {
+        return new TextComponent(this.axis.getSerializedName() + " " + new TranslatableComponent(this.mode.getTranslationKey()).getString() + " " + this.coordinate);
     }
 }

@@ -1,30 +1,23 @@
 package fr.frinn.custommachinery.client.render;
 
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-public class CustomMachineOverrideList extends ItemOverrideList {
+public class CustomMachineOverrideList extends ItemOverrides {
 
-    @ParametersAreNonnullByDefault
     @Nullable
     @Override
-    public IBakedModel getOverrideModel(IBakedModel model, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity livingEntity) {
-        if(stack.getItem() != Registration.CUSTOM_MACHINE_ITEM.get() || !(model instanceof CustomMachineBakedModel))
-            return super.getOverrideModel(model, stack, world, livingEntity);
-        CustomMachineBakedModel machineModel = (CustomMachineBakedModel) model;
+    public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity livingEntity, int seed) {
+        if(stack.getItem() != Registration.CUSTOM_MACHINE_ITEM.get() || !(model instanceof CustomMachineBakedModel machineModel))
+            return super.resolve(model, stack, world, livingEntity, seed);
 
         return CustomMachineItem.getMachine(stack).map(machine -> machineModel.getMachineItemModel(machine.getAppearance(MachineStatus.IDLE))).orElse(model);
     }

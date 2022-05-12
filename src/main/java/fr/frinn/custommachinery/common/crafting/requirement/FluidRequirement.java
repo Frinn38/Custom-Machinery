@@ -17,10 +17,10 @@ import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWr
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -49,11 +49,11 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
     private final int amount;
     private double chance = 1.0D;
     @Nullable
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
     private final String tank;
     private final Lazy<FluidIngredientWrapper> wrapper;
 
-    public FluidRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, @Nullable CompoundNBT nbt, String tank) {
+    public FluidRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, @Nullable CompoundTag nbt, String tank) {
         super(mode);
         if(mode == RequirementIOMode.OUTPUT && fluid instanceof FluidTagIngredient)
             throw new IllegalArgumentException("You must specify a fluid for an Output Fluid Requirement");
@@ -105,7 +105,7 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                     }
                 }
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
         }
         return CraftingResult.pass();
     }
@@ -122,7 +122,7 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
                     component.addToOutputs(this.tank, stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.output", amount, new TranslationTextComponent(fluid.getAttributes().getTranslationKey())));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluid.error.output", amount, new TranslatableComponent(fluid.getAttributes().getTranslationKey())));
             } else throw new IllegalStateException("Can't use output fluid requirement with fluid tag");
         }
         return CraftingResult.pass();
@@ -130,7 +130,7 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
 
     @Override
     public void setChance(double chance) {
-        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+        this.chance = Mth.clamp(chance, 0.0, 1.0);
     }
 
     @Override

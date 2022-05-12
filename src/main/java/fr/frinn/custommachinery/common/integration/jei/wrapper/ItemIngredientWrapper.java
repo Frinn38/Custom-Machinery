@@ -15,20 +15,18 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
@@ -38,10 +36,10 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     private final double chance;
     private final boolean useDurability;
     @Nullable
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
     private final String slot;
 
-    public ItemIngredientWrapper(RequirementIOMode mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundNBT nbt, String slot) {
+    public ItemIngredientWrapper(RequirementIOMode mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundTag nbt, String slot) {
         this.mode = mode;
         this.item = item;
         this.amount = amount;
@@ -58,7 +56,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     @Override
     public void setIngredient(Ingredients ingredients) {
-        List<ItemStack> items = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.amount, this.nbt)).collect(Collectors.toList());
+        List<ItemStack> items = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.amount, this.nbt)).toList();
         if(this.mode == RequirementIOMode.INPUT)
             ingredients.addInputs(VanillaTypes.ITEM, items);
         else
@@ -70,7 +68,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         if(!(element instanceof SlotGuiElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
             return false;
 
-        List<ItemStack> ingredients = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.useDurability ? 1 : this.amount, this.nbt)).collect(Collectors.toList());
+        List<ItemStack> ingredients = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.useDurability ? 1 : this.amount, this.nbt)).toList();
         SlotGuiElement slotElement = (SlotGuiElement)element;
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
         if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
@@ -81,26 +79,26 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
                 if(slotIndex != index)
                     return;
                 if(this.useDurability && this.mode == RequirementIOMode.INPUT)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.consume", this.amount));
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.consume", this.amount));
                 else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.durability.repair", this.amount));
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.repair", this.amount));
 
                 if(this.chance == 0)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
                 else if(this.chance != 1){
                     double percentage = this.chance * 100;
                     if(percentage < 0.01F)
-                        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", "<0.01"));
+                        tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", "<0.01"));
                     else {
                         BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
                         if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
-                            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
                         else
-                            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
                     }
                 }
-                if(!this.slot.isEmpty() && Minecraft.getInstance().gameSettings.advancedItemTooltips)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.item.specificSlot").mergeStyle(TextFormatting.DARK_RED));
+                if(!this.slot.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
             }));
             return true;
         }

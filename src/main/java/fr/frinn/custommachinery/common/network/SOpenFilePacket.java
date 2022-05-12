@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.network;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Util;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.Util;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -15,17 +15,17 @@ public class SOpenFilePacket {
         this.path = path;
     }
 
-    public static void encode(SOpenFilePacket pkt, PacketBuffer buf) {
-        buf.writeString(pkt.path);
+    public static void encode(SOpenFilePacket pkt, FriendlyByteBuf buf) {
+        buf.writeUtf(pkt.path);
     }
 
-    public static SOpenFilePacket decode(PacketBuffer buf) {
-        return new SOpenFilePacket(buf.readString());
+    public static SOpenFilePacket decode(FriendlyByteBuf buf) {
+        return new SOpenFilePacket(buf.readUtf());
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
         if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT)
-            context.get().enqueueWork(() -> Util.getOSType().openURI(this.path));
+            context.get().enqueueWork(() -> Util.getPlatform().openUri(this.path));
         context.get().setPacketHandled(true);
     }
 }

@@ -11,9 +11,9 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.data.MachineLocation;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 public class CustomMachineBuilder {
 
-    private ITextComponent name;
+    private Component name;
     private Map<MachineStatus, MachineAppearanceBuilder> appearance;
-    private List<ITextComponent> tooltips;
+    private List<Component> tooltips;
     private List<IGuiElement> guiElements;
     private List<IGuiElement> jeiElements;
     private List<ResourceLocation> catalysts;
@@ -34,7 +34,7 @@ public class CustomMachineBuilder {
     private MachineLocation location;
 
     public CustomMachineBuilder() {
-        this.name = new StringTextComponent("New Machine");
+        this.name = new TextComponent("New Machine");
         this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder()));
         this.tooltips = new ArrayList<>();
         this.guiElements = new ArrayList<>();
@@ -59,11 +59,11 @@ public class CustomMachineBuilder {
         this.location = machine.getLocation();
     }
 
-    public ITextComponent getName() {
+    public Component getName() {
         return this.name;
     }
 
-    public CustomMachineBuilder setName(ITextComponent name) {
+    public CustomMachineBuilder setName(Component name) {
         this.name = name;
         return this;
     }
@@ -107,9 +107,9 @@ public class CustomMachineBuilder {
     }
 
     public CustomMachine build() {
-        ITextComponent name = this.name == null ? new StringTextComponent("New Machine") : this.name;
+        Component name = this.name == null ? new TextComponent("New Machine") : this.name;
         MachineAppearanceManager appearance = new MachineAppearanceManager(Maps.newHashMap(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
-        List<ITextComponent> tooltips = this.tooltips == null ? ImmutableList.of() : ImmutableList.copyOf(this.tooltips);
+        List<Component> tooltips = this.tooltips == null ? ImmutableList.of() : ImmutableList.copyOf(this.tooltips);
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.jeiElements);
         List<ResourceLocation> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);

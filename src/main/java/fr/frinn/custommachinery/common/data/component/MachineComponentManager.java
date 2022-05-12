@@ -1,6 +1,13 @@
 package fr.frinn.custommachinery.common.data.component;
 
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ICapabilityComponent;
+import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -8,15 +15,20 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import fr.frinn.custommachinery.common.util.CMCollectors;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-public class MachineComponentManager implements IMachineComponentManager, INBTSerializable<CompoundNBT> {
+public class MachineComponentManager implements IMachineComponentManager, INBTSerializable<CompoundTag> {
 
     private final CustomMachineTile tile;
     private final List<IMachineComponent> components;
@@ -111,8 +123,8 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     }
 
     @Override
-    public World getWorld() {
-        return getTile().getWorld();
+    public Level getWorld() {
+        return getTile().getLevel();
     }
 
     @Override
@@ -129,19 +141,19 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     }
 
     public void markDirty() {
-        this.getTile().markDirty();
+        this.getTile().setChanged();
         this.getTile().craftingManager.setMachineInventoryChanged();
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         getSerializableComponents().forEach(component -> component.serialize(nbt));
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         getSerializableComponents().forEach(component -> component.deserialize(nbt));
     }
 }

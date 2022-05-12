@@ -1,28 +1,27 @@
 package fr.frinn.custommachinery.client.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.list.AbstractList;
-import net.minecraft.client.gui.widget.list.ExtendedList;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.awt.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class MachineList extends ExtendedList<MachineList.MachineEntry> {
+public class MachineList extends ObjectSelectionList<MachineList.MachineEntry> {
 
     private MachineLoadingScreen parent;
 
     public MachineList(Minecraft mc, int width, int height, int x, int y, int entryHeight, MachineLoadingScreen parent) {
         super(mc, width, height, y, y + height, entryHeight);
         this.setLeftPos(x);
-        this.func_244605_b(false);
-        this.func_244606_c(false);
+        this.setRenderBackground(false);
+        this.setRenderTopAndBottom(false);
         this.centerListVertically = false;
         this.setRenderSelection(false);
         this.parent = parent;
@@ -33,7 +32,7 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
     }
 
     protected void removeMachineEntry(CustomMachineBuilder machine) {
-        List<MachineEntry> entriesToDelete = this.getEventListeners().stream().filter(entry -> entry.machineBuilder == machine).collect(Collectors.toList());
+        List<MachineEntry> entriesToDelete = this.children().stream().filter(entry -> entry.machineBuilder == machine).toList();
         entriesToDelete.forEach(this::removeEntry);
     }
 
@@ -50,9 +49,9 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
     //TODO: Add scrollbar
     @ParametersAreNonnullByDefault
     @Override
-    public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
-        double s = Minecraft.getInstance().getMainWindow().getGuiScaleFactor();
-        int screenHeight = Minecraft.getInstance().getMainWindow().getHeight() / (int)s;
+    public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
+        double s = Minecraft.getInstance().getWindow().getGuiScale();
+        int screenHeight = Minecraft.getInstance().getWindow().getScreenHeight() / (int)s;
         RenderSystem.enableScissor(this.x0 * (int)s, (screenHeight - this.y0 - this.height) * (int)s, this.width * (int)s, (this.height - 3) * (int)s);
         super.render(matrix, mouseX, mouseY, partialTicks);
         RenderSystem.disableScissor();
@@ -67,7 +66,7 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
             this.parent.setSelectedMachine(null);
     }
 
-    public static class MachineEntry extends AbstractList.AbstractListEntry<MachineList.MachineEntry> {
+    public static class MachineEntry extends ObjectSelectionList.Entry<MachineList.MachineEntry> {
 
         private CustomMachineBuilder machineBuilder;
         private MachineList machineList;
@@ -79,22 +78,22 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
 
         @ParametersAreNonnullByDefault
         @Override
-        public void render(MatrixStack matrix, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean isFocused, float partialTicks) {
+        public void render(PoseStack matrix, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean isFocused, float partialTicks) {
             if(this.machineBuilder != null) {
-                int nameWidth = Minecraft.getInstance().fontRenderer.getStringWidth(this.machineBuilder.getName().getString());
-                float scale = MathHelper.clamp((float)(width - 6) / (float) nameWidth, 0, 2.0F);
-                matrix.push();
+                int nameWidth = Minecraft.getInstance().font.width(this.machineBuilder.getName().getString());
+                float scale = Mth.clamp((float)(width - 6) / (float) nameWidth, 0, 2.0F);
+                matrix.pushPose();
                 matrix.translate(x, y, 0);
                 matrix.scale(scale, scale, 0.0F);
                 if(this.machineList.getSelected() != this)
-                    Minecraft.getInstance().fontRenderer.drawText(matrix, this.machineBuilder.getName(), 0, 0, 0);
+                    Minecraft.getInstance().font.draw(matrix, this.machineBuilder.getName(), 0, 0, 0);
                 else
-                    Minecraft.getInstance().fontRenderer.drawTextWithShadow(matrix, this.machineBuilder.getName(), 0, 0, Color.RED.getRGB());
+                    Minecraft.getInstance().font.drawShadow(matrix, this.machineBuilder.getName(), 0, 0, Color.RED.getRGB());
                 matrix.scale(0.8F, 0.8F, 0.0F);
-                Minecraft.getInstance().fontRenderer.drawString(matrix, this.machineBuilder.getLocation().getLoader().getTranslatedName().getString(), 0, 11, this.machineBuilder.getLocation().getLoader().getColor());
-                matrix.pop();
+                Minecraft.getInstance().font.draw(matrix, this.machineBuilder.getLocation().getLoader().getTranslatedName().getString(), 0, 11, this.machineBuilder.getLocation().getLoader().getColor());
+                matrix.popPose();
             }
-            else Minecraft.getInstance().fontRenderer.drawString(matrix, "NULL", x, y, 0);
+            else Minecraft.getInstance().font.draw(matrix, "NULL", x, y, 0);
 
             /*
             BufferBuilder builder = Tessellator.getInstance().getBuffer();
@@ -111,6 +110,11 @@ public class MachineList extends ExtendedList<MachineList.MachineEntry> {
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             this.machineList.setSelected(this);
             return true;
+        }
+
+        @Override
+        public Component getNarration() {
+            return null;
         }
 
         public CustomMachineBuilder getMachineBuilder() {

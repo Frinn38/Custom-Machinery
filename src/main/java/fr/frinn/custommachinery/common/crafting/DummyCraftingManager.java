@@ -4,9 +4,9 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import mcjty.theoneprobe.api.IProbeInfo;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.function.Consumer;
 
@@ -22,12 +22,12 @@ public class DummyCraftingManager extends CraftingManager {
     }
 
     @Override
-    public ITextComponent getErrorMessage() {
-        return StringTextComponent.EMPTY;
+    public Component getErrorMessage() {
+        return TextComponent.EMPTY;
     }
 
     @Override
-    public void setStatus(MachineStatus status, ITextComponent mesage) {
+    public void setStatus(MachineStatus status, Component mesage) {
 
     }
 
@@ -47,12 +47,12 @@ public class DummyCraftingManager extends CraftingManager {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        return new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        return new CompoundTag();
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
 
     }
 

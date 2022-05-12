@@ -16,8 +16,8 @@ import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComponent> implements ITickableRequirement<RedstoneMachineComponent>, IDisplayInfoRequirement {
 
@@ -59,7 +59,7 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
         int powerLevel = (int)context.getModifiedValue(this.powerLevel, this, null);
         if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", powerLevel));
+        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", powerLevel));
     }
 
     @Override
@@ -77,7 +77,7 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
         int powerLevel = (int)context.getModifiedValue(this.powerLevel, this, null);
         if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.redstone.error", powerLevel));
+        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", powerLevel));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
         info.setVisible(this.jeiVisible)
-                .addTooltip(new TranslationTextComponent("custommachinery.requirements.redstone.info", new TranslationTextComponent(this.comparatorMode.getTranslationKey()), this.powerLevel))
+                .addTooltip(new TranslatableComponent("custommachinery.requirements.redstone.info", new TranslatableComponent(this.comparatorMode.getTranslationKey()), this.powerLevel))
                 .setItemIcon(Items.REDSTONE);
     }
 }

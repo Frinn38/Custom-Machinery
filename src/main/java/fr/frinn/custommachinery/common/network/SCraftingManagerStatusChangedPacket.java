@@ -2,10 +2,10 @@ package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.ClientPacketHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -19,14 +19,14 @@ public class SCraftingManagerStatusChangedPacket {
         this.status = status;
     }
 
-    public static void encode(SCraftingManagerStatusChangedPacket pkt, PacketBuffer buf) {
+    public static void encode(SCraftingManagerStatusChangedPacket pkt, FriendlyByteBuf buf) {
         buf.writeBlockPos(pkt.pos);
-        buf.writeEnumValue(pkt.status);
+        buf.writeEnum(pkt.status);
     }
 
-    public static SCraftingManagerStatusChangedPacket decode(PacketBuffer buf) {
+    public static SCraftingManagerStatusChangedPacket decode(FriendlyByteBuf buf) {
         BlockPos pos = buf.readBlockPos();
-        MachineStatus status = buf.readEnumValue(MachineStatus.class);
+        MachineStatus status = buf.readEnum(MachineStatus.class);
         return new SCraftingManagerStatusChangedPacket(pos, status);
     }
 

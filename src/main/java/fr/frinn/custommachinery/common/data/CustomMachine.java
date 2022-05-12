@@ -12,9 +12,9 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,13 +34,13 @@ public class CustomMachine implements ICustomMachine {
     );
 
     public static final CustomMachine DUMMY = new CustomMachineBuilder()
-            .setName(new StringTextComponent("Dummy"))
+            .setName(new TextComponent("Dummy"))
             .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")))
             .build();
 
-    private final ITextComponent name;
+    private final Component name;
     private final MachineAppearanceManager appearance;
-    private final List<ITextComponent> tooltips;
+    private final List<Component> tooltips;
     private final List<IGuiElement> guiElements;
     private final List<IGuiElement> jeiElements;
     private final List<ResourceLocation> catalysts;
@@ -48,7 +48,7 @@ public class CustomMachine implements ICustomMachine {
     private MachineLocation location;
 
 
-    public CustomMachine(ITextComponent name, MachineAppearanceManager appearance, List<ITextComponent> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
+    public CustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
         this.name = name;
         this.appearance = appearance;
         this.tooltips = tooltips;
@@ -64,7 +64,7 @@ public class CustomMachine implements ICustomMachine {
     }
 
     @Override
-    public ITextComponent getName() {
+    public Component getName() {
         return this.name;
     }
 
@@ -78,7 +78,7 @@ public class CustomMachine implements ICustomMachine {
         return this.appearance.getAppearance(status);
     }
 
-    public List<ITextComponent> getTooltips() {
+    public List<Component> getTooltips() {
         return this.tooltips;
     }
 

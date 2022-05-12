@@ -6,11 +6,11 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.util.CachedBlockInfo;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,13 +45,13 @@ public class BlockStructure {
         }
     }
 
-    public boolean match(IWorldReader world, BlockPos machinePos, Direction machineFacing) {
+    public boolean match(LevelReader world, BlockPos machinePos, Direction machineFacing) {
         Map<BlockPos, IIngredient<PartialBlockState>> blocks = getBlocks(machineFacing);
-        BlockPos.Mutable worldPos = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos worldPos = new BlockPos.MutableBlockPos();
         for(BlockPos pos : blocks.keySet()) {
             IIngredient<PartialBlockState> ingredient = blocks.get(pos);
-            worldPos.setPos(pos.getX() + machinePos.getX(), pos.getY() + machinePos.getY(), pos.getZ() + machinePos.getZ());
-            CachedBlockInfo info = new CachedBlockInfo(world, worldPos, false);
+            worldPos.set(pos.getX() + machinePos.getX(), pos.getY() + machinePos.getY(), pos.getZ() + machinePos.getZ());
+            BlockInWorld info = new BlockInWorld(world, worldPos, false);
             if(ingredient.getAll().stream().noneMatch(state -> state.test(info)))
                 return false;
         }

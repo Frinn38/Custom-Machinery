@@ -12,14 +12,9 @@ import com.mojang.serialization.codecs.PrimitiveCodec;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.codec.EnhancedEitherCodec;
 import fr.frinn.custommachinery.api.codec.EnhancedListCodec;
-import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
-import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.requirement.BlockRequirement;
 import fr.frinn.custommachinery.common.crafting.requirement.DropRequirement;
@@ -29,42 +24,35 @@ import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
-import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.command.arguments.BlockStateParser;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.registry.Registry;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 public class Codecs {
 
-    public static final Codec<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE      = RegistryCodec.of(Registration.GUI_ELEMENT_TYPE_REGISTRY.get());
-    public static final Codec<RequirementType<? extends IRequirement<?>>> REQUIREMENT_TYPE = RegistryCodec.of(Registration.REQUIREMENT_TYPE_REGISTRY.get());
-
-    public static final Codec<DoubleStream> DOUBLE_STREAM = new PrimitiveCodec<DoubleStream>() {
+    public static final Codec<DoubleStream> DOUBLE_STREAM = new PrimitiveCodec<>() {
         @Override
         public <T> DataResult<DoubleStream> read(final DynamicOps<T> ops, final T input) {
             return ops.getStream(input).flatMap(stream -> {
-                final List<T> list = stream.collect(Collectors.toList());
+                final List<T> list = stream.toList();
                 if (list.stream().allMatch(element -> ops.getNumberValue(element).result().isPresent()))
                     return DataResult.success(list.stream().mapToDouble(element -> ops.getNumberValue(element).result().get().doubleValue()));
                 return DataResult.error("Some elements are not doubles: " + input);
@@ -89,17 +77,13 @@ public class Codecs {
 
     public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString), "Position Comparator");
     public static final Codec<TimeComparator> TIME_COMPARATOR_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeTimeComparator, TimeComparator::toString), "Time Comparator");
-    public static final Codec<CompoundNBT> COMPOUND_NBT_CODEC               = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundNBT::toString), "NBT");
+    public static final Codec<CompoundTag> COMPOUND_NBT_CODEC               = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundTag::toString), "NBT");
     public static final Codec<Character> CHARACTER_CODEC                    = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC  = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
-    public static final Codec<ToolType> TOOL_TYPE_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeToolType, ToolType::getName), "Tool Type");
+    //public static final Codec<ToolType> TOOL_TYPE_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeToolType, ToolType::getName), "Tool Type");
     public static final Codec<ResourceLocation> RESOURCE_LOCATION_CODEC     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeResourceLocation, ResourceLocation::toString), "Resource Location");
 
     public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::getPrefix), "Comparator Mode");
-
-    public static final Codec<ITag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(Utils::getItemTag, Utils::getItemTagID), "Item Tag");
-    public static final Codec<ITag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getFluidTag, Utils::getFluidTagID), "Fluid Tag");
-    public static final Codec<ITag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getBlockTag, Utils::getBlockTagID), "Block Tag");
 
     public static final Codec<MachineStatus> STATUS_CODEC                               = fromEnum(MachineStatus.class);
     public static final Codec<ComponentIOMode> COMPONENT_MODE_CODEC                     = fromEnum(ComponentIOMode.class);
@@ -115,11 +99,11 @@ public class Codecs {
     public static final Codec<DropRequirement.Action> DROP_REQUIREMENT_ACTION_CODEC     = fromEnum(DropRequirement.Action.class);
 
     public static final Codec<BlockPos> BLOCK_POS                 = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
-    public static final Codec<AxisAlignedBB> AABB_CODEC           = CodecLogger.namedCodec(DOUBLE_STREAM.comapFlatMap(stream -> validateDoubleStreamSize(stream, 6).map(array -> new AxisAlignedBB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> DoubleStream.of(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ)), "Box");
-    public static final Codec<AxisAlignedBB> BOX_CODEC            = either(BLOCK_POS, AABB_CODEC, "Box").xmap(either -> either.map(pos -> new AxisAlignedBB(pos, pos), Function.identity()), Either::right);
+    public static final Codec<AABB> AABB_CODEC           = CodecLogger.namedCodec(DOUBLE_STREAM.comapFlatMap(stream -> validateDoubleStreamSize(stream, 6).map(array -> new AABB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> DoubleStream.of(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ)), "Box");
+    public static final Codec<AABB> BOX_CODEC            = either(BLOCK_POS, AABB_CODEC, "Box").xmap(either -> either.map(pos -> new AABB(pos, pos), Function.identity()), Either::right);
     public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(RESOURCE_LOCATION_CODEC, PARTIAL_BLOCK_STATE_CODEC, "Block Model").xmap(either -> either.map(Function.identity(), PartialBlockState::getModelLocation), Either::left);
-    public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(RegistryCodec.ITEM, RESOURCE_LOCATION_CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
-    public static final Codec<VoxelShape> VOXEL_SHAPE_CODEC       = either(Codecs.PARTIAL_BLOCK_STATE_CODEC, Codecs.list(Codecs.BOX_CODEC), "Machine Shape").comapFlatMap(either -> either.map(Codecs::decodeFromBlock, Codecs::decodeFromAABBList), shape -> Either.right(shape.toBoundingBoxList()));
+    public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(ForgeRegistries.ITEMS.getCodec(), RESOURCE_LOCATION_CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
+    public static final Codec<VoxelShape> VOXEL_SHAPE_CODEC       = either(Codecs.PARTIAL_BLOCK_STATE_CODEC, Codecs.list(Codecs.BOX_CODEC), "Machine Shape").comapFlatMap(either -> either.map(Codecs::decodeFromBlock, Codecs::decodeFromAABBList), shape -> Either.right(shape.toAabbs()));
 
     public static <E extends Enum<E>> Codec<E> fromEnum(Class<E> enumClass) {
         return new Codec<E>() {
@@ -155,21 +139,21 @@ public class Codecs {
         return new EnhancedListCodec<>(codec);
     }
 
-    public static <E> Codec<ITag<E>> tagCodec(Function<ResourceLocation, ITag<E>> tagGetter, Function<ITag<E>, ResourceLocation> idGetter) {
+    public static <E> Codec<Tag<E>> tagCodec(Function<ResourceLocation, Tag<E>> tagGetter, Function<Tag<E>, ResourceLocation> idGetter) {
         return Codec.STRING.comapFlatMap(string -> {
             if(string.startsWith("#"))
                 string = string.substring(1);
             if(!Utils.isResourceNameValid(string))
                 return DataResult.error(String.format("Invalid tag : %s is not a valid tag id !", string));
-            ITag<E> tag = tagGetter.apply(new ResourceLocation(string));
+            Tag<E> tag = tagGetter.apply(new ResourceLocation(string));
             if(tag == null)
                 return DataResult.error("Unknown tag : " + string);
             return DataResult.success(tag);
         }, tag -> idGetter.apply(tag).toString());
     }
 
-    public static <T> Codec<RegistryKey<T>> registryKeyCodec(RegistryKey<Registry<T>> keyRegistry) {
-        return ResourceLocation.CODEC.xmap(loc -> RegistryKey.getOrCreateKey(keyRegistry, loc), RegistryKey::getLocation);
+    public static <T> Codec<ResourceKey<T>> registryKeyCodec(ResourceKey<Registry<T>> keyRegistry) {
+        return ResourceLocation.CODEC.xmap(loc -> ResourceKey.create(keyRegistry, loc), ResourceKey::location);
     }
 
     private static DataResult<PositionComparator> decodePositionComparator(String encoded) {
@@ -188,9 +172,9 @@ public class Codecs {
         }
     }
 
-    private static DataResult<CompoundNBT> decodeCompoundNBT(String encoded) {
+    private static DataResult<CompoundTag> decodeCompoundNBT(String encoded) {
         try {
-            return DataResult.success(JsonToNBT.getTagFromJson(encoded));
+            return DataResult.success(TagParser.parseTag(encoded));
         } catch (CommandSyntaxException e) {
             return DataResult.error("Not a valid NBT: " + encoded + " " + e.getMessage());
         }
@@ -211,7 +195,7 @@ public class Codecs {
             return DataResult.error(exception.getMessage());
         }
     }
-
+/*
     private static DataResult<ToolType> decodeToolType(String encoded) {
         try {
             return DataResult.success(ToolType.get(encoded.toLowerCase(Locale.ENGLISH)));
@@ -219,7 +203,7 @@ public class Codecs {
             return DataResult.error(e.getMessage());
         }
     }
-
+*/
     private static DataResult<ResourceLocation> decodeResourceLocation(String encoded) {
         try {
             if(encoded.contains("#"))
@@ -239,11 +223,11 @@ public class Codecs {
         }
     }
 
-    public static DataResult<VoxelShape> decodeFromAABBList(List<AxisAlignedBB> boxes) {
-        VoxelShape shape = VoxelShapes.empty();
-        for(AxisAlignedBB box : boxes) {
-            VoxelShape partial = VoxelShapes.create(box);
-            shape = VoxelShapes.combine(shape, partial, IBooleanFunction.OR);
+    public static DataResult<VoxelShape> decodeFromAABBList(List<AABB> boxes) {
+        VoxelShape shape = Shapes.empty();
+        for(AABB box : boxes) {
+            VoxelShape partial = Shapes.create(box);
+            shape = Shapes.joinUnoptimized(shape, partial, BooleanOp.OR);
         }
         return DataResult.success(shape);
     }

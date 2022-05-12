@@ -1,7 +1,8 @@
 package fr.frinn.custommachinery.api.network;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Used to sync any kind of Object from server logical side to client.
@@ -29,7 +30,7 @@ public interface IData<T> {
      * Overriding methods MUST call super.writeData() BEFORE writing their stuff into the PacketBuffer.
      * @param buffer The PacketBuffer that will be send to the client.
      */
-    default void writeData(PacketBuffer buffer) {
+    default void writeData(FriendlyByteBuf buffer) {
         if(getType().getRegistryName() == null)
             throw new IllegalStateException("Attempting to write invalid data to Custom Machine container syncing packet : " + getType().toString() + " is not registered !");
         buffer.writeResourceLocation(getType().getRegistryName());
@@ -40,9 +41,9 @@ public interface IData<T> {
      * Utility method used by the container syncing packet to construct the IData on client side, from the PacketBuffer send by the server.
      * Don't touch this.
      */
-    static IData<?> readData(PacketBuffer buffer) {
+    static IData<?> readData(FriendlyByteBuf buffer) {
         ResourceLocation typeId = buffer.readResourceLocation();
-        DataType<?, ?> type = DataType.DATA_REGISTRY.get().getValue(typeId);
+        DataType<?, ?> type = ICustomMachineryAPI.INSTANCE.dataRegistry().getValue(typeId);
         if(type == null)
             throw new IllegalStateException("Attempting to read invalid IData : " + typeId + " is not a valid registered DataType !");
         short id = buffer.readShort();

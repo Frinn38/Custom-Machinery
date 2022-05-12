@@ -4,31 +4,35 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.common.util.Utils;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.IModelBuilder;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
-import net.minecraftforge.client.model.geometry.ISimpleModelGeometry;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CustomMachineModelLoader implements IModelLoader<CustomMachineModelLoader.CustomMachineModelGeometry> {
 
     public static final CustomMachineModelLoader INSTANCE = new CustomMachineModelLoader();
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager) {
+    public void onResourceManagerReload(ResourceManager resourceManager) {
 
     }
 
@@ -38,16 +42,16 @@ public class CustomMachineModelLoader implements IModelLoader<CustomMachineModel
         if(json.has("defaults") && json.get("defaults").isJsonObject()) {
             JsonObject defaultsJson = json.getAsJsonObject("defaults");
             if(defaultsJson.get("").isJsonPrimitive() && defaultsJson.get("").getAsJsonPrimitive().isString()) {
-                ResourceLocation location = ResourceLocation.tryCreate(defaultsJson.get("").getAsString());
+                ResourceLocation location = ResourceLocation.tryParse(defaultsJson.get("").getAsString());
                 Arrays.stream(MachineStatus.values()).forEach(status -> defaults.put(status, location));
             }
             for (MachineStatus status : MachineStatus.values()) {
                 String key = status.name().toLowerCase(Locale.ROOT);
                 if(defaultsJson.has(key) && defaultsJson.get(key).isJsonPrimitive() && defaultsJson.get(key).getAsJsonPrimitive().isString())
-                    defaults.put(status, ResourceLocation.tryCreate(defaultsJson.get(key).getAsString()));
+                    defaults.put(status, ResourceLocation.tryParse(defaultsJson.get(key).getAsString()));
             }
         }
-        defaults.forEach((status, loc) -> ModelLoader.addSpecialModel(loc));
+        defaults.forEach((status, loc) -> ForgeModelBakery.addSpecialModel(loc));
         return new CustomMachineModelGeometry(defaults);
     }
 
@@ -60,12 +64,12 @@ public class CustomMachineModelLoader implements IModelLoader<CustomMachineModel
         }
 
         @Override
-        public Collection<RenderMaterial> getTextures(IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
+        public Collection<Material> getTextures(IModelConfiguration owner, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
             return Collections.emptyList();
         }
 
         @Override
-        public IBakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<RenderMaterial, TextureAtlasSprite> spriteGetter, IModelTransform modelTransform, ItemOverrideList overrides, ResourceLocation modelLocation) {
+        public BakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
             return new CustomMachineBakedModel(this.defaults);
         }
     }

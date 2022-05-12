@@ -17,11 +17,11 @@ import fr.frinn.custommachinery.common.integration.jei.wrapper.ItemIngredientWra
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
@@ -48,12 +48,12 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     private final IIngredient<Item> item;
     private final int amount;
     @Nullable
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
     private double chance = 1.0D;
     private final String slot;
     private final Lazy<ItemIngredientWrapper> wrapper;
 
-    public ItemRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundNBT nbt, String slot) {
+    public ItemRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundTag nbt, String slot) {
         super(mode);
         if(mode == RequirementIOMode.OUTPUT && item instanceof ItemTagIngredient)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
@@ -105,7 +105,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     }
                 }
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.input", this.item.toString(), amount, maxExtract));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.item.error.input", this.item.toString(), amount, maxExtract));
         }
         return CraftingResult.pass();
     }
@@ -121,7 +121,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     component.addToOutputs(this.slot, item, amount, this.nbt);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", amount, new TranslationTextComponent(item.getTranslationKey())));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.item.error.output", amount, new TranslatableComponent(item.getDescriptionId())));
             } else throw new IllegalStateException("Can't use output item requirement with item tag");
         }
         return CraftingResult.pass();
@@ -129,7 +129,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
 
     @Override
     public void setChance(double chance) {
-        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+        this.chance = Mth.clamp(chance, 0.0, 1.0);
     }
 
     @Override

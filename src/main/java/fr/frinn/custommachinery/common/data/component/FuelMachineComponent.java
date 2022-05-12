@@ -1,17 +1,21 @@
 package fr.frinn.custommachinery.common.data.component;
 
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
-import fr.frinn.custommachinery.apiimpl.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.data.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.nbt.CompoundNBT;
+import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.util.Constants;
 
 import java.util.function.Consumer;
 
@@ -30,16 +34,16 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public void serialize(CompoundNBT nbt) {
+    public void serialize(CompoundTag nbt) {
         nbt.putInt("fuel", this.fuel);
         nbt.putInt("maxFuel", this.maxFuel);
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
-        if(nbt.contains("fuel", Constants.NBT.TAG_INT))
+    public void deserialize(CompoundTag nbt) {
+        if(nbt.contains("fuel", Tag.TAG_INT))
             this.fuel = nbt.getInt("fuel");
-        if(nbt.contains("maxFuel", Constants.NBT.TAG_INT))
+        if(nbt.contains("maxFuel", Tag.TAG_INT))
             this.maxFuel = nbt.getInt("maxFuel");
     }
 
@@ -68,7 +72,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     public void addFuel(int fuel) {
         this.fuel += fuel;
         this.maxFuel = fuel;
-        getManager().getTile().markDirty();
+        getManager().getTile().setChanged();
     }
 
     //Return true if the component successfully burned the required fuel amount
@@ -100,7 +104,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
                         .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && !component.getItemStack().isEmpty())
                         .findFirst()
         ).ifPresent(component -> {
-            int fuel = ForgeHooks.getBurnTime(component.getItemStack(), IRecipeType.SMELTING);
+            int fuel = ForgeHooks.getBurnTime(component.getItemStack(), RecipeType.SMELTING);
             this.addFuel(fuel);
             component.extract(1);
         });

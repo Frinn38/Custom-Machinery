@@ -14,16 +14,15 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack> {
 
@@ -32,10 +31,10 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     private final int amount;
     private final double chance;
     private final boolean isPerTick;
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
     private final String tank;
 
-    public FluidIngredientWrapper(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, double chance, boolean isPerTick, CompoundNBT nbt, String tank) {
+    public FluidIngredientWrapper(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, double chance, boolean isPerTick, CompoundTag nbt, String tank) {
         this.mode = mode;
         this.fluid = fluid;
         this.amount = amount;
@@ -52,7 +51,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
 
     @Override
     public void setIngredient(Ingredients ingredients) {
-        List<FluidStack> fluids = this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount, this.nbt)).collect(Collectors.toList());
+        List<FluidStack> fluids = this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount, this.nbt)).toList();
         if(this.mode == RequirementIOMode.INPUT)
             ingredients.addInputs(VanillaTypes.FLUID, fluids);
         else
@@ -64,7 +63,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         if(!(element instanceof FluidGuiElement) || element.getType() != Registration.FLUID_GUI_ELEMENT.get())
             return false;
 
-        List<FluidStack> ingredients = this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount, this.nbt)).collect(Collectors.toList());
+        List<FluidStack> ingredients = this.fluid.getAll().stream().map(fluid -> new FluidStack(fluid, this.amount, this.nbt)).toList();
         FluidGuiElement fluidElement = (FluidGuiElement)element;
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
         if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
@@ -75,17 +74,17 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
                 if(slotIndex != index)
                     return;
                 if(this.isPerTick)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.pertick", this.amount));
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fluid.pertick", this.amount));
                 else
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid", this.amount));
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fluid", this.amount));
 
                 if(this.chance == 0)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance.0").mergeStyle(TextFormatting.DARK_RED));
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
                 else if(this.chance != 1.0)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", (int)(this.chance * 100)));
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", (int)(this.chance * 100)));
 
-                if(!this.tank.isEmpty() && Minecraft.getInstance().gameSettings.advancedItemTooltips)
-                    tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.fluid.specificTank").mergeStyle(TextFormatting.DARK_RED));
+                if(!this.tank.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
+                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fluid.specificTank").withStyle(ChatFormatting.DARK_RED));
             }));
             return true;
         }

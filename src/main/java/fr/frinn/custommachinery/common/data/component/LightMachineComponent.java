@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.world.LightType;
+import net.minecraft.world.level.LightLayer;
 
 public class LightMachineComponent extends AbstractMachineComponent implements ITickableComponent {
 
@@ -25,7 +25,7 @@ public class LightMachineComponent extends AbstractMachineComponent implements I
     public void clientTick() {
         if(getManager().getTile().getMachine().getAppearance(getManager().getTile().getStatus()).getLightLevel() > 0 != this.emmitLight) {
             this.emmitLight = !this.emmitLight;
-            getManager().getWorld().getChunkProvider().getLightManager().checkBlock(getManager().getTile().getPos());
+            getManager().getWorld().getChunkSource().getLightEngine().checkBlock(getManager().getTile().getBlockPos());
         }
     }
 
@@ -36,10 +36,10 @@ public class LightMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int getSkyLight() {
-        return getManager().getWorld().getLightFor(LightType.SKY, getManager().getTile().getPos());
+        return getManager().getWorld().getBrightness(LightLayer.SKY, getManager().getTile().getBlockPos());
     }
 
     public int getBlockLight() {
-        return getManager().getWorld().getLightFor(LightType.BLOCK, getManager().getTile().getPos());
+        return getManager().getWorld().getBrightness(LightLayer.BLOCK, getManager().getTile().getBlockPos());
     }
 }

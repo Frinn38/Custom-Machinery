@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.common.data.component.variant.item;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.common.ForgeHooks;
 
 public class FuelItemComponentVariant extends ItemComponentVariant {
@@ -20,6 +20,6 @@ public class FuelItemComponentVariant extends ItemComponentVariant {
 
     @Override
     public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
-        return ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING) > 0;
+        return ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
     }
 }

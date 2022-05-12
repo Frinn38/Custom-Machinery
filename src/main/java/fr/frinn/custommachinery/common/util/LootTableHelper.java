@@ -2,13 +2,20 @@ package fr.frinn.custommachinery.common.util;
 
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.*;
-import net.minecraft.loot.functions.ILootFunction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.entries.LootTableReference;
+import net.minecraft.world.level.storage.loot.entries.TagEntry;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +36,7 @@ public class LootTableHelper {
 
     public static void generate(MinecraftServer server) {
         lootsMap.clear();
-        LootContext context = new LootContext.Builder(server.getWorld(World.OVERWORLD)).build(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
+        LootContext context = new LootContext.Builder(server.getLevel(Level.OVERWORLD)).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
         for (ResourceLocation table : tables) {
             List<Pair<ItemStack, Double>> loots = getLoots(table, server, context);
             lootsMap.put(table, loots);
@@ -38,41 +45,41 @@ public class LootTableHelper {
 
     private static List<Pair<ItemStack, Double>> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
         List<Pair<ItemStack, Double>> loots = new ArrayList<>();
-        LootTable lootTable = server.getLootTableManager().getLootTableFromLocation(table);
-        BiFunction<ItemStack, LootContext, ItemStack> globalFunction = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "field_216129_g");
-        List<LootPool> pools = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "field_186466_c");
+        LootTable lootTable = server.getLootTables().get(table);
+        BiFunction<ItemStack, LootContext, ItemStack> globalFunction = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "compositeFunction");
+        List<LootPool> pools = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "pools");
 
         for(LootPool pool : pools) {
-            List<LootEntry> entries = ObfuscationReflectionHelper.getPrivateValue(LootPool.class, pool, "field_186453_a");
-            float total = entries.stream().filter(entry -> entry instanceof StandaloneLootEntry).mapToInt(entry -> ((StandaloneLootEntry)entry).weight).sum();
-            entries.stream().filter(entry -> entry instanceof ItemLootEntry)
-                    .map(entry -> (ItemLootEntry)entry)
+            List<LootPoolEntryContainer> entries = ObfuscationReflectionHelper.getPrivateValue(LootPool.class, pool, "entries");
+            float total = entries.stream().filter(entry -> entry instanceof LootPoolSingletonContainer).mapToInt(entry -> ((LootPoolSingletonContainer)entry).weight).sum();
+            entries.stream().filter(entry -> entry instanceof LootItem)
+                    .map(entry -> (LootItem)entry)
                     .forEach(entry -> {
                         Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total)));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
-                        entry.func_216154_a(consumer, context);
+                        entry.createItemStack(consumer, context);
                     });
 
-            entries.stream().filter(entry -> entry instanceof TagLootEntry)
-                    .map(entry -> (TagLootEntry)entry)
+            entries.stream().filter(entry -> entry instanceof TagEntry)
+                    .map(entry -> (TagEntry)entry)
                     .forEach(entry -> {
-                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total / (entry.expand ? entry.tag.getAllElements().size() : 1))));
+                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total / (entry.expand ? TagUtil.getItems(entry.tag).count() : 1))));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
-                        entry.func_216154_a(consumer, context);
+                        entry.createItemStack(consumer, context);
                     });
 
-            entries.stream().filter(entry -> entry instanceof TableLootEntry)
-                    .map(entry -> (TableLootEntry)entry)
-                    .map(entry -> getLoots(entry.table, server, context))
+            entries.stream().filter(entry -> entry instanceof LootTableReference)
+                    .map(entry -> (LootTableReference)entry)
+                    .map(entry -> getLoots(entry.name, server, context))
                     .forEach(loots::addAll);
         }
         return loots;
     }
 
-    private static Consumer<ItemStack> applyFunctions(Consumer<ItemStack> consumer, ILootFunction[] functions, BiFunction<ItemStack, LootContext, ItemStack> globalFunction, LootContext context) {
-        for(ILootFunction function : functions)
-            consumer = ILootFunction.func_215858_a(function, consumer, context);
-        return ILootFunction.func_215858_a(globalFunction, consumer, context);
+    private static Consumer<ItemStack> applyFunctions(Consumer<ItemStack> consumer, LootItemFunction[] functions, BiFunction<ItemStack, LootContext, ItemStack> globalFunction, LootContext context) {
+        for(LootItemFunction function : functions)
+            consumer = LootItemFunction.decorate(function, consumer, context);
+        return LootItemFunction.decorate(globalFunction, consumer, context);
     }
 
     public static Map<ResourceLocation, List<Pair<ItemStack, Double>>> getLoots() {

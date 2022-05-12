@@ -4,27 +4,21 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Lazy;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-public class CustomMachineRecipe implements IRecipe<IInventory>, IMachineRecipe {
+public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
 
     private final ResourceLocation id;
     private final ResourceLocation machine;
@@ -38,7 +32,7 @@ public class CustomMachineRecipe implements IRecipe<IInventory>, IMachineRecipe 
         this.id = id;
         this.machine = machine;
         this.time = time;
-        this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).collect(Collectors.toList());
+        this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).toList();
         this.jeiRequirements = jeiRequirements;
         this.priority = priority;
         this.jeiPriority = priority;
@@ -80,8 +74,8 @@ public class CustomMachineRecipe implements IRecipe<IInventory>, IMachineRecipe 
 
     public List<IDisplayInfoRequirement> getDisplayInfoRequirements() {
         if(this.jeiRequirements.isEmpty())
-            return this.requirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement)requirement).collect(Collectors.toList());
-        return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement)requirement).collect(Collectors.toList());
+            return this.requirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement)requirement).toList();
+        return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement)requirement).toList();
     }
 
     @Override
@@ -95,32 +89,32 @@ public class CustomMachineRecipe implements IRecipe<IInventory>, IMachineRecipe 
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return Registration.CUSTOM_MACHINE_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public IRecipeType<?> getType() {
-        return Registration.CUSTOM_MACHINE_RECIPE;
+    public RecipeType<?> getType() {
+        return Registration.CUSTOM_MACHINE_RECIPE.get();
     }
 
     @Override
-    public boolean matches(IInventory inv, World worldIn) {
+    public boolean matches(Container inv, Level worldIn) {
         return false;
     }
 
     @Override
-    public ItemStack getCraftingResult(IInventory inv) {
+    public ItemStack assemble(Container inv) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canFit(int width, int height) {
+    public boolean canCraftInDimensions(int width, int height) {
         return false;
     }
 
     @Override
-    public ItemStack getRecipeOutput() {
+    public ItemStack getResultItem() {
         return ItemStack.EMPTY;
     }
 

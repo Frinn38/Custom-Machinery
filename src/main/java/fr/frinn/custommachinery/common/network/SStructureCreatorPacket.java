@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.common.network;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import fr.frinn.custommachinery.client.ClientPacketHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -19,14 +19,14 @@ public class SStructureCreatorPacket {
         this.patternJson = patternJson;
     }
 
-    public static void encode(SStructureCreatorPacket pkt, PacketBuffer buffer) {
-        buffer.writeString(pkt.keysJson.toString());
-        buffer.writeString(pkt.patternJson.toString());
+    public static void encode(SStructureCreatorPacket pkt, FriendlyByteBuf buffer) {
+        buffer.writeUtf(pkt.keysJson.toString());
+        buffer.writeUtf(pkt.patternJson.toString());
     }
 
-    public static SStructureCreatorPacket decode(PacketBuffer buffer) {
+    public static SStructureCreatorPacket decode(FriendlyByteBuf buffer) {
         JsonParser parser = new JsonParser();
-        return new SStructureCreatorPacket(parser.parse(buffer.readString()), parser.parse(buffer.readString()));
+        return new SStructureCreatorPacket(parser.parse(buffer.readUtf()), parser.parse(buffer.readUtf()));
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {

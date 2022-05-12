@@ -1,17 +1,12 @@
 package fr.frinn.custommachinery.api.network;
 
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
-import fr.frinn.custommachinery.apiimpl.network.data.*;
-import fr.frinn.custommachinery.apiimpl.network.syncable.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -21,21 +16,14 @@ import java.util.function.Supplier;
  */
 public class DataType<D extends IData<T>, T> extends ForgeRegistryEntry<DataType<? extends IData<?>, ?>> {
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public static final DeferredRegister<DataType<?, ?>> DATA = DeferredRegister.create((Class)DataType.class, CustomMachineryAPI.MODID);
-    public static final Supplier<IForgeRegistry<DataType<?, ?>>> DATA_REGISTRY = DATA.makeRegistry("data_type", RegistryBuilder::new);
-    public static final RegistryObject<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATA.register("boolean", () -> new DataType<>(BooleanSyncable::create, BooleanData::new));
-    public static final RegistryObject<DataType<IntegerData, Integer>> INTEGER_DATA = DATA.register("integer", () -> new DataType<>(IntegerSyncable::create, IntegerData::new));
-    public static final RegistryObject<DataType<DoubleData, Double>> DOUBLE_DATA = DATA.register("double", () -> new DataType<>(DoubleSyncable::create, DoubleData::new));
-    public static final RegistryObject<DataType<ItemStackData, ItemStack>> ITEMSTACK_DATA = DATA.register("itemstack", () -> new DataType<>(ItemStackSyncable::create, ItemStackData::new));
-    public static final RegistryObject<DataType<FluidStackData, FluidStack>> FLUIDSTACK_DATA = DATA.register("fluidstack", () -> new DataType<>(FluidStackSyncable::create, FluidStackData::new));
-    public static final RegistryObject<DataType<StringData, String>> STRING_DATA = DATA.register("string", () -> new DataType<>(StringSyncable::create, StringData::new));
-    public static final RegistryObject<DataType<LongData, Long>> LONG_DATA = DATA.register("long", () -> new DataType<>(LongSyncable::create, LongData::new));
+    public static final ResourceKey<Registry<DataType<?, ?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(ICustomMachineryAPI.INSTANCE.rl("data_type"));
 
+    private final Class<T> type;
     private final BiFunction<Supplier<T>, Consumer<T>, ISyncable<D, T>> builder;
-    private final BiFunction<Short, PacketBuffer, D> reader;
+    private final BiFunction<Short, FriendlyByteBuf, D> reader;
 
-    public DataType(BiFunction<Supplier<T>, Consumer<T>, ISyncable<D, T>> builder, BiFunction<Short, PacketBuffer, D> reader) {
+    public DataType(Class<T> type, BiFunction<Supplier<T>, Consumer<T>, ISyncable<D, T>> builder, BiFunction<Short, FriendlyByteBuf, D> reader) {
+        this.type = type;
         this.builder = builder;
         this.reader = reader;
     }
@@ -56,7 +44,21 @@ public class DataType<D extends IData<T>, T> extends ForgeRegistryEntry<DataType
      * @param buffer The PacketBuffer send by the server.
      * @return An IData of this type, holding the synced Object.
      */
-    public D readData(short id, PacketBuffer buffer) {
+    public D readData(short id, FriendlyByteBuf buffer) {
         return this.reader.apply(id, buffer);
+    }
+
+    /**
+     * @param type The class of the object to sync, used to retrieve the correct DataType from the registry.
+     * @param supplier A supplier, used to get the synced object on server side.
+     * @param consumer A consumer, used to set the synced object on client side.
+     * @return An {@link ISyncable} for the specified object class.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> ISyncable<IData<T>, T> createSyncable(Class<T> type, Supplier<T> supplier, Consumer<T> consumer) {
+        Optional<DataType<IData<T>, T>> dataType = ICustomMachineryAPI.INSTANCE.dataRegistry().getValues().stream().filter(entry -> entry.type == type).map(entry -> (DataType<IData<T>, T>)entry).findFirst();
+        if(dataType.isPresent())
+            return dataType.get().createSyncable(supplier, consumer);
+        throw new IllegalArgumentException("Couldn't create Syncable for provided type: " + type.getName() + ". No registered DataType for this type.");
     }
 }

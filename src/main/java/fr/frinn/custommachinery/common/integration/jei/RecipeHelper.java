@@ -7,6 +7,8 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.core.BlockPos;
 
 import java.util.Optional;
 
@@ -17,7 +19,7 @@ public class RecipeHelper implements IRecipeHelper {
 
     public RecipeHelper(CustomMachine machine) {
         this.machine = machine;
-        CustomMachineTile tile = new CustomMachineTile();
+        CustomMachineTile tile = new CustomMachineTile(BlockPos.ZERO, Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
         tile.setId(machine.getId());
         this.manager = new DummyComponentManager(tile);
     }

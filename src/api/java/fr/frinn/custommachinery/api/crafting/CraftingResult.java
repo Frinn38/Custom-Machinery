@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 /**
  * This represents the result of any crafting operation.
@@ -14,13 +14,13 @@ public final class CraftingResult {
     /**
      * Default instances of the success and pass result, to avoid creating tons of new objects.
      */
-    private static final CraftingResult SUCCESS = new CraftingResult(RESULT.SUCCESS, new StringTextComponent("success"));
-    private static final CraftingResult PASS = new CraftingResult(RESULT.PASS, new StringTextComponent("pass"));
+    private static final CraftingResult SUCCESS = new CraftingResult(RESULT.SUCCESS, new TextComponent("success"));
+    private static final CraftingResult PASS = new CraftingResult(RESULT.PASS, new TextComponent("pass"));
 
     private final RESULT result;
-    private final ITextComponent message;
+    private final Component message;
 
-    private CraftingResult(RESULT result, ITextComponent message) {
+    private CraftingResult(RESULT result, Component message) {
         this.result = result;
         this.message = message;
     }
@@ -46,7 +46,7 @@ public final class CraftingResult {
      * @param message An error message to display to the player.
      * @return An error.
      */
-    public static CraftingResult error(ITextComponent message) {
+    public static CraftingResult error(Component message) {
         return new CraftingResult(RESULT.ERROR, message);
     }
 
@@ -60,7 +60,7 @@ public final class CraftingResult {
     /**
      * @return The error message to display to the player, localized messages are preferable but not mandatory.
      */
-    public ITextComponent getMessage() {
+    public Component getMessage() {
         return this.message;
     }
 

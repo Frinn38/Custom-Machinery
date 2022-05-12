@@ -5,12 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CustomMachineRecipeBuilder {
 
@@ -79,7 +78,7 @@ public class CustomMachineRecipeBuilder {
         return "CustomMachineRecipe{" +
                 "machine=" + machine +
                 ", time=" + time +
-                ", requirements=" + requirements.stream().map(requirement -> requirement.getType().getRegistryName()).collect(Collectors.toList()) +
+                ", requirements=" + requirements.stream().map(requirement -> requirement.getType().getRegistryName()).toList() +
                 ", priority=" + priority +
                 ", jeiPriority=" + jeiPriority +
                 '}';

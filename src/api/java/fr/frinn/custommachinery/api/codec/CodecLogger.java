@@ -2,10 +2,16 @@ package fr.frinn.custommachinery.api.codec;
 
 import com.mojang.datafixers.kinds.App;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.*;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Encoder;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.KeyDispatchCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -37,7 +43,7 @@ public class CodecLogger {
             public <T> DataResult<T> coApply(DynamicOps<T> ops, V input, DataResult<T> t) {
                 return t.mapError(s -> String.format("Error while serializing %s: %s%n%s", name, type.apply(input).result().orElse(null), s));
             }
-        }).promotePartial(CustomMachineryAPI.getLogger()::error);
+        }).promotePartial(ICustomMachineryAPI.INSTANCE.logger()::error);
     }
     @SuppressWarnings("unchecked")
     private static <K, V> DataResult<? extends Encoder<V>> getCodec(final Function<? super V, ? extends DataResult<? extends K>> type, final Function<? super K, ? extends DataResult<? extends Encoder<? extends V>>> encoder, final V input) {
@@ -106,13 +112,13 @@ public class CodecLogger {
             public <T> DataResult<E> decode(DynamicOps<T> ops, MapLike<T> input) {
                 T value = input.get(field);
                 if(value == null) {
-                    if(CustomMachineryAPI.getLogger().logMissingOptional())
-                        CustomMachineryAPI.getLogger().warn("Missing optional property: \"%s\" of type: %s%nUsing default value: %s", field, codec, defaultValue);
+                    if(ICustomMachineryAPI.INSTANCE.logger().logMissingOptional())
+                        ICustomMachineryAPI.INSTANCE.logger().warn("Missing optional property: \"%s\" of type: %s%nUsing default value: %s", field, codec, defaultValue);
                     return DataResult.success(defaultValue);
                 }
                 DataResult<E> result = codec.parse(ops, value);
                 if(result.error().isPresent()) {
-                    CustomMachineryAPI.getLogger().warn("Error while deserializing optional property \"%s\" of type: %s%n%s%nUsing default value: %s", field, codec, result.error().get().message(), defaultValue);
+                    ICustomMachineryAPI.INSTANCE.logger().warn("Error while deserializing optional property \"%s\" of type: %s%n%s%nUsing default value: %s", field, codec, result.error().get().message(), defaultValue);
                     return DataResult.success(defaultValue);
                 }
                 return result;

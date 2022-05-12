@@ -1,6 +1,6 @@
-package fr.frinn.custommachinery.apiimpl.network.syncable;
+package fr.frinn.custommachinery.common.network.syncable;
 
-import fr.frinn.custommachinery.apiimpl.network.data.FluidStackData;
+import fr.frinn.custommachinery.common.network.data.FluidStackData;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.function.Consumer;

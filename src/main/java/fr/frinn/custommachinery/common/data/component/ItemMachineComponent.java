@@ -3,23 +3,28 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.IVariableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
-import fr.frinn.custommachinery.apiimpl.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +79,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
             return 0;
         if(this.stack.isEmpty())
             return Math.min(stack.getMaxStackSize(), this.capacity);
-        else if(ItemStack.areItemsEqual(stack, this.stack))
+        else if(ItemStack.isSame(stack, this.stack))
             return Math.min(stack.getMaxStackSize() - this.stack.getCount(), this.capacity - this.stack.getCount());
         else
             return 0;
@@ -99,15 +104,15 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public void serialize(CompoundNBT nbt) {
+    public void serialize(CompoundTag nbt) {
         nbt.putString("slotID", this.id);
         if(!stack.isEmpty())
-            stack.write(nbt);
+            stack.save(nbt);
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
-        this.stack = ItemStack.read(nbt);
+    public void deserialize(CompoundTag nbt) {
+        this.stack = ItemStack.of(nbt);
     }
 
     @Override
@@ -117,7 +122,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public int getComparatorInput() {
-        return Container.calcRedstoneFromInventory(new Inventory(this.stack));
+        return AbstractContainerMenu.getRedstoneSignalFromContainer(new SimpleContainer(this.stack));
     }
 
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {

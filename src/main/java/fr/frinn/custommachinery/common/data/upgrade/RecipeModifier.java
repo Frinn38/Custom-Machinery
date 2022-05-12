@@ -7,9 +7,9 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +19,7 @@ public class RecipeModifier {
 
     public static final Codec<RecipeModifier> CODEC = RecordCodecBuilder.create(energyModifierInstance ->
             energyModifierInstance.group(
-                    Codecs.REQUIREMENT_TYPE.fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
+                    Registration.REQUIREMENT_TYPE_REGISTRY.get().getCodec().fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(modifier -> modifier.mode),
                     Codecs.MODIFIER_OPERATION_CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
                     Codec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
@@ -68,15 +68,15 @@ public class RecipeModifier {
         return this.chance;
     }
 
-    public List<ITextComponent> getTooltip() {
+    public List<Component> getTooltip() {
         double tooltipModifier = this.operation == OPERATION.ADDITION ? this.modifier : this.modifier * 100 - 100;
-        StringTextComponent tooltip = new StringTextComponent(tooltipModifier >= 0 ? "+" : "");
-        tooltip.appendString(this.operation == OPERATION.ADDITION ? String.valueOf(tooltipModifier) : tooltipModifier + "%");
-        tooltip.appendString(" ");
-        tooltip.appendSibling(this.requirementType.getName());
+        TextComponent tooltip = new TextComponent(tooltipModifier >= 0 ? "+" : "");
+        tooltip.append(this.operation == OPERATION.ADDITION ? String.valueOf(tooltipModifier) : tooltipModifier + "%");
+        tooltip.append(" ");
+        tooltip.append(this.requirementType.getName());
         if(this.requirementType != Registration.SPEED_REQUIREMENT.get()) {
-            tooltip.appendString(" ");
-            tooltip.appendSibling(new TranslationTextComponent(this.mode.getTranslationKey()));
+            tooltip.append(" ");
+            tooltip.append(new TranslatableComponent(this.mode.getTranslationKey()));
         }
         return Collections.singletonList(tooltip);
     }

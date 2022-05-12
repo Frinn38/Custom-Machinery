@@ -17,8 +17,8 @@ import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
 import net.minecraftforge.common.util.Lazy;
 
 import java.util.Random;
@@ -80,7 +80,7 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
                 energy.extractRecipeEnergy(amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energypertick.error.input", amount, canExtract));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.energypertick.error.input", amount, canExtract));
         }
         else {
             int canReceive = energy.receiveRecipeEnergy(amount, true);
@@ -88,7 +88,7 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
                 energy.receiveRecipeEnergy(amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.energypertick.error.output", amount));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.energypertick.error.output", amount));
         }
     }
 
@@ -99,7 +99,7 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
 
     @Override
     public void setChance(double chance) {
-        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+        this.chance = Mth.clamp(chance, 0.0, 1.0);
     }
 
     @Override

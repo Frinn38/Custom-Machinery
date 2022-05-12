@@ -6,13 +6,13 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.latvian.kubejs.fluid.FluidStackJS;
-import dev.latvian.kubejs.item.ItemStackJS;
-import dev.latvian.kubejs.recipe.RecipeExceptionJS;
-import dev.latvian.kubejs.recipe.RecipeJS;
-import dev.latvian.kubejs.script.ScriptType;
-import dev.latvian.kubejs.util.ListJS;
-import dev.latvian.kubejs.util.MapJS;
+import dev.latvian.mods.kubejs.fluid.FluidStackJS;
+import dev.latvian.mods.kubejs.item.ItemStackJS;
+import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
+import dev.latvian.mods.kubejs.recipe.RecipeJS;
+import dev.latvian.mods.kubejs.script.ScriptType;
+import dev.latvian.mods.kubejs.util.ListJS;
+import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
@@ -20,21 +20,56 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.crafting.requirement.*;
+import fr.frinn.custommachinery.common.crafting.requirement.BiomeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.CommandRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DimensionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DropRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DurabilityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EffectRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EntityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FuelRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FunctionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.ItemRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LightRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LootTableRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.PositionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.RedstoneRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.StructureRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.TimeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.KJSFunction;
 import fr.frinn.custommachinery.common.integration.kubejs.function.RecipeFunction;
-import fr.frinn.custommachinery.common.util.*;
-import fr.frinn.custommachinery.common.util.ingredient.*;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
+import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.ComparatorMode;
+import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.PositionComparator;
+import fr.frinn.custommachinery.common.util.TimeComparator;
+import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,7 +105,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     @Override
-    public IRecipe<?> createRecipe() {
+    public Recipe<?> createRecipe() {
         return this.builder.build(getOrCreateId());
     }
 
@@ -148,7 +183,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder requireItemTag(String tag, int amount) {
@@ -176,7 +211,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), stack.getNbt(), slot));
     }
 
     /** DURABILITY **/
@@ -186,7 +221,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder damageItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), amount, stack.getNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder damageItemTag(String tag, int amount) {
@@ -214,7 +249,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder repairItem(ItemStackJS stack, int amount, String slot) {
-        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), amount, stack.getMinecraftNbt(), slot));
+        return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), amount, stack.getNbt(), slot));
     }
 
     public CustomMachineJSRecipeBuilder repairItemTag(String tag, int amount) {
@@ -244,7 +279,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTag(String tag, int amount) {
@@ -272,7 +307,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack) {
@@ -280,7 +315,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder requireFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     public CustomMachineJSRecipeBuilder requireFluidTagPerTick(String tag, int amount) {
@@ -308,7 +343,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder produceFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     /** ENERGY **/
@@ -332,7 +367,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     /** TIME **/
 
     public CustomMachineJSRecipeBuilder requireTime(String[] times) {
-        List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).collect(Collectors.toList());
+        List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).toList();
         if(!timeComparators.isEmpty())
             return this.addRequirement(new TimeRequirement(timeComparators));
         return this;
@@ -341,7 +376,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     /** POSITION **/
 
     public CustomMachineJSRecipeBuilder requirePosition(String[] position) {
-        List<PositionComparator> positionComparators = Stream.of(position).map(s -> Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s)).getFirst()).collect(Collectors.toList());
+        List<PositionComparator> positionComparators = Stream.of(position).map(s -> Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s)).getFirst()).toList();
         if(!positionComparators.isEmpty())
             return this.addRequirement(new PositionRequirement(positionComparators));
         return this;
@@ -355,7 +390,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
                 return true;
             ScriptType.SERVER.console.warn("Invalid biome ID: " + biome);
             return false;
-        }).map(ResourceLocation::new).collect(Collectors.toList());
+        }).map(ResourceLocation::new).toList();
         return this.addRequirement(new BiomeRequirement(biomesID, false));
     }
 
@@ -365,7 +400,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
                 return true;
             ScriptType.SERVER.console.warn("Invalid biome ID: " + biome);
             return false;
-        }).map(ResourceLocation::new).collect(Collectors.toList());
+        }).map(ResourceLocation::new).toList();
         return this.addRequirement(new BiomeRequirement(biomesID, true));
     }
 
@@ -377,7 +412,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
                 return true;
             ScriptType.SERVER.console.warn("Invalid dimension ID: " + dimension);
             return false;
-        }).map(ResourceLocation::new).collect(Collectors.toList());
+        }).map(ResourceLocation::new).toList();
         return this.addRequirement(new DimensionRequirement(dimensionsID, false));
     }
 
@@ -387,7 +422,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
                 return true;
             ScriptType.SERVER.console.warn("Invalid dimension ID: " + dimension);
             return false;
-        }).map(ResourceLocation::new).collect(Collectors.toList());
+        }).map(ResourceLocation::new).toList();
         return this.addRequirement(new DimensionRequirement(dimensionsID, true));
     }
 
@@ -472,8 +507,8 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid entity ID: " + type);
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
-        if(Utils.isResourceNameValid(effect) && ForgeRegistries.POTIONS.containsKey(new ResourceLocation(effect)))
-            return this.addRequirement(new EffectRequirement(ForgeRegistries.POTIONS.getValue(new ResourceLocation(effect)), time, level, radius, entityFilter, true));
+        if(Utils.isResourceNameValid(effect) && ForgeRegistries.MOB_EFFECTS.containsKey(new ResourceLocation(effect)))
+            return this.addRequirement(new EffectRequirement(ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effect)), time, level, radius, entityFilter, true));
         else
             ScriptType.SERVER.console.warn("Invalid effect ID: " + effect);
         return this;
@@ -501,8 +536,8 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid entity ID: " + type);
             return false;
         }).map(ResourceLocation::new).map(ForgeRegistries.ENTITIES::getValue).collect(Collectors.toList());
-        if(Utils.isResourceNameValid(effect) && ForgeRegistries.POTIONS.containsKey(new ResourceLocation(effect)))
-            return this.addRequirement(new EffectRequirement(ForgeRegistries.POTIONS.getValue(new ResourceLocation(effect)), time, level, radius, entityFilter, false));
+        if(Utils.isResourceNameValid(effect) && ForgeRegistries.MOB_EFFECTS.containsKey(new ResourceLocation(effect)))
+            return this.addRequirement(new EffectRequirement(ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effect)), time, level, radius, entityFilter, false));
         else
             ScriptType.SERVER.console.warn("Invalid effect ID: " + effect);
         return this;
@@ -781,8 +816,8 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             ScriptType.SERVER.console.warn("Invalid block: " + block);
             return this;
         }
-        AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
-        List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
+        AABB bb = new AABB(startX, startY, startZ, endX, endY, endZ);
+        List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).toList();
         try {
             return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {
@@ -794,7 +829,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     /** STRUCTURE **/
 
     public CustomMachineJSRecipeBuilder requireStructure(String[][] pattern, Map<String, String> key) {
-        List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).collect(Collectors.toList())).collect(Collectors.toList());
+        List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).toList()).toList();
         Map<Character, IIngredient<PartialBlockState>> keysMap = new HashMap<>();
         for(Map.Entry<String, String> entry : key.entrySet()) {
             if(entry.getKey().length() != 1) {
@@ -848,7 +883,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, items[0].getNbt(), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder consumeDropOnStart(ItemStackJS item, int amount, int radius) {
@@ -869,7 +904,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getNbt(), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder consumeDropOnEnd(ItemStackJS item, int amount, int radius) {
@@ -890,15 +925,15 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getMinecraftNbt(), amount, radius));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, items[0].getNbt(), amount, radius));
     }
 
     public CustomMachineJSRecipeBuilder dropItemOnStart(ItemStackJS stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getMinecraftNbt(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getNbt(), stack.getCount(), 1));
     }
 
     public CustomMachineJSRecipeBuilder dropItemOnEnd(ItemStackJS stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getMinecraftNbt(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Collections.emptyList(), true, stack.getItem(), stack.getNbt(), stack.getCount(), 1));
     }
 
     /** FUNCTION **/

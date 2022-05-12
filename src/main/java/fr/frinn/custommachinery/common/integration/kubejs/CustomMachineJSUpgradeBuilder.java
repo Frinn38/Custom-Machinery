@@ -1,18 +1,17 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import dev.latvian.kubejs.event.EventJS;
-import dev.latvian.kubejs.script.ScriptType;
+import dev.latvian.mods.kubejs.event.EventJS;
+import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.crafttweaker.RequirementTypeCTBrackets;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +37,11 @@ public class CustomMachineJSUpgradeBuilder {
             throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + this.item.getRegistryName());
         if(this.modifiers.isEmpty())
             throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + this.item.getRegistryName());
-        ITextComponent tooltip;
+        Component tooltip;
         try {
-            tooltip = ITextComponent.Serializer.getComponentFromJson(this.tooltip);
+            tooltip = Component.Serializer.fromJson(this.tooltip);
         } catch (Exception e) {
-            tooltip = new TranslationTextComponent(this.tooltip);
+            tooltip = new TranslatableComponent(this.tooltip);
         }
         return new MachineUpgrade(this.item, this.machines, this.modifiers, tooltip, this.maxAmount);
     }
@@ -137,7 +136,7 @@ public class CustomMachineJSUpgradeBuilder {
     }
 
     public CustomMachineJSUpgradeBuilder modifier(RequirementIOMode mode, RecipeModifier.OPERATION operation, String requirement, double value, String target, double chance) {
-        RequirementType<?> type = Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(ResourceLocation.tryCreate(requirement));
+        RequirementType<?> type = Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(ResourceLocation.tryParse(requirement));
         if(type == null) {
             ScriptType.SERVER.console.warnf("Invalid requirement type : %s, skipping modifier.", requirement);
             return this;

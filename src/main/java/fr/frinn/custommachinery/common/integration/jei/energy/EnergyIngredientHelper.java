@@ -1,32 +1,31 @@
 package fr.frinn.custommachinery.common.integration.jei.energy;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.apiimpl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
 import mezz.jei.api.ingredients.IIngredientHelper;
-import net.minecraft.util.text.TranslationTextComponent;
+import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.ingredients.subtypes.UidContext;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 
 public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
 
-    @Nullable
     @Override
-    public Energy getMatch(Iterable<Energy> iterable, Energy energy) {
-        for (Energy energy1 : iterable) {
-            if(energy.getAmount() == energy1.getAmount())
-                return energy1;
-        }
-        return null;
+    public IIngredientType<Energy> getIngredientType() {
+        return CustomIngredientTypes.ENERGY;
     }
 
     @Override
     public String getDisplayName(Energy energy) {
-        return new TranslationTextComponent("custommachinery.jei.ingredient.energy", energy.getAmount()).getString();
+        return new TranslatableComponent("custommachinery.jei.ingredient.energy", energy.getAmount()).getString();
     }
 
     @Override
-    public String getUniqueId(Energy energy) {
-        return "energy";
+    public String getUniqueId(Energy energy, UidContext context) {
+        return "" + energy.getAmount() + energy.getChance() + energy.isPerTick();
     }
 
     @Override
@@ -47,5 +46,10 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
     @Override
     public String getErrorInfo(@Nullable Energy energy) {
         return "";
+    }
+
+    @Override
+    public ResourceLocation getResourceLocation(Energy ingredient) {
+        return new ResourceLocation(CustomMachinery.MODID, "energy");
     }
 }

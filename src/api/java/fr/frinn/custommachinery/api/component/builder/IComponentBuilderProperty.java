@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.api.component.builder;
 
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.components.AbstractWidget;
 
 public interface IComponentBuilderProperty<T> {
 
@@ -12,5 +12,5 @@ public interface IComponentBuilderProperty<T> {
 
     String getName();
 
-    Widget getAsWidget(int x, int y, int width, int height);
+    AbstractWidget getAsWidget(int x, int y, int width, int height);
 }

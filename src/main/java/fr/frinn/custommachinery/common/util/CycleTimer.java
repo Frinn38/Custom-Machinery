@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
 import javax.annotation.Nullable;
 import java.util.List;

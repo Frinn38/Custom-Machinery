@@ -1,32 +1,17 @@
 package fr.frinn.custommachinery.common.integration.buildinggadgets;
 
-import com.direwolf20.buildinggadgets.common.blocks.OurBlocks;
-import com.direwolf20.buildinggadgets.common.entities.ConstructionBlockEntity;
-import com.direwolf20.buildinggadgets.common.tainted.building.BlockData;
 import com.direwolf20.buildinggadgets.common.tainted.building.tilesupport.ITileDataSerializer;
 import com.direwolf20.buildinggadgets.common.tainted.building.tilesupport.ITileEntityData;
 import com.direwolf20.buildinggadgets.common.tainted.building.view.BuildContext;
-import com.direwolf20.buildinggadgets.common.tileentities.ConstructionBlockTileEntity;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IWorldPosCallable;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CustomMachineTileData implements ITileEntityData {
 
     private final ResourceLocation machineID;
@@ -46,11 +31,11 @@ public class CustomMachineTileData implements ITileEntityData {
 
     @Override
     public boolean placeIn(BuildContext context, BlockState state, BlockPos pos) {
-        World world = context.getServerWorld();
+        Level world = context.getServerWorld();
 
-        world.setBlockState(pos, state, Constants.BlockFlags.DEFAULT_AND_RERENDER);
-        world.getBlockState(pos).neighborChanged(world, pos, world.getBlockState(pos.up()).getBlock(), pos.up(), false);
-        Optional.ofNullable(world.getTileEntity(pos))
+        world.setBlock(pos, state, Block.UPDATE_ALL);
+        world.getBlockState(pos).neighborChanged(world, pos, world.getBlockState(pos.above()).getBlock(), pos.above(), false);
+        Optional.ofNullable(world.getBlockEntity(pos))
                 .filter(tile -> tile instanceof CustomMachineTile)
                 .map(tile -> (CustomMachineTile)tile)
                 .ifPresent(machine -> machine.setId(machineID));

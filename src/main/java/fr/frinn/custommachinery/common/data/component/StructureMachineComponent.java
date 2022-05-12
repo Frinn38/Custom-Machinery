@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.BlockStructure;
-import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class StructureMachineComponent extends AbstractMachineComponent {
 
@@ -20,6 +20,6 @@ public class StructureMachineComponent extends AbstractMachineComponent {
     }
 
     public boolean checkStructure(BlockStructure pattern) {
-        return pattern.match(getManager().getTile().getWorld(), getManager().getTile().getPos(), getManager().getTile().getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+        return pattern.match(getManager().getTile().getLevel(), getManager().getTile().getBlockPos(), getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
     }
 }

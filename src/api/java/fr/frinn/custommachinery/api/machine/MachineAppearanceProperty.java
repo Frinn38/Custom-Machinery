@@ -1,9 +1,14 @@
 package fr.frinn.custommachinery.api.machine;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class MachineAppearanceProperty<T> extends ForgeRegistryEntry<MachineAppearanceProperty<?>> {
+
+    public static final ResourceKey<Registry<MachineAppearanceProperty<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(ICustomMachineryAPI.INSTANCE.rl("appearance_property"));
 
     private final Codec<T> codec;
     private final T defaultValue;

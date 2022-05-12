@@ -11,31 +11,31 @@ import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.DummyCraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.data.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
+import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.SoundManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
-public class CustomMachineTile extends MachineTile implements ITickableTileEntity, ISyncableStuff {
+public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     public static final ResourceLocation DUMMY = new ResourceLocation(CustomMachinery.MODID, "dummy");
 
@@ -46,8 +46,8 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     public MachineComponentManager componentManager = new DummyComponentManager(this);
     public SoundManager soundManager;
 
-    public CustomMachineTile() {
-        super(Registration.CUSTOM_MACHINE_TILE.get());
+    public CustomMachineTile(BlockPos pos, BlockState state) {
+        super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);
     }
 
     public ResourceLocation getId() {
@@ -78,17 +78,17 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
     @Override
     public void refreshMachine(@Nullable ResourceLocation id) {
-        if(this.world == null || this.world.isRemote())
+        if(this.level == null || this.level.isClientSide())
             return;
-        CompoundNBT craftingManagerNBT = this.craftingManager.serializeNBT();
-        CompoundNBT componentManagerNBT = this.componentManager.serializeNBT();
+        CompoundTag craftingManagerNBT = this.craftingManager.serializeNBT();
+        CompoundTag componentManagerNBT = this.componentManager.serializeNBT();
         if(id == null)
             id = getId();
         this.setId(id);
         this.craftingManager.deserializeNBT(craftingManagerNBT);
         this.componentManager.deserializeNBT(componentManagerNBT);
 
-        NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.world.getChunkAt(this.pos)), new SRefreshCustomMachineTilePacket(this.pos, id));
+        NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.level.getChunkAt(this.worldPosition)), new SRefreshCustomMachineTilePacket(this.worldPosition, id));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
     @Override
     public void resetProcess() {
-        if(this.world == null || this.world.isRemote())
+        if(this.level == null || this.level.isClientSide())
             return;
         this.craftingManager.reset();
     }
@@ -115,49 +115,57 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
 
     /** TileEntity Stuff **/
 
-    @Override
-    public void tick() {
-        if(this.world == null || this.componentManager == null || this.craftingManager == null)
+    public static void serverTick(Level level, BlockPos pos, BlockState state, CustomMachineTile tile) {
+        if(tile.componentManager == null || tile.craftingManager == null)
             return;
 
-        if(!this.world.isRemote()) {
-            this.world.getProfiler().startSection("Component tick");
-            this.componentManager.serverTick();
-            this.world.getProfiler().endStartSection("Crafting Manager tick");
-            try {
-                this.craftingManager.tick();
-            } catch (ComponentNotFoundException e) {
-                CustomMachinery.LOGGER.error(e.getMessage());
-                setPaused(true);
-            }
-            this.world.getProfiler().endSection();
-        } else {
-            this.componentManager.clientTick();
-
-            if(this.soundManager == null)
-                this.soundManager = new SoundManager(this.pos);
-            if(getMachine().getAppearance(getStatus()).getSound() != Registration.SOUND_PROPERTY.get().getDefaultValue() && !getMachine().getAppearance(getStatus()).getSound().getName().equals(this.soundManager.getSoundID()))
-                this.soundManager.setSound(getMachine().getAppearance(getStatus()).getSound());
-
-            if (this.craftingManager.getStatus() == MachineStatus.RUNNING && !this.soundManager.isPlaying())
-                this.soundManager.play();
-            else if(this.craftingManager.getStatus() != MachineStatus.RUNNING && this.soundManager.isPlaying())
-                this.soundManager.stop();
+        level.getProfiler().push("Component tick");
+        tile.componentManager.serverTick();
+        level.getProfiler().popPush("Crafting Manager tick");
+        try {
+            tile.craftingManager.tick();
+        } catch (ComponentNotFoundException e) {
+            CustomMachinery.LOGGER.error(e.getMessage());
+            tile.setPaused(true);
         }
+        level.getProfiler().pop();
+    }
+
+    public static void clientTick(Level level, BlockPos pos, BlockState state, CustomMachineTile tile) {
+        if(tile.componentManager == null || tile.craftingManager == null)
+            return;
+
+        tile.componentManager.clientTick();
+
+        if(tile.soundManager == null)
+            tile.soundManager = new SoundManager(pos);
+        if(tile.getMachine().getAppearance(tile.getStatus()).getSound() != Registration.SOUND_PROPERTY.get().getDefaultValue() && !tile.getMachine().getAppearance(tile.getStatus()).getSound().getLocation().equals(tile.soundManager.getSoundID()))
+            tile.soundManager.setSound(tile.getMachine().getAppearance(tile.getStatus()).getSound());
+
+        if (tile.craftingManager.getStatus() == MachineStatus.RUNNING && !tile.soundManager.isPlaying())
+            tile.soundManager.play();
+        else if(tile.craftingManager.getStatus() != MachineStatus.RUNNING && tile.soundManager.isPlaying())
+            tile.soundManager.stop();
     }
 
     @Override
-    protected void invalidateCaps() {
+    public void invalidateCaps() {
         super.invalidateCaps();
         if(this.componentManager != null)
             this.componentManager.getCapabilityComponents().forEach(ICapabilityComponent::invalidateCapability);
     }
 
     @Override
-    public void remove() {
-        if(this.world != null && this.world.isRemote() && this.soundManager != null)
+    public void setRemoved() {
+        if(this.level != null && this.level.isClientSide() && this.soundManager != null)
             this.soundManager.stop();
-        super.remove();
+        super.setRemoved();
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        MachineList.addMachine(this);
     }
 
     @Nonnull
@@ -173,34 +181,31 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
         return LazyOptional.empty();
     }
 
-    @ParametersAreNonnullByDefault
     @Override
-    public CompoundNBT write(CompoundNBT nbt) {
-        super.write(nbt);
+    public void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
         nbt.putString("machineID", this.id.toString());
         nbt.put("craftingManager", this.craftingManager.serializeNBT());
         nbt.put("componentManager", this.componentManager.serializeNBT());
-        return nbt;
     }
 
-    @ParametersAreNonnullByDefault
     @Override
-    public void read(BlockState state, CompoundNBT nbt) {
-        super.read(state, nbt);
-        if(nbt.contains("machineID", Constants.NBT.TAG_STRING) && getMachine() == CustomMachine.DUMMY)
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        if(nbt.contains("machineID", Tag.TAG_STRING) && getMachine() == CustomMachine.DUMMY)
             this.setId(new ResourceLocation(nbt.getString("machineID")));
 
-        if(nbt.contains("craftingManager", Constants.NBT.TAG_COMPOUND))
+        if(nbt.contains("craftingManager", Tag.TAG_COMPOUND))
             this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
 
-        if(nbt.contains("componentManager", Constants.NBT.TAG_COMPOUND))
+        if(nbt.contains("componentManager", Tag.TAG_COMPOUND))
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
     }
 
     //Needed for multiplayer sync
     @Override
-    public CompoundNBT getUpdateTag() {
-        CompoundNBT nbt = super.getUpdateTag();
+    public CompoundTag getUpdateTag() {
+        CompoundTag nbt = super.getUpdateTag();
         nbt.putString("machineID", getId().toString());
         return nbt;
     }
@@ -208,14 +213,16 @@ public class CustomMachineTile extends MachineTile implements ITickableTileEntit
     //Needed for multiplayer sync
     @Nullable
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(this.pos, 666, getUpdateTag());
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     //Needed for multiplayer sync
     @Override
-    public void onDataPacket(net.minecraft.network.NetworkManager net, SUpdateTileEntityPacket pkt) {
-        this.read(Registration.CUSTOM_MACHINE_BLOCK.get().getDefaultState(), pkt.getNbtCompound());
+    public void onDataPacket(net.minecraft.network.Connection net, ClientboundBlockEntityDataPacket pkt) {
+        CompoundTag nbt = pkt.getTag();
+        if(nbt != null)
+            this.load(nbt);
     }
 
     /**CONTAINER STUFF**/

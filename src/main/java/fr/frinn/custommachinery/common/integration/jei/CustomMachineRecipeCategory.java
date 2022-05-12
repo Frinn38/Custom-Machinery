@@ -3,35 +3,33 @@ package fr.frinn.custommachinery.common.integration.jei;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import fr.frinn.custommachinery.api.guielement.GuiElementType;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.api.integration.jei.*;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
-import mezz.jei.api.MethodsReturnNonnullByDefault;
-import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.IIngredientRenderer;
-import mezz.jei.api.ingredients.IIngredientType;
-import mezz.jei.api.ingredients.IIngredients;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.gui.GuiUtils;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachineRecipe> {
 
     private static final int ICON_SIZE = 10;
@@ -39,6 +37,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     private static final int TOOLTIP_HEIGHT = 192;
 
     private final CustomMachine machine;
+    private final RecipeType<CustomMachineRecipe> recipeType;
     private final IGuiHelper guiHelper;
     private final RecipeHelper recipeHelper;
     private final LoadingCache<CustomMachineRecipe, Ingredients> ingredientsCache;
@@ -53,6 +52,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
     public CustomMachineRecipeCategory(CustomMachine machine, IGuiHelper guiHelper) {
         this.machine = machine;
+        this.recipeType = RecipeType.create(machine.getId().getNamespace(), machine.getId().getPath(), CustomMachineRecipe.class);
         this.guiHelper = guiHelper;
         this.recipeHelper = new RecipeHelper(machine);
         this.setupRecipeDimensions();
@@ -76,7 +76,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
     //Find the minimal size for the recipe layout
     private void setupRecipeDimensions() {
-        if(Minecraft.getInstance().world == null)
+        if(Minecraft.getInstance().level == null)
             return;
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
@@ -97,7 +97,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
         this.offsetY = Math.max(minY, 0);
         this.width = Math.max(maxX - minX, 20);
         this.maxIconPerRow = this.width / (ICON_SIZE + 2);
-        int maxDisplayRequirement = Minecraft.getInstance().world.getRecipeManager().getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
+        int maxDisplayRequirement = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .filter(recipe -> recipe.getMachine().equals(this.machine.getId()))
                 .mapToInt(recipe -> recipe.getDisplayInfoRequirements().size())
@@ -108,18 +108,25 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     }
 
     @Override
-    public ResourceLocation getUid() {
-        return this.machine.getId();
+    public RecipeType<CustomMachineRecipe> getRecipeType() {
+        return this.recipeType;
     }
 
+    //Safe delete when needed
+    @Override
+    public ResourceLocation getUid() {
+        return getRecipeType().getUid();
+    }
+
+    //Safe delete when needed
     @Override
     public Class<? extends CustomMachineRecipe> getRecipeClass() {
-        return CustomMachineRecipe.class;
+        return getRecipeType().getRecipeClass();
     }
 
     @Override
-    public String getTitle() {
-        return this.machine.getName().getString();
+    public Component getTitle() {
+        return this.machine.getName();
     }
 
     @Override
@@ -129,18 +136,20 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
 
     @Override
     public IDrawable getIcon() {
-        return this.guiHelper.createDrawableIngredient(CustomMachineItem.makeMachineItem(this.machine.getId()));
+        return this.guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, CustomMachineItem.makeMachineItem(this.machine.getId()));
     }
 
+    /*
     //Give all ingredients to jei for a recipe, used when searching for uses or recipes for an ingredient (player press U or R).
     @Override
     public void setIngredients(CustomMachineRecipe recipe, IIngredients ingredients) {
         this.ingredientsCache.getUnchecked(recipe).finish(ingredients);
     }
+    */
 
     //Set slots, fluid and energy in the layout
     @Override
-    public void setRecipe(IRecipeLayout layout, CustomMachineRecipe recipe, IIngredients ingredients) {
+    public void setRecipe(IRecipeLayoutBuilder layout, CustomMachineRecipe recipe, IFocusGroup focusGroup) {/*
         //Set the transfer item button to its place
         layout.moveRecipeTransferButton(this.width - 11, this.height - 11);
 
@@ -178,12 +187,12 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                 );
             }
             index.incrementAndGet();
-        });
+        });*/
         //TODO: log if some requirements were not placed in any elements ?
     }
 
     @Override
-    public void draw(CustomMachineRecipe recipe, MatrixStack matrix, double mouseX, double mouseY) {
+    public void draw(CustomMachineRecipe recipe, IRecipeSlotsView slotsView, PoseStack matrix, double mouseX, double mouseY) {
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         elements.stream()
@@ -192,16 +201,16 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                     int x = element.getX() - this.offsetX;
                     int y = element.getY() - this.offsetY;
                     IJEIElementRenderer<IGuiElement> renderer = (IJEIElementRenderer<IGuiElement>)element.getType().getRenderer();
-                    matrix.push();
+                    matrix.pushPose();
                     matrix.translate(-this.offsetX, -this.offsetY, 0);
                     renderer.renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY);
-                    matrix.pop();
+                    matrix.popPose();
                     if(renderer.isHoveredInJei(element, x, y, (int)mouseX, (int)mouseY))
-                        GuiUtils.drawHoveringText(matrix, renderer.getJEITooltips(element, recipe), (int)mouseX, (int)mouseY, TOOLTIP_WIDTH, TOOLTIP_HEIGHT, TOOLTIP_WIDTH, Minecraft.getInstance().fontRenderer);
+                        ClientHandler.drawHoveringText(matrix, renderer.getJEITooltips(element, recipe), (int)mouseX, (int)mouseY, Minecraft.getInstance().font);
                 });
 
         //Render the line between the gui elements and the requirements icons
-        AbstractGui.fill(matrix, -3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
+        GuiComponent.fill(matrix, -3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
 
         //Render the requirements that don't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
@@ -213,17 +222,17 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                 index.set(0);
                 row.incrementAndGet();
             }
-            matrix.push();
+            matrix.pushPose();
             matrix.translate(x, y, 0.0D);
             info.renderIcon(matrix, ICON_SIZE);
-            matrix.pop();
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().currentScreen != null)
-                info.renderTooltips(matrix, (int)mouseX, (int)mouseY, TOOLTIP_WIDTH, TOOLTIP_HEIGHT);
+            matrix.popPose();
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
+                info.renderTooltips(matrix, (int)mouseX, (int)mouseY);
         });
     }
 
     @Override
-    public boolean handleClick(CustomMachineRecipe recipe, double mouseX, double mouseY, int mouseButton) {
+    public boolean handleInput(CustomMachineRecipe recipe, double mouseX, double mouseY, InputConstants.Key mouseButton) {
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
         return recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::isVisible).anyMatch(info -> {
@@ -233,7 +242,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                 index.set(0);
                 row.incrementAndGet();
             }
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().currentScreen != null)
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
                 return info.handleClick(this.machine, mouseButton);
             return false;
         });

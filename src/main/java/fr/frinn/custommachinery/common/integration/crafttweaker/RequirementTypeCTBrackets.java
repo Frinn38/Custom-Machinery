@@ -1,21 +1,20 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker;
 
-import com.blamejared.crafttweaker.api.annotations.BracketDumper;
-import com.blamejared.crafttweaker.api.annotations.BracketResolver;
-import com.blamejared.crafttweaker.api.annotations.BracketValidator;
-import com.blamejared.crafttweaker.api.annotations.ZenRegister;
-import com.blamejared.crafttweaker.api.brackets.CommandStringDisplayable;
+import com.blamejared.crafttweaker.api.annotation.BracketDumper;
+import com.blamejared.crafttweaker.api.annotation.BracketResolver;
+import com.blamejared.crafttweaker.api.annotation.BracketValidator;
+import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.bracket.CommandStringDisplayable;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import org.openzen.zencode.java.ZenCodeType;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.resources.ResourceLocation;
+import org.openzen.zencode.java.ZenCodeType.Name;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @ZenRegister
-@ZenCodeType.Name("mods.custommachinery.RequirementTypeBracket")
+@Name("mods.custommachinery.RequirementTypeBracket")
 public class RequirementTypeCTBrackets {
 
     @BracketResolver("requirementtype")
@@ -39,12 +38,12 @@ public class RequirementTypeCTBrackets {
 
     @BracketDumper("requirementtype")
     public static Collection<String> dumpBrackets() {
-        return Registration.REQUIREMENT_TYPE_REGISTRY.get().getValues().stream().map(type -> "<requirementtype:" + type.getRegistryName() + ">").collect(Collectors.toList());
+        return Registration.REQUIREMENT_TYPE_REGISTRY.get().getValues().stream().map(type -> "<requirementtype:" + type.getRegistryName() + ">").toList();
     }
 
     public static class CTRequirementType implements CommandStringDisplayable {
 
-        private RequirementType<?> type;
+        private final RequirementType<?> type;
 
         public CTRequirementType(RequirementType<?> type) {
             this.type = type;

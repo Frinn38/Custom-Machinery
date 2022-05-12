@@ -1,6 +1,6 @@
-package fr.frinn.custommachinery.apiimpl.network.syncable;
+package fr.frinn.custommachinery.common.network.syncable;
 
-import fr.frinn.custommachinery.apiimpl.network.data.IntegerData;
+import fr.frinn.custommachinery.common.network.data.IntegerData;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

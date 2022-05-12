@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -18,21 +18,21 @@ public class CGuiElementClickPacket {
         this.type = type;
     }
 
-    public static void encode(CGuiElementClickPacket pkt, PacketBuffer buf) {
+    public static void encode(CGuiElementClickPacket pkt, FriendlyByteBuf buf) {
         buf.writeVarInt(pkt.element);
         buf.writeByte(pkt.type);
     }
 
-    public static CGuiElementClickPacket decode(PacketBuffer buf) {
+    public static CGuiElementClickPacket decode(FriendlyByteBuf buf) {
         return new CGuiElementClickPacket(buf.readVarInt(), buf.readByte());
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
         if(context.get().getDirection() == NetworkDirection.PLAY_TO_SERVER)
             context.get().enqueueWork(() -> {
-                ServerPlayerEntity player = context.get().getSender();
-                if(player != null && player.openContainer instanceof CustomMachineContainer)
-                    ((CustomMachineContainer)player.openContainer).elementClicked(this.element, this.type);
+                ServerPlayer player = context.get().getSender();
+                if(player != null && player.containerMenu instanceof CustomMachineContainer)
+                    ((CustomMachineContainer)player.containerMenu).elementClicked(this.element, this.type);
             });
         context.get().setPacketHandled(true);
     }

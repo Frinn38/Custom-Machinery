@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.apiimpl.component.builder;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.TextComponent;
 
 public class StringComponentBuilderProperty extends AbstractComponentBuilderProperty<String> {
 
@@ -17,9 +17,9 @@ public class StringComponentBuilderProperty extends AbstractComponentBuilderProp
     }
 
     @Override
-    public Widget getAsWidget(int x, int y, int width, int height) {
-        TextFieldWidget widget = new TextFieldWidget(Minecraft.getInstance().fontRenderer, x, y, width, height, new StringTextComponent(getName()));
-        widget.setText(this.get());
+    public AbstractWidget getAsWidget(int x, int y, int width, int height) {
+        EditBox widget = new EditBox(Minecraft.getInstance().font, x, y, width, height, new TextComponent(getName()));
+        widget.setValue(this.get());
         widget.setResponder(this::set);
         return widget;
     }

@@ -1,18 +1,22 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker;
 
 import com.blamejared.crafttweaker.api.CraftTweakerAPI;
-import com.blamejared.crafttweaker.api.actions.IRuntimeAction;
-import com.blamejared.crafttweaker.api.annotations.ZenRegister;
+import com.blamejared.crafttweaker.api.action.base.IRuntimeAction;
+import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import org.openzen.zencode.java.ZenCodeType.*;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import org.openzen.zencode.java.ZenCodeType.Method;
+import org.openzen.zencode.java.ZenCodeType.Name;
+import org.openzen.zencode.java.ZenCodeType.OptionalDouble;
+import org.openzen.zencode.java.ZenCodeType.OptionalInt;
+import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +50,11 @@ public class CustomMachineCTUpgradeBuilder {
             throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + this.item.getRegistryName());
         if(this.modifiers.isEmpty())
             throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + this.item.getRegistryName());
-        ITextComponent tooltip;
+        Component tooltip;
         try {
-            tooltip = ITextComponent.Serializer.getComponentFromJson(this.tooltip);
+            tooltip = Component.Serializer.fromJson(this.tooltip);
         } catch (Exception e) {
-            tooltip = new TranslationTextComponent(this.tooltip);
+            tooltip = new TranslatableComponent(this.tooltip);
         }
         MachineUpgrade upgrade = new MachineUpgrade(this.item, this.machines, this.modifiers, tooltip, this.maxAmount);
         CraftTweakerAPI.apply(new AddMachineUpgradeAction(upgrade));

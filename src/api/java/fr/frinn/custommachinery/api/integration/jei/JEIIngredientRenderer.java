@@ -1,19 +1,17 @@
 package fr.frinn.custommachinery.api.integration.jei;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.TooltipFlag;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class JEIIngredientRenderer<T, E extends IGuiElement> implements IIngredientRenderer<T> {
 
     private final E element;
@@ -25,19 +23,16 @@ public abstract class JEIIngredientRenderer<T, E extends IGuiElement> implements
     public abstract IIngredientType<T> getType();
 
     @Override
-    public void render(MatrixStack matrix, int x, int y, @Nullable T ingredient) {
-        matrix.push();
-        matrix.translate(x, y, 0);
-        this.render(matrix, 0, 0, this.element, ingredient);
-        matrix.pop();
+    public void render(PoseStack matrix, @Nullable T ingredient) {
+        this.render(matrix, this.element, ingredient);
     }
 
     @Override
-    public List<ITextComponent> getTooltip(T ingredient, ITooltipFlag iTooltipFlag) {
-        return getTooltip(ingredient, this.element, iTooltipFlag);
+    public List<Component> getTooltip(T ingredient, TooltipFlag flag) {
+        return getTooltip(ingredient, this.element, flag);
     }
 
-    public abstract void render(MatrixStack matrix, int x, int y, E element, @Nullable T ingredient);
+    public abstract void render(PoseStack matrix, E element, @Nullable T ingredient);
 
-    public abstract List<ITextComponent> getTooltip(T ingredient, E element, ITooltipFlag iTooltipFlag);
+    public abstract List<Component> getTooltip(T ingredient, E element, TooltipFlag flag);
 }

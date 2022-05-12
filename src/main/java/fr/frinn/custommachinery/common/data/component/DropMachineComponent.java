@@ -6,16 +6,16 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity.RemovalReason;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class DropMachineComponent extends AbstractMachineComponent {
 
@@ -29,25 +29,25 @@ public class DropMachineComponent extends AbstractMachineComponent {
     }
 
     public int getItemAmount(List<IIngredient<Item>> items, double radius, boolean whitelist) {
-        List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).collect(Collectors.toList());
-        AxisAlignedBB box = new AxisAlignedBB(getManager().getTile().getPos().add(radius, radius, radius), getManager().getTile().getPos().add(-radius, -radius, -radius));
+        List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
+        AABB box = new AABB(getManager().getTile().getBlockPos().offset(radius, radius, radius), getManager().getTile().getBlockPos().offset(-radius, -radius, -radius));
         return getManager().getWorld()
-                .getEntitiesWithinAABB(ItemEntity.class, box, entity -> filter.contains(entity.getItem().getItem()) == whitelist && entity.getPosition().withinDistance(getManager().getTile().getPos(), radius))
+                .getEntitiesOfClass(ItemEntity.class, box, entity -> filter.contains(entity.getItem().getItem()) == whitelist && entity.blockPosition().closerThan(getManager().getTile().getBlockPos(), radius))
                 .stream()
                 .mapToInt(entity -> entity.getItem().getCount())
                 .sum();
     }
 
     public void consumeItem(List<IIngredient<Item>> items, int amount, double radius, boolean whitelist) {
-        List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).collect(Collectors.toList());
+        List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
         AtomicInteger toRemove = new AtomicInteger(amount);
-        AxisAlignedBB box = new AxisAlignedBB(getManager().getTile().getPos().add(radius, radius, radius), getManager().getTile().getPos().add(-radius, -radius, -radius));
+        AABB box = new AABB(getManager().getTile().getBlockPos().offset(radius, radius, radius), getManager().getTile().getBlockPos().offset(-radius, -radius, -radius));
         getManager().getWorld()
-                .getEntitiesWithinAABB(ItemEntity.class, box, entity -> filter.contains(entity.getItem().getItem()) == whitelist && entity.getPosition().withinDistance(getManager().getTile().getPos(), radius))
+                .getEntitiesOfClass(ItemEntity.class, box, entity -> filter.contains(entity.getItem().getItem()) == whitelist && entity.blockPosition().closerThan(getManager().getTile().getBlockPos(), radius))
                 .forEach(entity -> {
                     int maxRemove = Math.min(toRemove.get(), entity.getItem().getCount());
                     if(maxRemove == entity.getItem().getCount())
-                        entity.remove();
+                        entity.remove(RemovalReason.DISCARDED);
                     else
                         entity.getItem().shrink(maxRemove);
                     toRemove.addAndGet(-maxRemove);
@@ -55,9 +55,9 @@ public class DropMachineComponent extends AbstractMachineComponent {
     }
 
     public boolean produceItem(ItemStack stack) {
-        World world = getManager().getWorld();
-        BlockPos pos = getManager().getTile().getPos().up();
+        Level world = getManager().getWorld();
+        BlockPos pos = getManager().getTile().getBlockPos().above();
         ItemEntity entity = new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), stack);
-        return world.addEntity(entity);
+        return world.addFreshEntity(entity);
     }
 }

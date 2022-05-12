@@ -15,8 +15,8 @@ import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 public class WeatherRequirement extends AbstractRequirement<WeatherMachineComponent> implements ITickableRequirement<WeatherMachineComponent>, IDisplayInfoRequirement {
 
@@ -56,7 +56,7 @@ public class WeatherRequirement extends AbstractRequirement<WeatherMachineCompon
     public CraftingResult processStart(WeatherMachineComponent component, ICraftingContext context) {
         if(component.hasWeather(this.weather, this.onMachine))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.weather.error", this.weather));
+        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.weather.error", this.weather));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class WeatherRequirement extends AbstractRequirement<WeatherMachineCompon
     public CraftingResult processTick(WeatherMachineComponent component, ICraftingContext context) {
         if(component.hasWeather(this.weather, this.onMachine))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.weather.error", this.weather));
+        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.weather.error", this.weather));
     }
 
     @Override
@@ -83,9 +83,9 @@ public class WeatherRequirement extends AbstractRequirement<WeatherMachineCompon
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.weather.info", this.weather.getText()));
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.weather.info", this.weather.getText()));
         if(this.onMachine)
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.weather.info.sky"));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.weather.info.sky"));
         info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.SUNFLOWER);
     }

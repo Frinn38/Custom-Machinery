@@ -7,10 +7,10 @@ import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CustomMachineDamageSource;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.util.Lazy;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,43 +31,43 @@ public class EntityMachineComponent extends AbstractMachineComponent {
     }
 
     public int getEntitiesInRadius(int radius, Predicate<Entity> filter) {
-        BlockPos pos = getManager().getTile().getPos();
-        AxisAlignedBB bb = new AxisAlignedBB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
+        BlockPos pos = getManager().getTile().getBlockPos();
+        AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
         return getManager().getWorld()
-                .getEntitiesWithinAABB(Entity.class, bb, entity -> entity.getDistanceSq(Utils.vec3dFromBlockPos(pos)) <= radius * radius && filter.test(entity))
+                .getEntitiesOfClass(Entity.class, bb, entity -> entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius && filter.test(entity))
                 .size();
     }
 
     public double getEntitiesInRadiusHealth(int radius, Predicate<Entity> filter) {
-        BlockPos pos = getManager().getTile().getPos();
-        AxisAlignedBB bb = new AxisAlignedBB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
+        BlockPos pos = getManager().getTile().getBlockPos();
+        AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
         return getManager().getWorld()
-                .getEntitiesWithinAABB(LivingEntity.class, bb, entity -> filter.test(entity) && entity.getDistanceSq(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
+                .getEntitiesOfClass(LivingEntity.class, bb, entity -> filter.test(entity) && entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
                 .stream()
                 .mapToDouble(LivingEntity::getHealth)
                 .sum();
     }
 
     public void removeEntitiesHealth(int radius, Predicate<Entity> filter, int amount) {
-        BlockPos pos = getManager().getTile().getPos();
+        BlockPos pos = getManager().getTile().getBlockPos();
         AtomicInteger toRemove = new AtomicInteger(amount);
-        AxisAlignedBB bb = new AxisAlignedBB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
+        AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
         getManager().getWorld()
-                .getEntitiesWithinAABB(LivingEntity.class, bb, entity -> filter.test(entity) && entity.getDistanceSq(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
+                .getEntitiesOfClass(LivingEntity.class, bb, entity -> filter.test(entity) && entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
                 .forEach(entity -> {
                     int maxRemove = Math.min((int)entity.getHealth(), toRemove.get());
-                    entity.attackEntityFrom(this.damageSource.get(), maxRemove);
+                    entity.hurt(this.damageSource.get(), maxRemove);
                     toRemove.addAndGet(-maxRemove);
                 });
     }
 
     public void killEntities(int radius, Predicate<Entity> filter, int amount) {
-        BlockPos pos = getManager().getTile().getPos();
-        AxisAlignedBB bb = new AxisAlignedBB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
+        BlockPos pos = getManager().getTile().getBlockPos();
+        AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
         getManager().getWorld()
-                .getEntitiesWithinAABB(LivingEntity.class, bb, entity -> filter.test(entity) && entity.getDistanceSq(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
+                .getEntitiesOfClass(LivingEntity.class, bb, entity -> filter.test(entity) && entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
                 .stream()
                 .limit(amount)
-                .forEach(entity -> entity.attackEntityFrom(this.damageSource.get(), Float.MAX_VALUE));
+                .forEach(entity -> entity.hurt(this.damageSource.get(), Float.MAX_VALUE));
     }
 }

@@ -1,11 +1,11 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.client.ClientPacketHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -19,12 +19,12 @@ public class SRefreshCustomMachineTilePacket {
         this.machine = machine;
     }
 
-    public static void encode(SRefreshCustomMachineTilePacket pkt, PacketBuffer buf) {
+    public static void encode(SRefreshCustomMachineTilePacket pkt, FriendlyByteBuf buf) {
         buf.writeBlockPos(pkt.pos);
         buf.writeResourceLocation(pkt.machine);
     }
 
-    public static SRefreshCustomMachineTilePacket decode(PacketBuffer buf) {
+    public static SRefreshCustomMachineTilePacket decode(FriendlyByteBuf buf) {
         BlockPos pos = buf.readBlockPos();
         ResourceLocation machine = buf.readResourceLocation();
         return new SRefreshCustomMachineTilePacket(pos, machine);

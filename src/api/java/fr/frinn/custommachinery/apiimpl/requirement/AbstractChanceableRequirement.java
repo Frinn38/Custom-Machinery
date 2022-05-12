@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import java.util.Random;
 
@@ -18,7 +18,7 @@ public abstract class AbstractChanceableRequirement<T extends IMachineComponent>
 
     @Override
     public void setChance(double chance) {
-        this.chance = MathHelper.clamp(chance, 0.0D, 1.0D);
+        this.chance = Mth.clamp(chance, 0.0D, 1.0D);
     }
 
     @Override

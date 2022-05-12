@@ -1,23 +1,23 @@
-package fr.frinn.custommachinery.apiimpl.network.data;
+package fr.frinn.custommachinery.common.network.data;
 
-import fr.frinn.custommachinery.api.network.DataType;
-import net.minecraft.network.PacketBuffer;
+import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class DoubleData extends Data<Double> {
 
     private final double value;
 
     public DoubleData(short id, double value) {
-        super(DataType.DOUBLE_DATA.get(), id);
+        super(Registration.DOUBLE_DATA.get(), id);
         this.value = value;
     }
 
-    public DoubleData(short id, PacketBuffer buffer) {
+    public DoubleData(short id, FriendlyByteBuf buffer) {
         this(id, buffer.readDouble());
     }
 
     @Override
-    public void writeData(PacketBuffer buffer) {
+    public void writeData(FriendlyByteBuf buffer) {
         super.writeData(buffer);
         buffer.writeDouble(this.value);
     }

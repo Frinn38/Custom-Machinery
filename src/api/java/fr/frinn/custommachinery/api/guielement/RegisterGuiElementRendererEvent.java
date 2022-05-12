@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.api.guielement;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.lifecycle.IModBusEvent;
+import net.minecraftforge.fml.event.IModBusEvent;
 
 import java.util.HashMap;
 import java.util.Map;

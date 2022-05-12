@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.common.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.File;
 import java.util.Locale;
@@ -82,21 +82,21 @@ public class MachineLocation {
         CRAFTTWEAKER,
         KUBEJS;
 
-        public TranslationTextComponent getTranslatedName() {
-            return new TranslationTextComponent("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
+        public TranslatableComponent getTranslatedName() {
+            return new TranslatableComponent("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
         }
 
         @SuppressWarnings("ConstantConditions")
         public int getColor() {
             switch (this) {
                 case DEFAULT:
-                    return TextFormatting.BLACK.getColor();
+                    return ChatFormatting.BLACK.getColor();
                 case DATAPACK:
-                    return TextFormatting.DARK_GREEN.getColor();
+                    return ChatFormatting.DARK_GREEN.getColor();
                 case KUBEJS:
-                    return TextFormatting.DARK_PURPLE.getColor();
+                    return ChatFormatting.DARK_PURPLE.getColor();
                 case CRAFTTWEAKER:
-                    return TextFormatting.DARK_AQUA.getColor();
+                    return ChatFormatting.DARK_AQUA.getColor();
             }
             return 0;
         }

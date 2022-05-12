@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
@@ -11,12 +11,13 @@ import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.list.ExtendedList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -24,22 +25,21 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
+public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEntry> {
 
     private MachineComponentScreen parent;
 
     private EnumButton<MachineComponentType<?>> builderTypeWidget;
     private TexturedButton addButton;
     private TexturedButton removeButton;
-    private Map<String, Widget> propertyWidgets;
+    private Map<String, AbstractWidget> propertyWidgets;
 
     public ComponentList(Minecraft mc, int width, int height, int x, int y, int entryHeight, MachineComponentScreen parent) {
         super(mc, width, height, y, y + height, entryHeight);
         this.setLeftPos(x);
-        this.func_244605_b(false);
-        this.func_244606_c(false);
+        this.setRenderBackground(false);
+        this.setRenderTopAndBottom(false);
         this.centerListVertically = false;
         this.setRenderSelection(false);
         this.parent = parent;
@@ -49,9 +49,9 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
                 63,
                 20,
                 button -> {},
-                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.component.buildertypewidget"), mouseX, mouseY),
+                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.component.buildertypewidget"), mouseX, mouseY),
                 MachineComponentType::getTranslatedName,
-                Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(MachineComponentType::haveGUIBuilder).collect(Collectors.toList()),
+                Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(MachineComponentType::haveGUIBuilder).toList(),
                 Registration.ENERGY_MACHINE_COMPONENT.get()
         );
         this.parent.getChildrens().add(this.builderTypeWidget);
@@ -60,10 +60,10 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
                 y + 136,
                 20,
                 20,
-                StringTextComponent.EMPTY,
+                TextComponent.EMPTY,
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/create_icon.png"),
                 button -> this.addComponent(this.builderTypeWidget.getValue().getGUIBuilder().get()),
-                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.machineloading.create"), mouseX, mouseY)
+                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.machineloading.create"), mouseX, mouseY)
         );
         this.parent.getChildrens().add(this.addButton);
         this.removeButton = new TexturedButton(
@@ -71,13 +71,13 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
                 y + 136,
                 20,
                 20,
-                StringTextComponent.EMPTY,
+                TextComponent.EMPTY,
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/delete_icon.png"),
                 button -> {
                     if(getSelected() != null)
                         this.removeEntry(this.getSelected());
                 },
-                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.machineloading.delete"), mouseX, mouseY)
+                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.machineloading.delete"), mouseX, mouseY)
         );
         this.parent.getChildrens().add(this.removeButton);
         this.propertyWidgets = new HashMap<>();
@@ -117,16 +117,16 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
     //TODO: Add scrollbar
     @ParametersAreNonnullByDefault
     @Override
-    public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
-        double s = Minecraft.getInstance().getMainWindow().getGuiScaleFactor();
-        int screenHeight = Minecraft.getInstance().getMainWindow().getHeight() / (int)s;
+    public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
+        double s = Minecraft.getInstance().getWindow().getGuiScale();
+        int screenHeight = Minecraft.getInstance().getWindow().getScreenHeight() / (int)s;
         RenderSystem.enableScissor(this.x0 * (int)s, (screenHeight - this.y0 - this.height) * (int)s, this.width * (int)s, this.height * (int)s);
         super.render(matrix, mouseX, mouseY, partialTicks);
         RenderSystem.disableScissor();
         this.builderTypeWidget.render(matrix, mouseX, mouseY, partialTicks);
         this.addButton.render(matrix, mouseX, mouseY, partialTicks);
         this.removeButton.render(matrix, mouseX, mouseY, partialTicks);
-        this.propertyWidgets.forEach((name, widget) -> ClientHandler.drawSizedString(this.minecraft.fontRenderer, matrix, name, this.parent.xPos + 5, widget.y + 5, 40, 1.0F,0));
+        this.propertyWidgets.forEach((name, widget) -> ClientHandler.drawSizedString(this.minecraft.font, matrix, name, this.parent.xPos + 5, widget.y + 5, 40, 1.0F,0));
         this.propertyWidgets.forEach((name, widget) -> widget.render(matrix, mouseX, mouseY, partialTicks));
     }
 
@@ -144,7 +144,7 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
         }
     }
 
-    public static class ComponentEntry extends ExtendedList.AbstractListEntry<ComponentEntry> {
+    public static class ComponentEntry extends ObjectSelectionList.Entry<ComponentEntry> {
 
         private ComponentList list;
         IMachineComponentBuilder<?> componentBuilder;
@@ -156,26 +156,31 @@ public class ComponentList extends ExtendedList<ComponentList.ComponentEntry> {
 
         @ParametersAreNonnullByDefault
         @Override
-        public void render(MatrixStack matrix, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
+        public void render(PoseStack matrix, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
             if(this.componentBuilder != null) {
-                int nameWidth = Minecraft.getInstance().fontRenderer.getStringWidth(this.componentBuilder.getType().getTranslatedName().getString());
-                float scale = MathHelper.clamp((float)(width - 6) / (float) nameWidth, 0, 1.0F);
-                matrix.push();
+                int nameWidth = Minecraft.getInstance().font.width(this.componentBuilder.getType().getTranslatedName().getString());
+                float scale = Mth.clamp((float)(width - 6) / (float) nameWidth, 0, 1.0F);
+                matrix.pushPose();
                 matrix.translate(x, y, 0);
                 matrix.scale(scale, scale, 0.0F);
                 if(this.list.getSelected() != this)
-                    Minecraft.getInstance().fontRenderer.drawString(matrix, this.componentBuilder.getType().getTranslatedName().getString(), 0, 0, 0);
+                    Minecraft.getInstance().font.draw(matrix, this.componentBuilder.getType().getTranslatedName().getString(), 0, 0, 0);
                 else
-                    Minecraft.getInstance().fontRenderer.drawStringWithShadow(matrix, this.componentBuilder.getType().getTranslatedName().getString(), 0, 0, Color.RED.getRGB());
-                matrix.pop();
+                    Minecraft.getInstance().font.drawShadow(matrix, this.componentBuilder.getType().getTranslatedName().getString(), 0, 0, Color.RED.getRGB());
+                matrix.popPose();
             }
-            else Minecraft.getInstance().fontRenderer.drawString(matrix, "NULL", x, y, 0);
+            else Minecraft.getInstance().font.draw(matrix, "NULL", x, y, 0);
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             this.list.setSelected(this);
             return true;
+        }
+
+        @Override
+        public Component getNarration() {
+            return null;
         }
 
         public IMachineComponentBuilder<?> getComponentBuilder() {

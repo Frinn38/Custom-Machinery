@@ -13,7 +13,7 @@ public class BlockIngredient implements IIngredient<PartialBlockState> {
     public static final BlockIngredient ANY = new BlockIngredient(PartialBlockState.ANY);
     public static final Codec<BlockIngredient> CODEC = Codecs.PARTIAL_BLOCK_STATE_CODEC.xmap(BlockIngredient::new, ingredient -> ingredient.partialBlockState);
 
-    private PartialBlockState partialBlockState;
+    private final PartialBlockState partialBlockState;
 
     public BlockIngredient(PartialBlockState partialBlockState) {
         this.partialBlockState = partialBlockState;

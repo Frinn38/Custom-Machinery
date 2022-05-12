@@ -9,20 +9,20 @@ import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.List;
 
@@ -31,52 +31,52 @@ public class ClientPacketHandler {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static void handleCraftingManagerStatusChangedPacket(BlockPos pos, MachineStatus status) {
-        if(Minecraft.getInstance().world != null) {
-            TileEntity tile = Minecraft.getInstance().world.getTileEntity(pos);
+        if(Minecraft.getInstance().level != null) {
+            BlockEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machineTile = (CustomMachineTile)tile;
                 CraftingManager manager = machineTile.craftingManager;
                 if(status != manager.getStatus()) {
                     manager.setStatus(status);
                     machineTile.requestModelDataUpdate();
-                    Minecraft.getInstance().world.notifyBlockUpdate(tile.getPos(), tile.getBlockState(), tile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
+                    Minecraft.getInstance().level.sendBlockUpdated(tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), Block.UPDATE_ALL);
                 }
             }
         }
     }
 
     public static void handleRefreshCustomMachineTilePacket(BlockPos pos, ResourceLocation machine) {
-        if(Minecraft.getInstance().world != null) {
-            TileEntity tile = Minecraft.getInstance().world.getTileEntity(pos);
+        if(Minecraft.getInstance().level != null) {
+            BlockEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machineTile = (CustomMachineTile) tile;
                 machineTile.setId(machine);
                 machineTile.requestModelDataUpdate();
-                Minecraft.getInstance().world.notifyBlockUpdate(pos, machineTile.getBlockState(), machineTile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
+                Minecraft.getInstance().level.sendBlockUpdated(pos, machineTile.getBlockState(), machineTile.getBlockState(), Block.UPDATE_ALL);
             }
         }
     }
 
     public static void handleStructureCreatorPacket(JsonElement keysJson, JsonElement patternJson) {
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if(player == null)
             return;
         JsonObject both = new JsonObject();
         both.add("keys", keysJson);
         both.add("pattern", patternJson);
         String ctKubeString = ".requireStructure(" + patternJson.toString() + ", " + keysJson.toString() + ")";
-        ITextComponent jsonText = new StringTextComponent("[JSON]").modifyStyle(style -> style.mergeWithFormatting(TextFormatting.YELLOW).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(both.toString()))).setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, both.toString())));
-        ITextComponent prettyJsonText = new StringTextComponent("[PRETTY JSON]").modifyStyle(style -> style.mergeWithFormatting(TextFormatting.GOLD).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(GSON.toJson(both)))).setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, GSON.toJson(both))));
-        ITextComponent crafttweakerText = new StringTextComponent("[CRAFTTWEAKER]").modifyStyle(style -> style.mergeWithFormatting(TextFormatting.AQUA).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(ctKubeString))).setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
-        ITextComponent kubeJSText = new StringTextComponent("[KUBEJS]").modifyStyle(style -> style.mergeWithFormatting(TextFormatting.DARK_PURPLE).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(ctKubeString))).setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
-        ITextComponent message = new TranslationTextComponent("custommachinery.structure_creator.message", jsonText, prettyJsonText, crafttweakerText, kubeJSText);
-        player.sendMessage(message, Util.DUMMY_UUID);
+        Component jsonText = new TextComponent("[JSON]").withStyle(style -> style.applyFormats(ChatFormatting.YELLOW).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(both.toString()))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, both.toString())));
+        Component prettyJsonText = new TextComponent("[PRETTY JSON]").withStyle(style -> style.applyFormats(ChatFormatting.GOLD).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(GSON.toJson(both)))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, GSON.toJson(both))));
+        Component crafttweakerText = new TextComponent("[CRAFTTWEAKER]").withStyle(style -> style.applyFormats(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
+        Component kubeJSText = new TextComponent("[KUBEJS]").withStyle(style -> style.applyFormats(ChatFormatting.DARK_PURPLE).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
+        Component message = new TranslatableComponent("custommachinery.structure_creator.message", jsonText, prettyJsonText, crafttweakerText, kubeJSText);
+        player.sendMessage(message, Util.NIL_UUID);
     }
 
     public static void handleUpdateContainerPacket(int windowId, List<IData<?>> data) {
-        ClientPlayerEntity player = Minecraft.getInstance().player;
-        if(player != null && player.openContainer instanceof SyncableContainer && player.openContainer.windowId == windowId) {
-            SyncableContainer container = (SyncableContainer)player.openContainer;
+        LocalPlayer player = Minecraft.getInstance().player;
+        if(player != null && player.containerMenu instanceof SyncableContainer && player.containerMenu.containerId == windowId) {
+            SyncableContainer container = (SyncableContainer)player.containerMenu;
             data.forEach(container::handleData);
         }
     }

@@ -1,7 +1,7 @@
-package fr.frinn.custommachinery.apiimpl.network.syncable;
+package fr.frinn.custommachinery.common.network.syncable;
 
-import fr.frinn.custommachinery.apiimpl.network.data.ItemStackData;
-import net.minecraft.item.ItemStack;
+import fr.frinn.custommachinery.common.network.data.ItemStackData;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -18,7 +18,7 @@ public abstract class ItemStackSyncable extends AbstractSyncable<ItemStackData, 
         ItemStack value = get();
         boolean needSync;
         if(this.lastKnownValue != null)
-            needSync = !ItemStack.areItemStacksEqual(value, this.lastKnownValue);
+            needSync = !ItemStack.matches(value, this.lastKnownValue);
         else needSync = true;
         this.lastKnownValue = value.copy();
         return needSync;

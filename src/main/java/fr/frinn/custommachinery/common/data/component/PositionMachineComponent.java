@@ -5,10 +5,10 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 
 public class PositionMachineComponent extends AbstractMachineComponent {
 
@@ -22,14 +22,14 @@ public class PositionMachineComponent extends AbstractMachineComponent {
     }
 
     public BlockPos getPosition() {
-        return this.getManager().getTile().getPos();
+        return this.getManager().getTile().getBlockPos();
     }
 
     public Biome getBiome() {
-        return this.getManager().getWorld().getBiome(getPosition());
+        return this.getManager().getWorld().getBiome(getPosition()).value();
     }
 
-    public RegistryKey<World> getDimension() {
-        return getManager().getWorld().getDimensionKey();
+    public ResourceKey<Level> getDimension() {
+        return getManager().getWorld().dimension();
     }
 }

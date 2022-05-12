@@ -1,27 +1,28 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.function;
 
-import com.blamejared.crafttweaker.api.annotations.ZenRegister;
-import com.blamejared.crafttweaker.impl.util.text.MCTextComponent;
+import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
-import net.minecraft.util.text.TranslationTextComponent;
-import org.openzen.zencode.java.ZenCodeType;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import org.openzen.zencode.java.ZenCodeType.Method;
+import org.openzen.zencode.java.ZenCodeType.Name;
 
 @ZenRegister
-@ZenCodeType.Name("mods.custommachinery.Result")
+@Name("mods.custommachinery.Result")
 public class Result {
 
-    @ZenCodeType.Method
+    @Method
     public static CraftingResult success() {
         return CraftingResult.success();
     }
 
-    @ZenCodeType.Method
-    public static CraftingResult error(MCTextComponent error) {
-        return CraftingResult.error(error.getInternal());
+    @Method
+    public static CraftingResult error(TextComponent error) {
+        return CraftingResult.error(error);
     }
 
-    @ZenCodeType.Method
+    @Method
     public static CraftingResult error(String error) {
-        return CraftingResult.error(new TranslationTextComponent(error));
+        return CraftingResult.error(new TranslatableComponent(error));
     }
 }

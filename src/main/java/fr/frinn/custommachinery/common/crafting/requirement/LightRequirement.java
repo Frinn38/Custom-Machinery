@@ -16,8 +16,8 @@ import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 public class LightRequirement extends AbstractRequirement<LightMachineComponent> implements ITickableRequirement<LightMachineComponent>, IDisplayInfoRequirement {
 
@@ -65,9 +65,9 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
         if(this.test(component, context))
             return CraftingResult.success();
         if(this.sky)
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
         else
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
     }
 
     @Override
@@ -86,9 +86,9 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
         if(this.test(component, context))
             return CraftingResult.success();
         if(this.sky)
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.sky.error", this.comparator.getPrefix(), light));
         else
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.block.error", this.comparator.getPrefix(), light));
     }
 
     @Override
@@ -100,9 +100,9 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
     public void getDisplayInfo(IDisplayInfo info) {
         info.setVisible(this.jeiVisible);
         if(this.sky)
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.light.sky.info", new TranslationTextComponent(this.comparator.getTranslationKey()), this.light));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.light.sky.info", new TranslatableComponent(this.comparator.getTranslationKey()), this.light));
         else
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.light.block.info", new TranslationTextComponent(this.comparator.getTranslationKey()), this.light));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.light.block.info", new TranslatableComponent(this.comparator.getTranslationKey()), this.light));
         info.setItemIcon(Items.TORCH);
     }
 }

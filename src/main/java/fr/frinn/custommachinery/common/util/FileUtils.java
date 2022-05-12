@@ -11,8 +11,8 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.storage.FolderName;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -58,7 +58,7 @@ public class FileUtils {
     }
 
     public static File getCustomMachineJson(MinecraftServer server, MachineLocation location) {
-        String path = server.func_240776_a_(FolderName.DATAPACKS) + File.separator + location.getPath();
+        String path = server.getWorldPath(LevelResource.DATAPACK_DIR) + File.separator + location.getPath();
         return new File(path);
     }
 }

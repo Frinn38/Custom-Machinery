@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.apiimpl.component.builder;
 
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.utils.EnumButton;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.Arrays;
 
@@ -20,7 +20,7 @@ public class ModeComponentBuilderProperty extends AbstractComponentBuilderProper
 
     @SuppressWarnings("unchecked")
     @Override
-    public Widget getAsWidget(int x, int y, int width, int height) {
+    public AbstractWidget getAsWidget(int x, int y, int width, int height) {
         return new EnumButton<>(
                 x,
                 y,
@@ -28,7 +28,7 @@ public class ModeComponentBuilderProperty extends AbstractComponentBuilderProper
                 height,
                 button -> this.set(((EnumButton<ComponentIOMode>)button).getValue()),
                 (button, matrix, mouseX, mouseY) -> {},
-                mode -> new StringTextComponent(mode.toString()),
+                mode -> new TextComponent(mode.toString()),
                 Arrays.asList(ComponentIOMode.values()),
                 get()
         );

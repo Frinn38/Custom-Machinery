@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.api.integration.jei;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public interface IJEIElementRenderer<T extends IGuiElement> {
      * Called each frame on client side for each gui element on each currently displayed recipes.
      * Render your element here.
      */
-    void renderElementInJEI(MatrixStack matrix, T element, IMachineRecipe recipe, int mouseX, int mouseY);
+    void renderElementInJEI(PoseStack matrix, T element, IMachineRecipe recipe, int mouseX, int mouseY);
 
     /**
      * Called to check if the mouse cursor currently hover this element on a jei recipe.
@@ -30,5 +30,5 @@ public interface IJEIElementRenderer<T extends IGuiElement> {
     /**
      * @return A list of text components that will be displayed as tooltips when the mouse cursor hover the gui element.
      */
-    List<ITextComponent> getJEITooltips(T element, IMachineRecipe recipe);
+    List<Component> getJEITooltips(T element, IMachineRecipe recipe);
 }

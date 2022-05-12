@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.crafting.requirement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -17,11 +16,12 @@ import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.EntityMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +36,7 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
                     Codecs.ENTITY_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    CodecLogger.loggedOptional(Codecs.list(RegistryCodec.ENTITY_TYPE),"filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    CodecLogger.loggedOptional(Codecs.list(ForgeRegistries.ENTITIES.getCodec()),"filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
                     CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(requirement -> requirement.whitelist),
                     CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(entityRequirementInstance, (mode, action, amount, radius, filter, whitelist, jei) -> {
@@ -86,21 +86,21 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
         if(getMode() == RequirementIOMode.INPUT) {
             switch (this.action) {
                 case CHECK_AMOUNT:
-                    return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
+                    return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
                 case CHECK_HEALTH:
-                    return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
+                    return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
                 case CONSUME_HEALTH:
                     if(component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {
                         component.removeEntitiesHealth(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
                 case KILL:
                     if(component.getEntitiesInRadius(radius, this.predicate) >= amount) {
                         component.killEntities(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
             }
         }
         return CraftingResult.pass();
@@ -117,13 +117,13 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
                         component.removeEntitiesHealth(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
                 case KILL:
                     if(component.getEntitiesInRadius(radius, this.predicate) >= amount) {
                         component.killEntities(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
             }
         }
         return CraftingResult.pass();
@@ -139,9 +139,9 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
         int amount = (int)context.getModifiedValue(this.amount, this, null);
         int radius = (int)context.getModifiedValue(this.radius, this, "radius");
         if(this.action == ACTION.CHECK_AMOUNT)
-            return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.amount.error"));
+            return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
         else if(this.action == ACTION.CHECK_HEALTH)
-            return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.entity.health.error", amount));
+            return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
         else
             return CraftingResult.pass();
     }
@@ -154,14 +154,14 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
         info.setVisible(this.jeiVisible);
-        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.entity." + this.action.toString().toLowerCase(Locale.ENGLISH) + ".info", this.amount, this.radius));
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.entity." + this.action.toString().toLowerCase(Locale.ENGLISH) + ".info", this.amount, this.radius));
         if(!this.filter.isEmpty()) {
             if(this.whitelist)
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.entity.whitelist"));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.entity.whitelist"));
             else
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.entity.blacklist"));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.entity.blacklist"));
         }
-        this.filter.forEach(type -> info.addTooltip(new StringTextComponent("*").appendSibling(type.getName())));
+        this.filter.forEach(type -> info.addTooltip(new TextComponent("*").append(type.getDescription())));
         info.setItemIcon(Items.COW_SPAWN_EGG);
     }
 

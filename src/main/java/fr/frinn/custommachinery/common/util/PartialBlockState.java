@@ -2,35 +2,34 @@ package fr.frinn.custommachinery.common.util;
 
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.state.Property;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.CachedBlockInfo;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-public class PartialBlockState implements Predicate<CachedBlockInfo> {
+public class PartialBlockState implements Predicate<BlockInWorld> {
 
-    public static final PartialBlockState AIR = new PartialBlockState(Blocks.AIR.getDefaultState(), new ArrayList<>(), null);
-    public static final PartialBlockState ANY = new PartialBlockState(Blocks.AIR.getDefaultState(), new ArrayList<>(), null) {
+    public static final PartialBlockState AIR = new PartialBlockState(Blocks.AIR.defaultBlockState(), new ArrayList<>(), null);
+    public static final PartialBlockState ANY = new PartialBlockState(Blocks.AIR.defaultBlockState(), new ArrayList<>(), null) {
         @Override
-        public boolean test(CachedBlockInfo cachedBlockInfo) {
+        public boolean test(BlockInWorld cachedBlockInfo) {
             return true;
         }
 
@@ -42,16 +41,16 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
 
     private BlockState blockState;
     private List<Property<?>> properties;
-    private CompoundNBT nbt;
+    private CompoundTag nbt;
 
-    public PartialBlockState(BlockState blockState, List<Property<?>> properties, CompoundNBT nbt) {
+    public PartialBlockState(BlockState blockState, List<Property<?>> properties, CompoundTag nbt) {
         this.blockState = blockState;
         this.properties = properties;
         this.nbt = nbt;
     }
 
     public PartialBlockState(Block block) {
-        this(block.getDefaultState(), new ArrayList<>(), null);
+        this(block.defaultBlockState(), new ArrayList<>(), null);
     }
 
     public BlockState getBlockState() {
@@ -59,18 +58,18 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
     }
 
     public List<String> getProperties() {
-        return this.properties.stream().map(property -> property.getName() + "=" + this.blockState.get(property)).collect(Collectors.toList());
+        return this.properties.stream().map(property -> property.getName() + "=" + this.blockState.getValue(property)).toList();
     }
 
-    public CompoundNBT getNbt() {
+    public CompoundTag getNbt() {
         return this.nbt;
     }
 
     public PartialBlockState rotate(Rotation rotation) {
         if(this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.getBlock() != Registration.CUSTOM_MACHINE_BLOCK.get()) {
-            Direction direction = this.blockState.get(BlockStateProperties.HORIZONTAL_FACING);
+            Direction direction = this.blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
             direction = rotation.rotate(direction);
-            BlockState blockState = this.blockState.with(BlockStateProperties.HORIZONTAL_FACING, direction);
+            BlockState blockState = this.blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
             List<Property<?>> properties = Lists.newArrayList(this.properties);
             if(!properties.contains(BlockStateProperties.HORIZONTAL_FACING))
                 properties.add(BlockStateProperties.HORIZONTAL_FACING);
@@ -80,13 +79,13 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
     }
 
     @Override
-    public boolean test(CachedBlockInfo cachedBlockInfo) {
-        BlockState blockstate = cachedBlockInfo.getBlockState();
-        if (!blockstate.matchesBlock(this.blockState.getBlock())) {
+    public boolean test(BlockInWorld cachedBlockInfo) {
+        BlockState blockstate = cachedBlockInfo.getState();
+        if (!blockstate.is(this.blockState.getBlock())) {
             return false;
         } else {
             for(Property<?> property : this.properties) {
-                if (blockstate.get(property) != this.blockState.get(property)) {
+                if (blockstate.getValue(property) != this.blockState.getValue(property)) {
                     return false;
                 }
             }
@@ -94,8 +93,8 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
             if (this.nbt == null) {
                 return true;
             } else {
-                TileEntity tileentity = cachedBlockInfo.getTileEntity();
-                return tileentity != null && NBTUtil.areNBTEquals(this.nbt, tileentity.write(new CompoundNBT()), true);
+                BlockEntity tileentity = cachedBlockInfo.getEntity();
+                return tileentity != null && NbtUtils.compareNbt(this.nbt, tileentity.saveWithFullMetadata(), true);
             }
         }
     }
@@ -109,7 +108,7 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
         Iterator<Property<?>> iterator = this.properties.iterator();
         while (iterator.hasNext()) {
             Property<?> property = iterator.next();
-            Comparable<?> value = this.blockState.get(property);
+            Comparable<?> value = this.blockState.getValue(property);
             builder.append(property.getName());
             builder.append("=");
             builder.append(value);
@@ -124,8 +123,8 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
         return builder.toString();
     }
 
-    public IFormattableTextComponent getName() {
-        return new TranslationTextComponent(this.blockState.getBlock().getTranslationKey());
+    public MutableComponent getName() {
+        return new TranslatableComponent(this.blockState.getBlock().getDescriptionId());
     }
 
     public ResourceLocation getModelLocation() {
@@ -161,6 +160,6 @@ public class PartialBlockState implements Predicate<CachedBlockInfo> {
             return false;
         if(!this.properties.containsAll(other.properties) || !other.properties.containsAll(this.properties))
             return false;
-        return NBTUtil.areNBTEquals(this.nbt, other.nbt, true);
+        return NbtUtils.compareNbt(this.nbt, other.nbt, true);
     }
 }

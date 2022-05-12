@@ -5,13 +5,13 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Map;
 
@@ -71,7 +71,7 @@ public class MachineAppearanceBuilder {
     }
 
     public void setLightLevel(int lightLevel) {
-        setProperty(Registration.LIGHT_PROPERTY.get(), MathHelper.clamp(lightLevel, 0, 15));
+        setProperty(Registration.LIGHT_PROPERTY.get(), Mth.clamp(lightLevel, 0, 15));
     }
 
     public int getColor() {
@@ -87,7 +87,7 @@ public class MachineAppearanceBuilder {
     }
 
     public void setHardness(float hardness) {
-        setProperty(Registration.HARDNESS_PROPERTY.get(), MathHelper.clamp(hardness, 0, Float.MAX_VALUE));
+        setProperty(Registration.HARDNESS_PROPERTY.get(), Mth.clamp(hardness, 0, Float.MAX_VALUE));
     }
 
     public float getResistance() {
@@ -95,22 +95,22 @@ public class MachineAppearanceBuilder {
     }
 
     public void setResistance(float resistance) {
-        setProperty(Registration.RESISTANCE_PROPERTY.get(), MathHelper.clamp(resistance, 0, Float.MAX_VALUE));
+        setProperty(Registration.RESISTANCE_PROPERTY.get(), Mth.clamp(resistance, 0, Float.MAX_VALUE));
     }
 
-    public ToolType getToolType() {
+    public TagKey<Block> getToolType() {
         return getProperty(Registration.TOOL_TYPE_PROPERTY.get());
     }
 
-    public void setToolType(ToolType toolType) {
+    public void setToolType(TagKey<Block> toolType) {
         setProperty(Registration.TOOL_TYPE_PROPERTY.get(), toolType);
     }
 
-    public int getMiningLevel() {
+    public TagKey<Block> getMiningLevel() {
         return getProperty(Registration.MINING_LEVEL_PROPERTY.get());
     }
 
-    public void setMiningLevel(int miningLevel) {
+    public void setMiningLevel(TagKey<Block> miningLevel) {
         setProperty(Registration.MINING_LEVEL_PROPERTY.get(), miningLevel);
     }
 

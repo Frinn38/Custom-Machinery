@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.api.requirement;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 /**
  * Implement this interface on your {@link IRequirement} to make it executed every tick instead of just the start and end of the process.
@@ -19,7 +19,7 @@ public interface ITickableRequirement<T extends IMachineComponent> extends IRequ
      * @param component The {@link IMachineComponent} used by this requirement.
      * @param context A few useful info about the crafting process, and some utilities methods.
      * @return {@link CraftingResult#success()} if the requirement successfully did its things.
-     *         {@link CraftingResult#error(ITextComponent)} if there was an error during the process (example : missing inputs).
+     *         {@link CraftingResult#error(Component)} if there was an error during the process (example : missing inputs).
      *         {@link CraftingResult#pass()} if the requirement didn't care about this phase.
      */
     CraftingResult processTick(T component, ICraftingContext context);

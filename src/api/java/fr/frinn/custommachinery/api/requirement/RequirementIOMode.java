@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.api.requirement;
 
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 
 import java.util.Locale;
 
@@ -29,6 +29,6 @@ public enum RequirementIOMode {
     }
 
     public String getTranslationKey() {
-        return CustomMachineryAPI.MODID + ".requirement.mode." + this;
+        return ICustomMachineryAPI.INSTANCE.modid() + ".requirement.mode." + this;
     }
 }

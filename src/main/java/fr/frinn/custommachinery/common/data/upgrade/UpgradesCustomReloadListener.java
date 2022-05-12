@@ -6,20 +6,20 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.item.Items;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.ModList;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Map;
 
-public class UpgradesCustomReloadListener extends JsonReloadListener {
+public class UpgradesCustomReloadListener extends SimpleJsonResourceReloadListener {
 
     private static final Gson GSON = (new GsonBuilder()).create();
     private static final String MAIN_PACKNAME = "main";
@@ -30,22 +30,22 @@ public class UpgradesCustomReloadListener extends JsonReloadListener {
 
     @ParametersAreNonnullByDefault
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager resourceManager, IProfiler profiler) {
-        CustomMachineryAPI.getLogger().info("Reading Custom Machinery Upgrades...");
+    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
+        ICustomMachineryAPI.INSTANCE.logger().info("Reading Custom Machinery Upgrades...");
 
         CustomMachinery.UPGRADES.clear();
 
         map.forEach((id, json) -> {
             String packName;
             try {
-                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).getPackName();
+                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).getSourceName();
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            CustomMachineryAPI.getLogger().info("Parsing upgrade json: %s in datapack: %s", id, packName);
+            ICustomMachineryAPI.INSTANCE.logger().info("Parsing upgrade json: %s in datapack: %s", id, packName);
 
             if(!json.isJsonObject()) {
-                CustomMachineryAPI.getLogger().error("Bad upgrade JSON: %s must be a json object and not an array or primitive, skipping..." + id);
+                ICustomMachineryAPI.INSTANCE.logger().error("Bad upgrade JSON: %s must be a json object and not an array or primitive, skipping..." + id);
                 return;
             }
 
@@ -53,20 +53,20 @@ public class UpgradesCustomReloadListener extends JsonReloadListener {
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
                 if(upgrade.getItem() == Items.AIR) {
-                    CustomMachineryAPI.getLogger().error("Invalid item: %s, defined for upgrade: %s", upgrade.getItem().getRegistryName(), id);
+                    ICustomMachineryAPI.INSTANCE.logger().error("Invalid item: %s, defined for upgrade: %s", upgrade.getItem().getRegistryName(), id);
                     return;
                 }
-                CustomMachineryAPI.getLogger().info("Successfully parsed upgrade json: %s", id);
+                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed upgrade json: %s", id);
                 CustomMachinery.UPGRADES.add(upgrade);
                 return;
             } else if(result.error().isPresent()) {
-                CustomMachineryAPI.getLogger().error("Error while parsing upgrade json: %s, skipping...%n%s", id, result.error().get().message());
+                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing upgrade json: %s, skipping...%n%s", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
 
-        CustomMachineryAPI.getLogger().info("Finished creating custom machine upgrades.");
+        ICustomMachineryAPI.INSTANCE.logger().info("Finished creating custom machine upgrades.");
 
         if(ModList.get().isLoaded("kubejs"))
             CustomMachinery.UPGRADES.addAll(KubeJSIntegration.collectMachineUpgrades());

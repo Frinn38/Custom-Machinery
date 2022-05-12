@@ -18,7 +18,7 @@ public class TimeMachineComponent extends AbstractMachineComponent {
     }
 
     public long getTime() {
-        if(getManager().getWorld().getDimensionType().doesFixedTimeExist())
+        if(getManager().getWorld().dimensionType().hasFixedTime())
             return getManager().getWorld().getDayTime();
         return getManager().getWorld().getDayTime() % 24000L;
     }

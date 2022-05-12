@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,7 +69,7 @@ public interface IMachineComponentManager {
     /**
      * @return The world the machine is in.
      */
-    World getWorld();
+    Level getWorld();
 
     /**
      * @return The server currently running (integrated or dedicated).

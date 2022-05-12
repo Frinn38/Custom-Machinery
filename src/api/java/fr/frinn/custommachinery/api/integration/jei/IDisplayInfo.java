@@ -2,10 +2,10 @@ package fr.frinn.custommachinery.api.integration.jei;
 
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.function.BiConsumer;
 
@@ -22,7 +22,7 @@ public interface IDisplayInfo {
      * @param text The tooltip to render.
      * @return Itself, to chain calls.
      */
-    IDisplayInfo addTooltip(ITextComponent text);
+    IDisplayInfo addTooltip(Component text);
 
     /**
      * Set a texture as the requirement icon in the jei recipe screen.

@@ -1,12 +1,17 @@
 package fr.frinn.custommachinery.common.data.component;
 
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ICapabilityComponent;
+import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,12 +96,12 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        return new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        return new CompoundTag();
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
 
     }
 }

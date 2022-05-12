@@ -9,33 +9,46 @@ import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.TieredItem;
-import net.minecraft.nbt.*;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.EffectUtils;
-import net.minecraft.potion.Effects;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.ByteArrayTag;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.LongArrayTag;
+import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.ShortTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
-import net.minecraftforge.common.ToolType;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.TierSortingRegistry;
 import net.minecraftforge.event.ForgeEventFactory;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
@@ -48,78 +61,54 @@ public class Utils {
 
     public static final Random RAND = new Random();
 
-    public static boolean canPlayerManageMachines(PlayerEntity player) {
-        return player.hasPermissionLevel(Objects.requireNonNull(player.getServer()).getOpPermissionLevel());
+    public static boolean canPlayerManageMachines(Player player) {
+        return player.hasPermissions(Objects.requireNonNull(player.getServer()).getOperatorUserPermissionLevel());
     }
 
-    public static ResourceLocation getItemTagID(ITag<Item> tag) {
-        return TagCollectionManager.getManager().getItemTags().getValidatedIdFromTag(tag);
+    public static Vec3 vec3dFromBlockPos(BlockPos pos) {
+        return new Vec3(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public static ResourceLocation getFluidTagID(ITag<Fluid> tag) {
-        return TagCollectionManager.getManager().getFluidTags().getValidatedIdFromTag(tag);
-    }
-
-    public static ResourceLocation getBlockTagID(ITag<Block> tag) {
-        return TagCollectionManager.getManager().getBlockTags().getValidatedIdFromTag(tag);
-    }
-
-    public static ITag<Item> getItemTag(ResourceLocation loc) {
-        return TagCollectionManager.getManager().getItemTags().get(loc);
-    }
-
-    public static ITag<Fluid> getFluidTag(ResourceLocation loc) {
-        return TagCollectionManager.getManager().getFluidTags().get(loc);
-    }
-
-    public static ITag<Block> getBlockTag(ResourceLocation loc) {
-        return TagCollectionManager.getManager().getBlockTags().get(loc);
-    }
-
-    public static Vector3d vec3dFromBlockPos(BlockPos pos) {
-        return new Vector3d(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    public static boolean testNBT(CompoundNBT nbt, @Nullable CompoundNBT tested) {
+    public static boolean testNBT(CompoundTag nbt, @Nullable CompoundTag tested) {
         if(tested == null)
             return false;
-        for (String key : tested.keySet()) {
-            if(!nbt.contains(key) || nbt.getTagId(key) != tested.getTagId(key) || !testINBT(nbt.get(key), tested.get(key)))
+        for (String key : tested.getAllKeys()) {
+            if(!nbt.contains(key) || nbt.getTagType(key) != tested.getTagType(key) || !testINBT(nbt.get(key), tested.get(key)))
                 return false;
         }
         return true;
     }
 
-    public static <T extends INBT> boolean testINBT(@Nullable T inbt, @Nullable T tested) {
+    public static <T extends Tag> boolean testINBT(@Nullable T inbt, @Nullable T tested) {
         if(inbt == null || tested == null)
             return false;
         switch (inbt.getId()) {
-            case Constants.NBT.TAG_BYTE:
-                return ((ByteNBT)inbt).getByte() == ((ByteNBT)tested).getByte();
-            case Constants.NBT.TAG_SHORT:
-                return ((ShortNBT)inbt).getShort() == ((ShortNBT)tested).getShort();
-            case Constants.NBT.TAG_INT:
-                return ((IntNBT)inbt).getInt() == ((IntNBT)tested).getInt();
-            case Constants.NBT.TAG_LONG:
-                return ((LongNBT)inbt).getLong() == ((LongNBT)tested).getLong();
-            case Constants.NBT.TAG_FLOAT:
-                return ((FloatNBT)inbt).getFloat() == ((FloatNBT)tested).getFloat();
-            case Constants.NBT.TAG_DOUBLE:
-                return ((DoubleNBT)inbt).getDouble() == ((DoubleNBT)tested).getDouble();
-            case Constants.NBT.TAG_BYTE_ARRAY:
-                return ((ByteArrayNBT)inbt).containsAll((ByteArrayNBT)tested);
-            case Constants.NBT.TAG_STRING:
-                return inbt.getString().equals(tested.getString());
-            case Constants.NBT.TAG_LIST:
-                return ((ListNBT)inbt).containsAll((ListNBT)tested);
-            case Constants.NBT.TAG_COMPOUND:
-                return testNBT((CompoundNBT)inbt, (CompoundNBT)tested);
-            case Constants.NBT.TAG_INT_ARRAY:
-                return ((IntArrayNBT)inbt).containsAll((IntArrayNBT)tested);
-            case Constants.NBT.TAG_LONG_ARRAY:
-                return ((LongArrayNBT)inbt).containsAll((LongArrayNBT)tested);
-            case Constants.NBT.TAG_ANY_NUMERIC:
-                return ((NumberNBT)inbt).getAsNumber().equals(((NumberNBT)tested).getAsNumber());
+            case Tag.TAG_BYTE:
+                return ((ByteTag)inbt).getAsByte() == ((ByteTag)tested).getAsByte();
+            case Tag.TAG_SHORT:
+                return ((ShortTag)inbt).getAsShort() == ((ShortTag)tested).getAsShort();
+            case Tag.TAG_INT:
+                return ((IntTag)inbt).getAsInt() == ((IntTag)tested).getAsInt();
+            case Tag.TAG_LONG:
+                return ((LongTag)inbt).getAsLong() == ((LongTag)tested).getAsLong();
+            case Tag.TAG_FLOAT:
+                return ((FloatTag)inbt).getAsFloat() == ((FloatTag)tested).getAsFloat();
+            case Tag.TAG_DOUBLE:
+                return ((DoubleTag)inbt).getAsDouble() == ((DoubleTag)tested).getAsDouble();
+            case Tag.TAG_BYTE_ARRAY:
+                return ((ByteArrayTag)inbt).containsAll((ByteArrayTag)tested);
+            case Tag.TAG_STRING:
+                return inbt.getAsString().equals(tested.getAsString());
+            case Tag.TAG_LIST:
+                return ((ListTag)inbt).containsAll((ListTag)tested);
+            case Tag.TAG_COMPOUND:
+                return testNBT((CompoundTag)inbt, (CompoundTag)tested);
+            case Tag.TAG_INT_ARRAY:
+                return ((IntArrayTag)inbt).containsAll((IntArrayTag)tested);
+            case Tag.TAG_LONG_ARRAY:
+                return ((LongArrayTag)inbt).containsAll((LongArrayTag)tested);
+            case Tag.TAG_ANY_NUMERIC:
+                return ((NumericTag)inbt).getAsNumber().equals(((NumericTag)tested).getAsNumber());
             default:
                 return false;
         }
@@ -137,18 +126,18 @@ public class Utils {
 
     }
 
-    public static AxisAlignedBB rotateBox(AxisAlignedBB box, Direction to) {
+    public static AABB rotateBox(AABB box, Direction to) {
         //Based on south, positive Z
         switch (to) {
             case EAST: //90° CCW
-                return new AxisAlignedBB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
+                return new AABB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
             case NORTH: //180° CCW
-                return new AxisAlignedBB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
+                return new AABB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
             case WEST: //270° CCW
-                return new AxisAlignedBB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
+                return new AABB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
             case SOUTH: //No changes
             default:
-                return new AxisAlignedBB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+                return new AABB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
         }
     }
 
@@ -161,101 +150,98 @@ public class Utils {
         }
     }
 
-    public static float getMachineBreakSpeed(MachineAppearance appearance, IBlockReader world, BlockPos pos, PlayerEntity player) {
+    public static float getMachineBreakSpeed(MachineAppearance appearance, BlockGetter world, BlockPos pos, Player player) {
         float digSpeed = getPlayerDigSpeed(appearance, player, pos);
         float hardness = appearance.getHardness();
         float canHarvest = canPlayerHarvestMachine(appearance, player, world, pos) ? 30 : 100;
         return digSpeed / hardness / canHarvest;
     }
 
-    private static float getPlayerDigSpeed(MachineAppearance appearance, PlayerEntity player, BlockPos pos) {
+    private static float getPlayerDigSpeed(MachineAppearance appearance, Player player, BlockPos pos) {
         float f = 1.0F;
 
-        ItemStack stack = player.getHeldItemMainhand();
-        ToolType tool = appearance.getTool();
-        if(!stack.isEmpty() && stack.getToolTypes().contains(tool) && stack.getHarvestLevel(tool, player, player.world.getBlockState(pos)) >= appearance.getMiningLevel() && stack.getItem() instanceof TieredItem)
-            f = ((TieredItem)stack.getItem()).getTier().getEfficiency();
+        ItemStack stack = player.getMainHandItem();
+        TagKey<Block> tool = appearance.getTool();
+        TagKey<Block> level = appearance.getMiningLevel();
+        if(!stack.isEmpty() && stack.getItem() instanceof DiggerItem diggerItem)
+            if(diggerItem.blocks == tool && (diggerItem.getTier().getTag() == level || TierSortingRegistry.getTiersLowerThan(diggerItem.getTier()).stream().anyMatch(tier -> tier.getTag() == level)))
+                f = diggerItem.getTier().getSpeed();
 
         if (f > 1.0F) {
-            int i = EnchantmentHelper.getEfficiencyModifier(player);
-            ItemStack itemstack = player.getHeldItemMainhand();
+            int i = EnchantmentHelper.getBlockEfficiency(player);
+            ItemStack itemstack = player.getMainHandItem();
             if (i > 0 && !itemstack.isEmpty()) {
                 f += (float)(i * i + 1);
             }
         }
 
-        if (EffectUtils.hasMiningSpeedup(player)) {
-            f *= 1.0F + (float)(EffectUtils.getMiningSpeedup(player) + 1) * 0.2F;
+        if (MobEffectUtil.hasDigSpeed(player)) {
+            f *= 1.0F + (float)(MobEffectUtil.getDigSpeedAmplification(player) + 1) * 0.2F;
         }
 
-        EffectInstance miningFatigue = player.getActivePotionEffect(Effects.MINING_FATIGUE);
+        MobEffectInstance miningFatigue = player.getEffect(MobEffects.DIG_SLOWDOWN);
         if (miningFatigue != null) {
             switch (miningFatigue.getAmplifier()) {
-                case 0:
-                    f *= 0.3F;
-                    break;
-                case 1:
-                    f *= 0.09F;
-                    break;
-                case 2:
-                    f *= 0.0027F;
-                    break;
-                case 3:
-                default:
-                    f *= 8.1E-4F;
+                case 0 -> f *= 0.3F;
+                case 1 -> f *= 0.09F;
+                case 2 -> f *= 0.0027F;
+                default -> f *= 8.1E-4F;
             }
         }
 
-        if (player.areEyesInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(player))
+        if (player.isEyeInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(player))
             f /= 5.0F;
 
         if (!player.isOnGround())
             f /= 5.0F;
 
-        f = net.minecraftforge.event.ForgeEventFactory.getBreakSpeed(player, player.world.getBlockState(pos), f, pos);
+        f = net.minecraftforge.event.ForgeEventFactory.getBreakSpeed(player, player.level.getBlockState(pos), f, pos);
         return f;
     }
 
-    public static boolean canPlayerHarvestMachine(MachineAppearance appearance, PlayerEntity player, IBlockReader world, BlockPos pos) {
+    public static boolean canPlayerHarvestMachine(MachineAppearance appearance, Player player, BlockGetter world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        ToolType tool = appearance.getTool();
+        TagKey<Block> tool = appearance.getTool();
+        TagKey<Block> level = appearance.getMiningLevel();
 
-        if (tool.getName().equals("hand"))
+        if (tool.location().getPath().equals("hand"))
             return ForgeEventFactory.doPlayerHarvestCheck(player, state, true);
 
-        ItemStack stack = player.getHeldItemMainhand();
+        ItemStack stack = player.getMainHandItem();
         if(stack.isEmpty())
             return ForgeEventFactory.doPlayerHarvestCheck(player, state, false);
 
-        int toolLevel = stack.getHarvestLevel(tool, player, state);
-        if (toolLevel < 0)
-            return ForgeEventFactory.doPlayerHarvestCheck(player, state, false);
-
-        return ForgeEventFactory.doPlayerHarvestCheck(player, state, toolLevel >= appearance.getMiningLevel());
+        if(stack.getItem() instanceof TieredItem tieredItem) {
+            boolean isToolLevelHighEnough = tieredItem.getTier().getTag() == level || TierSortingRegistry.getTiersLowerThan(tieredItem.getTier()).stream().anyMatch(tier -> tier.getTag() == level);
+            if(isToolLevelHighEnough && tieredItem instanceof DiggerItem diggerItem)
+                return ForgeEventFactory.doPlayerHarvestCheck(player, state, diggerItem.blocks == tool);
+            return ForgeEventFactory.doPlayerHarvestCheck(player, state, isToolLevelHighEnough);
+        }
+        return ForgeEventFactory.doPlayerHarvestCheck(player, state, false);
     }
 
-    public static ItemStack makeItemStack(Item item, int amount, @Nullable CompoundNBT nbt) {
+    public static ItemStack makeItemStack(Item item, int amount, @Nullable CompoundTag nbt) {
         ItemStack stack = new ItemStack(item, amount);
         stack.setTag(nbt);
         return stack;
     }
 
-    public static int getPlayerInventoryItemStackAmount(PlayerEntity player, IIngredient<Item> item, CompoundNBT nbt) {
-        return Stream.concat(player.inventory.mainInventory.stream(), player.inventory.offHandInventory.stream())
+    public static int getPlayerInventoryItemStackAmount(Player player, IIngredient<Item> item, CompoundTag nbt) {
+        return Stream.concat(player.getInventory().items.stream(), player.getInventory().offhand.stream())
                 .filter(stack -> item.test(stack.getItem()) && testNBT(nbt, stack.getTag()))
                 .mapToInt(ItemStack::getCount)
                 .sum();
     }
 
-    public static void moveStackFromPlayerInvToSlot(PlayerEntity player, SlotItemComponent slot, IIngredient<Item> item, int amount, CompoundNBT nbt) {
+    public static void moveStackFromPlayerInvToSlot(Player player, SlotItemComponent slot, IIngredient<Item> item, int amount, CompoundTag nbt) {
         AtomicInteger toMove = new AtomicInteger(amount);
-        Stream.concat(player.inventory.mainInventory.stream(), player.inventory.offHandInventory.stream())
-                .filter(stack -> item.test(stack.getItem()) && testNBT(nbt, stack.getTag()) && slot.isItemValid(stack))
+        Stream.concat(player.getInventory().items.stream(), player.getInventory().offhand.stream())
+                .filter(stack -> item.test(stack.getItem()) && testNBT(nbt, stack.getTag()) && slot.mayPlace(stack))
                 .forEach(stack -> {
                     int canMove = Math.min(stack.getCount(), toMove.get());
                     ItemStack toInsert = stack.copy();
                     toInsert.setCount(canMove);
-                    slot.putStack(toInsert);
+                    slot.set(toInsert);
                     stack.shrink(canMove);
                     toMove.getAndAdd(-canMove);
                 });
@@ -267,5 +253,11 @@ public class Utils {
         } catch (ArithmeticException e) {
             return Integer.MAX_VALUE;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
+        return p_152134_ == p_152133_ ? (BlockEntityTicker<A>)p_152135_ : null;
     }
 }

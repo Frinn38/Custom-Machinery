@@ -1,19 +1,16 @@
 package fr.frinn.custommachinery.common.integration.kubejs.function;
 
-import dev.latvian.kubejs.fluid.EmptyFluidStackJS;
-import dev.latvian.kubejs.fluid.FluidStackJS;
-import dev.latvian.kubejs.item.BoundItemStackJS;
-import dev.latvian.kubejs.item.EmptyItemStackJS;
-import dev.latvian.kubejs.item.ItemStackJS;
+import dev.latvian.mods.kubejs.fluid.EmptyFluidStackJS;
+import dev.latvian.mods.kubejs.fluid.FluidStackJS;
+import dev.latvian.mods.kubejs.item.ItemStackJS;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
@@ -60,7 +57,7 @@ public class MachineJS {
 
     //Return amount of fluid that was NOT added.
     public int addFluid(FluidStackJS stackJS, boolean simulate) {
-        FluidStack stack = new FluidStack(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt().toNBT());
+        FluidStack stack = new FluidStack(stackJS.getFluid(), (int)stackJS.getAmount(), stackJS.getNbt());
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.fill(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE)).orElse(stack.getAmount());
     }
 
@@ -68,13 +65,13 @@ public class MachineJS {
     public int addFluidToTank(String tank, FluidStackJS stackJS, boolean simulate) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(component -> component.insert(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt().toNBT(), simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE))
-                .orElse(stackJS.getAmount());
+                .map(component -> component.insert(stackJS.getFluid(), (int)stackJS.getAmount(), stackJS.getNbt(), simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE))
+                .orElse((int)stackJS.getAmount());
     }
 
     //Return fluid that was successfully removed.
     public FluidStackJS removeFluid(FluidStackJS stackJS, boolean simulate) {
-        FluidStack stack = new FluidStack(stackJS.getFluid(), stackJS.getAmount(), stackJS.getNbt() == null ? null : stackJS.getNbt().toNBT());
+        FluidStack stack = new FluidStack(stackJS.getFluid(), (int)stackJS.getAmount(), stackJS.getNbt());
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> {
             FluidStack removed = handler.drain(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
             return FluidStackJS.of(removed.getFluid(), removed.getAmount(), removed.getTag());
@@ -98,7 +95,7 @@ public class MachineJS {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> ItemStackJS.of(component.getItemStack()))
-                .orElse(EmptyItemStackJS.INSTANCE);
+                .orElse(ItemStackJS.EMPTY);
     }
 
     public int getItemCapacity(String slot) {
@@ -120,7 +117,7 @@ public class MachineJS {
                     if(!simulate)
                         component.insert(stack);
                     if(maxInsert >= stack.getCount())
-                        return EmptyItemStackJS.INSTANCE;
+                        return ItemStackJS.EMPTY;
                     else
                         return ItemStackJS.of(Utils.makeItemStack(stack.getItem(), stack.getCount() - maxInsert, stack.getTag()));
                 })
@@ -133,7 +130,7 @@ public class MachineJS {
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> {
                     if(component.getItemStack().isEmpty())
-                        return EmptyItemStackJS.INSTANCE;
+                        return ItemStackJS.EMPTY;
                     int maxRemove = Math.min(toRemove, component.getItemStack().getCount());
                     ItemStack extracted = component.getItemStack().copy();
                     extracted.setCount(component.getItemStack().getCount() - maxRemove);
@@ -141,6 +138,6 @@ public class MachineJS {
                         component.extract(maxRemove);
                     return ItemStackJS.of(extracted);
                 })
-                .orElse(EmptyItemStackJS.INSTANCE);
+                .orElse(ItemStackJS.EMPTY);
     }
 }

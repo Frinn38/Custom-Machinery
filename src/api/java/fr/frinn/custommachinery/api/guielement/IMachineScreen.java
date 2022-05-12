@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.api.guielement;
 
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.inventory.container.Container;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public interface IMachineScreen {
 
@@ -20,5 +20,5 @@ public interface IMachineScreen {
     /**
      * @return Itself as a MC ContainerScreen instance, to access useful screen methods like tooltips and rendering.
      */
-    ContainerScreen<? extends Container> getScreen();
+    AbstractContainerScreen<? extends AbstractContainerMenu> getScreen();
 }

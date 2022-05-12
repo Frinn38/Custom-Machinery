@@ -5,19 +5,28 @@ import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
-import mcjty.theoneprobe.api.*;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
+import mcjty.theoneprobe.api.CompoundText;
+import mcjty.theoneprobe.api.ElementAlignment;
+import mcjty.theoneprobe.api.IIconStyle;
+import mcjty.theoneprobe.api.ILayoutStyle;
+import mcjty.theoneprobe.api.IProbeConfig;
+import mcjty.theoneprobe.api.IProbeConfigProvider;
+import mcjty.theoneprobe.api.IProbeHitData;
+import mcjty.theoneprobe.api.IProbeHitEntityData;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.IProbeInfoProvider;
+import mcjty.theoneprobe.api.ITheOneProbe;
+import mcjty.theoneprobe.api.ProbeMode;
+import mcjty.theoneprobe.api.TextStyleClass;
+import mcjty.theoneprobe.config.Config;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.function.Function;
-
-import static mcjty.theoneprobe.api.TextStyleClass.OK;
-import static mcjty.theoneprobe.api.TextStyleClass.WARNING;
 
 public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProbe, Void> {
 
@@ -25,12 +34,12 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         probe.registerProvider(this);
         probe.registerProbeConfigProvider(new IProbeConfigProvider() {
             @Override
-            public void getProbeConfig(IProbeConfig config, PlayerEntity player, World world, Entity entity, IProbeHitEntityData data) {
+            public void getProbeConfig(IProbeConfig config, Player player, Level world, Entity entity, IProbeHitEntityData data) {
 
             }
 
             @Override
-            public void getProbeConfig(IProbeConfig config, PlayerEntity player, World world, BlockState state, IProbeHitData data) {
+            public void getProbeConfig(IProbeConfig config, Player player, Level world, BlockState state, IProbeHitData data) {
                 if(state.getBlock() == Registration.CUSTOM_MACHINE_BLOCK.get()) {
                     config.setRFMode(1);
                     config.setTankMode(1);
@@ -45,65 +54,50 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
     }
 
     @Override
-    public String getID() {
-        return CustomMachinery.MODID;
+    public ResourceLocation getID() {
+        return new ResourceLocation(CustomMachinery.MODID, "machine_info_provider");
     }
 
     @Override
-    public void addProbeInfo(ProbeMode mode, IProbeInfo info, PlayerEntity player, World world, BlockState state, IProbeHitData data) {
-        TileEntity tile = world.getTileEntity(data.getPos());
-        if(tile instanceof CustomMachineTile) {
-            CustomMachineTile machine = (CustomMachineTile)tile;
+    public void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level world, BlockState state, IProbeHitData data) {
+        BlockEntity tile = world.getBlockEntity(data.getPos());
+        if(tile instanceof CustomMachineTile machine) {
             MachineAppearance appearance = machine.getMachine().getAppearance(machine.getStatus());
-            addHarvestInfo(info, appearance, Utils.canPlayerHarvestMachine(appearance, player, world, data.getPos()));
+            showHarvestInfo(info, appearance, Utils.canPlayerHarvestMachine(appearance, player, world, data.getPos()));
             machine.componentManager.getProbeInfoComponents().forEach(component -> component.addProbeInfo(info));
             machine.craftingManager.addProbeInfo(info);
         }
     }
-
-    private static final String[] harvestLevels = new String[]{
-            "stone",
-            "iron",
-            "diamond",
-            "obsidian",
-            "cobalt"
-    };
     private static final ResourceLocation ICONS = new ResourceLocation("theoneprobe", "textures/gui/icons.png");
 
-    private static void addHarvestInfo(IProbeInfo info, MachineAppearance appearance, boolean canHarvest) {
-        ToolType harvestTool = appearance.getTool();
-        String harvestName = null;
-
-        if (harvestTool != null) {
-            int harvestLevel = appearance.getMiningLevel();
-            if (harvestLevel < 0) {
-                // NOTE: When a block doesn't have an explicitly-set harvest tool, getHarvestLevel will return -1 for ANY tool. (Expected behavior)
-//                TheOneProbe.logger.info("HarvestLevel out of bounds (less than 0). Found " + harvestLevel);
-            } else if (harvestLevel >= harvestLevels.length) {
-//                TheOneProbe.logger.info("HarvestLevel out of bounds (Max value " + harvestLevels.length + "). Found " + harvestLevel);
-            } else {
-                harvestName = harvestLevels[harvestLevel];
-            }
-        }
-
+    private static void showHarvestInfo(IProbeInfo probeInfo, MachineAppearance appearance, boolean harvestable) {
+        String tool = getTool(appearance.getTool().location());
+        String level = "" + Config.getHarvestabilityTags().get(appearance.getMiningLevel().location());
         boolean v = true;
         int offs = v ? 16 : 0;
         int dim = v ? 13 : 16;
-
-        ILayoutStyle alignment = info.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER);
-        IIconStyle iconStyle = info.defaultIconStyle().width(v ? 18 : 20).height(v ? 14 : 16).textureWidth(32).textureHeight(32);
-        IProbeInfo horizontal = info.horizontal(alignment);
-        if (canHarvest) {
-            horizontal.icon(ICONS, 0, offs, dim, dim, iconStyle)
-                    .text(CompoundText.create().style(OK).text(((harvestTool != null) ? harvestTool.getName() : "No tool")));
+        ILayoutStyle alignment = probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER);
+        IIconStyle iconStyle = probeInfo.defaultIconStyle().width(v ? 18 : 20).height(v ? 14 : 16).textureWidth(32).textureHeight(32);
+        IProbeInfo horizontal = probeInfo.horizontal(alignment);
+        if (harvestable) {
+            horizontal.icon(ICONS, 0, offs, dim, dim, iconStyle).text(CompoundText.create().style(TextStyleClass.OK).text(tool.isEmpty() ? "No tool" : tool));
+        } else if (level.isEmpty()) {
+            horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle).text(CompoundText.create().style(TextStyleClass.WARNING).text(tool.isEmpty() ? "No tool" : tool));
         } else {
-            if (harvestName == null || harvestName.isEmpty()) {
-                horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle)
-                        .text(CompoundText.create().style(WARNING).text(((harvestTool != null) ? harvestTool.getName() : "No tool")));
-            } else {
-                horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle)
-                        .text(CompoundText.create().style(WARNING).text(((harvestTool != null) ? harvestTool.getName() : "No tool") + " (level " + harvestName + ")"));
-            }
+            IProbeInfo var10000 = horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle);
+            CompoundText var10001 = CompoundText.create().style(TextStyleClass.WARNING);
+            String var10002 = tool.isEmpty() ? "No tool" : tool;
+            var10000.text(var10001.text(var10002 + " (level " + level + ")"));
         }
+    }
+
+    private static String getTool(ResourceLocation tool) {
+        if(Config.getTooltypeTags().containsKey(tool))
+            return Config.getTooltypeTags().get(tool);
+
+        if(tool.getPath().equals("hand"))
+            return "Hand";
+
+        return tool.toString();
     }
 }

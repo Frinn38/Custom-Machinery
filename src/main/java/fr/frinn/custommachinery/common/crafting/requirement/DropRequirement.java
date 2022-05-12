@@ -3,29 +3,37 @@ package fr.frinn.custommachinery.common.crafting.requirement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.requirement.*;
+import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.common.data.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Random;
 
 public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMachineComponent> implements ITickableRequirement<DropMachineComponent>, IDisplayInfoRequirement {
 
@@ -35,7 +43,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     Codecs.DROP_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
                     CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM), "input", Collections.emptyList()).forGetter(requirement -> requirement.input),
                     CodecLogger.loggedOptional(Codec.BOOL, "whitelist", true).forGetter(requirement -> requirement.whitelist),
-                    CodecLogger.loggedOptional(RegistryCodec.ITEM, "output", Items.AIR).forGetter(requirement -> requirement.output),
+                    CodecLogger.loggedOptional(ForgeRegistries.ITEMS.getCodec(), "output", Items.AIR).forGetter(requirement -> requirement.output),
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "amount", 1).forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "radius", 1).forGetter(requirement -> requirement.radius),
@@ -54,13 +62,13 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     private final boolean whitelist;
     private final Item output;
     @Nullable
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
     private final int amount;
     private final int radius;
     private double chance = 1.0D;
     private double delay = 0.0D;
 
-    public DropRequirement(RequirementIOMode mode, Action action, List<IIngredient<Item>> input, boolean whitelist, Item output, @Nullable CompoundNBT nbt, int amount, int radius) {
+    public DropRequirement(RequirementIOMode mode, Action action, List<IIngredient<Item>> input, boolean whitelist, Item output, @Nullable CompoundTag nbt, int amount, int radius) {
         super(mode);
         this.action = action;
         if((action == Action.CHECK || action == Action.CONSUME) && input.isEmpty())
@@ -102,12 +110,12 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.success();
                 }
                 else
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", amount, found));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
             case PRODUCE:
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", new StringTextComponent(amount + "x").appendSibling(new TranslationTextComponent(this.output.getTranslationKey(stack)))));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
             default:
                 return CraftingResult.pass();
         }
@@ -127,12 +135,12 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.success();
                 }
                 else
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", amount, found));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
             case PRODUCE:
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", new StringTextComponent(amount + "x").appendSibling(new TranslationTextComponent(this.output.getTranslationKey(stack)))));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
             default:
                 return CraftingResult.pass();
         }
@@ -151,7 +159,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
             int found = component.getItemAmount(this.input, radius, this.whitelist);
             if(found >= amount)
                 return CraftingResult.success();
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", amount, found));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
         }
         return CraftingResult.pass();
     }
@@ -193,12 +201,12 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.success();
                 }
                 else
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", amount, found));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
             case PRODUCE:
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.drop.error.input", new StringTextComponent(amount + "x").appendSibling(new TranslationTextComponent(this.output.getTranslationKey(stack)))));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
             default:
                 return CraftingResult.pass();
         }
@@ -212,19 +220,19 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
         info.setVisible(this.jeiVisible);
         switch (this.action) {
             case CHECK:
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info.check", this.amount, this.radius));
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).mergeStyle(this.whitelist ? TextFormatting.DARK_GREEN : TextFormatting.DARK_RED));
-                this.input.forEach(ingredient -> info.addTooltip(new StringTextComponent(ingredient.toString())));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.check", this.amount, this.radius));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
+                this.input.forEach(ingredient -> info.addTooltip(new TextComponent(ingredient.toString())));
                 info.setItemIcon(Items.OAK_PRESSURE_PLATE);
                 break;
             case CONSUME:
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).mergeStyle(this.whitelist ? TextFormatting.DARK_GREEN : TextFormatting.DARK_RED));
-                this.input.forEach(ingredient -> info.addTooltip(new StringTextComponent("- " + ingredient.toString())));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
+                this.input.forEach(ingredient -> info.addTooltip(new TextComponent("- " + ingredient.toString())));
                 info.setItemIcon(Items.HOPPER);
                 break;
             case PRODUCE:
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.drop.info.produce", new StringTextComponent(this.amount + "x ").appendSibling(new TranslationTextComponent(this.output.getTranslationKey())).mergeStyle(TextFormatting.GOLD)));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.produce", new TextComponent(this.amount + "x ").append(new TranslatableComponent(this.output.getDescriptionId())).withStyle(ChatFormatting.GOLD)));
                 info.setItemIcon(Items.DROPPER);
                 break;
         }

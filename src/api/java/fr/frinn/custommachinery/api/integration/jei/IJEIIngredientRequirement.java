@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.api.integration.jei;
 
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 

@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.screen;
 
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class MachineCreationTabScreen extends Screen {
 
@@ -12,7 +12,7 @@ public class MachineCreationTabScreen extends Screen {
     protected int xPos;
     protected int yPos;
 
-    public MachineCreationTabScreen(ITextComponent title, MachineCreationScreen parent, CustomMachineBuilder machine) {
+    public MachineCreationTabScreen(Component title, MachineCreationScreen parent, CustomMachineBuilder machine) {
         super(title);
         this.parent = parent;
         this.machine = machine;

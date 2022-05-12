@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.crafting.requirement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -17,18 +16,19 @@ import fr.frinn.custommachinery.common.data.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.RomanNumber;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.potion.Potions;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +37,11 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
 
     public static final Codec<EffectRequirement> CODEC = RecordCodecBuilder.create(effectRequirementInstance ->
             effectRequirementInstance.group(
-                    RegistryCodec.EFFECT.fieldOf("effect").forGetter(requirement -> requirement.effect),
+                    ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(requirement -> requirement.effect),
                     Codec.INT.fieldOf("time").forGetter(requirement -> requirement.time),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
                     CodecLogger.loggedOptional(Codec.INT,"level", 1).forGetter(requirement -> requirement.level),
-                    CodecLogger.loggedOptional(Codecs.list(RegistryCodec.ENTITY_TYPE),"filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
+                    CodecLogger.loggedOptional(Codecs.list(ForgeRegistries.ENTITIES.getCodec()),"filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
                     CodecLogger.loggedOptional(Codec.BOOL,"finish", false).forGetter(requirement -> requirement.applyAtEnd),
                     CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
             ).apply(effectRequirementInstance, (effect, time, radius, level, filter, finish, jei) -> {
@@ -51,7 +51,7 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
             })
     );
 
-    private final Effect effect;
+    private final MobEffect effect;
     private final int time;
     private final int level;
     private final int radius;
@@ -59,7 +59,7 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
     private final boolean applyAtEnd;
     private boolean jeiVisible = true;
 
-    public EffectRequirement(Effect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd) {
+    public EffectRequirement(MobEffect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd) {
         super(RequirementIOMode.OUTPUT);
         this.effect = effect;
         this.time = time;
@@ -88,9 +88,9 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
     public CraftingResult processEnd(EffectMachineComponent component, ICraftingContext context) {
         if(this.applyAtEnd) {
             int time = (int)context.getModifiedValue(this.time, this, "time");
-            int level = MathHelper.clamp((int)context.getModifiedValue(this.level, this, "level") - 1, 0, 255);
+            int level = Mth.clamp((int)context.getModifiedValue(this.level, this, "level") - 1, 0, 255);
             int radius = (int)context.getModifiedValue(this.radius, this, "radius");
-            component.applyEffect(new EffectInstance(this.effect, time, level - 1), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
+            component.applyEffect(new MobEffectInstance(this.effect, time, level - 1), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         }
         return CraftingResult.success();
     }
@@ -99,9 +99,9 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
     public CraftingResult processTick(EffectMachineComponent component, ICraftingContext context) {
         if(!this.applyAtEnd) {
             int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
-            int level = MathHelper.clamp((int)context.getPerTickModifiedValue(this.level, this, "level") - 1, 0, 255);
+            int level = Mth.clamp((int)context.getPerTickModifiedValue(this.level, this, "level") - 1, 0, 255);
             int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
-            component.applyEffect(new EffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
+            component.applyEffect(new MobEffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         }
         return CraftingResult.success();
     }
@@ -118,17 +118,17 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        ITextComponent effect = new StringTextComponent(this.effect.getDisplayName().getString()).mergeStyle(TextFormatting.AQUA);
-        ITextComponent level = this.level <= 0 ? StringTextComponent.EMPTY : new StringTextComponent(RomanNumber.toRoman(this.level)).mergeStyle(TextFormatting.GOLD);
+        Component effect = new TextComponent(this.effect.getDisplayName().getString()).withStyle(ChatFormatting.AQUA);
+        Component level = this.level <= 0 ? TextComponent.EMPTY : new TextComponent(RomanNumber.toRoman(this.level)).withStyle(ChatFormatting.GOLD);
         if(this.applyAtEnd)
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.end", effect, level, this.time, this.radius));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.effect.info.end", effect, level, this.time, this.radius));
         else
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.tick", effect, level, this.time, this.radius));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.effect.info.tick", effect, level, this.time, this.radius));
         if(!this.filter.isEmpty()) {
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.effect.info.whitelist").mergeStyle(TextFormatting.AQUA));
-            this.filter.forEach(type -> info.addTooltip(new StringTextComponent("* ").appendSibling(new TranslationTextComponent(type.getTranslationKey()))));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.effect.info.whitelist").withStyle(ChatFormatting.AQUA));
+            this.filter.forEach(type -> info.addTooltip(new TextComponent("* ").append(new TranslatableComponent(type.getDescriptionId()))));
         }
         info.setVisible(this.jeiVisible);
-        info.setItemIcon(PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), Potions.HEALING));
+        info.setItemIcon(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.HEALING));
     }
 }

@@ -1,20 +1,16 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SlotItemComponent extends Slot {
 
-    private static final IInventory EMPTY = new Inventory(0);
+    private static final Container EMPTY = new SimpleContainer(0);
 
     private final ItemMachineComponent component;
 
@@ -28,27 +24,27 @@ public class SlotItemComponent extends Slot {
     }
 
     @Override
-    public ItemStack getStack() {
+    public ItemStack getItem() {
         return this.component.getItemStack();
     }
 
     @Override
-    public boolean isItemValid(ItemStack stack) {
+    public boolean mayPlace(ItemStack stack) {
         return this.component.isItemValid(stack) && this.component.getMode().isInput();
     }
 
     @Override
-    public void putStack(ItemStack stack) {
+    public void set(ItemStack stack) {
         this.component.setItemStack(stack);
     }
 
     @Override
-    public int getSlotStackLimit() {
+    public int getMaxStackSize() {
         return this.component.getCapacity();
     }
 
     @Override
-    public ItemStack decrStackSize(int amount) {
+    public ItemStack remove(int amount) {
         ItemStack stack = this.component.getItemStack().copy();
         this.component.extract(amount);
         stack.setCount(amount);
@@ -56,7 +52,7 @@ public class SlotItemComponent extends Slot {
     }
 
     @Override
-    public boolean canTakeStack(PlayerEntity player) {
+    public boolean mayPickup(Player player) {
         return true;
     }
 }

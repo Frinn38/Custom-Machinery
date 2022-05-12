@@ -1,16 +1,15 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker;
 
-import com.blamejared.crafttweaker.CraftTweaker;
 import com.blamejared.crafttweaker.api.CraftTweakerAPI;
-import com.blamejared.crafttweaker.api.annotations.ZenRegister;
-import com.blamejared.crafttweaker.api.data.IData;
+import com.blamejared.crafttweaker.api.CraftTweakerConstants;
+import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
+import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.data.base.IData;
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import com.blamejared.crafttweaker.api.item.IItemStack;
-import com.blamejared.crafttweaker.impl.actions.recipes.ActionAddRecipe;
-import com.blamejared.crafttweaker.impl.entity.MCEntityType;
-import com.blamejared.crafttweaker.impl.helper.CraftTweakerHelper;
-import com.blamejared.crafttweaker.impl.managers.RecipeManagerWrapper;
-import com.blamejared.crafttweaker.impl.tag.MCTag;
+import com.blamejared.crafttweaker.api.recipe.manager.RecipeManagerWrapper;
+import com.blamejared.crafttweaker.api.recipe.manager.base.IRecipeManager;
+import com.blamejared.crafttweaker.api.tag.MCTag;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -23,28 +22,65 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.crafting.requirement.*;
+import fr.frinn.custommachinery.common.crafting.requirement.BiomeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.CommandRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DimensionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DropRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DurabilityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FuelRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FunctionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.ItemRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LightRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LootTableRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.PositionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.RedstoneRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.StructureRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.TimeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
-import fr.frinn.custommachinery.common.util.*;
-import fr.frinn.custommachinery.common.util.ingredient.*;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.Effect;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.biome.Biome;
+import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.ComparatorMode;
+import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.PositionComparator;
+import fr.frinn.custommachinery.common.util.TimeComparator;
+import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
+import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
+import org.openzen.zencode.java.ZenCodeType.Method;
+import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.Optional;
+import org.openzen.zencode.java.ZenCodeType.OptionalBoolean;
+import org.openzen.zencode.java.ZenCodeType.OptionalFloat;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
-import org.openzen.zencode.java.ZenCodeType.*;
+import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,19 +107,23 @@ public class CustomMachineCTRecipeBuilder {
         }
     }
 
+    //TODO : Improve
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Method
     public void build(@OptionalString String name) {
         final ResourceLocation recipeID;
         try {
             if(!name.isEmpty())
-                recipeID = new ResourceLocation(CraftTweaker.MODID, name);
+                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, name);
             else
-                recipeID = new ResourceLocation(CraftTweaker.MODID, "custom_machine_recipe_" + index++);
+                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, "custom_machine_recipe_" + index++);
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid Recipe name: " + name + "\n" + e.getMessage());
         }
         CustomMachineRecipe recipe = this.builder.build(recipeID);
-        CraftTweakerAPI.apply(new ActionAddRecipe(new RecipeManagerWrapper(Registration.CUSTOM_MACHINE_RECIPE), recipe));
+        IRecipeManager manager = new RecipeManagerWrapper((RecipeType)Registration.CUSTOM_MACHINE_RECIPE.get());
+        ActionAddRecipe<CustomMachineRecipe> action =  new ActionAddRecipe<>(manager, recipe);
+        CraftTweakerAPI.apply(action);
     }
 
     /** ENERGY **/
@@ -116,11 +156,11 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireFluidTag(MCTag<Fluid> tag, int amount, @Optional IData data, @OptionalString String tank) {
+    public CustomMachineCTRecipeBuilder requireFluidTag(MCTag tag, int amount, @Optional IData data, @OptionalString String tank) {
         try {
-            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getId()), amount, false, getNBT(data), tank);
+            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getTagKey().location()), amount, false, getNBT(data), tank);
         } catch (IllegalArgumentException e) {
-            CraftTweakerAPI.logError(e.getMessage());
+            CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
         }
     }
@@ -136,11 +176,11 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireFluidTagPerTick(MCTag<Fluid> tag, int amount, @Optional IData data, @OptionalString String tank) {
+    public CustomMachineCTRecipeBuilder requireFluidTagPerTick(MCTag tag, int amount, @Optional IData data, @OptionalString String tank) {
         try {
-            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getId()), amount, true, getNBT(data), tank);
+            return withFluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getTagKey().location()), amount, true, getNBT(data), tank);
         } catch (IllegalArgumentException e) {
-            CraftTweakerAPI.logError(e.getMessage());
+            CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
         }
     }
@@ -158,11 +198,11 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
+    public CustomMachineCTRecipeBuilder requireItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
+            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey().location()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
-            CraftTweakerAPI.logError(e.getMessage());
+            CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
         }
     }
@@ -180,11 +220,11 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder damageItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
+    public CustomMachineCTRecipeBuilder damageItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey().location()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
-            CraftTweakerAPI.logError(e.getMessage());
+            CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
         }
     }
@@ -195,11 +235,11 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder repairItemTag(MCTag<Item> tag, int amount, @Optional IData data, @OptionalString String slot) {
+    public CustomMachineCTRecipeBuilder repairItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag.getId()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag.getTagKey().location()), amount, getNBT(data), slot));
         } catch (IllegalArgumentException e) {
-            CraftTweakerAPI.logError(e.getMessage());
+            CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
         }
     }
@@ -208,7 +248,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireTime(String[] times) {
-        List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).collect(Collectors.toList());
+        List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).toList();
         if(!timeComparators.isEmpty())
             return addRequirement(new TimeRequirement(timeComparators));
         return this;
@@ -216,7 +256,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireTime(String time) {
-        TimeComparator timeComparator = Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(time)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + time)).getFirst();
+        TimeComparator timeComparator = Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(time)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + time)).getFirst();
         return addRequirement(new TimeRequirement(Collections.singletonList(timeComparator)));
     }
 
@@ -224,7 +264,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requirePosition(String[] positions) {
-        List<PositionComparator> positionComparators = Stream.of(positions).map(s -> Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s)).getFirst()).collect(Collectors.toList());
+        List<PositionComparator> positionComparators = Stream.of(positions).map(s -> Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s)).getFirst()).toList();
         if(!positionComparators.isEmpty())
             return addRequirement(new PositionRequirement(positionComparators));
         return this;
@@ -232,7 +272,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requirePosition(String position) {
-        PositionComparator positionComparator = Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(position)).resultOrPartial(CraftTweakerAPI::logError).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + position)).getFirst();
+        PositionComparator positionComparator = Codecs.POSITION_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(position)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + position)).getFirst();
         return addRequirement(new PositionRequirement(Collections.singletonList(positionComparator)));
     }
 
@@ -240,7 +280,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder biomeWhitelist(Biome[] biomes) {
-        List<ResourceLocation> biomesID = Arrays.stream(biomes).map(Biome::getRegistryName).collect(Collectors.toList());
+        List<ResourceLocation> biomesID = Arrays.stream(biomes).map(Biome::getRegistryName).toList();
         return addRequirement(new BiomeRequirement(biomesID, false));
     }
 
@@ -251,7 +291,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder biomeBlacklist(Biome[] biomes) {
-        List<ResourceLocation> biomesID = Arrays.stream(biomes).map(Biome::getRegistryName).collect(Collectors.toList());
+        List<ResourceLocation> biomesID = Arrays.stream(biomes).map(Biome::getRegistryName).toList();
         return addRequirement(new BiomeRequirement(biomesID, true));
     }
 
@@ -265,7 +305,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder dimensionWhitelist(String[] dimensions) {
         try {
-            List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).map(ResourceLocation::new).collect(Collectors.toList());
+            List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).map(ResourceLocation::new).toList();
             return addRequirement(new DimensionRequirement(dimensionsID, false));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimension ID: " + e.getMessage());
@@ -284,7 +324,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder dimensionBlacklist(String[] dimensions) {
         try {
-            List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).map(ResourceLocation::new).collect(Collectors.toList());
+            List<ResourceLocation> dimensionsID = Arrays.stream(dimensions).map(ResourceLocation::new).toList();
             return addRequirement(new DimensionRequirement(dimensionsID, false));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid dimension ID: " + e.getMessage());
@@ -325,17 +365,17 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     /** EFFECT **/
-
+    /*
     @Method
-    public CustomMachineCTRecipeBuilder giveEffectOnEnd(Effect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
+    public CustomMachineCTRecipeBuilder giveEffectOnEnd(MobEffect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
         return addRequirement(new EffectRequirement(effect, time, level, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), true));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder giveEffectEachTick(Effect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
+    public CustomMachineCTRecipeBuilder giveEffectEachTick(MobEffect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
         return addRequirement(new EffectRequirement(effect, time, level, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), false));
     }
-
+    */
     /** WEATHER **/
 
     @Method
@@ -356,7 +396,7 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     /** ENTITY **/
-
+    /*
     @Method
     public CustomMachineCTRecipeBuilder requireEntities(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
         return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
@@ -386,7 +426,7 @@ public class CustomMachineCTRecipeBuilder {
     public CustomMachineCTRecipeBuilder killEntityOnEnd(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
         return addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
     }
-
+    */
     /** LIGHT **/
 
     @Method
@@ -460,18 +500,18 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder requireStructure(String[][] pattern, Map<String, String> key) {
-        List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).collect(Collectors.toList())).collect(Collectors.toList());
+        List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).toList()).toList();
         Map<Character, IIngredient<PartialBlockState>> keysMap = new HashMap<>();
         for(Map.Entry<String, String> entry : key.entrySet()) {
             if(entry.getKey().length() != 1) {
-                CraftTweakerAPI.logError("Invalid structure key: " + entry.getKey() + " Must be a single character which is not 'm'");
+                CraftTweakerAPI.LOGGER.error("Invalid structure key: " + entry.getKey() + " Must be a single character which is not 'm'");
                 return this;
             }
             char keyChar = entry.getKey().charAt(0);
             DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
             if(result.error().isPresent() || !result.result().isPresent()) {
-                CraftTweakerAPI.logError("Invalid structure block: " + entry.getValue());
-                CraftTweakerAPI.logError(result.error().get().message());
+                CraftTweakerAPI.LOGGER.error("Invalid structure block: " + entry.getValue());
+                CraftTweakerAPI.LOGGER.error(result.error().get().message());
                 return this;
             }
             keysMap.put(keyChar, result.result().get());
@@ -484,7 +524,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder lootTableOutput(String lootTable, @OptionalFloat float luck) {
         if(!Utils.isResourceNameValid(lootTable)) {
-            CraftTweakerAPI.logError("Invalid loot table id: " + lootTable);
+            CraftTweakerAPI.LOGGER.error("Invalid loot table id: " + lootTable);
             return this;
         }
         ResourceLocation tableLoc = new ResourceLocation(lootTable);
@@ -506,7 +546,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder checkDrops(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
         if(items.length == 0 && whitelist) {
-            CraftTweakerAPI.logError("Invalid Drop requirement, checkDrop method must have at least 1 item defined when using whitelist mode");
+            CraftTweakerAPI.LOGGER.error("Invalid Drop requirement, checkDrop method must have at least 1 item defined when using whitelist mode");
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
@@ -526,7 +566,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder consumeDropsOnStart(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
         if(items.length == 0 && whitelist) {
-            CraftTweakerAPI.logError("Invalid Drop requirement, consumeDropOnStart method must have at least 1 item defined when using whitelist mode");
+            CraftTweakerAPI.LOGGER.error("Invalid Drop requirement, consumeDropOnStart method must have at least 1 item defined when using whitelist mode");
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
@@ -547,7 +587,7 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder consumeDropsOnEnd(ItemStack[] items, int amount, int radius, @OptionalBoolean(true) boolean whitelist) {
         if(items.length == 0 && whitelist) {
-            CraftTweakerAPI.logError("Invalid Drop requirement, consumeDropOnEnd method must have at least 1 item defined when using whitelist mode");
+            CraftTweakerAPI.LOGGER.error("Invalid Drop requirement, consumeDropOnEnd method must have at least 1 item defined when using whitelist mode");
             return this;
         }
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStack::getItem).map(ItemIngredient::new).collect(Collectors.toList());
@@ -593,7 +633,7 @@ public class CustomMachineCTRecipeBuilder {
         if(this.lastRequirement != null && this.lastRequirement instanceof IChanceableRequirement)
             ((IChanceableRequirement<?>)this.lastRequirement).setChance(chance);
         else
-            CraftTweakerAPI.logError("Can't set chance for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.LOGGER.error("Can't set chance for requirement: " + this.lastRequirement);
         return this;
     }
 
@@ -604,7 +644,7 @@ public class CustomMachineCTRecipeBuilder {
         if(this.lastRequirement != null && this.lastRequirement instanceof IDisplayInfoRequirement)
             ((IDisplayInfoRequirement)this.lastRequirement).setJeiVisible(false);
         else
-            CraftTweakerAPI.logError("Can't hide requirement: " + this.lastRequirement);
+            CraftTweakerAPI.LOGGER.error("Can't hide requirement: " + this.lastRequirement);
         return this;
     }
 
@@ -615,7 +655,7 @@ public class CustomMachineCTRecipeBuilder {
         if(this.lastRequirement != null && this.lastRequirement instanceof IDelayedRequirement<?>)
             ((IDelayedRequirement<?>)this.lastRequirement).setDelay(delay);
         else
-            CraftTweakerAPI.logError("Can't put delay for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.LOGGER.error("Can't put delay for requirement: " + this.lastRequirement);
         return this;
     }
 
@@ -640,8 +680,8 @@ public class CustomMachineCTRecipeBuilder {
 
     /** INTERNAL **/
 
-    private CompoundNBT getNBT(IData data) {
-        return data.getInternal() instanceof CompoundNBT ? (CompoundNBT) data.getInternal() : new CompoundNBT();
+    private CompoundTag getNBT(IData data) {
+        return data.getInternal() instanceof CompoundTag ? (CompoundTag) data.getInternal() : new CompoundTag();
     }
 
     private CustomMachineCTRecipeBuilder addRequirement(IRequirement<?> requirement) {
@@ -660,7 +700,7 @@ public class CustomMachineCTRecipeBuilder {
             return addRequirement(new EnergyRequirement(mode, amount));
     }
 
-    private CustomMachineCTRecipeBuilder withFluidRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, boolean isPerTick, CompoundNBT nbt, String tank) {
+    private CustomMachineCTRecipeBuilder withFluidRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, boolean isPerTick, CompoundTag nbt, String tank) {
         if(isPerTick) {
             return addRequirement(new FluidPerTickRequirement(mode, fluid, amount, nbt, tank));
         } else {
@@ -673,21 +713,21 @@ public class CustomMachineCTRecipeBuilder {
         if(block.isEmpty())
             state = PartialBlockState.AIR;
         else
-            state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI::logError).orElse(null);
+            state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElse(null);
         if(state == null) {
-            CraftTweakerAPI.logError("Invalid block: " + block);
+            CraftTweakerAPI.LOGGER.error("Invalid block: " + block);
             return this;
         }
-        AxisAlignedBB bb = new AxisAlignedBB(startX, startY, startZ, endX, endY, endZ);
+        AABB bb = new AABB(startX, startY, startZ, endX, endY, endZ);
         List<IIngredient<PartialBlockState>> filter;
         if(stringFilter != null)
-            filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI::logError).orElse(null)).filter(Objects::nonNull).collect(Collectors.toList());
+            filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElse(null)).filter(Objects::nonNull).toList();
         else
             filter = Collections.emptyList();
         try {
             return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {
-            CraftTweakerAPI.logError("Invalid comparator: " + comparator);
+            CraftTweakerAPI.LOGGER.error("Invalid comparator: " + comparator);
         }
         return this;
     }

@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.client.screen;
 
 import fr.frinn.custommachinery.client.screen.widget.ToogleTextFieldWidget;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.TextComponent;
 
 public class MachineAppearanceScreen extends MachineCreationTabScreen {
 
@@ -11,7 +11,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
     private ToogleTextFieldWidget blockStatePrompt;
 
     public MachineAppearanceScreen(MachineCreationScreen parent, CustomMachineBuilder machine) {
-        super(new StringTextComponent("Machine Appearance"), parent, machine);
+        super(new TextComponent("Machine Appearance"), parent, machine);
     }
     /*
     @Override

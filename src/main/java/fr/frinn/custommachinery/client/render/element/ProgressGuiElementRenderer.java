@@ -1,20 +1,21 @@
 package fr.frinn.custommachinery.client.render.element;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,47 +23,39 @@ import java.util.List;
 public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressBarGuiElement>, IJEIElementRenderer<ProgressBarGuiElement> {
 
     @Override
-    public void renderElement(MatrixStack matrix, ProgressBarGuiElement element, IMachineScreen screen) {
+    public void renderElement(PoseStack matrix, ProgressBarGuiElement element, IMachineScreen screen) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
         int height = element.getHeight();
-        int filledWidth = (int)(width * MathHelper.clamp(((CustomMachineContainer)screen.getScreen().getContainer()).getRecipeProgressPercent(), 0.0D, 1.0D));
-        int filledHeight = (int)(height * MathHelper.clamp(((CustomMachineContainer)screen.getScreen().getContainer()).getRecipeProgressPercent(), 0.0D, 1.0D));
+        int filledWidth = (int)(width * Mth.clamp(((CustomMachineContainer)screen.getScreen().getMenu()).getRecipeProgressPercent(), 0.0D, 1.0D));
+        int filledHeight = (int)(height * Mth.clamp(((CustomMachineContainer)screen.getScreen().getMenu()).getRecipeProgressPercent(), 0.0D, 1.0D));
 
-        Minecraft.getInstance().getTextureManager().bindTexture(element.getEmptyTexture());
+        ClientHandler.bindTexture(element.getEmptyTexture());
 
         if(element.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && element.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)) {
-            matrix.push();
+            matrix.pushPose();
             rotate(matrix, element.getDirection(), posX, posY, width, height);
 
-            AbstractGui.blit(matrix, 0, 0, 0, 0, width, height, width, height);
-            Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
-            AbstractGui.blit(matrix, 0, 0, 0, 0, filledWidth, height, width, height);
+            GuiComponent.blit(matrix, 0, 0, 0, 0, width, height, width, height);
+            ClientHandler.bindTexture(element.getFilledTexture());
+            GuiComponent.blit(matrix, 0, 0, 0, 0, filledWidth, height, width, height);
 
-            matrix.pop();
+            matrix.popPose();
         } else {
-            AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
-            Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
+            GuiComponent.blit(matrix, posX, posY, 0, 0, width, height, width, height);
+            ClientHandler.bindTexture(element.getFilledTexture());
             switch (element.getDirection()) {
-                case RIGHT:
-                    AbstractGui.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
-                    break;
-                case LEFT:
-                    AbstractGui.blit(matrix, posX + width - filledWidth, posY, width - filledWidth, 0, filledWidth, height, width, height);
-                    break;
-                case TOP:
-                    AbstractGui.blit(matrix, posX, posY, 0, 0, width, filledHeight, width, height);
-                    break;
-                case BOTTOM:
-                    AbstractGui.blit(matrix, posX, posY + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
-                    break;
+                case RIGHT -> GuiComponent.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
+                case LEFT -> GuiComponent.blit(matrix, posX + width - filledWidth, posY, width - filledWidth, 0, filledWidth, height, width, height);
+                case TOP -> GuiComponent.blit(matrix, posX, posY, 0, 0, width, filledHeight, width, height);
+                case BOTTOM -> GuiComponent.blit(matrix, posX, posY + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
             }
         }
     }
 
     @Override
-    public void renderTooltip(MatrixStack matrix, ProgressBarGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
+    public void renderTooltip(PoseStack matrix, ProgressBarGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
 
     }
 
@@ -77,45 +70,37 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
     }
 
     @Override
-    public void renderElementInJEI(MatrixStack matrix, ProgressBarGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
+    public void renderElementInJEI(PoseStack matrix, ProgressBarGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
         int height = element.getHeight();
 
-        if(Minecraft.getInstance().world == null)
+        if(Minecraft.getInstance().level == null)
             return;
 
-        int filledWidth = (int)(Minecraft.getInstance().world.getGameTime() % width);
-        int filledHeight = (int)(Minecraft.getInstance().world.getGameTime() % height);
+        int filledWidth = (int)(Minecraft.getInstance().level.getGameTime() % width);
+        int filledHeight = (int)(Minecraft.getInstance().level.getGameTime() % height);
 
-        Minecraft.getInstance().getTextureManager().bindTexture(element.getEmptyTexture());
+        ClientHandler.bindTexture(element.getEmptyTexture());
 
         if(element.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && element.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)) {
-            matrix.push();
+            matrix.pushPose();
             rotate(matrix, element.getDirection(), posX, posY, width, height);
 
-            AbstractGui.blit(matrix, 0, 0, 0, 0, width, height, width, height);
-            Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
-            AbstractGui.blit(matrix, 0, 0, 0, 0, filledWidth, height, width, height);
+            GuiComponent.blit(matrix, 0, 0, 0, 0, width, height, width, height);
+            ClientHandler.bindTexture(element.getFilledTexture());
+            GuiComponent.blit(matrix, 0, 0, 0, 0, filledWidth, height, width, height);
 
-            matrix.pop();
+            matrix.popPose();
         } else {
-            AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
-            Minecraft.getInstance().getTextureManager().bindTexture(element.getFilledTexture());
+            GuiComponent.blit(matrix, posX, posY, 0, 0, width, height, width, height);
+            ClientHandler.bindTexture(element.getFilledTexture());
             switch (element.getDirection()) {
-                case RIGHT:
-                    AbstractGui.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
-                    break;
-                case LEFT:
-                    AbstractGui.blit(matrix, posX + width - filledWidth, posY, width - filledWidth, 0, filledWidth, height, width, height);
-                    break;
-                case TOP:
-                    AbstractGui.blit(matrix, posX, posY, 0, 0, width, filledHeight, width, height);
-                    break;
-                case BOTTOM:
-                    AbstractGui.blit(matrix, posX, posY + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
-                    break;
+                case RIGHT -> GuiComponent.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
+                case LEFT -> GuiComponent.blit(matrix, posX + width - filledWidth, posY, width - filledWidth, 0, filledWidth, height, width, height);
+                case TOP -> GuiComponent.blit(matrix, posX, posY, 0, 0, width, filledHeight, width, height);
+                case BOTTOM -> GuiComponent.blit(matrix, posX, posY + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
             }
         }
     }
@@ -129,29 +114,29 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
     }
 
     @Override
-    public List<ITextComponent> getJEITooltips(ProgressBarGuiElement element, IMachineRecipe recipe) {
-        List<ITextComponent> tooltips = new ArrayList<>();
-        tooltips.add(new TranslationTextComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
-        if(!CMConfig.INSTANCE.needAdvancedInfoForRecipeID.get() || Minecraft.getInstance().gameSettings.advancedItemTooltips)
-            tooltips.add(new TranslationTextComponent("custommachinery.jei.recipe.id", recipe.getRecipeId().toString()).mergeStyle(TextFormatting.DARK_GRAY));
+    public List<Component> getJEITooltips(ProgressBarGuiElement element, IMachineRecipe recipe) {
+        List<Component> tooltips = new ArrayList<>();
+        tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
+        if(!CMConfig.INSTANCE.needAdvancedInfoForRecipeID.get() || Minecraft.getInstance().options.advancedItemTooltips)
+            tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.id", recipe.getRecipeId().toString()).withStyle(ChatFormatting.DARK_GRAY));
         return tooltips;
     }
 
-    private void rotate(MatrixStack matrix, ProgressBarGuiElement.Direction direction, int posX, int posY, int width, int height) {
+    private void rotate(PoseStack matrix, ProgressBarGuiElement.Direction direction, int posX, int posY, int width, int height) {
         switch (direction) {
             case RIGHT:
                 matrix.translate(posX, posY, 0);
                 break;
             case LEFT:
-                matrix.rotate(Vector3f.ZP.rotationDegrees(180));
+                matrix.mulPose(Vector3f.ZP.rotationDegrees(180));
                 matrix.translate(-width - posX, -height - posY, 0);
                 break;
             case TOP:
-                matrix.rotate(Vector3f.ZP.rotationDegrees(270));
+                matrix.mulPose(Vector3f.ZP.rotationDegrees(270));
                 matrix.translate(-width - posY, posX, 0);
                 break;
             case BOTTOM:
-                matrix.rotate(Vector3f.ZP.rotationDegrees(90));
+                matrix.mulPose(Vector3f.ZP.rotationDegrees(90));
                 matrix.translate(posY, -height - posX, 0);
                 break;
         }

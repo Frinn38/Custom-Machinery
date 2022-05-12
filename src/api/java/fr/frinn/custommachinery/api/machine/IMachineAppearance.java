@@ -1,9 +1,10 @@
 package fr.frinn.custommachinery.api.machine;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * Define the appearance of the machine.
@@ -60,12 +61,12 @@ public interface IMachineAppearance {
     /**
      * @return The tool that can effectively break the machine.
      */
-    ToolType getTool();
+    TagKey<Block> getTool();
 
     /**
      * @return The minimal mining level the tool need to be able to break effectively the machine.
      */
-    int getMiningLevel();
+    TagKey<Block> getMiningLevel();
 
     /**
      * @return The shape of the machine, used for collisions and block outline.

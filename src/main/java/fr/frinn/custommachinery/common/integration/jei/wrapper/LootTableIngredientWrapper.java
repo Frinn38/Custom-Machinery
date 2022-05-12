@@ -14,9 +14,9 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,7 +41,7 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
 
     @Override
     public void setIngredient(Ingredients ingredients) {
-        List<ItemStack> items = LootTableHelper.getLootsForTable(this.lootTable).stream().map(Pair::getFirst).collect(Collectors.toList());
+        List<ItemStack> items = LootTableHelper.getLootsForTable(this.lootTable).stream().map(Pair::getFirst).toList();
         ingredients.addOutputs(VanillaTypes.ITEM, items);
     }
 
@@ -65,13 +65,13 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
                 if(chance != 1){
                     double percentage = chance * 100;
                     if(percentage < 0.01F)
-                        tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", "<0.01"));
+                        tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", "<0.01"));
                     else {
                         BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
                         if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
-                            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
                         else
-                            tooltips.add(new TranslationTextComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
                     }
                 }
             }));

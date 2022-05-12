@@ -2,9 +2,9 @@ package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.client.ClientPacketHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +20,13 @@ public class SUpdateContainerPacket {
         this.windowId = windowId;
     }
 
-    public static void encode(SUpdateContainerPacket pkt, PacketBuffer buf) {
+    public static void encode(SUpdateContainerPacket pkt, FriendlyByteBuf buf) {
         buf.writeInt(pkt.windowId);
         buf.writeShort(pkt.data.size());
         pkt.data.forEach(data -> data.writeData(buf));
     }
 
-    public static SUpdateContainerPacket decode(PacketBuffer buf) {
+    public static SUpdateContainerPacket decode(FriendlyByteBuf buf) {
         int windowId = buf.readInt();
         List<IData<?>> dataList = new ArrayList<>();
         short size = buf.readShort();

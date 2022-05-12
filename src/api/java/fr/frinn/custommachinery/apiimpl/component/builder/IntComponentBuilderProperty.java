@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.apiimpl.component.builder;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.TextComponent;
 
 public class IntComponentBuilderProperty extends AbstractComponentBuilderProperty<Integer> {
 
@@ -17,18 +17,18 @@ public class IntComponentBuilderProperty extends AbstractComponentBuilderPropert
     }
 
     @Override
-    public Widget getAsWidget(int x, int y, int width, int height) {
-        TextFieldWidget widget = new TextFieldWidget(Minecraft.getInstance().fontRenderer, x, y, width, height, new StringTextComponent(getName())) {
+    public AbstractWidget getAsWidget(int x, int y, int width, int height) {
+        EditBox widget = new EditBox(Minecraft.getInstance().font, x, y, width, height, new TextComponent(getName())) {
             @Override
-            public void writeText(String textToWrite) {
-                super.writeText(textToWrite);
-                while (getText().startsWith("0") && getText().length() > 1)
-                    setText(getText().substring(1));
+            public void setValue(String textToWrite) {
+                super.setValue(textToWrite);
+                while (getValue().startsWith("0") && getValue().length() > 1)
+                    setValue(getValue().substring(1));
             }
         };
-        widget.setText(this.get().toString());
+        widget.setValue(this.get().toString());
         widget.setResponder(s -> this.set(Integer.parseInt(s)));
-        widget.setValidator(s -> {
+        widget.setFilter(s -> {
             try {
                 Integer.parseInt(s);
                 return true;

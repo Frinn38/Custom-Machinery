@@ -5,32 +5,28 @@ import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
 import fr.frinn.custommachinery.common.util.SlotItemComponent;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CustomMachineContainer extends SyncableContainer {
 
-    private final PlayerInventory playerInv;
+    private final Inventory playerInv;
     public CustomMachineTile tile;
     private boolean hasPlayerInventory = false;
     private final List<SlotItemComponent> inputSlotComponents = new ArrayList<>();
 
-    public CustomMachineContainer(int id, PlayerInventory playerInv, CustomMachineTile tile) {
+    public CustomMachineContainer(int id, Inventory playerInv, CustomMachineTile tile) {
         super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id, tile);
         this.playerInv = playerInv;
         this.tile = tile;
@@ -80,27 +76,27 @@ public class CustomMachineContainer extends SyncableContainer {
         );
     }
 
-    public CustomMachineContainer(int id, PlayerInventory playerInv, PacketBuffer extraData) {
+    public CustomMachineContainer(int id, Inventory playerInv, FriendlyByteBuf extraData) {
         this(id, playerInv, ClientHandler.getClientSideCustomMachineTile(extraData.readBlockPos()));
     }
 
     @Override
-    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, PlayerEntity player) {
-        this.tile.markDirty();
-        return super.slotClick(slotId, dragType, clickTypeIn, player);
+    public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
+        this.tile.setChanged();
+        super.clicked(slotId, dragType, clickTypeIn, player);
     }
 
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity player, int index) {
+    public ItemStack quickMoveStack(Player player, int index) {
         if(!this.hasPlayerInventory)
             return ItemStack.EMPTY;
 
-        Slot clickedSlot = this.inventorySlots.get(index);
-        if(clickedSlot.getStack().isEmpty())
+        Slot clickedSlot = this.slots.get(index);
+        if(clickedSlot.getItem().isEmpty())
             return ItemStack.EMPTY;
 
-        if(clickedSlot.inventory == this.playerInv) {
-            ItemStack stack = clickedSlot.getStack().copy();
+        if(clickedSlot.container == this.playerInv) {
+            ItemStack stack = clickedSlot.getItem().copy();
             for (SlotItemComponent slotComponent : this.inputSlotComponents) {
                 int maxInput = slotComponent.getComponent().getSpaceForItem(stack);
                 if(maxInput > 0) {
@@ -114,31 +110,31 @@ public class CustomMachineContainer extends SyncableContainer {
                     break;
             }
             if(stack.isEmpty())
-                clickedSlot.decrStackSize(clickedSlot.getStack().getCount());
+                clickedSlot.remove(clickedSlot.getItem().getCount());
             else
-                clickedSlot.decrStackSize(clickedSlot.getStack().getCount() - stack.getCount());
+                clickedSlot.remove(clickedSlot.getItem().getCount() - stack.getCount());
         } else {
             if (!(clickedSlot instanceof SlotItemComponent))
                 return ItemStack.EMPTY;
 
-            ItemStack stack = clickedSlot.getStack().copy();
+            ItemStack stack = clickedSlot.getItem().copy();
             ItemStack remaining = ItemHandlerHelper.insertItemStacked(new PlayerInvWrapper(this.playerInv), stack, false);
             if (remaining.isEmpty())
-                clickedSlot.decrStackSize(stack.getCount());
+                clickedSlot.remove(stack.getCount());
             else
-                clickedSlot.decrStackSize(stack.getCount() - remaining.getCount());
+                clickedSlot.remove(stack.getCount() - remaining.getCount());
         }
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity player) {
-        return isWithinUsableDistance(IWorldPosCallable.of(player.world, this.tile.getPos()), player, Registration.CUSTOM_MACHINE_BLOCK.get());
+    public boolean stillValid(Player player) {
+        return stillValid(ContainerLevelAccess.create(player.level, this.tile.getBlockPos()), player, Registration.CUSTOM_MACHINE_BLOCK.get());
     }
 
     @Override
     public boolean needFullSync() {
-        return this.tile.getWorld() != null && this.tile.getWorld().getGameTime() % 100 == 0;
+        return this.tile.getLevel() != null && this.tile.getLevel().getGameTime() % 100 == 0;
     }
 
     public double getRecipeProgressPercent() {

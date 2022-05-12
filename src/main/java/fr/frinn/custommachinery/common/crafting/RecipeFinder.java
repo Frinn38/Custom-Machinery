@@ -3,13 +3,11 @@ package fr.frinn.custommachinery.common.crafting;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
-import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class RecipeFinder {
 
@@ -25,21 +23,21 @@ public class RecipeFinder {
     }
 
     public void init() {
-        if(tile.getWorld() == null)
+        if(tile.getLevel() == null)
             throw new IllegalStateException("Broken machine " + tile.getMachine().getId() + "doesn't have a world");
-        this.recipes = tile.getWorld().getRecipeManager()
-                .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
+        this.recipes = tile.getLevel().getRecipeManager()
+                .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .filter(recipe -> recipe.getMachine().equals(tile.getId()))
                 .sorted(Comparators.RECIPE_PRIORITY_COMPARATOR.reversed())
                 .map(CustomMachineRecipe::checker)
-                .collect(Collectors.toList());
+                .toList();
         this.okToCheck = new ArrayList<>();
-        this.recipeCheckCooldown = tile.getWorld().rand.nextInt(20);
+        this.recipeCheckCooldown = tile.getLevel().random.nextInt(20);
     }
 
     public Optional<CustomMachineRecipe> findRecipe(CraftingContext.Mutable context, boolean immediately) {
-        if(tile.getWorld() == null)
+        if(tile.getLevel() == null)
             return Optional.empty();
 
         if(immediately || this.recipeCheckCooldown-- <= 0) {

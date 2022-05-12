@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.function;
 
-import com.blamejared.crafttweaker.api.annotations.ZenRegister;
+import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.openzen.zencode.java.ZenCodeType;
 
 @ZenRegister
@@ -26,7 +26,7 @@ public class Context {
 
     @ZenCodeType.Getter("tile")
     @ZenCodeType.Method
-    public TileEntity getTile() {
+    public BlockEntity getTile() {
         return internal.getMachineTile();
     }
 

@@ -14,12 +14,12 @@ import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 
 import java.util.List;
 
@@ -54,7 +54,7 @@ public class DimensionRequirement extends AbstractRequirement<PositionMachineCom
 
     @Override
     public boolean test(PositionMachineComponent component, ICraftingContext context) {
-        return this.filter.contains(component.getDimension().getLocation()) != this.blacklist;
+        return this.filter.contains(component.getDimension().location()) != this.blacklist;
     }
 
     @Override
@@ -81,12 +81,12 @@ public class DimensionRequirement extends AbstractRequirement<PositionMachineCom
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.filter.isEmpty()) {
             if(this.blacklist)
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.blacklist").mergeStyle(TextFormatting.DARK_RED));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.dimension.blacklist").withStyle(ChatFormatting.DARK_RED));
             else
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.dimension.whitelist").mergeStyle(TextFormatting.DARK_GREEN));
-            this.filter.forEach(dimension -> info.addTooltip(new StringTextComponent("* " + dimension)));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.dimension.whitelist").withStyle(ChatFormatting.DARK_GREEN));
+            this.filter.forEach(dimension -> info.addTooltip(new TextComponent("* " + dimension)));
         }
         info.setVisible(this.jeiVisible);
-        info.setSpriteIcon(Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("block/nether_portal")));
+        info.setSpriteIcon(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation("block/nether_portal")));
     }
 }

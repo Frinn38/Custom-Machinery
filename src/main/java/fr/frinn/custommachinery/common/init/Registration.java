@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
+import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.render.element.jei.EnergyJEIIngredientRenderer;
@@ -14,99 +15,165 @@ import fr.frinn.custommachinery.client.render.element.jei.FluidStackIngredientRe
 import fr.frinn.custommachinery.client.render.element.jei.ItemStackJEIIngredientRenderer;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeSerializer;
-import fr.frinn.custommachinery.common.crafting.requirement.*;
+import fr.frinn.custommachinery.common.crafting.requirement.BiomeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.CommandRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DimensionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DropRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.DurabilityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EffectRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EnergyRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.EntityRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidPerTickRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FluidRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FuelRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.FunctionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.ItemRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LightRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.LootTableRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.PositionRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.RedstoneRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.SpeedRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.StructureRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.TimeRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.builder.component.EnergyComponentBuilder;
 import fr.frinn.custommachinery.common.data.builder.component.FluidComponentBuilder;
 import fr.frinn.custommachinery.common.data.builder.component.ItemComponentBuilder;
-import fr.frinn.custommachinery.common.data.component.*;
+import fr.frinn.custommachinery.common.data.component.BlockMachineComponent;
+import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
+import fr.frinn.custommachinery.common.data.component.DropMachineComponent;
+import fr.frinn.custommachinery.common.data.component.EffectMachineComponent;
+import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
+import fr.frinn.custommachinery.common.data.component.EntityMachineComponent;
+import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
+import fr.frinn.custommachinery.common.data.component.FuelMachineComponent;
+import fr.frinn.custommachinery.common.data.component.FunctionMachineComponent;
+import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
+import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
+import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
+import fr.frinn.custommachinery.common.data.component.StructureMachineComponent;
+import fr.frinn.custommachinery.common.data.component.TimeMachineComponent;
+import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.data.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.data.component.variant.item.UpgradeItemComponentVariant;
-import fr.frinn.custommachinery.common.data.gui.*;
+import fr.frinn.custommachinery.common.data.gui.DumpGuiElement;
+import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
+import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
+import fr.frinn.custommachinery.common.data.gui.FuelGuiElement;
+import fr.frinn.custommachinery.common.data.gui.PlayerInventoryGuiElement;
+import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
+import fr.frinn.custommachinery.common.data.gui.ResetGuiElement;
+import fr.frinn.custommachinery.common.data.gui.SizeGuiElement;
+import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
+import fr.frinn.custommachinery.common.data.gui.StatusGuiElement;
+import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
+import fr.frinn.custommachinery.common.data.gui.TextureGuiElement;
+import fr.frinn.custommachinery.common.network.data.BooleanData;
+import fr.frinn.custommachinery.common.network.data.DoubleData;
+import fr.frinn.custommachinery.common.network.data.FluidStackData;
+import fr.frinn.custommachinery.common.network.data.IntegerData;
+import fr.frinn.custommachinery.common.network.data.ItemStackData;
+import fr.frinn.custommachinery.common.network.data.LongData;
+import fr.frinn.custommachinery.common.network.data.StringData;
+import fr.frinn.custommachinery.common.network.syncable.BooleanSyncable;
+import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
+import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
+import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
+import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
+import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.Block;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.loot.LootParameterSet;
-import net.minecraft.loot.LootParameterSets;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.registry.Registry;
-import net.minecraftforge.common.ToolType;
-import net.minecraftforge.common.extensions.IForgeContainerType;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
 @SuppressWarnings({"unused", "unchecked", "rawtypes"})
 public class Registration {
 
-    @MethodsReturnNonnullByDefault
-    public static final ItemGroup GROUP = new ItemGroup(CustomMachinery.MODID) {
+    public static final CreativeModeTab GROUP = new CreativeModeTab(CustomMachinery.MODID) {
+        @Nonnull
         @Override
-        public ItemStack createIcon() {
+        public ItemStack makeIcon() {
             return CustomMachineItem.makeMachineItem(CustomMachine.DUMMY.getId());
         }
 
         @ParametersAreNonnullByDefault
         @Override
-        public void fill(NonNullList<ItemStack> items) {
-            ITEMS.getEntries().forEach(item -> item.get().fillItemGroup(this, items));
+        public void fillItemList(NonNullList<ItemStack> items) {
+            ITEMS.getEntries().forEach(item -> item.get().fillItemCategory(this, items));
         }
     };
 
-    public static final IRecipeType<CustomMachineRecipe> CUSTOM_MACHINE_RECIPE = new IRecipeType<CustomMachineRecipe>(){};
-
-    public static final LootParameterSet CUSTOM_MACHINE_LOOT_PARAMETER_SET = LootParameterSets.register("custom_machine", builder ->
-            builder.optional(LootParameters.ORIGIN).optional(LootParameters.BLOCK_ENTITY)
+    public static final LootContextParamSet CUSTOM_MACHINE_LOOT_PARAMETER_SET = LootContextParamSets.register("custom_machine", builder ->
+            builder.optional(LootContextParams.ORIGIN).optional(LootContextParams.BLOCK_ENTITY)
     );
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, CustomMachinery.MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CustomMachinery.MODID);
-    public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, CustomMachinery.MODID);
-    public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, CustomMachinery.MODID);
-    public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, CustomMachinery.MODID);
-    public static final DeferredRegister<GuiElementType<? extends IGuiElement>> GUI_ELEMENTS = DeferredRegister.create((Class)GuiElementType.class, CustomMachinery.MODID);
-    public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS = DeferredRegister.create((Class)MachineComponentType.class, CustomMachinery.MODID);
-    public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create((Class)RequirementType.class, CustomMachinery.MODID);
-    public static final DeferredRegister<MachineAppearanceProperty<?>> APPEARANCE_PROPERTIES = DeferredRegister.create((Class)MachineAppearanceProperty.class, CustomMachinery.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, CustomMachinery.MODID);
+    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, CustomMachinery.MODID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, CustomMachinery.MODID);
+    public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registry.RECIPE_TYPE_REGISTRY, CustomMachinery.MODID);
+    public static final DeferredRegister<GuiElementType<? extends IGuiElement>> GUI_ELEMENTS = DeferredRegister.create(GuiElementType.REGISTRY_KEY, CustomMachinery.MODID);
+    public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS = DeferredRegister.create(MachineComponentType.REGISTRY_KEY, CustomMachinery.MODID);
+    public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create(RequirementType.REGISTRY_KEY, CustomMachinery.MODID);
+    public static final DeferredRegister<MachineAppearanceProperty<?>> APPEARANCE_PROPERTIES = DeferredRegister.create(MachineAppearanceProperty.REGISTRY_KEY, CustomMachinery.MODID);
+    public static final DeferredRegister<DataType<?, ?>> DATAS = DeferredRegister.create(DataType.REGISTRY_KEY, CustomMachinery.MODID);
 
-    public static final Supplier<IForgeRegistry<GuiElementType<? extends IGuiElement>>> GUI_ELEMENT_TYPE_REGISTRY = GUI_ELEMENTS.makeRegistry("gui_element_type", RegistryBuilder::new);
-    public static final Supplier<IForgeRegistry<MachineComponentType<? extends IMachineComponent>>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry("component_type", RegistryBuilder::new);
-    public static final Supplier<IForgeRegistry<RequirementType<? extends IRequirement<?>>>> REQUIREMENT_TYPE_REGISTRY = REQUIREMENTS.makeRegistry("requirement_type", RegistryBuilder::new);
-    public static final Supplier<IForgeRegistry<MachineAppearanceProperty<?>>> APPEARANCE_PROPERTY_REGISTRY = APPEARANCE_PROPERTIES.makeRegistry("appearance_property", RegistryBuilder::new);
+    public static final Supplier<IForgeRegistry<GuiElementType<? extends IGuiElement>>> GUI_ELEMENT_TYPE_REGISTRY = GUI_ELEMENTS.makeRegistry(GuiElementType.class, () -> new RegistryBuilder());
+    public static final Supplier<IForgeRegistry<MachineComponentType<? extends IMachineComponent>>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry(MachineComponentType.class, () -> new RegistryBuilder());
+    public static final Supplier<IForgeRegistry<RequirementType<? extends IRequirement<?>>>> REQUIREMENT_TYPE_REGISTRY = REQUIREMENTS.makeRegistry(RequirementType.class, () -> new RegistryBuilder());
+    public static final Supplier<IForgeRegistry<MachineAppearanceProperty<?>>> APPEARANCE_PROPERTY_REGISTRY = APPEARANCE_PROPERTIES.makeRegistry(MachineAppearanceProperty.class, () -> new RegistryBuilder());
+    public static final Supplier<IForgeRegistry<DataType<?, ?>>> DATA_REGISTRY = DATAS.makeRegistry(DataType.class, () -> new RegistryBuilder());
 
     public static final RegistryObject<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", CustomMachineBlock::new);
 
-    public static final RegistryObject<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().group(GROUP)));
-    public static final RegistryObject<MachineCreatorItem> MACHINE_CREATOR_ITEM = ITEMS.register("machine_creator_item", () ->  new MachineCreatorItem(new Item.Properties().group(GROUP).maxStackSize(1)));
-    public static final RegistryObject<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().group(GROUP).maxStackSize(1)));
-    public static final RegistryObject<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().group(GROUP).maxStackSize(1)));
+    public static final RegistryObject<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().tab(GROUP)));
+    public static final RegistryObject<MachineCreatorItem> MACHINE_CREATOR_ITEM = ITEMS.register("machine_creator_item", () ->  new MachineCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
+    public static final RegistryObject<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
+    public static final RegistryObject<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
 
-    public static final RegistryObject<TileEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> TileEntityType.Builder.create(CustomMachineTile::new, CUSTOM_MACHINE_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> BlockEntityType.Builder.of(CustomMachineTile::new, CUSTOM_MACHINE_BLOCK.get()).build(null));
 
-    public static final RegistryObject<ContainerType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> IForgeContainerType.create(CustomMachineContainer::new));
+    public static final RegistryObject<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> IForgeMenuType.create(CustomMachineContainer::new));
 
     public static final RegistryObject<CustomMachineRecipeSerializer> CUSTOM_MACHINE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_machine", CustomMachineRecipeSerializer::new);
+
+    public static final RegistryObject<RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine_recipe", () -> new RecipeType<CustomMachineRecipe>() {});
 
     public static final RegistryObject<GuiElementType<EnergyGuiElement>> ENERGY_GUI_ELEMENT = GUI_ELEMENTS.register("energy", () -> new GuiElementType<>(EnergyGuiElement.CODEC).setJeiIngredientType(() -> EnergyJEIIngredientRenderer::new));
     public static final RegistryObject<GuiElementType<FluidGuiElement>> FLUID_GUI_ELEMENT = GUI_ELEMENTS.register("fluid", () -> new GuiElementType<>(FluidGuiElement.CODEC).setJeiIngredientType(() -> FluidStackIngredientRenderer::new));
@@ -169,13 +236,17 @@ public class Registration {
     public static final RegistryObject<MachineAppearanceProperty<Integer>> COLOR_PROPERTY = APPEARANCE_PROPERTIES.register("color", () -> new MachineAppearanceProperty<>(Codec.INT, 0xFFFFFF));
     public static final RegistryObject<MachineAppearanceProperty<Float>> HARDNESS_PROPERTY = APPEARANCE_PROPERTIES.register("hardness", () -> new MachineAppearanceProperty<>(Codec.floatRange(0, Float.MAX_VALUE), 3.5F));
     public static final RegistryObject<MachineAppearanceProperty<Float>> RESISTANCE_PROPERTY = APPEARANCE_PROPERTIES.register("resistance", () -> new MachineAppearanceProperty<>(Codec.floatRange(0, Float.MAX_VALUE), 3.5F));
-    public static final RegistryObject<MachineAppearanceProperty<ToolType>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> new MachineAppearanceProperty<>(Codecs.TOOL_TYPE_CODEC, ToolType.PICKAXE));
-    public static final RegistryObject<MachineAppearanceProperty<Integer>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> new MachineAppearanceProperty<>(Codec.INT, 1));
-    public static final RegistryObject<MachineAppearanceProperty<VoxelShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> new MachineAppearanceProperty<>(Codecs.VOXEL_SHAPE_CODEC, VoxelShapes.fullCube()));
+    public static final RegistryObject<MachineAppearanceProperty<TagKey<Block>>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> new MachineAppearanceProperty<>(TagKey.codec(Registry.BLOCK_REGISTRY), BlockTags.MINEABLE_WITH_PICKAXE));
+    public static final RegistryObject<MachineAppearanceProperty<TagKey<Block>>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> new MachineAppearanceProperty<>(TagKey.codec(Registry.BLOCK_REGISTRY), BlockTags.NEEDS_IRON_TOOL));
+    public static final RegistryObject<MachineAppearanceProperty<VoxelShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> new MachineAppearanceProperty<>(Codecs.VOXEL_SHAPE_CODEC, Shapes.block()));
 
-    public static void registerRecipeType(final RegistryEvent<IRecipeSerializer<?>> event) {
-        Registry.register(Registry.RECIPE_TYPE, new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CUSTOM_MACHINE_RECIPE);
-    }
+    public static final RegistryObject<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATAS.register("boolean", () -> new DataType<>(Boolean.class, BooleanSyncable::create, BooleanData::new));
+    public static final RegistryObject<DataType<IntegerData, Integer>> INTEGER_DATA = DATAS.register("integer", () -> new DataType<>(Integer.class, IntegerSyncable::create, IntegerData::new));
+    public static final RegistryObject<DataType<DoubleData, Double>> DOUBLE_DATA = DATAS.register("double", () -> new DataType<>(Double.class, DoubleSyncable::create, DoubleData::new));
+    public static final RegistryObject<DataType<ItemStackData, ItemStack>> ITEMSTACK_DATA = DATAS.register("itemstack", () -> new DataType<>(ItemStack.class, ItemStackSyncable::create, ItemStackData::new));
+    public static final RegistryObject<DataType<FluidStackData, FluidStack>> FLUIDSTACK_DATA = DATAS.register("fluidstack", () -> new DataType<>(FluidStack.class, FluidStackSyncable::create, FluidStackData::new));
+    public static final RegistryObject<DataType<StringData, String>> STRING_DATA = DATAS.register("string", () -> new DataType<>(String.class, StringSyncable::create, StringData::new));
+    public static final RegistryObject<DataType<LongData, Long>> LONG_DATA = DATAS.register("long", () -> new DataType<>(Long.class, LongSyncable::create, LongData::new));
 
     public static void registerComponentVariants() {
         ITEM_MACHINE_COMPONENT.get().addVariant(DefaultItemComponentVariant.INSTANCE);

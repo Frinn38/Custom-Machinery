@@ -3,14 +3,18 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.codec.RegistryCodec;
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 import java.util.stream.Stream;
 
@@ -55,7 +59,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     private boolean shouldPauseMachine() {
-        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getWorld().getRedstonePower(getManager().getTile().getPos(), direction)).max().orElse(0) >=
+        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getWorld().getSignal(getManager().getTile().getBlockPos(), direction)).max().orElse(0) >=
                 getManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerToPause).orElse(1);
     }
 
@@ -87,7 +91,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getMachinePower() {
-        return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getWorld().getRedstonePower(this.getManager().getTile().getPos(), direction)).max().orElse(0);
+        return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getWorld().getSignal(this.getManager().getTile().getBlockPos(), direction)).max().orElse(0);
     }
 
     public static class Template implements IMachineComponentTemplate<RedstoneMachineComponent> {
@@ -98,7 +102,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
                         CodecLogger.loggedOptional(Codec.INT,"craftingpoweroutput", 0).forGetter(template -> template.craftingPowerOutput),
                         CodecLogger.loggedOptional(Codec.INT,"idlepoweroutput", 0).forGetter(template -> template.idlePowerOutput),
                         CodecLogger.loggedOptional(Codec.INT,"erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
-                        CodecLogger.loggedOptional(RegistryCodec.MACHINE_COMPONENT_TYPE,"comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
+                        CodecLogger.loggedOptional(Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getCodec(), "comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
                         CodecLogger.loggedOptional(Codec.STRING,"comparatorinputid", "").forGetter(template -> template.comparatorInputID)
                 ).apply(templateInstance, Template::new)
         );

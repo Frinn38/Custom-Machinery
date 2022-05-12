@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.util;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class TimeComparator {
 
@@ -22,7 +22,7 @@ public class TimeComparator {
         return this.mode.compare(time, this.timeToCompare);
     }
 
-    public ITextComponent getText() {
-        return new StringTextComponent("Time " + new TranslationTextComponent(this.mode.getTranslationKey()).getString() + " " + this.timeToCompare);
+    public Component getText() {
+        return new TextComponent("Time " + new TranslatableComponent(this.mode.getTranslationKey()).getString() + " " + this.timeToCompare);
     }
 }

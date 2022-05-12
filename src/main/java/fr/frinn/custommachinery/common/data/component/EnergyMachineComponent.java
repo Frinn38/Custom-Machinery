@@ -3,22 +3,28 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.ICapabilityComponent;
+import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
-import fr.frinn.custommachinery.apiimpl.network.syncable.IntegerSyncable;
-import fr.frinn.custommachinery.apiimpl.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -107,9 +113,9 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         for(Direction direction : Direction.values()) {
             if(this.neighborStorages.get(direction) != null)
                 continue;
-            World world = getManager().getWorld();
-            BlockPos pos = getManager().getTile().getPos();
-            LazyOptional<IEnergyStorage> neighborStorage = Optional.ofNullable(world.getTileEntity(pos.offset(direction))).map(tile -> tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite())).orElse(null);
+            Level world = getManager().getWorld();
+            BlockPos pos = getManager().getTile().getBlockPos();
+            LazyOptional<IEnergyStorage> neighborStorage = Optional.ofNullable(world.getBlockEntity(pos.relative(direction))).map(tile -> tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite())).orElse(null);
             if(neighborStorage != null && neighborStorage.isPresent()) {
                 neighborStorage.addListener(storage -> this.neighborStorages.remove(direction));
                 this.neighborStorages.put(direction, neighborStorage);
@@ -130,14 +136,14 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     @Override
-    public void serialize(CompoundNBT nbt) {
+    public void serialize(CompoundTag nbt) {
         nbt.putLong("energy", this.energy);
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
-        if(nbt.contains("energy", Constants.NBT.TAG_LONG))
-            this.energy = nbt.getLong("energy");
+    public void deserialize(CompoundTag nbt) {
+        if(nbt.contains("energy", Tag.TAG_LONG))
+            this.energy = Math.min(nbt.getLong("energy"), this.capacity);
     }
 
     @Override

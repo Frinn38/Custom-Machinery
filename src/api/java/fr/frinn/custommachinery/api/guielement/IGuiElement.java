@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.guielement;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 
 /**
@@ -17,7 +17,7 @@ public interface IGuiElement {
     /**
      * A dispatch codec, used to create all IGuiElement from the machine json.
      */
-    Codec<IGuiElement> CODEC = CodecLogger.loggedDispatch(RegistryCodec.GUI_ELEMENT_TYPE, IGuiElement::getType, GuiElementType::getCodec, "Gui Element");
+    Codec<IGuiElement> CODEC = CodecLogger.loggedDispatch(ICustomMachineryAPI.INSTANCE.guiElementRegistry().getCodec(), IGuiElement::getType, GuiElementType::getCodec, "Gui Element");
 
     /**
      * @return A registered GuiElementType corresponding to this IGuiElement.

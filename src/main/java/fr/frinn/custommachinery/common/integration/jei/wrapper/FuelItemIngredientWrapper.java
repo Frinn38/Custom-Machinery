@@ -15,8 +15,8 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.IIngredientType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
 
@@ -53,7 +53,7 @@ public class FuelItemIngredientWrapper implements IJEIIngredientWrapper<ItemStac
                 group.addTooltipCallback((slotIndex, input, ingredient, tooltip) -> {
                     if(slotIndex != index)
                         return;
-                    tooltip.add(new TranslationTextComponent("custommachinery.jei.ingredient.fuel.tooltip"));
+                    tooltip.add(new TranslatableComponent("custommachinery.jei.ingredient.fuel.tooltip"));
                 });
                 return true;
             }

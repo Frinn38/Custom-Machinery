@@ -1,16 +1,16 @@
 package fr.frinn.custommachinery.api.machine;
 
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
 
 /**
- * An enum of all prossible states the machine can be.
+ * An enum of all possible states the machine can be.
  * The machine status is hold by the CraftingManager attached to the MachineTile and is synced automatically when changed.
  */
-public enum MachineStatus implements IStringSerializable {
+public enum MachineStatus implements StringRepresentable {
     /**
      * The machine search for a recipe it can process.
      */
@@ -47,11 +47,11 @@ public enum MachineStatus implements IStringSerializable {
 
     @Nonnull
     @Override
-    public String getString() {
+    public String getSerializedName() {
         return toString();
     }
 
-    public TranslationTextComponent getTranslatedName() {
-        return new TranslationTextComponent("custommachinery.craftingstatus." + this);
+    public TranslatableComponent getTranslatedName() {
+        return new TranslatableComponent("custommachinery.craftingstatus." + this);
     }
 }

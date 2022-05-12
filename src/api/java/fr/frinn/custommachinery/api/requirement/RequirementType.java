@@ -1,14 +1,19 @@
 package fr.frinn.custommachinery.api.requirement;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
 public class RequirementType<T extends IRequirement<?>> extends ForgeRegistryEntry<RequirementType<? extends IRequirement<?>>> {
+
+    public static final ResourceKey<Registry<RequirementType<? extends IRequirement<?>>>> REGISTRY_KEY = ResourceKey.createRegistryKey(ICustomMachineryAPI.INSTANCE.rl("requirement_type"));
 
     private final Codec<T> codec;
     private boolean isWorldRequirement = false;
@@ -53,9 +58,9 @@ public class RequirementType<T extends IRequirement<?>> extends ForgeRegistryEnt
      * Used to display the name of this requirement to the player, either in a gui or in the log.
      * @return A text component representing the name of this requirement.
      */
-    public ITextComponent getName() {
+    public Component getName() {
         if(getRegistryName() == null)
-            return new StringTextComponent("unknown");
-        return new TranslationTextComponent("requirement." + getRegistryName().getNamespace() + "." + getRegistryName().getPath());
+            return new TextComponent("unknown");
+        return new TranslatableComponent("requirement." + getRegistryName().getNamespace() + "." + getRegistryName().getPath());
     }
 }

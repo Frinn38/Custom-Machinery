@@ -6,32 +6,32 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SOpenFilePacket;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.io.File;
 
 public class CMCommand {
 
-    public static LiteralArgumentBuilder<CommandSource> register(String name) {
+    public static LiteralArgumentBuilder<CommandSourceStack> register(String name) {
         return Commands.literal(name)
                 .then(logging());
     }
 
-    private static ArgumentBuilder<CommandSource, ?> logging() {
+    private static ArgumentBuilder<CommandSourceStack, ?> logging() {
         return Commands.literal("log")
-                .requires(cs -> cs.hasPermissionLevel(2))
+                .requires(cs -> cs.hasPermission(2))
                 .executes(ctx -> {
-                    if(ctx.getSource().getEntity() instanceof ServerPlayerEntity)
-                        NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)ctx.getSource().getEntity()), new SOpenFilePacket(new File("logs/custommachinery.log").toURI().toString()));
+                    if(ctx.getSource().getEntity() instanceof ServerPlayer)
+                        NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)ctx.getSource().getEntity()), new SOpenFilePacket(new File("logs/custommachinery.log").toURI().toString()));
                     return 0;
                 })
                 .then(Commands.literal("enableLogging")
                     .executes(ctx -> {
-                        ctx.getSource().sendFeedback(new StringTextComponent("enableLogging = " + CMConfig.INSTANCE.enableLogging.get()), false);
+                        ctx.getSource().sendSuccess(new TextComponent("enableLogging = " + CMConfig.INSTANCE.enableLogging.get()), false);
                         return 0;
                     })
                     .then(Commands.argument("value", BoolArgumentType.bool())

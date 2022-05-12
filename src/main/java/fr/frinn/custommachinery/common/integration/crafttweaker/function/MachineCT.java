@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.function;
 
-import com.blamejared.crafttweaker.api.annotations.ZenRegister;
+import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
+import com.blamejared.crafttweaker.api.fluid.MCFluidStack;
 import com.blamejared.crafttweaker.api.item.IItemStack;
-import com.blamejared.crafttweaker.impl.fluid.MCFluidStack;
-import com.blamejared.crafttweaker.impl.item.MCItemStack;
+import com.blamejared.crafttweaker.api.item.MCItemStack;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
@@ -12,13 +12,15 @@ import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHand
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.openzen.zencode.java.ZenCodeType;
+import org.openzen.zencode.java.ZenCodeType.Getter;
+import org.openzen.zencode.java.ZenCodeType.Method;
+import org.openzen.zencode.java.ZenCodeType.Name;
 
 @ZenRegister
-@ZenCodeType.Name("mods.custommachinery.Machine")
+@Name("mods.custommachinery.Machine")
 public class MachineCT {
 
     private static final MCFluidStack FLUID_EMPTY = new MCFluidStack(FluidStack.EMPTY);
@@ -32,33 +34,33 @@ public class MachineCT {
 
     /** ENERGY STUFF **/
 
-    @ZenCodeType.Getter("energyStored")
-    @ZenCodeType.Method
+    @Getter("energyStored")
+    @Method
     public long getEnergyStored() {
         return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getEnergy).orElse(0L);
     }
 
-    @ZenCodeType.Getter("energyCapacity")
-    @ZenCodeType.Method
+    @Getter("energyCapacity")
+    @Method
     public long getEnergyCapacity() {
         return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getCapacity).orElse(0L);
     }
 
     //Return amount of energy added.
-    @ZenCodeType.Method
+    @Method
     public int addEnergy(int toAdd, boolean simulate) {
         return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(component -> component.receiveRecipeEnergy(toAdd, simulate)).orElse(0);
     }
 
     //Return amount of energy removed.
-    @ZenCodeType.Method
+    @Method
     public int removeEnergy(int toRemove, boolean simulate) {
         return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(component -> component.extractRecipeEnergy(toRemove, simulate)).orElse(0);
     }
 
     /** FLUID STUFF **/
 
-    @ZenCodeType.Method
+    @Method
     public IFluidStack getFluidStored(String tank) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).map(component -> {
             FluidStack stack = component.getFluidStack();
@@ -66,20 +68,20 @@ public class MachineCT {
         }).orElse(FLUID_EMPTY);
     }
 
-    @ZenCodeType.Method
+    @Method
     public int getFluidCapacity(String tank) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).map(FluidMachineComponent::getCapacity).orElse(0);
     }
 
     //Return amount of fluid that was NOT added.
-    @ZenCodeType.Method
+    @Method
     public int addFluid(IFluidStack stackCT, boolean simulate) {
         FluidStack stack = stackCT.getInternal();
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.fill(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE)).orElse(stack.getAmount());
     }
 
     //Return amount of fluid that was NOT added.
-    @ZenCodeType.Method
+    @Method
     public int addFluidToTank(String tank, IFluidStack stackCT, boolean simulate) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
@@ -88,7 +90,7 @@ public class MachineCT {
     }
 
     //Return fluid that was successfully removed.
-    @ZenCodeType.Method
+    @Method
     public IFluidStack removeFluid(IFluidStack stackJS, boolean simulate) {
         FluidStack stack = stackJS.getInternal();
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> {
@@ -98,7 +100,7 @@ public class MachineCT {
     }
 
     //Return fluid that was successfully removed.
-    @ZenCodeType.Method
+    @Method
     public IFluidStack removeFluidFromTank(String tank, int amount, boolean simulate) {
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
@@ -111,7 +113,7 @@ public class MachineCT {
 
     /** ITEM STUFF **/
 
-    @ZenCodeType.Method
+    @Method
     public IItemStack getItemStored(String slot) {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
@@ -119,7 +121,7 @@ public class MachineCT {
                 .orElse(ITEM_EMPTY);
     }
 
-    @ZenCodeType.Method
+    @Method
     public int getItemCapacity(String slot) {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
@@ -128,7 +130,7 @@ public class MachineCT {
     }
 
     //Return items that couldn't be added.
-    @ZenCodeType.Method
+    @Method
     public IItemStack addItemToSlot(String slot, IItemStack stackCT, boolean simulate) {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
@@ -148,7 +150,7 @@ public class MachineCT {
     }
 
     //Return items that were successfully removed from the slot.
-    @ZenCodeType.Method
+    @Method
     public IItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))

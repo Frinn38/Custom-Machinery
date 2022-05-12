@@ -1,19 +1,20 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.utils.TextureSizeHelper;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.client.gui.GuiUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     private int v = 0;
     private TextureAtlasSprite sprite;
     private ItemStack item;
-    private final List<ITextComponent> tooltips = new ArrayList<>();
+    private final List<Component> tooltips = new ArrayList<>();
     private BiConsumer<ICustomMachine, Integer> clickAction;
     private boolean visible = true;
     private IconType iconType = IconType.TEXTURE;
@@ -59,7 +60,7 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     }
 
     @Override
-    public RequirementDisplayInfo addTooltip(ITextComponent tooltip) {
+    public RequirementDisplayInfo addTooltip(Component tooltip) {
         this.tooltips.add(tooltip);
         return this;
     }
@@ -75,39 +76,38 @@ public class RequirementDisplayInfo implements IDisplayInfo {
         return this;
     }
 
-    @SuppressWarnings("deprecation")
-    public void renderIcon(MatrixStack matrix, int size) {
+    public void renderIcon(PoseStack matrix, int size) {
         switch (this.iconType) {
-            case TEXTURE:
-                Minecraft.getInstance().textureManager.bindTexture(this.icon);
-                AbstractGui.blit(matrix, 0, 0, size, size, this.u, this.v, this.width, this.height, TextureSizeHelper.getTextureWidth(this.icon), TextureSizeHelper.getTextureHeight(this.icon));
-                break;
-            case ANIMATED:
-                Minecraft.getInstance().getTextureManager().bindTexture(this.sprite.getAtlasTexture().getTextureLocation());
-                AbstractGui.blit(matrix, 0, 0, 0, size, size, this.sprite);
-                break;
-            case ITEM:
+            case TEXTURE -> {
+                ClientHandler.bindTexture(this.icon);
+                GuiComponent.blit(matrix, 0, 0, size, size, this.u, this.v, this.width, this.height, TextureSizeHelper.getTextureWidth(this.icon), TextureSizeHelper.getTextureHeight(this.icon));
+            }
+            case ANIMATED -> {
+                ClientHandler.bindTexture(this.sprite.atlas().location());
+                GuiComponent.blit(matrix, 0, 0, 0, size, size, this.sprite);
+            }
+            case ITEM -> {
                 matrix.scale(size / 16.0F, size / 16.0F, 1.0F);
-                RenderSystem.pushMatrix();
-                RenderSystem.multMatrix(matrix.getLast().getMatrix());
-                Minecraft.getInstance().getItemRenderer().renderItemIntoGUI(this.item, 0, 0);
-                RenderSystem.popMatrix();
-                break;
+                RenderSystem.getModelViewStack().pushPose();
+                RenderSystem.getModelViewStack().mulPoseMatrix(matrix.last().pose());
+                Minecraft.getInstance().getItemRenderer().renderGuiItem(this.item, 0, 0);
+                RenderSystem.getModelViewStack().popPose();
+            }
         }
     }
 
-    public void renderTooltips(MatrixStack matrix, int mouseX, int mouseY, int maxWidth, int maxHeight) {
+    public void renderTooltips(PoseStack matrix, int mouseX, int mouseY) {
         if(!this.tooltips.isEmpty())
-            GuiUtils.drawHoveringText(matrix, this.tooltips, mouseX, mouseY, maxWidth, maxHeight, maxWidth, Minecraft.getInstance().fontRenderer);
+            ClientHandler.drawHoveringText(matrix, this.tooltips, mouseX, mouseY, Minecraft.getInstance().font);
     }
 
     public boolean hasClickAction() {
         return this.clickAction != null;
     }
 
-    public boolean handleClick(CustomMachine machine, int mouseButton) {
+    public boolean handleClick(CustomMachine machine, InputConstants.Key button) {
         if(hasClickAction()) {
-            this.clickAction.accept(machine, mouseButton);
+            this.clickAction.accept(machine, button.getValue());
             return true;
         }
         return false;

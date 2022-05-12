@@ -3,17 +3,22 @@ package fr.frinn.custommachinery.common.data.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
-import fr.frinn.custommachinery.apiimpl.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
@@ -65,13 +70,13 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     @Override
-    public void serialize(CompoundNBT nbt) {
+    public void serialize(CompoundTag nbt) {
         nbt.putString("id", this.id);
         fluidStack.writeToNBT(nbt);
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
+    public void deserialize(CompoundTag nbt) {
         this.fluidStack = FluidStack.loadFluidStackFromNBT(nbt);
     }
 
@@ -113,7 +118,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) == this.whitelist && (this.fluidStack.isEmpty() || stack.isFluidEqual(this.fluidStack));
     }
 
-    public int insert(Fluid fluid, int amount, CompoundNBT nbt, FluidAction action) {
+    public int insert(Fluid fluid, int amount, CompoundTag nbt, FluidAction action) {
         if (amount <= 0)
             return 0;
 
@@ -154,7 +159,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         }
 
         int maxExtract = this.maxOutput - this.actualTickOutput;
-        amount = MathHelper.clamp(amount, 0, Math.min(this.fluidStack.getAmount(), maxExtract));
+        amount = Mth.clamp(amount, 0, Math.min(this.fluidStack.getAmount(), maxExtract));
         if(action.execute()) {
             this.fluidStack.shrink(amount);
             this.actualTickOutput += amount;
@@ -171,14 +176,14 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.capacity;
     }
 
-    public void recipeInsert(Fluid fluid, int amount, CompoundNBT nbt) {
+    public void recipeInsert(Fluid fluid, int amount, CompoundTag nbt) {
         if(amount <= 0)
             return;
 
         if(this.fluidStack.isEmpty())
             this.fluidStack = new FluidStack(fluid, amount, nbt);
         else {
-            amount = MathHelper.clamp(amount, 0, getRecipeRemainingSpace());
+            amount = Mth.clamp(amount, 0, getRecipeRemainingSpace());
             this.fluidStack.grow(amount);
         }
         getManager().markDirty();
@@ -188,7 +193,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if(amount <= 0)
             return;
 
-        amount = MathHelper.clamp(amount, 0, this.fluidStack.getAmount());
+        amount = Mth.clamp(amount, 0, this.fluidStack.getAmount());
         this.fluidStack.shrink(amount);
         getManager().markDirty();
     }

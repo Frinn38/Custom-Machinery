@@ -15,10 +15,10 @@ import fr.frinn.custommachinery.common.data.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TimeComparator;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
         if(test(component, context))
             return CraftingResult.success();
         else
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.time.error"));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.time.error"));
     }
 
     @Override
@@ -79,8 +79,8 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.times.isEmpty()) {
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.time.info").mergeStyle(TextFormatting.AQUA));
-            this.times.forEach(time -> info.addTooltip(new StringTextComponent("* ").appendSibling(time.getText())));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.time.info").withStyle(ChatFormatting.AQUA));
+            this.times.forEach(time -> info.addTooltip(new TextComponent("* ").append(time.getText())));
         }
         info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.CLOCK);

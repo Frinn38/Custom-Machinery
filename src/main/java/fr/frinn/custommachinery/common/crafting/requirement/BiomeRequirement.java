@@ -14,11 +14,11 @@ import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 
 import java.util.List;
 
@@ -75,10 +75,10 @@ public class BiomeRequirement extends AbstractRequirement<PositionMachineCompone
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.filter.isEmpty()) {
             if(this.blacklist)
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.biome.blacklist").mergeStyle(TextFormatting.AQUA));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.biome.blacklist").withStyle(ChatFormatting.AQUA));
             else
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.biome.whitelist").mergeStyle(TextFormatting.AQUA));
-            this.filter.forEach(biome -> info.addTooltip(new StringTextComponent("* ").appendSibling(new TranslationTextComponent("biome." + biome.getNamespace() + "." + biome.getPath()))));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.biome.whitelist").withStyle(ChatFormatting.AQUA));
+            this.filter.forEach(biome -> info.addTooltip(new TextComponent("* ").append(new TranslatableComponent("biome." + biome.getNamespace() + "." + biome.getPath()))));
         }
         info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.MAP);

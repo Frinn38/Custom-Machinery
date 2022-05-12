@@ -14,14 +14,14 @@ import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandl
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.LootTableIngredientWrapper;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.loot.LootTable;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -64,24 +64,24 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
 
     @Override
     public CraftingResult processEnd(ItemComponentHandler component, ICraftingContext context) {
-        if(getMode() == RequirementIOMode.INPUT || context.getMachineTile().getWorld() == null || context.getMachineTile().getWorld().getServer() == null)
+        if(getMode() == RequirementIOMode.INPUT || context.getMachineTile().getLevel() == null || context.getMachineTile().getLevel().getServer() == null)
             return CraftingResult.pass();
 
         if(toOutput.isEmpty()) {
-            LootTable table = context.getMachineTile().getWorld().getServer().getLootTableManager().getLootTableFromLocation(this.lootTable);
-            LootContext lootContext = new LootContext.Builder((ServerWorld) context.getMachineTile().getWorld())
-                    .withParameter(LootParameters.ORIGIN, Vector3d.copyCentered(context.getMachineTile().getPos()))
-                    .withParameter(LootParameters.BLOCK_ENTITY, context.getMachineTile())
+            LootTable table = context.getMachineTile().getLevel().getServer().getLootTables().get(this.lootTable);
+            LootContext lootContext = new LootContext.Builder((ServerLevel) context.getMachineTile().getLevel())
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(context.getMachineTile().getBlockPos()))
+                    .withParameter(LootContextParams.BLOCK_ENTITY, context.getMachineTile())
                     .withLuck((float) context.getModifiedValue(this.luck, this, "luck"))
-                    .build(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
-            toOutput = table.generate(lootContext);
+                    .create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
+            toOutput = table.getRandomItems(lootContext);
         }
 
         Iterator<ItemStack> iterator = toOutput.iterator();
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
             if(component.getSpaceForItem("", stack.getItem(), stack.getTag()) < stack.getCount())
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.item.error.output", stack.getCount(), new TranslationTextComponent(stack.getTranslationKey())));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.item.error.output", stack.getCount(), new TranslatableComponent(stack.getDescriptionId())));
             component.addToOutputs("", stack.getItem(), stack.getCount(), stack.getTag());
             iterator.remove();
         }

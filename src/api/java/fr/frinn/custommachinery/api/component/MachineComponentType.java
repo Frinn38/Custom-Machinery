@@ -1,11 +1,14 @@
 package fr.frinn.custommachinery.api.component;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.List;
@@ -22,6 +25,8 @@ import java.util.function.Supplier;
  * @param <T> The component handled by this type.
  */
 public class MachineComponentType<T extends IMachineComponent> extends ForgeRegistryEntry<MachineComponentType<? extends IMachineComponent>> {
+
+    public static final ResourceKey<Registry<MachineComponentType<? extends IMachineComponent>>> REGISTRY_KEY = ResourceKey.createRegistryKey(ICustomMachineryAPI.INSTANCE.rl("component_type"));
 
     private Codec<? extends IMachineComponentTemplate<T>> codec;
     private boolean isSingle = true;
@@ -149,10 +154,10 @@ public class MachineComponentType<T extends IMachineComponent> extends ForgeRegi
      * Utility method to get a component display name.
      * The translation key for the MachineComponentType will be : "namespace.machine.component.path".
      */
-    public TranslationTextComponent getTranslatedName() {
+    public TranslatableComponent getTranslatedName() {
         if(getRegistryName() == null)
             throw new IllegalStateException("Trying to get the registry name of an unregistered MachineComponentType");
-        return new TranslationTextComponent(getRegistryName().getNamespace() + ".machine.component." + getRegistryName().getPath());
+        return new TranslatableComponent(getRegistryName().getNamespace() + ".machine.component." + getRegistryName().getPath());
     }
 
     /**

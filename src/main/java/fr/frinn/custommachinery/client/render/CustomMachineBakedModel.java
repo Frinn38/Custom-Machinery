@@ -1,25 +1,24 @@
 package fr.frinn.custommachinery.client.render;
 
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockModelShapes;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.BlockModelShaper;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.item.Item;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
@@ -28,8 +27,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class CustomMachineBakedModel implements IDynamicBakedModel {
 
@@ -44,7 +45,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isAmbientOcclusion() {
+    public boolean useAmbientOcclusion() {
         return false;
     }
 
@@ -54,56 +55,52 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isSideLit() {
+    public boolean usesBlockLight() {
         return true;
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
+    public boolean isCustomRenderer() {
         return true;
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
-        return this.getParticleTexture(EmptyModelData.INSTANCE);
+    public TextureAtlasSprite getParticleIcon() {
+        return this.getParticleIcon(EmptyModelData.INSTANCE);
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
+    public ItemOverrides getOverrides() {
         return this.overrideList;
     }
 
     @Nonnull
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData data) {
-        IBakedModel model = getMachineModel(data);
+        BakedModel model = getMachineModel(data);
         if(state != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING))
-            return getRotatedQuadsTest(model, state.get(BlockStateProperties.HORIZONTAL_FACING), side, rand);
+            return getRotatedQuadsTest(model, state.getValue(BlockStateProperties.HORIZONTAL_FACING), side, rand);
         return model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
     }
 
-    private List<BakedQuad> getRotatedQuadsTest(IBakedModel model, Direction machineFacing, Direction side, Random random) {
+    private List<BakedQuad> getRotatedQuadsTest(BakedModel model, Direction machineFacing, Direction side, Random random) {
         //side of the model before rotation
         Direction originalSide = getRotatedDirection(machineFacing, side);
         List<BakedQuad> finalQuads = model.getQuads(null, originalSide, random, EmptyModelData.INSTANCE);
-        return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? quad.getFace() : side)).collect(Collectors.toList());
+        return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? quad.getDirection() : side)).toList();
     }
 
     private Quaternion getRotation(Direction machineFacing) {
-        switch (machineFacing) {
-            case EAST:
-                return Vector3f.YN.rotationDegrees(90);
-            case SOUTH:
-                return Vector3f.YN.rotationDegrees(180);
-            case WEST:
-                return Vector3f.YN.rotationDegrees(270);
-            default:
-                return Quaternion.ONE;
-        }
+        return switch (machineFacing) {
+            case EAST -> Vector3f.YN.rotationDegrees(90);
+            case SOUTH -> Vector3f.YN.rotationDegrees(180);
+            case WEST -> Vector3f.YN.rotationDegrees(270);
+            default -> Quaternion.ONE;
+        };
     }
 
     private BakedQuad rotateQuad(BakedQuad quad, Quaternion rotation, Direction side) {
-        int[] quadData = quad.getVertexData();
+        int[] quadData = quad.getVertices();
         int[] newQuadData = Arrays.copyOf(quadData, quadData.length);
         for(int i = 0; i < quadData.length / 8; i++) {
             float x = Float.intBitsToFloat(quadData[i * 8]);
@@ -112,11 +109,11 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
             Vector4f pos = new Vector4f(x - 0.5F, y - 0.5F, z - 0.5F, 1.0F);
             pos.transform(rotation);
             pos.perspectiveDivide();
-            newQuadData[i * 8] = Float.floatToRawIntBits(pos.getX() + 0.5F);
-            newQuadData[i * 8 + 1] = Float.floatToRawIntBits(pos.getY() + 0.5F);
-            newQuadData[i * 8 + 2] = Float.floatToRawIntBits(pos.getZ() + 0.5F);
+            newQuadData[i * 8] = Float.floatToRawIntBits(pos.x() + 0.5F);
+            newQuadData[i * 8 + 1] = Float.floatToRawIntBits(pos.y() + 0.5F);
+            newQuadData[i * 8 + 2] = Float.floatToRawIntBits(pos.z() + 0.5F);
         }
-        return new BakedQuad(newQuadData, quad.getTintIndex(), side, quad.getSprite(), quad.applyDiffuseLighting());
+        return new BakedQuad(newQuadData, quad.getTintIndex(), side, quad.getSprite(), quad.isShade());
     }
 
     public Direction getRotatedDirection(Direction machineFacing, @Nullable Direction quad) {
@@ -125,25 +122,25 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
         switch(machineFacing) {
             case WEST:
-                return Direction.byHorizontalIndex((quad.getHorizontalIndex() + 1) % 4);
+                return Direction.from2DDataValue((quad.get2DDataValue() + 1) % 4);
             case SOUTH:
-                return Direction.byHorizontalIndex((quad.getHorizontalIndex() + 2) % 4);
+                return Direction.from2DDataValue((quad.get2DDataValue() + 2) % 4);
             case EAST:
-                return Direction.byHorizontalIndex((quad.getHorizontalIndex() + 3) % 4);
+                return Direction.from2DDataValue((quad.get2DDataValue() + 3) % 4);
             default:
                 return quad;
         }
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        return getMachineModel(data).getParticleTexture(data);
+    public TextureAtlasSprite getParticleIcon(@Nonnull IModelData data) {
+        return getMachineModel(data).getParticleIcon(data);
     }
 
-    private IBakedModel getMachineModel(@Nonnull IModelData data) {
+    private BakedModel getMachineModel(@Nonnull IModelData data) {
         MachineAppearance appearance = data.getData(APPEARANCE);
         MachineStatus status = data.getData(STATUS);
-        IBakedModel model;
+        BakedModel model;
         if(appearance != null)
             model = getMachineBlockModel(appearance, data.getData(STATUS));
         else if(data.getData(STATUS) != null)
@@ -153,16 +150,16 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return model;
     }
 
-    public IBakedModel getMachineBlockModel(MachineAppearance appearance, @Nullable MachineStatus status) {
-        IBakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
-        IBakedModel model;
+    public BakedModel getMachineBlockModel(MachineAppearance appearance, @Nullable MachineStatus status) {
+        BakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
+        BakedModel model;
         ResourceLocation blockModelLocation = appearance.getBlockModel();
         if(blockModelLocation instanceof ModelResourceLocation)
             model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
         else {
             Block block = ForgeRegistries.BLOCKS.getValue(blockModelLocation);
             if(block != null && block != Blocks.AIR)
-                model = Minecraft.getInstance().getModelManager().getModel(BlockModelShapes.getModelLocation(block.getDefaultState()));
+                model = Minecraft.getInstance().getModelManager().getModel(BlockModelShaper.stateToModelLocation(block.defaultBlockState()));
             else
                 model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
         }
@@ -172,22 +169,22 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return model;
     }
 
-    public IBakedModel getMachineItemModel(@Nullable MachineAppearance appearance) {
-        IBakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
-        IBakedModel model = missing;
+    public BakedModel getMachineItemModel(@Nullable MachineAppearance appearance) {
+        BakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
+        BakedModel model = missing;
 
         if(appearance != null) {
             Item item = ForgeRegistries.ITEMS.getValue(appearance.getItemModel());
-            if(item != null && Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item) != null)
-                model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item);
+            if(item != null && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item) != null)
+                model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
 
             if(model == missing)
                 model = Minecraft.getInstance().getModelManager().getModel(appearance.getItemModel());
 
             if(model == Minecraft.getInstance().getModelManager().getModel(this.defaults.get(MachineStatus.IDLE)) || model == missing) {
                 Item item2 = ForgeRegistries.ITEMS.getValue(appearance.getBlockModel());
-                if(item2 != null && Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item2) != null)
-                    model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(item2);
+                if(item2 != null && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item2) != null)
+                    model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item2);
 
                 if(model == missing)
                     model = getMachineBlockModel(appearance, MachineStatus.IDLE);

@@ -1,12 +1,13 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
+        maven { url = 'https://maven.parchmentmc.org' }
         mavenCentral()
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
+        classpath 'org.parchmentmc:librarian:1.+'
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
@@ -16,15 +17,17 @@ plugins {
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.5-0.5.8c'
-group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'custommachinery'
+apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
+version = "${mc_version}-0.6.0"
+group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 sourceSets {
     api
@@ -40,14 +43,14 @@ configurations {
     apiImplementation.extendsFrom(implementation)
 }
 
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: 'snapshot', version: '20210309-1.16.5'
+    mappings channel: 'parchment', version: "2022.03.13-${mc_version}"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -153,73 +156,74 @@ minecraft {
 }
 
 repositories {
-    maven { //JEI
-        name = "Progwml6 maven"
-        url = "https://dvs1.progwml6.com/files/maven/"
-    }
-    maven { //Crafttweaker
+    maven {
         name = "Jared maven"
         url = "https://maven.blamejared.com"
+        content {
+            includeGroup "com.blamejared.crafttweaker"
+        }
     }
-    maven { // TOP
-        name = "tterrag maven"
-        url = "http://maven.tterrag.com/"
-    }
-    maven { //Cursemaven
+    maven {
         name = "Curse maven"
         url = "https://www.cursemaven.com"
     }
-    maven { //Mod maven
+    maven {
         name = "Mod maven"
         url = "https://modmaven.dev/"
     }
-    maven { //Architectury
+    maven {
+        name = "Jei maven"
+        url = "https://dvs1.progwml6.com/files/maven"
+        content {
+            includeGroup "mezz.jei"
+        }
+    }
+    maven {
+        name = "Architectury maven"
         url = "https://maven.architectury.dev"
+        content {
+            includeGroup "dev.architectury"
+        }
     }
-    maven { //KubeJS/Rhino
+    maven {
+        name = "KubeJS and Rhino maven"
         url = "https://maven.saps.dev/minecraft"
-    }
-    maven { //HyperLightning
-        url = "https://maven.hypherionmc.me/releases"
+        content {
+            includeGroup "dev.latvian.mods"
+        }
     }
 }
 
 dependencies {
-    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
-    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
-    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
+    //Forge + MC
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    // You may put jars on which you depend on in ./libs or you may define them like so..
-    // compile "some.group:artifact:version:classifier"
-    // compile "some.group:artifact:version"
+    //The one probe
+    implementation fg.deobf("mcjty.theoneprobe:theoneprobe:${top_version}") {transitive = false}
 
-    // Real examples
-    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+    //JEI
+    //"implementation" needed for our API to see it.
+    implementation fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
 
-    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    //Crafttweaker
+    implementation fg.deobf("com.blamejared.crafttweaker:CraftTweaker-forge-${mc_version}:${ct_version}")
 
-    // These dependencies get remapped to your current MCP mappings
-    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // For more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-    compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api")
-    runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
-    implementation fg.deobf("mezz.jei:jei-1.16.5:${jei_version}:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}")
-    implementation fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:${ct_version}")
+    //KubeJS and dependencies
     implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
-    implementation "dev.latvian.mods:rhino:${rhino_version}"
-    implementation fg.deobf("me.shedaniel:architectury-forge:${architectury_version}")
-    implementation(fg.deobf("curse.maven:gadgets-298187:3498508"))
+    implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
+    implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
 
-    runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")//Mekanism
-    runtimeOnly fg.deobf("curse.maven:spark-361579:3337641")//Spark profiler
+    //Building gadgets
+    implementation(fg.deobf("curse.maven:gadgets-298187:3725903"))
 
+    //Mekanism
+    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
+
+    //Spark profiler
+    runtimeOnly fg.deobf("curse.maven:spark-361579:3767286")
+
+    //Mixins
     annotationProcessor "org.spongepowered:mixin:0.8.2:processor"
 }
 
@@ -255,27 +259,13 @@ task apiJar(type: Jar) {
 // This is the preferred method to reobfuscate your jar file
 jar.finalizedBy('reobfJar')
 apiJar.finalizedBy('reobfJar')
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-//publish.dependsOn('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
 
 if (System.getenv("CURSEFORGE")) {
     curseforge {
         apiKey = System.getenv("CURSEFORGE")
         project {
             id = "457017"
+            addGameVersion mc_version
             changelogType = "markdown"
             changelog = file("run/changelog.md")
             releaseType = "beta"

@@ -18,10 +18,10 @@ import fr.frinn.custommachinery.common.integration.jei.wrapper.FluidIngredientWr
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -50,11 +50,11 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
     private final int amount;
     private double chance = 1.0D;
     @Nullable
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
     private final String tank;
     private final Lazy<FluidIngredientWrapper> wrapper;
 
-    public FluidPerTickRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, @Nullable CompoundNBT nbt, String tank) {
+    public FluidPerTickRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, @Nullable CompoundTag nbt, String tank) {
         super(mode);
         if(mode == RequirementIOMode.OUTPUT && fluid instanceof FluidTagIngredient)
             throw new IllegalArgumentException("You can't use a tag for an Output Fluid Per Tick Requirement");
@@ -110,7 +110,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
                     }
                 }
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
         } else {
             if(this.fluid.getAll().get(0) != null) {
                 Fluid fluid = this.fluid.getAll().get(0);
@@ -120,7 +120,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
                     component.addToOutputs(this.tank, stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.fluidpertick.error.output", amount, new TranslationTextComponent(fluid.getAttributes().getTranslationKey())));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluidpertick.error.output", amount, new TranslatableComponent(fluid.getAttributes().getTranslationKey())));
             } else throw new IllegalStateException("Can't use fluid per tick requirement with fluid tag");
         }
     }
@@ -132,7 +132,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public void setChance(double chance) {
-        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+        this.chance = Mth.clamp(chance, 0.0, 1.0);
     }
 
     @Override

@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.api.utils.ICMLogger;
 import fr.frinn.custommachinery.common.config.CMConfig;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 
 import java.io.BufferedWriter;
 import java.io.File;

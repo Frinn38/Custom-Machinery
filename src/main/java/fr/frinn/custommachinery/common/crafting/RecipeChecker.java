@@ -7,7 +7,6 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RecipeChecker {
 
@@ -20,9 +19,9 @@ public class RecipeChecker {
 
     public RecipeChecker(CustomMachineRecipe recipe) {
         this.recipe = recipe;
-        this.inventoryRequirements = recipe.getRequirements().stream().filter(r -> !r.getType().isWorldRequirement()).collect(Collectors.toList());
+        this.inventoryRequirements = recipe.getRequirements().stream().filter(r -> !r.getType().isWorldRequirement()).toList();
         this.checkedInventoryRequirements = new ArrayList<>();
-        this.worldRequirements = recipe.getRequirements().stream().filter(r -> r.getType().isWorldRequirement()).collect(Collectors.toList());
+        this.worldRequirements = recipe.getRequirements().stream().filter(r -> r.getType().isWorldRequirement()).toList();
         this.isInventoryRequirementsOnly = recipe.getRequirements().stream().noneMatch(r -> r.getType().isWorldRequirement());
     }
 

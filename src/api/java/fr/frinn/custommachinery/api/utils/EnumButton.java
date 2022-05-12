@@ -1,20 +1,20 @@
 package fr.frinn.custommachinery.api.utils;
 
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.List;
 import java.util.function.Function;
 
 public class EnumButton<E> extends Button {
 
-    private final Function<E, ITextComponent> messageFunction;
+    private final Function<E, Component> messageFunction;
     private final List<E> values;
     private E value;
 
-    public EnumButton(int x, int y, int width, int height, IPressable pressedAction, ITooltip onTooltip, Function<E, ITextComponent> messageFunction, List<E> values, E defaultValue) {
-        super(x, y, width, height, StringTextComponent.EMPTY, pressedAction, onTooltip);
+    public EnumButton(int x, int y, int width, int height, OnPress pressedAction, OnTooltip onTooltip, Function<E, Component> messageFunction, List<E> values, E defaultValue) {
+        super(x, y, width, height, TextComponent.EMPTY, pressedAction, onTooltip);
         this.messageFunction = messageFunction;
         this.values = values;
         if(this.values.contains(defaultValue))
@@ -30,7 +30,7 @@ public class EnumButton<E> extends Button {
     }
 
     @Override
-    public ITextComponent getMessage() {
+    public Component getMessage() {
         return this.messageFunction.apply(this.value);
     }
 

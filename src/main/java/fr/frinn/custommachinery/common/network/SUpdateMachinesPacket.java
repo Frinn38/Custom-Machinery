@@ -4,13 +4,13 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import io.netty.handler.codec.EncoderException;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -23,30 +23,30 @@ public class SUpdateMachinesPacket {
         this.machines = new HashMap<>(machines);
     }
 
-    public static void encode(SUpdateMachinesPacket pkt, PacketBuffer buf) {
+    public static void encode(SUpdateMachinesPacket pkt, FriendlyByteBuf buf) {
         buf.writeInt(pkt.machines.size());
         pkt.machines.forEach((id, machine) -> {
             try {
                 buf.writeResourceLocation(id);
-                buf.func_240629_a_(MachineLocation.CODEC, machine.getLocation());
-                buf.func_240629_a_(CustomMachine.CODEC, machine);
-            } catch (IOException e) {
+                buf.writeWithCodec(MachineLocation.CODEC, machine.getLocation());
+                buf.writeWithCodec(CustomMachine.CODEC, machine);
+            } catch (EncoderException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    public static SUpdateMachinesPacket decode(PacketBuffer buf) {
+    public static SUpdateMachinesPacket decode(FriendlyByteBuf buf) {
         Map<ResourceLocation, CustomMachine> map = new HashMap<>();
         int size = buf.readInt();
         for(int i = 0; i < size; i++) {
             try {
                 ResourceLocation id = buf.readResourceLocation();
-                MachineLocation location = buf.func_240628_a_(MachineLocation.CODEC);
-                CustomMachine machine = buf.func_240628_a_(CustomMachine.CODEC);
+                MachineLocation location = buf.readWithCodec(MachineLocation.CODEC);
+                CustomMachine machine = buf.readWithCodec(CustomMachine.CODEC);
                 machine.setLocation(location);
                 map.put(id, machine);
-            } catch (IOException e) {
+            } catch (EncoderException e) {
                 e.printStackTrace();
             }
         }
@@ -58,7 +58,7 @@ public class SUpdateMachinesPacket {
             context.get().enqueueWork(() -> {
                 CustomMachinery.MACHINES.clear();
                 CustomMachinery.MACHINES.putAll(machines);
-                Registration.GROUP.fill(NonNullList.create());
+                Registration.GROUP.fillItemList(NonNullList.create());
             });
         }
         context.get().setPacketHandled(true);

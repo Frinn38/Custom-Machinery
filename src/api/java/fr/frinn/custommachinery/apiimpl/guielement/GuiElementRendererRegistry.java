@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.apiimpl.guielement;
 
 import com.google.common.collect.ImmutableMap;
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
@@ -27,7 +27,7 @@ public class GuiElementRendererRegistry {
         RegisterGuiElementRendererEvent event = new RegisterGuiElementRendererEvent();
         ModLoader.get().postEvent(event);
         Map<GuiElementType<?>, IGuiElementRenderer<?>> toAdd = new HashMap<>();
-        CustomMachineryAPI.getGuiElementRegistry().getValues().forEach(type -> {
+        ICustomMachineryAPI.INSTANCE.guiElementRegistry().getValues().forEach(type -> {
             if(!event.getRenderers().containsKey(type)) {
                 LOGGER.error("No renderer registered for Gui Element: {}", type.getRegistryName());
                 toAdd.put(type, DUMMY_RENDERER);

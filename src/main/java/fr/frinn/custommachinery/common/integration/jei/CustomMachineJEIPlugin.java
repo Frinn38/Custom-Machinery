@@ -16,11 +16,16 @@ import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
-import mezz.jei.api.registration.*;
+import mezz.jei.api.registration.IGuiHandlerRegistration;
+import mezz.jei.api.registration.IModIngredientRegistration;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import mezz.jei.api.registration.IRecipeCategoryRegistration;
+import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -54,10 +59,10 @@ public class CustomMachineJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registry) {
-        if(Minecraft.getInstance().world == null)
+        if(Minecraft.getInstance().level == null)
             return;
-        Minecraft.getInstance().world.getRecipeManager()
-                .getRecipesForType(Registration.CUSTOM_MACHINE_RECIPE)
+        Minecraft.getInstance().level.getRecipeManager()
+                .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
                 .forEach(recipe -> {
@@ -67,7 +72,7 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                         CustomMachinery.LOGGER.error("Invalid machine ID: " + recipe.getMachine() + " in recipe: " + recipe.getId());
                 }
         );
-        registry.getIngredientManager().getAllIngredients(VanillaTypes.ITEM).stream().filter(stack -> ForgeHooks.getBurnTime(stack, IRecipeType.SMELTING) > 0).forEach(FUEL_INGREDIENTS::add);
+        registry.getIngredientManager().getAllIngredients(VanillaTypes.ITEM).stream().filter(stack -> ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0).forEach(FUEL_INGREDIENTS::add);
     }
 
     @Override

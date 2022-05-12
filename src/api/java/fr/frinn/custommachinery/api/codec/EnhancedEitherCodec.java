@@ -5,7 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 
 import java.util.Objects;
 
@@ -31,8 +31,8 @@ public class EnhancedEitherCodec<F, S> implements Codec<Either<F, S>> {
         if (firstRead.result().isPresent())
             return firstRead;
         String firstError = firstRead.error().map(DataResult.PartialResult::message).orElse("");
-        if(CustomMachineryAPI.getLogger().logFirstEitherError())
-            CustomMachineryAPI.getLogger().warn("Can't deserialize %s with %s, trying with %s now.%n%s", this, first, second, firstError);
+        if(ICustomMachineryAPI.INSTANCE.logger().logFirstEitherError())
+            ICustomMachineryAPI.INSTANCE.logger().warn("Can't deserialize %s with %s, trying with %s now.%n%s", this, first, second, firstError);
         return second.decode(ops, input).mapError(s -> String.format(error, this, first, second, firstError, s)).map(vo -> vo.mapFirst(Either::right));
     }
 

@@ -7,14 +7,11 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.ICommandSource;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Lazy;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec2;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
@@ -22,36 +19,36 @@ import java.util.UUID;
 @ParametersAreNonnullByDefault
 public class CommandMachineComponent extends AbstractMachineComponent {
 
-    private static final ICommandSource COMMAND_SOURCE_LOG = new ICommandSource() {
+    private static final CommandSource COMMAND_SOURCE_LOG = new CommandSource() {
         @Override
-        public void sendMessage(ITextComponent component, UUID senderUUID) {
+        public void sendMessage(Component component, UUID senderUUID) {
             CustomMachinery.LOGGER.info(component.getString());
         }
 
         @Override
-        public boolean shouldReceiveFeedback() {return false;}
+        public boolean acceptsSuccess() {return false;}
 
         @Override
-        public boolean shouldReceiveErrors() {return true;}
+        public boolean acceptsFailure() {return true;}
 
         @Override
-        public boolean allowLogging() {return true;}
+        public boolean shouldInformAdmins() {return true;}
     };
 
-    private static final ICommandSource COMMAND_SOURCE_NO_LOG = new ICommandSource() {
+    private static final CommandSource COMMAND_SOURCE_NO_LOG = new CommandSource() {
         @Override
-        public void sendMessage(ITextComponent component, UUID senderUUID) {
+        public void sendMessage(Component component, UUID senderUUID) {
             CustomMachinery.LOGGER.info(component.getString());
         }
 
         @Override
-        public boolean shouldReceiveFeedback() {return false;}
+        public boolean acceptsSuccess() {return false;}
 
         @Override
-        public boolean shouldReceiveErrors() {return true;}
+        public boolean acceptsFailure() {return true;}
 
         @Override
-        public boolean allowLogging() {return false;}
+        public boolean shouldInformAdmins() {return false;}
     };
 
     public CommandMachineComponent(IMachineComponentManager manager) {
@@ -62,8 +59,8 @@ public class CommandMachineComponent extends AbstractMachineComponent {
         if(getManager().getWorld().getServer() == null)
             return;
 
-        CommandSource source = new CommandSource(log ? COMMAND_SOURCE_LOG : COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(getManager().getTile().getPos()), Vector2f.ZERO, (ServerWorld)getManager().getWorld(), permissionLevel, "Custom Machinery", getManager().getTile().getMachine().getName(), getManager().getServer(), null);
-        getManager().getWorld().getServer().getCommandManager().handleCommand(source, command);
+        CommandSourceStack source = new CommandSourceStack(log ? COMMAND_SOURCE_LOG : COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(getManager().getTile().getBlockPos()), Vec2.ZERO, (ServerLevel)getManager().getWorld(), permissionLevel, "Custom Machinery", getManager().getTile().getMachine().getName(), getManager().getServer(), null);
+        getManager().getWorld().getServer().getCommands().performCommand(source, command);
     }
 
     @Override

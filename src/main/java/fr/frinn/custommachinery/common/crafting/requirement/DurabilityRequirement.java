@@ -16,11 +16,11 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
@@ -33,7 +33,7 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt", new CompoundNBT()).forGetter(requirement -> requirement.nbt),
+                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt", new CompoundTag()).forGetter(requirement -> requirement.nbt),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D),"chance", 1.0D).forGetter(requirement -> requirement.chance),
                     CodecLogger.loggedOptional(Codec.STRING,"slot", "").forGetter(requirement -> requirement.slot)
             ).apply(durabilityRequirementInstance, (mode, item, amount, nbt, chance, slot) -> {
@@ -45,16 +45,16 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
 
     private final IIngredient<Item> item;
     private final int amount;
-    private final CompoundNBT nbt;
+    private final CompoundTag nbt;
     private double chance = 1.0D;
     private final String slot;
     private final Lazy<ItemIngredientWrapper> wrapper;
 
-    public DurabilityRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundNBT nbt, String slot) {
+    public DurabilityRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundTag nbt, String slot) {
         super(mode);
         this.item = item;
         this.amount = amount;
-        this.nbt = nbt == null ? new CompoundNBT() : nbt;
+        this.nbt = nbt == null ? new CompoundTag() : nbt;
         this.slot = slot;
         this.wrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, true, this.nbt, this.slot));
     }
@@ -91,7 +91,7 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
                     }
                 }
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.durability.error.input", this.item, amount, maxRemove));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.durability.error.input", this.item, amount, maxRemove));
         }
         return CraftingResult.pass();
     }
@@ -114,7 +114,7 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
                     }
                 }
             }
-            return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.items.error.durability.output", this.item, amount, maxRepair));
+            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.items.error.durability.output", this.item, amount, maxRepair));
         }
         return CraftingResult.pass();
     }
@@ -126,7 +126,7 @@ public class DurabilityRequirement extends AbstractRequirement<ItemComponentHand
 
     @Override
     public void setChance(double chance) {
-        this.chance = MathHelper.clamp(chance, 0.0, 1.0);
+        this.chance = Mth.clamp(chance, 0.0, 1.0);
     }
 
     @Override

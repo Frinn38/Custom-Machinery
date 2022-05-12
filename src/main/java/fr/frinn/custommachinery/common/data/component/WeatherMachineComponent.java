@@ -5,12 +5,12 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.Heightmap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.Locale;
 
@@ -26,22 +26,22 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
     }
 
     public boolean hasWeather(WeatherType weather, boolean onTile) {
-        World world = this.getManager().getWorld();
-        BlockPos pos = this.getManager().getTile().getPos();
+        Level world = this.getManager().getWorld();
+        BlockPos pos = this.getManager().getTile().getBlockPos();
         if(onTile) {
             if(weather == WeatherType.RAIN)
-                return world.isRainingAt(pos.up());
+                return world.isRainingAt(pos.above());
             else if(weather == WeatherType.SNOW)
-                return world.isRaining() && world.canSeeSky(pos.up()) && world.getHeight(Heightmap.Type.MOTION_BLOCKING, pos.up()).getY() > pos.up().getY() && world.getBiome(pos).getPrecipitation() == Biome.RainType.SNOW;
+                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().getPrecipitation() == Biome.Precipitation.SNOW;
             else if(weather == WeatherType.THUNDER)
-                return world.isRainingAt(pos.up()) && world.isThundering();
+                return world.isRainingAt(pos.above()) && world.isThundering();
             else if(weather == WeatherType.CLEAR)
                 return !world.isRaining();
         } else {
             if(weather == WeatherType.RAIN)
                 return world.isRaining();
             else if(weather == WeatherType.SNOW)
-                return world.isRaining() && world.getBiome(pos).getPrecipitation() == Biome.RainType.SNOW && world.getBiome(pos).getTemperature(pos) < 0.15;
+                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().getPrecipitation() == Biome.Precipitation.SNOW;
             else if(weather == WeatherType.THUNDER)
                 return world.isThundering();
             else if(weather == WeatherType.CLEAR)
@@ -60,8 +60,8 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
             return valueOf(value.toUpperCase(Locale.ENGLISH));
         }
 
-        public ITextComponent getText() {
-            return new TranslationTextComponent("custommachinery.component.weather." + this.toString().toLowerCase(Locale.ENGLISH));
+        public Component getText() {
+            return new TranslatableComponent("custommachinery.component.weather." + this.toString().toLowerCase(Locale.ENGLISH));
         }
     }
 }

@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.common.data.component.variant.item;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 public class DefaultItemComponentVariant extends ItemComponentVariant {
 

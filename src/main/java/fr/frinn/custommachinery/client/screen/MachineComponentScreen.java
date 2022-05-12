@@ -1,14 +1,14 @@
 package fr.frinn.custommachinery.client.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -21,7 +21,7 @@ public class MachineComponentScreen extends MachineCreationTabScreen {
     private ComponentList componentList;
 
     public MachineComponentScreen(MachineCreationScreen parent, CustomMachineBuilder machine) {
-        super(new StringTextComponent("Machine Components"), parent, machine);
+        super(new TextComponent("Machine Components"), parent, machine);
     }
 
     @Override
@@ -29,18 +29,18 @@ public class MachineComponentScreen extends MachineCreationTabScreen {
         super.init();
         this.componentList = new ComponentList(this.minecraft, 63, 111, this.xPos + 264, this.yPos + 5, 20, this);
         this.machine.getComponentBuilders().forEach(builder -> this.componentList.addComponent(builder));
-        this.children.add(this.componentList);
+        ((List<GuiEventListener>)this.children()).add(this.componentList);
     }
 
     @ParametersAreNonnullByDefault
     @Override
-    public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrix);
 
-        if(this.componentList.getEventListeners().isEmpty())
-            this.font.drawString(matrix, new TranslationTextComponent("custommachinery.gui.component.empty").getString(), this.xPos + 5, this.yPos + 130, 0);
+        if(this.componentList.children().isEmpty())
+            this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.component.empty").getString(), this.xPos + 5, this.yPos + 130, 0);
         else if(this.componentList.getSelected() == null)
-            this.font.drawString(matrix, new TranslationTextComponent("custommachinery.gui.component.select").getString(), this.xPos + 5, this.yPos + 5, 0);
+            this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.component.select").getString(), this.xPos + 5, this.yPos + 5, 0);
 
         this.componentList.render(matrix, mouseX, mouseY, partialTicks);
 
@@ -49,18 +49,18 @@ public class MachineComponentScreen extends MachineCreationTabScreen {
 
     @ParametersAreNonnullByDefault
     @Override
-    public void renderBackground(MatrixStack matrix) {
-        Minecraft.getInstance().getTextureManager().bindTexture(BACKGROUND_TEXTURE);
+    public void renderBackground(PoseStack matrix) {
+        ClientHandler.bindTexture(BACKGROUND_TEXTURE);
         blit(matrix, this.xPos + 259, this.yPos, 0, 0, 72, 166, 72, 166);
     }
 
-    public List<IGuiEventListener> getChildrens() {
-        return this.children;
+    public List<GuiEventListener> getChildrens() {
+        return (List<GuiEventListener>)this.children();
     }
 
     @Override
-    public void setListener(@Nullable IGuiEventListener listener) {
-        this.getChildrens().stream().filter(widget -> widget instanceof TextFieldWidget && widget != listener).map(widget -> (TextFieldWidget)widget).forEach(widget -> widget.setFocused2(false));
-        super.setListener(listener);
+    public void setFocused(@Nullable GuiEventListener listener) {
+        this.getChildrens().stream().filter(widget -> widget instanceof EditBox && widget != listener).map(widget -> (EditBox)widget).forEach(widget -> widget.setFocus(false));
+        super.setFocused(listener);
     }
 }

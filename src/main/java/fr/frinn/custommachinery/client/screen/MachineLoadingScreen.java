@@ -1,7 +1,8 @@
 package fr.frinn.custommachinery.client.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
 import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.data.MachineLocation;
@@ -9,26 +10,27 @@ import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.CAddMachinePacket;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.util.FileUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MachineLoadingScreen extends Screen {
 
     private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/machine_list_background.png");
-    private static final TranslationTextComponent SAVE_MACHINE = new TranslationTextComponent("custommachinery.gui.machineloading.save");
-    private static final TranslationTextComponent NO_MACHINE = new TranslationTextComponent("custommachinery.gui.machineloading.nomachine");
-    private static final TranslationTextComponent CANT_SAVE_MACHINE = new TranslationTextComponent("custommachinery.gui.machineloading.cantsave");
-    private static final TranslationTextComponent DELETE_MACHINE = new TranslationTextComponent("custommachinery.gui.machineloading.delete");
-    private static final TranslationTextComponent CANT_DELETE_MACHINE = new TranslationTextComponent("custommachinery.gui.machineloading.cantdelete");
+    private static final TranslatableComponent SAVE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.save");
+    private static final TranslatableComponent NO_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.nomachine");
+    private static final TranslatableComponent CANT_SAVE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.cantsave");
+    private static final TranslatableComponent DELETE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.delete");
+    private static final TranslatableComponent CANT_DELETE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.cantdelete");
 
     public static final MachineLoadingScreen INSTANCE = new MachineLoadingScreen();
 
@@ -46,7 +48,7 @@ public class MachineLoadingScreen extends Screen {
     private Button deleteButton;
 
     public MachineLoadingScreen() {
-        super(StringTextComponent.EMPTY);
+        super(TextComponent.EMPTY);
         CustomMachinery.MACHINES.forEach((id, machine) -> {
             CustomMachineBuilder machineBuilder = new CustomMachineBuilder(machine);
             this.machineCreationScreens.put(machineBuilder, new MachineCreationScreen(machineBuilder));
@@ -59,45 +61,45 @@ public class MachineLoadingScreen extends Screen {
         this.yPos = (this.height - 166) / 2;
         this.machineList = new MachineList(this.minecraft, this.xSize - 5, this.ySize - 28, this.xPos + 3, this.yPos + 1, 20, this);
         this.machineCreationScreens.forEach((machineBuilder, screen) -> this.machineList.addMachineEntry(machineBuilder));
-        this.children.add(this.machineList);
+        ((List<GuiEventListener>)this.children()).add(this.machineList);
         this.machineCreationScreens.forEach((machineBuilder, screen) -> screen.init(this.minecraft, this.width, this.height));
-        this.machineList.getEventListeners().forEach(entry -> {
+        this.machineList.children().forEach(entry -> {
             if(this.selectedMachine != null && this.selectedMachine == entry.getMachineBuilder())
                 this.machineList.setSelected(entry);
         });
-        this.createButton = this.addButton(new TexturedButton(
+        this.createButton = this.addRenderableWidget(new TexturedButton(
                 this.xPos + 4,
                 this.yPos + 141,
                 20,
                 20,
-                StringTextComponent.EMPTY,
+                TextComponent.EMPTY,
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/create_icon.png"),
                 (button) -> this.create(),
-                (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, new TranslationTextComponent("custommachinery.gui.machineloading.create"), mouseX, mouseY)
+                (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.machineloading.create"), mouseX, mouseY)
         ));
-        this.saveButton = this.addButton(new TexturedButton(
+        this.saveButton = this.addRenderableWidget(new TexturedButton(
                 this.xPos + 26,
                 this.yPos + 141,
                 20,
                 20,
-                StringTextComponent.EMPTY,
+                TextComponent.EMPTY,
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/save_icon.png"),
                 (button) -> this.save(),
                 (button, matrix, mouseX, mouseY) -> {
-                    ITextComponent tooltip = this.selectedMachine == null ? NO_MACHINE : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? SAVE_MACHINE : CANT_SAVE_MACHINE;
+                    Component tooltip = this.selectedMachine == null ? NO_MACHINE : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? SAVE_MACHINE : CANT_SAVE_MACHINE;
                     this.renderTooltip(matrix, tooltip, mouseX, mouseY);
                 }
         ));
-        this.deleteButton = this.addButton(new TexturedButton(
+        this.deleteButton = this.addRenderableWidget(new TexturedButton(
                 this.xPos + 48,
                 this.yPos + 141,
                 20,
                 20,
-                StringTextComponent.EMPTY,
+                TextComponent.EMPTY,
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/delete_icon.png"),
                 (button) -> this.delete(),
                 (button, matrix, mouseX, mouseY) -> {
-                    ITextComponent tooltip = this.selectedMachine == null ? NO_MACHINE : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? DELETE_MACHINE : CANT_DELETE_MACHINE;
+                    Component tooltip = this.selectedMachine == null ? NO_MACHINE : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? DELETE_MACHINE : CANT_DELETE_MACHINE;
                     this.renderTooltip(matrix, tooltip, mouseX, mouseY);
                 }
         ));
@@ -105,7 +107,7 @@ public class MachineLoadingScreen extends Screen {
 
     @ParametersAreNonnullByDefault
     @Override
-    public void render(MatrixStack matrix, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrix);
         this.machineList.render(matrix, mouseX, mouseY, partialTicks);
         super.render(matrix, mouseX, mouseY, partialTicks);
@@ -114,19 +116,19 @@ public class MachineLoadingScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(MatrixStack matrix) {
+    public void renderBackground(PoseStack matrix) {
         super.renderBackground(matrix);
 
-        Minecraft.getInstance().getTextureManager().bindTexture(BACKGROUND_TEXTURE);
+        ClientHandler.bindTexture(BACKGROUND_TEXTURE);
         blit(matrix, this.xPos, this.yPos, 0, 0, this.xSize, this.ySize, this.xSize, this.ySize);
     }
 
     protected void setSelectedMachine(CustomMachineBuilder machine) {
         if(this.selectedMachine != null && this.machineCreationScreens.containsKey(this.selectedMachine))
-            this.children.remove(this.machineCreationScreens.get(this.selectedMachine));
+            this.children().remove(this.machineCreationScreens.get(this.selectedMachine));
         this.selectedMachine = machine;
         if(this.selectedMachine != null && this.machineCreationScreens.containsKey(this.selectedMachine))
-            this.children.add(this.machineCreationScreens.get(this.selectedMachine));
+            ((List<GuiEventListener>)this.children()).add(this.machineCreationScreens.get(this.selectedMachine));
     }
 
     private void create() {
@@ -134,7 +136,7 @@ public class MachineLoadingScreen extends Screen {
         MachineCreationScreen newMachineScreen = new MachineCreationScreen(newMachine);
         newMachineScreen.init(this.minecraft, this.width, this.height);
         this.machineCreationScreens.put(newMachine, newMachineScreen);
-        this.machineList.setSelected(this.machineList.getEventListeners().get(this.machineList.addMachineEntry(newMachine)));
+        this.machineList.setSelected(this.machineList.children().get(this.machineList.addMachineEntry(newMachine)));
     }
 
     private void save() {

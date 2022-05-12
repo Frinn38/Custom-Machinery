@@ -15,10 +15,10 @@ import fr.frinn.custommachinery.common.data.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PositionComparator;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,8 +77,8 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.positions.isEmpty()) {
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.position.info.pos").mergeStyle(TextFormatting.AQUA));
-            this.positions.forEach(pos -> info.addTooltip(new StringTextComponent("* ").appendSibling(pos.getText())));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.pos").withStyle(ChatFormatting.AQUA));
+            this.positions.forEach(pos -> info.addTooltip(new TextComponent("* ").append(pos.getText())));
         }
         info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.COMPASS);

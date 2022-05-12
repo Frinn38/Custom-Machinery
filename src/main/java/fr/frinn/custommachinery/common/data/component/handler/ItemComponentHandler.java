@@ -1,6 +1,10 @@
 package fr.frinn.custommachinery.common.data.component.handler;
 
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ICapabilityComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -8,13 +12,13 @@ import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CMCollectors;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -69,10 +73,10 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     @Override
-    public void serialize(CompoundNBT nbt) {
-        ListNBT components = new ListNBT();
+    public void serialize(CompoundTag nbt) {
+        ListTag components = new ListTag();
         this.getComponents().forEach(component -> {
-            CompoundNBT componentNBT = new CompoundNBT();
+            CompoundTag componentNBT = new CompoundTag();
             component.serialize(componentNBT);
             components.add(componentNBT);
         });
@@ -80,13 +84,12 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
-        if(nbt.contains("items", Constants.NBT.TAG_LIST)) {
-            ListNBT components = nbt.getList("items", Constants.NBT.TAG_COMPOUND);
+    public void deserialize(CompoundTag nbt) {
+        if(nbt.contains("items", Tag.TAG_LIST)) {
+            ListTag components = nbt.getList("items", Tag.TAG_COMPOUND);
             components.forEach(inbt -> {
-                if (inbt instanceof CompoundNBT) {
-                    CompoundNBT componentNBT = (CompoundNBT)inbt;
-                    if(componentNBT.contains("slotID", Constants.NBT.TAG_STRING)) {
+                if (inbt instanceof CompoundTag componentNBT) {
+                    if(componentNBT.contains("slotID", Tag.TAG_STRING)) {
                         this.getComponents().stream().filter(component -> component.getId().equals(componentNBT.getString("slotID"))).findFirst().ifPresent(component -> component.deserialize(componentNBT));
                     }
                 }
@@ -166,7 +169,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     private final List<ItemMachineComponent> inputs = new ArrayList<>();
     private final List<ItemMachineComponent> outputs = new ArrayList<>();
 
-    public int getItemAmount(String slot, Item item, @Nullable CompoundNBT nbt) {
+    public int getItemAmount(String slot, Item item, @Nullable CompoundTag nbt) {
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
         return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && nbtPredicate.test(component) && slotPredicate.test(component))
@@ -174,15 +177,15 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                 .sum();
     }
 
-    public int getDurabilityAmount(String slot, Item item, @Nullable CompoundNBT nbt) {
+    public int getDurabilityAmount(String slot, Item item, @Nullable CompoundTag nbt) {
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && nbtPredicate.test(component) && slotPredicate.test(component))
-                .mapToInt(component -> component.getItemStack().getMaxDamage() - component.getItemStack().getDamage())
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageableItem() && nbtPredicate.test(component) && slotPredicate.test(component))
+                .mapToInt(component -> component.getItemStack().getMaxDamage() - component.getItemStack().getDamageValue())
                 .sum();
     }
 
-    public int getSpaceForItem(String slot, Item item, @Nullable CompoundNBT nbt) {
+    public int getSpaceForItem(String slot, Item item, @Nullable CompoundTag nbt) {
         ItemStack stack = item.getDefaultInstance();
         stack.setTag(nbt);
         int maxStackSize = stack.getMaxStackSize();
@@ -199,15 +202,15 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                 .sum();
     }
 
-    public int getSpaceForDurability(String slot, Item item, @Nullable CompoundNBT nbt) {
+    public int getSpaceForDurability(String slot, Item item, @Nullable CompoundTag nbt) {
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && nbtPredicate.test(component) && slotPredicate.test(component))
-                .mapToInt(component -> component.getItemStack().getDamage())
+        return this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageableItem() && nbtPredicate.test(component) && slotPredicate.test(component))
+                .mapToInt(component -> component.getItemStack().getDamageValue())
                 .sum();
     }
 
-    public void removeFromInputs(String slot, Item item, int amount, @Nullable CompoundNBT nbt) {
+    public void removeFromInputs(String slot, Item item, int amount, @Nullable CompoundTag nbt) {
         AtomicInteger toRemove = new AtomicInteger(amount);
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
@@ -219,19 +222,19 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
-    public void removeDurability(String slot, Item item, int amount, @Nullable CompoundNBT nbt) {
+    public void removeDurability(String slot, Item item, int amount, @Nullable CompoundTag nbt) {
         AtomicInteger toRemove = new AtomicInteger(amount);
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && nbtPredicate.test(component) && slotPredicate.test(component)).forEach(component -> {
-            int maxRemove = Math.min(component.getItemStack().getMaxDamage() - component.getItemStack().getDamage(), toRemove.get());
+        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageableItem() && nbtPredicate.test(component) && slotPredicate.test(component)).forEach(component -> {
+            int maxRemove = Math.min(component.getItemStack().getMaxDamage() - component.getItemStack().getDamageValue(), toRemove.get());
             toRemove.addAndGet(-maxRemove);
-            component.getItemStack().attemptDamageItem(maxRemove, rand, null);
+            component.getItemStack().hurt(maxRemove, rand, null);
         });
         getManager().markDirty();
     }
 
-    public void addToOutputs(String slot, Item item, int amount, @Nullable CompoundNBT nbt) {
+    public void addToOutputs(String slot, Item item, int amount, @Nullable CompoundTag nbt) {
         AtomicInteger toAdd = new AtomicInteger(amount);
         int maxStackSize = Utils.makeItemStack(item, amount, nbt).getMaxStackSize();
         Predicate<ItemMachineComponent> itemPredicate = component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()));
@@ -248,14 +251,14 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
-    public void repairItem(String slot, Item item, int amount, @Nullable CompoundNBT nbt) {
+    public void repairItem(String slot, Item item, int amount, @Nullable CompoundTag nbt) {
         AtomicInteger toRepair = new AtomicInteger(amount);
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageable() && nbtPredicate.test(component) && slotPredicate.test(component)).forEach(component -> {
-            int maxRepair = Math.min(component.getItemStack().getDamage(), toRepair.get());
+        this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageableItem() && nbtPredicate.test(component) && slotPredicate.test(component)).forEach(component -> {
+            int maxRepair = Math.min(component.getItemStack().getDamageValue(), toRepair.get());
             toRepair.addAndGet(-maxRepair);
-            component.getItemStack().setDamage(component.getItemStack().getDamage() - maxRepair);
+            component.getItemStack().setDamageValue(component.getItemStack().getDamageValue() - maxRepair);
         });
         getManager().markDirty();
     }

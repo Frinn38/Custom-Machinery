@@ -1,15 +1,14 @@
 package fr.frinn.custommachinery.api.requirement;
 
 import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.codec.RegistryCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
-import net.minecraft.util.text.ITextComponent;
 
 /**
  * The base interface to declare an IRequirement.
@@ -18,7 +17,7 @@ import net.minecraft.util.text.ITextComponent;
  * Each IRequirement must have a {@link RequirementIOMode} which is either INPUT or OUTPUT, you can make it fixed or left to the user.
  * Each IRequirement must have a Codec registered with its type, the Codec will be used to deserialize the requirement from json, and send it to the client.
  * Each IRequirement must be associated to an {@link IMachineComponent} the associated component will be passed for each action of the requirement.
- * If any execution method return {@link CraftingResult#error(ITextComponent)} the crafting process will be paused and the error shown to the player.
+ * If any execution method return {@link CraftingResult#error(net.minecraft.network.chat.Component)} the crafting process will be paused and the error shown to the player.
  * The crafting process will be resumed only after the errored requirement return success or pass.
  * @param <T> The component this requirement will use.
  */
@@ -27,7 +26,7 @@ public interface IRequirement<T extends IMachineComponent> {
     /**
      * A dispatch codec, used by the {@link IMachineRecipe} main codec to parse all requirements from json using the "type" property of the requirement.
      */
-    Codec<IRequirement<?>> CODEC = CodecLogger.loggedDispatch(RegistryCodec.REQUIREMENT_TYPE, IRequirement::getType, RequirementType::getCodec, "Requirement");
+    Codec<IRequirement<?>> CODEC = CodecLogger.loggedDispatch(ICustomMachineryAPI.INSTANCE.requirementRegistry().getCodec(), IRequirement::getType, RequirementType::getCodec, "Requirement");
 
     /**
      * Used by the requirement dispatch codec to serialize an IRequirement.
@@ -60,7 +59,7 @@ public interface IRequirement<T extends IMachineComponent> {
      * @param component The {@link IMachineComponent} used by this requirement.
      * @param context A few useful info about the crafting process, and some utilities methods.
      * @return {@link CraftingResult#success()} if the requirement successfully did its things.
-     *         {@link CraftingResult#error(ITextComponent)} if there was an error during the process (example : missing inputs).
+     *         {@link CraftingResult#error(net.minecraft.network.chat.Component)} if there was an error during the process (example : missing inputs).
      *         {@link CraftingResult#pass()} if the requirement didn't care about this phase.
      */
     CraftingResult processStart(T component, ICraftingContext context);
@@ -71,7 +70,7 @@ public interface IRequirement<T extends IMachineComponent> {
      * @param component The {@link IMachineComponent} used by this requirement.
      * @param context A few useful info about the crafting process, and some utilities methods.
      * @return {@link CraftingResult#success()} if the requirement successfully did its things.
-     *         {@link CraftingResult#error(ITextComponent)} if there was an error during the process (example : not enough space to store outputs).
+     *         {@link CraftingResult#error(net.minecraft.network.chat.Component)} if there was an error during the process (example : not enough space to store outputs).
      *         {@link CraftingResult#pass()} if the requirement didn't care about this phase.
      */
     CraftingResult processEnd(T component, ICraftingContext context);

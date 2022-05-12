@@ -21,13 +21,13 @@ import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +56,7 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
     );
 
     private final ACTION action;
-    private final AxisAlignedBB pos;
+    private final AABB pos;
     private final int amount;
     private final ComparatorMode comparator;
     private final PartialBlockState block;
@@ -65,7 +65,7 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
     private double delay;
     private boolean jeiVisible = true;
 
-    public BlockRequirement(RequirementIOMode mode, ACTION action, AxisAlignedBB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<IIngredient<PartialBlockState>> filter, boolean whitelist) {
+    public BlockRequirement(RequirementIOMode mode, ACTION action, AABB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<IIngredient<PartialBlockState>> filter, boolean whitelist) {
         super(mode);
         this.action = action;
         this.pos = pos;
@@ -107,23 +107,23 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
                 case PLACE:
                     if(component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 case REPLACE_BREAK:
                     if(component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 case REPLACE_DESTROY:
                     if(component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 case BREAK:
                     if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
                 case DESTROY:
                     if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
             }
         }
         return CraftingResult.pass();
@@ -137,23 +137,23 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
                 case PLACE:
                     if(component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 case REPLACE_BREAK:
                     if(component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 case REPLACE_DESTROY:
                     if(component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 case BREAK:
                     if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
                 case DESTROY:
                     if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
             }
         }
         return CraftingResult.pass();
@@ -170,7 +170,7 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
         if(this.action == ACTION.CHECK) {
             long found = component.getBlockAmount(this.pos, this.filter, this.whitelist);
             if(!this.comparator.compare((int)found, amount))
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.check.error", amount, this.pos.toString(), found));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.check.error", amount, this.pos.toString(), found));
             return CraftingResult.success();
         }
         return CraftingResult.pass();
@@ -178,7 +178,7 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
 
     @Override
     public void setDelay(double delay) {
-        this.delay = MathHelper.clamp(delay, 0.0, 1.0);
+        this.delay = Mth.clamp(delay, 0.0, 1.0);
     }
 
     @Override
@@ -192,23 +192,23 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
             case PLACE:
                 if(component.placeBlock(this.pos, this.block, amount))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             case REPLACE_BREAK:
                 if(component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             case REPLACE_DESTROY:
                 if(component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             case BREAK:
                 if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
             case DESTROY:
                 if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslationTextComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
         }
         return CraftingResult.pass();
     }
@@ -220,50 +220,50 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        IFormattableTextComponent action = null;
+        MutableComponent action = null;
         switch (this.action) {
             case CHECK:
-                action = new TranslationTextComponent("custommachinery.requirements.block.check.info");
+                action = new TranslatableComponent("custommachinery.requirements.block.check.info");
                 break;
             case BREAK:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslationTextComponent("custommachinery.requirements.block.break.info.input");
+                    action = new TranslatableComponent("custommachinery.requirements.block.break.info.input");
                 else
-                    action = new TranslationTextComponent("custommachinery.requirements.block.break.info.output");
+                    action = new TranslatableComponent("custommachinery.requirements.block.break.info.output");
                 break;
             case DESTROY:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslationTextComponent("custommachinery.requirements.block.destroy.info.input");
+                    action = new TranslatableComponent("custommachinery.requirements.block.destroy.info.input");
                 else
-                    action = new TranslationTextComponent("custommachinery.requirements.block.destroy.info.output");
+                    action = new TranslatableComponent("custommachinery.requirements.block.destroy.info.output");
                 break;
             case PLACE:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslationTextComponent("custommachinery.requirements.block.place.info.input", this.amount, this.block.getName());
+                    action = new TranslatableComponent("custommachinery.requirements.block.place.info.input", this.amount, this.block.getName());
                 else
-                    action = new TranslationTextComponent("custommachinery.requirements.block.place.info.output", this.amount, this.block.getName());
+                    action = new TranslatableComponent("custommachinery.requirements.block.place.info.output", this.amount, this.block.getName());
                 break;
             case REPLACE_BREAK:
             case REPLACE_DESTROY:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslationTextComponent("custommachinery.requirements.block.replace.info.input", this.amount, this.block.getName());
+                    action = new TranslatableComponent("custommachinery.requirements.block.replace.info.input", this.amount, this.block.getName());
                 else
-                    action = new TranslationTextComponent("custommachinery.requirements.block.replace.info.output", this.amount, this.block.getName());
+                    action = new TranslatableComponent("custommachinery.requirements.block.replace.info.output", this.amount, this.block.getName());
                 break;
         }
         if(action != null)
-            info.addTooltip(action.mergeStyle(TextFormatting.AQUA));
+            info.addTooltip(action.withStyle(ChatFormatting.AQUA));
         if(this.action != ACTION.PLACE) {
             if(this.action != ACTION.CHECK)
-                info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block." + (this.whitelist ? "allowed" : "denied")).mergeStyle(this.whitelist ? TextFormatting.GREEN : TextFormatting.RED));
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.block." + (this.whitelist ? "allowed" : "denied")).withStyle(this.whitelist ? ChatFormatting.GREEN : ChatFormatting.RED));
             if(this.whitelist && this.filter.isEmpty())
-                info.addTooltip(new StringTextComponent("-").appendSibling(new TranslationTextComponent("custommachinery.requirements.block.none")));
+                info.addTooltip(new TextComponent("-").append(new TranslatableComponent("custommachinery.requirements.block.none")));
             else if(!this.whitelist && this.filter.isEmpty())
-                info.addTooltip(new StringTextComponent("-").appendSibling(new TranslationTextComponent("custommachinery.requirements.block.all")));
+                info.addTooltip(new TextComponent("-").append(new TranslatableComponent("custommachinery.requirements.block.all")));
             else
-                this.filter.forEach(block -> info.addTooltip(new StringTextComponent("- " + block.toString())));
+                this.filter.forEach(block -> info.addTooltip(new TextComponent("- " + block.toString())));
         }
-        info.addTooltip(new TranslationTextComponent("custommachinery.requirements.block.info.box").mergeStyle(TextFormatting.GOLD));
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
         info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.GRASS_BLOCK);

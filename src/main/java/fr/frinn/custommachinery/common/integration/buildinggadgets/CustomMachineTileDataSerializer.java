@@ -2,16 +2,12 @@ package fr.frinn.custommachinery.common.integration.buildinggadgets;
 
 import com.direwolf20.buildinggadgets.common.tainted.building.tilesupport.ITileDataSerializer;
 import com.direwolf20.buildinggadgets.common.tainted.building.tilesupport.ITileEntityData;
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CustomMachineTileDataSerializer implements ITileDataSerializer {
 
     private static final String MACHINE_ID = "machineID";
@@ -19,18 +15,18 @@ public class CustomMachineTileDataSerializer implements ITileDataSerializer {
     private ResourceLocation registryName;
 
     @Override
-    public CompoundNBT serialize(ITileEntityData data, boolean b) {
+    public CompoundTag serialize(ITileEntityData data, boolean b) {
         if(!(data instanceof CustomMachineTileData))
             throw new IllegalArgumentException("Custom Machinery can't serialize this type of data : " + data.getClass().getName());
         CustomMachineTileData machineData = (CustomMachineTileData)data;
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         nbt.putString(MACHINE_ID, machineData.getMachineID().toString());
         return nbt;
     }
 
     @Override
-    public ITileEntityData deserialize(CompoundNBT nbt, boolean b) {
-        if(!nbt.contains(MACHINE_ID, Constants.NBT.TAG_STRING))
+    public ITileEntityData deserialize(CompoundTag nbt, boolean b) {
+        if(!nbt.contains(MACHINE_ID, Tag.TAG_STRING))
             throw new IllegalArgumentException("Invalid nbt received by custom machinery data serializer : " + nbt);
         return new CustomMachineTileData(new ResourceLocation(nbt.getString(MACHINE_ID)));
     }

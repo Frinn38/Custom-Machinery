@@ -9,31 +9,34 @@ import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
-import fr.frinn.custommachinery.apiimpl.network.syncable.DoubleSyncable;
-import fr.frinn.custommachinery.apiimpl.network.syncable.IntegerSyncable;
-import fr.frinn.custommachinery.apiimpl.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SCraftingManagerStatusChangedPacket;
+import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
+import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import fr.frinn.custommachinery.common.util.Utils;
 import mcjty.theoneprobe.api.IProbeInfo;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
-public class CraftingManager implements INBTSerializable<CompoundNBT> {
+public class CraftingManager implements INBTSerializable<CompoundTag> {
 
     private final CustomMachineTile tile;
     private final Random rand = Utils.RAND;
@@ -55,7 +58,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private MachineStatus prevStatus;
     private PHASE phase = PHASE.STARTING;
 
-    private ITextComponent errorMessage = StringTextComponent.EMPTY;
+    private Component errorMessage = TextComponent.EMPTY;
 
     private final RecipeFinder recipeFinder;
 
@@ -99,8 +102,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     private void init() {
         this.initialized = true;
         this.recipeFinder.init();
-        if(this.futureRecipeID != null && this.tile.getWorld() != null) {
-            CustomMachineRecipe recipe = (CustomMachineRecipe) this.tile.getWorld().getRecipeManager().getRecipe(this.futureRecipeID).orElse(null);
+        if(this.futureRecipeID != null && this.tile.getLevel() != null) {
+            CustomMachineRecipe recipe = (CustomMachineRecipe) this.tile.getLevel().getRecipeManager().byKey(this.futureRecipeID).orElse(null);
             if(recipe != null) {
                 this.setRecipe(recipe);
             }
@@ -225,39 +228,39 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
                 .stream()
                 .filter(requirement -> requirement instanceof ITickableRequirement)
                 .map(requirement -> (ITickableRequirement<IMachineComponent>)requirement)
-                .collect(Collectors.toList());
+                .toList();
         this.delayedRequirements = this.currentRecipe.getRequirements()
                 .stream()
                 .filter(requirement -> requirement instanceof IDelayedRequirement)
                 .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
                 .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
-                .collect(Collectors.toList());
+                .toList();
         this.recipeTotalTime = this.currentRecipe.getRecipeTime();
         this.phase = PHASE.STARTING;
         this.setStatus(MachineStatus.RUNNING);
     }
 
-    public ITextComponent getErrorMessage() {
+    public Component getErrorMessage() {
         return this.errorMessage;
     }
 
     public void setStatus(MachineStatus status) {
-        this.setStatus(status, StringTextComponent.EMPTY);
+        this.setStatus(status, TextComponent.EMPTY);
     }
 
-    public void setStatus(MachineStatus status, ITextComponent mesage) {
+    public void setStatus(MachineStatus status, Component mesage) {
         if(this.status != status) {
             this.status = status;
             this.errorMessage = mesage;
-            this.tile.markDirty();
+            this.tile.setChanged();
             notifyStatusChanged();
         }
     }
 
     private void notifyStatusChanged() {
-        if(this.tile.getWorld() != null && !this.tile.getWorld().isRemote()) {
-            BlockPos pos = this.tile.getPos();
-            NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.tile.getWorld().getChunkAt(pos)), new SCraftingManagerStatusChangedPacket(pos, this.status));
+        if(this.tile.getLevel() != null && !this.tile.getLevel().isClientSide()) {
+            BlockPos pos = this.tile.getBlockPos();
+            NetworkManager.CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.tile.getLevel().getChunkAt(pos)), new SCraftingManagerStatusChangedPacket(pos, this.status));
         }
 
     }
@@ -275,7 +278,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         this.recipeTotalTime = 0;
         this.processedRequirements.clear();
         this.context = null;
-        this.errorMessage = StringTextComponent.EMPTY;
+        this.errorMessage = TextComponent.EMPTY;
     }
 
     public CustomMachineTile getTile() {
@@ -287,17 +290,11 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     public void addProbeInfo(IProbeInfo info) {
-        TranslationTextComponent status = this.status.getTranslatedName();
+        TranslatableComponent status = this.status.getTranslatedName();
         switch (this.status) {
-            case ERRORED:
-                status.mergeStyle(TextFormatting.RED);
-                break;
-            case RUNNING:
-                status.mergeStyle(TextFormatting.GREEN);
-                break;
-            case PAUSED:
-                status.mergeStyle(TextFormatting.GOLD);
-                break;
+            case ERRORED -> status.withStyle(ChatFormatting.RED);
+            case RUNNING -> status.withStyle(ChatFormatting.GREEN);
+            case PAUSED -> status.withStyle(ChatFormatting.GOLD);
         }
         info.mcText(status);
         if(this.currentRecipe != null)
@@ -307,8 +304,8 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         if(this.currentRecipe != null)
             nbt.putString("recipe", this.currentRecipe.getId().toString());
         nbt.putString("phase", this.phase.toString());
@@ -319,16 +316,16 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
-        if(nbt.contains("recipe", Constants.NBT.TAG_STRING))
+    public void deserializeNBT(CompoundTag nbt) {
+        if(nbt.contains("recipe", Tag.TAG_STRING))
             this.futureRecipeID = new ResourceLocation(nbt.getString("recipe"));
-        if(nbt.contains("phase", Constants.NBT.TAG_STRING))
+        if(nbt.contains("phase", Tag.TAG_STRING))
             this.phase = PHASE.value(nbt.getString("phase"));
-        if(nbt.contains("status", Constants.NBT.TAG_STRING))
+        if(nbt.contains("status", Tag.TAG_STRING))
             this.setStatus(MachineStatus.value(nbt.getString("status")));
-        if(nbt.contains("message", Constants.NBT.TAG_STRING))
+        if(nbt.contains("message", Tag.TAG_STRING))
             this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
-        if(nbt.contains("recipeProgressTime", Constants.NBT.TAG_DOUBLE))
+        if(nbt.contains("recipeProgressTime", Tag.TAG_DOUBLE))
             this.recipeProgressTime = nbt.getDouble("recipeProgressTime");
     }
 

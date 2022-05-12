@@ -8,25 +8,21 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.apiimpl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Items;
 
 import java.util.Locale;
-import java.util.Random;
 
 public class CommandRequirement extends AbstractDelayedChanceableRequirement<CommandMachineComponent> implements ITickableRequirement<CommandMachineComponent>, IDisplayInfoRequirement {
 
@@ -114,8 +110,8 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
         info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.COMMAND_BLOCK);
         if(!isDelayed())
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.command.info", new StringTextComponent(this.command).mergeStyle(TextFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.command.info", new TextComponent(this.command).withStyle(ChatFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));
         else
-            info.addTooltip(new TranslationTextComponent("custommachinery.requirements.command.delay", new StringTextComponent(this.command).mergeStyle(TextFormatting.AQUA), (int)(getDelay() * 100) + "%"));
+            info.addTooltip(new TranslatableComponent("custommachinery.requirements.command.delay", new TextComponent(this.command).withStyle(ChatFormatting.AQUA), (int)(getDelay() * 100) + "%"));
     }
 }

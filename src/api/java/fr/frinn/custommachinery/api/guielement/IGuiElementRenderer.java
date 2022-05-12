@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.api.guielement;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 /**
  * Used to handle rendering for all IGuiElement instances of a specific GuiElementType.
@@ -15,14 +15,14 @@ public interface IGuiElementRenderer<E extends IGuiElement> {
      * Render your element (text, texture, item, etc..) here.
      * The MatrixStack is translated to the top left of the machine gui, consider it the 0,0 point for the rendering.
      */
-    void renderElement(MatrixStack matrix, E element, IMachineScreen screen);
+    void renderElement(PoseStack matrix, E element, IMachineScreen screen);
 
     /**
      * Called each frame for each gui element of the corresponding type that return true to isHovered.
      * Render a tooltip here.
      * The MatrixStack is translated to the top left of the machine gui, consider it the 0,0 point for the rendering.
      */
-    void renderTooltip(MatrixStack matrix, E element, IMachineScreen screen, int mouseX, int mouseY);
+    void renderTooltip(PoseStack matrix, E element, IMachineScreen screen, int mouseX, int mouseY);
 
     /**
      * Calculate if the mouse cursor is hovering the element and return true if so.

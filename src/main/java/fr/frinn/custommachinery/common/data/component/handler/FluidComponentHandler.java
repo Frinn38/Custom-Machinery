@@ -9,12 +9,12 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityComponent, ISerializableComponent, ISyncableStuff {
 
@@ -68,10 +67,10 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     }
 
     @Override
-    public void serialize(CompoundNBT nbt) {
-        ListNBT componentsNBT = new ListNBT();
+    public void serialize(CompoundTag nbt) {
+        ListTag componentsNBT = new ListTag();
         this.getComponents().forEach(component -> {
-            CompoundNBT componentNBT = new CompoundNBT();
+            CompoundTag componentNBT = new CompoundTag();
             component.serialize(componentNBT);
             componentsNBT.add(componentNBT);
         });
@@ -79,13 +78,12 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
-        if(nbt.contains("fluids", Constants.NBT.TAG_LIST)) {
-            ListNBT componentsNBT = nbt.getList("fluids", Constants.NBT.TAG_COMPOUND);
+    public void deserialize(CompoundTag nbt) {
+        if(nbt.contains("fluids", Tag.TAG_LIST)) {
+            ListTag componentsNBT = nbt.getList("fluids", Tag.TAG_COMPOUND);
             componentsNBT.forEach(inbt -> {
-                if(inbt instanceof CompoundNBT) {
-                    CompoundNBT componentNBT = (CompoundNBT)inbt;
-                    if(componentNBT.contains("id", Constants.NBT.TAG_STRING)) {
+                if(inbt instanceof CompoundTag componentNBT) {
+                    if(componentNBT.contains("id", Tag.TAG_STRING)) {
                         this.getComponents().stream().filter(component -> component.getId().equals(componentNBT.getString("id"))).findFirst().ifPresent(component -> component.deserialize(componentNBT));
                     }
                 }
@@ -203,13 +201,13 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private final List<FluidMachineComponent> inputs = new ArrayList<>();
     private final List<FluidMachineComponent> outputs = new ArrayList<>();
 
-    public int getFluidAmount(String tank, Fluid fluid, @Nullable CompoundNBT nbt) {
+    public int getFluidAmount(String tank, Fluid fluid, @Nullable CompoundTag nbt) {
         Predicate<FluidMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getFluidStack().getTag() != null && Utils.testNBT(component.getFluidStack().getTag(), nbt));
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
         return this.inputs.stream().filter(component -> component.getFluidStack().getFluid() == fluid && nbtPredicate.test(component) && tankPredicate.test(component)).mapToInt(component -> component.getFluidStack().getAmount()).sum();
     }
 
-    public int getSpaceForFluid(String tank, Fluid fluid, @Nullable CompoundNBT nbt) {
+    public int getSpaceForFluid(String tank, Fluid fluid, @Nullable CompoundTag nbt) {
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
         return this.outputs.stream().filter(component -> component.isFluidValid(new FluidStack(fluid, 1, nbt)) && tankPredicate.test(component)).mapToInt(FluidMachineComponent::getRecipeRemainingSpace).sum();
     }
@@ -269,7 +267,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         @Override
         public FluidStack drain(FluidStack maxDrain, FluidAction action) {
             int remainingToDrain = maxDrain.getAmount();
-            for (FluidMachineComponent component : FluidComponentHandler.this.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? 1 : -1)).collect(Collectors.toList())) {
+            for (FluidMachineComponent component : FluidComponentHandler.this.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? 1 : -1)).toList()) {
                 if(!component.getFluidStack().isEmpty() && component.isFluidValid(maxDrain)) {
                     FluidStack stack = component.extract(maxDrain.getAmount(), FluidAction.SIMULATE);
                     if(stack.getAmount() > remainingToDrain) {
@@ -298,7 +296,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         public FluidStack drain(int maxDrain, FluidAction action) {
             FluidStack toDrain = FluidStack.EMPTY;
             int remainingToDrain = maxDrain;
-            for (FluidMachineComponent component : FluidComponentHandler.this.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? 1 : -1)).collect(Collectors.toList())) {
+            for (FluidMachineComponent component : FluidComponentHandler.this.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? 1 : -1)).toList()) {
                 if(!component.getFluidStack().isEmpty() && (toDrain.isEmpty() || component.getFluidStack().isFluidEqual(toDrain))) {
                     FluidStack stack = component.extract(remainingToDrain, FluidAction.SIMULATE);
                     if(stack.getAmount() > remainingToDrain) {

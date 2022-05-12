@@ -6,17 +6,17 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.CustomMachineryAPI;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Map;
 
-public class CustomMachineJsonReloadListener extends JsonReloadListener {
+public class CustomMachineJsonReloadListener extends SimpleJsonResourceReloadListener {
 
     private static final Gson GSON = (new GsonBuilder()).create();
     private static final String MAIN_PACKNAME = "main";
@@ -27,27 +27,27 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
 
     @ParametersAreNonnullByDefault
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> map, IResourceManager resourceManager, IProfiler profiler) {
-        CustomMachineryAPI.getLogger().info("Reading Custom Machinery Machines...");
+    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
+        ICustomMachineryAPI.INSTANCE.logger().info("Reading Custom Machinery Machines...");
 
         CustomMachinery.MACHINES.clear();
 
         map.forEach((id, json) -> {
             String packName;
             try {
-                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).getPackName();
+                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).getSourceName();
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            CustomMachineryAPI.getLogger().info("Parsing machine json: %s in datapack: %s", id, packName);
+            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: %s in datapack: %s", id, packName);
 
             if(!json.isJsonObject()) {
-                CustomMachineryAPI.getLogger().error("Bad machine JSON: %s must be a json object and not an array or primitive, skipping...", id);
+                ICustomMachineryAPI.INSTANCE.logger().error("Bad machine JSON: %s must be a json object and not an array or primitive, skipping...", id);
                 return;
             }
 
             if(CustomMachinery.MACHINES.containsKey(id)) {
-                CustomMachineryAPI.getLogger().error("A machine with id: %s already exists, skipping...", id);
+                ICustomMachineryAPI.INSTANCE.logger().error("A machine with id: %s already exists, skipping...", id);
                 return;
             }
 
@@ -59,14 +59,14 @@ public class CustomMachineJsonReloadListener extends JsonReloadListener {
                 else
                     machine.setLocation(MachineLocation.fromDatapack(id, packName));
                 CustomMachinery.MACHINES.put(id, machine);
-                CustomMachineryAPI.getLogger().info("Successfully parsed machine json: %s", id);
+                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: %s", id);
                 return;
             } else if(result.error().isPresent()) {
-                CustomMachineryAPI.getLogger().error("Error while parsing machine json: %s, skipping...%n%s", id, result.error().get().message());
+                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing machine json: %s, skipping...%n%s", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
-        CustomMachineryAPI.getLogger().info("Finished creating custom machines.");
+        ICustomMachineryAPI.INSTANCE.logger().info("Finished creating custom machines.");
     }
 }
