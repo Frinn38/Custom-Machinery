@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -77,6 +78,7 @@ public class CustomMachinery {
         FORGE_BUS.addListener(this::serverStarting);
         FORGE_BUS.addListener(EventPriority.HIGHEST, this::datapackSync);
         FORGE_BUS.addListener(this::registerCommands);
+        FORGE_BUS.addListener(this::onReload);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CMConfig.INSTANCE.getSpec());
     }
@@ -120,5 +122,10 @@ public class CustomMachinery {
     public void registerCommands(final RegisterCommandsEvent event) {
         event.getDispatcher().register(CMCommand.register("custommachinery"));
         event.getDispatcher().register(CMCommand.register("cm"));
+    }
+
+    public void onReload(final CommandEvent event) {
+        if(event.getParseResults().getReader().getString().startsWith("/reload"))
+            CMLogger.reset();
     }
 }
