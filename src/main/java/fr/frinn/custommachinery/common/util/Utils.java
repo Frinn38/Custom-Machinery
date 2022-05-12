@@ -17,7 +17,19 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TieredItem;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.ByteArrayNBT;
+import net.minecraft.nbt.ByteNBT;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.DoubleNBT;
+import net.minecraft.nbt.FloatNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.IntArrayNBT;
+import net.minecraft.nbt.IntNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.LongArrayNBT;
+import net.minecraft.nbt.LongNBT;
+import net.minecraft.nbt.NumberNBT;
+import net.minecraft.nbt.ShortNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.EffectUtils;
 import net.minecraft.potion.Effects;
@@ -236,7 +248,7 @@ public class Utils {
 
     public static ItemStack makeItemStack(Item item, int amount, @Nullable CompoundNBT nbt) {
         ItemStack stack = new ItemStack(item, amount);
-        stack.setTag(nbt);
+        stack.setTag(nbt == null ? null : nbt.copy());
         return stack;
     }
 
