@@ -37,13 +37,8 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
                     CodecLogger.loggedOptional(Codecs.list(ForgeRegistries.ENTITIES.getCodec()),"filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(requirement -> requirement.whitelist),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(entityRequirementInstance, (mode, action, amount, radius, filter, whitelist, jei) -> {
-                    EntityRequirement requirement = new EntityRequirement(mode, action, amount, radius, filter, whitelist);
-                    requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(requirement -> requirement.whitelist)
+            ).apply(entityRequirementInstance, EntityRequirement::new)
     );
 
     private final ACTION action;
@@ -52,7 +47,6 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
     private final List<EntityType<?>> filter;
     private final boolean whitelist;
     private final Predicate<Entity> predicate;
-    private boolean jeiVisible = true;
 
     public EntityRequirement(RequirementIOMode mode, ACTION action, int amount, int radius, List<EntityType<?>> filter, boolean whitelist) {
         super(mode);
@@ -112,18 +106,20 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
         int radius = (int)context.getModifiedValue(this.radius, this, "radius");
         if(getMode() == RequirementIOMode.OUTPUT) {
             switch (this.action) {
-                case CONSUME_HEALTH:
-                    if(component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {
+                case CONSUME_HEALTH -> {
+                    if (component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {
                         component.removeEntitiesHealth(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
-                case KILL:
-                    if(component.getEntitiesInRadius(radius, this.predicate) >= amount) {
+                }
+                case KILL -> {
+                    if (component.getEntitiesInRadius(radius, this.predicate) >= amount) {
                         component.killEntities(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
+                }
             }
         }
         return CraftingResult.pass();
@@ -147,13 +143,7 @@ public class EntityRequirement extends AbstractRequirement<EntityMachineComponen
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.setVisible(this.jeiVisible);
         info.addTooltip(new TranslatableComponent("custommachinery.requirements.entity." + this.action.toString().toLowerCase(Locale.ENGLISH) + ".info", this.amount, this.radius));
         if(!this.filter.isEmpty()) {
             if(this.whitelist)

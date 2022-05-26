@@ -89,8 +89,4 @@ public interface IDisplayInfo {
      * @param clickAction The action to execute.
      */
     void setClickAction(BiConsumer<ICustomMachine, Integer> clickAction);
-
-    //TODO: Remove in 1.18
-    @Deprecated
-    IDisplayInfo setVisible(boolean visible);
 }

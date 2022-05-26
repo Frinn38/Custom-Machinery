@@ -27,17 +27,11 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
 
     public static final Codec<PositionRequirement> CODEC = RecordCodecBuilder.create(positionRequirementInstance ->
         positionRequirementInstance.group(
-                CodecLogger.loggedOptional(Codecs.list(Codecs.POSITION_COMPARATOR_CODEC),"positions", Collections.emptyList()).forGetter(requirement -> requirement.positions),
-                CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-        ).apply(positionRequirementInstance, (positions, jei) -> {
-                PositionRequirement requirement = new PositionRequirement(positions);
-                requirement.setJeiVisible(jei);
-                return requirement;
-        })
+                CodecLogger.loggedOptional(Codecs.list(Codecs.POSITION_COMPARATOR_CODEC),"positions", Collections.emptyList()).forGetter(requirement -> requirement.positions)
+        ).apply(positionRequirementInstance, PositionRequirement::new)
     );
 
     private final List<PositionComparator> positions;
-    private boolean jeiVisible = true;
 
     public PositionRequirement(List<PositionComparator> positions) {
         super(RequirementIOMode.INPUT);
@@ -70,17 +64,11 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.positions.isEmpty()) {
             info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.pos").withStyle(ChatFormatting.AQUA));
             this.positions.forEach(pos -> info.addTooltip(new TextComponent("* ").append(pos.getText())));
         }
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.COMPASS);
     }
 }

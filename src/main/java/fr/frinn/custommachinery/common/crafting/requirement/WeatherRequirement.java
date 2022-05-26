@@ -23,18 +23,12 @@ public class WeatherRequirement extends AbstractRequirement<WeatherMachineCompon
     public static final Codec<WeatherRequirement> CODEC = RecordCodecBuilder.create(weatherRequirementInstance ->
             weatherRequirementInstance.group(
                     Codecs.WEATHER_TYPE_CODEC.fieldOf("weather").forGetter(requirement -> requirement.weather),
-                    CodecLogger.loggedOptional(Codec.BOOL,"onmachine", true).forGetter(requirement -> requirement.onMachine),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(weatherRequirementInstance, (weather, onMachine, jei) -> {
-                    WeatherRequirement requirement = new WeatherRequirement(weather, onMachine);
-                    requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    CodecLogger.loggedOptional(Codec.BOOL,"onmachine", true).forGetter(requirement -> requirement.onMachine)
+            ).apply(weatherRequirementInstance, WeatherRequirement::new)
     );
 
     private final WeatherMachineComponent.WeatherType weather;
     private final boolean onMachine;
-    private boolean jeiVisible = true;
 
     public WeatherRequirement(WeatherMachineComponent.WeatherType weather, boolean onMachine) {
         super(RequirementIOMode.INPUT);
@@ -77,16 +71,10 @@ public class WeatherRequirement extends AbstractRequirement<WeatherMachineCompon
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
         info.addTooltip(new TranslatableComponent("custommachinery.requirements.weather.info", this.weather.getText()));
         if(this.onMachine)
             info.addTooltip(new TranslatableComponent("custommachinery.requirements.weather.info.sky"));
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.SUNFLOWER);
     }
 }

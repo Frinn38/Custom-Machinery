@@ -12,7 +12,6 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -20,40 +19,12 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.crafting.requirement.BiomeRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.BlockRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.CommandRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.DimensionRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.DropRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.DurabilityRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.EnergyPerTickRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.EnergyRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.FluidPerTickRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.FluidRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.FuelRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.FunctionRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.ItemRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.LightRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.LootTableRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.PositionRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.RedstoneRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.StructureRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.TimeRequirement;
-import fr.frinn.custommachinery.common.crafting.requirement.WeatherRequirement;
+import fr.frinn.custommachinery.common.crafting.requirement.*;
 import fr.frinn.custommachinery.common.data.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
-import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.ComparatorMode;
-import fr.frinn.custommachinery.common.util.PartialBlockState;
-import fr.frinn.custommachinery.common.util.PositionComparator;
-import fr.frinn.custommachinery.common.util.TimeComparator;
-import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
+import fr.frinn.custommachinery.common.util.*;
+import fr.frinn.custommachinery.common.util.ingredient.*;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -64,21 +35,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
-import org.openzen.zencode.java.ZenCodeType.Method;
-import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.Optional;
-import org.openzen.zencode.java.ZenCodeType.OptionalBoolean;
-import org.openzen.zencode.java.ZenCodeType.OptionalFloat;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
-import org.openzen.zencode.java.ZenCodeType.OptionalString;
+import org.openzen.zencode.java.ZenCodeType.*;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -635,10 +597,7 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder hide() {
-        if(this.lastRequirement != null && this.lastRequirement instanceof IDisplayInfoRequirement)
-            ((IDisplayInfoRequirement)this.lastRequirement).setJeiVisible(false);
-        else
-            CraftTweakerAPI.LOGGER.error("Can't hide requirement: " + this.lastRequirement);
+        //TODO: Remake
         return this;
     }
 

@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.crafting.requirement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -26,17 +25,11 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
 
     public static final Codec<TimeRequirement> CODEC = RecordCodecBuilder.create(timeRequirementInstance ->
             timeRequirementInstance.group(
-                    Codecs.list(Codecs.TIME_COMPARATOR_CODEC).fieldOf("times").forGetter(requirement -> requirement.times),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(timeRequirementInstance, (times, jei) -> {
-                    TimeRequirement requirement = new TimeRequirement(times);
-                    requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    Codecs.list(Codecs.TIME_COMPARATOR_CODEC).fieldOf("times").forGetter(requirement -> requirement.times)
+            ).apply(timeRequirementInstance, TimeRequirement::new)
     );
 
     private final List<TimeComparator> times;
-    private boolean jeiVisible = true;
 
     public TimeRequirement(List<TimeComparator> times) {
         super(RequirementIOMode.INPUT);
@@ -72,17 +65,11 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.times.isEmpty()) {
             info.addTooltip(new TranslatableComponent("custommachinery.requirements.time.info").withStyle(ChatFormatting.AQUA));
             this.times.forEach(time -> info.addTooltip(new TextComponent("* ").append(time.getText())));
         }
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.CLOCK);
     }
 }

@@ -27,18 +27,12 @@ public class BiomeRequirement extends AbstractRequirement<PositionMachineCompone
     public static final Codec<BiomeRequirement> CODEC = RecordCodecBuilder.create(biomeRequirementInstance ->
             biomeRequirementInstance.group(
                     Codecs.list(ResourceLocation.CODEC).fieldOf("filter").forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL, "blacklist", false).forGetter(requirement -> requirement.blacklist),
-                    CodecLogger.loggedOptional(Codec.BOOL, "jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(biomeRequirementInstance, (filter, blacklist, jei) -> {
-                BiomeRequirement requirement = new BiomeRequirement(filter, blacklist);
-                requirement.setJeiVisible(jei);
-                return requirement;
-            })
+                    CodecLogger.loggedOptional(Codec.BOOL, "blacklist", false).forGetter(requirement -> requirement.blacklist)
+            ).apply(biomeRequirementInstance, BiomeRequirement::new)
     );
 
     private final List<ResourceLocation> filter;
     private final boolean blacklist;
-    private boolean jeiVisible = true;
 
     public BiomeRequirement(List<ResourceLocation> filter, boolean blacklist) {
         super(RequirementIOMode.INPUT);
@@ -80,12 +74,6 @@ public class BiomeRequirement extends AbstractRequirement<PositionMachineCompone
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.biome.whitelist").withStyle(ChatFormatting.AQUA));
             this.filter.forEach(biome -> info.addTooltip(new TextComponent("* ").append(new TranslatableComponent("biome." + biome.getNamespace() + "." + biome.getPath()))));
         }
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.MAP);
-    }
-
-    @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
     }
 }

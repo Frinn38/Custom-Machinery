@@ -5,42 +5,34 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.apiimpl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.common.util.Comparators;
+import fr.frinn.custommachinery.common.util.Utils;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.MethodsReturnNonnullByDefault;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
-import mezz.jei.api.registration.IGuiHandlerRegistration;
-import mezz.jei.api.registration.IModIngredientRegistration;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
-import mezz.jei.api.registration.IRecipeCategoryRegistration;
-import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.common.ForgeHooks;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @JeiPlugin
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class CustomMachineJEIPlugin implements IModPlugin {
 
     public static final ResourceLocation PLUGIN_ID = new ResourceLocation(CustomMachinery.MODID, "jei_plugin");
     public static final List<ItemStack> FUEL_INGREDIENTS = Lists.newArrayList();
+
+    private MachineRecipeTypes types;
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -54,25 +46,25 @@ public class CustomMachineJEIPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registry) {
-        CustomMachinery.MACHINES.forEach((id, machine) -> registry.addRecipeCategories(new CustomMachineRecipeCategory(machine, registry.getJeiHelpers().getGuiHelper())));
+        types = new MachineRecipeTypes();
+        CustomMachinery.MACHINES.forEach((id, machine) -> registry.addRecipeCategories(new CustomMachineRecipeCategory(machine, types.fromID(id), registry.getJeiHelpers())));
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registry) {
         if(Minecraft.getInstance().level == null)
             return;
-        Minecraft.getInstance().level.getRecipeManager()
+        Map<ResourceLocation, List<CustomMachineRecipe>> recipes = Minecraft.getInstance().level.getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
-                .forEach(recipe -> {
-                    if(CustomMachinery.MACHINES.containsKey(recipe.getMachine()))
-                        registry.addRecipes(Lists.newArrayList(recipe), recipe.getMachine());
-                    else
-                        CustomMachinery.LOGGER.error("Invalid machine ID: " + recipe.getMachine() + " in recipe: " + recipe.getId());
-                }
-        );
-        registry.getIngredientManager().getAllIngredients(VanillaTypes.ITEM).stream().filter(stack -> ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0).forEach(FUEL_INGREDIENTS::add);
+                .collect(Collectors.groupingBy(CustomMachineRecipe::getMachine));
+        recipes.forEach((id, list) -> {
+            RecipeType<CustomMachineRecipe> type = types.fromID(id);
+            if(type != null)
+                registry.addRecipes(type, list);
+        });
+        registry.getIngredientManager().getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(Utils::hasBurnTime).forEach(FUEL_INGREDIENTS::add);
     }
 
     @Override
@@ -93,7 +85,7 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                     boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && progress.getDirection() != ProgressBarGuiElement.Direction.RIGHT && progress.getDirection() != ProgressBarGuiElement.Direction.LEFT;
                     int width = invertAxis ? progress.getHeight() : progress.getWidth();
                     int height = invertAxis ? progress.getWidth() : progress.getHeight();
-                    return Collections.singleton(IGuiClickableArea.createBasic(posX, posY, width, height, screen.getMachine().getId()));
+                    return Collections.singleton(IGuiClickableArea.createBasic(posX, posY, width, height, types.fromID(screen.getMachine().getId())));
                 }
                 return Collections.emptyList();
             }
@@ -103,8 +95,11 @@ public class CustomMachineJEIPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         CustomMachinery.MACHINES.forEach((id, machine) -> {
-            registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), id);
-            machine.getCatalysts().stream().filter(catalyst -> CustomMachinery.MACHINES.containsKey(catalyst) && !catalyst.equals(id)).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id));
+            RecipeType<CustomMachineRecipe> type = types.fromID(id);
+            if(type != null) {
+                registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), type);
+                machine.getCatalysts().stream().filter(catalyst -> CustomMachinery.MACHINES.containsKey(catalyst) && !catalyst.equals(id)).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type));
+            }
         });
     }
 }

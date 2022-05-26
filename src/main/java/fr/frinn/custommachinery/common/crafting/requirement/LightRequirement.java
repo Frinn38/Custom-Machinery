@@ -25,19 +25,13 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
             lightRequirementInstance.group(
                     Codec.INT.fieldOf("light").forGetter(requirement -> requirement.light),
                     CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
-                    CodecLogger.loggedOptional(Codec.BOOL,"sky", false).forGetter(requirement -> requirement.sky),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(lightRequirementInstance, (light, comparator, sky, jei) -> {
-                    LightRequirement requirement = new LightRequirement(light, comparator, sky);
-                    requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    CodecLogger.loggedOptional(Codec.BOOL,"sky", false).forGetter(requirement -> requirement.sky)
+            ).apply(lightRequirementInstance, LightRequirement::new)
     );
 
     private final int light;
     private final ComparatorMode comparator;
     private final boolean sky;
-    private boolean jeiVisible = true;
 
     public LightRequirement(int light, ComparatorMode comparator, boolean sky) {
         super(RequirementIOMode.INPUT);
@@ -92,13 +86,7 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.setVisible(this.jeiVisible);
         if(this.sky)
             info.addTooltip(new TranslatableComponent("custommachinery.requirements.light.sky.info", new TranslatableComponent(this.comparator.getTranslationKey()), this.light));
         else

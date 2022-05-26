@@ -35,10 +35,20 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
     }
 
     @Override
-    public void render(PoseStack matrix, FluidGuiElement element, @Nullable FluidStack fluid) {
-        int width = element.getWidth();
-        int height = element.getHeight();
-        ClientHandler.bindTexture(element.getTexture());
+    public int getWidth() {
+        return this.element.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return this.element.getHeight();
+    }
+
+    @Override
+    public void render(PoseStack matrix, @Nullable FluidStack fluid) {
+        int width = this.element.getWidth();
+        int height = this.element.getHeight();
+        ClientHandler.bindTexture(this.element.getTexture());
         GuiComponent.blit(matrix, -1, -1, 0, 0, width, height, width, height);
         if(fluid != null) {
             ResourceLocation fluidTexture = fluid.getFluid().getAttributes().getStillTexture();
@@ -58,7 +68,7 @@ public class FluidStackIngredientRenderer extends JEIIngredientRenderer<FluidSta
     }
 
     @Override
-    public List<Component> getTooltip(FluidStack ingredient, FluidGuiElement element, TooltipFlag flag) {
+    public List<Component> getTooltip(FluidStack ingredient, TooltipFlag flag) {
         List<Component> tooltips = new ArrayList<>();
         tooltips.add(ingredient.getDisplayName());
         return tooltips;

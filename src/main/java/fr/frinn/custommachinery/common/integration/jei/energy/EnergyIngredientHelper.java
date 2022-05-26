@@ -28,11 +28,15 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
         return "" + energy.getAmount() + energy.getChance() + energy.isPerTick();
     }
 
+    //Safe delete when needed
+    @SuppressWarnings("removal")
     @Override
     public String getModId(Energy energy) {
         return CustomMachinery.MODID;
     }
 
+    //Safe delete when needed
+    @SuppressWarnings("removal")
     @Override
     public String getResourceId(Energy energy) {
         return "energy";

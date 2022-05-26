@@ -10,17 +10,11 @@ public class TextGuiElementRenderer implements IGuiElementRenderer<TextGuiElemen
 
     @Override
     public void renderElement(PoseStack matrix, TextGuiElement element, IMachineScreen screen) {
-        int posX;
-        switch (element.getAlignment()) {
-            case CENTER:
-                posX = element.getX() - Minecraft.getInstance().font.width(element.getText().getString()) / 2;
-                break;
-            case RIGHT:
-                posX = element.getX() - Minecraft.getInstance().font.width(element.getText().getString());
-                break;
-            default:
-                posX = element.getX();
-        }
+        int posX = switch (element.getAlignment()) {
+            case CENTER -> element.getX() - Minecraft.getInstance().font.width(element.getText().getString()) / 2;
+            case RIGHT -> element.getX() - Minecraft.getInstance().font.width(element.getText().getString());
+            default -> element.getX();
+        };
         int posY = element.getY();
         Minecraft.getInstance().font.draw(matrix, element.getText(), posX, posY, element.getColor());
     }

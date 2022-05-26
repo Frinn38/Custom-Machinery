@@ -9,13 +9,6 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 public interface IDisplayInfoRequirement {
 
     /**
-     * TODO: remove
-     * Set whether the requirement should be visible in jei.
-     * @param jeiVisible True if the requirement should be visible, false otherwise.
-     */
-    void setJeiVisible(boolean jeiVisible);
-
-    /**
      * Called by the jei integration to collect all display info from the requirement.
      * Use the passed {@link IDisplayInfo} to add some tooltips, a custom icon or a click callback to the requirement in the jei recipe.
      * @param info The display info of the requirement.

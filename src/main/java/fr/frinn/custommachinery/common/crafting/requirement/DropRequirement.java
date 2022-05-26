@@ -8,11 +8,7 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
-import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.api.requirement.*;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.common.data.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -29,11 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMachineComponent> implements ITickableRequirement<DropMachineComponent>, IDisplayInfoRequirement {
 
@@ -217,31 +209,24 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.setVisible(this.jeiVisible);
         switch (this.action) {
-            case CHECK:
+            case CHECK -> {
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.check", this.amount, this.radius));
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
                 this.input.forEach(ingredient -> info.addTooltip(new TextComponent(ingredient.toString())));
                 info.setItemIcon(Items.OAK_PRESSURE_PLATE);
-                break;
-            case CONSUME:
+            }
+            case CONSUME -> {
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
                 this.input.forEach(ingredient -> info.addTooltip(new TextComponent("- " + ingredient.toString())));
                 info.setItemIcon(Items.HOPPER);
-                break;
-            case PRODUCE:
+            }
+            case PRODUCE -> {
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.produce", new TextComponent(this.amount + "x ").append(new TranslatableComponent(this.output.getDescriptionId())).withStyle(ChatFormatting.GOLD)));
                 info.setItemIcon(Items.DROPPER);
-                break;
+            }
         }
-    }
-
-    private boolean jeiVisible = true;
-    @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
     }
 
     public enum Action {

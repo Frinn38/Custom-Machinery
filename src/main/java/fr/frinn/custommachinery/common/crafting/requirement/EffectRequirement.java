@@ -42,13 +42,8 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
                     CodecLogger.loggedOptional(Codec.INT,"level", 1).forGetter(requirement -> requirement.level),
                     CodecLogger.loggedOptional(Codecs.list(ForgeRegistries.ENTITIES.getCodec()),"filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL,"finish", false).forGetter(requirement -> requirement.applyAtEnd),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(effectRequirementInstance, (effect, time, radius, level, filter, finish, jei) -> {
-                    EffectRequirement requirement = new EffectRequirement(effect, time, level, radius, filter, finish);
-                    requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    CodecLogger.loggedOptional(Codec.BOOL,"finish", false).forGetter(requirement -> requirement.applyAtEnd)
+            ).apply(effectRequirementInstance, EffectRequirement::new)
     );
 
     private final MobEffect effect;
@@ -57,7 +52,6 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
     private final int radius;
     private final List<EntityType<?>> filter;
     private final boolean applyAtEnd;
-    private boolean jeiVisible = true;
 
     public EffectRequirement(MobEffect effect, int time, int level, int radius, List<EntityType<?>> filter, boolean applyAtEnd) {
         super(RequirementIOMode.OUTPUT);
@@ -112,11 +106,6 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
         Component effect = new TextComponent(this.effect.getDisplayName().getString()).withStyle(ChatFormatting.AQUA);
         Component level = this.level <= 0 ? TextComponent.EMPTY : new TextComponent(RomanNumber.toRoman(this.level)).withStyle(ChatFormatting.GOLD);
@@ -128,7 +117,6 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
             info.addTooltip(new TranslatableComponent("custommachinery.requirements.effect.info.whitelist").withStyle(ChatFormatting.AQUA));
             this.filter.forEach(type -> info.addTooltip(new TextComponent("* ").append(new TranslatableComponent(type.getDescriptionId()))));
         }
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.HEALING));
     }
 }

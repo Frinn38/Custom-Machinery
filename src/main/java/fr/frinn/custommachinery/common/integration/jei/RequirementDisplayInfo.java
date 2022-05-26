@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.jei;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
@@ -31,7 +30,6 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     private ItemStack item;
     private final List<Component> tooltips = new ArrayList<>();
     private BiConsumer<ICustomMachine, Integer> clickAction;
-    private boolean visible = true;
     private IconType iconType = IconType.TEXTURE;
 
     @Override
@@ -70,12 +68,6 @@ public class RequirementDisplayInfo implements IDisplayInfo {
         this.clickAction = clickAction;
     }
 
-    @Override
-    public RequirementDisplayInfo setVisible(boolean visible) {
-        this.visible = visible;
-        return this;
-    }
-
     public void renderIcon(PoseStack matrix, int size) {
         switch (this.iconType) {
             case TEXTURE -> {
@@ -88,10 +80,7 @@ public class RequirementDisplayInfo implements IDisplayInfo {
             }
             case ITEM -> {
                 matrix.scale(size / 16.0F, size / 16.0F, 1.0F);
-                RenderSystem.getModelViewStack().pushPose();
-                RenderSystem.getModelViewStack().mulPoseMatrix(matrix.last().pose());
-                Minecraft.getInstance().getItemRenderer().renderGuiItem(this.item, 0, 0);
-                RenderSystem.getModelViewStack().popPose();
+                ClientHandler.renderItemAndEffectsIntoGUI(matrix, this.item, 0, 0);
             }
         }
     }
@@ -111,10 +100,6 @@ public class RequirementDisplayInfo implements IDisplayInfo {
             return true;
         }
         return false;
-    }
-
-    public boolean isVisible() {
-        return this.visible;
     }
 
     public enum IconType {

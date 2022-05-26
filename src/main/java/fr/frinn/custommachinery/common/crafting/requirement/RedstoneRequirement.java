@@ -24,18 +24,12 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
     public static final Codec<RedstoneRequirement> CODEC = RecordCodecBuilder.create(redstoneRequirementInstance ->
             redstoneRequirementInstance.group(
                     Codec.INT.fieldOf("power").forGetter(requirement -> requirement.powerLevel),
-                    CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparatorMode),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(redstoneRequirementInstance, (power, comparator, jei) -> {
-                    RedstoneRequirement requirement = new RedstoneRequirement(power, comparator);
-                    requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparatorMode)
+            ).apply(redstoneRequirementInstance, RedstoneRequirement::new)
     );
 
     private final int powerLevel;
     private final ComparatorMode comparatorMode;
-    private boolean jeiVisible = true;
 
     public RedstoneRequirement(int powerLevel, ComparatorMode comparatorMode) {
         super(RequirementIOMode.INPUT);
@@ -81,14 +75,8 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.setVisible(this.jeiVisible)
-                .addTooltip(new TranslatableComponent("custommachinery.requirements.redstone.info", new TranslatableComponent(this.comparatorMode.getTranslationKey()), this.powerLevel))
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.redstone.info", new TranslatableComponent(this.comparatorMode.getTranslationKey()), this.powerLevel))
                 .setItemIcon(Items.REDSTONE);
     }
 }

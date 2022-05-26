@@ -28,18 +28,12 @@ public class DimensionRequirement extends AbstractRequirement<PositionMachineCom
     public static final Codec<DimensionRequirement> CODEC = RecordCodecBuilder.create(dimensionRequirementInstance ->
             dimensionRequirementInstance.group(
                     Codecs.list(ResourceLocation.CODEC).fieldOf("filter").forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL, "blacklist", false).forGetter(requirement -> requirement.blacklist),
-                    CodecLogger.loggedOptional(Codec.BOOL, "jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(dimensionRequirementInstance, (filter, blacklist, jei) -> {
-                DimensionRequirement requirement = new DimensionRequirement(filter, blacklist);
-                requirement.setJeiVisible(jei);
-                return requirement;
-            })
+                    CodecLogger.loggedOptional(Codec.BOOL, "blacklist", false).forGetter(requirement -> requirement.blacklist)
+            ).apply(dimensionRequirementInstance, DimensionRequirement::new)
     );
 
     private final List<ResourceLocation> filter;
     private final boolean blacklist;
-    private boolean jeiVisible = true;
 
     public DimensionRequirement(List<ResourceLocation> filter, boolean blacklist) {
         super(RequirementIOMode.INPUT);
@@ -73,11 +67,6 @@ public class DimensionRequirement extends AbstractRequirement<PositionMachineCom
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.filter.isEmpty()) {
             if(this.blacklist)
@@ -86,7 +75,6 @@ public class DimensionRequirement extends AbstractRequirement<PositionMachineCom
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.dimension.whitelist").withStyle(ChatFormatting.DARK_GREEN));
             this.filter.forEach(dimension -> info.addTooltip(new TextComponent("* " + dimension)));
         }
-        info.setVisible(this.jeiVisible);
         info.setSpriteIcon(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation("block/nether_portal")));
     }
 }

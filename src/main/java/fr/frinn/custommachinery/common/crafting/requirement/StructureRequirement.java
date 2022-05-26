@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.crafting.requirement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -34,19 +33,13 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
     public static final Codec<StructureRequirement> CODEC = RecordCodecBuilder.create(structureRequirementInstance ->
             structureRequirementInstance.group(
                     Codecs.list(Codecs.list(Codec.STRING)).fieldOf("pattern").forGetter(requirement -> requirement.pattern),
-                    Codec.unboundedMap(Codecs.CHARACTER_CODEC, IIngredient.BLOCK).fieldOf("keys").forGetter(requirement -> requirement.keys),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(structureRequirementInstance, (pattern, keys, jei) -> {
-                    StructureRequirement requirement = new StructureRequirement(pattern, keys);
-                    requirement.setJeiVisible(jei);
-                    return requirement;
-            })
+                    Codec.unboundedMap(Codecs.CHARACTER_CODEC, IIngredient.BLOCK).fieldOf("keys").forGetter(requirement -> requirement.keys)
+            ).apply(structureRequirementInstance, StructureRequirement::new)
     );
 
     private final List<List<String>> pattern;
     private final Map<Character, IIngredient<PartialBlockState>> keys;
     private final BlockStructure structure;
-    private boolean jeiVisible = true;
 
     public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys) {
         super(RequirementIOMode.INPUT);
@@ -94,11 +87,6 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
         info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.info"));
         info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.click"));
@@ -108,7 +96,6 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
                 info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.list", amount, new TextComponent(ingredient.toString()).withStyle(ChatFormatting.GOLD)));
         });
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.STRUCTURE_BLOCK);
     }
 }

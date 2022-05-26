@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client.render.element.jei;
+package fr.frinn.custommachinery.common.integration.jei.energy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
@@ -7,10 +7,10 @@ import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.TooltipFlag;
 
 import javax.annotation.Nullable;
@@ -29,18 +29,25 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     }
 
     @Override
-    public void render(PoseStack matrix, EnergyGuiElement element, @Nullable Energy ingredient) {
-        int width = element.getWidth();
-        int height = element.getHeight();
-        if(ingredient != null)
-            Minecraft.getInstance().getTextureManager().bindForSetup(element.getFilledTexture());
-        else
-            Minecraft.getInstance().getTextureManager().bindForSetup(element.getEmptyTexture());
-        GuiComponent.blit(matrix, -1, -1, 0, 0, width, height, width, height);
+    public int getWidth() {
+        return this.element.getWidth() - 2;
     }
 
     @Override
-    public List<Component> getTooltip(Energy ingredient, EnergyGuiElement element, TooltipFlag iTooltipFlag) {
+    public int getHeight() {
+        return this.element.getHeight() - 2;
+    }
+
+    @Override
+    public void render(PoseStack matrix, @Nullable Energy ingredient) {
+        int width = this.element.getWidth();
+        int height = this.element.getHeight();
+
+        GuiComponent.fill(matrix, 0, 0, width - 2, height - 2, FastColor.ARGB32.color(180, 255, 0, 0));
+    }
+
+    @Override
+    public List<Component> getTooltip(Energy ingredient, TooltipFlag iTooltipFlag) {
         List<Component> tooltips = new ArrayList<>();
         if(ingredient.isPerTick())
             tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick", ingredient.getAmount()));

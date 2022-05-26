@@ -33,13 +33,11 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
                     CodecLogger.loggedOptional(Codec.INT,"permissionlevel", 2).forGetter(requirement -> requirement.permissionLevel),
                     CodecLogger.loggedOptional(Codec.BOOL,"log", false).forGetter(requirement -> requirement.log),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "delay", 0.0).forGetter(AbstractDelayedRequirement::getDelay),
-                    CodecLogger.loggedOptional(Codec.BOOL,"jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(commandRequirementInstance, (command, phase, permissionLevel, log, chance, delay, jeiVisible) -> {
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "delay", 0.0).forGetter(AbstractDelayedRequirement::getDelay)
+            ).apply(commandRequirementInstance, (command, phase, permissionLevel, log, chance, delay) -> {
                 CommandRequirement requirement = new CommandRequirement(command, phase, permissionLevel, log);
                 requirement.setChance(chance);
                 requirement.setDelay(delay);
-                requirement.setJeiVisible(jeiVisible);
                 return requirement;
             })
     );
@@ -48,7 +46,6 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
     private final CraftingManager.PHASE phase;
     private final int permissionLevel;
     private final boolean log;
-    private boolean jeiVisible = true;
 
     public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log) {
         super(RequirementIOMode.INPUT);
@@ -101,13 +98,7 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.COMMAND_BLOCK);
         if(!isDelayed())
             info.addTooltip(new TranslatableComponent("custommachinery.requirements.command.info", new TextComponent(this.command).withStyle(ChatFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));

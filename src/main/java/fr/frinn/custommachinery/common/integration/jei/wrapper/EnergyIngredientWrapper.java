@@ -6,12 +6,10 @@ import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.apiimpl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
-import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import fr.frinn.custommachinery.common.data.gui.EnergyGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import mezz.jei.api.gui.IRecipeLayout;
-import mezz.jei.api.ingredients.IIngredientRenderer;
-import mezz.jei.api.ingredients.IIngredientType;
+import fr.frinn.custommachinery.common.integration.jei.energy.EnergyJEIIngredientRenderer;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 
 public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
@@ -24,25 +22,13 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
     }
 
     @Override
-    public IIngredientType<Energy> getJEIIngredientType() {
-        return CustomIngredientTypes.ENERGY;
-    }
-
-    @Override
-    public void setIngredient(Ingredients ingredients) {
-        if(this.mode == RequirementIOMode.INPUT)
-            ingredients.addInput(CustomIngredientTypes.ENERGY, this.energy);
-        else
-            ingredients.addOutput(CustomIngredientTypes.ENERGY, this.energy);
-    }
-
-    @Override
-    public boolean setupRecipe(int index, IRecipeLayout layout, int xOffset, int yOffset, IGuiElement element, IIngredientRenderer<Energy> renderer, IRecipeHelper helper) {
-        if(!(element instanceof EnergyGuiElement) || element.getType() != Registration.ENERGY_GUI_ELEMENT.get())
+    public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
+        if(!(element instanceof EnergyGuiElement energyElement) || element.getType() != Registration.ENERGY_GUI_ELEMENT.get())
             return false;
 
-        layout.getIngredientsGroup(getJEIIngredientType()).init(index, this.mode == RequirementIOMode.INPUT, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
-        layout.getIngredientsGroup(CustomIngredientTypes.ENERGY).set(index, this.energy);
+        builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset, element.getY() - yOffset)
+                .setCustomRenderer(CustomIngredientTypes.ENERGY, new EnergyJEIIngredientRenderer(energyElement))
+                .addIngredient(CustomIngredientTypes.ENERGY, this.energy);
         return true;
     }
 }

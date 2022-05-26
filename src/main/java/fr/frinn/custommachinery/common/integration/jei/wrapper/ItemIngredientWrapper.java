@@ -5,16 +5,12 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.apiimpl.integration.jei.Ingredients;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.gui.IRecipeLayout;
-import mezz.jei.api.gui.ingredient.IGuiIngredientGroup;
-import mezz.jei.api.ingredients.IIngredientRenderer;
-import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -50,56 +46,39 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     }
 
     @Override
-    public IIngredientType<ItemStack> getJEIIngredientType() {
-        return VanillaTypes.ITEM;
-    }
-
-    @Override
-    public void setIngredient(Ingredients ingredients) {
-        List<ItemStack> items = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.amount, this.nbt)).toList();
-        if(this.mode == RequirementIOMode.INPUT)
-            ingredients.addInputs(VanillaTypes.ITEM, items);
-        else
-            ingredients.addOutputs(VanillaTypes.ITEM, items);
-    }
-
-    @Override
-    public boolean setupRecipe(int index, IRecipeLayout layout, int xOffset, int yOffset, IGuiElement element, IIngredientRenderer<ItemStack> renderer, IRecipeHelper helper) {
-        if(!(element instanceof SlotGuiElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
+    public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
+        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
             return false;
 
         List<ItemStack> ingredients = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.useDurability ? 1 : this.amount, this.nbt)).toList();
-        SlotGuiElement slotElement = (SlotGuiElement)element;
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
         if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
-            layout.getIngredientsGroup(getJEIIngredientType()).init(index, this.mode == RequirementIOMode.INPUT, renderer, element.getX() - xOffset, element.getY() - yOffset, element.getWidth() - 2, element.getHeight() - 2, 0, 0);
-            IGuiIngredientGroup<ItemStack> group = layout.getIngredientsGroup(VanillaTypes.ITEM);
-            group.set(index, ingredients);
-            group.addTooltipCallback(((slotIndex, input, ingredient, tooltips) -> {
-                if(slotIndex != index)
-                    return;
-                if(this.useDurability && this.mode == RequirementIOMode.INPUT)
-                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.consume", this.amount));
-                else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)
-                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.repair", this.amount));
+            builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset, element.getY() - yOffset)
+                    //.setCustomRenderer(VanillaTypes.ITEM_STACK, renderer)
+                    .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
+                    .addTooltipCallback((view, tooltips) -> {
+                        if(this.useDurability && this.mode == RequirementIOMode.INPUT)
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.consume", this.amount));
+                        else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.repair", this.amount));
 
-                if(this.chance == 0)
-                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
-                else if(this.chance != 1){
-                    double percentage = this.chance * 100;
-                    if(percentage < 0.01F)
-                        tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", "<0.01"));
-                    else {
-                        BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
-                        if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
-                        else
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
-                    }
-                }
-                if(!this.slot.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
-                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
-            }));
+                        if(this.chance == 0)
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
+                        else if(this.chance != 1){
+                            double percentage = this.chance * 100;
+                            if(percentage < 0.01F)
+                                tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", "<0.01"));
+                            else {
+                                BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
+                                if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
+                                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
+                                else
+                                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
+                            }
+                        }
+                        if(!this.slot.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
+                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
+                    });
             return true;
         }
         return false;

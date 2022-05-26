@@ -45,11 +45,9 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
                     CodecLogger.loggedOptional(Codecs.PARTIAL_BLOCK_STATE_CODEC, "block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
                     CodecLogger.loggedOptional(Codecs.list(IIngredient.BLOCK), "filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
                     CodecLogger.loggedOptional(Codec.BOOL, "whitelist", false).forGetter(requirement -> requirement.whitelist),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay),
-                    CodecLogger.loggedOptional(Codec.BOOL, "jei", true).forGetter(requirement -> requirement.jeiVisible)
-            ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, filter, whitelist, delay, jei) -> {
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay)
+            ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, filter, whitelist, delay) -> {
                     BlockRequirement requirement = new BlockRequirement(mode, action, pos, amount, comparator, block, filter, whitelist);
-                    requirement.setJeiVisible(jei);
                     requirement.setDelay(delay);
                     return requirement;
             })
@@ -63,7 +61,6 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
     private final List<IIngredient<PartialBlockState>> filter;
     private final boolean whitelist;
     private double delay;
-    private boolean jeiVisible = true;
 
     public BlockRequirement(RequirementIOMode mode, ACTION action, AABB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<IIngredient<PartialBlockState>> filter, boolean whitelist) {
         super(mode);
@@ -214,11 +211,6 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
     }
 
     @Override
-    public void setJeiVisible(boolean jeiVisible) {
-        this.jeiVisible = jeiVisible;
-    }
-
-    @Override
     public void getDisplayInfo(IDisplayInfo info) {
         MutableComponent action = null;
         switch (this.action) {
@@ -265,7 +257,6 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
         }
         info.addTooltip(new TranslatableComponent("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
-        info.setVisible(this.jeiVisible);
         info.setItemIcon(Items.GRASS_BLOCK);
     }
 
