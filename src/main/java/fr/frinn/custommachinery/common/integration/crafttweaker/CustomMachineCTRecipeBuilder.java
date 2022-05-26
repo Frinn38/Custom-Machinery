@@ -29,6 +29,8 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -322,17 +324,17 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     /** EFFECT **/
-    /*
+
     @Method
-    public CustomMachineCTRecipeBuilder giveEffectOnEnd(MobEffect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
-        return addRequirement(new EffectRequirement(effect, time, level, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), true));
+    public CustomMachineCTRecipeBuilder giveEffectOnEnd(MobEffect effect, int time, int radius, @OptionalInt(1) int level, @Optional EntityType[] filter) {
+        return addRequirement(new EffectRequirement(effect, time, level, radius, Arrays.asList(filter), true));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder giveEffectEachTick(MobEffect effect, int time, int radius, @OptionalInt(1) int level, @Optional MCEntityType[] filter) {
-        return addRequirement(new EffectRequirement(effect, time, level, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), false));
+    public CustomMachineCTRecipeBuilder giveEffectEachTick(MobEffect effect, int time, int radius, @OptionalInt(1) int level, @Optional EntityType[] filter) {
+        return addRequirement(new EffectRequirement(effect, time, level, radius, Arrays.asList(filter), false));
     }
-    */
+
     /** WEATHER **/
 
     @Method
@@ -353,37 +355,37 @@ public class CustomMachineCTRecipeBuilder {
     }
 
     /** ENTITY **/
-    /*
+
     @Method
-    public CustomMachineCTRecipeBuilder requireEntities(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+    public CustomMachineCTRecipeBuilder requireEntities(int amount, int radius, @Optional EntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_AMOUNT, amount, radius, Arrays.asList(filter), whitelist));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder requireEntitiesHealth(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+    public CustomMachineCTRecipeBuilder requireEntitiesHealth(int amount, int radius, @Optional EntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CHECK_HEALTH, amount, radius, Arrays.asList(filter), whitelist));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder consumeEntityHealthOnStart(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+    public CustomMachineCTRecipeBuilder consumeEntityHealthOnStart(int amount, int radius, @Optional EntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, Arrays.asList(filter), whitelist));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder consumeEntityHealthOnEnd(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+    public CustomMachineCTRecipeBuilder consumeEntityHealthOnEnd(int amount, int radius, @Optional EntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        return addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.CONSUME_HEALTH, amount, radius, Arrays.asList(filter), whitelist));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder killEntityOnStart(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.KILL, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+    public CustomMachineCTRecipeBuilder killEntityOnStart(int amount, int radius, @Optional EntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        return addRequirement(new EntityRequirement(RequirementIOMode.INPUT, EntityRequirement.ACTION.KILL, amount, radius, Arrays.asList(filter), whitelist));
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder killEntityOnEnd(int amount, int radius, @Optional MCEntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
-        return addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, CraftTweakerHelper.getEntityTypes(Arrays.asList(filter)), whitelist));
+    public CustomMachineCTRecipeBuilder killEntityOnEnd(int amount, int radius, @Optional EntityType[] filter, @OptionalBoolean(true) boolean whitelist) {
+        return addRequirement(new EntityRequirement(RequirementIOMode.OUTPUT, EntityRequirement.ACTION.KILL, amount, radius, Arrays.asList(filter), whitelist));
     }
-    */
+
     /** LIGHT **/
 
     @Method

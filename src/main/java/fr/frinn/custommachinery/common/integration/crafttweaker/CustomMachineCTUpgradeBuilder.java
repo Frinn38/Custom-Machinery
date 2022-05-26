@@ -5,6 +5,7 @@ import com.blamejared.crafttweaker.api.action.base.IRuntimeAction;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import net.minecraft.ResourceLocationException;
@@ -12,11 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import org.openzen.zencode.java.ZenCodeType.Method;
-import org.openzen.zencode.java.ZenCodeType.Name;
-import org.openzen.zencode.java.ZenCodeType.OptionalDouble;
-import org.openzen.zencode.java.ZenCodeType.OptionalInt;
-import org.openzen.zencode.java.ZenCodeType.OptionalString;
+import org.openzen.zencode.java.ZenCodeType.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,29 +76,29 @@ public class CustomMachineCTUpgradeBuilder {
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder addInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.INPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
+    public CustomMachineCTUpgradeBuilder addInput(RequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type, RequirementIOMode.INPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder mulInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
+    public CustomMachineCTUpgradeBuilder mulInput(RequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type, RequirementIOMode.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder addOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
+    public CustomMachineCTUpgradeBuilder addOutput(RequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type, RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder mulOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
-        RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
+    public CustomMachineCTUpgradeBuilder mulOutput(RequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+        RecipeModifier modifier = new RecipeModifier(type, RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
