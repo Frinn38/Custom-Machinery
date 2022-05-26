@@ -4,6 +4,7 @@ import com.blamejared.crafttweaker.api.annotation.BracketDumper;
 import com.blamejared.crafttweaker.api.annotation.BracketResolver;
 import com.blamejared.crafttweaker.api.annotation.BracketValidator;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.bracket.CommandStringDisplayable;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.ResourceLocationException;
@@ -17,8 +18,8 @@ import java.util.Collection;
 public class RequirementTypeCTBrackets {
 
     @BracketResolver("requirementtype")
-    public static RequirementType parseBracket(String bracket) {
-        return Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(new ResourceLocation(bracket));
+    public static CTRequirementType parseBracket(String bracket) {
+        return new CTRequirementType(Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(new ResourceLocation(bracket)));
     }
 
     @BracketValidator("requirementtype")
@@ -37,5 +38,23 @@ public class RequirementTypeCTBrackets {
     @BracketDumper("requirementtype")
     public static Collection<String> dumpBrackets() {
         return Registration.REQUIREMENT_TYPE_REGISTRY.get().getValues().stream().map(type -> "<requirementtype:" + type.getRegistryName() + ">").toList();
+    }
+
+    public static class CTRequirementType implements CommandStringDisplayable {
+
+        private final RequirementType<?> type;
+
+        public CTRequirementType(RequirementType<?> type) {
+            this.type = type;
+        }
+
+        public RequirementType<?> getType() {
+            return this.type;
+        }
+
+        @Override
+        public String getCommandString() {
+            return "<requirementtype:" + type.getRegistryName() + ">";
+        }
     }
 }
