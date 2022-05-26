@@ -1,11 +1,6 @@
 package fr.frinn.custommachinery.common.data.component;
 
-import fr.frinn.custommachinery.api.component.ICapabilityComponent;
-import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
-import fr.frinn.custommachinery.api.component.IMachineComponent;
-import fr.frinn.custommachinery.api.component.ISerializableComponent;
-import fr.frinn.custommachinery.api.component.ITickableComponent;
-import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.*;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -13,10 +8,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import net.minecraft.nbt.CompoundTag;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class DummyComponentManager extends MachineComponentManager {
@@ -26,8 +18,8 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public List<IMachineComponent> getComponents() {
-        return Collections.emptyList();
+    public Map<MachineComponentType<?>, IMachineComponent> getComponents() {
+        return Collections.emptyMap();
     }
 
     @Override

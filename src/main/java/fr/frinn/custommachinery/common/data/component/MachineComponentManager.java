@@ -1,13 +1,6 @@
 package fr.frinn.custommachinery.common.data.component;
 
-import fr.frinn.custommachinery.api.component.ICapabilityComponent;
-import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
-import fr.frinn.custommachinery.api.component.IMachineComponent;
-import fr.frinn.custommachinery.api.component.IMachineComponentManager;
-import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
-import fr.frinn.custommachinery.api.component.ISerializableComponent;
-import fr.frinn.custommachinery.api.component.ITickableComponent;
-import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.*;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -20,18 +13,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class MachineComponentManager implements IMachineComponentManager, INBTSerializable<CompoundTag> {
 
     private final CustomMachineTile tile;
-    private final List<IMachineComponent> components;
+    private final Map<MachineComponentType<?>, IMachineComponent> components;
     private final List<ICapabilityComponent> capabilityComponents;
     private final List<ISerializableComponent> serializableComponents;
     private final List<ITickableComponent> tickableComponents;
@@ -42,28 +30,28 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     @SuppressWarnings({"unchecked", "rawtypes"})
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
         this.tile = tile;
-        List<IMachineComponent> components = new ArrayList<>();
+        Map<MachineComponentType<?>, IMachineComponent> components = new HashMap<>();
         Map<MachineComponentType<?>, List<IMachineComponent>> handlers = new HashMap<>();
         templates.forEach(template -> {
             IMachineComponent component = template.build(this);
             if(component.getType().isSingle())
-                components.add(component);
+                components.put(component.getType(), component);
             else
                 handlers.computeIfAbsent(component.getType(), type -> new ArrayList<>()).add(component);
         });
-        handlers.forEach((type, list) -> components.add(type.getHandler(this, (List)Collections.unmodifiableList(list))));
-        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(type -> type.isDefaultComponent() && components.stream().noneMatch(component -> component.getType() == type)).forEach(type -> components.add(type.getDefaultComponentBuilder().apply(this)));
-        this.components = Collections.unmodifiableList(components);
-        this.capabilityComponents = this.components.stream().filter(component -> component instanceof ICapabilityComponent).map(component -> (ICapabilityComponent)component).collect(CMCollectors.toImmutableList());
-        this.serializableComponents = this.components.stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).collect(CMCollectors.toImmutableList());
-        this.tickableComponents = this.components.stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).collect(CMCollectors.toImmutableList());
-        this.probeInfoComponents = this.components.stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).collect(CMCollectors.toImmutableList());
-        this.syncableComponents = this.components.stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(CMCollectors.toImmutableList());
-        this.comparatorInputComponents = this.components.stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(CMCollectors.toImmutableList());
+        handlers.forEach((type, list) -> components.put(type, type.getHandler(this, (List)Collections.unmodifiableList(list))));
+        Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(type -> type.isDefaultComponent() && components.values().stream().noneMatch(component -> component.getType() == type)).forEach(type -> components.put(type, type.getDefaultComponentBuilder().apply(this)));
+        this.components = Collections.unmodifiableMap(components);
+        this.capabilityComponents = this.components.values().stream().filter(component -> component instanceof ICapabilityComponent).map(component -> (ICapabilityComponent)component).collect(CMCollectors.toImmutableList());
+        this.serializableComponents = this.components.values().stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).collect(CMCollectors.toImmutableList());
+        this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).collect(CMCollectors.toImmutableList());
+        this.probeInfoComponents = this.components.values().stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).collect(CMCollectors.toImmutableList());
+        this.syncableComponents = this.components.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(CMCollectors.toImmutableList());
+        this.comparatorInputComponents = this.components.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(CMCollectors.toImmutableList());
     }
 
     @Override
-    public List<IMachineComponent> getComponents() {
+    public Map<MachineComponentType<?>, IMachineComponent> getComponents() {
         return this.components;
     }
 
@@ -99,7 +87,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     @SuppressWarnings("unchecked")
     @Override
     public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type) {
-        return this.components.stream().filter(component -> component.getType() == type).map(component -> (T)component).findFirst();
+        return Optional.ofNullable((T)this.components.get(type));
     }
 
     @SuppressWarnings("unchecked")
@@ -110,7 +98,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
 
     @Override
     public boolean hasComponent(MachineComponentType<?> type) {
-        return this.components.stream().anyMatch(component -> component.getType() == type);
+        return this.components.get(type) != null;
     }
 
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {

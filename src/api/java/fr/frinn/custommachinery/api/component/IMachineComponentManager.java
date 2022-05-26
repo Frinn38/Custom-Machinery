@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface IMachineComponentManager {
@@ -14,7 +15,7 @@ public interface IMachineComponentManager {
     /**
      * @return A copy of the List of IMachineComponent hold by the manager.
      */
-    List<IMachineComponent> getComponents();
+    Map<MachineComponentType<?>, IMachineComponent> getComponents();
 
     /**
      * @return A List of all components hold by this manager that implements ICapabilityComponent.
