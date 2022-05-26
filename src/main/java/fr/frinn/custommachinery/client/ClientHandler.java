@@ -4,12 +4,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementRendererEvent;
 import fr.frinn.custommachinery.apiimpl.guielement.GuiElementRendererRegistry;
@@ -31,7 +29,6 @@ import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.MachineLoadingScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Color3F;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -45,13 +42,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -269,66 +264,6 @@ public class ClientHandler {
         renderer.vertex(x + width, y, 0.0D).color(red, green, blue, alpha).endVertex();
         Tesselator.getInstance().end();
     }
-
-    public static void renderFluidInTank(PoseStack matrix, int left, int bottom, int height, TextureAtlasSprite sprite, Color3F color) {
-        bindTexture(InventoryMenu.BLOCK_ATLAS);
-
-        int verticalAmount = height / 16;
-        int verticalRemainder = height - (verticalAmount * 16);
-        int top = bottom - height;
-
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
-        Matrix4f matrix4f = matrix.last().pose();
-
-        for(int i = 0; i < verticalAmount; i++) {
-            builder.vertex(matrix4f, left, top + i * 16 + 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU0(), sprite.getV1()).endVertex();
-            builder.vertex(matrix4f, left + 16, top + i * 16 + 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU1(), sprite.getV1()).endVertex();
-            builder.vertex(matrix4f, left + 16, top + i * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU1(), sprite.getV0()).endVertex();
-            builder.vertex(matrix4f, left, top + i * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU0(), sprite.getV0()).endVertex();
-        }
-
-        if(verticalRemainder != 0) {
-            float maxV = sprite.getV0() + (sprite.getV1() - sprite.getV0()) * (float)verticalRemainder / 16.0F;
-            builder.vertex(matrix4f, left, top + verticalAmount * 16 + verticalRemainder, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU0(), maxV).endVertex();
-            builder.vertex(matrix4f, left + 16, top + verticalAmount * 16 + verticalRemainder, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU1(), maxV).endVertex();
-            builder.vertex(matrix4f, left + 16, top + verticalAmount * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU1(), sprite.getV0()).endVertex();
-            builder.vertex(matrix4f, left, top + verticalAmount * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).uv(sprite.getU0(), sprite.getV0()).endVertex();
-        }
-
-        builder.end();
-        BufferUploader.end(builder);
-    }
-/*
-    public static void renderFluidInTank(MatrixStack matrix, int x, int y, int yOffset, int fluidHeight, TextureAtlasSprite sprite, Color3F color) {
-        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
-
-        int drawAmount = fluidHeight / 16;
-        int remainder = fluidHeight - (drawAmount * 16);
-        int yTop = y + yOffset;
-
-        BufferBuilder builder = Tessellator.getInstance().getBuffer();
-        builder.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX);
-        Matrix4f matrix4f = matrix.getLast().getMatrix();
-
-        for(int i = 0; i < drawAmount; i++) {
-            builder.pos(matrix4f, x, yTop + i * 16 + 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), sprite.getMaxV()).endVertex();
-            builder.pos(matrix4f, x + 16, yTop + i * 16 + 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), sprite.getMaxV()).endVertex();
-            builder.pos(matrix4f, x + 16, yTop + i * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), sprite.getMinV()).endVertex();
-            builder.pos(matrix4f, x, yTop + i * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), sprite.getMinV()).endVertex();
-        }
-
-        if(remainder != 0) {
-            float maxV = sprite.getMinV() + (sprite.getMaxV() - sprite.getMinV()) * (float)remainder / 16.0F;
-            builder.pos(matrix4f, x, yTop + drawAmount * 16 + remainder, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), maxV).endVertex();
-            builder.pos(matrix4f, x + 16, yTop + drawAmount * 16 + remainder, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), maxV).endVertex();
-            builder.pos(matrix4f, x + 16, yTop + drawAmount * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMaxU(), sprite.getMinV()).endVertex();
-            builder.pos(matrix4f, x, yTop + drawAmount * 16, 0).color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F).tex(sprite.getMinU(), sprite.getMinV()).endVertex();
-        }
-
-        builder.finishDrawing();
-        WorldVertexBufferUploader.draw(builder);
-    }*/
 
     public static void bindTexture(ResourceLocation texture) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

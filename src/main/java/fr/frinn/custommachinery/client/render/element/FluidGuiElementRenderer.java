@@ -5,19 +5,13 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.api.utils.TextureSizeHelper;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.render.FluidRenderer;
 import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Color3F;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,20 +27,7 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
         ClientHandler.bindTexture(element.getTexture());
         GuiComponent.blit(matrix, posX, posY, 0, 0, width, height, width, height);
         screen.getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
-            FluidStack fluid = component.getFluidStack();
-            ResourceLocation fluidTexture = fluid.getFluid().getAttributes().getStillTexture();
-            TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidTexture);
-            int color = fluid.getFluid().getAttributes().getColor();
-            float filledPercent = (float) fluid.getAmount() / (float) component.getCapacity();
-            int fluidHeight = (int) (height * filledPercent);
-            int textureWidth = TextureSizeHelper.getTextureWidth(element.getTexture());
-            float xScale = (float) width / (float) textureWidth;
-            matrix.pushPose();
-            matrix.translate(posX, posY, 0);
-            matrix.scale(xScale, 1.0F, 1.0F);
-            matrix.translate(-posX, -posY, 0);
-            ClientHandler.renderFluidInTank(matrix, posX + 1, posY + height - 1, fluidHeight - 2, sprite, Color3F.of(color));
-            matrix.popPose();
+            FluidRenderer.renderFluid(matrix, posX + 1, posY + 1, width - 2, height - 2, component.getFluidStack(), component.getCapacity());
         });
     }
 
