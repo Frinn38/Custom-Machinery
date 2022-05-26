@@ -14,7 +14,11 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
@@ -71,8 +75,7 @@ public class ClientPacketHandler {
 
     public static void handleUpdateContainerPacket(int windowId, List<IData<?>> data) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if(player != null && player.containerMenu instanceof SyncableContainer && player.containerMenu.containerId == windowId) {
-            SyncableContainer container = (SyncableContainer)player.containerMenu;
+        if(player != null && player.containerMenu instanceof SyncableContainer container && player.containerMenu.containerId == windowId) {
             data.forEach(container::handleData);
         }
     }
