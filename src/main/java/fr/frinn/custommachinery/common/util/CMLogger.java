@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
@@ -78,10 +79,18 @@ public class CMLogger {
         LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, "Custom Machinery", "true", new AppenderRef[0], null, config, null);
 
         loggerConfig.addAppender(cmAppender, Level.ALL, null);
-        loggerConfig.addAppender(config.getAppender("DebugFile"), Level.DEBUG, null);
-        loggerConfig.addAppender(config.getAppender("File"), Level.INFO, null);
-        loggerConfig.addAppender(config.getAppender("Console"), Level.DEBUG, null);
-        loggerConfig.addAppender(config.getAppender("ServerGuiConsole"), Level.INFO, null);
+        Appender debug = config.getAppender("DebugFile");
+        if(debug != null)
+            loggerConfig.addAppender(debug, Level.DEBUG, null);
+        Appender file = config.getAppender("File");
+        if(file != null)
+            loggerConfig.addAppender(file, Level.INFO, null);
+        Appender console = config.getAppender("Console");
+        if(console != null)
+            loggerConfig.addAppender(console, Level.DEBUG, null);
+        Appender serverGuiConsole = config.getAppender("ServerGuiConsole");
+        if(serverGuiConsole != null)
+            loggerConfig.addAppender(serverGuiConsole, Level.INFO, null);
 
         config.addLogger("Custom Machinery", loggerConfig);
         ctx.updateLoggers();
