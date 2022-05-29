@@ -14,7 +14,6 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
-import fr.frinn.custommachinery.common.util.CMCollectors;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -22,7 +21,6 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +42,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
         this.tile = tile;
         Map<MachineComponentType<?>, IMachineComponent> components = new LinkedHashMap<>();
-        Map<MachineComponentType<?>, List<IMachineComponent>> handlers = new HashMap<>();
+        Map<MachineComponentType<?>, List<IMachineComponent>> handlers = new LinkedHashMap<>();
         templates.forEach(template -> {
             IMachineComponent component = template.build(this);
             if(component.getType().isSingle())
@@ -55,12 +53,12 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
         handlers.forEach((type, list) -> components.put(type, type.getHandler(this, (List)Collections.unmodifiableList(list))));
         Registration.MACHINE_COMPONENT_TYPE_REGISTRY.get().getValues().stream().filter(type -> type.isDefaultComponent() && components.values().stream().noneMatch(component -> component.getType() == type)).forEach(type -> components.put(type, type.getDefaultComponentBuilder().apply(this)));
         this.components = Collections.unmodifiableMap(components);
-        this.capabilityComponents = this.components.values().stream().filter(component -> component instanceof ICapabilityComponent).map(component -> (ICapabilityComponent)component).collect(CMCollectors.toImmutableList());
-        this.serializableComponents = this.components.values().stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).collect(CMCollectors.toImmutableList());
-        this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).collect(CMCollectors.toImmutableList());
-        this.probeInfoComponents = this.components.values().stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).collect(CMCollectors.toImmutableList());
-        this.syncableComponents = this.components.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).collect(CMCollectors.toImmutableList());
-        this.comparatorInputComponents = this.components.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(CMCollectors.toImmutableList());
+        this.capabilityComponents = this.components.values().stream().filter(component -> component instanceof ICapabilityComponent).map(component -> (ICapabilityComponent) component).toList();
+        this.serializableComponents = this.components.values().stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).toList();
+        this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).toList();
+        this.probeInfoComponents = this.components.values().stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).toList();
+        this.syncableComponents = this.components.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).toList();
+        this.comparatorInputComponents = this.components.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).toList();
     }
 
     @Override

@@ -27,7 +27,7 @@ public class CustomMachineContainer extends SyncableContainer {
     private final List<SlotItemComponent> inputSlotComponents = new ArrayList<>();
 
     public CustomMachineContainer(int id, Inventory playerInv, CustomMachineTile tile) {
-        super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id, tile);
+        super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id, tile, playerInv.player);
         this.playerInv = playerInv;
         this.tile = tile;
 
