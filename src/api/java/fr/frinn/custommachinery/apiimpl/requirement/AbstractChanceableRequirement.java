@@ -16,6 +16,10 @@ public abstract class AbstractChanceableRequirement<T extends IMachineComponent>
         super(mode);
     }
 
+    public double getChance() {
+        return this.chance;
+    }
+
     @Override
     public void setChance(double chance) {
         this.chance = Mth.clamp(chance, 0.0D, 1.0D);

@@ -7,9 +7,9 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
-import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -19,23 +19,21 @@ import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.Random;
 
-public class FluidRequirement extends AbstractRequirement<FluidComponentHandler> implements IChanceableRequirement<FluidComponentHandler>, IJEIIngredientRequirement<FluidStack> {
+public class FluidRequirement extends AbstractChanceableRequirement<FluidComponentHandler> implements IJEIIngredientRequirement<FluidStack> {
 
     public static final Codec<FluidRequirement> CODEC = RecordCodecBuilder.create(fluidRequirementInstance ->
             fluidRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     IIngredient.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.STRING,"tank", "").forGetter(requirement -> requirement.tank)
             ).apply(fluidRequirementInstance, (mode, fluid, amount, chance, nbt, tank) -> {
@@ -47,7 +45,6 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
 
     private final IIngredient<Fluid> fluid;
     private final int amount;
-    private double chance = 1.0D;
     @Nullable
     private final CompoundTag nbt;
     private final String tank;
@@ -61,7 +58,7 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
         this.amount = amount;
         this.nbt = nbt;
         this.tank = tank;
-        this.wrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.chance, false, this.nbt, this.tank));
+        this.wrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.nbt, this.tank));
     }
 
     @Override
@@ -126,17 +123,6 @@ public class FluidRequirement extends AbstractRequirement<FluidComponentHandler>
             } else throw new IllegalStateException("Can't use output fluid requirement with fluid tag");
         }
         return CraftingResult.pass();
-    }
-
-    @Override
-    public void setChance(double chance) {
-        this.chance = Mth.clamp(chance, 0.0, 1.0);
-    }
-
-    @Override
-    public boolean shouldSkip(FluidComponentHandler component, Random rand, ICraftingContext context) {
-        double chance = context.getModifiedValue(this.chance, this, "chance");
-        return rand.nextDouble() > chance;
     }
 
     @Override

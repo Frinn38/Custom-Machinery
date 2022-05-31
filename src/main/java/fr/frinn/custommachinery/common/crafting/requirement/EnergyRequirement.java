@@ -7,28 +7,25 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
-import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.Mth;
 import net.minecraftforge.common.util.Lazy;
 
-import java.util.Random;
-
-public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponent> implements IChanceableRequirement<EnergyMachineComponent>, IJEIIngredientRequirement<Energy> {
+public class EnergyRequirement extends AbstractChanceableRequirement<EnergyMachineComponent> implements IJEIIngredientRequirement<Energy> {
 
     public static final Codec<EnergyRequirement> CODEC = RecordCodecBuilder.create(energyRequirementInstance ->
             energyRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance)
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance)
             ).apply(energyRequirementInstance, ((mode, amount, chance) -> {
                     EnergyRequirement requirement = new EnergyRequirement(mode, amount);
                     requirement.setChance(chance);
@@ -37,13 +34,12 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
     );
 
     private final int amount;
-    private double chance = 1.0D;
     private final Lazy<EnergyIngredientWrapper> wrapper;
 
     public EnergyRequirement(RequirementIOMode mode, int amount) {
         super(mode);
         this.amount = amount;
-        this.wrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, false));
+        this.wrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, getChance(), false));
     }
 
     @Override
@@ -91,17 +87,6 @@ public class EnergyRequirement extends AbstractRequirement<EnergyMachineComponen
             return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.energy.error.output", amount));
         }
         return CraftingResult.pass();
-    }
-
-    @Override
-    public void setChance(double chance) {
-        this.chance = Mth.clamp(chance, 0.0, 1.0);
-    }
-
-    @Override
-    public boolean shouldSkip(EnergyMachineComponent component, Random rand, ICraftingContext context) {
-        double chance = context.getModifiedValue(this.chance, this, "chance");
-        return rand.nextDouble() > chance;
     }
 
     @Override

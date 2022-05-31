@@ -20,14 +20,12 @@ import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.Random;
 
 public class FluidPerTickRequirement extends AbstractChanceableRequirement<FluidComponentHandler> implements ITickableRequirement<FluidComponentHandler>, IJEIIngredientRequirement<FluidStack> {
 
@@ -36,7 +34,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
                     IIngredient.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.STRING,"tank", "").forGetter(requirement -> requirement.tank)
             ).apply(fluidPerTickRequirementInstance, (mode, fluid, amount, chance, nbt, tank) -> {
@@ -48,7 +46,6 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     private final IIngredient<Fluid> fluid;
     private final int amount;
-    private double chance = 1.0D;
     @Nullable
     private final CompoundTag nbt;
     private final String tank;
@@ -62,7 +59,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
         this.amount = amount;
         this.nbt = nbt;
         this.tank = tank;
-        this.wrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, this.chance, true, this.nbt, this.tank));
+        this.wrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.nbt, this.tank));
     }
 
     @Override
@@ -128,17 +125,6 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
     @Override
     public CraftingResult processEnd(FluidComponentHandler component, ICraftingContext context) {
         return CraftingResult.pass();
-    }
-
-    @Override
-    public void setChance(double chance) {
-        this.chance = Mth.clamp(chance, 0.0, 1.0);
-    }
-
-    @Override
-    public boolean shouldSkip(FluidComponentHandler component, Random rand, ICraftingContext context) {
-        double chance = context.getModifiedValue(this.chance, this, "chance");
-        return rand.nextDouble() > chance;
     }
 
     @Override

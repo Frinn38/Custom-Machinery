@@ -7,9 +7,9 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
-import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.data.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -19,16 +19,14 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.Random;
 
-public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> implements IChanceableRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public class ItemRequirement extends AbstractChanceableRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
 
     public static final Codec<ItemRequirement> CODEC = RecordCodecBuilder.create(itemRequirementInstance ->
             itemRequirementInstance.group(
@@ -36,7 +34,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
                     IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     CodecLogger.loggedOptional(Codec.STRING,"slot", "").forGetter(requirement -> requirement.slot)
             ).apply(itemRequirementInstance, (mode, item, amount, nbt, chance, slot) -> {
                     ItemRequirement requirement = new ItemRequirement(mode, item, amount, nbt.orElse(null), slot);
@@ -49,7 +47,6 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
     private final int amount;
     @Nullable
     private final CompoundTag nbt;
-    private double chance = 1.0D;
     private final String slot;
     private final Lazy<ItemIngredientWrapper> wrapper;
 
@@ -61,7 +58,7 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
         this.amount = amount;
         this.nbt = nbt;
         this.slot = slot == null ? "" : slot;
-        this.wrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, this.chance, false, this.nbt, this.slot));
+        this.wrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), false, this.nbt, this.slot));
     }
 
     @Override
@@ -125,17 +122,6 @@ public class ItemRequirement extends AbstractRequirement<ItemComponentHandler> i
             } else throw new IllegalStateException("Can't use output item requirement with item tag");
         }
         return CraftingResult.pass();
-    }
-
-    @Override
-    public void setChance(double chance) {
-        this.chance = Mth.clamp(chance, 0.0, 1.0);
-    }
-
-    @Override
-    public boolean shouldSkip(ItemComponentHandler component, Random rand, ICraftingContext context) {
-        double chance = context.getModifiedValue(this.chance, this, "chance");
-        return rand.nextDouble() > chance;
     }
 
     @Override

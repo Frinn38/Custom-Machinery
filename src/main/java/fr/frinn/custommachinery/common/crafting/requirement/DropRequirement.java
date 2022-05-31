@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Random;
 
 public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMachineComponent> implements ITickableRequirement<DropMachineComponent>, IDisplayInfoRequirement {
 
@@ -47,7 +46,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "amount", 1).forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "radius", 1).forGetter(requirement -> requirement.radius),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "chance", 1.0).forGetter(requirement -> requirement.chance),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "chance", 1.0).forGetter(AbstractDelayedChanceableRequirement::getChance),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "delay", 0.0).forGetter(IDelayedRequirement::getDelay)
             ).apply(dropRequirementInstance, (mode, action, input, whitelist, output, nbt, amount, radius, chance, delay) -> {
                 DropRequirement requirement = new DropRequirement(mode, action, input, whitelist, output, nbt.orElse(null), amount, radius);
@@ -65,8 +64,6 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     private final CompoundTag nbt;
     private final int amount;
     private final int radius;
-    private double chance = 1.0D;
-    private double delay = 0.0D;
 
     public DropRequirement(RequirementIOMode mode, Action action, List<IIngredient<Item>> input, boolean whitelist, Item output, @Nullable CompoundTag nbt, int amount, int radius) {
         super(mode);
@@ -98,7 +95,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
 
     @Override
     public CraftingResult processStart(DropMachineComponent component, ICraftingContext context) {
-        if(delay != 0.0 || getMode() != RequirementIOMode.INPUT)
+        if(getDelay() != 0.0 || getMode() != RequirementIOMode.INPUT)
             return CraftingResult.pass();
         int amount = (int) context.getModifiedValue(this.amount, this, null);
         double radius = context.getModifiedValue(this.radius, this, "radius");
@@ -123,7 +120,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
 
     @Override
     public CraftingResult processEnd(DropMachineComponent component, ICraftingContext context) {
-        if(delay != 0.0 || getMode() != RequirementIOMode.OUTPUT)
+        if(getDelay() != 0.0 || getMode() != RequirementIOMode.OUTPUT)
             return CraftingResult.pass();
         int amount = (int) context.getModifiedValue(this.amount, this, null);
         double radius = context.getModifiedValue(this.radius, this, "radius");
@@ -164,30 +161,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
         return CraftingResult.pass();
     }
 
-    /** CHANCE **/
-
-    @Override
-    public void setChance(double chance) {
-        this.chance = chance;
-    }
-
-    @Override
-    public boolean shouldSkip(DropMachineComponent component, Random rand, ICraftingContext context) {
-        double chance = context.getModifiedValue(this.chance, this, "chance");
-        return rand.nextDouble() > chance;
-    }
-
     /** DELAY **/
-
-    @Override
-    public void setDelay(double delay) {
-        this.delay = delay;
-    }
-
-    @Override
-    public double getDelay() {
-        return this.delay;
-    }
 
     @Override
     public CraftingResult execute(DropMachineComponent component, ICraftingContext context) {

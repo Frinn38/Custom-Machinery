@@ -18,10 +18,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.Mth;
 import net.minecraftforge.common.util.Lazy;
-
-import java.util.Random;
 
 public class EnergyPerTickRequirement extends AbstractChanceableRequirement<EnergyMachineComponent> implements ITickableRequirement<EnergyMachineComponent>, IJEIIngredientRequirement<Energy> {
 
@@ -29,7 +26,7 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
             energyPerTickRequirementInstance.group(
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
                     Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(requirement -> requirement.chance)
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance)
             ).apply(energyPerTickRequirementInstance, (mode, amount, chance) -> {
                     EnergyPerTickRequirement requirement = new EnergyPerTickRequirement(mode, amount);
                     requirement.setChance(chance);
@@ -38,13 +35,12 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
     );
 
     private final int amount;
-    private double chance = 1.0D;
     private final Lazy<EnergyIngredientWrapper> wrapper;
 
     public EnergyPerTickRequirement(RequirementIOMode mode, int amount) {
         super(mode);
         this.amount = amount;
-        this.wrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, this.chance, true));
+        this.wrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, getChance(), true));
     }
 
     @Override
@@ -95,17 +91,6 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
     @Override
     public CraftingResult processEnd(EnergyMachineComponent energy, ICraftingContext context) {
         return CraftingResult.pass();
-    }
-
-    @Override
-    public void setChance(double chance) {
-        this.chance = Mth.clamp(chance, 0.0, 1.0);
-    }
-
-    @Override
-    public boolean shouldSkip(EnergyMachineComponent component, Random rand, ICraftingContext context) {
-        double chance = context.getModifiedValue(this.chance, this, "chance");
-        return rand.nextDouble() > chance;
     }
 
     @Override
