@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class FluidTagIngredient implements IIngredient<Fluid> {
 
-    private static final Codec<FluidTagIngredient> CODEC_FOR_DATAPACK = TagKey.codec(Registry.FLUID_REGISTRY).xmap(FluidTagIngredient::new, ingredient -> ingredient.tag);
+    private static final Codec<FluidTagIngredient> CODEC_FOR_DATAPACK = Codec.STRING.xmap(FluidTagIngredient::create, FluidTagIngredient::toString);
     private static final Codec<FluidTagIngredient> CODEC_FOR_KUBEJS = TagKey.codec(Registry.FLUID_REGISTRY).fieldOf("tag").codec().xmap(FluidTagIngredient::new, ingredient -> ingredient.tag);
     public static final Codec<FluidTagIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Tag Ingredient")
             .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
