@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs.function;
 
-import dev.latvian.mods.kubejs.text.Text;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
+import net.minecraft.network.chat.Component;
 
 public class Result {
 
@@ -15,8 +15,8 @@ public class Result {
         return new Result(CraftingResult.success());
     }
 
-    public static Result error(Text error) {
-        return new Result(CraftingResult.error(error.component()));
+    public static Result error(Component error) {
+        return new Result(CraftingResult.error(error));
     }
 
     protected CraftingResult getInternal() {
