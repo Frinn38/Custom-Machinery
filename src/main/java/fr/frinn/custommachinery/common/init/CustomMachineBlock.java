@@ -64,14 +64,13 @@ public class CustomMachineBlock extends Block implements EntityBlock {
 
     @SuppressWarnings("deprecation")
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        BlockEntity tile = world.getBlockEntity(pos);
-        if(tile instanceof CustomMachineTile) {
-            CustomMachineTile machine = (CustomMachineTile)tile;
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        BlockEntity tile = level.getBlockEntity(pos);
+        if(tile instanceof CustomMachineTile machine) {
             if(machine.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler.getInteractionHandler())).orElse(false)) {
                 return InteractionResult.SUCCESS;
             }
-            if(!world.isClientSide() && !machine.getMachine().getGuiElements().isEmpty()) {
+            if(!level.isClientSide() && !machine.getMachine().getGuiElements().isEmpty()) {
                 NetworkHooks.openGui((ServerPlayer) player, new MenuProvider() {
                     @Override
                     public Component getDisplayName() {
@@ -87,7 +86,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             }
             return InteractionResult.SUCCESS;
         }
-        return super.use(state, world, pos, player, hand, hit);
+        return super.use(state, level, pos, player, hand, hit);
     }
 
     @Override

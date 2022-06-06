@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SStructureCreatorPacket;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class StructureCreatorItem extends Item {
 
@@ -76,8 +78,29 @@ public class StructureCreatorItem extends Item {
         return super.useOn(context);
     }
 
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        int amount = getSelectedBlocks(stack).size();
+        if(amount <= 0)
+            tooltip.add(new TranslatableComponent("custommachinery.structure_creator.no_blocks").withStyle(ChatFormatting.RED));
+        else
+            tooltip.add(new TranslatableComponent("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()).withStyle(ChatFormatting.BLUE));
+        tooltip.add(new TranslatableComponent("custommachinery.structure_creator.select").withStyle(ChatFormatting.GREEN));
+        tooltip.add(new TranslatableComponent("custommachinery.structure_creator.reset").withStyle(ChatFormatting.GOLD));
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        if(player.isCrouching() && player.getItemInHand(hand).getItem() == this) {
+            ItemStack stack = player.getItemInHand(hand);
+            stack.removeTagKey(CustomMachinery.MODID);
+            return InteractionResultHolder.success(stack);
+        }
+        return super.use(level, player, hand);
+    }
+
     public static List<BlockPos> getSelectedBlocks(ItemStack stack) {
-        return Arrays.stream(stack.getOrCreateTagElement(CustomMachinery.MODID).getLongArray("blocks")).mapToObj(BlockPos::of).toList();
+        return Arrays.stream(stack.getOrCreateTagElement(CustomMachinery.MODID).getLongArray("blocks")).mapToObj(BlockPos::of).collect(Collectors.toList());
     }
 
     public static void addSelectedBlock(ItemStack stack, BlockPos pos) {
@@ -179,21 +202,5 @@ public class StructureCreatorItem extends Item {
             }
         });
         return states;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(new TranslatableComponent("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()));
-        tooltip.add(new TranslatableComponent("custommachinery.structure_creator.reset"));
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
-        if(player.isCrouching() && player.getItemInHand(hand).getItem() == this) {
-            ItemStack stack = player.getItemInHand(hand);
-            stack.getOrCreateTagElement(CustomMachinery.MODID).remove("blocks");
-            return InteractionResultHolder.success(stack);
-        }
-        return super.use(world, player, hand);
     }
 }

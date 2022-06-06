@@ -7,17 +7,18 @@
 
   "custommachinery.box_creator.first_block": "First Block : %s",
   "custommachinery.box_creator.second_block": "Second Block : %s",
-  "custommachinery.box_creator.select_first_block": "Select the first corner",
-  "custommachinery.box_creator.select_second_block": "Now select the second corner",
-  "custommachinery.box_creator.select_machine": "Now select the machine block",
-  "custommachinery.box_creator.reset": "Click in the air while crouching to reset",
+  "custommachinery.box_creator.select_first_block": "Left click block to select the first corner",
+  "custommachinery.box_creator.select_second_block": "Right click block to select the second corner",
+  "custommachinery.box_creator.select_machine": "Sneak and right click the machine block to finish",
+  "custommachinery.box_creator.reset": "Right click in the air while crouching to reset",
   "custommachinery.box_creator.create_box": "The selected box is : %s",
   "custommachinery.box_creator.copy": "Click to copy to clipboard",
 
   "custommachinery.structure_creator.no_blocks": "No blocks are selected",
   "custommachinery.structure_creator.amount": "%s blocks selected",
+  "custommachinery.structure_creator.select": "Right click a block to add or remove it",
   "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s %s",
-  "custommachinery.structure_creator.reset": "Sneak + right click to reset",
+  "custommachinery.structure_creator.reset": "Right click in the air while crouching to reset",
 
   "custommachinery.machine_creator.warning": "Warning : This is heavily WIP and can break your machines. Use it at your own risk and often backup your machine json",
 

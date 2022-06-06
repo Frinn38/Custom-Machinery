@@ -16,6 +16,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 
@@ -56,13 +58,20 @@ public class BoxCreatorItem extends Item {
         super.appendHoverText(stack, world, tooltip, flag);
         BlockPos block1 = getSelectedBlock(true, stack);
         if(block1 != null)
-            tooltip.add(new TranslatableComponent("custommachinery.box_creator.first_block", block1.toShortString()));
+            tooltip.add(new TranslatableComponent("custommachinery.box_creator.first_block", block1.toShortString()).withStyle(ChatFormatting.BLUE));
+        else
+            tooltip.add(new TranslatableComponent("custommachinery.box_creator.select_first_block").withStyle(ChatFormatting.BLUE));
 
         BlockPos block2 = getSelectedBlock(false, stack);
         if(block2 != null)
-            tooltip.add(new TranslatableComponent("custommachinery.box_creator.second_block", block2.toShortString()));
+            tooltip.add(new TranslatableComponent("custommachinery.box_creator.second_block", block2.toShortString()).withStyle(ChatFormatting.RED));
+        else
+            tooltip.add(new TranslatableComponent("custommachinery.box_creator.select_second_block").withStyle(ChatFormatting.RED));
 
-        tooltip.add(new TranslatableComponent("custommachinery.box_creator.reset"));
+        if(block1 != null && block2 != null)
+            tooltip.add(new TranslatableComponent("custommachinery.box_creator.select_machine").withStyle(ChatFormatting.GREEN));
+
+        tooltip.add(new TranslatableComponent("custommachinery.box_creator.reset").withStyle(ChatFormatting.GOLD));
     }
 
     @Override
@@ -73,20 +82,12 @@ public class BoxCreatorItem extends Item {
         BlockPos pos = context.getClickedPos();
 
         BlockPos block1 = getSelectedBlock(true, stack);
-        if(block1 == null) {
-            setSelectedBlock(true, stack, pos);
-            context.getPlayer().sendMessage(new TranslatableComponent("custommachinery.box_creator.select_second_block"), Util.NIL_UUID);
-            return InteractionResult.SUCCESS;
-        }
-
         BlockPos block2 = getSelectedBlock(false, stack);
-        if(block2 == null) {
+
+        if(!context.getLevel().getBlockState(pos).is(Registration.CUSTOM_MACHINE_BLOCK.get())) {
             setSelectedBlock(false, stack, pos);
-            context.getPlayer().sendMessage(new TranslatableComponent("custommachinery.box_creator.select_machine"), Util.NIL_UUID);
             return InteractionResult.SUCCESS;
-        }
-        BlockEntity tile = context.getLevel().getBlockEntity(pos);
-        if(tile instanceof CustomMachineTile) {
+        } else if(block1 != null && block2 != null) {
             AABB aabb = new AABB(block1, block2);
             aabb = aabb.move(-pos.getX(), -pos.getY(), -pos.getZ());
             Direction direction = context.getLevel().getBlockState(pos).getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -95,20 +96,25 @@ public class BoxCreatorItem extends Item {
             Component boxText = new TextComponent(boxString).withStyle(Style.EMPTY.applyFormat(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("custommachinery.box_creator.copy"))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, boxString)));
             Component message = new TranslatableComponent("custommachinery.box_creator.create_box", boxText);
             context.getPlayer().sendMessage(message, Util.NIL_UUID);
-            stack.removeTagKey(CustomMachinery.MODID);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        setSelectedBlock(true, player.getMainHandItem(), pos);
+        return false;
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if(player.isCrouching() && stack.getItem() == this) {
             stack.removeTagKey(CustomMachinery.MODID);
             return InteractionResultHolder.success(stack);
         }
-        return super.use(world, player, hand);
+        return super.use(level, player, hand);
     }
 
     @Override

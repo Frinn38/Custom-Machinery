@@ -50,6 +50,15 @@ public class BoxCreatorRenderer {
                 LevelRenderer.renderLineBox(matrix, builder, box, 1.0F, 0.0F, 0.0F, 1.0F);
                 matrix.popPose();
             }
+
+            if(block1 != null && block2 != null) {
+                AABB box = new AABB(block1, block2).expandTowards(1.0D, 1.0D, 1.0D);
+                matrix.pushPose();
+                matrix.translate(-playerPos.x(), -playerPos.y(), -playerPos.z());
+                LevelRenderer.renderLineBox(matrix, builder, box, 0.0F, 1.0F, 0.0F, 1.0F);
+                matrix.popPose();
+            }
+
             buffer.endBatch(RenderTypes.THICK_LINES);
         }
     }
