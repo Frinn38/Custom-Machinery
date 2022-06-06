@@ -85,9 +85,8 @@ public class RequirementDisplayInfo implements IDisplayInfo {
         }
     }
 
-    public void renderTooltips(PoseStack matrix, int mouseX, int mouseY) {
-        if(!this.tooltips.isEmpty())
-            ClientHandler.drawHoveringText(matrix, this.tooltips, mouseX, mouseY, Minecraft.getInstance().font);
+    public List<Component> getTooltips() {
+        return this.tooltips;
     }
 
     public boolean hasClickAction() {

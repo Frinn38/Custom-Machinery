@@ -6,6 +6,8 @@ import com.google.common.cache.LoadingCache;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
@@ -24,11 +26,13 @@ import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -171,8 +175,6 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                     matrix.translate(-this.offsetX, -this.offsetY, 0);
                     renderer.renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY);
                     matrix.popPose();
-                    if(renderer.isHoveredInJei(element, x, y, (int)mouseX, (int)mouseY))
-                        ClientHandler.drawHoveringText(matrix, renderer.getJEITooltips(element, recipe), (int)mouseX, (int)mouseY, Minecraft.getInstance().font);
                 });
 
         //Render the line between the gui elements and the requirements icons
@@ -192,9 +194,40 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
             matrix.translate(x, y, 0.0D);
             info.renderIcon(matrix, ICON_SIZE);
             matrix.popPose();
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
-                info.renderTooltips(matrix, (int)mouseX, (int)mouseY);
         });
+    }
+
+    @Override
+    public List<Component> getTooltipStrings(CustomMachineRecipe recipe, IRecipeSlotsView view, double mouseX, double mouseY) {
+        //First, check if any gui element is hovered and if so return its tooltips.
+        List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
+        for(IGuiElement element : elements) {
+            if(element.getType().getRenderer() instanceof IJEIElementRenderer) {
+                IJEIElementRenderer<IGuiElement> renderer = (IJEIElementRenderer<IGuiElement>) element.getType().getRenderer();
+                int x = element.getX() - this.offsetX;
+                int y = element.getY() - this.offsetY;
+                if(renderer.isHoveredInJei(element, x, y, (int)mouseX, (int)mouseY))
+                    return renderer.getJEITooltips(element, recipe);
+            }
+        }
+
+        //Then do the same with display info requirements.
+        int index = 0;
+        int row = 0;
+        for(RequirementDisplayInfo info : recipe.getDisplayInfoRequirements().stream().map(this.infoCache).toList()) {
+            int x = index * (ICON_SIZE + 2) - 2;
+            int y = this.rowY + 2 + (ICON_SIZE + 2) * row;
+            if(index++ >= this.maxIconPerRow) {
+                index = 0;
+                row++;
+            }
+
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
+                return info.getTooltips();
+        }
+
+        //If the mouse hover nothing from cm, return no tooltips.
+        return Collections.emptyList();
     }
 
     @Override
