@@ -217,6 +217,10 @@ dependencies {
     //Building gadgets
     implementation(fg.deobf("curse.maven:gadgets-298187:3725903"))
 
+    //Jade
+    compileOnly fg.deobf("curse.maven:jade-api-324717:3803228")
+    runtimeOnly fg.deobf("curse.maven:jade-324717:3803226")
+
     //Mekanism
     runtimeOnly fg.deobf("mekanism:Mekanism:${mekanism_version}")
 

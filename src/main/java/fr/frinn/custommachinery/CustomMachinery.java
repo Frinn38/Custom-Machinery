@@ -57,7 +57,7 @@ public class CustomMachinery {
 
         final IEventBus MOD_BUS = FMLJavaModLoadingContext.get().getModEventBus();
         MOD_BUS.addListener(this::commonSetup);
-        MOD_BUS.addListener(this::sendIMCMessages);
+        MOD_BUS.addListener(EventPriority.LOWEST, this::sendIMCMessages);
         Registration.BLOCKS.register(MOD_BUS);
         Registration.ITEMS.register(MOD_BUS);
         Registration.TILE_ENTITIES.register(MOD_BUS);
