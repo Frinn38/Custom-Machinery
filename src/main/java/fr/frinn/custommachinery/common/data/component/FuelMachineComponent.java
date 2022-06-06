@@ -98,6 +98,16 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
         return false;
     }
 
+    public boolean canStartRecipe(int amount) {
+        if(this.fuel >= amount)
+            return true;
+        return getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
+                    handler.getComponents().stream()
+                        .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && ForgeHooks.getBurnTime(component.getItemStack(), RecipeType.SMELTING) > 0)
+                        .findFirst()
+                ).isPresent();
+    }
+
     private void tryBurnItem() {
         getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
                 handler.getComponents().stream()

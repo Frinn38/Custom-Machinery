@@ -46,7 +46,7 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
 
     @Override
     public boolean test(FuelMachineComponent component, ICraftingContext context) {
-        return true;
+        return component.canStartRecipe(this.amount);
     }
 
     @Override
