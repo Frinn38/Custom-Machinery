@@ -64,7 +64,6 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         if(tile instanceof CustomMachineTile machine) {
             MachineAppearance appearance = machine.getMachine().getAppearance(machine.getStatus());
             showHarvestInfo(info, appearance, Utils.canPlayerHarvestMachine(appearance, player, world, data.getPos()));
-            machine.componentManager.getProbeInfoComponents().forEach(component -> component.addProbeInfo(info));
             machine.craftingManager.addProbeInfo(info);
         }
     }

@@ -13,7 +13,6 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -34,7 +33,6 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     private final List<ICapabilityComponent> capabilityComponents;
     private final List<ISerializableComponent> serializableComponents;
     private final List<ITickableComponent> tickableComponents;
-    private final List<IProbeInfoComponent> probeInfoComponents;
     private final List<ISyncableStuff> syncableComponents;
     private final List<IComparatorInputComponent> comparatorInputComponents;
 
@@ -56,7 +54,6 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
         this.capabilityComponents = this.components.values().stream().filter(component -> component instanceof ICapabilityComponent).map(component -> (ICapabilityComponent) component).toList();
         this.serializableComponents = this.components.values().stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).toList();
         this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).toList();
-        this.probeInfoComponents = this.components.values().stream().filter(component -> component instanceof IProbeInfoComponent).map(component -> (IProbeInfoComponent)component).toList();
         this.syncableComponents = this.components.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).toList();
         this.comparatorInputComponents = this.components.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).toList();
     }
@@ -79,10 +76,6 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     @Override
     public List<ITickableComponent> getTickableComponents() {
         return this.tickableComponents;
-    }
-
-    public List<IProbeInfoComponent> getProbeInfoComponents() {
-        return this.probeInfoComponents;
     }
 
     @Override

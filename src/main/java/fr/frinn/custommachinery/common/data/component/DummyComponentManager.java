@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.integration.theoneprobe.IProbeInfoComponent;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.ArrayList;
@@ -43,11 +42,6 @@ public class DummyComponentManager extends MachineComponentManager {
 
     @Override
     public List<ITickableComponent> getTickableComponents() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<IProbeInfoComponent> getProbeInfoComponents() {
         return Collections.emptyList();
     }
 
