@@ -17,14 +17,11 @@ import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import fr.frinn.custommachinery.common.util.Utils;
-import mcjty.theoneprobe.api.IProbeInfo;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.network.PacketDistributor;
@@ -46,8 +43,8 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
     private CustomMachineRecipe currentRecipe;
     //Recipe that was processed when the machine was unloaded, and we need to resume
     private ResourceLocation futureRecipeID;
-    public double recipeProgressTime = 0;
-    public int recipeTotalTime = 0;
+    private double recipeProgressTime = 0;
+    private int recipeTotalTime = 0;
     private CraftingContext context;
     private boolean initialized = false;
 
@@ -289,18 +286,12 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
         return this.currentRecipe;
     }
 
-    public void addProbeInfo(IProbeInfo info) {
-        TranslatableComponent status = this.status.getTranslatedName();
-        switch (this.status) {
-            case ERRORED -> status.withStyle(ChatFormatting.RED);
-            case RUNNING -> status.withStyle(ChatFormatting.GREEN);
-            case PAUSED -> status.withStyle(ChatFormatting.GOLD);
-        }
-        info.mcText(status);
-        if(this.currentRecipe != null)
-            info.progress((int)this.recipeProgressTime, this.recipeTotalTime, info.defaultProgressStyle().suffix("/" + this.recipeTotalTime));
-        if(this.status == MachineStatus.ERRORED)
-            info.text(this.errorMessage);
+    public double getRecipeProgressTime() {
+        return this.recipeProgressTime;
+    }
+
+    public int getRecipeTotalTime() {
+        return this.recipeTotalTime;
     }
 
     @Override

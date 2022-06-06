@@ -59,7 +59,7 @@ public class CraftingContext implements ICraftingContext {
     public double getRemainingTime() {
         if(getRecipe() == null)
             return 0;
-        return getRecipe().getRecipeTime() - this.manager.recipeProgressTime;
+        return getRecipe().getRecipeTime() - this.manager.getRecipeProgressTime();
     }
 
     @Override

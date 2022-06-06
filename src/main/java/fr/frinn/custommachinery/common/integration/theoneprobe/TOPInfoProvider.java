@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.common.integration.theoneprobe;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -19,6 +21,8 @@ import mcjty.theoneprobe.api.ITheOneProbe;
 import mcjty.theoneprobe.api.ProbeMode;
 import mcjty.theoneprobe.api.TextStyleClass;
 import mcjty.theoneprobe.config.Config;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -64,8 +68,22 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         if(tile instanceof CustomMachineTile machine) {
             MachineAppearance appearance = machine.getMachine().getAppearance(machine.getStatus());
             showHarvestInfo(info, appearance, Utils.canPlayerHarvestMachine(appearance, player, world, data.getPos()));
-            machine.craftingManager.addProbeInfo(info);
+            showCraftingManagerInfo(machine.craftingManager, info);
         }
+    }
+
+    private void showCraftingManagerInfo(CraftingManager manager, IProbeInfo info) {
+        TranslatableComponent status = manager.getStatus().getTranslatedName();
+        switch (manager.getStatus()) {
+            case ERRORED -> status.withStyle(ChatFormatting.RED);
+            case RUNNING -> status.withStyle(ChatFormatting.GREEN);
+            case PAUSED -> status.withStyle(ChatFormatting.GOLD);
+        }
+        info.mcText(status);
+        if(manager.getCurrentRecipe() != null)
+            info.progress((int)manager.getRecipeProgressTime(), manager.getRecipeTotalTime(), info.defaultProgressStyle().suffix("/" + manager.getRecipeTotalTime()));
+        if(manager.getStatus() == MachineStatus.ERRORED)
+            info.text(manager.getErrorMessage());
     }
     private static final ResourceLocation ICONS = new ResourceLocation("theoneprobe", "textures/gui/icons.png");
 

@@ -27,7 +27,7 @@ public class DummyCraftingManager extends CraftingManager {
     }
 
     @Override
-    public void setStatus(MachineStatus status, Component mesage) {
+    public void setStatus(MachineStatus status, Component message) {
 
     }
 
@@ -39,11 +39,6 @@ public class DummyCraftingManager extends CraftingManager {
     @Override
     public CustomMachineRecipe getCurrentRecipe() {
         return null;
-    }
-
-    @Override
-    public void addProbeInfo(IProbeInfo info) {
-
     }
 
     @Override
