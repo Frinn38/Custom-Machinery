@@ -13,12 +13,14 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.logging.log4j.Logger;
 
+import java.lang.reflect.InvocationTargetException;
+
 public interface ICustomMachineryAPI {
 
     ICustomMachineryAPI INSTANCE = Util.make(() -> {
         try {
-            return (ICustomMachineryAPI)Class.forName("fr.frinn.custommachinery.CustomMachineryAPI").newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            return (ICustomMachineryAPI)Class.forName("fr.frinn.custommachinery.apiimpl.CustomMachineryAPI").getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
             throw new IllegalStateException("Couldn't create Custom Machinery API instance", e);
         }
     });
