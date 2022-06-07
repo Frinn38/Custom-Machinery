@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
-import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
+import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;

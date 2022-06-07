@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.data.gui.TextureGuiElement;
+import fr.frinn.custommachinery.common.guielement.TextureGuiElement;
 import net.minecraft.client.gui.GuiComponent;
 
 public class TextureGuiElementRenderer implements IGuiElementRenderer<TextureGuiElement> {

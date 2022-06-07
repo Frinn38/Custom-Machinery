@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
-import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;

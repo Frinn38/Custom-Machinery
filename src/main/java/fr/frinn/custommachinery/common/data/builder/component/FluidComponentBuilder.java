@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.apiimpl.component.builder.IntComponentBuilderProperty;
 import fr.frinn.custommachinery.apiimpl.component.builder.ModeComponentBuilderProperty;
 import fr.frinn.custommachinery.apiimpl.component.builder.StringComponentBuilderProperty;
-import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
+import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 
 import java.util.ArrayList;

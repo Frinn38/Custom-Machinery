@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.render.FluidRenderer;
-import fr.frinn.custommachinery.common.data.gui.FluidGuiElement;
+import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;

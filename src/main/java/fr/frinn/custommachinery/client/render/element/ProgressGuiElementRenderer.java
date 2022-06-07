@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.config.CMConfig;
-import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

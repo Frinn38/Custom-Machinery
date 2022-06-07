@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.client.render.element;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
-import fr.frinn.custommachinery.common.data.gui.TextGuiElement;
+import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import net.minecraft.client.Minecraft;
 
 public class TextGuiElementRenderer implements IGuiElementRenderer<TextGuiElement> {

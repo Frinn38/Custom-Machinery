@@ -2,10 +2,10 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.data.component.LightMachineComponent;
-import fr.frinn.custommachinery.common.data.component.RedstoneMachineComponent;
-import fr.frinn.custommachinery.common.data.component.handler.FluidComponentHandler;
+import fr.frinn.custommachinery.common.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.LightMachineComponent;
+import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
+import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.Utils;

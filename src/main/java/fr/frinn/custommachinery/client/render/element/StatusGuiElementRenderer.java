@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.data.gui.StatusGuiElement;
+import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;

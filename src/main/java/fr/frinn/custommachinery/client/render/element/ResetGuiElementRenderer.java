@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.data.gui.ResetGuiElement;
+import fr.frinn.custommachinery.common.guielement.ResetGuiElement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
