@@ -84,7 +84,8 @@
   "custommachinery.jei.ingredient.item.durability.consume": "Consume %s durability",
   "custommachinery.jei.ingredient.item.durability.repair": "Repair %s durability",
   "custommachinery.jei.ingredient.item.specificSlot": "Must be in this slot",
-  "custommachinery.jei.ingredient.fuel.amount": "Burntime: %sticks",
+  "custommachinery.jei.ingredient.fuel.amount": "Consume %s fuel burntime per tick",
+  "custommachinery.jei.ingredient.fuel.burntime": "Burntime: %s",
   "custommachinery.jei.recipe.time": "Duration: %sticks",
   "custommachinery.jei.recipe.id": "Recipe ID: %s",
 
