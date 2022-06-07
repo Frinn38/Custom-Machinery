@@ -18,6 +18,8 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,8 @@ public class LootTableHelper {
 
     public static void generate(MinecraftServer server) {
         lootsMap.clear();
+        if(server.getLevel(Level.OVERWORLD) == null)
+            return;
         LootContext context = new LootContext.Builder(server.getLevel(Level.OVERWORLD)).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
         for (ResourceLocation table : tables) {
             List<Pair<ItemStack, Double>> loots = getLoots(table, server, context);
@@ -49,10 +53,15 @@ public class LootTableHelper {
         BiFunction<ItemStack, LootContext, ItemStack> globalFunction = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "compositeFunction");
         List<LootPool> pools = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "pools");
 
+        if(pools == null)
+            return Collections.emptyList();
+
         for(LootPool pool : pools) {
-            List<LootPoolEntryContainer> entries = ObfuscationReflectionHelper.getPrivateValue(LootPool.class, pool, "entries");
-            float total = entries.stream().filter(entry -> entry instanceof LootPoolSingletonContainer).mapToInt(entry -> ((LootPoolSingletonContainer)entry).weight).sum();
-            entries.stream().filter(entry -> entry instanceof LootItem)
+            LootPoolEntryContainer[] entries = ObfuscationReflectionHelper.getPrivateValue(LootPool.class, pool, "entries");
+            if(entries == null)
+                continue;
+            float total = Arrays.stream(entries).filter(entry -> entry instanceof LootPoolSingletonContainer).mapToInt(entry -> ((LootPoolSingletonContainer)entry).weight).sum();
+            Arrays.stream(entries).filter(entry -> entry instanceof LootItem)
                     .map(entry -> (LootItem)entry)
                     .forEach(entry -> {
                         Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total)));
@@ -60,7 +69,7 @@ public class LootTableHelper {
                         entry.createItemStack(consumer, context);
                     });
 
-            entries.stream().filter(entry -> entry instanceof TagEntry)
+            Arrays.stream(entries).filter(entry -> entry instanceof TagEntry)
                     .map(entry -> (TagEntry)entry)
                     .forEach(entry -> {
                         Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total / (entry.expand ? TagUtil.getItems(entry.tag).count() : 1))));
@@ -68,7 +77,7 @@ public class LootTableHelper {
                         entry.createItemStack(consumer, context);
                     });
 
-            entries.stream().filter(entry -> entry instanceof LootTableReference)
+            Arrays.stream(entries).filter(entry -> entry instanceof LootTableReference)
                     .map(entry -> (LootTableReference)entry)
                     .map(entry -> getLoots(entry.name, server, context))
                     .forEach(loots::addAll);
