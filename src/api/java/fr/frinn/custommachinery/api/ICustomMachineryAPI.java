@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api;
 
+import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
@@ -9,6 +10,7 @@ import fr.frinn.custommachinery.api.utils.ICMConfig;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.logging.log4j.Logger;
 
 public interface ICustomMachineryAPI {
@@ -80,4 +82,12 @@ public interface ICustomMachineryAPI {
      * Instead, use DeferredRegister.create(DataType.REGISTRY_KEY, modid);
      */
     IForgeRegistry<DataType<?, ?>> dataRegistry();
+
+    /**
+     * @param registry The {@link IForgeRegistry} used to retrieve the entry using its location.
+     * @param isCM If true, in case the namespace of the {@link ResourceLocation} is not provided the namespace "custommachinery" will be used by default instead of "minecraft".
+     * @return A codec that deserialize a {@link ResourceLocation} into its corresponding registry entry.
+     * @param <V> The type of object stored in the registry.
+     */
+    <V extends IForgeRegistryEntry<V>> Codec<V> registryCodec(IForgeRegistry<V> registry, boolean isCM);
 }

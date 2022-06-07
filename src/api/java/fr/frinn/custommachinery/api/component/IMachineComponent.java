@@ -2,9 +2,9 @@ package fr.frinn.custommachinery.api.component;
 
 /**
  * Implements this interface to define a Custom Machine component.
- * Machine Components are used to communicate some informations about the machine status to their corresponding recipe requirement.
+ * Machine Components are used to communicate some information about the machine status to their corresponding recipe requirement.
  * They can also be used to store values in the machine tile nbt, execute code each tick, expose capabilities,
- * modify the machine redstone comparator behaviour and provide additional informations to The One Probe by implementing the corresponding sub-interface.
+ * modify the machine redstone comparator behaviour and provide additional information to The One Probe by implementing the corresponding sub-interface.
  * The machine component will be created by the MachineComponentManager when the machine tile is created.
  */
 public interface IMachineComponent {

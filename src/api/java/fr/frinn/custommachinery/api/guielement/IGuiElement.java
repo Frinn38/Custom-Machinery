@@ -17,7 +17,12 @@ public interface IGuiElement {
     /**
      * A dispatch codec, used to create all IGuiElement from the machine json.
      */
-    Codec<IGuiElement> CODEC = CodecLogger.loggedDispatch(ICustomMachineryAPI.INSTANCE.guiElementRegistry().getCodec(), IGuiElement::getType, GuiElementType::getCodec, "Gui Element");
+    Codec<IGuiElement> CODEC = CodecLogger.loggedDispatch(
+            ICustomMachineryAPI.INSTANCE.registryCodec(ICustomMachineryAPI.INSTANCE.guiElementRegistry(), true),
+            IGuiElement::getType,
+            GuiElementType::getCodec,
+            "Gui Element"
+    );
 
     /**
      * @return A registered GuiElementType corresponding to this IGuiElement.

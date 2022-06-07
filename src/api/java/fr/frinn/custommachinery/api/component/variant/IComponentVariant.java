@@ -10,14 +10,14 @@ import java.util.function.Supplier;
 
 /**
  * Implements this to make a variant for a IMachineComponent.
- * Exemple of component variants : fuel and upgrade for the item component.
+ * Example of component variants : fuel and upgrade for the item component.
  * All variants must be singletons and registered to the corresponding MachineComponentType AFTER registry events are fired (common setup is fine).
  */
 public interface IComponentVariant {
 
     /**
      * A codec used to parse a component variant for a specific MachineComponentType.
-     * The MachineComponentType must be passed as a supplied (RegistryObject is fine to use) because the codec is usually loaded statically before registry events are fired.
+     * The MachineComponentType must be passed as a supplier (RegistryObject is fine to use) because the codec is usually loaded statically before registry events are fired.
      * The class is used to cast the resulting variant to a specific class, like ItemComponentVariant.
      */
     static <T extends IMachineComponent, V extends IComponentVariant> Codec<V> codec(Supplier<MachineComponentType<T>> type, Class<V> variantClass){
@@ -32,7 +32,7 @@ public interface IComponentVariant {
     }
 
     /**
-     * @return The id of this variant, all variant of a component must have differents ids.
+     * @return The id of this variant, all variant of a component must have different ids.
      */
     ResourceLocation getId();
 }

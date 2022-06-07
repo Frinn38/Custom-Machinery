@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery;
 
+import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
@@ -10,8 +11,10 @@ import fr.frinn.custommachinery.api.utils.ICMConfig;
 import fr.frinn.custommachinery.common.config.CMConfigImpl;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CMLogger;
+import fr.frinn.custommachinery.common.util.RegistryCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.logging.log4j.Logger;
 
 public class CustomMachineryAPI implements ICustomMachineryAPI {
@@ -23,7 +26,7 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
 
     @Override
     public ResourceLocation rl(String path) {
-        return new ResourceLocation(modid(), path);
+        return ResourceLocation.tryParse(modid() + ":" + path);
     }
 
     @Override
@@ -59,5 +62,10 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
     @Override
     public IForgeRegistry<DataType<?, ?>> dataRegistry() {
         return Registration.DATA_REGISTRY.get();
+    }
+
+    @Override
+    public <V extends IForgeRegistryEntry<V>> Codec<V> registryCodec(IForgeRegistry<V> registry, boolean isCM) {
+        return RegistryCodec.of(registry, isCM);
     }
 }

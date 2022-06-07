@@ -26,7 +26,12 @@ public interface IRequirement<T extends IMachineComponent> {
     /**
      * A dispatch codec, used by the {@link IMachineRecipe} main codec to parse all requirements from json using the "type" property of the requirement.
      */
-    Codec<IRequirement<?>> CODEC = CodecLogger.loggedDispatch(ICustomMachineryAPI.INSTANCE.requirementRegistry().getCodec(), IRequirement::getType, RequirementType::getCodec, "Requirement");
+    Codec<IRequirement<?>> CODEC = CodecLogger.loggedDispatch(
+            ICustomMachineryAPI.INSTANCE.registryCodec(ICustomMachineryAPI.INSTANCE.requirementRegistry(), true),
+            IRequirement::getType,
+            RequirementType::getCodec,
+            "Requirement"
+    );
 
     /**
      * Used by the requirement dispatch codec to serialize an IRequirement.

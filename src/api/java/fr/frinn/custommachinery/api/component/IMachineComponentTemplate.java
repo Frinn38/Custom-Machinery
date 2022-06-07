@@ -18,7 +18,12 @@ public interface IMachineComponentTemplate<T extends IMachineComponent> {
      * The dispatch codec will read the "type" property inside the component json and find the proper MachineComponentType for this type.
      * The codec passed to the MachineComponentType on registration will then be used to deserialize the component json into the template.
      */
-    Codec<IMachineComponentTemplate<? extends IMachineComponent>> CODEC = CodecLogger.loggedDispatch(ICustomMachineryAPI.INSTANCE.componentRegistry().getCodec(), IMachineComponentTemplate::getType, MachineComponentType::getCodec, "Machine Component");
+    Codec<IMachineComponentTemplate<? extends IMachineComponent>> CODEC = CodecLogger.loggedDispatch(
+            ICustomMachineryAPI.INSTANCE.registryCodec(ICustomMachineryAPI.INSTANCE.componentRegistry(), true),
+            IMachineComponentTemplate::getType,
+            MachineComponentType::getCodec,
+            "Machine Component"
+    );
 
     /**
      * Used by the dispatch codec.

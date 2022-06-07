@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.PrimitiveCodec;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.codec.EnhancedEitherCodec;
 import fr.frinn.custommachinery.api.codec.EnhancedListCodec;
@@ -80,9 +81,8 @@ public class Codecs {
     public static final Codec<CompoundTag> COMPOUND_NBT_CODEC               = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundTag::toString), "NBT");
     public static final Codec<Character> CHARACTER_CODEC                    = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC  = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
-    //public static final Codec<ToolType> TOOL_TYPE_CODEC                     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeToolType, ToolType::getName), "Tool Type");
     public static final Codec<ResourceLocation> RESOURCE_LOCATION_CODEC     = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeResourceLocation, ResourceLocation::toString), "Resource Location");
-
+    public static final Codec<ResourceLocation> CM_LOCATION_CODEC           = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCMLocation, ResourceLocation::toString), "Custom Machinery Location");
     public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::getPrefix), "Comparator Mode");
 
     public static final Codec<MachineStatus> STATUS_CODEC                               = fromEnum(MachineStatus.class);
@@ -195,21 +195,24 @@ public class Codecs {
             return DataResult.error(exception.getMessage());
         }
     }
-/*
-    private static DataResult<ToolType> decodeToolType(String encoded) {
-        try {
-            return DataResult.success(ToolType.get(encoded.toLowerCase(Locale.ENGLISH)));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error(e.getMessage());
-        }
-    }
-*/
+
     private static DataResult<ResourceLocation> decodeResourceLocation(String encoded) {
         try {
             if(encoded.contains("#"))
                 return DataResult.success(new ModelResourceLocation(encoded));
             else
                 return DataResult.success(new ResourceLocation(encoded));
+        } catch (Exception e) {
+            return DataResult.error(e.getMessage());
+        }
+    }
+
+    private static DataResult<ResourceLocation> decodeCMLocation(String encoded) {
+        try {
+            if(encoded.contains(":"))
+                return DataResult.success(new ResourceLocation(encoded));
+            else
+                return DataResult.success(new ResourceLocation(CustomMachinery.MODID, encoded));
         } catch (Exception e) {
             return DataResult.error(e.getMessage());
         }
