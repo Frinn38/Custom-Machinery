@@ -42,9 +42,9 @@ public class TextComponentUtils {
                     Style.EMPTY
                     .withBold(bold)
                     .withItalic(italic)
-                    .setUnderlined(underlined)
-                    .setStrikethrough(strikethrough)
-                    .setObfuscated(obfuscated)
+                    .withUnderlined(underlined)
+                    .withStrikethrough(strikethrough)
+                    .withObfuscated(obfuscated)
                     .withColor(color)
                     .withFont(font)
             )

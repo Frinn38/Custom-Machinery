@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -38,9 +37,7 @@ public class LootTableHelper {
 
     public static void generate(MinecraftServer server) {
         lootsMap.clear();
-        if(server.getLevel(Level.OVERWORLD) == null)
-            return;
-        LootContext context = new LootContext.Builder(server.getLevel(Level.OVERWORLD)).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
+        LootContext context = new LootContext.Builder(server.overworld()).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
         for (ResourceLocation table : tables) {
             List<Pair<ItemStack, Double>> loots = getLoots(table, server, context);
             lootsMap.put(table, loots);
@@ -50,16 +47,14 @@ public class LootTableHelper {
     private static List<Pair<ItemStack, Double>> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
         List<Pair<ItemStack, Double>> loots = new ArrayList<>();
         LootTable lootTable = server.getLootTables().get(table);
-        BiFunction<ItemStack, LootContext, ItemStack> globalFunction = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "compositeFunction");
-        List<LootPool> pools = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "pools");
+        BiFunction<ItemStack, LootContext, ItemStack> globalFunction = lootTable.compositeFunction;
+        List<LootPool> pools = ObfuscationReflectionHelper.getPrivateValue(LootTable.class, lootTable, "f_79109_");
 
         if(pools == null)
             return Collections.emptyList();
 
         for(LootPool pool : pools) {
-            LootPoolEntryContainer[] entries = ObfuscationReflectionHelper.getPrivateValue(LootPool.class, pool, "entries");
-            if(entries == null)
-                continue;
+            LootPoolEntryContainer[] entries = pool.entries;
             float total = Arrays.stream(entries).filter(entry -> entry instanceof LootPoolSingletonContainer).mapToInt(entry -> ((LootPoolSingletonContainer)entry).weight).sum();
             Arrays.stream(entries).filter(entry -> entry instanceof LootItem)
                     .map(entry -> (LootItem)entry)
