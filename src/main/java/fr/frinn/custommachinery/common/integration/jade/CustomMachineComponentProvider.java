@@ -3,12 +3,10 @@ package fr.frinn.custommachinery.common.integration.jade;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import mcp.mobius.waila.api.BlockAccessor;
 import mcp.mobius.waila.api.IComponentProvider;
 import mcp.mobius.waila.api.ITooltip;
 import mcp.mobius.waila.api.config.IPluginConfig;
-import mcp.mobius.waila.api.ui.IProgressStyle;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -45,7 +43,7 @@ public class CustomMachineComponentProvider implements IComponentProvider {
                 double recipeProgressTime = nbt.getDouble("recipeProgressTime");
                 double recipeTotalTime = nbt.getDouble("recipeTotalTime");
                 float progress = (float) (recipeProgressTime / recipeTotalTime);
-                Component component = new TextComponent(recipeProgressTime + " / " + recipeTotalTime);
+                Component component = new TextComponent((int)recipeProgressTime + " / " + (int)recipeTotalTime);
                 tooltip.add(tooltip.getElementHelper().progress(progress, component, tooltip.getElementHelper().progressStyle(), tooltip.getElementHelper().borderStyle()));
             }
 
