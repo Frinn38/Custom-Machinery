@@ -175,6 +175,13 @@
   "custommachinery.requirements.drop.info.whitelist": "Accepted items :",
   "custommachinery.requirements.drop.info.blacklist": "Denied items :",
 
+  "custommachinery.side.top": "Top",
+  "custommachinery.side.bottom": "Bottom",
+  "custommachinery.side.front": "Front",
+  "custommachinery.side.right": "Right",
+  "custommachinery.side.back": "Back",
+  "custommachinery.side.left": "Left",
+
   "custommachinery.upgrade.tooltip": "(Shift) Custom Machine Upgrade",
 
   "requirement.custommachinery.item": "Item",

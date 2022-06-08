@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.requirement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -10,6 +9,7 @@ import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;

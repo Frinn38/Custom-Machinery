@@ -10,21 +10,24 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.PrimitiveCodec;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
-import fr.frinn.custommachinery.api.codec.EnhancedEitherCodec;
-import fr.frinn.custommachinery.api.codec.EnhancedListCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
+import fr.frinn.custommachinery.apiimpl.codec.EnhancedEitherCodec;
+import fr.frinn.custommachinery.apiimpl.codec.EnhancedListCodec;
+import fr.frinn.custommachinery.apiimpl.codec.EnumMapCodec;
+import fr.frinn.custommachinery.apiimpl.component.config.RelativeSide;
+import fr.frinn.custommachinery.apiimpl.component.config.SideMode;
+import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.common.data.MachineLocation;
+import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
+import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
 import fr.frinn.custommachinery.common.requirement.DropRequirement;
 import fr.frinn.custommachinery.common.requirement.EntityRequirement;
-import fr.frinn.custommachinery.common.data.MachineLocation;
-import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
-import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
-import fr.frinn.custommachinery.common.guielement.TextGuiElement;
-import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
@@ -44,6 +47,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
@@ -97,6 +101,8 @@ public class Codecs {
     public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = fromEnum(RecipeModifier.OPERATION.class);
     public static final Codec<ProgressBarGuiElement.Direction> PROGRESS_DIRECTION       = fromEnum(ProgressBarGuiElement.Direction.class);
     public static final Codec<DropRequirement.Action> DROP_REQUIREMENT_ACTION_CODEC     = fromEnum(DropRequirement.Action.class);
+    public static final Codec<RelativeSide> RELATIVE_SIDE_CODEC                         = fromEnum(RelativeSide.class);
+    public static final Codec<SideMode> SIDE_MODE_CODEC                                 = fromEnum(SideMode.class);
 
     public static final Codec<BlockPos> BLOCK_POS                 = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
     public static final Codec<AABB> AABB_CODEC           = CodecLogger.namedCodec(DOUBLE_STREAM.comapFlatMap(stream -> validateDoubleStreamSize(stream, 6).map(array -> new AABB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> DoubleStream.of(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ)), "Box");
@@ -104,6 +110,7 @@ public class Codecs {
     public static final Codec<ResourceLocation> BLOCK_MODEL_CODEC = either(RESOURCE_LOCATION_CODEC, PARTIAL_BLOCK_STATE_CODEC, "Block Model").xmap(either -> either.map(Function.identity(), PartialBlockState::getModelLocation), Either::left);
     public static final Codec<ResourceLocation> ITEM_MODEL_CODEC  = either(ForgeRegistries.ITEMS.getCodec(), RESOURCE_LOCATION_CODEC, "Item Model").xmap(either -> either.map(Item::getRegistryName, Function.identity()), Either::right);
     public static final Codec<VoxelShape> VOXEL_SHAPE_CODEC       = either(Codecs.PARTIAL_BLOCK_STATE_CODEC, Codecs.list(Codecs.BOX_CODEC), "Machine Shape").comapFlatMap(either -> either.map(Codecs::decodeFromBlock, Codecs::decodeFromAABBList), shape -> Either.right(shape.toAabbs()));
+    public static final Codec<Map<RelativeSide, SideMode>> SIDE_CONFIG_CODEC = EnumMapCodec.of(RelativeSide.class, RELATIVE_SIDE_CODEC, SIDE_MODE_CODEC, SideMode.BOTH).codec();
 
     public static <E extends Enum<E>> Codec<E> fromEnum(Class<E> enumClass) {
         return new Codec<E>() {

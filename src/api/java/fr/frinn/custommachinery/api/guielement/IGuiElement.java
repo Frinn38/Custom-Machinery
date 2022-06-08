@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.api.guielement;
 
 import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 
 /**
  * A part of the Custom Machine data, used to display things on the machine gui and/or in jei.

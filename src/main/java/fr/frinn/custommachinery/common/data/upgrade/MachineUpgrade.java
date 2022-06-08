@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.data.upgrade;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.ChatFormatting;

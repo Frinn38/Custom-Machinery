@@ -77,7 +77,7 @@ public class MachineCT {
     @Method
     public int addFluid(IFluidStack stackCT, boolean simulate) {
         FluidStack stack = stackCT.getInternal();
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.fill(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE)).orElse(stack.getAmount());
+        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.getFluidHandler().fill(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE)).orElse(stack.getAmount());
     }
 
     //Return amount of fluid that was NOT added.
@@ -94,7 +94,7 @@ public class MachineCT {
     public IFluidStack removeFluid(IFluidStack stackJS, boolean simulate) {
         FluidStack stack = stackJS.getInternal();
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> {
-            FluidStack removed = handler.drain(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
+            FluidStack removed = handler.getFluidHandler().drain(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
             return new MCFluidStack(removed);
         }).orElse(FLUID_EMPTY);
     }

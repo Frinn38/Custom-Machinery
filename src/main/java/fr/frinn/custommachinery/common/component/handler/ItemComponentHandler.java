@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.component.handler;
 
+import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.component.ICapabilityComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
@@ -9,6 +10,7 @@ import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.config.SidedItemHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CMCollectors;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -27,15 +29,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements IItemHandler, ICapabilityComponent, ISerializableComponent, ITickableComponent, ISyncableStuff {
+public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ICapabilityComponent, ISerializableComponent, ITickableComponent, ISyncableStuff {
 
-    private final LazyOptional<IItemHandler> capability = LazyOptional.of(() -> this);
+    private final IItemHandler generalHandler = new SidedItemHandler(null, this);
+    private final LazyOptional<IItemHandler> capability = LazyOptional.of(() -> generalHandler);
+    private final Map<Direction, LazyOptional<IItemHandler>> sidedWrappers = Maps.newEnumMap(Direction.class);
     private final Random rand = new Random();
     private final List<ITickableComponentVariant> tickableVariants;
 
@@ -48,6 +53,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                 this.outputs.add(component);
         });
         this.tickableVariants = components.stream().map(ItemMachineComponent::getVariant).filter(variant -> variant instanceof ITickableComponentVariant).map(variant -> (ITickableComponentVariant)variant).collect(CMCollectors.toImmutableList());
+        for(Direction direction : Direction.values())
+            this.sidedWrappers.put(direction, LazyOptional.of(() -> new SidedItemHandler(direction, this)));
     }
 
     @Override
@@ -57,14 +64,19 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-            return this.capability.cast();
+        if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            if(side == null)
+                return this.capability.cast();
+            else
+                return this.sidedWrappers.get(side).cast();
+        }
         return LazyOptional.empty();
     }
 
     @Override
     public void invalidateCapability() {
         this.capability.invalidate();
+        this.sidedWrappers.values().forEach(LazyOptional::invalidate);
     }
 
     @Override
@@ -105,63 +117,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         this.getComponents().forEach(component -> component.getStuffToSync(container));
-    }
-
-    /** ITEM HANDLER STUFF **/
-
-    @Override
-    public int getSlots() {
-        return this.getComponents().size();
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack getStackInSlot(int index) {
-        return this.getComponents().get(index).getItemStack();
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack insertItem(int index, @Nonnull ItemStack stack, boolean simulate) {
-        ItemMachineComponent component = this.getComponents().get(index);
-        if(!component.getMode().isInput())
-            return stack;
-        int maxInsert = component.getSpaceForItem(stack);
-        int toInsert = Math.min(maxInsert, stack.getCount());
-        if(!simulate) {
-            ItemStack stackIn = stack.copy();
-            stackIn.setCount(toInsert);
-            component.insert(stackIn);
-            getManager().markDirty();
-        }
-        ItemStack stackRemaining = stack.copy();
-        stackRemaining.shrink(toInsert);
-        return stackRemaining;
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack extractItem(int index, int amount, boolean simulate) {
-        ItemMachineComponent component = this.getComponents().get(index);
-        if(!component.getMode().isOutput() || component.getItemStack().isEmpty())
-            return ItemStack.EMPTY;
-        ItemStack stack = component.getItemStack().copy();
-        stack.setCount(Math.min(component.getItemStack().getCount(), amount));
-        if(!simulate) {
-            component.extract(stack.getCount());
-            getManager().markDirty();
-        }
-        return stack;
-    }
-
-    @Override
-    public int getSlotLimit(int index) {
-        return this.getComponents().get(index).getCapacity();
-    }
-
-    @Override
-    public boolean isItemValid(int index, @Nonnull ItemStack stack) {
-        return this.getComponents().get(index).isItemValid(stack);
     }
 
     /** RECIPE STUFF **/

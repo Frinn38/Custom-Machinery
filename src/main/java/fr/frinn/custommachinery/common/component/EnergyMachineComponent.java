@@ -1,20 +1,26 @@
 package fr.frinn.custommachinery.common.component;
 
+import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.ICapabilityComponent;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.apiimpl.component.config.RelativeSide;
+import fr.frinn.custommachinery.apiimpl.component.config.SideConfig;
+import fr.frinn.custommachinery.apiimpl.component.config.SideMode;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
+import fr.frinn.custommachinery.common.component.config.SidedEnergyStorage;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -37,25 +43,30 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ITickableComponent, ICapabilityComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent {
+public class EnergyMachineComponent extends AbstractMachineComponent implements IEnergyStorage, ITickableComponent, ICapabilityComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent {
 
     private long energy;
     private final long capacity;
     private final int maxInput;
     private final int maxOutput;
+    private final SideConfig config;
     private long actualTick;
     private int actualTickInput;
     private int actualTickOutput;
     private int searchNeighborCooldown = Utils.RAND.nextInt(20);
+    private final Map<Direction, LazyOptional<IEnergyStorage>> sidedWrappers = Maps.newEnumMap(Direction.class);
     private final LazyOptional<EnergyMachineComponent> capability = LazyOptional.of(() -> this);
     private final Map<Direction, LazyOptional<IEnergyStorage>> neighborStorages = new HashMap<>();
 
-    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, int maxInput, int maxOutput) {
+    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, int maxInput, int maxOutput, Map<RelativeSide, SideMode> defaultConfig) {
         super(manager, ComponentIOMode.BOTH);
         this.energy = 0;
         this.capacity = capacity;
         this.maxInput = maxInput;
         this.maxOutput = maxOutput;
+        this.config = new SideConfig(manager, defaultConfig);
+        for(Direction direction : Direction.values())
+            this.sidedWrappers.put(direction, LazyOptional.of(() -> new SidedEnergyStorage(() -> config.getSideMode(direction), this)));
     }
 
     public int getMaxInput() {
@@ -77,6 +88,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     public long getCapacity() {
         return this.capacity;
+    }
+
+    @Override
+    public SideConfig getConfig() {
+        return this.config;
     }
 
     @Override
@@ -113,6 +129,8 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         for(Direction direction : Direction.values()) {
             if(this.neighborStorages.get(direction) != null)
                 continue;
+            if(!this.config.getSideMode(direction).isOutput())
+                continue;
             Level world = getManager().getWorld();
             BlockPos pos = getManager().getTile().getBlockPos();
             LazyOptional<IEnergyStorage> neighborStorage = Optional.ofNullable(world.getBlockEntity(pos.relative(direction))).map(tile -> tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite())).orElse(null);
@@ -125,25 +143,33 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if(cap == CapabilityEnergy.ENERGY)
-            return this.capability.cast();
+        if(cap == CapabilityEnergy.ENERGY) {
+            if(side == null)
+                return this.capability.cast();
+            else
+                return this.sidedWrappers.get(side).cast();
+        }
         return LazyOptional.empty();
     }
 
     @Override
     public void invalidateCapability() {
         this.capability.invalidate();
+        this.sidedWrappers.values().forEach(LazyOptional::invalidate);
     }
 
     @Override
     public void serialize(CompoundTag nbt) {
         nbt.putLong("energy", this.energy);
+        nbt.put("config", this.config.serialize());
     }
 
     @Override
     public void deserialize(CompoundTag nbt) {
         if(nbt.contains("energy", Tag.TAG_LONG))
             this.energy = Math.min(nbt.getLong("energy"), this.capacity);
+        if(nbt.contains("config"))
+            this.config.deserialize(nbt.get("config"));
     }
 
     @Override
@@ -256,18 +282,21 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
                 templateInstance.group(
                         Codecs.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
                         CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"maxInput").forGetter(template -> Optional.of(template.maxInput)),
-                        CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"maxOutput").forGetter(template -> Optional.of(template.maxOutput))
-                ).apply(templateInstance, (capacity, maxInput, maxOutput) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(Utils.toInt(capacity)), maxOutput.orElse(Utils.toInt(capacity))))
+                        CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
+                        CodecLogger.loggedOptional(Codecs.SIDE_CONFIG_CODEC, "config", SideConfig.DEFAULT_ALL_BOTH).forGetter(template -> template.defaultConfig)
+                ).apply(templateInstance, (capacity, maxInput, maxOutput, config) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(Utils.toInt(capacity)), maxOutput.orElse(Utils.toInt(capacity)), config))
         );
 
         private final long capacity;
         private final int maxInput;
         private final int maxOutput;
+        private final Map<RelativeSide, SideMode> defaultConfig;
 
-        public Template(long capacity, int maxInput, int maxOutput) {
+        public Template(long capacity, int maxInput, int maxOutput, Map<RelativeSide, SideMode> defaultConfig) {
             this.capacity = capacity;
             this.maxInput = maxInput;
             this.maxOutput = maxOutput;
+            this.defaultConfig = defaultConfig;
         }
 
         @Override
@@ -287,7 +316,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         @Override
         public EnergyMachineComponent build(IMachineComponentManager manager) {
-            return new EnergyMachineComponent(manager, this.capacity, this.maxInput, this.maxOutput);
+            return new EnergyMachineComponent(manager, this.capacity, this.maxInput, this.maxOutput, this.defaultConfig);
         }
     }
 }

@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.codec;
+package fr.frinn.custommachinery.apiimpl.codec;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;

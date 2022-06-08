@@ -46,6 +46,6 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
     @Override
     public IMachineComponentTemplate<ItemMachineComponent> build() {
-        return new ItemMachineComponent.Template(id.get(), mode.get(), capacity.get(), new ArrayList<>(), false, DefaultItemComponentVariant.INSTANCE);
+        return new ItemMachineComponent.Template(id.get(), mode.get(), capacity.get(), new ArrayList<>(), false, DefaultItemComponentVariant.INSTANCE, null);
     }
 }

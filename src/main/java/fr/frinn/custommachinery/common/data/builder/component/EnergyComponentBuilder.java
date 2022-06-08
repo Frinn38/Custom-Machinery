@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.apiimpl.component.builder.IntComponentBuilderPro
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 
+import java.util.Collections;
 import java.util.List;
 
 public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMachineComponent> {
@@ -41,6 +42,6 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
 
     @Override
     public IMachineComponentTemplate<EnergyMachineComponent> build() {
-        return new EnergyMachineComponent.Template(this.capacity.get(), this.maxInput.get(), this.maxOutput.get());
+        return new EnergyMachineComponent.Template(this.capacity.get(), this.maxInput.get(), this.maxOutput.get(), Collections.emptyMap());
     }
 }

@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.common.crafting;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.resources.ResourceLocation;
 

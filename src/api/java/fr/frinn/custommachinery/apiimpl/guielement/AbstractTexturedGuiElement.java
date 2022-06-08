@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.apiimpl.guielement;
 
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.utils.TextureSizeHelper;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.DistExecutor;
 

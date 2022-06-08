@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.component.handler;
 
+import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.component.ICapabilityComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
@@ -7,6 +8,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
+import fr.frinn.custommachinery.common.component.config.SidedFluidHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.Direction;
@@ -25,14 +27,17 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IFluidHandler, ICapabilityComponent, ISerializableComponent, ISyncableStuff {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements ICapabilityComponent, ISerializableComponent, ISyncableStuff {
 
-    private final LazyOptional<FluidComponentHandler> capability = LazyOptional.of(() -> this);
+    private final IFluidHandler generalHandler = new SidedFluidHandler(null, this);
+    private final LazyOptional<IFluidHandler> capability = LazyOptional.of(() -> generalHandler);
+    private final Map<Direction, LazyOptional<IFluidHandler>> sidedWrappers = Maps.newEnumMap(Direction.class);
 
     public FluidComponentHandler(IMachineComponentManager manager, List<FluidMachineComponent> components) {
         super(manager, components);
@@ -42,6 +47,12 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
             if(component.getMode().isOutput())
                 this.outputs.add(component);
         });
+        for(Direction direction : Direction.values())
+            sidedWrappers.put(direction, LazyOptional.of(() -> new SidedFluidHandler(direction, this)));
+    }
+
+    public IFluidHandler getFluidHandler() {
+        return this.generalHandler;
     }
 
     @Override
@@ -56,14 +67,19 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-            return this.capability.cast();
+        if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+            if(side == null)
+                return this.capability.cast();
+            else
+                return this.sidedWrappers.get(side).cast();
+        }
         return LazyOptional.empty();
     }
 
     @Override
     public void invalidateCapability() {
         this.capability.invalidate();
+        this.sidedWrappers.values().forEach(LazyOptional::invalidate);
     }
 
     @Override
@@ -94,106 +110,6 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         this.getComponents().forEach(component -> component.getStuffToSync(container));
-    }
-
-    /** FLUID HANDLER STUFF **/
-
-    @Override
-    public int getTanks() {
-        return this.getComponents().size();
-    }
-
-    @Nonnull
-    @Override
-    public FluidStack getFluidInTank(int index) {
-        return this.getComponents().get(index).getFluidStack();
-    }
-
-    @Override
-    public int getTankCapacity(int index) {
-        return this.getComponents().get(index).getCapacity();
-    }
-
-    @Override
-    public boolean isFluidValid(int index, @Nonnull FluidStack stack) {
-        return this.getComponents().get(index).isFluidValid(stack);
-    }
-
-    @Override
-    public int fill(FluidStack stack, FluidAction action) {
-        AtomicInteger remaining = new AtomicInteger(stack.getAmount());
-        this.getComponents().forEach(component -> {
-            if(component.isFluidValid(stack) && component.getRemainingSpace() > 0 && component.getMode().isInput()) {
-                int toInput = Math.min(remaining.get(), component.insert(stack.getFluid(), stack.getAmount(), stack.getTag(), FluidAction.SIMULATE));
-                if(toInput > 0) {
-                    remaining.addAndGet(-toInput);
-                    if (action.execute()) {
-                        component.insert(stack.getFluid(), toInput, stack.getTag(), FluidAction.EXECUTE);
-                        getManager().markDirty();
-                    }
-                }
-            }
-        });
-        return stack.getAmount() - remaining.get();
-    }
-
-    @Nonnull
-    @Override
-    public FluidStack drain(FluidStack maxDrain, FluidAction action) {
-        int remainingToDrain = maxDrain.getAmount();
-        for (FluidMachineComponent component : this.getComponents()) {
-            if(!component.getFluidStack().isEmpty() && component.isFluidValid(maxDrain) && component.getMode().isOutput()) {
-                FluidStack stack = component.extract(maxDrain.getAmount(), FluidAction.SIMULATE);
-                if(stack.getAmount() > remainingToDrain) {
-                    if(action.execute()) {
-                        component.extract(maxDrain.getAmount(), FluidAction.EXECUTE);
-                        getManager().markDirty();
-                    }
-                    return maxDrain;
-                } else {
-                    if(action.execute()) {
-                        component.extract(stack.getAmount(), FluidAction.EXECUTE);
-                        getManager().markDirty();
-                    }
-                    remainingToDrain -= stack.getAmount();
-                }
-            }
-        }
-        if(remainingToDrain == maxDrain.getAmount())
-            return FluidStack.EMPTY;
-        else
-            return new FluidStack(maxDrain.getFluid(), maxDrain.getAmount() - remainingToDrain, maxDrain.getTag());
-    }
-
-    @Nonnull
-    @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
-        FluidStack toDrain = FluidStack.EMPTY;
-        int remainingToDrain = maxDrain;
-        for (FluidMachineComponent component : this.getComponents()) {
-            if(!component.getFluidStack().isEmpty() && component.getMode().isOutput() && (toDrain.isEmpty() || component.getFluidStack().isFluidEqual(toDrain))) {
-                FluidStack stack = component.extract(remainingToDrain, FluidAction.SIMULATE);
-                if(stack.getAmount() > remainingToDrain) {
-                    if(action.execute()) {
-                        component.extract(maxDrain, FluidAction.EXECUTE);
-                        getManager().markDirty();
-                    }
-                    return new FluidStack(stack.getFluid(), maxDrain, stack.getTag());
-                } else {
-                    if(toDrain.isEmpty())
-                        toDrain = stack;
-                    if(action.execute()) {
-                        component.extract(stack.getAmount(), FluidAction.EXECUTE);
-                        getManager().markDirty();
-                    }
-                    remainingToDrain -= stack.getAmount();
-                }
-            }
-        }
-        if(toDrain.isEmpty() || remainingToDrain == maxDrain)
-            return FluidStack.EMPTY;
-        else
-            return new FluidStack(toDrain.getFluid(), maxDrain - remainingToDrain, toDrain.getTag());
     }
 
     /** RECIPE STUFF **/
@@ -239,28 +155,28 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private final IFluidHandler interactionHandler = new IFluidHandler() {
         @Override
         public int getTanks() {
-            return FluidComponentHandler.this.getTanks();
+            return FluidComponentHandler.this.generalHandler.getTanks();
         }
 
         @Nonnull
         @Override
         public FluidStack getFluidInTank(int tank) {
-            return FluidComponentHandler.this.getFluidInTank(tank);
+            return FluidComponentHandler.this.generalHandler.getFluidInTank(tank);
         }
 
         @Override
         public int getTankCapacity(int tank) {
-            return FluidComponentHandler.this.getTankCapacity(tank);
+            return FluidComponentHandler.this.generalHandler.getTankCapacity(tank);
         }
 
         @Override
         public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
-            return FluidComponentHandler.this.isFluidValid(tank, stack);
+            return FluidComponentHandler.this.generalHandler.isFluidValid(tank, stack);
         }
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
-            return FluidComponentHandler.this.fill(resource, action);
+            return FluidComponentHandler.this.generalHandler.fill(resource, action);
         }
 
         @Nonnull

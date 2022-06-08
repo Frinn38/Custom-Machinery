@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.apiimpl.guielement;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 
 public abstract class AbstractGuiElement implements IGuiElement {
 

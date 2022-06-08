@@ -2,13 +2,13 @@ package fr.frinn.custommachinery.api.requirement;
 
 import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 
 /**
  * The base interface to declare an IRequirement.

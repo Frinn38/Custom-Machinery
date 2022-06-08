@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.requirement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -11,10 +10,11 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
+import fr.frinn.custommachinery.client.integration.jei.wrapper.FuelItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.client.integration.jei.wrapper.FuelItemIngredientWrapper;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 

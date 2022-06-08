@@ -2,18 +2,22 @@ package fr.frinn.custommachinery.common.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.IVariableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import fr.frinn.custommachinery.apiimpl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.apiimpl.component.config.RelativeSide;
+import fr.frinn.custommachinery.apiimpl.component.config.SideConfig;
+import fr.frinn.custommachinery.apiimpl.component.config.SideMode;
 import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -28,9 +32,10 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IVariableComponent<ItemComponentVariant> {
+public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IVariableComponent<ItemComponentVariant>, ISideConfigComponent {
 
     private final String id;
     private final int capacity;
@@ -38,14 +43,16 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     private final boolean whitelist;
     private ItemStack stack = ItemStack.EMPTY;
     private final ItemComponentVariant variant;
+    private final SideConfig config;
 
-    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant) {
+    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, Map<RelativeSide, SideMode> defaultConfig) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
         this.filter = filter;
         this.whitelist = whitelist;
         this.variant = variant;
+        this.config = new SideConfig(manager, defaultConfig);
     }
 
     @Override
@@ -55,6 +62,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     public String getId() {
         return this.id;
+    }
+
+    @Override
+    public SideConfig getConfig() {
+        return this.config;
     }
 
     @Override
@@ -108,11 +120,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         nbt.putString("slotID", this.id);
         if(!stack.isEmpty())
             stack.save(nbt);
+        nbt.put("config", this.config.serialize());
     }
 
     @Override
     public void deserialize(CompoundTag nbt) {
         this.stack = ItemStack.of(nbt);
+        if(nbt.contains("config"))
+            this.config.deserialize(nbt.get("config"));
     }
 
     @Override
@@ -134,7 +149,8 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                         CodecLogger.loggedOptional(Codec.INT,"capacity", 64).forGetter(template -> template.capacity),
                         CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"filter", Collections.emptyList()).forGetter(template -> template.filter),
                         CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
-                        CodecLogger.loggedOptional(IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT, ItemComponentVariant.class),"variant", DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant)
+                        CodecLogger.loggedOptional(IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT, ItemComponentVariant.class),"variant", DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant),
+                        CodecLogger.loggedOptional(Codecs.SIDE_CONFIG_CODEC, "config", SideConfig.DEFAULT_ALL_BOTH).forGetter(template -> template.defaultConfig)
                 ).apply(itemMachineComponentTemplate, Template::new)
         );
 
@@ -144,14 +160,16 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         private final List<IIngredient<Item>> filter;
         private final boolean whitelist;
         private final ItemComponentVariant variant;
+        private final Map<RelativeSide, SideMode> defaultConfig;
 
-        public Template(String id, ComponentIOMode mode, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant) {
+        public Template(String id, ComponentIOMode mode, int capacity, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, Map<RelativeSide, SideMode> defaultConfig) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
             this.filter = filter;
             this.whitelist = whitelist;
             this.variant = variant;
+            this.defaultConfig = defaultConfig;
         }
 
         public ItemComponentVariant getVariant() {
@@ -172,16 +190,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         public boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager) {
             if(isInput != this.mode.isInput())
                 return false;
-            if(ingredient instanceof ItemStack) {
-                ItemStack stack = (ItemStack)ingredient;
+            if(ingredient instanceof ItemStack stack)
                 return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.isItemValid(manager, stack);
-            } else if(ingredient instanceof List) {
-                List<?> list = (List<?>)ingredient;
+            else if(ingredient instanceof List<?> list) {
                 return list.stream().allMatch(object -> {
-                    if(object instanceof ItemStack) {
-                        ItemStack stack = (ItemStack)object;
+                    if(object instanceof ItemStack stack)
                         return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.isItemValid(manager, stack);
-                    }
                     return false;
                 });
             }
@@ -190,7 +204,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         @Override
         public ItemMachineComponent build(IMachineComponentManager manager) {
-            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.whitelist, this.variant);
+            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.filter, this.whitelist, this.variant, this.defaultConfig);
         }
     }
 }

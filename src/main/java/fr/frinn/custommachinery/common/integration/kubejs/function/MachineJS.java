@@ -58,7 +58,7 @@ public class MachineJS {
     //Return amount of fluid that was NOT added.
     public int addFluid(FluidStackJS stackJS, boolean simulate) {
         FluidStack stack = new FluidStack(stackJS.getFluid(), (int)stackJS.getAmount(), stackJS.getNbt());
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.fill(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE)).orElse(stack.getAmount());
+        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.getFluidHandler().fill(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE)).orElse(stack.getAmount());
     }
 
     //Return amount of fluid that was NOT added.
@@ -73,7 +73,7 @@ public class MachineJS {
     public FluidStackJS removeFluid(FluidStackJS stackJS, boolean simulate) {
         FluidStack stack = new FluidStack(stackJS.getFluid(), (int)stackJS.getAmount(), stackJS.getNbt());
         return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> {
-            FluidStack removed = handler.drain(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
+            FluidStack removed = handler.getFluidHandler().drain(stack, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
             return FluidStackJS.of(removed.getFluid(), removed.getAmount(), removed.getTag());
         }).orElse(EmptyFluidStackJS.INSTANCE);
     }
