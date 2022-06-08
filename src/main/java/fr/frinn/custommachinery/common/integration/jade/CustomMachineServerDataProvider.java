@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.integration.jade;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import mcp.mobius.waila.api.IServerDataProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,9 +19,11 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
             CraftingManager manager = machine.craftingManager;
             CompoundTag tag = new CompoundTag();
             tag.putByte("status", (byte)manager.getStatus().ordinal());
-            tag.putDouble("recipeProgressTime", manager.getRecipeProgressTime());
-            tag.putDouble("recipeTotalTime", manager.getRecipeTotalTime());
-            tag.putString("errorMessage", manager.getErrorMessage().getString());
+            if(manager.getCurrentRecipe() != null) {
+                tag.putDouble("recipeProgressTime", manager.getRecipeProgressTime());
+                tag.putDouble("recipeTotalTime", manager.getRecipeTotalTime());
+                tag.putString("errorMessage", manager.getErrorMessage().getString());
+            }
             nbt.put(CustomMachinery.MODID, tag);
         }
     }
