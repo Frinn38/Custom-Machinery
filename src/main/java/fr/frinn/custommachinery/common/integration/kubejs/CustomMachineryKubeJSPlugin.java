@@ -16,8 +16,6 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
 
     @Override
     public void addBindings(BindingsEvent event) {
-
-
         event.add("Result", Result.class);
         event.add("CustomMachine", MachineJS.class);
     }
