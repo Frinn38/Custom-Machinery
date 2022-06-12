@@ -90,6 +90,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         return this.capacity;
     }
 
+    public void setEnergy(long energy) {
+        this.energy = energy;
+        getManager().markDirty();
+    }
+
     @Override
     public SideConfig getConfig() {
         return this.config;

@@ -3,6 +3,8 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 import dev.latvian.mods.kubejs.fluid.EmptyFluidStackJS;
 import dev.latvian.mods.kubejs.fluid.FluidStackJS;
 import dev.latvian.mods.kubejs.item.ItemStackJS;
+import dev.latvian.mods.kubejs.level.BlockContainerJS;
+import dev.latvian.mods.rhino.Wrapper;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
@@ -11,6 +13,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
@@ -22,10 +25,30 @@ public class MachineJS {
         this.internal = internal;
     }
 
+    public static MachineJS of(Object o) {
+        if(o instanceof Wrapper w) {
+            o = w.unwrap();
+        }
+
+        if(o instanceof BlockEntity blockEntity) {
+            if(blockEntity instanceof CustomMachineTile customMachineTile)
+                return new MachineJS(customMachineTile);
+        }
+        if(o instanceof BlockContainerJS blockContainerJS) {
+            return of(blockContainerJS.getEntity());
+        }
+
+        return null;
+    }
+
     /** ENERGY STUFF **/
 
     public long getEnergyStored() {
         return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getEnergy).orElse(0L);
+    }
+
+    public void setEnergyStored(long energy) {
+        this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(component -> component.setEnergy(energy));
     }
 
     public long getEnergyCapacity() {
@@ -49,6 +72,11 @@ public class MachineJS {
             FluidStack stack = component.getFluidStack();
             return FluidStackJS.of(stack.getFluid(), stack.getAmount(), stack.getTag());
         }).orElse(EmptyFluidStackJS.INSTANCE);
+    }
+
+    public void setFluidStored(String tank, FluidStackJS stackJS) {
+        FluidStack stack = new FluidStack(stackJS.getFluid(), (int)stackJS.getAmount(), stackJS.getNbt());
+        this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).ifPresent(x -> x.setFluidStack(stack));
     }
 
     public int getFluidCapacity(String tank) {
@@ -96,6 +124,14 @@ public class MachineJS {
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> ItemStackJS.of(component.getItemStack()))
                 .orElse(ItemStackJS.EMPTY);
+    }
+
+    public void setItemStored(String slot, ItemStackJS stackJS) {
+        this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .ifPresent(component -> {
+                    component.setItemStack(stackJS.getItemStack());
+                });
     }
 
     public int getItemCapacity(String slot) {

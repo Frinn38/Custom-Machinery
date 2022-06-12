@@ -111,6 +111,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.fluidStack.copy();
     }
 
+    public void setFluidStack(FluidStack fluidStack) {
+        this.fluidStack = fluidStack.copy();
+        getManager().markDirty();
+    }
+
     public int getCapacity() {
         return this.capacity;
     }
