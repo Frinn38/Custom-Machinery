@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.api.guielement.RegisterGuiElementRendererEvent;
 import fr.frinn.custommachinery.apiimpl.guielement.GuiElementRendererRegistry;
 import fr.frinn.custommachinery.client.render.CustomMachineModelLoader;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
+import fr.frinn.custommachinery.client.render.element.ConfigGuiElementRenderer;
 import fr.frinn.custommachinery.client.render.element.DumpGuiElementRenderer;
 import fr.frinn.custommachinery.client.render.element.EnergyGuiElementRenderer;
 import fr.frinn.custommachinery.client.render.element.FluidGuiElementRenderer;
@@ -142,6 +143,7 @@ public class ClientHandler {
         event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementRenderer());
         event.register(Registration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementRenderer());
         event.register(Registration.SIZE_GUI_ELEMENT.get(), new SizeGuiElementRenderer());
+        event.register(Registration.CONFIG_GUI_ELEMENT.get(), new ConfigGuiElementRenderer());
     }
 
     public static void openMachineLoadingScreen() {
