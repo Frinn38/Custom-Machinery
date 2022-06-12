@@ -41,6 +41,10 @@ public class MachineJS {
         return null;
     }
 
+    public String getId() {
+        return this.internal.getId().toString();
+    }
+
     /** ENERGY STUFF **/
 
     public long getEnergyStored() {
