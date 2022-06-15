@@ -18,6 +18,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressBarGuiElement>, IJEIElementRenderer<ProgressBarGuiElement> {
@@ -55,8 +56,8 @@ public class ProgressGuiElementRenderer implements IGuiElementRenderer<ProgressB
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, ProgressBarGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-
+    public List<Component> getTooltips(ProgressBarGuiElement element, IMachineScreen screen) {
+        return Collections.emptyList();
     }
 
     @Override

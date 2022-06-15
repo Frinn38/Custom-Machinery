@@ -4,6 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.SizeGuiElement;
+import net.minecraft.network.chat.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 public class SizeGuiElementRenderer implements IGuiElementRenderer<SizeGuiElement> {
 
@@ -13,7 +17,7 @@ public class SizeGuiElementRenderer implements IGuiElementRenderer<SizeGuiElemen
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, SizeGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-
+    public List<Component> getTooltips(SizeGuiElement element, IMachineScreen screen) {
+        return Collections.emptyList();
     }
 }

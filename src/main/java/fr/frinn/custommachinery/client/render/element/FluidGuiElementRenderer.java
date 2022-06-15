@@ -32,13 +32,17 @@ public class FluidGuiElementRenderer implements IGuiElementRenderer<FluidGuiElem
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, FluidGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        screen.getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID())).ifPresent(component -> {
-            String fluid = component.getFluidStack().getTranslationKey();
-            int amount = component.getFluidStack().getAmount();
-            int capacity = component.getCapacity();
-            screen.getScreen().renderTooltip(matrix, new TranslatableComponent(fluid).append(new TranslatableComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)), mouseX, mouseY);
-        });
+    public List<Component> getTooltips(FluidGuiElement element, IMachineScreen screen) {
+        return screen.getTile().getComponentManager()
+                .getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+                .flatMap(fluidHandler -> fluidHandler.getComponentForID(element.getID()))
+                .map(component -> {
+                    String fluid = component.getFluidStack().getTranslationKey();
+                    int amount = component.getFluidStack().getAmount();
+                    int capacity = component.getCapacity();
+                    return Collections.singletonList((Component)new TranslatableComponent(fluid).append(new TranslatableComponent("custommachinery.gui.element.fluid.tooltip", amount, capacity)));
+                })
+                .orElse(Collections.emptyList());
     }
 
     @Override

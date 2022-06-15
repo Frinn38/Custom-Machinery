@@ -6,6 +6,10 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.network.chat.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 public class PlayerInventoryGuiElementRenderer implements IGuiElementRenderer<PlayerInventoryGuiElement> {
 
@@ -21,8 +25,8 @@ public class PlayerInventoryGuiElementRenderer implements IGuiElementRenderer<Pl
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, PlayerInventoryGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-
+    public List<Component> getTooltips(PlayerInventoryGuiElement element, IMachineScreen screen) {
+        return Collections.emptyList();
     }
 
     @Override

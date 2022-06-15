@@ -17,9 +17,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
-@ParametersAreNonnullByDefault
 public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineContainer> implements IMachineScreen {
 
     private final CustomMachineTile tile;
@@ -84,7 +83,6 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         return this;
     }
 
-    @SuppressWarnings("deprecation")
     public void renderTransparentItem(PoseStack matrix, ItemStack stack, int posX, int posY) {
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().mulPoseMatrix(matrix.last().pose());
@@ -103,5 +101,10 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
                 .findFirst()
                 .ifPresent(element -> NetworkManager.CHANNEL.sendToServer(new CGuiElementClickPacket(this.machine.getGuiElements().indexOf(element), (byte) button)));
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void drawTooltips(PoseStack pose, List<Component> tooltips, int mouseX, int mouseY) {
+        super.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
     }
 }

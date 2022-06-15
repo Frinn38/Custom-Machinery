@@ -5,6 +5,10 @@ import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 public class TextGuiElementRenderer implements IGuiElementRenderer<TextGuiElement> {
 
@@ -20,8 +24,8 @@ public class TextGuiElementRenderer implements IGuiElementRenderer<TextGuiElemen
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, TextGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-
+    public List<Component> getTooltips(TextGuiElement element, IMachineScreen screen) {
+        return Collections.emptyList();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.render.element;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.DumpGuiElement;
 import net.minecraft.ChatFormatting;
@@ -18,7 +17,7 @@ public class DumpGuiElementRenderer extends TexturedGuiElementRenderer<DumpGuiEl
     );
 
     @Override
-    public void renderTooltip(PoseStack matrix, DumpGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        screen.getScreen().renderComponentTooltip(matrix, TOOLTIPS, mouseX, mouseY);
+    public List<Component> getTooltips(DumpGuiElement element, IMachineScreen screen) {
+        return TOOLTIPS;
     }
 }

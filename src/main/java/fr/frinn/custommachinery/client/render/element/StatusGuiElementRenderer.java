@@ -33,11 +33,11 @@ public class StatusGuiElementRenderer implements IGuiElementRenderer<StatusGuiEl
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, StatusGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
+    public List<Component> getTooltips(StatusGuiElement element, IMachineScreen screen) {
         List<Component> tooltips = new ArrayList<>();
         tooltips.add(new TranslatableComponent("custommachinery.craftingstatus." + screen.getTile().getStatus().toString().toLowerCase(Locale.ENGLISH)));
         if(screen.getTile().getStatus() == MachineStatus.ERRORED)
             tooltips.add(((CustomMachineTile)screen.getTile()).craftingManager.getErrorMessage());
-        screen.getScreen().renderComponentTooltip(matrix, tooltips, mouseX, mouseY);
+        return tooltips;
     }
 }

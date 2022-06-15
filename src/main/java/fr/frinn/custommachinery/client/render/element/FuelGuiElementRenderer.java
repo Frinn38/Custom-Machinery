@@ -7,10 +7,10 @@ import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.requirement.FuelRequirement;
 import fr.frinn.custommachinery.common.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.requirement.FuelRequirement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
@@ -39,9 +39,11 @@ public class FuelGuiElementRenderer implements IGuiElementRenderer<FuelGuiElemen
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, FuelGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        int fuel = screen.getTile().getComponentManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).map(FuelMachineComponent::getFuel).orElse(0);
-        screen.getScreen().renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.element.fuel.tooltip", fuel), mouseX, mouseY);
+    public List<Component> getTooltips(FuelGuiElement element, IMachineScreen screen) {
+        return screen.getTile().getComponentManager()
+                .getComponent(Registration.FUEL_MACHINE_COMPONENT.get())
+                .map(component -> Collections.singletonList((Component)new TranslatableComponent("custommachinery.gui.element.fuel.tooltip", component.getFuel())))
+                .orElse(Collections.emptyList());
     }
 
     @Override

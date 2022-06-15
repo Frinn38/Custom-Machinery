@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.client.render.element;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
-import fr.frinn.custommachinery.api.guielement.IGuiElementRenderer;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
@@ -18,29 +17,24 @@ import net.minecraft.world.item.Items;
 import java.util.Collections;
 import java.util.List;
 
-public class SlotGuiElementRenderer implements IGuiElementRenderer<SlotGuiElement>, IJEIElementRenderer<SlotGuiElement> {
+public class SlotGuiElementRenderer extends TexturedGuiElementRenderer<SlotGuiElement> implements IJEIElementRenderer<SlotGuiElement> {
 
     private static final CycleTimer timer = new CycleTimer(CMConfig.INSTANCE.itemSlotCycleTime.get());
 
     @Override
     public void renderElement(PoseStack matrix, SlotGuiElement element, IMachineScreen screen) {
-        int posX = element.getX();
-        int posY = element.getY();
-        int width = element.getWidth();
-        int height = element.getHeight();
+        super.renderElement(matrix, element, screen);
 
-        ClientHandler.bindTexture(element.getTexture());
-        GuiComponent.blit(matrix, posX, posY, 0, 0, width, height, width, height);
         if(!element.getItems().isEmpty()) {
             timer.onDraw();
             List<Item> items = element.getItems().stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
-            ((CustomMachineScreen)screen).renderTransparentItem(matrix, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), posX + 1, posY + 1);
+            ((CustomMachineScreen)screen).renderTransparentItem(matrix, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), element.getX() + 1, element.getY() + 1);
         }
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, SlotGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-
+    public List<Component> getTooltips(SlotGuiElement element, IMachineScreen screen) {
+        return Collections.emptyList();
     }
 
     @Override

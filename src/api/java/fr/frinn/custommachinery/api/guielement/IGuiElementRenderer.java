@@ -1,6 +1,9 @@
 package fr.frinn.custommachinery.api.guielement;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.network.chat.Component;
+
+import java.util.List;
 
 /**
  * Used to handle rendering for all IGuiElement instances of a specific GuiElementType.
@@ -18,11 +21,22 @@ public interface IGuiElementRenderer<E extends IGuiElement> {
     void renderElement(PoseStack matrix, E element, IMachineScreen screen);
 
     /**
+     * Called by the default implementation of {@link IGuiElementRenderer#renderTooltip} when the player's mouse cursor hover the element.
+     * @param element The element being hovered by the player mouse cursor.
+     * @return A list of tooltips to display when the player's mouse cursor hover the element.
+     */
+    List<Component> getTooltips(E element, IMachineScreen screen);
+
+    /**
      * Called each frame for each gui element of the corresponding type that return true to isHovered.
      * Render a tooltip here.
      * The MatrixStack is translated to the top left of the machine gui, consider it the 0,0 point for the rendering.
      */
-    void renderTooltip(PoseStack matrix, E element, IMachineScreen screen, int mouseX, int mouseY);
+    default void renderTooltip(PoseStack pose, E element, IMachineScreen screen, int mouseX, int mouseY) {
+        List<Component> tooltips = getTooltips(element, screen);
+        if(!tooltips.isEmpty())
+            screen.drawTooltips(pose, tooltips, mouseX, mouseY);
+    };
 
     /**
      * Calculate if the mouse cursor is hovering the element and return true if so.

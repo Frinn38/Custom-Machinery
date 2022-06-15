@@ -34,12 +34,11 @@ public class EnergyGuiElementRenderer implements IGuiElementRenderer<EnergyGuiEl
     }
 
     @Override
-    public void renderTooltip(PoseStack matrix, EnergyGuiElement element, IMachineScreen screen, int mouseX, int mouseY) {
-        screen.getTile().getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(energyComponent -> {
-            long energy = energyComponent.getEnergy();
-            long maxEnergy = energyComponent.getCapacity();
-            screen.getScreen().renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.element.energy.tooltip", energy, maxEnergy), mouseX, mouseY);
-        });
+    public List<Component> getTooltips(EnergyGuiElement element, IMachineScreen screen) {
+        return screen.getTile().getComponentManager()
+                .getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
+                .map(component -> Collections.singletonList((Component)new TranslatableComponent("custommachinery.gui.element.energy.tooltip", component.getEnergy(), component.getCapacity())))
+                .orElse(Collections.emptyList());
     }
 
     @Override
