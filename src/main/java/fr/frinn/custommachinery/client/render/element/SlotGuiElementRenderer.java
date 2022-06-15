@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.util.CycleTimer;
@@ -28,7 +27,7 @@ public class SlotGuiElementRenderer extends TexturedGuiElementRenderer<SlotGuiEl
         if(!element.getItems().isEmpty()) {
             timer.onDraw();
             List<Item> items = element.getItems().stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
-            ((CustomMachineScreen)screen).renderTransparentItem(matrix, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), element.getX() + 1, element.getY() + 1);
+            screen.drawGhostItem(matrix, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), element.getX() + 1, element.getY() + 1);
         }
     }
 

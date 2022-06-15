@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
@@ -83,16 +82,6 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         return this;
     }
 
-    public void renderTransparentItem(PoseStack matrix, ItemStack stack, int posX, int posY) {
-        RenderSystem.getModelViewStack().pushPose();
-        RenderSystem.getModelViewStack().mulPoseMatrix(matrix.last().pose());
-        this.itemRenderer.renderAndDecorateItem(stack, posX, posY);
-        RenderSystem.getModelViewStack().popPose();
-        RenderSystem.depthFunc(516);
-        GuiComponent.fill(matrix, posX, posY, posX + 16, posY + 16, 822083583);
-        RenderSystem.depthFunc(515);
-    }
-
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -106,5 +95,15 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     @Override
     public void drawTooltips(PoseStack pose, List<Component> tooltips, int mouseX, int mouseY) {
         super.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
+    }
+
+    @Override
+    public void drawGhostItem(PoseStack pose, ItemStack item, int posX, int posY) {
+        this.itemRenderer.renderAndDecorateItem(item, this.leftPos + posX, this.topPos + posY);
+
+        pose.pushPose();
+        pose.translate(0.0F, 0.0F, 200.0F);
+        GuiComponent.fill(pose, posX, posY, posX + 16, posY + 16, 822083583);
+        pose.popPose();
     }
 }
