@@ -11,7 +11,8 @@ import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
-import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedRequirement;
 import fr.frinn.custommachinery.common.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -33,7 +34,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EffectRequirement extends AbstractRequirement<EffectMachineComponent> implements ITickableRequirement<EffectMachineComponent>, IDisplayInfoRequirement {
+public class EffectRequirement extends AbstractDelayedChanceableRequirement<EffectMachineComponent> implements ITickableRequirement<EffectMachineComponent>, IDisplayInfoRequirement {
 
     public static final Codec<EffectRequirement> CODEC = RecordCodecBuilder.create(effectRequirementInstance ->
             effectRequirementInstance.group(
@@ -42,8 +43,15 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
                     Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
                     CodecLogger.loggedOptional(Codec.INT,"level", 1).forGetter(requirement -> requirement.level),
                     CodecLogger.loggedOptional(Codecs.list(ForgeRegistries.ENTITIES.getCodec()),"filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL,"finish", false).forGetter(requirement -> requirement.applyAtEnd)
-            ).apply(effectRequirementInstance, EffectRequirement::new)
+                    CodecLogger.loggedOptional(Codec.BOOL,"finish", false).forGetter(requirement -> requirement.applyAtEnd),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(AbstractDelayedRequirement::getDelay),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
+            ).apply(effectRequirementInstance, (effect, time, radius, level, filter, finish, delay, chance) -> {
+                EffectRequirement requirement = new EffectRequirement(effect, time, radius, level, filter, finish);
+                requirement.setDelay(delay);
+                requirement.setChance(chance);
+                return requirement;
+            })
     );
 
     private final MobEffect effect;
@@ -80,7 +88,7 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
 
     @Override
     public CraftingResult processEnd(EffectMachineComponent component, ICraftingContext context) {
-        if(this.applyAtEnd) {
+        if(this.applyAtEnd && getDelay() == 0.0D) {
             int time = (int)context.getModifiedValue(this.time, this, "time");
             int level = Mth.clamp((int)context.getModifiedValue(this.level, this, "level") - 1, 0, 255);
             int radius = (int)context.getModifiedValue(this.radius, this, "radius");
@@ -91,12 +99,21 @@ public class EffectRequirement extends AbstractRequirement<EffectMachineComponen
 
     @Override
     public CraftingResult processTick(EffectMachineComponent component, ICraftingContext context) {
-        if(!this.applyAtEnd) {
+        if(!this.applyAtEnd && getDelay() == 0.0D) {
             int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
             int level = Mth.clamp((int)context.getPerTickModifiedValue(this.level, this, "level") - 1, 0, 255);
             int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
             component.applyEffect(new MobEffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         }
+        return CraftingResult.success();
+    }
+
+    @Override
+    public CraftingResult execute(EffectMachineComponent component, ICraftingContext context) {
+        int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
+        int level = Mth.clamp((int)context.getPerTickModifiedValue(this.level, this, "level") - 1, 0, 255);
+        int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
+        component.applyEffect(new MobEffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         return CraftingResult.success();
     }
 

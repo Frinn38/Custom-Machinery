@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
-import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedRequirement;
+import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineComponent> implements ITickableRequirement<BlockMachineComponent>, IDisplayInfoRequirement {
+public class BlockRequirement extends AbstractDelayedChanceableRequirement<BlockMachineComponent> implements ITickableRequirement<BlockMachineComponent>, IDisplayInfoRequirement {
 
     public static final Codec<BlockRequirement> CODEC = RecordCodecBuilder.create(blockRequirementInstance ->
             blockRequirementInstance.group(
@@ -45,10 +45,12 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
                     CodecLogger.loggedOptional(Codecs.PARTIAL_BLOCK_STATE_CODEC, "block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
                     CodecLogger.loggedOptional(Codecs.list(IIngredient.BLOCK), "filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
                     CodecLogger.loggedOptional(Codec.BOOL, "whitelist", false).forGetter(requirement -> requirement.whitelist),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay)
-            ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, filter, whitelist, delay) -> {
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay),
+                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
+            ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, filter, whitelist, delay, chance) -> {
                     BlockRequirement requirement = new BlockRequirement(mode, action, pos, amount, comparator, block, filter, whitelist);
                     requirement.setDelay(delay);
+                    requirement.setChance(chance);
                     return requirement;
             })
     );
@@ -81,19 +83,14 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
     @Override
     public boolean test(BlockMachineComponent component, ICraftingContext context) {
         int amount = (int)context.getModifiedValue(this.amount, this, null);
-        switch (this.action) {
-            case CHECK:
-                return this.comparator.compare((int)component.getBlockAmount(this.pos, this.filter, this.whitelist), amount);
-            case PLACE:
-                return  this.delay != 0 || (int)component.getBlockAmount(this.pos, Collections.singletonList(BlockIngredient.AIR), true) >= amount;
-            case BREAK:
-            case DESTROY:
-            case REPLACE_BREAK:
-            case REPLACE_DESTROY:
-                return this.delay != 0 || (int)component.getBlockAmount(this.pos, this.filter, this.whitelist) >= amount;
-            default:
-                return true;
-        }
+        return switch (this.action) {
+            case CHECK ->
+                    this.comparator.compare((int) component.getBlockAmount(this.pos, this.filter, this.whitelist), amount);
+            case PLACE ->
+                    this.delay != 0 || (int) component.getBlockAmount(this.pos, Collections.singletonList(BlockIngredient.AIR), true) >= amount;
+            case BREAK, DESTROY, REPLACE_BREAK, REPLACE_DESTROY ->
+                    this.delay != 0 || (int) component.getBlockAmount(this.pos, this.filter, this.whitelist) >= amount;
+        };
     }
 
     @Override
@@ -101,26 +98,31 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
         int amount = (int)context.getModifiedValue(this.amount, this, null);
         if(this.getMode() == RequirementIOMode.INPUT && this.delay == 0) {
             switch (this.action) {
-                case PLACE:
-                    if(component.placeBlock(this.pos, this.block, amount))
+                case PLACE -> {
+                    if (component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-                case REPLACE_BREAK:
-                    if(component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
+                }
+                case REPLACE_BREAK -> {
+                    if (component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-                case REPLACE_DESTROY:
-                    if(component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
+                }
+                case REPLACE_DESTROY -> {
+                    if (component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-                case BREAK:
-                    if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
+                }
+                case BREAK -> {
+                    if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
-                case DESTROY:
-                    if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
+                }
+                case DESTROY -> {
+                    if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                }
             }
         }
         return CraftingResult.pass();
@@ -131,26 +133,31 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
         int amount = (int)context.getModifiedValue(this.amount, this, null);
         if(this.getMode() == RequirementIOMode.OUTPUT && this.delay == 0) {
             switch (this.action) {
-                case PLACE:
-                    if(component.placeBlock(this.pos, this.block, amount))
+                case PLACE -> {
+                    if (component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-                case REPLACE_BREAK:
-                    if(component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
+                }
+                case REPLACE_BREAK -> {
+                    if (component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-                case REPLACE_DESTROY:
-                    if(component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
+                }
+                case REPLACE_DESTROY -> {
+                    if (component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-                case BREAK:
-                    if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
+                }
+                case BREAK -> {
+                    if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
-                case DESTROY:
-                    if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
+                }
+                case DESTROY -> {
+                    if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                         return CraftingResult.success();
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                }
             }
         }
         return CraftingResult.pass();
@@ -186,26 +193,31 @@ public class BlockRequirement extends AbstractDelayedRequirement<BlockMachineCom
     @Override
     public CraftingResult execute(BlockMachineComponent component, ICraftingContext context) {
         switch (this.action) {
-            case PLACE:
-                if(component.placeBlock(this.pos, this.block, amount))
+            case PLACE -> {
+                if (component.placeBlock(this.pos, this.block, amount))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-            case REPLACE_BREAK:
-                if(component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
+            }
+            case REPLACE_BREAK -> {
+                if (component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-            case REPLACE_DESTROY:
-                if(component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
+            }
+            case REPLACE_DESTROY -> {
+                if (component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
-            case BREAK:
-                if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
+            }
+            case BREAK -> {
+                if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
-            case DESTROY:
-                if(component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
+            }
+            case DESTROY -> {
+                if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+            }
         }
         return CraftingResult.pass();
     }
