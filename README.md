@@ -9,7 +9,7 @@ Custom Machinery is a Minecraft Forge mod currently developped for Minecraft 1.1
 
 This mod can be used to create custom machines and recipes for them.
 
-For more informations and examples of how to create custom machines see the [Wiki]([https://github.com/Frinn38/Custom-Machinery/wiki](https://frinn.gitbook.io/custom-machinery-1.18/))
+For more informations and examples of how to create custom machines see the [Wiki](https://frinn.gitbook.io/custom-machinery-1.18/)
 
 You can find some working examples of Custom Machines [here](https://github.com/Frinn38/Custom-Machinery/tree/1.16.5/test_datapack)
 
