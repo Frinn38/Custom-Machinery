@@ -44,4 +44,17 @@ public interface IGuiElementRenderer<E extends IGuiElement> {
     default boolean isHovered(E element, IMachineScreen screen, int mouseX, int mouseY) {
         return mouseX >= element.getX() && mouseX <= element.getX() + element.getWidth() && mouseY >= element.getY() && mouseY <= element.getY() + element.getHeight();
     }
+
+    /**
+     * Called client side only when the player click the element.
+     * @param element The element clicked.
+     * @param screen The machine screen currently opened.
+     * @param button The mouse button that was clicked.
+     *               0 : left
+     *               1 : right
+     *               2 : middle
+     */
+    default void handleClick(E element, IMachineScreen screen, int mouseX, int mouseY, int button) {
+
+    }
 }

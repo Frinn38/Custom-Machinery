@@ -58,6 +58,12 @@
   "custommachinery.gui.component.empty": "Use these buttons to add some Components ->",
   "custommachinery.gui.component.select": "Select a Component to edit",
 
+  "custommachinery.gui.config.title": "%s side config",
+  "custommachinery.gui.config.tooltip": "Click to config I/O",
+  "custommachinery.gui.config.component": "I/O config",
+  "custommachinery.gui.config.exit": "Exit I/O config",
+  "custommachinery.gui.config.close": "Close",
+
   "custommachinery.gui.machineappearance.appearance": "Appearance",
   "custommachinery.gui.machineappearance.type.block": "Block",
   "custommachinery.gui.machineappearance.type.blockstate": "BlockState",
@@ -182,6 +188,10 @@
   "custommachinery.side.right": "Right",
   "custommachinery.side.back": "Back",
   "custommachinery.side.left": "Left",
+  "custommachinery.side.input": "Input",
+  "custommachinery.side.output": "Output",
+  "custommachinery.side.both": "Input/Output",
+  "custommachinery.side.none": "None",
 
   "custommachinery.upgrade.tooltip": "(Shift) Custom Machine Upgrade",
 

@@ -88,7 +88,10 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         this.machine.getGuiElements().stream()
                 .filter(element -> ((GuiElementType)element.getType()).getRenderer().isHovered(element, this, (int)mouseX - this.leftPos, (int)mouseY - this.topPos))
                 .findFirst()
-                .ifPresent(element -> NetworkManager.CHANNEL.sendToServer(new CGuiElementClickPacket(this.machine.getGuiElements().indexOf(element), (byte) button)));
+                .ifPresent(element -> {
+                    ((GuiElementType)element.getType()).getRenderer().handleClick(element, this, (int)mouseX, (int)mouseY, button);
+                    NetworkManager.CHANNEL.sendToServer(new CGuiElementClickPacket(this.machine.getGuiElements().indexOf(element), (byte) button));
+                });
         return super.mouseClicked(mouseX, mouseY, button);
     }
 

@@ -5,11 +5,12 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SideConfig {
@@ -21,12 +22,12 @@ public class SideConfig {
         return map;
     });
 
-    private final Map<RelativeSide, SideMode> sides;
+    private final Map<RelativeSide, SideMode> sides = new HashMap<>();
     private final IMachineComponentManager manager;
 
     public SideConfig(IMachineComponentManager manager, Map<RelativeSide, SideMode> defaultConfig) {
         this.manager = manager;
-        this.sides = defaultConfig;
+        this.sides.putAll(defaultConfig);
     }
 
     private Direction facing() {
@@ -46,17 +47,16 @@ public class SideConfig {
     }
 
     public Tag serialize() {
-        ListTag list = new ListTag();
-        this.sides.forEach((side, mode) -> list.add(side.ordinal(), ByteTag.valueOf((byte)mode.ordinal())));
-        return list;
+        CompoundTag nbt = new CompoundTag();
+        this.sides.forEach((side, mode) -> nbt.put(side.name(), ByteTag.valueOf((byte)mode.ordinal())));
+        return nbt;
     }
 
-    public void deserialize(Tag nbt) {
-        if(nbt instanceof ListTag list) {
-            for(int i = 0; i < list.size(); i++) {
-                if(list.get(i) instanceof ByteTag tag)
-                    this.sides.put(RelativeSide.values()[i], SideMode.values()[tag.getAsInt()]);
-            }
+    public void deserialize(Tag tag) {
+        if(tag instanceof CompoundTag nbt) {
+            for(RelativeSide side : RelativeSide.values())
+                if(nbt.get(side.name()) instanceof ByteTag byteTag)
+                    this.sides.put(side, SideMode.values()[byteTag.getAsInt()]);
         }
     }
 }
