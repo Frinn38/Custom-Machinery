@@ -26,5 +26,6 @@ public class NetworkManager {
         CHANNEL.registerMessage(index++, SOpenFilePacket.class, SOpenFilePacket::encode, SOpenFilePacket::decode, SOpenFilePacket::handle);
         CHANNEL.registerMessage(index++, CGuiElementClickPacket.class, CGuiElementClickPacket::encode, CGuiElementClickPacket::decode, CGuiElementClickPacket::handle);
         CHANNEL.registerMessage(index++, SStructureCreatorPacket.class, SStructureCreatorPacket::encode, SStructureCreatorPacket::decode, SStructureCreatorPacket::handle);
+        CHANNEL.registerMessage(index++, CChangeSideModePacket.class, CChangeSideModePacket::encode, CChangeSideModePacket::decode, CChangeSideModePacket::handle);
     }
 }

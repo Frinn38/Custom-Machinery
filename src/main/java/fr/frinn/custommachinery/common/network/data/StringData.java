@@ -5,11 +5,8 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public class StringData extends Data<String> {
 
-    private final String value;
-
     public StringData(short id, String value) {
-        super(Registration.STRING_DATA.get(), id);
-        this.value = value;
+        super(Registration.STRING_DATA.get(), id, value);
     }
 
     public StringData(short id, FriendlyByteBuf buffer) {
@@ -19,11 +16,6 @@ public class StringData extends Data<String> {
     @Override
     public void writeData(FriendlyByteBuf buffer) {
         super.writeData(buffer);
-        buffer.writeUtf(this.value);
-    }
-
-    @Override
-    public String getValue() {
-        return this.value;
+        buffer.writeUtf(getValue());
     }
 }

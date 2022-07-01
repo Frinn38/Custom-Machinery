@@ -22,6 +22,7 @@ import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
+import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.nbt.CompoundTag;
@@ -52,7 +53,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         this.filter = filter;
         this.whitelist = whitelist;
         this.variant = variant;
-        this.config = new SideConfig(manager, defaultConfig);
+        this.config = new SideConfig(this, defaultConfig);
     }
 
     @Override
@@ -133,6 +134,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(ItemStackSyncable.create(() -> this.stack, stack -> this.stack = stack));
+        container.accept(SideConfigSyncable.create(this::getConfig, this.config::set));
     }
 
     @Override

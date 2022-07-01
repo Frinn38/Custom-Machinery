@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
@@ -25,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MachineComponentManager implements IMachineComponentManager, INBTSerializable<CompoundTag> {
 
@@ -35,6 +39,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     private final List<ITickableComponent> tickableComponents;
     private final List<ISyncableStuff> syncableComponents;
     private final List<IComparatorInputComponent> comparatorInputComponents;
+    private final Map<String, ISideConfigComponent> configComponents;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
@@ -56,6 +61,15 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
         this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).toList();
         this.syncableComponents = this.components.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).toList();
         this.comparatorInputComponents = this.components.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).toList();
+        this.configComponents = this.components.values().stream()
+                .flatMap(component -> {
+                    if(component instanceof IComponentHandler<?> handler)
+                        return handler.getComponents().stream();
+                    return Stream.of(component);
+                })
+                .filter(component -> component instanceof ISideConfigComponent)
+                .map(component -> (ISideConfigComponent)component)
+                .collect(Collectors.toMap(ISideConfigComponent::getId, Function.identity()));
     }
 
     @Override
@@ -107,6 +121,10 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
 
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         getSyncableComponents().forEach(syncableComponent -> syncableComponent.getStuffToSync(container));
+    }
+
+    public Optional<ISideConfigComponent> getConfigComponentById(String id) {
+        return Optional.ofNullable(this.configComponents.get(id));
     }
 
     @Override

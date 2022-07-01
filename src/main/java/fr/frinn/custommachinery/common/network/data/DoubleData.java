@@ -5,11 +5,8 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public class DoubleData extends Data<Double> {
 
-    private final double value;
-
     public DoubleData(short id, double value) {
-        super(Registration.DOUBLE_DATA.get(), id);
-        this.value = value;
+        super(Registration.DOUBLE_DATA.get(), id, value);
     }
 
     public DoubleData(short id, FriendlyByteBuf buffer) {
@@ -19,11 +16,6 @@ public class DoubleData extends Data<Double> {
     @Override
     public void writeData(FriendlyByteBuf buffer) {
         super.writeData(buffer);
-        buffer.writeDouble(this.value);
-    }
-
-    @Override
-    public Double getValue() {
-        return this.value;
+        buffer.writeDouble(getValue());
     }
 }

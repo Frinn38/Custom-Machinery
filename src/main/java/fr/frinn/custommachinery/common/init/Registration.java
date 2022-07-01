@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.apiimpl.component.config.SideConfig;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
@@ -56,6 +57,7 @@ import fr.frinn.custommachinery.common.network.data.FluidStackData;
 import fr.frinn.custommachinery.common.network.data.IntegerData;
 import fr.frinn.custommachinery.common.network.data.ItemStackData;
 import fr.frinn.custommachinery.common.network.data.LongData;
+import fr.frinn.custommachinery.common.network.data.SideConfigData;
 import fr.frinn.custommachinery.common.network.data.StringData;
 import fr.frinn.custommachinery.common.network.syncable.BooleanSyncable;
 import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
@@ -63,6 +65,7 @@ import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
+import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
@@ -246,6 +249,7 @@ public class Registration {
     public static final RegistryObject<DataType<FluidStackData, FluidStack>> FLUIDSTACK_DATA = DATAS.register("fluidstack", () -> new DataType<>(FluidStack.class, FluidStackSyncable::create, FluidStackData::new));
     public static final RegistryObject<DataType<StringData, String>> STRING_DATA = DATAS.register("string", () -> new DataType<>(String.class, StringSyncable::create, StringData::new));
     public static final RegistryObject<DataType<LongData, Long>> LONG_DATA = DATAS.register("long", () -> new DataType<>(Long.class, LongSyncable::create, LongData::new));
+    public static final RegistryObject<DataType<SideConfigData, SideConfig>> SIDE_CONFIG_DATA = DATAS.register("side_config", () -> new DataType<>(SideConfig.class, SideConfigSyncable::create, SideConfigData::readData));
 
     public static void registerComponentVariants() {
         ITEM_MACHINE_COMPONENT.get().addVariant(DefaultItemComponentVariant.INSTANCE);

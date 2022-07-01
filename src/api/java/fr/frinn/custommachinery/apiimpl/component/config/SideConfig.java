@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.apiimpl.component.config;
 
 import com.google.common.collect.Maps;
-import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteTag;
@@ -23,15 +23,19 @@ public class SideConfig {
     });
 
     private final Map<RelativeSide, SideMode> sides = new HashMap<>();
-    private final IMachineComponentManager manager;
+    private final ISideConfigComponent component;
 
-    public SideConfig(IMachineComponentManager manager, Map<RelativeSide, SideMode> defaultConfig) {
-        this.manager = manager;
+    public SideConfig(ISideConfigComponent component, Map<RelativeSide, SideMode> defaultConfig) {
+        this.component = component;
         this.sides.putAll(defaultConfig);
     }
 
     private Direction facing() {
-        return this.manager.getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        return this.component.getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+    }
+
+    public ISideConfigComponent getComponent() {
+        return this.component;
     }
 
     public SideMode getSideMode(RelativeSide side) {
@@ -44,6 +48,15 @@ public class SideConfig {
 
     public void setSideMode(RelativeSide side, SideMode mode) {
         this.sides.put(side, mode);
+    }
+
+    public void set(SideConfig config) {
+        for(RelativeSide side : RelativeSide.values())
+            setSideMode(side, config.getSideMode(side));
+    }
+
+    public SideConfig copy() {
+        return new SideConfig(this.component, this.sides);
     }
 
     public Tag serialize() {

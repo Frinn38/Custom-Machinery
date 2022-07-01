@@ -5,11 +5,8 @@ import net.minecraft.network.FriendlyByteBuf;
 
 public class IntegerData extends Data<Integer> {
 
-    private final int value;
-
     public IntegerData(short id, int value) {
-        super(Registration.INTEGER_DATA.get(), id);
-        this.value = value;
+        super(Registration.INTEGER_DATA.get(), id, value);
     }
 
     public IntegerData(short id, FriendlyByteBuf buffer) {
@@ -19,11 +16,6 @@ public class IntegerData extends Data<Integer> {
     @Override
     public void writeData(FriendlyByteBuf buffer) {
         super.writeData(buffer);
-        buffer.writeInt(this.value);
-    }
-
-    @Override
-    public Integer getValue() {
-        return this.value;
+        buffer.writeInt(getValue());
     }
 }

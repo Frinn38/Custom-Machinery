@@ -8,6 +8,8 @@ import fr.frinn.custommachinery.apiimpl.component.config.RelativeSide;
 import fr.frinn.custommachinery.apiimpl.component.config.SideConfig;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.ComponentConfigScreen;
+import fr.frinn.custommachinery.common.network.CChangeSideModePacket;
+import fr.frinn.custommachinery.common.network.NetworkManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -58,10 +60,12 @@ public class SideModeButton extends AbstractWidget {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.active && this.visible && this.isValidClickButton(button) && this.clicked(mouseX, mouseY)) {
                 this.playDownSound(Minecraft.getInstance().getSoundManager());
+                if(Minecraft.getInstance().player == null)
+                    return true;
                 if(button == 0)
-                    this.config.setSideMode(side, this.config.getSideMode(side).next());
+                    NetworkManager.CHANNEL.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, this.config.getComponent().getId(), (byte)this.side.ordinal(), true));
                 else
-                    this.config.setSideMode(side, this.config.getSideMode(side).previous());
+                    NetworkManager.CHANNEL.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, this.config.getComponent().getId(), (byte)this.side.ordinal(), false));
                 return true;
         }
         return false;

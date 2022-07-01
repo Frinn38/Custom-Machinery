@@ -23,6 +23,7 @@ import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
 import fr.frinn.custommachinery.common.component.config.SidedEnergyStorage;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
+import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
@@ -64,7 +65,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         this.capacity = capacity;
         this.maxInput = maxInput;
         this.maxOutput = maxOutput;
-        this.config = new SideConfig(manager, defaultConfig);
+        this.config = new SideConfig(this, defaultConfig);
         for(Direction direction : Direction.values())
             this.sidedWrappers.put(direction, LazyOptional.of(() -> new SidedEnergyStorage(() -> config.getSideMode(direction), this)));
     }
@@ -98,6 +99,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public SideConfig getConfig() {
         return this.config;
+    }
+
+    @Override
+    public String getId() {
+        return "energy";
     }
 
     @Override
@@ -180,6 +186,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(LongSyncable.create(() -> this.energy, energy -> this.energy = energy));
+        container.accept(SideConfigSyncable.create(this::getConfig, this.config::set));
     }
 
     @Override

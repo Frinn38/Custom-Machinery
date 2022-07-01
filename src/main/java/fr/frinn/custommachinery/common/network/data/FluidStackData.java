@@ -6,11 +6,8 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class FluidStackData extends Data<FluidStack> {
 
-    private final FluidStack value;
-
     public FluidStackData(short id, FluidStack value) {
-        super(Registration.FLUIDSTACK_DATA.get(), id);
-        this.value = value;
+        super(Registration.FLUIDSTACK_DATA.get(), id, value);
     }
 
     public FluidStackData(short id, FriendlyByteBuf buffer) {
@@ -20,11 +17,6 @@ public class FluidStackData extends Data<FluidStack> {
     @Override
     public void writeData(FriendlyByteBuf buffer) {
         super.writeData(buffer);
-        buffer.writeFluidStack(this.value);
-    }
-
-    @Override
-    public FluidStack getValue() {
-        return this.value;
+        buffer.writeFluidStack(getValue());
     }
 }

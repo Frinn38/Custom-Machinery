@@ -18,6 +18,7 @@ import fr.frinn.custommachinery.apiimpl.component.config.SideConfig;
 import fr.frinn.custommachinery.apiimpl.component.config.SideMode;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
+import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.nbt.CompoundTag;
@@ -56,7 +57,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         this.maxOutput = maxOutput;
         this.filter = filter;
         this.whitelist = whitelist;
-        this.config = new SideConfig(manager, defaultConfig);
+        this.config = new SideConfig(this, defaultConfig);
     }
 
     @Override
@@ -98,6 +99,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(FluidStackSyncable.create(() -> this.fluidStack, fluidStack -> this.fluidStack = fluidStack));
+        container.accept(SideConfigSyncable.create(this::getConfig, this.config::set));
     }
 
     @Override
