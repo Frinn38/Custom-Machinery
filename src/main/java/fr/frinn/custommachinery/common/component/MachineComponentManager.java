@@ -69,7 +69,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
                 })
                 .filter(component -> component instanceof ISideConfigComponent)
                 .map(component -> (ISideConfigComponent)component)
-                .collect(Collectors.toMap(ISideConfigComponent::getId, Function.identity()));
+                .collect(Collectors.toUnmodifiableMap(component -> component.getType().getRegistryName().toString() + ":" + component.getId(), Function.identity()));
     }
 
     @Override
@@ -123,6 +123,7 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
         getSyncableComponents().forEach(syncableComponent -> syncableComponent.getStuffToSync(container));
     }
 
+    //ID is 'component_type_registry_name:id'
     public Optional<ISideConfigComponent> getConfigComponentById(String id) {
         return Optional.ofNullable(this.configComponents.get(id));
     }

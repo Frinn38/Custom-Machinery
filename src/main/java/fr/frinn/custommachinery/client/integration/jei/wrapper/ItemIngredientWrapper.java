@@ -52,9 +52,8 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
         List<ItemStack> ingredients = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.useDurability ? 1 : this.amount, this.nbt)).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
+        if(slotElement.getID().equals(this.slot) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset, element.getY() - yOffset)
-                    //.setCustomRenderer(VanillaTypes.ITEM_STACK, renderer)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addTooltipCallback((view, tooltips) -> {
                         if(this.useDurability && this.mode == RequirementIOMode.INPUT)

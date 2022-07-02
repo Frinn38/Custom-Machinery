@@ -63,12 +63,16 @@ public class SideModeButton extends AbstractWidget {
                 if(Minecraft.getInstance().player == null)
                     return true;
                 if(button == 0)
-                    NetworkManager.CHANNEL.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, this.config.getComponent().getId(), (byte)this.side.ordinal(), true));
+                    NetworkManager.CHANNEL.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId(), (byte)this.side.ordinal(), true));
                 else
-                    NetworkManager.CHANNEL.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, this.config.getComponent().getId(), (byte)this.side.ordinal(), false));
+                    NetworkManager.CHANNEL.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId(), (byte)this.side.ordinal(), false));
                 return true;
         }
         return false;
+    }
+
+    private String getComponentId() {
+        return this.config.getComponent().getType().getRegistryName().toString() + ":" + this.config.getComponent().getId();
     }
 
     @Override
