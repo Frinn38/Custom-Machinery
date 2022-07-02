@@ -49,7 +49,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
         if(fluidElement.getID().equals(this.tank) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
             builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset, element.getY() - yOffset)
-                    .setFluidRenderer(this.amount, false, element.getWidth() - 2, element.getHeight() - 2)
+                    .setFluidRenderer((long)this.amount, false, element.getWidth() - 2, element.getHeight() - 2)
                     .addIngredients(ForgeTypes.FLUID_STACK, ingredients)
                     .addTooltipCallback((view, tooltips) -> {
                         if(this.isPerTick)
