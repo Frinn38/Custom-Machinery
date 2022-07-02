@@ -115,4 +115,9 @@ public class MachineConfigScreen extends Screen {
         }
         else return false;
     }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
 }

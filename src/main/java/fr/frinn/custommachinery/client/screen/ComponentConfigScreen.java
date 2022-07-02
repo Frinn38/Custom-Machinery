@@ -89,4 +89,9 @@ public class ComponentConfigScreen extends Screen {
         }
         else return false;
     }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
 }
