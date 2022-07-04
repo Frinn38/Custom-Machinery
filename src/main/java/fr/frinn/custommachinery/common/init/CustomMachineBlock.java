@@ -1,13 +1,14 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
-import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
+import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
+import fr.frinn.custommachinery.common.util.MachineBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,6 +44,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
@@ -112,15 +114,21 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-        super.playerWillDestroy(world, pos, state, player);
-        if(!world.isClientSide && !player.isCreative()) {
-            BlockEntity tile = world.getBlockEntity(pos);
-            if(tile instanceof CustomMachineTile machine) {
-                machine.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack)));
-                if(Utils.canPlayerHarvestMachine(machine.getMachine().getAppearance(machine.getStatus()), player, world, pos))
-                    Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
-            }
+    public boolean canHarvestBlock(BlockState state, BlockGetter level, BlockPos pos, Player player) {
+        return Optional.ofNullable(level.getBlockEntity(pos))
+                .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
+                .map(blockEntity -> (CustomMachineTile)blockEntity)
+                .map(machine -> ForgeHooks.isCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getMachine().getAppearance(machine.getStatus())), player))
+                .orElse(super.canHarvestBlock(state, level, pos, player));
+    }
+
+    @Override
+    public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
+        super.playerDestroy(level, player, pos, state, blockEntity, tool);
+        if(!level.isClientSide && !player.isCreative() && blockEntity instanceof CustomMachineTile machine) {
+            machine.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack)));
+            if(player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getMachine().getAppearance(machine.getStatus()))))
+                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
         }
     }
 

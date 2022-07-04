@@ -17,6 +17,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -123,13 +124,18 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
-    public TagKey<Block> getTool() {
+    public List<TagKey<Block>> getTool() {
         return getProperty(Registration.TOOL_TYPE_PROPERTY.get());
     }
 
     @Override
     public TagKey<Block> getMiningLevel() {
         return getProperty(Registration.MINING_LEVEL_PROPERTY.get());
+    }
+
+    @Override
+    public boolean requiresCorrectToolForDrops() {
+        return getProperty(Registration.REQUIRES_TOOL.get());
     }
 
     @Override

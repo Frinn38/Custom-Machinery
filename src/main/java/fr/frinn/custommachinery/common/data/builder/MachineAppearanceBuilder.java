@@ -13,6 +13,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 
@@ -98,12 +100,12 @@ public class MachineAppearanceBuilder {
         setProperty(Registration.RESISTANCE_PROPERTY.get(), Mth.clamp(resistance, 0, Float.MAX_VALUE));
     }
 
-    public TagKey<Block> getToolType() {
+    public List<TagKey<Block>> getToolType() {
         return getProperty(Registration.TOOL_TYPE_PROPERTY.get());
     }
 
     public void setToolType(TagKey<Block> toolType) {
-        setProperty(Registration.TOOL_TYPE_PROPERTY.get(), toolType);
+        setProperty(Registration.TOOL_TYPE_PROPERTY.get(), Collections.singletonList(toolType));
     }
 
     public TagKey<Block> getMiningLevel() {

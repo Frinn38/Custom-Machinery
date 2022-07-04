@@ -6,6 +6,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.List;
+
 /**
  * Define the appearance of the machine.
  * The appearance of the machine is depending on it's MachineStatus.
@@ -59,14 +61,19 @@ public interface IMachineAppearance {
     float getResistance();
 
     /**
-     * @return The tool that can effectively break the machine.
+     * @return The tools that can effectively break the machine.
      */
-    TagKey<Block> getTool();
+    List<TagKey<Block>> getTool();
 
     /**
      * @return The minimal mining level the tool need to be able to break effectively the machine.
      */
     TagKey<Block> getMiningLevel();
+
+    /**
+     * @return True if the player need one of the tools returned by {@link #getTool()} to make the machine drop when broken, false otherwise.
+     */
+    boolean requiresCorrectToolForDrops();
 
     /**
      * @return The shape of the machine, used for collisions and block outline.

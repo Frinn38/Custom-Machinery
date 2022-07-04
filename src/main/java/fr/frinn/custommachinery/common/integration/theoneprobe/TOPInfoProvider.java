@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.MachineBlockState;
 import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IIconStyle;
@@ -24,12 +24,14 @@ import mcjty.theoneprobe.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProbe, Void> {
@@ -67,7 +69,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         BlockEntity tile = world.getBlockEntity(data.getPos());
         if(tile instanceof CustomMachineTile machine) {
             MachineAppearance appearance = machine.getMachine().getAppearance(machine.getStatus());
-            showHarvestInfo(info, appearance, Utils.canPlayerHarvestMachine(appearance, player, world, data.getPos()));
+            showHarvestInfo(info, appearance, player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance)));
             showCraftingManagerInfo(machine.craftingManager, info);
         }
     }
@@ -88,7 +90,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
     private static final ResourceLocation ICONS = new ResourceLocation("theoneprobe", "textures/gui/icons.png");
 
     private static void showHarvestInfo(IProbeInfo probeInfo, MachineAppearance appearance, boolean harvestable) {
-        String tool = getTool(appearance.getTool().location());
+        List<String> tools = appearance.getTool().stream().map(TagKey::location).map(TOPInfoProvider::getTool).toList();
         String level = "" + Config.getHarvestabilityTags().get(appearance.getMiningLevel().location());
         boolean v = true;
         int offs = v ? 16 : 0;
@@ -97,14 +99,13 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         IIconStyle iconStyle = probeInfo.defaultIconStyle().width(v ? 18 : 20).height(v ? 14 : 16).textureWidth(32).textureHeight(32);
         IProbeInfo horizontal = probeInfo.horizontal(alignment);
         if (harvestable) {
-            horizontal.icon(ICONS, 0, offs, dim, dim, iconStyle).text(CompoundText.create().style(TextStyleClass.OK).text(tool.isEmpty() ? "No tool" : tool));
+            horizontal.icon(ICONS, 0, offs, dim, dim, iconStyle).text(CompoundText.create().style(TextStyleClass.OK).text(getToolText(tools)));
         } else if (level.isEmpty()) {
-            horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle).text(CompoundText.create().style(TextStyleClass.WARNING).text(tool.isEmpty() ? "No tool" : tool));
+            horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle).text(CompoundText.create().style(TextStyleClass.WARNING).text(getToolText(tools)));
         } else {
-            IProbeInfo var10000 = horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle);
-            CompoundText var10001 = CompoundText.create().style(TextStyleClass.WARNING);
-            String var10002 = tool.isEmpty() ? "No tool" : tool;
-            var10000.text(var10001.text(var10002 + " (level " + level + ")"));
+            IProbeInfo icon = horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle);
+            CompoundText style = CompoundText.create().style(TextStyleClass.WARNING);
+            icon.text(style.text(getToolText(tools) + " (level " + level + ")"));
         }
     }
 
@@ -116,5 +117,14 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
             return "Hand";
 
         return tool.toString();
+    }
+
+    private static String getToolText(List<String> tools) {
+        if(tools.isEmpty())
+            return "No tool";
+        else if(tools.size() == 1)
+            return tools.get(0);
+        else
+            return tools.toString();
     }
 }

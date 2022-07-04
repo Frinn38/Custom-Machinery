@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.common.util;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
+import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -26,29 +26,17 @@ import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffectUtil;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.TierSortingRegistry;
-import net.minecraftforge.event.ForgeEventFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -137,73 +125,12 @@ public class Utils {
     }
 
     public static float getMachineBreakSpeed(MachineAppearance appearance, BlockGetter world, BlockPos pos, Player player) {
-        float digSpeed = getPlayerDigSpeed(appearance, player, pos);
         float hardness = appearance.getHardness();
-        float canHarvest = canPlayerHarvestMachine(appearance, player, world, pos) ? 30 : 100;
+        if(hardness <= 0)
+            return 0.0F;
+        float digSpeed = player.getDigSpeed(MachineBlockState.CACHE.getUnchecked(appearance), pos);
+        float canHarvest = player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance)) ? 30 : 100;
         return digSpeed / hardness / canHarvest;
-    }
-
-    private static float getPlayerDigSpeed(MachineAppearance appearance, Player player, BlockPos pos) {
-        float f = 1.0F;
-
-        ItemStack stack = player.getMainHandItem();
-        TagKey<Block> tool = appearance.getTool();
-        TagKey<Block> level = appearance.getMiningLevel();
-        if(!stack.isEmpty() && stack.getItem() instanceof DiggerItem diggerItem)
-            if(diggerItem.blocks == tool && (diggerItem.getTier().getTag() == level || TierSortingRegistry.getTiersLowerThan(diggerItem.getTier()).stream().anyMatch(tier -> tier.getTag() == level)))
-                f = diggerItem.getTier().getSpeed();
-
-        if (f > 1.0F) {
-            int i = EnchantmentHelper.getBlockEfficiency(player);
-            ItemStack itemstack = player.getMainHandItem();
-            if (i > 0 && !itemstack.isEmpty()) {
-                f += (float)(i * i + 1);
-            }
-        }
-
-        if (MobEffectUtil.hasDigSpeed(player)) {
-            f *= 1.0F + (float)(MobEffectUtil.getDigSpeedAmplification(player) + 1) * 0.2F;
-        }
-
-        MobEffectInstance miningFatigue = player.getEffect(MobEffects.DIG_SLOWDOWN);
-        if (miningFatigue != null) {
-            switch (miningFatigue.getAmplifier()) {
-                case 0 -> f *= 0.3F;
-                case 1 -> f *= 0.09F;
-                case 2 -> f *= 0.0027F;
-                default -> f *= 8.1E-4F;
-            }
-        }
-
-        if (player.isEyeInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(player))
-            f /= 5.0F;
-
-        if (!player.isOnGround())
-            f /= 5.0F;
-
-        f = net.minecraftforge.event.ForgeEventFactory.getBreakSpeed(player, player.level.getBlockState(pos), f, pos);
-        return f;
-    }
-
-    public static boolean canPlayerHarvestMachine(MachineAppearance appearance, Player player, BlockGetter world, BlockPos pos) {
-        BlockState state = world.getBlockState(pos);
-        TagKey<Block> tool = appearance.getTool();
-        TagKey<Block> level = appearance.getMiningLevel();
-
-        if (tool.location().getPath().equals("hand"))
-            return ForgeEventFactory.doPlayerHarvestCheck(player, state, true);
-
-        ItemStack stack = player.getMainHandItem();
-        if(stack.isEmpty())
-            return ForgeEventFactory.doPlayerHarvestCheck(player, state, false);
-
-        if(stack.getItem() instanceof TieredItem tieredItem) {
-            boolean isToolLevelHighEnough = tieredItem.getTier().getTag() == level || TierSortingRegistry.getTiersLowerThan(tieredItem.getTier()).stream().anyMatch(tier -> tier.getTag() == level);
-            if(isToolLevelHighEnough && tieredItem instanceof DiggerItem diggerItem)
-                return ForgeEventFactory.doPlayerHarvestCheck(player, state, diggerItem.blocks == tool);
-            return ForgeEventFactory.doPlayerHarvestCheck(player, state, isToolLevelHighEnough);
-        }
-        return ForgeEventFactory.doPlayerHarvestCheck(player, state, false);
     }
 
     public static ItemStack makeItemStack(Item item, int amount, @Nullable CompoundTag nbt) {
