@@ -30,7 +30,9 @@ public class SoundManager {
     }
 
     public void setSound(SoundEvent sound) {
+        stop();
         this.sound = new SimpleSoundInstance(sound, SoundSource.BLOCKS, 1.0F, 1.0F, this.pos);
+        play();
     }
 
     public boolean isPlaying() {

@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.DummyCraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.MachineList;
@@ -113,6 +114,11 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         return this.componentManager;
     }
 
+    @Override
+    public MachineAppearance getAppearance() {
+        return getMachine().getAppearance(getStatus());
+    }
+
     /** TileEntity Stuff **/
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CustomMachineTile tile) {
@@ -139,13 +145,11 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
         if(tile.soundManager == null)
             tile.soundManager = new SoundManager(pos);
-        if(tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound() != Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue() && !tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound().getLocation().equals(tile.soundManager.getSoundID()))
+        if(tile.getAppearance().getAmbientSound() != Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue() && !tile.getAppearance().getAmbientSound().getLocation().equals(tile.soundManager.getSoundID()))
             tile.soundManager.setSound(tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound());
 
-        if (tile.craftingManager.getStatus() == MachineStatus.RUNNING && !tile.soundManager.isPlaying())
+        if (!tile.soundManager.isPlaying())
             tile.soundManager.play();
-        else if(tile.craftingManager.getStatus() != MachineStatus.RUNNING && tile.soundManager.isPlaying())
-            tile.soundManager.stop();
     }
 
     @Override

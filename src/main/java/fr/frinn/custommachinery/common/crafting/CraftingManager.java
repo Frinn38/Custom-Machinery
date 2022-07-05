@@ -245,10 +245,10 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
         this.setStatus(status, TextComponent.EMPTY);
     }
 
-    public void setStatus(MachineStatus status, Component mesage) {
+    public void setStatus(MachineStatus status, Component message) {
         if(this.status != status) {
             this.status = status;
-            this.errorMessage = mesage;
+            this.errorMessage = message;
             this.tile.setChanged();
             notifyStatusChanged();
         }

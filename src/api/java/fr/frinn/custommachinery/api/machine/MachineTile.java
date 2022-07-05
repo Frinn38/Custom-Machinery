@@ -59,4 +59,6 @@ public abstract class MachineTile extends BlockEntity {
     public abstract void resetProcess();
 
     public abstract IMachineComponentManager getComponentManager();
+
+    public abstract IMachineAppearance getAppearance();
 }
