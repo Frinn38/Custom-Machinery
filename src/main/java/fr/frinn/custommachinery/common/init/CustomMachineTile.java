@@ -8,11 +8,11 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.client.render.CustomMachineBakedModel;
+import fr.frinn.custommachinery.common.component.DummyComponentManager;
+import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.DummyCraftingManager;
 import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.component.DummyComponentManager;
-import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.MachineList;
@@ -139,8 +139,8 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
         if(tile.soundManager == null)
             tile.soundManager = new SoundManager(pos);
-        if(tile.getMachine().getAppearance(tile.getStatus()).getSound() != Registration.SOUND_PROPERTY.get().getDefaultValue() && !tile.getMachine().getAppearance(tile.getStatus()).getSound().getLocation().equals(tile.soundManager.getSoundID()))
-            tile.soundManager.setSound(tile.getMachine().getAppearance(tile.getStatus()).getSound());
+        if(tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound() != Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue() && !tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound().getLocation().equals(tile.soundManager.getSoundID()))
+            tile.soundManager.setSound(tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound());
 
         if (tile.craftingManager.getStatus() == MachineStatus.RUNNING && !tile.soundManager.isPlaying())
             tile.soundManager.play();

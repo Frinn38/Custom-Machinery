@@ -61,11 +61,11 @@ public class MachineAppearanceBuilder {
     }
 
     public SoundEvent getSound() {
-        return getProperty(Registration.SOUND_PROPERTY.get());
+        return getProperty(Registration.AMBIENT_SOUND_PROPERTY.get());
     }
 
     public void setSound(SoundEvent sound) {
-        setProperty(Registration.SOUND_PROPERTY.get(), sound);
+        setProperty(Registration.AMBIENT_SOUND_PROPERTY.get(), sound);
     }
 
     public int getLightLevel() {

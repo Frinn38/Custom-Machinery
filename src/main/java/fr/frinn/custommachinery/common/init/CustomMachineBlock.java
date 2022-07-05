@@ -19,6 +19,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -29,9 +30,11 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -244,5 +247,17 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                 .filter(tile -> tile instanceof CustomMachineTile)
                 .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getShape())
                 .orElse(super.getShape(state, world, pos, context));
+    }
+
+    @Override
+    public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return Optional.ofNullable(level.getBlockEntity(pos))
+                .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
+                .map(blockEntity -> (CustomMachineTile)blockEntity)
+                .map(machine -> {
+                    Block interactionSound = machine.getMachine().getAppearance(machine.getStatus()).getInteractionSound();
+                    return interactionSound.getSoundType(interactionSound.defaultBlockState(), level, pos, entity);
+                })
+                .orElse(super.getSoundType(state, level, pos, entity));
     }
 }

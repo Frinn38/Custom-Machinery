@@ -38,7 +38,12 @@ public interface IMachineAppearance {
     /**
      * @return The sound that the machine will emmit.
      */
-    SoundEvent getSound();
+    SoundEvent getAmbientSound();
+
+    /**
+     * @return Which block the machine will copy the sounds when interacted by a player (place/break/step on...)
+     */
+    Block getInteractionSound();
 
     /**
      * @return The light level between 0 and 15 that the machine will emmit.

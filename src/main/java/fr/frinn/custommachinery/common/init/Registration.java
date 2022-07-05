@@ -104,6 +104,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -235,7 +236,8 @@ public class Registration {
 
     public static final RegistryObject<MachineAppearanceProperty<ResourceLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> new MachineAppearanceProperty<>(Codecs.BLOCK_MODEL_CODEC, new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")));
     public static final RegistryObject<MachineAppearanceProperty<ResourceLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> new MachineAppearanceProperty<>(Codecs.ITEM_MODEL_CODEC, new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")));
-    public static final RegistryObject<MachineAppearanceProperty<SoundEvent>> SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("sound", () -> new MachineAppearanceProperty<>(SoundEvent.CODEC, new SoundEvent(new ResourceLocation(""))));
+    public static final RegistryObject<MachineAppearanceProperty<SoundEvent>> AMBIENT_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("ambient_sound", () -> new MachineAppearanceProperty<>(SoundEvent.CODEC, new SoundEvent(new ResourceLocation(""))));
+    public static final RegistryObject<MachineAppearanceProperty<Block>> INTERACTION_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("interaction_sound", () -> new MachineAppearanceProperty<>(ForgeRegistries.BLOCKS.getCodec(), Blocks.IRON_BLOCK));
     public static final RegistryObject<MachineAppearanceProperty<Integer>> LIGHT_PROPERTY = APPEARANCE_PROPERTIES.register("light", () -> new MachineAppearanceProperty<>(Codec.intRange(0, 15), 0));
     public static final RegistryObject<MachineAppearanceProperty<Integer>> COLOR_PROPERTY = APPEARANCE_PROPERTIES.register("color", () -> new MachineAppearanceProperty<>(Codec.INT, 0xFFFFFF));
     public static final RegistryObject<MachineAppearanceProperty<Float>> HARDNESS_PROPERTY = APPEARANCE_PROPERTIES.register("hardness", () -> new MachineAppearanceProperty<>(Codec.floatRange(0, Float.MAX_VALUE), 3.5F));

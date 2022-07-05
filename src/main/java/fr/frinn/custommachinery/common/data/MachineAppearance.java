@@ -99,8 +99,13 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
-    public SoundEvent getSound() {
-        return getProperty(Registration.SOUND_PROPERTY.get());
+    public SoundEvent getAmbientSound() {
+        return getProperty(Registration.AMBIENT_SOUND_PROPERTY.get());
+    }
+
+    @Override
+    public Block getInteractionSound() {
+        return getProperty(Registration.INTERACTION_SOUND_PROPERTY.get());
     }
 
     @Override
