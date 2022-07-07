@@ -16,9 +16,12 @@ import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
+import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
+import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
 import fr.frinn.custommachinery.common.requirement.CommandRequirement;
@@ -41,9 +44,6 @@ import fr.frinn.custommachinery.common.requirement.RedstoneRequirement;
 import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.requirement.TimeRequirement;
 import fr.frinn.custommachinery.common.requirement.WeatherRequirement;
-import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
-import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
-import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
@@ -214,13 +214,28 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder damageItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), true, slot));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder damageItemNoBreak(IItemStack stack, int amount, @OptionalString String slot) {
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), false, slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder damageItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), true, slot));
+        } catch (IllegalArgumentException e) {
+            CraftTweakerAPI.LOGGER.error(e.getMessage());
+            return this;
+        }
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder damageItemTagNoBreak(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
+        try {
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), false, slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;
@@ -229,13 +244,13 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder repairItem(IItemStack stack, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), amount, nbtFromStack(stack), false, slot));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder repairItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
         try {
-            return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), slot));
+            return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag.getTagKey()), amount, getNBT(data), false, slot));
         } catch (IllegalArgumentException e) {
             CraftTweakerAPI.LOGGER.error(e.getMessage());
             return this;

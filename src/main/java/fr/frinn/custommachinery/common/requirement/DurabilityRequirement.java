@@ -32,10 +32,11 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
                     IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
                     CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt", new CompoundTag()).forGetter(requirement -> requirement.nbt),
+                    CodecLogger.loggedOptional(Codec.BOOL, "break", false).forGetter(requirement -> requirement.canBreak),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     CodecLogger.loggedOptional(Codec.STRING,"slot", "").forGetter(requirement -> requirement.slot)
-            ).apply(durabilityRequirementInstance, (mode, item, amount, nbt, chance, slot) -> {
-                    DurabilityRequirement requirement = new DurabilityRequirement(mode, item, amount, nbt, slot);
+            ).apply(durabilityRequirementInstance, (mode, item, amount, nbt, canBreak, chance, slot) -> {
+                    DurabilityRequirement requirement = new DurabilityRequirement(mode, item, amount, nbt, canBreak, slot);
                     requirement.setChance(chance);
                     return requirement;
             })
@@ -45,13 +46,15 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
     private final int amount;
     private final CompoundTag nbt;
     private final String slot;
+    private final boolean canBreak;
     private final Lazy<ItemIngredientWrapper> wrapper;
 
-    public DurabilityRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundTag nbt, String slot) {
+    public DurabilityRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundTag nbt, boolean canBreak, String slot) {
         super(mode);
         this.item = item;
         this.amount = amount;
         this.nbt = nbt;
+        this.canBreak = canBreak;
         this.slot = slot;
         this.wrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), true, this.nbt, this.slot));
     }
@@ -81,7 +84,7 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
                     int canDamage = component.getDurabilityAmount(this.slot, item, this.nbt);
                     if(canDamage > 0) {
                         canDamage = Math.min(canDamage, toDamage);
-                        component.removeDurability(this.slot, item, canDamage, this.nbt);
+                        component.removeDurability(this.slot, item, canDamage, this.nbt, this.canBreak);
                         toDamage -= canDamage;
                         if(toDamage == 0)
                             return CraftingResult.success();

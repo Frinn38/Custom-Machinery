@@ -196,14 +196,18 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
-    public void removeDurability(String slot, Item item, int amount, @Nullable CompoundTag nbt) {
+    public void removeDurability(String slot, Item item, int amount, @Nullable CompoundTag nbt, boolean canBreak) {
         AtomicInteger toRemove = new AtomicInteger(amount);
         Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
         this.inputs.stream().filter(component -> component.getItemStack().getItem() == item && component.getItemStack().isDamageableItem() && nbtPredicate.test(component) && slotPredicate.test(component)).forEach(component -> {
             int maxRemove = Math.min(component.getItemStack().getMaxDamage() - component.getItemStack().getDamageValue(), toRemove.get());
             toRemove.addAndGet(-maxRemove);
-            component.getItemStack().hurt(maxRemove, rand, null);
+            ItemStack stack = component.getItemStack();
+            if(stack.hurt(maxRemove, rand, null) && canBreak) {
+                stack.shrink(1);
+                stack.setDamageValue(0);
+            }
         });
         getManager().markDirty();
     }
