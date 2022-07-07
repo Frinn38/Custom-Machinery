@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
@@ -104,7 +105,7 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
-    public Block getInteractionSound() {
+    public SoundType getInteractionSound() {
         return getProperty(Registration.INTERACTION_SOUND_PROPERTY.get());
     }
 

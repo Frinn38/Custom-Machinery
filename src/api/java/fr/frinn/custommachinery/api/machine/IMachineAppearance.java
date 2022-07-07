@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
@@ -36,17 +37,17 @@ public interface IMachineAppearance {
     ResourceLocation getItemModel();
 
     /**
-     * @return The sound that the machine will emmit.
+     * @return The sound that the machine will emit.
      */
     SoundEvent getAmbientSound();
 
     /**
-     * @return Which block the machine will copy the sounds when interacted by a player (place/break/step on...)
+     * @return A collection of sounds the machine will emit when interacted by a player (place/break/step on...)
      */
-    Block getInteractionSound();
+    SoundType getInteractionSound();
 
     /**
-     * @return The light level between 0 and 15 that the machine will emmit.
+     * @return The light level between 0 and 15 that the machine will emit.
      */
     int getLightLevel();
 

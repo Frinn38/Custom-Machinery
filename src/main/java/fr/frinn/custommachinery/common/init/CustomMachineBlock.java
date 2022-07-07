@@ -253,11 +253,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
-                .map(blockEntity -> (CustomMachineTile)blockEntity)
-                .map(machine -> {
-                    Block interactionSound = machine.getMachine().getAppearance(machine.getStatus()).getInteractionSound();
-                    return interactionSound.getSoundType(interactionSound.defaultBlockState(), level, pos, entity);
-                })
+                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getInteractionSound())
                 .orElse(super.getSoundType(state, level, pos, entity));
     }
 }
