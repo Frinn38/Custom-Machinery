@@ -118,7 +118,6 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public void serialize(CompoundTag nbt) {
-        nbt.putString("slotID", this.id);
         if(!stack.isEmpty())
             stack.save(nbt);
         nbt.put("config", this.config.serialize());

@@ -108,6 +108,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         this.getComponents().forEach(component -> {
             CompoundTag componentNBT = new CompoundTag();
             component.serialize(componentNBT);
+            componentNBT.putString("slotID", component.getId());
             components.add(componentNBT);
         });
         nbt.put("items", components);

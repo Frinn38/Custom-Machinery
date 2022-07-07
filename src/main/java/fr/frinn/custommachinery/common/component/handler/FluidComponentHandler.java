@@ -103,6 +103,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         this.getComponents().forEach(component -> {
             CompoundTag componentNBT = new CompoundTag();
             component.serialize(componentNBT);
+            componentNBT.putString("id", component.getId());
             componentsNBT.add(componentNBT);
         });
         nbt.put("fluids", componentsNBT);

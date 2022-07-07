@@ -84,7 +84,6 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     @Override
     public void serialize(CompoundTag nbt) {
-        nbt.putString("id", this.id);
         fluidStack.writeToNBT(nbt);
         nbt.put("config", this.config.serialize());
     }
