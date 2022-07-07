@@ -25,7 +25,7 @@ public class LightMachineComponent extends AbstractMachineComponent implements I
     public void clientTick() {
         if(getManager().getTile().getMachine().getAppearance(getManager().getTile().getStatus()).getLightLevel() > 0 != this.emmitLight) {
             this.emmitLight = !this.emmitLight;
-            getManager().getWorld().getChunkSource().getLightEngine().checkBlock(getManager().getTile().getBlockPos());
+            getManager().getLevel().getChunkSource().getLightEngine().checkBlock(getManager().getTile().getBlockPos());
         }
     }
 
@@ -36,10 +36,10 @@ public class LightMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int getSkyLight() {
-        return getManager().getWorld().getBrightness(LightLayer.SKY, getManager().getTile().getBlockPos());
+        return getManager().getLevel().getBrightness(LightLayer.SKY, getManager().getTile().getBlockPos());
     }
 
     public int getBlockLight() {
-        return getManager().getWorld().getBrightness(LightLayer.BLOCK, getManager().getTile().getBlockPos());
+        return getManager().getLevel().getBrightness(LightLayer.BLOCK, getManager().getTile().getBlockPos());
     }
 }

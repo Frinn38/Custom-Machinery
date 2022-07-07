@@ -61,7 +61,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     private boolean shouldPauseMachine() {
-        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getWorld().getSignal(getManager().getTile().getBlockPos(), direction)).max().orElse(0) >=
+        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getLevel().getSignal(getManager().getTile().getBlockPos(), direction)).max().orElse(0) >=
                 this.powerToPause;
     }
 
@@ -89,7 +89,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getMachinePower() {
-        return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getWorld().getSignal(this.getManager().getTile().getBlockPos(), direction)).max().orElse(0);
+        return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getLevel().getSignal(this.getManager().getTile().getBlockPos(), direction)).max().orElse(0);
     }
 
     public static class Template implements IMachineComponentTemplate<RedstoneMachineComponent> {

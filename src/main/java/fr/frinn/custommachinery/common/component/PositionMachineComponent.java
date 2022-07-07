@@ -26,10 +26,10 @@ public class PositionMachineComponent extends AbstractMachineComponent {
     }
 
     public Biome getBiome() {
-        return this.getManager().getWorld().getBiome(getPosition()).value();
+        return this.getManager().getLevel().getBiome(getPosition()).value();
     }
 
     public ResourceKey<Level> getDimension() {
-        return getManager().getWorld().dimension();
+        return getManager().getLevel().dimension();
     }
 }

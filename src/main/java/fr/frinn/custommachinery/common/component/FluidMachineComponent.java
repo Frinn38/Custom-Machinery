@@ -123,8 +123,8 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int getRemainingSpace() {
-        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getLevel().getGameTime()) {
+            this.actualTick = this.getManager().getLevel().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -144,8 +144,8 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if (amount <= 0)
             return 0;
 
-        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getLevel().getGameTime()) {
+            this.actualTick = this.getManager().getLevel().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -174,8 +174,8 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if(amount <= 0)
             return FluidStack.EMPTY;
 
-        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getLevel().getGameTime()) {
+            this.actualTick = this.getManager().getLevel().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }

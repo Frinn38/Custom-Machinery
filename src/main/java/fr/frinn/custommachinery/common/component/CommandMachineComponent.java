@@ -56,11 +56,11 @@ public class CommandMachineComponent extends AbstractMachineComponent {
     }
 
     public void sendCommand(String command, int permissionLevel, boolean log) {
-        if(getManager().getWorld().getServer() == null)
+        if(getManager().getLevel().getServer() == null)
             return;
 
-        CommandSourceStack source = new CommandSourceStack(log ? COMMAND_SOURCE_LOG : COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(getManager().getTile().getBlockPos()), Vec2.ZERO, (ServerLevel)getManager().getWorld(), permissionLevel, "Custom Machinery", getManager().getTile().getMachine().getName(), getManager().getServer(), null);
-        getManager().getWorld().getServer().getCommands().performCommand(source, command);
+        CommandSourceStack source = new CommandSourceStack(log ? COMMAND_SOURCE_LOG : COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(getManager().getTile().getBlockPos()), Vec2.ZERO, (ServerLevel)getManager().getLevel(), permissionLevel, "Custom Machinery", getManager().getTile().getMachine().getName(), getManager().getServer(), null);
+        getManager().getLevel().getServer().getCommands().performCommand(source, command);
     }
 
     @Override

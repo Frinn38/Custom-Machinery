@@ -31,6 +31,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -56,6 +57,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     private int actualTickOutput;
     private int searchNeighborCooldown = Utils.RAND.nextInt(20);
     private final Map<Direction, LazyOptional<IEnergyStorage>> sidedWrappers = Maps.newEnumMap(Direction.class);
+    private final Map<Direction, SidedEnergyStorage> sidedStorages = Maps.newEnumMap(Direction.class);
     private final LazyOptional<EnergyMachineComponent> capability = LazyOptional.of(() -> this);
     private final Map<Direction, LazyOptional<IEnergyStorage>> neighborStorages = new HashMap<>();
 
@@ -65,9 +67,12 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         this.capacity = capacity;
         this.maxInput = maxInput;
         this.maxOutput = maxOutput;
-        this.config = new SideConfig(this, defaultConfig);
-        for(Direction direction : Direction.values())
-            this.sidedWrappers.put(direction, LazyOptional.of(() -> new SidedEnergyStorage(() -> config.getSideMode(direction), this)));
+        this.config = new SideConfig(this, defaultConfig, this::configChanged);
+        for(Direction direction : Direction.values()) {
+            SidedEnergyStorage storage = new SidedEnergyStorage(() -> config.getSideMode(direction), this);
+            this.sidedStorages.put(direction, storage);
+            this.sidedWrappers.put(direction, LazyOptional.of(() -> storage));
+        }
     }
 
     public int getMaxInput() {
@@ -94,6 +99,16 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     public void setEnergy(long energy) {
         this.energy = energy;
         getManager().markDirty();
+    }
+
+    private void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
+        if(oldMode.isNone() != newMode.isNone()) {
+            Direction direction = side.getDirection(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
+            this.sidedWrappers.get(direction).invalidate();
+            this.sidedWrappers.put(direction, LazyOptional.of(() -> this.sidedStorages.get(direction)));
+            if(oldMode.isNone())
+                getManager().getLevel().updateNeighborsAt(getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+        }
     }
 
     @Override
@@ -142,7 +157,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
                 continue;
             if(!this.config.getSideMode(direction).isOutput())
                 continue;
-            Level world = getManager().getWorld();
+            Level world = getManager().getLevel();
             BlockPos pos = getManager().getTile().getBlockPos();
             LazyOptional<IEnergyStorage> neighborStorage = Optional.ofNullable(world.getBlockEntity(pos.relative(direction))).map(tile -> tile.getCapability(CapabilityEnergy.ENERGY, direction.getOpposite())).orElse(null);
             if(neighborStorage != null && neighborStorage.isPresent()) {
@@ -157,7 +172,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if(cap == CapabilityEnergy.ENERGY) {
             if(side == null)
                 return this.capability.cast();
-            else
+            else if(this.config.getSideMode(side).isInput() || this.config.getSideMode(side).isOutput())
                 return this.sidedWrappers.get(side).cast();
         }
         return LazyOptional.empty();
@@ -201,8 +216,8 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!canReceive())
             return 0;
 
-        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getLevel().getGameTime()) {
+            this.actualTick = this.getManager().getLevel().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }
@@ -224,8 +239,8 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         if (!canExtract())
             return 0;
 
-        if(this.actualTick != this.getManager().getWorld().getGameTime()) {
-            this.actualTick = this.getManager().getWorld().getGameTime();
+        if(this.actualTick != this.getManager().getLevel().getGameTime()) {
+            this.actualTick = this.getManager().getLevel().getGameTime();
             this.actualTickInput = 0;
             this.actualTickOutput = 0;
         }

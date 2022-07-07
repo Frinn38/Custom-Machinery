@@ -9,6 +9,8 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.apiimpl.component.config.RelativeSide;
+import fr.frinn.custommachinery.apiimpl.component.config.SideMode;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.config.SidedItemHandler;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -20,6 +22,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -40,6 +43,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     private final IItemHandler generalHandler = new SidedItemHandler(null, this);
     private final LazyOptional<IItemHandler> capability = LazyOptional.of(() -> generalHandler);
+    private final Map<Direction, IItemHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
     private final Map<Direction, LazyOptional<IItemHandler>> sidedWrappers = Maps.newEnumMap(Direction.class);
     private final Random rand = new Random();
     private final List<ITickableComponentVariant> tickableVariants;
@@ -47,14 +51,28 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public ItemComponentHandler(IMachineComponentManager manager, List<ItemMachineComponent> components) {
         super(manager, components);
         components.forEach(component -> {
+            component.getConfig().setCallback(this::configChanged);
             if(component.getMode().isInput())
                 this.inputs.add(component);
             if(component.getMode().isOutput())
                 this.outputs.add(component);
         });
         this.tickableVariants = components.stream().map(ItemMachineComponent::getVariant).filter(variant -> variant instanceof ITickableComponentVariant).map(variant -> (ITickableComponentVariant)variant).collect(CMCollectors.toImmutableList());
-        for(Direction direction : Direction.values())
-            this.sidedWrappers.put(direction, LazyOptional.of(() -> new SidedItemHandler(direction, this)));
+        for(Direction direction : Direction.values()) {
+            IItemHandler handler = new SidedItemHandler(direction, this);
+            this.sidedHandlers.put(direction, handler);
+            this.sidedWrappers.put(direction, LazyOptional.of(() -> handler));
+        }
+    }
+
+    private void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
+        if(oldMode.isNone() != newMode.isNone()) {
+            Direction direction = side.getDirection(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
+            this.sidedWrappers.get(direction).invalidate();
+            this.sidedWrappers.put(direction, LazyOptional.of(() -> this.sidedHandlers.get(direction)));
+            if(oldMode.isNone())
+                getManager().getLevel().updateNeighborsAt(getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+        }
     }
 
     @Override
@@ -67,7 +85,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             if(side == null)
                 return this.capability.cast();
-            else
+            else if(getComponents().stream().anyMatch(component -> !component.getConfig().getSideMode(side).isNone()))
                 return this.sidedWrappers.get(side).cast();
         }
         return LazyOptional.empty();

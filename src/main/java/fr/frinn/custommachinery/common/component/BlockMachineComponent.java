@@ -36,7 +36,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
         box = box.move(getManager().getTile().getBlockPos());
         return BlockPos.betweenClosedStream(box)
-                .map(pos -> new BlockInWorld(getManager().getWorld(), pos, false))
+                .map(pos -> new BlockInWorld(getManager().getLevel(), pos, false))
                 .filter(block -> filter.stream().flatMap(ingredient -> ingredient.getAll().stream()).anyMatch(state -> state.test(block)) == whitelist)
                 .count();
     }
@@ -44,12 +44,12 @@ public class BlockMachineComponent extends AbstractMachineComponent {
     public boolean placeBlock(AABB box, PartialBlockState block, int amount) {
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
         box = box.move(getManager().getTile().getBlockPos());
-        if(BlockPos.betweenClosedStream(box).map(getManager().getWorld()::getBlockState).filter(state -> state.getBlock() == Blocks.AIR).count() < amount)
+        if(BlockPos.betweenClosedStream(box).map(getManager().getLevel()::getBlockState).filter(state -> state.getBlock() == Blocks.AIR).count() < amount)
             return false;
         AtomicInteger toPlace = new AtomicInteger(amount);
         BlockPos.betweenClosedStream(box).forEach(pos -> {
-            if(toPlace.get() > 0 && getManager().getWorld().getBlockState(pos).getBlock() == Blocks.AIR) {
-                setBlock(getManager().getWorld(), pos, block);
+            if(toPlace.get() > 0 && getManager().getLevel().getBlockState(pos).getBlock() == Blocks.AIR) {
+                setBlock(getManager().getLevel(), pos, block);
                 toPlace.addAndGet(-1);
             }
         });
@@ -64,11 +64,11 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         AtomicInteger toPlace = new AtomicInteger(amount);
         BlockPos.betweenClosedStream(box).forEach(pos -> {
             if(toPlace.get() > 0) {
-                BlockInWorld cached = new BlockInWorld(getManager().getWorld(), pos, false);
+                BlockInWorld cached = new BlockInWorld(getManager().getLevel(), pos, false);
                 if(filter.stream().flatMap(ingredient -> ingredient.getAll().stream()).anyMatch(state -> state.test(cached)) == whitelist) {
                     if(cached.getState().getMaterial() != Material.AIR)
-                        getManager().getWorld().destroyBlock(pos, drop);
-                    setBlock(getManager().getWorld(), pos, block);
+                        getManager().getLevel().destroyBlock(pos, drop);
+                    setBlock(getManager().getLevel(), pos, block);
                     toPlace.addAndGet(-1);
                 }
             }
@@ -84,10 +84,10 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         AtomicInteger toPlace = new AtomicInteger(amount);
         BlockPos.betweenClosedStream(box).forEach(pos -> {
             if(toPlace.get() > 0) {
-                BlockInWorld cached = new BlockInWorld(getManager().getWorld(), pos, false);
+                BlockInWorld cached = new BlockInWorld(getManager().getLevel(), pos, false);
                 if(filter.stream().flatMap(ingredient -> ingredient.getAll().stream()).anyMatch(state -> state.test(cached)) == whitelist) {
                     if(cached.getState().getMaterial() != Material.AIR)
-                        getManager().getWorld().destroyBlock(pos, drop);
+                        getManager().getLevel().destroyBlock(pos, drop);
                     toPlace.addAndGet(-1);
                 }
             }

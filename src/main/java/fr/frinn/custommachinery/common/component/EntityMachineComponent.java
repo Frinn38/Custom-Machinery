@@ -33,7 +33,7 @@ public class EntityMachineComponent extends AbstractMachineComponent {
     public int getEntitiesInRadius(int radius, Predicate<Entity> filter) {
         BlockPos pos = getManager().getTile().getBlockPos();
         AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
-        return getManager().getWorld()
+        return getManager().getLevel()
                 .getEntitiesOfClass(Entity.class, bb, entity -> entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius && filter.test(entity))
                 .size();
     }
@@ -41,7 +41,7 @@ public class EntityMachineComponent extends AbstractMachineComponent {
     public double getEntitiesInRadiusHealth(int radius, Predicate<Entity> filter) {
         BlockPos pos = getManager().getTile().getBlockPos();
         AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
-        return getManager().getWorld()
+        return getManager().getLevel()
                 .getEntitiesOfClass(LivingEntity.class, bb, entity -> filter.test(entity) && entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
                 .stream()
                 .mapToDouble(LivingEntity::getHealth)
@@ -52,7 +52,7 @@ public class EntityMachineComponent extends AbstractMachineComponent {
         BlockPos pos = getManager().getTile().getBlockPos();
         AtomicInteger toRemove = new AtomicInteger(amount);
         AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
-        getManager().getWorld()
+        getManager().getLevel()
                 .getEntitiesOfClass(LivingEntity.class, bb, entity -> filter.test(entity) && entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
                 .forEach(entity -> {
                     int maxRemove = Math.min((int)entity.getHealth(), toRemove.get());
@@ -64,7 +64,7 @@ public class EntityMachineComponent extends AbstractMachineComponent {
     public void killEntities(int radius, Predicate<Entity> filter, int amount) {
         BlockPos pos = getManager().getTile().getBlockPos();
         AABB bb = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius, pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
-        getManager().getWorld()
+        getManager().getLevel()
                 .getEntitiesOfClass(LivingEntity.class, bb, entity -> filter.test(entity) && entity.distanceToSqr(Utils.vec3dFromBlockPos(pos)) <= radius * radius)
                 .stream()
                 .limit(amount)

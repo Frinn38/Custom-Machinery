@@ -70,7 +70,7 @@ public interface IMachineComponentManager {
     /**
      * @return The world the machine is in.
      */
-    Level getWorld();
+    Level getLevel();
 
     /**
      * @return The server currently running (integrated or dedicated).

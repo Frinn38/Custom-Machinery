@@ -32,6 +32,10 @@ public enum SideMode {
         return this.isOutput;
     }
 
+    public boolean isNone() {
+        return this == NONE;
+    }
+
     public SideMode next() {
         return switch (this) {
             case INPUT -> OUTPUT;

@@ -7,6 +7,8 @@ import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.apiimpl.component.config.RelativeSide;
+import fr.frinn.custommachinery.apiimpl.component.config.SideMode;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.config.SidedFluidHandler;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -15,6 +17,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -37,11 +40,13 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     private final IFluidHandler generalHandler = new SidedFluidHandler(null, this);
     private final LazyOptional<IFluidHandler> capability = LazyOptional.of(() -> generalHandler);
+    private final Map<Direction, IFluidHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
     private final Map<Direction, LazyOptional<IFluidHandler>> sidedWrappers = Maps.newEnumMap(Direction.class);
 
     public FluidComponentHandler(IMachineComponentManager manager, List<FluidMachineComponent> components) {
         super(manager, components);
         components.forEach(component -> {
+            component.getConfig().setCallback(this::configChanged);
             if(component.getMode().isInput())
                 this.inputs.add(component);
             if(component.getMode().isOutput())
@@ -49,6 +54,16 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         });
         for(Direction direction : Direction.values())
             sidedWrappers.put(direction, LazyOptional.of(() -> new SidedFluidHandler(direction, this)));
+    }
+
+    private void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
+        if(oldMode.isNone() != newMode.isNone()) {
+            Direction direction = side.getDirection(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
+            this.sidedWrappers.get(direction).invalidate();
+            this.sidedWrappers.put(direction, LazyOptional.of(() -> this.sidedHandlers.get(direction)));
+            if(oldMode.isNone())
+                getManager().getLevel().updateNeighborsAt(getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+        }
     }
 
     public IFluidHandler getFluidHandler() {
@@ -70,7 +85,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             if(side == null)
                 return this.capability.cast();
-            else
+            else if(getComponents().stream().anyMatch(component -> !component.getConfig().getSideMode(side).isNone()))
                 return this.sidedWrappers.get(side).cast();
         }
         return LazyOptional.empty();

@@ -27,7 +27,7 @@ public class EffectMachineComponent extends AbstractMachineComponent {
     public void applyEffect(MobEffectInstance effect, int radius, Predicate<Entity> filter) {
         BlockPos machinePos = getManager().getTile().getBlockPos();
         AABB bb = new AABB(machinePos).inflate(radius);
-        getManager().getWorld().getEntitiesOfClass(LivingEntity.class, bb, filter).stream()
+        getManager().getLevel().getEntitiesOfClass(LivingEntity.class, bb, filter).stream()
                 .filter(entity -> entity.distanceToSqr(machinePos.getX(), machinePos.getY(), machinePos.getZ()) < radius * radius)
                 .forEach(entity -> entity.addEffect(effect));
     }

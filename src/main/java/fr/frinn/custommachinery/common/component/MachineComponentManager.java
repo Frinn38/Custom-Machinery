@@ -134,13 +134,13 @@ public class MachineComponentManager implements IMachineComponentManager, INBTSe
     }
 
     @Override
-    public Level getWorld() {
+    public Level getLevel() {
         return getTile().getLevel();
     }
 
     @Override
     public MinecraftServer getServer() {
-        return getWorld().getServer();
+        return getLevel().getServer();
     }
 
     public void serverTick() {
