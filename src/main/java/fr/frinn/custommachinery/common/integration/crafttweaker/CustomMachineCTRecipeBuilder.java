@@ -687,6 +687,14 @@ public class CustomMachineCTRecipeBuilder {
         return this;
     }
 
+    /** ERROR **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder resetOnError() {
+        this.builder.setResetOnError();
+        return this;
+    }
+
     /** INTERNAL **/
 
     @Nullable

@@ -136,8 +136,13 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
                 }
                 CraftingResult result = ((IRequirement<IMachineComponent>)requirement).processStart(component, this.context);
                 if (!result.isSuccess()) {
-                    this.setStatus(MachineStatus.ERRORED, result.getMessage());
-                    break;
+                    if(this.currentRecipe.shouldResetOnError()) {
+                        reset();
+                        return;
+                    } else {
+                        this.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        break;
+                    }
                 } else this.processedRequirements.add(requirement);
             }
         }
@@ -159,8 +164,13 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
                 }
                 CraftingResult result = tickableRequirement.processTick(component, this.context);
                 if (!result.isSuccess()) {
-                    this.setStatus(MachineStatus.ERRORED, result.getMessage());
-                    break;
+                    if(this.currentRecipe.shouldResetOnError()) {
+                        reset();
+                        return;
+                    } else {
+                        this.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        break;
+                    }
                 } else this.processedRequirements.add(tickableRequirement);
             }
         }
@@ -180,8 +190,13 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
                 IMachineComponent component = this.tile.componentManager.getComponent(delayedRequirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), delayedRequirement.getType()));
                 CraftingResult result = delayedRequirement.execute(component, this.context);
                 if(!result.isSuccess()) {
-                    this.setStatus(MachineStatus.ERRORED, result.getMessage());
-                    break;
+                    if(this.currentRecipe.shouldResetOnError()) {
+                        reset();
+                        return;
+                    } else {
+                        this.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        break;
+                    }
                 } else iterator.remove();
             }
         }
@@ -202,8 +217,13 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
                 }
                 CraftingResult result = ((IRequirement)requirement).processEnd(component, this.context);
                 if(!result.isSuccess()) {
-                    this.setStatus(MachineStatus.ERRORED, result.getMessage());
-                    break;
+                    if(this.currentRecipe.shouldResetOnError()) {
+                        reset();
+                        return;
+                    } else {
+                        this.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        break;
+                    }
                 }
                 else this.processedRequirements.add(requirement);
             }

@@ -35,4 +35,11 @@ public interface IMachineRecipe {
      * @return The priority of this recipe to be shown in jei, default : 0.
      */
     int getJeiPriority();
+
+    /**
+     * If set to true the crafting process will reset when one of the recipe requirements error.
+     * Default : false
+     * @return A boolean which determinate if the machine will pause or reset when a recipe requirement couldn't be fulfilled.
+     */
+    boolean shouldResetOnError();
 }

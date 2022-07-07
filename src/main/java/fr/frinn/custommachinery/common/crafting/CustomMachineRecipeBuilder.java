@@ -19,13 +19,16 @@ public class CustomMachineRecipeBuilder {
             CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"requirements", Collections.emptyList()).forGetter(builder -> builder.requirements),
             CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"jei", Collections.emptyList()).forGetter(builder -> builder.jeiRequirements),
             CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(builder -> builder.priority),
-            CodecLogger.loggedOptional(Codec.INT,"jeiPriority", 0).forGetter(builder -> builder.jeiPriority)
-    ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority) -> {
+            CodecLogger.loggedOptional(Codec.INT,"jeiPriority", 0).forGetter(builder -> builder.jeiPriority),
+            CodecLogger.loggedOptional(Codec.BOOL, "error", true).forGetter(builder -> !builder.resetOnError)
+    ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority, error) -> {
         CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
         requirements.forEach(builder::withRequirement);
         jeiRequirements.forEach(builder::withJeiRequirement);
         builder.withPriority(priority);
         builder.withJeiPriority(jeiPriority);
+        if(!error)
+            builder.setResetOnError();
         return builder;
     }));
 
@@ -35,6 +38,7 @@ public class CustomMachineRecipeBuilder {
     private List<IRequirement<?>> jeiRequirements = new ArrayList<>();
     private int priority = 0;
     private int jeiPriority = 0;
+    private boolean resetOnError = false;
 
     public CustomMachineRecipeBuilder(ResourceLocation machine, int time) {
         this.machine = machine;
@@ -69,8 +73,13 @@ public class CustomMachineRecipeBuilder {
         return this;
     }
 
+    public CustomMachineRecipeBuilder setResetOnError() {
+        this.resetOnError = true;
+        return this;
+    }
+
     public CustomMachineRecipe build(ResourceLocation id) {
-        return new CustomMachineRecipe(id, this.machine, this.time, this.requirements, this.jeiRequirements, this.priority, this.jeiPriority);
+        return new CustomMachineRecipe(id, this.machine, this.time, this.requirements, this.jeiRequirements, this.priority, this.jeiPriority, this.resetOnError);
     }
 
     @Override
@@ -81,6 +90,7 @@ public class CustomMachineRecipeBuilder {
                 ", requirements=" + requirements.stream().map(requirement -> requirement.getType().getRegistryName()).toList() +
                 ", priority=" + priority +
                 ", jeiPriority=" + jeiPriority +
+                ", resetOnError=" + resetOnError +
                 '}';
     }
 }

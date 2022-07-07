@@ -27,15 +27,18 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     private final List<IRequirement<?>> jeiRequirements;
     private final int priority;
     private final int jeiPriority;
+    private final boolean resetOnError;
+    private final Lazy<RecipeChecker> checker = Lazy.of(() -> new RecipeChecker(this));
 
-    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority) {
+    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError) {
         this.id = id;
         this.machine = machine;
         this.time = time;
         this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).toList();
         this.jeiRequirements = jeiRequirements;
         this.priority = priority;
-        this.jeiPriority = priority;
+        this.jeiPriority = jeiPriority;
+        this.resetOnError = resetOnError;
     }
 
     public ResourceLocation getMachine() {
@@ -89,6 +92,17 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     }
 
     @Override
+    public boolean shouldResetOnError() {
+        return this.resetOnError;
+    }
+
+    public RecipeChecker checker() {
+        return checker.get();
+    }
+
+    /** Vanilla Recipe Implementation **/
+
+    @Override
     public RecipeSerializer<?> getSerializer() {
         return Registration.CUSTOM_MACHINE_RECIPE_SERIALIZER.get();
     }
@@ -116,10 +130,5 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     @Override
     public ItemStack getResultItem() {
         return ItemStack.EMPTY;
-    }
-
-    private final Lazy<RecipeChecker> checker = Lazy.of(() -> new RecipeChecker(this));
-    public RecipeChecker checker() {
-        return checker.get();
     }
 }

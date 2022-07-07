@@ -175,6 +175,13 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         return this;
     }
 
+    /** ERROR **/
+
+    public CustomMachineJSRecipeBuilder resetOnError() {
+        this.builder.setResetOnError();
+        return this;
+    }
+
     /** ITEM **/
 
     public CustomMachineJSRecipeBuilder requireItem(ItemStackJS stack) {
