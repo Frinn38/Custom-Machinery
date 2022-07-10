@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.widget.TabButton;
-import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;

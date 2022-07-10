@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data.builder;
+package fr.frinn.custommachinery.common.machine.builder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -8,9 +8,9 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.MachineAppearanceManager;
-import fr.frinn.custommachinery.common.data.MachineLocation;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.machine.MachineAppearanceManager;
+import fr.frinn.custommachinery.common.machine.MachineLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;

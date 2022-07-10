@@ -1,10 +1,10 @@
-package fr.frinn.custommachinery.common.data.builder;
+package fr.frinn.custommachinery.common.machine.builder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
-import fr.frinn.custommachinery.common.data.MachineAppearance;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;

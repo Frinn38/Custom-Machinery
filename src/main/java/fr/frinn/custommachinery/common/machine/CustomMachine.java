@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data;
+package fr.frinn.custommachinery.common.machine;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
-import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;

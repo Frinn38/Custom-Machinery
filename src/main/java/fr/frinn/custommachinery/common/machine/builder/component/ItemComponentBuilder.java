@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data.builder.component;
+package fr.frinn.custommachinery.common.machine.builder.component;
 
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;

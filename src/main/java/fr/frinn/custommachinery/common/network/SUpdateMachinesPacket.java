@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.MachineLocation;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.machine.MachineLocation;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;

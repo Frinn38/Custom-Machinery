@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkDirection;

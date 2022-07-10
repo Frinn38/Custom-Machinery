@@ -3,11 +3,11 @@ package fr.frinn.custommachinery.client.integration.jei;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
-import fr.frinn.custommachinery.common.data.CustomMachine;
 import fr.frinn.custommachinery.common.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.core.BlockPos;
 
 import java.util.Optional;

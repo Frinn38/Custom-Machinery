@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import dev.latvian.mods.kubejs.script.ScriptType;
-import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 
 import java.util.ArrayList;
 import java.util.List;

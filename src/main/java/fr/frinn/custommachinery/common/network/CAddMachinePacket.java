@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.data.CustomMachine;
-import fr.frinn.custommachinery.common.data.MachineLocation;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import fr.frinn.custommachinery.common.util.Utils;
 import io.netty.handler.codec.EncoderException;

@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data.upgrade;
+package fr.frinn.custommachinery.common.upgrade;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

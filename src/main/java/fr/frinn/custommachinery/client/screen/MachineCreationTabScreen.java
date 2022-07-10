@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.client.screen;
 
-import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 

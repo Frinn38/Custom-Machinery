@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.network.chat.TextComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;

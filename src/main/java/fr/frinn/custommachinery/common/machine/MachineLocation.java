@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data;
+package fr.frinn.custommachinery.common.machine;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

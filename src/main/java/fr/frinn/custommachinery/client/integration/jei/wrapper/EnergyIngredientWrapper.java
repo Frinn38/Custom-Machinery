@@ -6,9 +6,9 @@ import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.apiimpl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.apiimpl.integration.jei.Energy;
+import fr.frinn.custommachinery.client.integration.jei.energy.EnergyJEIIngredientRenderer;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.client.integration.jei.energy.EnergyJEIIngredientRenderer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 
 public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {

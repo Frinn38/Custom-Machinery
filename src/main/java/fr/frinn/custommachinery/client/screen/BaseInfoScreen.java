@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import fr.frinn.custommachinery.common.data.MachineLocation;
-import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
+import fr.frinn.custommachinery.common.machine.MachineLocation;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.TextComponent;

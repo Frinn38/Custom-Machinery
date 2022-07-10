@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.MachineBlockState;

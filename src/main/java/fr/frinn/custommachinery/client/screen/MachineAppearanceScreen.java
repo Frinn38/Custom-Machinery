@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen;
 
 import fr.frinn.custommachinery.client.screen.widget.ToogleTextFieldWidget;
-import fr.frinn.custommachinery.common.data.builder.CustomMachineBuilder;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.network.chat.TextComponent;
 
 public class MachineAppearanceScreen extends MachineCreationTabScreen {

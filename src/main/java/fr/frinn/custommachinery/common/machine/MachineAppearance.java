@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.data;
+package fr.frinn.custommachinery.common.machine;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;

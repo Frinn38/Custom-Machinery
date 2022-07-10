@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.utils.TextureSizeHelper;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.data.CustomMachine;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;

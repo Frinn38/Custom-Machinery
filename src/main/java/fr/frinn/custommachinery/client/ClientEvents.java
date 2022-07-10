@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.data.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;

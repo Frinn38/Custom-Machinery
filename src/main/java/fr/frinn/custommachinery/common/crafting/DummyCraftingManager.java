@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.crafting;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import mcjty.theoneprobe.api.IProbeInfo;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
