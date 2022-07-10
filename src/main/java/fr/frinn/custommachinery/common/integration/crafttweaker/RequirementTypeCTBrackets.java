@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 
 import java.util.Collection;
@@ -17,11 +18,13 @@ import java.util.Collection;
 @Name("mods.custommachinery.RequirementTypeBracket")
 public class RequirementTypeCTBrackets {
 
+    @Method
     @BracketResolver("requirementtype")
     public static CTRequirementType parseBracket(String bracket) {
         return new CTRequirementType(Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(new ResourceLocation(bracket)));
     }
 
+    @Method
     @BracketValidator("requirementtype")
     public static boolean validateBracket(String bracket) {
         ResourceLocation requirementTypeLocation;
@@ -35,6 +38,7 @@ public class RequirementTypeCTBrackets {
         return true;
     }
 
+    @Method
     @BracketDumper("requirementtype")
     public static Collection<String> dumpBrackets() {
         return Registration.REQUIREMENT_TYPE_REGISTRY.get().getValues().stream().map(type -> "<requirementtype:" + type.getRegistryName() + ">").toList();

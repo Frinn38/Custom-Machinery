@@ -117,7 +117,7 @@ public class CustomMachineCTUpgradeBuilder {
 
         @Override
         public void apply() {
-            CustomMachinery.UPGRADES.add(this.upgrade);
+            CustomMachinery.UPGRADES.addUpgrade(this.upgrade);
         }
 
         @Override

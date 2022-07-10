@@ -97,7 +97,7 @@ public class Utils {
                 .stream()
                 .filter(component -> component.getVariant() == UpgradeItemComponentVariant.INSTANCE)
                 .map(component -> Pair.of(component.getItemStack().getItem(), component.getItemStack().getCount()))
-                .flatMap(pair -> CustomMachinery.UPGRADES.stream().filter(upgrade -> upgrade.getItem() == pair.getFirst() && upgrade.getMachines().contains(tile.getMachine().getId())).flatMap(upgrade -> upgrade.getModifiers().stream()).map(modifier -> Pair.of(modifier, pair.getSecond())))
+                .flatMap(pair -> CustomMachinery.UPGRADES.getAllUpgrades().stream().filter(upgrade -> upgrade.getItem() == pair.getFirst() && upgrade.getMachines().contains(tile.getMachine().getId())).flatMap(upgrade -> upgrade.getModifiers().stream()).map(modifier -> Pair.of(modifier, pair.getSecond())))
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
 
     }

@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.common.network.NetworkManager;
 import fr.frinn.custommachinery.common.network.SLootTablesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
-import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.Upgrades;
 import fr.frinn.custommachinery.common.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
@@ -37,9 +37,7 @@ import net.minecraftforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Mod(CustomMachinery.MODID)
@@ -50,7 +48,7 @@ public class CustomMachinery {
     public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
-    public static final List<MachineUpgrade> UPGRADES = new ArrayList<>();
+    public static final Upgrades UPGRADES = new Upgrades();
 
     public CustomMachinery() {
         CMLogger.init();
@@ -109,11 +107,11 @@ public class CustomMachinery {
         if(event.getPlayer() != null) {
             ServerPlayer player = event.getPlayer();
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
-            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateUpgradesPacket(CustomMachinery.UPGRADES));
+            NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SUpdateUpgradesPacket(CustomMachinery.UPGRADES.getAllUpgrades()));
             NetworkManager.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SLootTablesPacket(LootTableHelper.getLoots()));
         } else {
             NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateMachinesPacket(CustomMachinery.MACHINES));
-            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateUpgradesPacket(CustomMachinery.UPGRADES));
+            NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SUpdateUpgradesPacket(CustomMachinery.UPGRADES.getAllUpgrades()));
             LootTableHelper.generate(event.getPlayerList().getServer());
             NetworkManager.CHANNEL.send(PacketDistributor.ALL.noArg(), new SLootTablesPacket(LootTableHelper.getLoots()));
         }

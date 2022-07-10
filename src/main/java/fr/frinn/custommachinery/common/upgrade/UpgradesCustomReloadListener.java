@@ -14,9 +14,11 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.ModList;
+import org.apache.logging.log4j.Logger;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class UpgradesCustomReloadListener extends SimpleJsonResourceReloadListener {
@@ -28,24 +30,25 @@ public class UpgradesCustomReloadListener extends SimpleJsonResourceReloadListen
         super(GSON, "upgrades");
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
-        ICustomMachineryAPI.INSTANCE.logger().info("Reading Custom Machinery Upgrades...");
+        final Logger logger = ICustomMachineryAPI.INSTANCE.logger();
 
-        CustomMachinery.UPGRADES.clear();
+        List<MachineUpgrade> upgrades = new ArrayList<>();
+
+        logger.info("Reading Custom Machinery Upgrades json");
 
         map.forEach((id, json) -> {
             String packName;
             try {
-                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).getSourceName();
+                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "upgrades/" + id.getPath() + ".json")).getSourceName();
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            ICustomMachineryAPI.INSTANCE.logger().info("Parsing upgrade json: {} in datapack: {}", id, packName);
+            logger.info("Parsing upgrade json: {} in datapack: {}", id, packName);
 
             if(!json.isJsonObject()) {
-                ICustomMachineryAPI.INSTANCE.logger().error("Bad upgrade JSON: {} must be a json object and not an array or primitive, skipping...", id);
+                logger.error("Bad upgrade JSON: {} must be a json object and not an array or primitive, skipping...", id);
                 return;
             }
 
@@ -53,22 +56,36 @@ public class UpgradesCustomReloadListener extends SimpleJsonResourceReloadListen
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
                 if(upgrade.getItem() == Items.AIR) {
-                    ICustomMachineryAPI.INSTANCE.logger().error("Invalid item: {}, defined for upgrade: {}", upgrade.getItem().getRegistryName(), id);
+                    logger.error("Invalid item: {}, defined for upgrade: {}", upgrade.getItem().getRegistryName(), id);
                     return;
                 }
-                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed upgrade json: {}", id);
-                CustomMachinery.UPGRADES.add(upgrade);
+                logger.info("Successfully parsed upgrade json: {}", id);
+                upgrades.add(upgrade);
                 return;
             } else if(result.error().isPresent()) {
-                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing upgrade json: {}, skipping...\n{}", id, result.error().get().message());
+                logger.error("Error while parsing upgrade json: {}, skipping...\n{}", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
 
-        ICustomMachineryAPI.INSTANCE.logger().info("Finished creating custom machine upgrades.");
+        if(upgrades.size() != 0)
+            logger.info("Successfully parsed {} upgrade json.", upgrades.size());
+        else
+            logger.info("No machine upgrade json found.");
 
-        if(ModList.get().isLoaded("kubejs"))
-            CustomMachinery.UPGRADES.addAll(KubeJSIntegration.collectMachineUpgrades());
+        if(ModList.get().isLoaded("kubejs")) {
+            logger.info("Collecting machine upgrades with kubeJS.");
+            List<MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
+            if(kubejsUpgrades.size() != 0)
+                logger.info("Successfully added {} machine upgrades with kubejs", kubejsUpgrades.size());
+            else
+                logger.info("No machine upgrades found with kubejs");
+            upgrades.addAll(kubejsUpgrades);
+        }
+
+        logger.info("Finished creating custom machine upgrades.");
+
+        CustomMachinery.UPGRADES.refresh(upgrades);
     }
 }

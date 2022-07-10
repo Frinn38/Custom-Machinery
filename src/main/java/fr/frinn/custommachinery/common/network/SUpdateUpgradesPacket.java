@@ -47,8 +47,7 @@ public class SUpdateUpgradesPacket {
     public void handle(Supplier<NetworkEvent.Context> context) {
         if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT)
             context.get().enqueueWork(() -> {
-                CustomMachinery.UPGRADES.clear();
-                CustomMachinery.UPGRADES.addAll(this.upgrades);
+                CustomMachinery.UPGRADES.refresh(this.upgrades);
             });
         context.get().setPacketHandled(true);
     }
