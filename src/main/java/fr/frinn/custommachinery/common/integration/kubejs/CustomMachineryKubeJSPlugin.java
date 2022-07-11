@@ -18,5 +18,6 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
     public void addBindings(BindingsEvent event) {
         event.add("Result", Result.class);
         event.add("CustomMachine", MachineJS.class);
+        event.add("CMRecipeModifierBuilder", CustomMachineJSUpgradeBuilder.JSRecipeModifierBuilder.class);
     }
 }

@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -14,10 +15,10 @@ public class ClientEvents {
     public static void onItemTooltip(final ItemTooltipEvent event) {
         CustomMachinery.UPGRADES.getUpgradesForItem(event.getItemStack().getItem())
             .forEach(upgrade -> {
-                event.getToolTip().add(upgrade.getTooltip());
+                event.getToolTip().addAll(upgrade.getTooltips());
 
                 if(Screen.hasControlDown() || Screen.hasShiftDown())
-                    upgrade.getModifiers().stream().flatMap(modifier -> modifier.getTooltip().stream()).forEach(event.getToolTip()::add);
+                    upgrade.getModifiers().stream().map(RecipeModifier::getTooltip).forEach(event.getToolTip()::add);
             });
     }
 }

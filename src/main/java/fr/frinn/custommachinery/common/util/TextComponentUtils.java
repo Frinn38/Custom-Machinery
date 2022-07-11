@@ -74,4 +74,8 @@ public class TextComponentUtils {
         JsonElement json = new JsonParser().parse(jsonString);
         return TEXT_COMPONENT_CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst).orElse(TextComponent.EMPTY);
     }
+
+    public static Codec<Component> getCodecc() {
+        return CODEC;
+    }
 }

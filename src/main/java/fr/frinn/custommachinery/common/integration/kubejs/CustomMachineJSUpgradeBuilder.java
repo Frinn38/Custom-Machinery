@@ -1,12 +1,13 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.google.common.collect.ImmutableList;
 import dev.latvian.mods.kubejs.event.EventJS;
-import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
+import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -14,19 +15,20 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CustomMachineJSUpgradeBuilder {
 
     private final Item item;
-    private String tooltip;
+    private List<Component> tooltips;
     private final List<ResourceLocation> machines;
     private final List<RecipeModifier> modifiers;
     private final int maxAmount;
 
     public CustomMachineJSUpgradeBuilder(Item item, int maxAmount) {
         this.item = item;
-        this.tooltip = "custommachinery.upgrade.tooltip";
+        this.tooltips = Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA));
         this.maxAmount = maxAmount;
         this.machines = new ArrayList<>();
         this.modifiers = new ArrayList<>();
@@ -37,120 +39,114 @@ public class CustomMachineJSUpgradeBuilder {
             throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + this.item.getRegistryName());
         if(this.modifiers.isEmpty())
             throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + this.item.getRegistryName());
-        Component tooltip;
-        try {
-            tooltip = Component.Serializer.fromJson(this.tooltip);
-        } catch (Exception e) {
-            tooltip = new TranslatableComponent(this.tooltip);
+        return new MachineUpgrade(this.item, this.machines, this.modifiers, this.tooltips, this.maxAmount);
+    }
+
+    public CustomMachineJSUpgradeBuilder machine(String... string) {
+        for(String s : string) {
+            final ResourceLocation machine;
+            try {
+                machine = new ResourceLocation(s);
+            } catch (ResourceLocationException e) {
+                throw new IllegalArgumentException("Invalid Machine ID: " + s + "\n" + e.getMessage());
+            }
+            this.machines.add(machine);
         }
-        return new MachineUpgrade(this.item, this.machines, this.modifiers, tooltip, this.maxAmount);
+        return this;
     }
 
-    //TODO: add method that accept a list of machines
-    public CustomMachineJSUpgradeBuilder machine(String string) {
-        final ResourceLocation machine;
-        try {
-            machine = new ResourceLocation(string);
-        } catch (ResourceLocationException e) {
-            throw new IllegalArgumentException("Invalid Machine ID: " + string + "\n" + e.getMessage());
+    public CustomMachineJSUpgradeBuilder tooltip(Component... components) {
+        this.tooltips = ImmutableList.copyOf(components);
+        return this;
+    }
+
+    public CustomMachineJSUpgradeBuilder modifier(JSRecipeModifierBuilder builder) {
+        this.modifiers.add(builder.build());
+        return this;
+    }
+
+    public static class JSRecipeModifierBuilder {
+
+        private final RequirementType<?> requirementType;
+        private final RequirementIOMode mode;
+        private final RecipeModifier.OPERATION operation;
+        private final double modifier;
+        private String target = "";
+        private double chance = 1.0D;
+        private double max = Double.POSITIVE_INFINITY;
+        private double min = Double.NEGATIVE_INFINITY;
+        private Component tooltip = null;
+
+        private JSRecipeModifierBuilder(RequirementType<?> type, RequirementIOMode mode, RecipeModifier.OPERATION operation, double modifier) {
+            this.requirementType = type;
+            this.mode = mode;
+            this.operation = operation;
+            this.modifier = modifier;
         }
-        this.machines.add(machine);
-        return this;
-    }
 
-    public CustomMachineJSUpgradeBuilder tooltip(String tooltip) {
-        this.tooltip = tooltip;
-        return this;
-    }
+        private static RequirementType<?> getType(ResourceLocation id) {
+            RequirementType<?> type = Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(id);
+            if(type != null)
+                return type;
+            throw new IllegalArgumentException("Invalid requirement type: " + id);
+        }
 
-    public CustomMachineJSUpgradeBuilder addInput(String requirement, double value) {
-        return addInput(requirement, value, "", 1.0D);
-    }
+        public static JSRecipeModifierBuilder addInput(ResourceLocation type, double modifier) {
+            return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.INPUT, RecipeModifier.OPERATION.ADDITION, modifier);
+        }
 
-    public CustomMachineJSUpgradeBuilder addInput(String requirement, double value, Object object) {
-        if(object instanceof CharSequence)
-            return addInput(requirement, value, ((CharSequence)object).toString(), 1.0D);
-        else if(object instanceof Number)
-            return addInput(requirement, value, "", ((Number)object).doubleValue());
+        public static JSRecipeModifierBuilder mulInput(ResourceLocation type, double modifier) {
+            return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, modifier);
+        }
 
-        ScriptType.SERVER.console.warnf("Invalid argument for \"MachineUpgrade#addInput\", should be either String or Number but %s found, ignoring.", object.getClass());
-        return this;
-    }
+        public static JSRecipeModifierBuilder addOutput(ResourceLocation type, double modifier) {
+            return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, modifier);
+        }
 
-    public CustomMachineJSUpgradeBuilder addInput(String requirement, double value, String target, double chance) {
-        return modifier(RequirementIOMode.INPUT, RecipeModifier.OPERATION.ADDITION, requirement, value, target, chance);
-    }
+        public static JSRecipeModifierBuilder mulOutput(ResourceLocation type, double modifier) {
+            return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, modifier);
+        }
 
-    public CustomMachineJSUpgradeBuilder mulInput(String requirement, double value) {
-        return mulInput(requirement, value, "", 1.0D);
-    }
-
-    public CustomMachineJSUpgradeBuilder mulInput(String requirement, double value, Object object) {
-        if(object instanceof CharSequence)
-            return mulInput(requirement, value, ((CharSequence)object).toString(), 1.0D);
-        else if(object instanceof Number)
-            return mulInput(requirement, value, "", ((Number)object).doubleValue());
-
-        ScriptType.SERVER.console.warnf("Invalid argument for \"MachineUpgrade#addInput\", should be either String or Number but %s found, ignoring.", object.getClass());
-        return this;
-    }
-
-    public CustomMachineJSUpgradeBuilder mulInput(String requirement, double value, String target, double chance) {
-        return modifier(RequirementIOMode.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, requirement, value, target, chance);
-    }
-
-    public CustomMachineJSUpgradeBuilder addOutput(String requirement, double value) {
-        return addOutput(requirement, value, "", 1.0D);
-    }
-
-    public CustomMachineJSUpgradeBuilder addOutput(String requirement, double value, Object object) {
-        if(object instanceof CharSequence)
-            return addOutput(requirement, value, ((CharSequence)object).toString(), 1.0D);
-        else if(object instanceof Number)
-            return addOutput(requirement, value, "", ((Number)object).doubleValue());
-
-        ScriptType.SERVER.console.warnf("Invalid argument for \"MachineUpgrade#addInput\", should be either String or Number but %s found, ignoring.", object.getClass());
-        return this;
-    }
-
-    public CustomMachineJSUpgradeBuilder addOutput(String requirement, double value, String target, double chance) {
-        return modifier(RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, requirement, value, target, chance);
-    }
-
-    public CustomMachineJSUpgradeBuilder mulOutput(String requirement, double value) {
-        return mulOutput(requirement, value, "", 1.0D);
-    }
-
-    public CustomMachineJSUpgradeBuilder mulOutput(String requirement, double value, Object object) {
-        if(object instanceof CharSequence)
-            return mulOutput(requirement, value, ((CharSequence)object).toString(), 1.0D);
-        else if(object instanceof Number)
-            return mulOutput(requirement, value, "", ((Number)object).doubleValue());
-
-        ScriptType.SERVER.console.warnf("Invalid argument for \"MachineUpgrade#addInput\", should be either String or Number but %s found, ignoring.", object.getClass());
-        return this;
-    }
-
-    public CustomMachineJSUpgradeBuilder mulOutput(String requirement, double value, String target, double chance) {
-        return modifier(RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, requirement, value, target, chance);
-    }
-
-    public CustomMachineJSUpgradeBuilder modifier(RequirementIOMode mode, RecipeModifier.OPERATION operation, String requirement, double value, String target, double chance) {
-        RequirementType<?> type = Registration.REQUIREMENT_TYPE_REGISTRY.get().getValue(ResourceLocation.tryParse(requirement));
-        if(type == null) {
-            ScriptType.SERVER.console.warnf("Invalid requirement type : %s, skipping modifier.", requirement);
+        public JSRecipeModifierBuilder target(String target) {
+            this.target = target;
             return this;
         }
-        RecipeModifier modifier = new RecipeModifier(type, mode, operation, value, target, chance);
-        this.modifiers.add(modifier);
-        return this;
+
+        public JSRecipeModifierBuilder chance(double chance) {
+            this.chance = chance;
+            return this;
+        }
+
+        public JSRecipeModifierBuilder max(double max) {
+            this.max = max;
+            return this;
+        }
+
+        public JSRecipeModifierBuilder min(double min) {
+            this.min = min;
+            return this;
+        }
+
+        public JSRecipeModifierBuilder tooltip(Component tooltip) {
+            this.tooltip = tooltip;
+            return this;
+        }
+
+        private RecipeModifier build() {
+            return new RecipeModifier(this.requirementType, this.mode, this.operation, this.modifier, this.target, this.chance, this.max, this.min, this.tooltip);
+        }
     }
 
     public static class UpgradeEvent extends EventJS {
 
         private final List<CustomMachineJSUpgradeBuilder> builders = new ArrayList<>();
 
-        //TODO: add default method with maxAmount = 64
+        public CustomMachineJSUpgradeBuilder create(Item item) {
+            CustomMachineJSUpgradeBuilder builder = new CustomMachineJSUpgradeBuilder(item, 64);
+            this.builders.add(builder);
+            return builder;
+        }
+
         public CustomMachineJSUpgradeBuilder create(Item item, int maxAmount) {
             CustomMachineJSUpgradeBuilder builder = new CustomMachineJSUpgradeBuilder(item, maxAmount);
             this.builders.add(builder);

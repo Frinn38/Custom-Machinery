@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MachineUpgrade {
@@ -21,20 +22,20 @@ public class MachineUpgrade {
                     ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(upgrade -> upgrade.item),
                     Codecs.list(ResourceLocation.CODEC).fieldOf("machines").forGetter(upgrade -> upgrade.machines),
                     Codecs.list(RecipeModifier.CODEC).fieldOf("modifiers").forGetter(upgrade -> upgrade.modifiers),
-                    CodecLogger.loggedOptional(TextComponentUtils.TEXT_COMPONENT_CODEC,"tooltip", new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA)).forGetter(upgrade -> upgrade.tooltip),
+                    CodecLogger.loggedOptional(Codecs.list(TextComponentUtils.TEXT_COMPONENT_CODEC),"tooltip", Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA))).forGetter(upgrade -> upgrade.tooltips),
                     CodecLogger.loggedOptional(Codec.INT,"max", 64).forGetter(upgrade -> upgrade.max)
             ).apply(machineUpgradeInstance, MachineUpgrade::new)
     );
 
     private final Item item;
-    private final Component tooltip;
+    private final List<Component> tooltips;
     private final List<ResourceLocation> machines;
     private final List<RecipeModifier> modifiers;
     private final int max;
 
-    public MachineUpgrade(Item item, List<ResourceLocation> machines, List<RecipeModifier> modifiers, Component tooltip, int max) {
+    public MachineUpgrade(Item item, List<ResourceLocation> machines, List<RecipeModifier> modifiers, List<Component> tooltips, int max) {
         this.item = item;
-        this.tooltip = tooltip;
+        this.tooltips = tooltips;
         this.machines = machines;
         this.modifiers = modifiers;
         this.max = max;
@@ -52,8 +53,8 @@ public class MachineUpgrade {
         return this.modifiers;
     }
 
-    public Component getTooltip() {
-        return this.tooltip;
+    public List<Component> getTooltips() {
+        return this.tooltips;
     }
 
     public int getMaxAmount() {

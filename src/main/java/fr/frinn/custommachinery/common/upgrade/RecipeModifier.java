@@ -7,12 +7,12 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 
 public class RecipeModifier {
@@ -24,24 +24,33 @@ public class RecipeModifier {
                     Codecs.MODIFIER_OPERATION_CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
                     Codec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
                     CodecLogger.loggedOptional(Codec.STRING,"target", "").forGetter(modifier -> modifier.target),
-                    CodecLogger.loggedOptional(Codec.DOUBLE,"chance", 1.0D).forGetter(modifier -> modifier.chance)
+                    CodecLogger.loggedOptional(Codec.DOUBLE,"chance", 1.0D).forGetter(modifier -> modifier.chance),
+                    CodecLogger.loggedOptional(Codec.DOUBLE, "max", Double.POSITIVE_INFINITY).forGetter(modifier -> modifier.max),
+                    CodecLogger.loggedOptional(Codec.DOUBLE, "min", Double.NEGATIVE_INFINITY).forGetter(modifier -> modifier.min),
+                    CodecLogger.loggedOptional(TextComponentUtils.CODEC, "tooltip", TextComponent.EMPTY).forGetter(modifier -> modifier.tooltip)
             ).apply(energyModifierInstance, RecipeModifier::new)
     );
 
-    private RequirementType<?> requirementType;
-    private String target;
-    private RequirementIOMode mode;
-    private OPERATION operation;
-    private double modifier;
-    private double chance;
+    private final RequirementType<?> requirementType;
+    private final String target;
+    private final RequirementIOMode mode;
+    private final OPERATION operation;
+    private final double modifier;
+    private final double chance;
+    private final double max;
+    private final double min;
+    private final Component tooltip;
 
-    public RecipeModifier(RequirementType<?> requirementType, RequirementIOMode mode, OPERATION operation, double modifier, String target, double chance) {
+    public RecipeModifier(RequirementType<?> requirementType, RequirementIOMode mode, OPERATION operation, double modifier, String target, double chance, double max, double min, @Nullable Component tooltip) {
         this.requirementType = requirementType;
         this.target = target;
         this.mode = mode;
         this.operation = operation;
         this.modifier = modifier;
         this.chance = chance;
+        this.max = max;
+        this.min = min;
+        this.tooltip = tooltip != null && tooltip != TextComponent.EMPTY ? tooltip : getDefaultTooltip(this);
     }
 
     public RequirementType<?> getRequirementType() {
@@ -68,17 +77,21 @@ public class RecipeModifier {
         return this.chance;
     }
 
-    public List<Component> getTooltip() {
-        double tooltipModifier = this.operation == OPERATION.ADDITION ? this.modifier : this.modifier * 100 - 100;
-        TextComponent tooltip = new TextComponent(tooltipModifier >= 0 ? "+" : "");
-        tooltip.append(this.operation == OPERATION.ADDITION ? String.valueOf(tooltipModifier) : tooltipModifier + "%");
+    public Component getTooltip() {
+        return this.tooltip;
+    }
+
+    public static Component getDefaultTooltip(RecipeModifier modifier) {
+        double tooltipModifier = modifier.operation == OPERATION.ADDITION ? modifier.modifier : modifier.modifier * 100 - 100;
+        StringBuilder tooltip = new StringBuilder(tooltipModifier >= 0 ? "+" : "");
+        tooltip.append(modifier.operation == OPERATION.ADDITION ? tooltipModifier : tooltipModifier + "%");
         tooltip.append(" ");
-        tooltip.append(this.requirementType.getName());
-        if(this.requirementType != Registration.SPEED_REQUIREMENT.get()) {
+        tooltip.append(modifier.requirementType.getName().getString());
+        if(modifier.requirementType != Registration.SPEED_REQUIREMENT.get()) {
             tooltip.append(" ");
-            tooltip.append(new TranslatableComponent(this.mode.getTranslationKey()));
+            tooltip.append(new TranslatableComponent(modifier.mode.getTranslationKey()).getString());
         }
-        return Collections.singletonList(tooltip);
+        return new TextComponent(tooltip.toString());
     }
 
     public enum OPERATION {

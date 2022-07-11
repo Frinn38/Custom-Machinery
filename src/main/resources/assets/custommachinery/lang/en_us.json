@@ -210,5 +210,11 @@
   "requirement.custommachinery.entity": "Entity",
   "requirement.custommachinery.light": "Light",
   "requirement.custommachinery.block": "Block",
-  "requirement.custommachinery.speed": "Speed"
+  "requirement.custommachinery.speed": "Recipe duration",
+  "requirement.custommachinery.durability": "Durability",
+  "requirement.custommachinery.structure": "Structure",
+  "requirement.custommachinery.loot_table": "Loot table",
+  "requirement.custommachinery.biome": "Biome",
+  "requirement.custommachinery.dimension": "Dimension",
+  "requirement.custommachinery.drop": "Drop"
 }
