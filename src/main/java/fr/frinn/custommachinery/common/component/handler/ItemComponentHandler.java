@@ -27,9 +27,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -160,13 +160,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     public int getSpaceForItem(String slot, Item item, @Nullable CompoundTag nbt) {
-        ItemStack stack = item.getDefaultInstance();
-        stack.setTag(nbt);
-        int maxStackSize = stack.getMaxStackSize();
-        Predicate<ItemMachineComponent> itemPredicate = component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()));
-        Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.outputs.stream().filter(component -> itemPredicate.and(nbtPredicate).and(slotPredicate).test(component))
+        int maxStackSize = Utils.makeItemStack(item, 1, nbt).getMaxStackSize();
+        return this.outputs.stream().filter(component -> canPlaceOutput(component, slot, item, nbt))
                 .mapToInt(component -> {
                     if(component.getItemStack().isEmpty())
                         return Math.min(component.getCapacity(), maxStackSize);
@@ -174,6 +169,33 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                         return Math.min(component.getCapacity() - component.getItemStack().getCount(), maxStackSize - component.getItemStack().getCount());
                 })
                 .sum();
+    }
+
+    private boolean canPlaceOutput(ItemMachineComponent component, @Nullable String slot, Item item, @Nullable CompoundTag nbt) {
+        ItemStack stack = Utils.makeItemStack(item, 1, nbt);
+
+        //Not the specified slot
+        if(slot != null && !slot.isEmpty() && !component.getId().equals(slot))
+            return false;
+
+        //Check component filter and variant
+        if(!component.isItemValid(stack))
+            return false;
+
+        //If the slot is empty, any item can go inside
+        if(component.getItemStack().isEmpty())
+            return true;
+
+        //If the item present in the slot in not the same item, they won't stack
+        if(component.getItemStack().getItem() != item)
+            return false;
+
+        //Check if the stack present in the slot can accept more items
+        if(component.getItemStack().getCount() >= Math.min(stack.getMaxStackSize(), component.getCapacity()))
+            return false;
+
+        //Check if both items can be merged, using vanilla method
+        return ItemStack.isSameItemSameTags(component.getItemStack(), stack);
     }
 
     public int getSpaceForDurability(String slot, Item item, @Nullable CompoundTag nbt) {
@@ -214,11 +236,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     public void addToOutputs(String slot, Item item, int amount, @Nullable CompoundTag nbt) {
         AtomicInteger toAdd = new AtomicInteger(amount);
-        int maxStackSize = Utils.makeItemStack(item, amount, nbt).getMaxStackSize();
-        Predicate<ItemMachineComponent> itemPredicate = component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()));
-        Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        this.outputs.stream().filter(component -> itemPredicate.and(nbtPredicate).and(slotPredicate).test(component)).forEach(component -> {
+        this.outputs.stream().filter(component -> canPlaceOutput(component, slot, item, nbt)).forEach(component -> {
             int maxInsert = Math.min(component.getSpaceForItem(item.getDefaultInstance()), toAdd.get());
             toAdd.addAndGet(-maxInsert);
             ItemStack stack = new ItemStack(item, maxInsert);
