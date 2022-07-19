@@ -9,6 +9,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -54,18 +55,19 @@ public class SidedFluidHandler implements IFluidHandler {
     @Override
     public int fill(FluidStack stack, FluidAction action) {
         AtomicInteger remaining = new AtomicInteger(stack.getAmount());
-        this.getSideComponents(SideMode::isInput).forEach(component -> {
-            if(component.isFluidValid(stack) && component.getRemainingSpace() > 0 && component.getMode().isInput()) {
-                int toInput = Math.min(remaining.get(), component.insert(stack.getFluid(), stack.getAmount(), stack.getTag(), FluidAction.SIMULATE));
-                if(toInput > 0) {
-                    remaining.addAndGet(-toInput);
-                    if (action.execute()) {
-                        component.insert(stack.getFluid(), toInput, stack.getTag(), FluidAction.EXECUTE);
-                        this.handler.getManager().markDirty();
+        this.getSideComponents(SideMode::isInput).stream()
+                .filter(component -> component.isFluidValid(stack) && component.getRemainingSpace() > 0 && component.getMode().isInput())
+                .sorted(Comparator.comparingInt(component -> component.getFluidStack().isFluidEqual(stack) ? -1 : 1))
+                .forEach(component -> {
+                    int toInput = Math.min(remaining.get(), component.insert(stack.getFluid(), stack.getAmount(), stack.getTag(), FluidAction.SIMULATE));
+                    if(toInput > 0) {
+                        remaining.addAndGet(-toInput);
+                        if (action.execute()) {
+                            component.insert(stack.getFluid(), toInput, stack.getTag(), FluidAction.EXECUTE);
+                            this.handler.getManager().markDirty();
+                        }
                     }
-                }
-            }
-        });
+                });
         return stack.getAmount() - remaining.get();
     }
 
@@ -75,11 +77,11 @@ public class SidedFluidHandler implements IFluidHandler {
         int remainingToDrain = maxDrain.getAmount();
 
         for (FluidMachineComponent component : this.getSideComponents(SideMode::isOutput)) {
-            if(!component.getFluidStack().isEmpty() && component.isFluidValid(maxDrain) && component.getMode().isOutput()) {
+            if(!component.getFluidStack().isEmpty() && component.getFluidStack().isFluidEqual(maxDrain) && component.getMode().isOutput()) {
                 FluidStack stack = component.extract(maxDrain.getAmount(), FluidAction.SIMULATE);
-                if(stack.getAmount() > remainingToDrain) {
+                if(stack.getAmount() >= remainingToDrain) {
                     if(action.execute()) {
-                        component.extract(maxDrain.getAmount(), FluidAction.EXECUTE);
+                        component.extract(remainingToDrain, FluidAction.EXECUTE);
                         this.handler.getManager().markDirty();
                     }
                     return maxDrain;
@@ -106,9 +108,9 @@ public class SidedFluidHandler implements IFluidHandler {
         for (FluidMachineComponent component : this.getSideComponents(SideMode::isOutput)) {
             if(!component.getFluidStack().isEmpty() && component.getMode().isOutput() && (toDrain.isEmpty() || component.getFluidStack().isFluidEqual(toDrain))) {
                 FluidStack stack = component.extract(remainingToDrain, FluidAction.SIMULATE);
-                if(stack.getAmount() > remainingToDrain) {
+                if(stack.getAmount() >= remainingToDrain) {
                     if(action.execute()) {
-                        component.extract(maxDrain, FluidAction.EXECUTE);
+                        component.extract(remainingToDrain, FluidAction.EXECUTE);
                         this.handler.getManager().markDirty();
                     }
                     return new FluidStack(stack.getFluid(), maxDrain, stack.getTag());
