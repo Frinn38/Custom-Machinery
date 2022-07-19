@@ -58,7 +58,7 @@ import java.util.Optional;
 public class CustomMachineBlock extends Block implements EntityBlock {
 
     public CustomMachineBlock() {
-        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion());
+        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape());
     }
 
     @SuppressWarnings("deprecation")
