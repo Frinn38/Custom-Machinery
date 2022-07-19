@@ -104,16 +104,19 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         else if(this.stack.getItem() == stack.getItem() && (stack.getTag() == null || stack.getTag().isEmpty() || stack.getTag().equals(this.stack.getTag())))
             this.stack.grow(stack.getCount());
         getManager().markDirty();
+        getManager().getTile().getUpgradeManager().markDirty();
     }
 
     public void extract(int amount) {
         this.stack.shrink(amount);
         getManager().markDirty();
+        getManager().getTile().getUpgradeManager().markDirty();
     }
 
     public void setItemStack(ItemStack stack) {
         this.stack = stack;
         getManager().markDirty();
+        getManager().getTile().getUpgradeManager().markDirty();
     }
 
     @Override

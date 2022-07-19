@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.DummyCraftingManager;
+import fr.frinn.custommachinery.common.crafting.UpgradeManager;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.NetworkManager;
@@ -45,6 +46,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     public CraftingManager craftingManager = new DummyCraftingManager(this);
     public MachineComponentManager componentManager = new DummyComponentManager(this);
+    public UpgradeManager upgradeManager = new UpgradeManager(this);
     public SoundManager soundManager;
 
     public CustomMachineTile(BlockPos pos, BlockState state) {
@@ -112,6 +114,11 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     @Override
     public MachineComponentManager getComponentManager() {
         return this.componentManager;
+    }
+
+    @Override
+    public UpgradeManager getUpgradeManager() {
+        return this.upgradeManager;
     }
 
     @Override

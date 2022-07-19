@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.api.machine;
 
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.crafting.IMachineUpgradeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -59,6 +60,8 @@ public abstract class MachineTile extends BlockEntity {
     public abstract void resetProcess();
 
     public abstract IMachineComponentManager getComponentManager();
+
+    public abstract IMachineUpgradeManager getUpgradeManager();
 
     public abstract IMachineAppearance getAppearance();
 }

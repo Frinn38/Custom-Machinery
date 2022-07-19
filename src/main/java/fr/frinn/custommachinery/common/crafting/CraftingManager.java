@@ -61,7 +61,7 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
 
     public CraftingManager(CustomMachineTile tile) {
         this.tile = tile;
-        this.mutableCraftingContext = new CraftingContext.Mutable(this);
+        this.mutableCraftingContext = new CraftingContext.Mutable(this, tile.upgradeManager);
         this.status = MachineStatus.IDLE;
         this.prevStatus = this.status;
         this.processedRequirements = new ArrayList<>();
@@ -79,8 +79,6 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
             this.searchForRecipe();
 
         if(this.currentRecipe != null) {
-            this.context.tickModifiers();
-
             if(this.phase == PHASE.STARTING)
                 this.startProcess();
 
@@ -240,7 +238,7 @@ public class CraftingManager implements INBTSerializable<CompoundTag> {
     @SuppressWarnings("unchecked")
     private void setRecipe(CustomMachineRecipe recipe) {
         this.currentRecipe = recipe;
-        this.context = new CraftingContext(this, recipe);
+        this.context = new CraftingContext(this, this.tile.upgradeManager, recipe);
         this.tickableRequirements = this.currentRecipe.getRequirements()
                 .stream()
                 .filter(requirement -> requirement instanceof ITickableRequirement)
