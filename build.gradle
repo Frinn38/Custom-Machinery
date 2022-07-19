@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
@@ -14,6 +16,7 @@ buildscript {
 
 plugins {
     id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id "com.modrinth.minotaur" version "2.+"
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -24,7 +27,7 @@ apply plugin: 'org.spongepowered.mixin'
 
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-version = "${mc_version}-0.6.5"
+version = "${mc_version}-0.7.0"
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -286,6 +289,23 @@ if (System.getenv("CURSEFORGE")) {
             addArtifact(apiJar) {
                 displayName = "Custom-Machinery-${project.version}-api"
             }
+        }
+    }
+}
+
+if(System.getenv("MODRINTH")) {
+    modrinth {
+        token = System.getenv("MODRINTH")
+        projectId = "OrB5XFtI"
+        versionName = "Custom-Machinery-${project.version}"
+        versionType = "beta"
+        uploadFile = jar
+        additionalFiles = [apiJar]
+        gameVersions = [mc_version]
+        changelog = Files.readString(file("run/changelog.md").toPath())
+        dependencies {
+            optional.project "kubejs"
+            optional.project "roughly-enough-items"
         }
     }
 }
