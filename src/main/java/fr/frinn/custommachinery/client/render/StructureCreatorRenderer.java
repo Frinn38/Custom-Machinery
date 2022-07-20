@@ -13,6 +13,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -22,7 +23,9 @@ import java.util.List;
 public class StructureCreatorRenderer {
 
     @SubscribeEvent
-    public static void renderSelectedBlocks(final RenderLevelLastEvent event) {
+    public static void renderSelectedBlocks(final RenderLevelStageEvent event) {
+        if(event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
+            return;
         if(Minecraft.getInstance().player != null && Minecraft.getInstance().player.getMainHandItem().getItem() == Registration.STRUCTURE_CREATOR_ITEM.get()) {
             PoseStack matrix = event.getPoseStack();
             MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();

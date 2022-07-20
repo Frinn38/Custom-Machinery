@@ -206,9 +206,8 @@ dependencies {
 
     //JEI
     //"implementation" needed for our API to see it.
-    implementation fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
-    implementation fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
-    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
+    implementation fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
 
     //Crafttweaker
     implementation fg.deobf("com.blamejared.crafttweaker:CraftTweaker-forge-${mc_version}:${ct_version}")

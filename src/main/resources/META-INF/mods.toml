@@ -37,12 +37,12 @@ A Mod for creating custom machines and recipes for them.
 [[dependencies.custommachinery]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.4,)"
+    versionRange="[1.18.2,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.custommachinery]]
     modId="forge"
     mandatory=true
-    versionRange="[36.2.4,)"
+    versionRange="[40.1.67,)"
     ordering="NONE"
     side="BOTH"
