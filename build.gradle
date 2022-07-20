@@ -27,7 +27,7 @@ apply plugin: 'org.spongepowered.mixin'
 
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-version = "${mc_version}-0.6.6"
+version = "${mc_version}-0.6.7"
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)

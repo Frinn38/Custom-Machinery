@@ -170,10 +170,9 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
 
     @Override
     public CraftingResult processTick(BlockMachineComponent component, ICraftingContext context) {
-        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
         if(this.action == ACTION.CHECK) {
             long found = component.getBlockAmount(this.pos, this.filter, this.whitelist);
-            if(!this.comparator.compare((int)found, amount))
+            if(!this.comparator.compare((int)found, this.amount))
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.check.error", amount, this.pos.toString(), found));
             return CraftingResult.success();
         }
