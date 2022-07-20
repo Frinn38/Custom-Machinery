@@ -681,7 +681,8 @@ public class CustomMachineCTRecipeBuilder {
 
     /** INTERNAL **/
     @Nullable
-    private CompoundNBT getNBT(IData data) {
+    private CompoundNBT getNBT(@Nullable IData data) {
+        if(data == null) return null;
         return data.getInternal() instanceof CompoundNBT ? (CompoundNBT) data.getInternal() : null;
     }
 

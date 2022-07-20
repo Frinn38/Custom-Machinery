@@ -192,5 +192,5 @@
   "requirement.custommachinery.entity": "Entity",
   "requirement.custommachinery.light": "Light",
   "requirement.custommachinery.block": "Block",
-  "requirement.custommachinery.speed": "Speed"
+  "requirement.custommachinery.speed": "Recipe duration"
 }
