@@ -20,7 +20,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.5-0.5.8g'
+version = '1.16.5-0.5.8h'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'custommachinery'
 
@@ -220,6 +220,9 @@ dependencies {
     runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")//Mekanism
     runtimeOnly fg.deobf("curse.maven:spark-361579:3337641")//Spark profiler
 
+    //Jade
+    implementation fg.deobf("curse.maven:jade-324717:3875132")
+
     annotationProcessor "org.spongepowered:mixin:0.8.2:processor"
 }
 
@@ -277,7 +280,7 @@ if (System.getenv("CURSEFORGE")) {
         project {
             id = "457017"
             changelogType = "markdown"
-            changelog = file("run/changelog.md")
+            changelog = file("run/changelog-116.md")
             releaseType = "beta"
             mainArtifact(jar) {
                 displayName = "Custom-Machinery-${project.version}"
