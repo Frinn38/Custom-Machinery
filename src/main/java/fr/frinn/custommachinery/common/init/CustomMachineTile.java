@@ -218,6 +218,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     public CompoundTag getUpdateTag() {
         CompoundTag nbt = super.getUpdateTag();
         nbt.putString("machineID", getId().toString());
+        nbt.put("craftingManager", this.craftingManager.serializeNBT());
         return nbt;
     }
 
