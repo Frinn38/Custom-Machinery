@@ -18,6 +18,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.openzen.zencode.java.ZenCodeType.Getter;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
+import org.openzen.zencode.java.ZenCodeType.Setter;
 
 @ZenRegister
 @Name("mods.custommachinery.Machine")
@@ -38,6 +39,12 @@ public class MachineCT {
     @Method
     public long getEnergyStored() {
         return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getEnergy).orElse(0L);
+    }
+
+    @Setter
+    @Method
+    public void setEnergyStored(long energy) {
+        this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(component -> component.setEnergy(energy));
     }
 
     @Getter("energyCapacity")
@@ -66,6 +73,12 @@ public class MachineCT {
             FluidStack stack = component.getFluidStack();
             return new MCFluidStack(stack);
         }).orElse(FLUID_EMPTY);
+    }
+
+    @Method
+    public void setFluidStored(String tank, IFluidStack stackCT) {
+        FluidStack stack = stackCT.getInternal();
+        this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).ifPresent(x -> x.setFluidStack(stack));
     }
 
     @Method
@@ -119,6 +132,15 @@ public class MachineCT {
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> new MCItemStack(component.getItemStack()))
                 .orElse(ITEM_EMPTY);
+    }
+
+    @Method
+    public void setItemStored(String slot, IItemStack stackCT) {
+        this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .ifPresent(component -> {
+                    component.setItemStack(stackCT.getInternal());
+                });
     }
 
     @Method
