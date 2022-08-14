@@ -91,12 +91,12 @@ public class ItemTransformRequirement extends AbstractChanceableRequirement<Item
         return this.input.getAll().stream().anyMatch(item -> {
             if(component.getItemAmount(this.inputSlot, item, this.inputNBT) < this.inputAmount)
                 return false;
-            CompoundTag inputNBT = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item).findFirst().map(slot -> slot.getItemStack().getTag()).orElse(null);
+            CompoundTag inputNBT = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item).findFirst().map(slot -> slot.getItemStack().getTag()).map(CompoundTag::copy).orElse(null);
             CompoundTag outputNBT = null;
             if(this.nbt != null)
                 outputNBT = this.nbt.apply(inputNBT);
             else if(this.copyNBT && inputNBT != null)
-                outputNBT = inputNBT.copy();
+                outputNBT = inputNBT;
             return component.getSpaceForItem(this.outputSlot, this.output == Items.AIR ? item : this.output, outputNBT) >= this.outputAmount;
         });
     }
@@ -111,12 +111,12 @@ public class ItemTransformRequirement extends AbstractChanceableRequirement<Item
         for(Item item : this.input.getAll()) {
             if(component.getItemAmount(this.inputSlot, item, this.inputNBT) < this.inputAmount)
                 continue;
-            CompoundTag inputNBT = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item).findFirst().map(slot -> slot.getItemStack().getTag()).orElse(null);
+            CompoundTag inputNBT = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item).findFirst().map(slot -> slot.getItemStack().getTag()).map(CompoundTag::copy).orElse(null);
             CompoundTag outputNBT = null;
             if(this.nbt != null)
                 outputNBT = this.nbt.apply(inputNBT);
             else if(this.copyNBT && inputNBT != null)
-                outputNBT = inputNBT.copy();
+                outputNBT = inputNBT;
             if(component.getSpaceForItem(this.outputSlot, this.output == Items.AIR ? item : this.output, outputNBT) < this.outputAmount)
                 continue;
             component.removeFromInputs(this.inputSlot, item, this.inputAmount, null);
@@ -129,9 +129,9 @@ public class ItemTransformRequirement extends AbstractChanceableRequirement<Item
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers() {
         CompoundTag outputNBT = null;
-        if(this.nbt != null && this.inputNBT != null)
-            outputNBT = this.nbt.apply(this.inputNBT.copy());
-        else if(copyNBT)
+        if(this.nbt != null)
+            outputNBT = this.nbt.apply(this.inputNBT == null ? null : this.inputNBT.copy());
+        else if(this.copyNBT && this.inputNBT != null)
             outputNBT = this.inputNBT;
         return Lists.newArrayList(
                 new ItemIngredientWrapper(RequirementIOMode.INPUT, this.input, this.inputAmount, getChance(), false, this.inputNBT, this.inputSlot),

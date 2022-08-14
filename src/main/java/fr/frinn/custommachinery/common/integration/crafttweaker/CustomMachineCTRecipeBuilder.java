@@ -4,6 +4,7 @@ import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.data.MapData;
 import com.blamejared.crafttweaker.api.data.base.IData;
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import com.blamejared.crafttweaker.api.item.IItemStack;
@@ -37,6 +38,7 @@ import fr.frinn.custommachinery.common.requirement.FluidRequirement;
 import fr.frinn.custommachinery.common.requirement.FuelRequirement;
 import fr.frinn.custommachinery.common.requirement.FunctionRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
+import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
 import fr.frinn.custommachinery.common.requirement.LightRequirement;
 import fr.frinn.custommachinery.common.requirement.LootTableRequirement;
 import fr.frinn.custommachinery.common.requirement.PositionRequirement;
@@ -67,6 +69,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.Optional;
@@ -75,7 +78,6 @@ import org.openzen.zencode.java.ZenCodeType.OptionalFloat;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -208,6 +210,22 @@ public class CustomMachineCTRecipeBuilder {
     @Method
     public CustomMachineCTRecipeBuilder produceItem(IItemStack stack, @OptionalString String slot) {
         return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getDefinition()), stack.getAmount(), nbtFromStack(stack), slot));
+    }
+
+    /** ITEM TRANSFORM **/
+
+    @Method
+    public CustomMachineCTRecipeBuilder transformItem(IItemStack stack, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<MapData, MapData> nbt) {
+        Item outputItem = output == null ? Items.AIR : output.getDefinition();
+        int outputAmount = output == null ? 1 : output.getAmount();
+        return addRequirement(new ItemTransformRequirement(new ItemIngredient(stack.getDefinition()), stack.getAmount(), inputSlot, nbtFromStack(stack), outputItem, outputAmount, outputSlot, true, new NbtTransformer(nbt)));
+    }
+
+    @Method
+    public CustomMachineCTRecipeBuilder transformItemTag(MCTag tag, @OptionalInt(1) int inputAmount, @Optional IData data, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<MapData, MapData> nbt) {
+        Item outputItem = output == null ? Items.AIR : output.getDefinition();
+        int outputAmount = output == null ? 1 : output.getAmount();
+        return addRequirement(new ItemTransformRequirement(ItemTagIngredient.create(tag.getTagKey()), inputAmount, inputSlot, getNBT(data), outputItem, outputAmount, outputSlot, true, new NbtTransformer(nbt)));
     }
 
     /** DURABILITY **/
@@ -766,5 +784,19 @@ public class CustomMachineCTRecipeBuilder {
             CraftTweakerAPI.LOGGER.error("Invalid comparator: " + comparator);
         }
         return this;
+    }
+
+    public static class NbtTransformer implements Function<CompoundTag, CompoundTag> {
+
+        private final Function<MapData, MapData> function;
+
+        public NbtTransformer(Function<MapData, MapData> function) {
+            this.function = function;
+        }
+
+        @Override
+        public CompoundTag apply(@Nullable CompoundTag compoundTag) {
+            return this.function.apply(new MapData(compoundTag)).getInternal();
+        }
     }
 }
