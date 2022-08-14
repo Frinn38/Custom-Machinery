@@ -18,6 +18,9 @@ import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Collections;
+import java.util.List;
+
 public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> implements ITickableRequirement<FuelMachineComponent>, IJEIIngredientRequirement<ItemStack> {
 
     public static final Codec<FuelRequirement> CODEC = RecordCodecBuilder.create(fuelRequirementInstance ->
@@ -27,12 +30,10 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
     );
 
     private final int amount;
-    private final FuelItemIngredientWrapper wrapper;
 
     public FuelRequirement(int amount) {
         super(RequirementIOMode.INPUT);
         this.amount = amount;
-        this.wrapper = new FuelItemIngredientWrapper(this.amount);
     }
 
     public int getAmount() {
@@ -72,7 +73,7 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
     }
 
     @Override
-    public IJEIIngredientWrapper<ItemStack> getJEIIngredientWrapper() {
-        return this.wrapper;
+    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers() {
+        return Collections.singletonList(new FuelItemIngredientWrapper(this.amount));
     }
 }

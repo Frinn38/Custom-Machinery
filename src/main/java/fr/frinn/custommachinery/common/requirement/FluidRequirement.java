@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
@@ -24,6 +25,8 @@ import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class FluidRequirement extends AbstractChanceableRequirement<FluidComponentHandler> implements IJEIIngredientRequirement<FluidStack> {
@@ -48,7 +51,6 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
     @Nullable
     private final CompoundTag nbt;
     private final String tank;
-    private final Lazy<FluidIngredientWrapper> wrapper;
 
     public FluidRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, @Nullable CompoundTag nbt, String tank) {
         super(mode);
@@ -58,7 +60,6 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
         this.amount = amount;
         this.nbt = nbt;
         this.tank = tank;
-        this.wrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.nbt, this.tank));
     }
 
     @Override
@@ -126,7 +127,7 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
     }
 
     @Override
-    public FluidIngredientWrapper getJEIIngredientWrapper() {
-        return this.wrapper.get();
+    public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers() {
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.nbt, this.tank));
     }
 }

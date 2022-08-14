@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
@@ -24,6 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class ItemRequirement extends AbstractChanceableRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
@@ -48,7 +51,6 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
     @Nullable
     private final CompoundTag nbt;
     private final String slot;
-    private final Lazy<ItemIngredientWrapper> wrapper;
 
     public ItemRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundTag nbt, String slot) {
         super(mode);
@@ -58,7 +60,6 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
         this.amount = amount;
         this.nbt = nbt;
         this.slot = slot == null ? "" : slot;
-        this.wrapper = Lazy.of(() -> new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), false, this.nbt, this.slot));
     }
 
     @Override
@@ -125,7 +126,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
     }
 
     @Override
-    public ItemIngredientWrapper getJEIIngredientWrapper() {
-        return this.wrapper.get();
+    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers() {
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), false, this.nbt, this.slot));
     }
 }

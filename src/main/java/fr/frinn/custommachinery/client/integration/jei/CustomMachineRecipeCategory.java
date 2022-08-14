@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.integration.jei;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
@@ -28,10 +29,12 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachineRecipe> {
 
@@ -44,7 +47,7 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     private final IGuiHelper guiHelper;
     private final RecipeHelper recipeHelper;
     private final LoadingCache<IDisplayInfoRequirement, RequirementDisplayInfo> infoCache;
-
+    private final LoadingCache<CustomMachineRecipe, List<IJEIIngredientWrapper<?>>> wrapperCache;
     private int offsetX;
     private int offsetY;
     private int width;
@@ -64,6 +67,14 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
                 RequirementDisplayInfo info = new RequirementDisplayInfo();
                 requirement.getDisplayInfo(info);
                 return info;
+            }
+        });
+        this.wrapperCache = CacheBuilder.newBuilder().build(new CacheLoader<CustomMachineRecipe, List<IJEIIngredientWrapper<?>>>() {
+            @Override
+            public List<IJEIIngredientWrapper<?>> load(CustomMachineRecipe recipe) {
+                ImmutableList.Builder<IJEIIngredientWrapper<?>> wrappers = ImmutableList.builder();
+                recipe.getJEIIngredientRequirements().forEach(requirement -> wrappers.addAll(requirement.getJEIIngredientWrappers()));
+                return wrappers.build();
             }
         });
     }
@@ -139,16 +150,16 @@ public class CustomMachineRecipeCategory implements IRecipeCategory<CustomMachin
     public void setRecipe(IRecipeLayoutBuilder builder, CustomMachineRecipe recipe, IFocusGroup focuses) {
         builder.moveRecipeTransferButton(this.width - 11, this.height - 11);
 
-        List<IJEIIngredientRequirement<?>> requirements = recipe.getJEIIngredientRequirements();
+        List<IJEIIngredientWrapper<?>> wrappers = new ArrayList<>(this.wrapperCache.getUnchecked(recipe));
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
 
         elements.forEach(element -> {
             //Search for ingredients to put in the corresponding slots/fluid and energy bars.
-            Iterator<IJEIIngredientRequirement<?>> iterator = requirements.iterator();
+            Iterator<IJEIIngredientWrapper<?>> iterator = wrappers.iterator();
             while (iterator.hasNext()) {
-                IJEIIngredientWrapper<?> wrapper = iterator.next().getJEIIngredientWrapper();
+                IJEIIngredientWrapper<?> wrapper = iterator.next();
                 //Delegate the element check to the ingredient wrapper, which will delegate to the component template if needed.
-                if(wrapper.setupRecipe(builder, this.offsetX, this.offsetY, element, recipeHelper)) {
+                if(wrapper.setupRecipe(builder, this.offsetX, this.offsetY, element, this.recipeHelper)) {
                     //If an ingredient is found for this element, remove it from the list, so it can't be added again to another element.
                     iterator.remove();
                     break;

@@ -181,6 +181,7 @@
   "custommachinery.requirements.drop.info.produce": "Drop %s",
   "custommachinery.requirements.drop.info.whitelist": "Accepted items :",
   "custommachinery.requirements.drop.info.blacklist": "Denied items :",
+  "custommachinery.requirements.item_transform.error": "Not enough %s, %s needed !",
 
   "custommachinery.side.top": "Top",
   "custommachinery.side.bottom": "Bottom",

@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.codec.CodecLogger;
@@ -95,7 +96,7 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
     }
 
     @Override
-    public LootTableIngredientWrapper getJEIIngredientWrapper() {
-        return new LootTableIngredientWrapper(this.lootTable);
+    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers() {
+        return Collections.singletonList(new LootTableIngredientWrapper(this.lootTable));
     }
 }

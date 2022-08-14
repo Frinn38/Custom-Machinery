@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
@@ -19,6 +20,9 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.common.util.Lazy;
+
+import java.util.Collections;
+import java.util.List;
 
 public class EnergyPerTickRequirement extends AbstractChanceableRequirement<EnergyMachineComponent> implements ITickableRequirement<EnergyMachineComponent>, IJEIIngredientRequirement<Energy> {
 
@@ -35,12 +39,10 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
     );
 
     private final int amount;
-    private final Lazy<EnergyIngredientWrapper> wrapper;
 
     public EnergyPerTickRequirement(RequirementIOMode mode, int amount) {
         super(mode);
         this.amount = amount;
-        this.wrapper = Lazy.of(() -> new EnergyIngredientWrapper(this.getMode(), this.amount, getChance(), true));
     }
 
     @Override
@@ -94,7 +96,7 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
     }
 
     @Override
-    public EnergyIngredientWrapper getJEIIngredientWrapper() {
-        return this.wrapper.get();
+    public List<IJEIIngredientWrapper<Energy>> getJEIIngredientWrappers() {
+        return Collections.singletonList(new EnergyIngredientWrapper(this.getMode(), this.amount, getChance(), true));
     }
 }

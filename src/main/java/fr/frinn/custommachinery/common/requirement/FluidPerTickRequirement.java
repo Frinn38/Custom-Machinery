@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
@@ -25,6 +26,8 @@ import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class FluidPerTickRequirement extends AbstractChanceableRequirement<FluidComponentHandler> implements ITickableRequirement<FluidComponentHandler>, IJEIIngredientRequirement<FluidStack> {
@@ -49,7 +52,6 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
     @Nullable
     private final CompoundTag nbt;
     private final String tank;
-    private final Lazy<FluidIngredientWrapper> wrapper;
 
     public FluidPerTickRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, int amount, @Nullable CompoundTag nbt, String tank) {
         super(mode);
@@ -59,7 +61,6 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
         this.amount = amount;
         this.nbt = nbt;
         this.tank = tank;
-        this.wrapper = Lazy.of(() -> new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.nbt, this.tank));
     }
 
     @Override
@@ -128,7 +129,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
     }
 
     @Override
-    public FluidIngredientWrapper getJEIIngredientWrapper() {
-        return this.wrapper.get();
+    public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers() {
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.nbt, this.tank));
     }
 }
