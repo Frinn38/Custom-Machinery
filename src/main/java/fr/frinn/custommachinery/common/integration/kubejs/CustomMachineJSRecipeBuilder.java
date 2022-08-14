@@ -13,6 +13,7 @@ import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ListJS;
 import dev.latvian.mods.kubejs.util.MapJS;
+import dev.latvian.mods.rhino.NativeObject;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -20,6 +21,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
+import fr.frinn.custommachinery.common.integration.crafttweaker.CustomMachineCTRecipeBuilder;
 import fr.frinn.custommachinery.common.integration.kubejs.function.KJSFunction;
 import fr.frinn.custommachinery.common.integration.kubejs.function.RecipeFunction;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
@@ -37,6 +39,7 @@ import fr.frinn.custommachinery.common.requirement.FluidRequirement;
 import fr.frinn.custommachinery.common.requirement.FuelRequirement;
 import fr.frinn.custommachinery.common.requirement.FunctionRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
+import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
 import fr.frinn.custommachinery.common.requirement.LightRequirement;
 import fr.frinn.custommachinery.common.requirement.LootTableRequirement;
 import fr.frinn.custommachinery.common.requirement.PositionRequirement;
@@ -64,14 +67,15 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -218,6 +222,49 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     public CustomMachineJSRecipeBuilder produceItem(ItemStackJS stack, String slot) {
         return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), nbtFromStack(stack), slot));
+    }
+
+    /** ITEM TRANSFORM **/
+
+    public CustomMachineJSRecipeBuilder transformItem(ItemStackJS input) {
+        return transformItem(input, input);
+    }
+
+    public CustomMachineJSRecipeBuilder transformItem(ItemStackJS input, ItemStackJS output) {
+        return transformItem(input, output, "", "");
+    }
+
+    public CustomMachineJSRecipeBuilder transformItem(ItemStackJS input, ItemStackJS output, String inputSlot, String outputSlot) {
+        return transformItem(input, output, inputSlot, outputSlot, null);
+    }
+
+    public CustomMachineJSRecipeBuilder transformItem(ItemStackJS input, ItemStackJS output, String inputSlot, String outputSlot, Function<MapJS, Object> nbt) {
+        return this.addRequirement(new ItemTransformRequirement(new ItemIngredient(input.getItem()), input.getCount(), inputSlot, input.getNbt(), output.getItem(), output.getCount(), outputSlot, true, new NbtTransformer(nbt)));
+    }
+
+    public CustomMachineJSRecipeBuilder transformItemTag(String tag) {
+        return transformItemTag(tag, 1, null);
+    }
+
+    public CustomMachineJSRecipeBuilder transformItemTag(String tag, int inputAmount, CompoundTag inputNBT) {
+        return transformItemTag(tag, inputAmount, inputNBT, ItemStackJS.EMPTY);
+    }
+
+    public CustomMachineJSRecipeBuilder transformItemTag(String tag, int inputAmount, CompoundTag inputNBT, ItemStackJS output) {
+        return transformItemTag(tag, inputAmount, inputNBT, output, "", "");
+    }
+
+    public CustomMachineJSRecipeBuilder transformItemTag(String tag, int inputAmount, CompoundTag inputNBT, ItemStackJS output, String inputSlot, String outputSlot) {
+        return transformItemTag(tag, inputAmount, inputNBT, output, inputSlot, outputSlot, null);
+    }
+
+    public CustomMachineJSRecipeBuilder transformItemTag(String tag, int inputAmount, CompoundTag inputNBT, ItemStackJS output, String inputSlot, String outputSlot, Function<MapJS, Object> nbt) {
+        try {
+            return this.addRequirement(new ItemTransformRequirement(ItemTagIngredient.create(tag), inputAmount, inputSlot, inputNBT, output.getItem(), output.getCount(), outputSlot, true, new NbtTransformer(nbt)));
+        } catch (IllegalArgumentException e) {
+            ScriptType.SERVER.console.warn(e.getMessage());
+            return this;
+        }
     }
 
     /** DURABILITY **/
@@ -988,6 +1035,8 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
         return addRequirement(new FunctionRequirement(FunctionRequirement.Phase.END, new KJSFunction(function)));
     }
 
+    /** INTERNAL **/
+
     private @Nullable CompoundTag nbtFromStack(ItemStackJS stack) {
         CompoundTag nbt = stack.getNbt();
         if(nbt == null || nbt.isEmpty())
@@ -998,4 +1047,15 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
             return null;
         return nbt;
     }
+
+
+    private record NbtTransformer(Function<MapJS, Object> function) implements Function<CompoundTag, CompoundTag> {
+
+        @Nullable
+            @Override
+            public CompoundTag apply(@Nullable CompoundTag compoundTag) {
+                MapJS map = MapJS.of(this.function.apply(MapJS.of(compoundTag)));
+                return map == null ? null : map.toNBT();
+            }
+        }
 }
