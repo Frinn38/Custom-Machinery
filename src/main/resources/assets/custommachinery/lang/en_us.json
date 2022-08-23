@@ -129,7 +129,7 @@
   "custommachinery.requirements.position.info.dimension.whitelist": "Dimension Whitelist :",
   "custommachinery.requirements.position.info.dimension.blacklist": "Dimension Blacklist :",
   "custommachinery.requirements.time.error": "This recipe cannot be processed at this time of the day",
-  "custommachinery.requirements.time.info": "Time :",
+  "custommachinery.requirements.time.info": "Valid Time ranges :",
   "custommachinery.requirements.effect.info.tick": "Give %s %s for %s ticks in a radius of %s blocks each tick",
   "custommachinery.requirements.effect.info.end": "Give %s %s for %s ticks in a radius of %s blocks on end",
   "custommachinery.requirements.effect.info.whitelist": "Entity Whitelist :",

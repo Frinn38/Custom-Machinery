@@ -17,6 +17,7 @@ import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.apiimpl.util.IntRange;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
@@ -278,17 +279,14 @@ public class CustomMachineCTRecipeBuilder {
     /** TIME **/
 
     @Method
-    public CustomMachineCTRecipeBuilder requireTime(String[] times) {
-        List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).toList();
-        if(!timeComparators.isEmpty())
-            return addRequirement(new TimeRequirement(timeComparators));
-        return this;
-    }
-
-    @Method
     public CustomMachineCTRecipeBuilder requireTime(String time) {
-        TimeComparator timeComparator = Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(time)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + time)).getFirst();
-        return addRequirement(new TimeRequirement(Collections.singletonList(timeComparator)));
+        try {
+            IntRange range = IntRange.createFromString(time);
+            return addRequirement(new TimeRequirement(range));
+        } catch (IllegalArgumentException e) {
+            CraftTweakerAPI.LOGGER.error("Impossible to parse time range : {},\n{}", time, e.getMessage());
+            return this;
+        }
     }
 
     /** POSITION **/

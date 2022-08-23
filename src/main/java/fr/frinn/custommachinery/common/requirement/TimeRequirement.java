@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractRequirement;
+import fr.frinn.custommachinery.apiimpl.util.IntRange;
 import fr.frinn.custommachinery.common.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -25,15 +26,15 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
 
     public static final Codec<TimeRequirement> CODEC = RecordCodecBuilder.create(timeRequirementInstance ->
             timeRequirementInstance.group(
-                    Codecs.list(Codecs.TIME_COMPARATOR_CODEC).fieldOf("times").forGetter(requirement -> requirement.times)
+                    IntRange.CODEC.fieldOf("range").forGetter(requirement -> requirement.range)
             ).apply(timeRequirementInstance, TimeRequirement::new)
     );
 
-    private final List<TimeComparator> times;
+    private final IntRange range;
 
-    public TimeRequirement(List<TimeComparator> times) {
+    public TimeRequirement(IntRange range) {
         super(RequirementIOMode.INPUT);
-        this.times = times;
+        this.range = range;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
 
     @Override
     public boolean test(TimeMachineComponent component, ICraftingContext context) {
-        return this.times.stream().allMatch(comparator -> comparator.compare((int)component.getTime()));
+        return this.range.contains((int)component.getTime());
     }
 
     @Override
@@ -66,10 +67,8 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        if(!this.times.isEmpty()) {
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.time.info").withStyle(ChatFormatting.AQUA));
-            this.times.forEach(time -> info.addTooltip(new TextComponent("* ").append(time.getText())));
-        }
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.time.info").withStyle(ChatFormatting.AQUA));
+        this.range.getRestrictions().forEach(restriction -> info.addTooltip(new TextComponent("* " + restriction.toFormattedString())));
         info.setItemIcon(Items.CLOCK);
     }
 }

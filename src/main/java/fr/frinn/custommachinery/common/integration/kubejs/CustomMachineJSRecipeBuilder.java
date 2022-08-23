@@ -18,6 +18,7 @@ import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.apiimpl.util.IntRange;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
@@ -447,11 +448,14 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
 
     /** TIME **/
 
-    public CustomMachineJSRecipeBuilder requireTime(String[] times) {
-        List<TimeComparator> timeComparators = Stream.of(times).map(s -> Codecs.TIME_COMPARATOR_CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new IllegalArgumentException("Invalid time comparator: " + s)).getFirst()).toList();
-        if(!timeComparators.isEmpty())
-            return this.addRequirement(new TimeRequirement(timeComparators));
-        return this;
+    public CustomMachineJSRecipeBuilder requireTime(String time) {
+        try {
+            IntRange range = IntRange.createFromString(time);
+            return this.addRequirement(new TimeRequirement(range));
+        } catch (IllegalArgumentException e) {
+            ScriptType.SERVER.console.warn("Impossible to parse time range : " + time, e);
+            return this;
+        }
     }
 
     /** POSITION **/
