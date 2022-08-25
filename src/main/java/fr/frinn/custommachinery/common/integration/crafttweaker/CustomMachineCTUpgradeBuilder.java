@@ -75,28 +75,28 @@ public class CustomMachineCTUpgradeBuilder {
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder addInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+    public CustomMachineCTUpgradeBuilder addInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble(1.0D) double chance) {
         RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.INPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder mulInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+    public CustomMachineCTUpgradeBuilder mulInput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble(1.0D) double chance) {
         RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder addOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+    public CustomMachineCTUpgradeBuilder addOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble(1.0D) double chance) {
         RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder mulOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble double chance) {
+    public CustomMachineCTUpgradeBuilder mulOutput(RequirementTypeCTBrackets.CTRequirementType type, double value, @OptionalString String target, @OptionalDouble(1.0D) double chance) {
         RecipeModifier modifier = new RecipeModifier(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, value, target, chance);
         this.modifiers.add(modifier);
         return this;
