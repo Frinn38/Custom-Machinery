@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.common.init;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
@@ -14,6 +16,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -102,11 +105,16 @@ public class CustomMachineContainer extends SyncableContainer {
 
         if(clickedSlot.container == this.playerInv) {
             ItemStack stack = clickedSlot.getItem().copy();
-            for (SlotItemComponent slotComponent : this.inputSlotComponents) {
-                int maxInput = slotComponent.getComponent().insert(stack.getItem(), stack.getCount(), stack.getTag(), true);
+            List<SlotItemComponent> components;
+            if(CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(stack.getItem(), this.tile.getId()).isEmpty())
+                components = this.inputSlotComponents;
+            else
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getVariant() == UpgradeItemComponentVariant.INSTANCE ? -1 : 1)).toList();
+            for (SlotItemComponent slotComponent : components) {
+                int maxInput = slotComponent.getComponent().insert(stack.getItem(), stack.getCount(), stack.getTag(), true, true);
                 if(maxInput > 0) {
                     int toInsert = Math.min(maxInput, stack.getCount());
-                    slotComponent.getComponent().insert(stack.getItem(), toInsert, stack.getTag(), false);
+                    slotComponent.getComponent().insert(stack.getItem(), toInsert, stack.getTag(), false, true);
                     stack.shrink(toInsert);
                 }
                 if(stack.isEmpty())

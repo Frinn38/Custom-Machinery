@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.apiimpl.component.variant;
+package fr.frinn.custommachinery.impl.component.variant;
 
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.variant.IComponentVariant;

@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.component.variant.item;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
-import fr.frinn.custommachinery.apiimpl.component.variant.ItemComponentVariant;
+import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
