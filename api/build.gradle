@@ -11,3 +11,7 @@ dependencies {
 
     modCompileOnlyApi("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
 }
+
+remapJar {
+    archiveClassifier.set("api")
+}

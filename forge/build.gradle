@@ -1,11 +1,14 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "me.shedaniel.unified-publishing"
 }
 
 architectury {
     platformSetupLoomIde()
     forge()
 }
+
+project.version = "${project.minecraft_version}-${project.mod_version}-forge"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
@@ -119,5 +122,49 @@ publishing {
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
         // Add repositories to publish to here.
+    }
+}
+
+unifiedPublishing {
+    project {
+        displayName = "[Forge]Custom-Machinery-${project.minecraft_version}-${project.mod_version}"
+        releaseType = "beta"
+        changelog = rootProject.file("CHANGELOG.md").text
+        gameVersions = ["1.18.2"]
+        gameLoaders = ["forge"]
+        mainPublication remapJar
+
+        var CURSE_API_KEY = System.getenv("CURSEFORGE")
+        if (CURSE_API_KEY != null) {
+            curseforge {
+                token = CURSE_API_KEY
+                id = "457017"
+                gameVersions.addAll "Java 17"
+                relations {
+                    depends "architectury-api"
+                    depends "cloth-config"
+                    optional "crafttweaker"
+                    optional "jei"
+                    optional "the-one-probe"
+                    optional "kubejs"
+                    optional "building-gadgets"
+                    optional "jade"
+                }
+            }
+        }
+
+        var MODRINTH_TOKEN = System.getenv("MODRINTH")
+        if (MODRINTH_TOKEN != null) {
+            modrinth {
+                token = MODRINTH_TOKEN
+                id = "OrB5XFtI"
+                secondaryPublication rootProject.getApiJar()
+                relations {
+                    depends "architectury-api"
+                    depends "cloth-config"
+                    optional "kubejs"
+                }
+            }
+        }
     }
 }
