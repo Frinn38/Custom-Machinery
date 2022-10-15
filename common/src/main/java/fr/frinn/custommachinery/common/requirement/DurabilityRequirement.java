@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class DurabilityRequirement extends AbstractChanceableRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
 
@@ -34,12 +35,12 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
                     Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
                     Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt", new CompoundTag()).forGetter(requirement -> requirement.nbt),
+                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     CodecLogger.loggedOptional(Codec.BOOL, "break", false).forGetter(requirement -> requirement.canBreak),
                     CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     CodecLogger.loggedOptional(Codec.STRING,"slot", "").forGetter(requirement -> requirement.slot)
             ).apply(durabilityRequirementInstance, (mode, item, amount, nbt, canBreak, chance, slot) -> {
-                    DurabilityRequirement requirement = new DurabilityRequirement(mode, item, amount, nbt, canBreak, slot);
+                    DurabilityRequirement requirement = new DurabilityRequirement(mode, item, amount, nbt.orElse(null), canBreak, slot);
                     requirement.setChance(chance);
                     return requirement;
             })
