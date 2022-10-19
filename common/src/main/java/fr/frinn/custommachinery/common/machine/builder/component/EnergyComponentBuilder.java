@@ -23,8 +23,8 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
     public EnergyComponentBuilder fromComponent(IMachineComponent component) {
         if(component instanceof EnergyMachineComponent energyComponent) {
             this.capacity.set((int)energyComponent.getCapacity());
-            this.maxInput.set(energyComponent.getMaxInput());
-            this.maxOutput.set(energyComponent.getMaxOutput());
+            this.maxInput.set((int) energyComponent.getMaxInput());
+            this.maxOutput.set((int) energyComponent.getMaxOutput());
         }
         return this;
     }

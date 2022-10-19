@@ -28,6 +28,7 @@ public class Color {
     public static final Codec<Color> CODEC = EitherManyCodec.of(MAP_CODEC.codec(), ARRAY_CODEC, Codec.intRange(0, Integer.MAX_VALUE).xmap(Color::fromARGB, Color::getARGB));
 
     public static final Color WHITE = fromColors(255, 255, 255, 255);
+    public static final Color TRANSPARENT_WHITE = fromColors(127, 255, 255, 255);
 
     private final int alpha;
     private final int red;
