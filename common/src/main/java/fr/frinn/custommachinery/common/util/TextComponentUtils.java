@@ -10,7 +10,6 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.impl.codec.CodecLogger;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -20,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class TextComponentUtils {
@@ -38,7 +38,7 @@ public class TextComponentUtils {
                     CodecLogger.loggedOptional(Codec.BOOL,"underlined", false).forGetter(Style::isUnderlined),
                     CodecLogger.loggedOptional(Codec.BOOL,"strikethrough", false).forGetter(Style::isStrikethrough),
                     CodecLogger.loggedOptional(Codec.BOOL,"obfuscated", false).forGetter(Style::isObfuscated),
-                    CodecLogger.loggedOptional(COLOR_CODEC,"color", TextColor.fromLegacyFormat(ChatFormatting.WHITE)).forGetter(style -> style.getColor() == null ? TextColor.fromLegacyFormat(ChatFormatting.WHITE) : style.getColor()),
+                    CodecLogger.loggedOptional(COLOR_CODEC,"color").forGetter(style -> Optional.ofNullable(style.getColor())),
                     CodecLogger.loggedOptional(ResourceLocation.CODEC,"font", new ResourceLocation("default")).forGetter(Style::getFont)
             ).apply(styleInstance, (bold, italic, underlined, strikethrough, obfuscated, color, font) ->
                     Style.EMPTY
@@ -47,7 +47,7 @@ public class TextComponentUtils {
                     .withUnderlined(underlined)
                     .withStrikethrough(strikethrough)
                     .withObfuscated(obfuscated)
-                    .withColor(color)
+                    .withColor(color.orElse(null))
                     .withFont(font)
             )
     );
