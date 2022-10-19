@@ -33,14 +33,14 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     private long energy;
     private final long capacity;
-    private final int maxInput;
-    private final int maxOutput;
+    private final long maxInput;
+    private final long maxOutput;
     private final ICommonEnergyHandler handler;
     private final SideConfig config;
 
     private long actualTick;
 
-    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, int maxInput, int maxOutput, SideConfig.Template configTemplate) {
+    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long maxOutput, SideConfig.Template configTemplate) {
         super(manager, ComponentIOMode.BOTH);
         this.energy = 0;
         this.capacity = capacity;
@@ -51,11 +51,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         this.config.setCallback(this.handler::configChanged);
     }
 
-    public int getMaxInput() {
+    public long getMaxInput() {
         return this.maxInput;
     }
 
-    public int getMaxOutput() {
+    public long getMaxOutput() {
         return this.maxOutput;
     }
 
@@ -182,18 +182,18 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         public static final Codec<Template> CODEC = RecordCodecBuilder.create(templateInstance ->
                 templateInstance.group(
                         Codecs.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
-                        CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"maxInput").forGetter(template -> Optional.of(template.maxInput)),
-                        CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
+                        CodecLogger.loggedOptional(Codecs.longRange(0, Long.MAX_VALUE),"maxInput").forGetter(template -> Optional.of(template.maxInput)),
+                        CodecLogger.loggedOptional(Codecs.longRange(0, Long.MAX_VALUE),"maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
                         CodecLogger.loggedOptional(SideConfig.Template.CODEC, "config", SideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
-                ).apply(templateInstance, (capacity, maxInput, maxOutput, config) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(Utils.toInt(capacity)), maxOutput.orElse(Utils.toInt(capacity)), config))
+                ).apply(templateInstance, (capacity, maxInput, maxOutput, config) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), config))
         );
 
         private final long capacity;
-        private final int maxInput;
-        private final int maxOutput;
+        private final long maxInput;
+        private final long maxOutput;
         private final SideConfig.Template config;
 
-        public Template(long capacity, int maxInput, int maxOutput, SideConfig.Template config) {
+        public Template(long capacity, long maxInput, long maxOutput, SideConfig.Template config) {
             this.capacity = capacity;
             this.maxInput = maxInput;
             this.maxOutput = maxOutput;
