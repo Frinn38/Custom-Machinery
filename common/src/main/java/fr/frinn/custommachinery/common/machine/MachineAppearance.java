@@ -10,8 +10,8 @@ import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
+import fr.frinn.custommachinery.api.utils.ModelLocation;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -90,12 +90,12 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
-    public ResourceLocation getBlockModel() {
+    public ModelLocation getBlockModel() {
         return getProperty(Registration.BLOCK_MODEL_PROPERTY.get());
     }
 
     @Override
-    public ResourceLocation getItemModel() {
+    public ModelLocation getItemModel() {
         return getProperty(Registration.ITEM_MODEL_PROPERTY.get());
     }
 

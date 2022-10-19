@@ -4,6 +4,7 @@ import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.api.utils.ModelLocation;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -149,15 +150,15 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     public BakedModel getMachineBlockModel(MachineAppearance appearance, @Nullable MachineStatus status) {
         BakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
         BakedModel model;
-        ResourceLocation blockModelLocation = appearance.getBlockModel();
-        if(blockModelLocation instanceof ModelResourceLocation)
-            model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
+        ModelLocation blockModelLocation = appearance.getBlockModel();
+        if(blockModelLocation.getProperties() != null)
+            model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(blockModelLocation.getLoc(), blockModelLocation.getProperties()));
         else {
-            Block block = ForgeRegistries.BLOCKS.getValue(blockModelLocation);
+            Block block = ForgeRegistries.BLOCKS.getValue(blockModelLocation.getLoc());
             if(block != null && block != Blocks.AIR)
                 model = Minecraft.getInstance().getModelManager().getModel(BlockModelShaper.stateToModelLocation(block.defaultBlockState()));
             else
-                model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation);
+                model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation.getLoc());
         }
         if(model == missing)
             model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(status == null ? MachineStatus.IDLE : status));
@@ -170,15 +171,16 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         BakedModel model = missing;
 
         if(appearance != null) {
-            Item item = ForgeRegistries.ITEMS.getValue(appearance.getItemModel());
+            ModelLocation itemModelLocation = appearance.getItemModel();
+            Item item = ForgeRegistries.ITEMS.getValue(itemModelLocation.getLoc());
             if(item != null && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item) != null)
                 model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
 
             if(model == missing)
-                model = Minecraft.getInstance().getModelManager().getModel(appearance.getItemModel());
+                model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(itemModelLocation.getLoc(), itemModelLocation.getProperties()));
 
             if(model == Minecraft.getInstance().getModelManager().getModel(this.defaults.get(MachineStatus.IDLE)) || model == missing) {
-                Item item2 = ForgeRegistries.ITEMS.getValue(appearance.getBlockModel());
+                Item item2 = ForgeRegistries.ITEMS.getValue(appearance.getBlockModel().getLoc());
                 if(item2 != null && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item2) != null)
                     model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item2);
 

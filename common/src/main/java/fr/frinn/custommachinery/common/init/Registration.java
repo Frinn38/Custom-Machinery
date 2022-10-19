@@ -18,6 +18,7 @@ import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.api.utils.ModelLocation;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
@@ -223,8 +224,8 @@ public class Registration {
     public static final RegistrySupplier<RequirementType<FunctionRequirement>> FUNCTION_REQUIREMENT = REQUIREMENTS.register("function", () -> new RequirementType<>(FunctionRequirement.CODEC).setWorldRequirement());
     public static final RegistrySupplier<RequirementType<ItemTransformRequirement>> ITEM_TRANSFORM_REQUIREMENT = REQUIREMENTS.register("item_transform", () -> new RequirementType<>(ItemTransformRequirement.CODEC));
 
-    public static final RegistrySupplier<MachineAppearanceProperty<ResourceLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> new MachineAppearanceProperty<>(Codecs.BLOCK_MODEL_CODEC, new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")));
-    public static final RegistrySupplier<MachineAppearanceProperty<ResourceLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> new MachineAppearanceProperty<>(Codecs.ITEM_MODEL_CODEC, new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")));
+    public static final RegistrySupplier<MachineAppearanceProperty<ModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> new MachineAppearanceProperty<>(Codecs.BLOCK_MODEL_CODEC, ModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"))));
+    public static final RegistrySupplier<MachineAppearanceProperty<ModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> new MachineAppearanceProperty<>(Codecs.ITEM_MODEL_CODEC, ModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"))));
     public static final RegistrySupplier<MachineAppearanceProperty<SoundEvent>> AMBIENT_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("ambient_sound", () -> new MachineAppearanceProperty<>(SoundEvent.CODEC, new SoundEvent(new ResourceLocation(""))));
     public static final RegistrySupplier<MachineAppearanceProperty<CMSoundType>> INTERACTION_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("interaction_sound", () -> new MachineAppearanceProperty<>(CMSoundType.CODEC, CMSoundType.DEFAULT));
     public static final RegistrySupplier<MachineAppearanceProperty<Integer>> LIGHT_PROPERTY = APPEARANCE_PROPERTIES.register("light", () -> new MachineAppearanceProperty<>(Codec.intRange(0, 15), 0));

@@ -3,10 +3,9 @@ package fr.frinn.custommachinery.common.machine.builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
+import fr.frinn.custommachinery.api.utils.ModelLocation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -44,19 +43,19 @@ public class MachineAppearanceBuilder {
         this.properties.put(property, value);
     }
 
-    public ResourceLocation getBlockModel() {
+    public ModelLocation getBlockModel() {
         return getProperty(Registration.BLOCK_MODEL_PROPERTY.get());
     }
 
-    public void setBlockModel(ResourceLocation blockModel) {
+    public void setBlockModel(ModelLocation blockModel) {
         setProperty(Registration.BLOCK_MODEL_PROPERTY.get(), blockModel);
     }
 
-    public ResourceLocation getItemModel() {
+    public ModelLocation getItemModel() {
         return getProperty(Registration.ITEM_MODEL_PROPERTY.get());
     }
 
-    public void setItemModel(ModelResourceLocation itemModel) {
+    public void setItemModel(ModelLocation itemModel) {
         setProperty(Registration.ITEM_MODEL_PROPERTY.get(), itemModel);
     }
 

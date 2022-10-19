@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.api.machine;
 
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.api.utils.ModelLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -29,12 +29,12 @@ public interface IMachineAppearance {
     /**
      * @return The location of the model of the machine block.
      */
-    ResourceLocation getBlockModel();
+    ModelLocation getBlockModel();
 
     /**
      * @return The location of the model of the machine item.
      */
-    ResourceLocation getItemModel();
+    ModelLocation getItemModel();
 
     /**
      * @return The sound that the machine will emit.

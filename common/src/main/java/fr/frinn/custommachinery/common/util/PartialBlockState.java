@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.util;
 
 import com.google.common.collect.Lists;
+import fr.frinn.custommachinery.api.utils.ModelLocation;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -129,7 +129,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         return new TranslatableComponent(this.blockState.getBlock().getDescriptionId());
     }
 
-    public ResourceLocation getModelLocation() {
+    public ModelLocation getModelLocation() {
         ResourceLocation location = Registry.BLOCK.getKey(this.blockState.getBlock());
         StringBuilder stringbuilder = new StringBuilder();
 
@@ -144,7 +144,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         }
 
         String properties = stringbuilder.toString();
-        return new ModelResourceLocation(location, properties);
+        return ModelLocation.of(location, properties);
     }
 
     private static <T extends Comparable<T>> String getPropertyValueString(Property<T> property, Comparable<?> value) {
