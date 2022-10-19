@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.crafting.CraftingManager;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import mcp.mobius.waila.api.IServerDataProvider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,7 +23,7 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
             if(manager.getCurrentRecipe() != null) {
                 tag.putDouble("recipeProgressTime", manager.getRecipeProgressTime());
                 tag.putDouble("recipeTotalTime", manager.getRecipeTotalTime());
-                tag.putString("errorMessage", manager.getErrorMessage().getString());
+                tag.putString("errorMessage", Component.Serializer.toJson(manager.getErrorMessage()));
             }
             nbt.put(CustomMachinery.MODID, tag);
         }

@@ -55,7 +55,7 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
             }
 
             if(errored && nbt.contains("errorMessage", Tag.TAG_STRING))
-                tooltip.add(new TextComponent(nbt.getString("errorMessage")));
+                tooltip.add(Component.Serializer.fromJson(nbt.getString("errorMessage")));
         }
     }
 }
