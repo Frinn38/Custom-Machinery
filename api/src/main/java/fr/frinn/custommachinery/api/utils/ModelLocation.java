@@ -50,6 +50,8 @@ public class ModelLocation {
 
     @Override
     public String toString() {
-        return this.loc.toString() + "#" + this.properties;
+        if(this.properties != null)
+            return this.loc.toString() + "#" + this.properties;
+        return this.loc.toString();
     }
 }

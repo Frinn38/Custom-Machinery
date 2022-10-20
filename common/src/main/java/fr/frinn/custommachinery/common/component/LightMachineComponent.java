@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
 
 public class LightMachineComponent extends AbstractMachineComponent implements ITickableComponent {
 
@@ -25,7 +26,8 @@ public class LightMachineComponent extends AbstractMachineComponent implements I
     public void clientTick() {
         if(getManager().getTile().getMachine().getAppearance(getManager().getTile().getStatus()).getLightLevel() > 0 != this.emmitLight) {
             this.emmitLight = !this.emmitLight;
-            getManager().getLevel().getChunkSource().getLightEngine().checkBlock(getManager().getTile().getBlockPos());
+            getManager().getLevel().getLightEngine().checkBlock(getManager().getTile().getBlockPos());
+            getManager().getLevel().sendBlockUpdated(getManager().getTile().getBlockPos(), getManager().getTile().getBlockState(), getManager().getTile().getBlockState(), Block.UPDATE_ALL_IMMEDIATE);
         }
     }
 

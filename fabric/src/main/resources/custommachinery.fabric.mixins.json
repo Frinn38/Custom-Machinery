@@ -4,13 +4,19 @@
   "package": "fr.frinn.custommachinery.fabric.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "BlockGetterMixin",
     "EntityMixin",
     "ExplosionDamageCalculatorMixin",
+    "LevelChunkMixin",
+    "LevelMixin",
     "LevelRendererMixin",
     "LivingEntityMixin",
-    "MultiplayerGameModeMixin"
+    "MultiplayerGameModeMixin",
+    "ProtoChunkMixin"
   ],
-  "client": [],
+  "client": [
+    "ModelBlockRendererMixin"
+  ],
   "server": [],
   "injectors": {
     "defaultRequire": 1

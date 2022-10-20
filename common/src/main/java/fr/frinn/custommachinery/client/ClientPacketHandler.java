@@ -24,7 +24,7 @@ public class ClientPacketHandler {
                 if(status != manager.getStatus()) {
                     manager.setStatus(status);
                     machineTile.refreshClientData();
-                    Minecraft.getInstance().level.sendBlockUpdated(tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), Block.UPDATE_ALL);
+                    Minecraft.getInstance().level.sendBlockUpdated(pos, tile.getBlockState(), tile.getBlockState(), Block.UPDATE_ALL);
                 }
             }
         }

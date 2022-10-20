@@ -21,6 +21,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -51,8 +52,10 @@ import java.util.Optional;
 
 public abstract class CustomMachineBlock extends Block implements EntityBlock {
 
+    private static final StateArgumentPredicate<EntityType<?>> spawnPredicate = ((state, level, pos, type) -> state.isFaceSturdy(level, pos, Direction.UP) && Registration.CUSTOM_MACHINE_BLOCK.get().getLightEmission(state, level, pos) < 14);
+
     public CustomMachineBlock() {
-        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape());
+        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate));
     }
 
     @SuppressWarnings("deprecation")
@@ -130,17 +133,6 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public int getLightBlock(BlockState state, BlockGetter level, BlockPos pos) {
-        BlockEntity tile = level.getBlockEntity(pos);
-        if(tile instanceof CustomMachineTile) {
-            IMachineComponentManager manager = ((CustomMachineTile) tile).componentManager;
-            return manager.getComponent(Registration.LIGHT_MACHINE_COMPONENT.get()).map(LightMachineComponent::getMachineLight).orElse(0);
-        }
-        return 0;
     }
 
     @Nullable
@@ -242,5 +234,24 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
                 .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
                 .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getInteractionSound())
                 .orElse(super.getSoundType(state));
+    }
+
+    /**
+     * On Forge side this is called by ForgeCustomMachineBlock#getLightEmission which override the method added in IForgeBlock.
+     * On Fabric side this is called by various CM mixins :
+     * LevelMixin#custommachinery$getLightEmission
+     * BlockGetterMixin#custommachinery$getLightEmission
+     * LevelRendererMixin#custommachinery$getLightEmission
+     * LevelChunkMixin#custommachinery$getLightEmission
+     * ModelBlockRendererMixin#custommachinery$getLightEmission
+     * ProtoChunkMixin#custommachinery$getLightEmission
+     */
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockEntity tile = level.getBlockEntity(pos);
+        if(tile instanceof CustomMachineTile) {
+            IMachineComponentManager manager = ((CustomMachineTile) tile).componentManager;
+            return manager.getComponent(Registration.LIGHT_MACHINE_COMPONENT.get()).map(LightMachineComponent::getMachineLight).orElse(0);
+        }
+        return 0;
     }
 }
