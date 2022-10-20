@@ -1,7 +1,12 @@
 package fr.frinn.custommachinery.common.data;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.*;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.CustomMachineryAPI;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;

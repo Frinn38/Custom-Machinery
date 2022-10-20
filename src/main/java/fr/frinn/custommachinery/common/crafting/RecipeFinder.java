@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.crafting;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
-import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Iterator;

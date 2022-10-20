@@ -4,7 +4,6 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
 import mcp.MethodsReturnNonnullByDefault;
@@ -19,7 +18,6 @@ import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault

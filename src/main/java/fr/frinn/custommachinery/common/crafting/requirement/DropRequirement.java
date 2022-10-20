@@ -9,7 +9,11 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.requirement.*;
+import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.common.data.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -25,7 +29,11 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Random;
 
 public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMachineComponent> implements ITickableRequirement<DropMachineComponent>, IDisplayInfoRequirement {
 

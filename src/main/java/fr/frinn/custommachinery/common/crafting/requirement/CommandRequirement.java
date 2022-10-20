@@ -8,11 +8,9 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.apiimpl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.apiimpl.requirement.AbstractDelayedRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingManager;
@@ -20,13 +18,11 @@ import fr.frinn.custommachinery.common.data.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import net.minecraft.item.Items;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Locale;
-import java.util.Random;
 
 public class CommandRequirement extends AbstractDelayedChanceableRequirement<CommandMachineComponent> implements ITickableRequirement<CommandMachineComponent>, IDisplayInfoRequirement {
 

@@ -29,7 +29,11 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 

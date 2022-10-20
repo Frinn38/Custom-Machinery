@@ -20,7 +20,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.16.5-0.5.8i'
+version = '1.16.5-0.5.8j'
 group = 'fr.frinn.custommachinery' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'custommachinery'
 
@@ -289,6 +289,8 @@ if (System.getenv("CURSEFORGE")) {
                     optionalDependency "jei"
                     optionalDependency "the-one-probe"
                     optionalDependency "kubejs"
+                    optionalDependency "building-gadgets"
+                    optionalDependency "jade"
                 }
             }
             addArtifact(apiJar) {

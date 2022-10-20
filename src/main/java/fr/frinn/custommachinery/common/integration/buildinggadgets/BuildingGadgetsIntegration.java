@@ -11,8 +11,6 @@ import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
-import java.util.function.Supplier;
-
 public class BuildingGadgetsIntegration {
 
     public static final DeferredRegister<ITileDataSerializer> TILE_SERIALIZERS = DeferredRegister.create(ITileDataSerializer.class, CustomMachinery.MODID);

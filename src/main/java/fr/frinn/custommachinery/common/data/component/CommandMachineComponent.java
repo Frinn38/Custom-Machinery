@@ -10,11 +10,8 @@ import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ICommandSource;
 import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;

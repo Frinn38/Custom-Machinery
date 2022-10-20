@@ -12,7 +12,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import org.openzen.zencode.java.ZenCodeType.*;
+import org.openzen.zencode.java.ZenCodeType.Method;
+import org.openzen.zencode.java.ZenCodeType.Name;
+import org.openzen.zencode.java.ZenCodeType.OptionalDouble;
+import org.openzen.zencode.java.ZenCodeType.OptionalInt;
+import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 import java.util.ArrayList;
 import java.util.List;

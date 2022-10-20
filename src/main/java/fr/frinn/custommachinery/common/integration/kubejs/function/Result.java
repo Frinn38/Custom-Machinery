@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 
 import dev.latvian.kubejs.text.Text;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
-import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 
 public class Result {
 

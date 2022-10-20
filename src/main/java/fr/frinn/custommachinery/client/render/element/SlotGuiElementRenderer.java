@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.data.gui.SlotGuiElement;
+import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -28,7 +29,7 @@ public class SlotGuiElementRenderer implements IGuiElementRenderer<SlotGuiElemen
 
         Minecraft.getInstance().getTextureManager().bindTexture(element.getTexture());
         AbstractGui.blit(matrix, posX, posY, 0, 0, width, height, width, height);
-        if(!element.getItems().isEmpty()) {
+        if(!element.getItems().isEmpty() && (element.alwaysRender() || screen.getTile().getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(element.getID())).map(component -> component.getItemStack().isEmpty()).orElse(true))) {
             timer.onDraw();
             List<Item> items = element.getItems().stream().flatMap(ingredient -> ingredient.getAll().stream()).collect(Collectors.toList());
             ((CustomMachineScreen)screen).renderTransparentItem(matrix, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), posX + 1, posY + 1);

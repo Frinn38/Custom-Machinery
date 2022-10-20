@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.CodecLogger;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.apiimpl.guielement.AbstractGuiElement;
 import fr.frinn.custommachinery.apiimpl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.util.ResourceLocation;
