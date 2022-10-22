@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.util;
 
 import com.google.common.collect.Lists;
-import fr.frinn.custommachinery.api.utils.ModelLocation;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;

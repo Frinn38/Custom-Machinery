@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.api.machine;
 
-import fr.frinn.custommachinery.api.utils.ModelLocation;
+import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;

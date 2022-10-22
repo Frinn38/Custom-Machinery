@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.utils;
+package fr.frinn.custommachinery.impl.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

@@ -4,8 +4,8 @@ import com.mojang.datafixers.Products;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
-import fr.frinn.custommachinery.api.utils.TextureSizeHelper;
 import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {

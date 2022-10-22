@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.utils;
+package fr.frinn.custommachinery.impl.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;

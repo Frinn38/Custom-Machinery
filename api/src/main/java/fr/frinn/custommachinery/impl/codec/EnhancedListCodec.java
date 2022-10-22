@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.apiimpl.codec;
+package fr.frinn.custommachinery.impl.codec;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;

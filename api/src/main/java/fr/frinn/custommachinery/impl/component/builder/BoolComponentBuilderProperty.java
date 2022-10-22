@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.impl.component.builder;
 
-import fr.frinn.custommachinery.api.utils.EnumButton;
+import fr.frinn.custommachinery.impl.util.EnumButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.TextComponent;
 
