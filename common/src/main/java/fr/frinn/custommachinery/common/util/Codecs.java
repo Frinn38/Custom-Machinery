@@ -11,7 +11,7 @@ import com.mojang.serialization.codecs.PrimitiveCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
@@ -81,7 +81,7 @@ public class Codecs {
     public static final Codec<RequirementIOMode> REQUIREMENT_MODE_CODEC                 = fromEnum(RequirementIOMode.class);
     public static final Codec<MachineLocation.Loader> LOADER_CODEC                      = fromEnum(MachineLocation.Loader.class);
     public static final Codec<TextGuiElement.Alignment> ALIGNMENT_CODEC                 = fromEnum(TextGuiElement.Alignment.class);
-    public static final Codec<CraftingManager.PHASE> PHASE_CODEC                        = fromEnum(CraftingManager.PHASE.class);
+    public static final Codec<MachineProcessor.PHASE> PHASE_CODEC                        = fromEnum(MachineProcessor.PHASE.class);
     public static final Codec<WeatherMachineComponent.WeatherType> WEATHER_TYPE_CODEC   = fromEnum(WeatherMachineComponent.WeatherType.class);
     public static final Codec<EntityRequirement.ACTION> ENTITY_REQUIREMENT_ACTION_CODEC = fromEnum(EntityRequirement.ACTION.class);
     public static final Codec<BlockRequirement.ACTION> BLOCK_REQUIREMENT_ACTION_CODEC   = fromEnum(BlockRequirement.ACTION.class);

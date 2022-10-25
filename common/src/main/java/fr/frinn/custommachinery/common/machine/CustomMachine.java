@@ -5,9 +5,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.crafting.IProcessor;
+import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
@@ -29,7 +32,8 @@ public class CustomMachine implements ICustomMachine {
                 CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"gui", Collections.emptyList()).forGetter(CustomMachine::getGuiElements),
                 CodecLogger.loggedOptional(Codecs.list(IGuiElement.CODEC),"jei", Collections.emptyList()).forGetter(CustomMachine::getJeiElements),
                 CodecLogger.loggedOptional(Codecs.list(ResourceLocation.CODEC), "catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
-                CodecLogger.loggedOptional(Codecs.list(IMachineComponentTemplate.CODEC),"components", Collections.emptyList()).forGetter(CustomMachine::getComponentTemplates)
+                CodecLogger.loggedOptional(Codecs.list(IMachineComponentTemplate.CODEC),"components", Collections.emptyList()).forGetter(CustomMachine::getComponentTemplates),
+                CodecLogger.loggedOptional(IProcessorTemplate.CODEC, "processor", MachineProcessor.Template.DEFAULT).forGetter(CustomMachine::getProcessorTemplate)
         ).apply(machineCodec, CustomMachine::new)
     );
 
@@ -45,10 +49,11 @@ public class CustomMachine implements ICustomMachine {
     private final List<IGuiElement> jeiElements;
     private final List<ResourceLocation> catalysts;
     private final List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates;
+    private final IProcessorTemplate<? extends IProcessor> processorTemplate;
     private MachineLocation location;
 
 
-    public CustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates) {
+    public CustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates, IProcessorTemplate<? extends IProcessor> processorTemplate) {
         this.name = name;
         this.appearance = appearance;
         this.tooltips = tooltips;
@@ -56,6 +61,7 @@ public class CustomMachine implements ICustomMachine {
         this.jeiElements = jeiElements;
         this.catalysts = catalysts;
         this.componentTemplates = componentTemplates;
+        this.processorTemplate = processorTemplate;
     }
 
     @Override
@@ -76,6 +82,11 @@ public class CustomMachine implements ICustomMachine {
     @Override
     public MachineAppearance getAppearance(MachineStatus status) {
         return this.appearance.getAppearance(status);
+    }
+
+    @Override
+    public IProcessorTemplate<? extends IProcessor> getProcessorTemplate() {
+        return this.processorTemplate;
     }
 
     public List<Component> getTooltips() {

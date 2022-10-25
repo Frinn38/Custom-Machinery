@@ -4,6 +4,7 @@ import dev.architectury.registry.registries.Registrar;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
@@ -61,6 +62,11 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
     @Override
     public Registrar<DataType<?, ?>> dataRegistrar() {
         return Registration.DATA_REGISTRY;
+    }
+
+    @Override
+    public Registrar<ProcessorType<?>> processorRegistrar() {
+        return Registration.PROCESSOR_REGISTRY;
     }
 
     @Override

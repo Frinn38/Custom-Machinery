@@ -6,10 +6,11 @@ import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-public class DefaultItemComponentVariant extends ItemComponentVariant {
+public class ResultItemComponentVariant extends ItemComponentVariant {
 
-    public static final DefaultItemComponentVariant INSTANCE = new DefaultItemComponentVariant();
-    private static final ResourceLocation ID = new ResourceLocation(CustomMachinery.MODID, "default");
+    public static final ResultItemComponentVariant INSTANCE = new ResultItemComponentVariant();
+
+    private static final ResourceLocation ID = new ResourceLocation(CustomMachinery.MODID, "result");
 
     @Override
     public ResourceLocation getId() {
@@ -18,6 +19,11 @@ public class DefaultItemComponentVariant extends ItemComponentVariant {
 
     @Override
     public boolean canAccept(IMachineComponentManager manager, ItemStack stack) {
-        return true;
+        return false;
+    }
+
+    @Override
+    public boolean canOutput(IMachineComponentManager manager) {
+        return false;
     }
 }

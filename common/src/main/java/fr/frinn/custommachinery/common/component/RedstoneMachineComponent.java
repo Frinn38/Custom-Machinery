@@ -71,7 +71,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getPowerOutput() {
-        return switch (((CustomMachineTile) this.getManager().getTile()).craftingManager.getStatus()) {
+        return switch (this.getManager().getTile().getStatus()) {
             case IDLE -> this.idlePowerOutput;
             case ERRORED -> this.erroredPowerOutput;
             case RUNNING -> this.craftingPowerOutput;
@@ -80,7 +80,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getComparatorInput() {
-        return ((CustomMachineTile)this.getManager().getTile()).componentManager.getComponent(this.comparatorInputType).map(component -> {
+        return ((CustomMachineTile)this.getManager().getTile()).getComponentManager().getComponent(this.comparatorInputType).map(component -> {
             if(component instanceof IComparatorInputComponent)
                 return (IComparatorInputComponent)component;
             else if(component instanceof IComponentHandler)

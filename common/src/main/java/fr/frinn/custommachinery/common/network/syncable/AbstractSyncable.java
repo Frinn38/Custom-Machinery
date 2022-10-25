@@ -17,7 +17,7 @@ public abstract class AbstractSyncable<D extends IData<?>, T> implements ISyncab
     @Override
     public boolean needSync() {
         T value = get();
-        boolean needSync = value != this.lastKnownValue;
+        boolean needSync = !value.equals(this.lastKnownValue);
         this.lastKnownValue = value;
         return needSync;
     }

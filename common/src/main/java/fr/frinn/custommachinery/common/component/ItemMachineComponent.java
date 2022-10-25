@@ -81,7 +81,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     public boolean isItemValid(ItemStack stack) {
-        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getItem())) == this.whitelist && this.variant.isItemValid(getManager(), stack);
+        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getItem())) == this.whitelist && this.variant.canAccept(getManager(), stack);
     }
 
     public int getRemainingSpace() {
@@ -133,7 +133,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     public ItemStack extract(int amount, boolean simulate, boolean byPassLimit) {
-        if(amount <= 0 || this.stack.isEmpty())
+        if(amount <= 0 || this.stack.isEmpty() || !this.variant.canOutput(getManager()))
             return ItemStack.EMPTY;
 
         if(!byPassLimit)
@@ -239,11 +239,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
             if(isInput != this.mode.isInput())
                 return false;
             if(ingredient instanceof ItemStack stack)
-                return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.isItemValid(manager, stack);
+                return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.canAccept(manager, stack);
             else if(ingredient instanceof List<?> list) {
                 return list.stream().allMatch(object -> {
                     if(object instanceof ItemStack stack)
-                        return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.isItemValid(manager, stack);
+                        return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.canAccept(manager, stack);
                     return false;
                 });
             }

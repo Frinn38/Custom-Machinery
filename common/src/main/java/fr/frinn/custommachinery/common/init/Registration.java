@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
@@ -38,9 +39,15 @@ import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
+import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeSerializer;
+import fr.frinn.custommachinery.common.crafting.DummyProcessor;
+import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
+import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
+import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeSerializer;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeSerializer;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import fr.frinn.custommachinery.common.guielement.DumpGuiElement;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
@@ -146,12 +153,14 @@ public class Registration {
     public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create(CustomMachinery.MODID, RequirementType.REGISTRY_KEY);
     public static final DeferredRegister<MachineAppearanceProperty<?>> APPEARANCE_PROPERTIES = DeferredRegister.create(CustomMachinery.MODID, MachineAppearanceProperty.REGISTRY_KEY);
     public static final DeferredRegister<DataType<?, ?>> DATAS = DeferredRegister.create(CustomMachinery.MODID, DataType.REGISTRY_KEY);
+    public static final DeferredRegister<ProcessorType<?>> PROCESSORS = DeferredRegister.create(CustomMachinery.MODID, ProcessorType.REGISTRY_KEY);
 
     public static final Registrar<GuiElementType<? extends IGuiElement>> GUI_ELEMENT_TYPE_REGISTRY = REGISTRIES.builder(GuiElementType.REGISTRY_KEY.location(), new GuiElementType<?>[]{}).build();
     public static final Registrar<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_REGISTRY = REGISTRIES.builder(MachineComponentType.REGISTRY_KEY.location(), new MachineComponentType<?>[]{}).build();
     public static final Registrar<RequirementType<? extends IRequirement<?>>> REQUIREMENT_TYPE_REGISTRY = REGISTRIES.builder(RequirementType.REGISTRY_KEY.location(), new RequirementType<?>[]{}).build();
     public static final Registrar<MachineAppearanceProperty<?>> APPEARANCE_PROPERTY_REGISTRY = REGISTRIES.builder(MachineAppearanceProperty.REGISTRY_KEY.location(), new MachineAppearanceProperty<?>[]{}).build();
     public static final Registrar<DataType<?, ?>> DATA_REGISTRY = REGISTRIES.builder(DataType.REGISTRY_KEY.location(), new DataType<?, ?>[]{}).build();
+    public static final Registrar<ProcessorType<?>> PROCESSOR_REGISTRY = REGISTRIES.builder(ProcessorType.REGISTRY_KEY.location(), new ProcessorType<?>[]{}).build();
 
     public static final RegistrySupplier<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", PlatformHelper::createMachineBlock);
 
@@ -165,8 +174,10 @@ public class Registration {
     public static final RegistrySupplier<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> MenuRegistry.ofExtended(CustomMachineContainer::new));
 
     public static final RegistrySupplier<CustomMachineRecipeSerializer> CUSTOM_MACHINE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_machine", CustomMachineRecipeSerializer::new);
+    public static final RegistrySupplier<CustomCraftRecipeSerializer> CUSTOM_CRAFT_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_craft", CustomCraftRecipeSerializer::new);
 
     public static final RegistrySupplier<RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine_recipe", () -> new RecipeType<>() {});
+    public static final RegistrySupplier<RecipeType<CustomCraftRecipe>> CUSTOM_CRAFT_RECIPE = RECIPE_TYPES.register("custom_craft_recipe", () -> new RecipeType<>() {});
 
     public static final RegistrySupplier<GuiElementType<EnergyGuiElement>> ENERGY_GUI_ELEMENT = GUI_ELEMENTS.register("energy", () -> new GuiElementType<>(EnergyGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<FluidGuiElement>> FLUID_GUI_ELEMENT = GUI_ELEMENTS.register("fluid", () -> new GuiElementType<>(FluidGuiElement.CODEC));
@@ -246,9 +257,14 @@ public class Registration {
     public static final RegistrySupplier<DataType<LongData, Long>> LONG_DATA = DATAS.register("long", () -> new DataType<>(Long.class, LongSyncable::create, LongData::new));
     public static final RegistrySupplier<DataType<SideConfigData, SideConfig>> SIDE_CONFIG_DATA = DATAS.register("side_config", () -> new DataType<>(SideConfig.class, SideConfigSyncable::create, SideConfigData::readData));
 
+    public static final RegistrySupplier<ProcessorType<DummyProcessor>> DUMMY_PROCESSOR = PROCESSORS.register("dummy", () -> new ProcessorType<>(DummyProcessor.Template.CODEC));
+    public static final RegistrySupplier<ProcessorType<MachineProcessor>> MACHINE_PROCESSOR = PROCESSORS.register("machine", () -> new ProcessorType<>(MachineProcessor.Template.CODEC));
+    public static final RegistrySupplier<ProcessorType<CraftProcessor>> CRAFT_PROCESSOR = PROCESSORS.register("craft", () -> new ProcessorType<>(CraftProcessor.Template.CODEC));
+
     public static void registerComponentVariants() {
         ITEM_MACHINE_COMPONENT.get().addVariant(DefaultItemComponentVariant.INSTANCE);
         ITEM_MACHINE_COMPONENT.get().addVariant(FuelItemComponentVariant.INSTANCE);
         ITEM_MACHINE_COMPONENT.get().addVariant(UpgradeItemComponentVariant.INSTANCE);
+        ITEM_MACHINE_COMPONENT.get().addVariant(ResultItemComponentVariant.INSTANCE);
     }
 }

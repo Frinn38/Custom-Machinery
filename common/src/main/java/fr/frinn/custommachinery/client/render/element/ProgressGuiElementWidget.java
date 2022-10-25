@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
-import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.TextComponent;
@@ -19,8 +19,8 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
 
     @Override
     public void renderButton(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
-        int filledWidth = (int)(this.width * Mth.clamp(((CustomMachineContainer)this.getScreen().getScreen().getMenu()).getRecipeProgressPercent(), 0.0D, 1.0D));
-        int filledHeight = (int)(this.height * Mth.clamp(((CustomMachineContainer)this.getScreen().getScreen().getMenu()).getRecipeProgressPercent(), 0.0D, 1.0D));
+        int filledWidth = (int)(this.width * Mth.clamp(getRecipeProgressPercent(), 0.0D, 1.0D));
+        int filledHeight = (int)(this.height * Mth.clamp(getRecipeProgressPercent(), 0.0D, 1.0D));
 
         ClientHandler.bindTexture(this.getElement().getEmptyTexture());
 
@@ -51,6 +51,12 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
         int width = invertAxis ? this.height : this.width;
         int height = invertAxis ? this.width : this.height;
         return mouseX >= this.x && mouseX <= this.x + width && mouseY >= this.y && mouseY <= this.y + height;
+    }
+
+    public double getRecipeProgressPercent() {
+        if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getRecipeTotalTime() > 0)
+            return machineProcessor.getRecipeProgressTime() / (double) machineProcessor.getRecipeTotalTime();
+        return 0;
     }
 
     public static void rotate(PoseStack matrix, ProgressBarGuiElement.Orientation orientation, int posX, int posY, int width, int height) {

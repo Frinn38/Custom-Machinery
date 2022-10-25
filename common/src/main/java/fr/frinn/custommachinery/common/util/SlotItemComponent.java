@@ -52,4 +52,9 @@ public class SlotItemComponent extends Slot {
     public boolean mayPickup(Player player) {
         return true;
     }
+
+    @Override
+    public void setChanged() {
+        this.component.getManager().markDirty();
+    }
 }

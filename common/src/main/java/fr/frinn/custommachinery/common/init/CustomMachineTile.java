@@ -3,22 +3,27 @@ package fr.frinn.custommachinery.common.init;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
+import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.component.MachineComponentManager;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
-import fr.frinn.custommachinery.common.crafting.DummyCraftingManager;
+import fr.frinn.custommachinery.common.crafting.DummyProcessor;
 import fr.frinn.custommachinery.common.crafting.UpgradeManager;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
+import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
+import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.SoundManager;
+import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -34,10 +39,13 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     private ResourceLocation id = DUMMY;
     private boolean paused = false;
 
-    public CraftingManager craftingManager = new DummyCraftingManager(this);
-    public MachineComponentManager componentManager = new DummyComponentManager(this);
-    public UpgradeManager upgradeManager = new UpgradeManager(this);
-    public SoundManager soundManager;
+    private IProcessor processor = new DummyProcessor(this);
+    private MachineComponentManager componentManager = new DummyComponentManager(this);
+    private final UpgradeManager upgradeManager = new UpgradeManager(this);
+    private SoundManager soundManager;
+
+    private MachineStatus status = MachineStatus.IDLE;
+    private Component errorMessage = TextComponent.EMPTY;
 
     public CustomMachineTile(BlockPos pos, BlockState state) {
         super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);
@@ -49,7 +57,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
     public void setId(ResourceLocation id) {
         this.id = id;
-        this.craftingManager = new CraftingManager(this);
+        this.processor = getMachine().getProcessorTemplate().build(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
     }
 
@@ -66,19 +74,37 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
     @Override
     public MachineStatus getStatus() {
-        return this.craftingManager.getStatus();
+        return this.status;
+    }
+
+    @Override
+    public Component getMessage() {
+        return this.errorMessage;
+    }
+
+    @Override
+    public void setStatus(MachineStatus status, Component message) {
+        if(this.status != status) {
+            this.status = status;
+            this.errorMessage = message;
+            this.setChanged();
+            if(this.getLevel() != null && !this.getLevel().isClientSide()) {
+                BlockPos pos = this.getBlockPos();
+                new SUpdateMachineStatusPacket(pos, this.status).sendToChunkListeners(this.getLevel().getChunkAt(pos));
+            }
+        }
     }
 
     @Override
     public void refreshMachine(@Nullable ResourceLocation id) {
         if(this.level == null || this.level.isClientSide())
             return;
-        CompoundTag craftingManagerNBT = this.craftingManager.serializeNBT();
+        CompoundTag craftingManagerNBT = this.processor.serialize();
         CompoundTag componentManagerNBT = this.componentManager.serializeNBT();
         if(id == null)
             id = getId();
         this.setId(id);
-        this.craftingManager.deserializeNBT(craftingManagerNBT);
+        this.processor.deserialize(craftingManagerNBT);
         this.componentManager.deserializeNBT(componentManagerNBT);
 
         new SRefreshCustomMachineTilePacket(this.worldPosition, id).sendToChunkListeners(this.level.getChunkAt(this.worldPosition));
@@ -98,7 +124,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     public void resetProcess() {
         if(this.level == null || this.level.isClientSide())
             return;
-        this.craftingManager.reset();
+        this.processor.reset();
     }
 
     @Override
@@ -112,6 +138,11 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     }
 
     @Override
+    public IProcessor getProcessor() {
+        return this.processor;
+    }
+
+    @Override
     public MachineAppearance getAppearance() {
         return getMachine().getAppearance(getStatus());
     }
@@ -119,14 +150,14 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     /** TileEntity Stuff **/
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CustomMachineTile tile) {
-        if(tile.componentManager == null || tile.craftingManager == null)
+        if(tile.componentManager == null || tile.processor == null)
             return;
 
         level.getProfiler().push("Component tick");
         tile.componentManager.serverTick();
         level.getProfiler().popPush("Crafting Manager tick");
         try {
-            tile.craftingManager.tick();
+            tile.processor.tick();
         } catch (ComponentNotFoundException e) {
             CustomMachinery.LOGGER.error(e.getMessage());
             tile.setPaused(true);
@@ -135,7 +166,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     }
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, CustomMachineTile tile) {
-        if(tile.componentManager == null || tile.craftingManager == null)
+        if(tile.componentManager == null || tile.processor == null)
             return;
 
         tile.componentManager.clientTick();
@@ -163,8 +194,10 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     public void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
         nbt.putString("machineID", this.id.toString());
-        nbt.put("craftingManager", this.craftingManager.serializeNBT());
+        nbt.put("craftingManager", this.processor.serialize());
         nbt.put("componentManager", this.componentManager.serializeNBT());
+        nbt.putString("status", this.status.toString());
+        nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
     }
 
     @Override
@@ -174,10 +207,16 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
             this.setId(new ResourceLocation(nbt.getString("machineID")));
 
         if(nbt.contains("craftingManager", Tag.TAG_COMPOUND))
-            this.craftingManager.deserializeNBT(nbt.getCompound("craftingManager"));
+            this.processor.deserialize(nbt.getCompound("craftingManager"));
 
         if(nbt.contains("componentManager", Tag.TAG_COMPOUND))
             this.componentManager.deserializeNBT(nbt.getCompound("componentManager"));
+
+        if(nbt.contains("status", Tag.TAG_STRING))
+            this.setStatus(MachineStatus.value(nbt.getString("status")));
+
+        if(nbt.contains("message", Tag.TAG_STRING))
+            this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
     }
 
     //Needed for multiplayer sync
@@ -185,7 +224,8 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     public CompoundTag getUpdateTag() {
         CompoundTag nbt = super.getUpdateTag();
         nbt.putString("machineID", getId().toString());
-        nbt.put("craftingManager", this.craftingManager.serializeNBT());
+        nbt.putString("status", this.status.toString());
+        nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
         return nbt;
     }
 
@@ -200,19 +240,10 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        this.craftingManager.getStuffToSync(container);
+        if(this.processor instanceof ISyncableStuff syncableProcessor)
+            syncableProcessor.getStuffToSync(container);
         this.componentManager.getStuffToSync(container);
+        container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = MachineStatus.value(status)));
+        container.accept(StringSyncable.create(() -> Component.Serializer.toJson(this.errorMessage), errorMessage -> this.errorMessage = Component.Serializer.fromJson(errorMessage)));
     }
-
-    /**CLIENT STUFF**/
-
-    /*
-    @Nonnull
-    @Override
-    public IModelData getModelData() {
-        return new ModelDataMap.Builder()
-                .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance(getStatus()).copy())
-                .withInitial(CustomMachineBakedModel.STATUS, getStatus())
-                .build();
-    }*/
 }

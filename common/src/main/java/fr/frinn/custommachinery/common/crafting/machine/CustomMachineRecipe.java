@@ -1,10 +1,11 @@
-package fr.frinn.custommachinery.common.crafting;
+package fr.frinn.custommachinery.common.crafting.machine;
 
 import com.google.common.base.Suppliers;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.common.crafting.RecipeChecker;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +30,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     private final int priority;
     private final int jeiPriority;
     private final boolean resetOnError;
-    private final Supplier<RecipeChecker> checker = Suppliers.memoize(() -> new RecipeChecker(this));
+    private final Supplier<RecipeChecker<CustomMachineRecipe>> checker = Suppliers.memoize(() -> new RecipeChecker<>(this));
 
     public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError) {
         this.id = id;
@@ -66,6 +67,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         return this.requirements;
     }
 
+    @Override
     public List<IRequirement<?>> getJeiRequirements() {
         return this.jeiRequirements;
     }
@@ -97,7 +99,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         return this.resetOnError;
     }
 
-    public RecipeChecker checker() {
+    public RecipeChecker<CustomMachineRecipe> checker() {
         return checker.get();
     }
 

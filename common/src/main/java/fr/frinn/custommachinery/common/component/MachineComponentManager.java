@@ -145,7 +145,7 @@ public class MachineComponentManager implements IMachineComponentManager {
 
     public void markDirty() {
         this.getTile().setChanged();
-        this.getTile().craftingManager.setMachineInventoryChanged();
+        this.getTile().getProcessor().setMachineInventoryChanged();
     }
 
     public CompoundTag serializeNBT() {

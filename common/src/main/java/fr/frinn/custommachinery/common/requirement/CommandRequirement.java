@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.CommandMachineComponent;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.codec.CodecLogger;
@@ -43,11 +43,11 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
     );
 
     private final String command;
-    private final CraftingManager.PHASE phase;
+    private final MachineProcessor.PHASE phase;
     private final int permissionLevel;
     private final boolean log;
 
-    public CommandRequirement(String command, CraftingManager.PHASE phase, int permissionLevel, boolean log) {
+    public CommandRequirement(String command, MachineProcessor.PHASE phase, int permissionLevel, boolean log) {
         super(RequirementIOMode.INPUT);
         this.command = command;
         this.phase = phase;
@@ -67,21 +67,21 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
 
     @Override
     public CraftingResult processStart(CommandMachineComponent component, ICraftingContext context) {
-        if(this.phase == CraftingManager.PHASE.STARTING && !isDelayed())
+        if(this.phase == MachineProcessor.PHASE.STARTING && !isDelayed())
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
     @Override
     public CraftingResult processTick(CommandMachineComponent component, ICraftingContext context) {
-        if(this.phase == CraftingManager.PHASE.CRAFTING_TICKABLE && !isDelayed())
+        if(this.phase == MachineProcessor.PHASE.CRAFTING_TICKABLE && !isDelayed())
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }
 
     @Override
     public CraftingResult processEnd(CommandMachineComponent component, ICraftingContext context) {
-        if(this.phase == CraftingManager.PHASE.ENDING && !isDelayed())
+        if(this.phase == MachineProcessor.PHASE.ENDING && !isDelayed())
             component.sendCommand(this.command, this.permissionLevel, this.log);
         return CraftingResult.pass();
     }

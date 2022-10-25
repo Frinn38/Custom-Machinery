@@ -18,8 +18,8 @@ import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.integration.kubejs.function.KJSFunction;
 import fr.frinn.custommachinery.common.integration.kubejs.function.RecipeFunction;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
@@ -533,7 +533,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder runCommandOnStart(String command, int permissionLevel, boolean log) {
-        return this.addRequirement(new CommandRequirement(command, CraftingManager.PHASE.STARTING, permissionLevel, log));
+        return this.addRequirement(new CommandRequirement(command, MachineProcessor.PHASE.STARTING, permissionLevel, log));
     }
 
     public CustomMachineJSRecipeBuilder runCommandEachTick(String command) {
@@ -549,7 +549,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder runCommandEachTick(String command, int permissionLevel, boolean log) {
-        return this.addRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING_TICKABLE, permissionLevel, log));
+        return this.addRequirement(new CommandRequirement(command, MachineProcessor.PHASE.CRAFTING_TICKABLE, permissionLevel, log));
     }
 
     public CustomMachineJSRecipeBuilder runCommandOnEnd(String command) {
@@ -565,7 +565,7 @@ public class CustomMachineJSRecipeBuilder extends RecipeJS {
     }
 
     public CustomMachineJSRecipeBuilder runCommandOnEnd(String command, int permissionLevel, boolean log) {
-        return this.addRequirement(new CommandRequirement(command, CraftingManager.PHASE.ENDING, permissionLevel, log));
+        return this.addRequirement(new CommandRequirement(command, MachineProcessor.PHASE.ENDING, permissionLevel, log));
     }
 
     /** EFFECT **/

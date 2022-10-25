@@ -69,7 +69,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile machine) {
-            if(machine.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> fluidHandler.getCommonFluidHandler().interactWithFluidHandler(player, hand)).orElse(false)) {
+            if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> fluidHandler.getCommonFluidHandler().interactWithFluidHandler(player, hand)).orElse(false)) {
                 return InteractionResult.SUCCESS;
             }
             if(!level.isClientSide() && !machine.getMachine().getGuiElements().isEmpty()) {
@@ -117,7 +117,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
         super.playerDestroy(level, player, pos, state, blockEntity, tool);
         if(!level.isClientSide && !player.isCreative() && blockEntity instanceof CustomMachineTile machine) {
-            machine.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack)));
+            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack)));
             if(player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getMachine().getAppearance(machine.getStatus()))))
                 Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
         }
@@ -167,7 +167,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).componentManager.getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getComparatorInput).orElse(0);
+            return ((CustomMachineTile)tile).getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getComparatorInput).orElse(0);
         return 0;
     }
 
@@ -176,7 +176,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).componentManager.getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
+            return ((CustomMachineTile)tile).getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
         return 0;
     }
 
@@ -185,7 +185,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).componentManager.getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
+            return ((CustomMachineTile)tile).getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
         return 0;
     }
 
@@ -249,7 +249,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile) {
-            IMachineComponentManager manager = ((CustomMachineTile) tile).componentManager;
+            IMachineComponentManager manager = ((CustomMachineTile) tile).getComponentManager();
             return manager.getComponent(Registration.LIGHT_MACHINE_COMPONENT.get()).map(LightMachineComponent::getMachineLight).orElse(0);
         }
         return 0;

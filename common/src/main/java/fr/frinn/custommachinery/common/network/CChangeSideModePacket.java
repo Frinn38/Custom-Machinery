@@ -53,7 +53,7 @@ public class CChangeSideModePacket extends BaseC2SMessage {
             context.queue(() -> {
                 Player player = context.getPlayer();
                 if(player != null && player.containerMenu.containerId == this.containerID && player.containerMenu instanceof CustomMachineContainer container) {
-                    Optional<ISideConfigComponent> component = container.getTile().componentManager.getConfigComponentById(this.id);
+                    Optional<ISideConfigComponent> component = container.getTile().getComponentManager().getConfigComponentById(this.id);
                     if(component.isPresent()) {
                         SideConfig config = component.get().getConfig();
                         switch (this.side) {

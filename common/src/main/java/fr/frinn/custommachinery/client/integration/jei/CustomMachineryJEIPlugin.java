@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;

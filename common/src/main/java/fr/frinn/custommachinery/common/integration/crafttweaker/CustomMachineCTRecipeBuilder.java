@@ -18,9 +18,9 @@ import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipeBuilder;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
@@ -379,17 +379,17 @@ public class CustomMachineCTRecipeBuilder {
 
     @Method
     public CustomMachineCTRecipeBuilder runCommandOnStart(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log) {
-        return addRequirement(new CommandRequirement(command, CraftingManager.PHASE.STARTING, permissionLevel, log));
+        return addRequirement(new CommandRequirement(command, MachineProcessor.PHASE.STARTING, permissionLevel, log));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder runCommandEachTick(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log) {
-        return addRequirement(new CommandRequirement(command, CraftingManager.PHASE.CRAFTING_TICKABLE, permissionLevel, log));
+        return addRequirement(new CommandRequirement(command, MachineProcessor.PHASE.CRAFTING_TICKABLE, permissionLevel, log));
     }
 
     @Method
     public CustomMachineCTRecipeBuilder runCommandOnEnd(String command, @OptionalInt(2) int permissionLevel, @OptionalBoolean boolean log) {
-        return addRequirement(new CommandRequirement(command, CraftingManager.PHASE.ENDING, permissionLevel, log));
+        return addRequirement(new CommandRequirement(command, MachineProcessor.PHASE.ENDING, permissionLevel, log));
     }
 
     /** EFFECT **/

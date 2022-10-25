@@ -60,6 +60,7 @@ public class CustomMachinery {
         Registration.REQUIREMENTS.register();
         Registration.APPEARANCE_PROPERTIES.register();
         Registration.DATAS.register();
+        Registration.PROCESSORS.register();
 
         LifecycleEvent.SETUP.register(CustomMachinery::setup);
 

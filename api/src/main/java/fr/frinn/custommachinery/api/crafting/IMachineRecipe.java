@@ -25,6 +25,11 @@ public interface IMachineRecipe {
     List<IRequirement<?>> getRequirements();
 
     /**
+     * @return An Immutable list of all jei requirements of this recipe.
+     */
+    List<IRequirement<?>> getJeiRequirements();
+
+    /**
      * Recipes with higher priorities will be tested first.
      * @return The priority of this recipe, default : 0.
      */

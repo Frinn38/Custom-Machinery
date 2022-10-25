@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
@@ -115,6 +116,6 @@ public class CustomMachineBuilder {
         List<ResourceLocation> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);
         List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = new ArrayList<>();
         this.componentBuilders.forEach(builder -> componentTemplates.add(builder.build()));
-        return new CustomMachine(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates).setLocation(this.location);
+        return new CustomMachine(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates, MachineProcessor.Template.DEFAULT).setLocation(this.location);
     }
 }

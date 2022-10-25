@@ -109,7 +109,7 @@ public class ClientHandler {
                 case 4:
                     BlockEntity tile = world.getBlockEntity(pos);
                     if(tile instanceof CustomMachineTile machineTile) {
-                        return machineTile.getMachine().getAppearance(machineTile.craftingManager.getStatus()).getColor();
+                        return machineTile.getAppearance().getColor();
                     }
                 default:
                     return 0xFFFFFF;

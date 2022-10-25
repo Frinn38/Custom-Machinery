@@ -2,22 +2,23 @@ package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
+import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeChecker {
+public class RecipeChecker<T extends IMachineRecipe> {
 
-    private final CustomMachineRecipe recipe;
+    private final T recipe;
     private final List<IRequirement<?>> inventoryRequirements;
     private final List<IRequirement<?>> checkedInventoryRequirements;
     private final List<IRequirement<?>> worldRequirements;
     private final boolean isInventoryRequirementsOnly;
     private boolean inventoryRequirementsOk = false;
 
-    public RecipeChecker(CustomMachineRecipe recipe) {
+    public RecipeChecker(T recipe) {
         this.recipe = recipe;
         this.inventoryRequirements = recipe.getRequirements().stream().filter(r -> !r.getType().isWorldRequirement()).toList();
         this.checkedInventoryRequirements = new ArrayList<>();
@@ -25,7 +26,7 @@ public class RecipeChecker {
         this.isInventoryRequirementsOnly = recipe.getRequirements().stream().noneMatch(r -> r.getType().isWorldRequirement());
     }
 
-    public boolean check(CustomMachineTile tile, ICraftingContext context, boolean inventoryChanged) {
+    public boolean check(MachineTile tile, ICraftingContext context, boolean inventoryChanged) {
         if (inventoryChanged) {
             this.checkedInventoryRequirements.clear();
             this.inventoryRequirementsOk = false;
@@ -47,7 +48,7 @@ public class RecipeChecker {
             return this.worldRequirements.stream().allMatch(r -> checkRequirement(r, tile, context));
     }
 
-    public CustomMachineRecipe getRecipe() {
+    public T getRecipe() {
         return this.recipe;
     }
 
@@ -59,7 +60,7 @@ public class RecipeChecker {
         return this.inventoryRequirementsOk;
     }
 
-    private <T extends IMachineComponent> boolean checkRequirement(IRequirement<T> requirement, CustomMachineTile tile, ICraftingContext context) {
-        return tile.componentManager.getComponent(requirement.getComponentType()).map(c -> requirement.test(c, context)).orElse(false);
+    private <T extends IMachineComponent> boolean checkRequirement(IRequirement<T> requirement, MachineTile tile, ICraftingContext context) {
+        return tile.getComponentManager().getComponent(requirement.getComponentType()).map(c -> requirement.test(c, context)).orElse(false);
     }
 }

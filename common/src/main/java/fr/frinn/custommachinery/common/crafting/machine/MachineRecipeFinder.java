@@ -1,6 +1,8 @@
-package fr.frinn.custommachinery.common.crafting;
+package fr.frinn.custommachinery.common.crafting.machine;
 
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.common.crafting.CraftingContext;
+import fr.frinn.custommachinery.common.crafting.RecipeChecker;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
 
@@ -9,16 +11,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-public class RecipeFinder {
+public class MachineRecipeFinder {
 
-    private final CustomMachineTile tile;
-    private List<RecipeChecker> recipes;
-    private List<RecipeChecker> okToCheck;
+    private final MachineTile tile;
+    private List<RecipeChecker<CustomMachineRecipe>> recipes;
+    private List<RecipeChecker<CustomMachineRecipe>> okToCheck;
     private boolean inventoryChanged = true;
 
     private int recipeCheckCooldown;
 
-    public RecipeFinder(CustomMachineTile tile) {
+    public MachineRecipeFinder(MachineTile tile) {
         this.tile = tile;
     }
 
@@ -28,7 +30,7 @@ public class RecipeFinder {
         this.recipes = tile.getLevel().getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
-                .filter(recipe -> recipe.getMachine().equals(tile.getId()))
+                .filter(recipe -> recipe.getMachine().equals(tile.getMachine().getId()))
                 .sorted(Comparators.RECIPE_PRIORITY_COMPARATOR.reversed())
                 .map(CustomMachineRecipe::checker)
                 .toList();
@@ -46,9 +48,9 @@ public class RecipeFinder {
                 this.okToCheck.clear();
                 this.okToCheck.addAll(this.recipes);
             }
-            Iterator<RecipeChecker> iterator = this.okToCheck.iterator();
+            Iterator<RecipeChecker<CustomMachineRecipe>> iterator = this.okToCheck.iterator();
             while (iterator.hasNext()) {
-                RecipeChecker checker = iterator.next();
+                RecipeChecker<CustomMachineRecipe> checker = iterator.next();
                 if(!this.inventoryChanged && checker.isInventoryRequirementsOnly())
                     continue;
                 if(checker.check(this.tile, context.setRecipe(checker.getRecipe()), this.inventoryChanged)) {

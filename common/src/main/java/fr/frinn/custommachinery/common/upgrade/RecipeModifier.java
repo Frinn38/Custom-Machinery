@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
@@ -14,9 +15,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
-
-public class RecipeModifier {
+public class RecipeModifier implements IRecipeModifier {
 
     public static final Codec<RecipeModifier> CODEC = RecordCodecBuilder.create(energyModifierInstance ->
             energyModifierInstance.group(
@@ -54,30 +53,37 @@ public class RecipeModifier {
         this.tooltip = tooltip != null && tooltip != TextComponent.EMPTY ? tooltip : getDefaultTooltip(this);
     }
 
+    @Override
     public RequirementType<?> getRequirementType() {
         return this.requirementType;
     }
 
+    @Override
     public String getTarget() {
         return this.target;
     }
 
+    @Override
     public RequirementIOMode getMode() {
         return this.mode;
     }
 
+    @Override
     public OPERATION getOperation() {
         return this.operation;
     }
 
+    @Override
     public double getModifier() {
         return this.modifier;
     }
 
+    @Override
     public double getChance() {
         return this.chance;
     }
 
+    @Override
     public Component getTooltip() {
         return this.tooltip;
     }
@@ -93,14 +99,5 @@ public class RecipeModifier {
             tooltip.append(new TranslatableComponent(modifier.mode.getTranslationKey()).getString());
         }
         return new TextComponent(tooltip.toString());
-    }
-
-    public enum OPERATION {
-        ADDITION,
-        MULTIPLICATION;
-
-        public static OPERATION value(String value) {
-            return valueOf(value.toUpperCase(Locale.ENGLISH));
-        }
     }
 }

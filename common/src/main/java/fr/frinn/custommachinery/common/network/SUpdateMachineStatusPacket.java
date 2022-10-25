@@ -39,6 +39,6 @@ public class SUpdateMachineStatusPacket extends BaseS2CMessage {
     @Override
     public void handle(NetworkManager.PacketContext context) {
         if (context.getEnv() == EnvType.CLIENT)
-            context.queue(() -> ClientPacketHandler.handleCraftingManagerStatusChangedPacket(this.pos, this.status));
+            context.queue(() -> ClientPacketHandler.handleMachineStatusChangedPacket(this.pos, this.status));
     }
 }

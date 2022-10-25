@@ -1,12 +1,15 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
+import fr.frinn.custommachinery.api.crafting.IProcessor;
+import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
+import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -18,23 +21,23 @@ public class CraftingContext implements ICraftingContext {
 
     private static final Random RAND = new Random();
 
-    private final CraftingManager manager;
-    private final UpgradeManager upgrades;
-    private final CustomMachineRecipe recipe;
+    private final IProcessor manager;
+    private final IMachineUpgradeManager upgrades;
+    private final IMachineRecipe recipe;
 
-    public CraftingContext(CraftingManager manager, UpgradeManager upgrades, CustomMachineRecipe recipe) {
+    public CraftingContext(IProcessor manager, IMachineUpgradeManager upgrades, IMachineRecipe recipe) {
         this.manager = manager;
         this.upgrades = upgrades;
         this.recipe = recipe;
     }
 
     @Override
-    public CustomMachineTile getMachineTile() {
+    public MachineTile getMachineTile() {
         return this.manager.getTile();
     }
 
     @Override
-    public CustomMachineRecipe getRecipe() {
+    public IMachineRecipe getRecipe() {
         return this.recipe;
     }
 
@@ -68,7 +71,7 @@ public class CraftingContext implements ICraftingContext {
     }
 
     private double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, @Nullable RequirementIOMode mode) {
-        List<RecipeModifier> toApply = new ArrayList<>();
+        List<IRecipeModifier> toApply = new ArrayList<>();
         this.upgrades.getModifiers(type, target, mode)
                 .stream()
                 .filter(entry -> entry.getFirst().getChance() > RAND.nextDouble())
@@ -76,7 +79,7 @@ public class CraftingContext implements ICraftingContext {
 
         double toAdd = 0.0D;
         double toMult = 1.0D;
-        for(RecipeModifier modifier : toApply) {
+        for(IRecipeModifier modifier : toApply) {
             switch (modifier.getOperation()) {
                 case ADDITION -> toAdd += modifier.getModifier();
                 case MULTIPLICATION -> toMult *= modifier.getModifier();
@@ -87,19 +90,19 @@ public class CraftingContext implements ICraftingContext {
 
     public static class Mutable extends CraftingContext {
 
-        private CustomMachineRecipe recipe;
+        private IMachineRecipe recipe;
 
-        public Mutable(CraftingManager manager, UpgradeManager upgrades) {
+        public Mutable(IProcessor manager, IMachineUpgradeManager upgrades) {
             super(manager, upgrades, null);
         }
 
-        public Mutable setRecipe(CustomMachineRecipe recipe) {
+        public Mutable setRecipe(IMachineRecipe recipe) {
             this.recipe = recipe;
             return this;
         }
 
         @Override
-        public CustomMachineRecipe getRecipe() {
+        public IMachineRecipe getRecipe() {
             return this.recipe;
         }
     }

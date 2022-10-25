@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.crafting;
+package fr.frinn.custommachinery.common.crafting.machine;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,11 +16,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 public class CustomMachineRecipeSerializer extends RegistryEntry<CustomMachineRecipeSerializer> implements RecipeSerializer<CustomMachineRecipe> {
 
-    @ParametersAreNonnullByDefault
     @Override
     public CustomMachineRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
         ICustomMachineryAPI.INSTANCE.logger().info("Parsing recipe json: {}", recipeId);
@@ -35,7 +33,6 @@ public class CustomMachineRecipeSerializer extends RegistryEntry<CustomMachineRe
         throw new IllegalStateException("No success nor error when parsing Custom Machine Recipe json: " + recipeId + "This can't happen");
     }
 
-    @ParametersAreNonnullByDefault
     @Nullable
     @Override
     public CustomMachineRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
@@ -51,7 +48,6 @@ public class CustomMachineRecipeSerializer extends RegistryEntry<CustomMachineRe
         throw new IllegalStateException("No success nor error when receiving Custom Machine Recipe: " + recipeId + "from server. This can't happen");
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void toNetwork(FriendlyByteBuf buffer, CustomMachineRecipe recipe) {
         ICustomMachineryAPI.INSTANCE.logger().info("Sending recipe: {} to clients", recipe.getId());

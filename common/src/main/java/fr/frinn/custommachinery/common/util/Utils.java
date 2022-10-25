@@ -1,13 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
-import com.mojang.datafixers.util.Pair;
-import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
-import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
@@ -39,12 +32,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Utils {
@@ -89,18 +79,6 @@ public class Utils {
             case Tag.TAG_ANY_NUMERIC -> ((NumericTag) inbt).getAsNumber().equals(((NumericTag) tested).getAsNumber());
             default -> false;
         };
-    }
-
-    public static Map<RecipeModifier, Integer> getModifiersForTile(CustomMachineTile tile) {
-        return tile.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                .map(IComponentHandler::getComponents)
-                .orElse(new ArrayList<>())
-                .stream()
-                .filter(component -> component.getVariant() == UpgradeItemComponentVariant.INSTANCE)
-                .map(component -> Pair.of(component.getItemStack().getItem(), component.getItemStack().getCount()))
-                .flatMap(pair -> CustomMachinery.UPGRADES.getAllUpgrades().stream().filter(upgrade -> upgrade.getItem() == pair.getFirst() && upgrade.getMachines().contains(tile.getMachine().getId())).flatMap(upgrade -> upgrade.getModifiers().stream()).map(modifier -> Pair.of(modifier, pair.getSecond())))
-                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
-
     }
 
     public static AABB rotateBox(AABB box, Direction to) {

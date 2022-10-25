@@ -4,12 +4,14 @@ import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -68,5 +70,10 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
             int index = i;
             this.stuffToSync.add(IntegerSyncable.create(() -> array.get(index), integer -> array.set(index, integer)));
         }
+    }
+
+    protected Slot addSyncedSlot(Slot slot) {
+        this.stuffToSync.add(ItemStackSyncable.create(slot::getItem, slot::set));
+        return this.addSlot(slot);
     }
 }

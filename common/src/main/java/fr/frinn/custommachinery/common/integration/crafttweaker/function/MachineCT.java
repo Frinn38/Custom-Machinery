@@ -35,38 +35,38 @@ public class MachineCT {
     @Getter("energyStored")
     @Method
     public long getEnergyStored() {
-        return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getEnergy).orElse(0L);
+        return this.internal.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getEnergy).orElse(0L);
     }
 
     @Setter
     @Method
     public void setEnergyStored(long energy) {
-        this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(component -> component.setEnergy(energy));
+        this.internal.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(component -> component.setEnergy(energy));
     }
 
     @Getter("energyCapacity")
     @Method
     public long getEnergyCapacity() {
-        return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getCapacity).orElse(0L);
+        return this.internal.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(EnergyMachineComponent::getCapacity).orElse(0L);
     }
 
     //Return amount of energy added.
     @Method
     public int addEnergy(int toAdd, boolean simulate) {
-        return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(component -> component.receiveRecipeEnergy(toAdd, simulate)).orElse(0);
+        return this.internal.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(component -> component.receiveRecipeEnergy(toAdd, simulate)).orElse(0);
     }
 
     //Return amount of energy removed.
     @Method
     public int removeEnergy(int toRemove, boolean simulate) {
-        return this.internal.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(component -> component.extractRecipeEnergy(toRemove, simulate)).orElse(0);
+        return this.internal.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).map(component -> component.extractRecipeEnergy(toRemove, simulate)).orElse(0);
     }
 
     /** FLUID STUFF **/
 
     @Method
     public FluidStack getFluidStored(String tank) {
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
                 .map(FluidMachineComponent::getFluidStack)
                 .orElse(FluidStack.empty());
@@ -74,14 +74,14 @@ public class MachineCT {
 
     @Method
     public void setFluidStored(String tank, Fluid fluid, long amount, @Optional IData data) {
-        this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+        this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
                 .ifPresent(x -> x.setFluidStack(FluidStack.create(fluid, amount, data == null ? null : (CompoundTag) data.getInternal())));
     }
 
     @Method
     public long getFluidCapacity(String tank) {
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
                 .map(FluidMachineComponent::getCapacity)
                 .orElse(0L);
@@ -90,7 +90,7 @@ public class MachineCT {
     //Return amount of fluid that was NOT added.
     @Method
     public long addFluid(Fluid fluid, long amount, boolean simulate) {
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .map(handler -> (FluidComponentHandler)handler)
                 .map(handler -> handler.fill(FluidStack.create(fluid, amount), simulate))
                 .orElse(amount);
@@ -99,7 +99,7 @@ public class MachineCT {
     //Return amount of fluid that was NOT added.
     @Method
     public long addFluidToTank(String tank, Fluid fluid, long amount, boolean simulate, @Optional IData data) {
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
                 .map(component -> component.insert(fluid, amount, data == null ? null : (CompoundTag) data.getInternal(), simulate))
                 .orElse(amount);
@@ -108,7 +108,7 @@ public class MachineCT {
     //Return fluid that was successfully removed.
     @Method
     public FluidStack removeFluid(Fluid fluid, int amount, boolean simulate, @Optional IData data) {
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .map(handler -> (FluidComponentHandler)handler)
                 .map(handler -> handler.drain(FluidStack.create(fluid, amount, data == null ? null : (CompoundTag) data.getInternal()), simulate))
                 .orElse(FluidStack.empty());
@@ -117,7 +117,7 @@ public class MachineCT {
     //Return fluid that was successfully removed.
     @Method
     public FluidStack removeFluidFromTank(String tank, int amount, boolean simulate) {
-        return this.internal.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
                 .map(component -> component.extract(amount, simulate))
                 .orElse(FluidStack.empty());
@@ -127,7 +127,7 @@ public class MachineCT {
 
     @Method
     public IItemStack getItemStored(String slot) {
-        return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> Services.PLATFORM.createMCItemStack(component.getItemStack()))
                 .orElse(Services.PLATFORM.getEmptyIItemStack());
@@ -135,7 +135,7 @@ public class MachineCT {
 
     @Method
     public void setItemStored(String slot, IItemStack stackCT) {
-        this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+        this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .ifPresent(component -> {
                     component.setItemStack(stackCT.getInternal());
@@ -144,7 +144,7 @@ public class MachineCT {
 
     @Method
     public int getItemCapacity(String slot) {
-        return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(ItemMachineComponent::getCapacity)
                 .orElse(0);
@@ -153,7 +153,7 @@ public class MachineCT {
     //Return items that couldn't be added.
     @Method
     public IItemStack addItemToSlot(String slot, IItemStack stackCT, boolean simulate) {
-        return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> {
                     int inserted = component.insert(stackCT.getDefinition(), stackCT.getAmount(), stackCT.getInternal().getTag(), simulate);
@@ -165,7 +165,7 @@ public class MachineCT {
     //Return items that were successfully removed from the slot.
     @Method
     public IItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
-        return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+        return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> Services.PLATFORM.createMCItemStack(component.extract(toRemove, simulate)))
                 .orElse(Services.PLATFORM.getEmptyIItemStack());

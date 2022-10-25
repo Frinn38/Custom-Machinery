@@ -51,19 +51,19 @@ public class CustomMachineryFabric implements ModInitializer {
     @SuppressWarnings("UnstableApiUsage")
     private void createHandlers() {
         EnergyStorage.SIDED.registerForBlockEntity(
-                (machine, side) -> machine.componentManager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
+                (machine, side) -> machine.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
                         .map(component -> ((FabricEnergyHandler)component.getEnergyHandler()).getStorage(side))
                         .orElse(null),
                 Registration.CUSTOM_MACHINE_TILE.get()
         );
         FluidStorage.SIDED.registerForBlockEntity(
-                (machine, side) -> machine.componentManager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+                (machine, side) -> machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                         .map(handler -> ((FabricFluidHandler)((FluidComponentHandler)handler).getCommonFluidHandler()).getFluidStorage(side))
                         .orElse(null),
                 Registration.CUSTOM_MACHINE_TILE.get()
         );
         ItemStorage.SIDED.registerForBlockEntity(
-                (machine, side) -> machine.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                (machine, side) -> machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                         .map(handler -> ((FabricItemHandler)((ItemComponentHandler)handler).getCommonHandler()).getItemStorage(side))
                         .orElse(null),
                 Registration.CUSTOM_MACHINE_TILE.get()

@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.crafting.CustomMachineRecipe;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.init.Registration;
 
 import java.util.Comparator;

@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
@@ -37,7 +36,7 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
         List<Component> tooltips = new ArrayList<>();
         tooltips.add(new TranslatableComponent("custommachinery.craftingstatus." + this.getScreen().getTile().getStatus().toString().toLowerCase(Locale.ENGLISH)));
         if(this.getScreen().getTile().getStatus() == MachineStatus.ERRORED)
-            tooltips.add(((CustomMachineTile)this.getScreen().getTile()).craftingManager.getErrorMessage());
+            tooltips.add(this.getScreen().getTile().getMessage());
         return tooltips;
     }
 }

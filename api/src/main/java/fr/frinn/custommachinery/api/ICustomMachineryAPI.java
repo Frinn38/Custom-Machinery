@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.api;
 
 import dev.architectury.registry.registries.Registrar;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
@@ -84,6 +85,13 @@ public interface ICustomMachineryAPI {
      * Instead, use {@code DeferredRegister.create(modid, MachineComponentType.REGISTRY_KEY);}
      */
     Registrar<DataType<?, ?>> dataRegistrar();
+
+    /**
+     * @return The registrar for crafting processor types.
+     * Do not use this for creating a {@link dev.architectury.registry.registries.DeferredRegister}, it will throw an exception if queried before the registry is created.
+     * Instead, use {@code DeferredRegister.create(modid, CraftingProcessorType.REGISTRY_KEY);}
+     */
+    Registrar<ProcessorType<?>> processorRegistrar();
 
     /**
      * @return The registrar for the specified registry key.

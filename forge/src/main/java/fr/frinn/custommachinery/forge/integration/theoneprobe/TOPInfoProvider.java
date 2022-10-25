@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.forge.integration.theoneprobe;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
@@ -70,22 +70,23 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         if(tile instanceof CustomMachineTile machine) {
             MachineAppearance appearance = machine.getMachine().getAppearance(machine.getStatus());
             showHarvestInfo(info, appearance, player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance)));
-            showCraftingManagerInfo(machine.craftingManager, info);
+            showCraftingManagerInfo(machine, info);
         }
     }
 
-    private void showCraftingManagerInfo(CraftingManager manager, IProbeInfo info) {
-        TranslatableComponent status = manager.getStatus().getTranslatedName();
-        switch (manager.getStatus()) {
+    private void showCraftingManagerInfo(CustomMachineTile tile, IProbeInfo info) {
+        TranslatableComponent status = tile.getStatus().getTranslatedName();
+        switch (tile.getStatus()) {
             case ERRORED -> status.withStyle(ChatFormatting.RED);
             case RUNNING -> status.withStyle(ChatFormatting.GREEN);
             case PAUSED -> status.withStyle(ChatFormatting.GOLD);
         }
         info.mcText(status);
-        if(manager.getCurrentRecipe() != null)
-            info.progress((int)manager.getRecipeProgressTime(), manager.getRecipeTotalTime(), info.defaultProgressStyle().suffix("/" + manager.getRecipeTotalTime()));
-        if(manager.getStatus() == MachineStatus.ERRORED)
-            info.text(manager.getErrorMessage());
+        if(tile.getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getCurrentContext() != null) {
+            info.progress((int)machineProcessor.getRecipeProgressTime(), machineProcessor.getRecipeTotalTime(), info.defaultProgressStyle().suffix("/" + machineProcessor.getRecipeTotalTime()));
+            if(tile.getStatus() == MachineStatus.ERRORED)
+                info.text(tile.getMessage());
+        }
     }
     private static final ResourceLocation ICONS = new ResourceLocation("theoneprobe", "textures/gui/icons.png");
 

@@ -17,7 +17,7 @@ public class UpgradeItemComponentVariant extends ItemComponentVariant {
     }
 
     @Override
-    public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
+    public boolean canAccept(IMachineComponentManager manager, ItemStack stack) {
         return !CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(stack.getItem(), manager.getTile().getMachine().getId()).isEmpty();
     }
 }

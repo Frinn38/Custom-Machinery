@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api.machine;
 
+import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -24,4 +25,6 @@ public interface ICustomMachine {
      * @return The MachineAppearance corresponding to the supplied MachineStatus.
      */
     IMachineAppearance getAppearance(MachineStatus status);
+
+    IProcessorTemplate<?> getProcessorTemplate();
 }

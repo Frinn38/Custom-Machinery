@@ -2,10 +2,13 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
+import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
+import fr.frinn.custommachinery.common.util.ResultSlotItemComponent;
 import fr.frinn.custommachinery.common.util.SlotItemComponent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -48,11 +51,11 @@ public class CustomMachineContainer extends SyncableContainer {
                 int y = element.getY() + 1;
 
                 for(int k = 0; k < 9; ++k)
-                    this.addSlot(new Slot(playerInv, slotIndex.getAndIncrement(), x + k * 18, y + 58));
+                    this.addSyncedSlot(new Slot(playerInv, slotIndex.getAndIncrement(), x + k * 18, y + 58));
 
                 for(int i= 0; i < 3; ++i) {
                     for(int j = 0; j < 9; ++j)
-                        this.addSlot(new Slot(playerInv, slotIndex.getAndIncrement(), x + j * 18, y + i * 18));
+                        this.addSyncedSlot(new Slot(playerInv, slotIndex.getAndIncrement(), x + j * 18, y + i * 18));
                 }
             }
         );
@@ -64,14 +67,18 @@ public class CustomMachineContainer extends SyncableContainer {
             .filter(element -> element.getType() == Registration.SLOT_GUI_ELEMENT.get())
             .map(element -> (SlotGuiElement)element)
             .forEach(element -> {
-                this.tile.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(itemHandler -> itemHandler.getComponentForID(element.getID())).ifPresent(component -> {
+                this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(itemHandler -> itemHandler.getComponentForID(element.getID())).ifPresent(component -> {
                     int x = element.getX();
                     int y = element.getY();
                     int width = element.getWidth();
                     int height = element.getHeight();
                     int slotX = x + (width - 16) / 2;
                     int slotY = y + (height - 16) / 2;
-                    SlotItemComponent slotComponent = new SlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
+                    SlotItemComponent slotComponent;
+                    if(component.getVariant() == ResultItemComponentVariant.INSTANCE)
+                        slotComponent = new ResultSlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
+                    else
+                        slotComponent = new SlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
                     this.addSlot(slotComponent);
                     if (component.getMode().isInput())
                         this.inputSlotComponents.add(slotComponent);
@@ -128,9 +135,25 @@ public class CustomMachineContainer extends SyncableContainer {
             if (!(clickedSlot instanceof SlotItemComponent slotComponent))
                 return ItemStack.EMPTY;
 
+            if(slotComponent instanceof ResultSlotItemComponent resultSlot && this.tile.getProcessor() instanceof CraftProcessor processor) {
+                ItemStack removed = slotComponent.getItem();
+                if(!this.playerInv.add(removed))
+                    return ItemStack.EMPTY;
+                slotComponent.setChanged();
+
+                while (processor.bulkCraft()) {
+                    removed = slotComponent.getItem();
+                    if(!this.playerInv.add(removed))
+                        return ItemStack.EMPTY;
+                    slotComponent.setChanged();
+                }
+                return ItemStack.EMPTY;
+            }
+
             ItemStack removed = slotComponent.getItem();
             if(!moveItemStackTo(removed, 0, this.firstComponentSlotIndex - 1, false))
                 return ItemStack.EMPTY;
+            slotComponent.setChanged();
         }
         return ItemStack.EMPTY;
     }
@@ -143,12 +166,6 @@ public class CustomMachineContainer extends SyncableContainer {
     @Override
     public boolean needFullSync() {
         return this.tile.getLevel() != null && this.tile.getLevel().getGameTime() % 100 == 0;
-    }
-
-    public double getRecipeProgressPercent() {
-        if(this.tile.craftingManager.getRecipeTotalTime() > 0)
-            return this.tile.craftingManager.getRecipeProgressTime() / (double) this.tile.craftingManager.getRecipeTotalTime();
-        return 0;
     }
 
     public void elementClicked(int element, byte button) {

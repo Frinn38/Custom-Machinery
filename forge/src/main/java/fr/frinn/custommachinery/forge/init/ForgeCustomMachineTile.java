@@ -45,7 +45,7 @@ public class ForgeCustomMachineTile extends CustomMachineTile {
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction side) {
-        MachineComponentManager manager = this.componentManager;
+        MachineComponentManager manager = this.getComponentManager();
 
         if(capability == CapabilityEnergy.ENERGY)
             return manager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())

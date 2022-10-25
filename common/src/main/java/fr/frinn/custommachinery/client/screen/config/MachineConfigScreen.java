@@ -35,15 +35,15 @@ public class MachineConfigScreen extends BaseScreen {
     private List<IGuiElement> getConfigurableElements() {
         return this.parent.getMachine().getGuiElements().stream()
                 .filter(element -> element instanceof IComponentGuiElement<?> componentElement
-                        && componentElement.getComponent(this.parent.getTile().componentManager).isPresent()
-                        && componentElement.getComponent(this.parent.getTile().componentManager).get() instanceof ISideConfigComponent configComponent
+                        && componentElement.getComponent(this.parent.getTile().getComponentManager()).isPresent()
+                        && componentElement.getComponent(this.parent.getTile().getComponentManager()).get() instanceof ISideConfigComponent configComponent
                         && configComponent.getConfig().isEnabled()
                 ).toList();
     }
 
     private ISideConfigComponent getComponentFromElement(IGuiElement element) {
         if(element instanceof IComponentGuiElement<?> componentGuiElement) {
-            Optional<? extends IMachineComponent> optionalComponent = componentGuiElement.getComponent(this.parent.getTile().componentManager);
+            Optional<? extends IMachineComponent> optionalComponent = componentGuiElement.getComponent(this.parent.getTile().getComponentManager());
             if(optionalComponent.isPresent()) {
                 IMachineComponent component = optionalComponent.get();
                 if(component instanceof ISideConfigComponent sideConfigComponent)

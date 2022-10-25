@@ -1,7 +1,8 @@
 package fr.frinn.custommachinery.fabric.integration.jade;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.crafting.CraftingManager;
+import fr.frinn.custommachinery.api.crafting.IProcessor;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -24,13 +25,13 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
     @Override
     public void appendServerData(CompoundTag nbt, ServerPlayer player, Level level, BlockEntity tile, boolean b) {
         if(tile instanceof CustomMachineTile machine) {
-            CraftingManager manager = machine.craftingManager;
+            IProcessor processor = machine.getProcessor();
             CompoundTag tag = new CompoundTag();
-            tag.putByte("status", (byte)manager.getStatus().ordinal());
-            if(manager.getCurrentRecipe() != null) {
-                tag.putDouble("recipeProgressTime", manager.getRecipeProgressTime());
-                tag.putDouble("recipeTotalTime", manager.getRecipeTotalTime());
-                tag.putString("errorMessage", Component.Serializer.toJson(manager.getErrorMessage()));
+            tag.putByte("status", (byte)machine.getStatus().ordinal());
+            if(processor instanceof MachineProcessor machineProcessor && machineProcessor.getCurrentContext() != null) {
+                tag.putDouble("recipeProgressTime", machineProcessor.getRecipeProgressTime());
+                tag.putDouble("recipeTotalTime", machineProcessor.getRecipeTotalTime());
+                tag.putString("errorMessage", Component.Serializer.toJson(machine.getMessage()));
             }
             nbt.put(CustomMachinery.MODID, tag);
         }

@@ -18,7 +18,7 @@ public class FuelItemComponentVariant extends ItemComponentVariant {
     }
 
     @Override
-    public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
+    public boolean canAccept(IMachineComponentManager manager, ItemStack stack) {
         return FuelRegistry.get(stack) > 0;
     }
 }
