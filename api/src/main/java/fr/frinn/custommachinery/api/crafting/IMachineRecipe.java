@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery.api.crafting;
 
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import net.minecraft.resources.ResourceLocation;
 
@@ -29,6 +31,26 @@ public interface IMachineRecipe {
      */
     List<IRequirement<?>> getJeiRequirements();
 
+    /**
+     * @return An Immutable list of all display info requirements of this recipe.
+     */
+    default List<IDisplayInfoRequirement> getDisplayInfoRequirements() {
+        return getRequirements().stream()
+                .filter(requirement -> requirement instanceof IDisplayInfoRequirement)
+                .map(requirement -> (IDisplayInfoRequirement)requirement)
+                .toList();
+    }
+
+    /**
+     * @return An Immutable list of all jei ingredient requirements of this recipe.
+     */
+    @SuppressWarnings("unchecked")
+    default <T> List<IJEIIngredientRequirement<T>> getJEIIngredientRequirements() {
+        return getRequirements().stream()
+                .filter(requirement -> requirement instanceof IJEIIngredientRequirement<?>)
+                .map(requirement -> (IJEIIngredientRequirement<T>)requirement)
+                .toList();
+    }
     /**
      * Recipes with higher priorities will be tested first.
      * @return The priority of this recipe, default : 0.

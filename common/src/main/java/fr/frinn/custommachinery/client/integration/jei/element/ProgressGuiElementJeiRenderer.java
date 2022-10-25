@@ -28,8 +28,12 @@ public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<Progre
         if(Minecraft.getInstance().level == null)
             return;
 
-        int filledWidth = (int)(Minecraft.getInstance().level.getGameTime() % width);
-        int filledHeight = (int)(Minecraft.getInstance().level.getGameTime() % height);
+        int filledWidth = 0;
+        int filledHeight = 0;
+        if(recipe.getRecipeTime() > 0) {
+            filledWidth = (int)(Minecraft.getInstance().level.getGameTime() % width);
+            filledHeight = (int)(Minecraft.getInstance().level.getGameTime() % height);
+        }
 
         ClientHandler.bindTexture(element.getEmptyTexture());
 
@@ -65,7 +69,10 @@ public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<Progre
     @Override
     public List<Component> getJEITooltips(ProgressBarGuiElement element, IMachineRecipe recipe) {
         List<Component> tooltips = new ArrayList<>();
-        tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
+        if(recipe.getRecipeTime() > 0)
+            tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
+        else
+            tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.instant"));
         if(!CMConfig.get().needAdvancedInfoForRecipeID || Minecraft.getInstance().options.advancedItemTooltips)
             tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.id", recipe.getRecipeId().toString()).withStyle(ChatFormatting.DARK_GRAY));
         return tooltips;

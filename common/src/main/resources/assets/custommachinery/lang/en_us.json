@@ -103,6 +103,7 @@
   "custommachinery.jei.ingredient.fuel.amount": "Consume %s fuel burntime per tick",
   "custommachinery.jei.ingredient.fuel.burntime": "Burntime: %s",
   "custommachinery.jei.recipe.time": "Duration: %sticks",
+  "custommachinery.jei.recipe.instant": "Instant craft",
   "custommachinery.jei.recipe.id": "Recipe ID: %s",
 
   "custommachinery.machine.loader.default": "Default",
