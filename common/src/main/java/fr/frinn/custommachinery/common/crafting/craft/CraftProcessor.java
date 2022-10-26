@@ -79,11 +79,7 @@ public class CraftProcessor implements IProcessor {
         if(this.currentRecipe == null || this.currentContext == null)
             return;
 
-        this.currentRecipe.getRequirements()
-                .forEach(requirement -> {
-                    IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), requirement.getType()));
-                    ((IRequirement)requirement).processStart(component, this.currentContext);
-                });
+        this.processRecipe(this.currentRecipe, this.currentContext);
 
         this.reset();
     }
@@ -92,11 +88,7 @@ public class CraftProcessor implements IProcessor {
         if(this.currentRecipe == null || this.currentContext == null)
             return false;
 
-        this.currentRecipe.getRequirements()
-                .forEach(requirement -> {
-                    IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), requirement.getType()));
-                    ((IRequirement)requirement).processStart(component, this.currentContext);
-                });
+        this.processRecipe(this.currentRecipe, this.currentContext);
 
         if(checkRecipe(this.currentRecipe, this.currentContext)) {
             this.setCurrentRecipe(this.currentRecipe);
@@ -125,6 +117,7 @@ public class CraftProcessor implements IProcessor {
         return Optional.empty();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean checkRecipe(CustomCraftRecipe recipe, CraftingContext context) {
         return recipe.getRequirements().stream().allMatch(requirement -> {
             IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(recipe, this.tile.getMachine(), requirement.getType()));
@@ -138,6 +131,16 @@ public class CraftProcessor implements IProcessor {
         this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getVariant() == ResultItemComponentVariant.INSTANCE).findFirst())
                 .ifPresent(component -> component.setItemStack(recipe.getOutput().copy()));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void processRecipe(CustomCraftRecipe recipe, CraftingContext context) {
+        recipe.getRequirements()
+                .forEach(requirement -> {
+                    IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(recipe, this.tile.getMachine(), requirement.getType()));
+                    ((IRequirement)requirement).processStart(component, context);
+                    ((IRequirement)requirement).processEnd(component, context);
+                });
     }
 
     @Override
