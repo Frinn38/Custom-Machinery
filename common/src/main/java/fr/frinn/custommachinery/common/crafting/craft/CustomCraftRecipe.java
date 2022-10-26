@@ -44,7 +44,8 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
         this.jeiPriority = jeiPriority;
     }
 
-    public ResourceLocation getMachine() {
+    @Override
+    public ResourceLocation getMachineId() {
         return this.machine;
     }
 

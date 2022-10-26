@@ -101,7 +101,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         this.maxIconPerRow = this.width / (ICON_SIZE + 2);
         int maxDisplayRequirement = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
-                .filter(recipe -> recipe.getMachine().equals(this.machine.getId()))
+                .filter(recipe -> recipe.getMachineId().equals(this.machine.getId()))
                 .mapToInt(recipe -> recipe.getDisplayInfoRequirements().size())
                 .max()
                 .orElse(1);

@@ -71,7 +71,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                 .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
-                .collect(Collectors.groupingBy(CustomMachineRecipe::getMachine));
+                .collect(Collectors.groupingBy(CustomMachineRecipe::getMachineId));
         machineRecipes.forEach((id, list) -> {
             RecipeType<CustomMachineRecipe> type = CMRecipeTypes.machine(id);
             if(type != null)
@@ -82,7 +82,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                 .getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get())
                 .stream()
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
-                .collect(Collectors.groupingBy(CustomCraftRecipe::getMachine));
+                .collect(Collectors.groupingBy(CustomCraftRecipe::getMachineId));
         craftRecipes.forEach((id, list) -> {
             RecipeType<CustomCraftRecipe> type = CMRecipeTypes.craft(id);
             if(type != null)

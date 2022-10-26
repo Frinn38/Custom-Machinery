@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CustomMachineJSUpgradeBuilder {
+public class CustomMachineUpgradeJSBuilder {
 
     private final Item item;
     private List<Component> tooltips;
@@ -27,7 +27,7 @@ public class CustomMachineJSUpgradeBuilder {
     private final List<RecipeModifier> modifiers;
     private final int maxAmount;
 
-    public CustomMachineJSUpgradeBuilder(Item item, int maxAmount) {
+    public CustomMachineUpgradeJSBuilder(Item item, int maxAmount) {
         this.item = item;
         this.tooltips = Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA));
         this.maxAmount = maxAmount;
@@ -43,7 +43,7 @@ public class CustomMachineJSUpgradeBuilder {
         return new MachineUpgrade(this.item, this.machines, this.modifiers, this.tooltips, this.maxAmount);
     }
 
-    public CustomMachineJSUpgradeBuilder machine(String... string) {
+    public CustomMachineUpgradeJSBuilder machine(String... string) {
         for(String s : string) {
             final ResourceLocation machine;
             try {
@@ -56,12 +56,12 @@ public class CustomMachineJSUpgradeBuilder {
         return this;
     }
 
-    public CustomMachineJSUpgradeBuilder tooltip(Component... components) {
+    public CustomMachineUpgradeJSBuilder tooltip(Component... components) {
         this.tooltips = ImmutableList.copyOf(components);
         return this;
     }
 
-    public CustomMachineJSUpgradeBuilder modifier(JSRecipeModifierBuilder builder) {
+    public CustomMachineUpgradeJSBuilder modifier(JSRecipeModifierBuilder builder) {
         this.modifiers.add(builder.build());
         return this;
     }
@@ -140,21 +140,21 @@ public class CustomMachineJSUpgradeBuilder {
 
     public static class UpgradeEvent extends EventJS {
 
-        private final List<CustomMachineJSUpgradeBuilder> builders = new ArrayList<>();
+        private final List<CustomMachineUpgradeJSBuilder> builders = new ArrayList<>();
 
-        public CustomMachineJSUpgradeBuilder create(Item item) {
-            CustomMachineJSUpgradeBuilder builder = new CustomMachineJSUpgradeBuilder(item, 64);
+        public CustomMachineUpgradeJSBuilder create(Item item) {
+            CustomMachineUpgradeJSBuilder builder = new CustomMachineUpgradeJSBuilder(item, 64);
             this.builders.add(builder);
             return builder;
         }
 
-        public CustomMachineJSUpgradeBuilder create(Item item, int maxAmount) {
-            CustomMachineJSUpgradeBuilder builder = new CustomMachineJSUpgradeBuilder(item, maxAmount);
+        public CustomMachineUpgradeJSBuilder create(Item item, int maxAmount) {
+            CustomMachineUpgradeJSBuilder builder = new CustomMachineUpgradeJSBuilder(item, maxAmount);
             this.builders.add(builder);
             return builder;
         }
 
-        public List<CustomMachineJSUpgradeBuilder> getBuilders() {
+        public List<CustomMachineUpgradeJSBuilder> getBuilders() {
             return this.builders;
         }
     }

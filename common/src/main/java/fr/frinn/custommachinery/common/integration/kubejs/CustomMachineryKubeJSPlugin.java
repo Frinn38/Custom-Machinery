@@ -11,13 +11,14 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
 
     @Override
     public void addRecipes(RegisterRecipeHandlersEvent event) {
-        event.register(Registration.CUSTOM_MACHINE_RECIPE_SERIALIZER.getId(), CustomMachineJSRecipeBuilder::new);
+        event.register(Registration.CUSTOM_MACHINE_RECIPE_SERIALIZER.getId(), CustomMachineRecipeJSBuilder::new);
+        event.register(Registration.CUSTOM_CRAFT_RECIPE_SERIALIZER.getId(), CustomCraftRecipeJSBuilder::new);
     }
 
     @Override
     public void addBindings(BindingsEvent event) {
         event.add("Result", Result.class);
         event.add("CustomMachine", MachineJS.class);
-        event.add("CMRecipeModifierBuilder", CustomMachineJSUpgradeBuilder.JSRecipeModifierBuilder.class);
+        event.add("CMRecipeModifierBuilder", CustomMachineUpgradeJSBuilder.JSRecipeModifierBuilder.class);
     }
 }

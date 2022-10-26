@@ -113,7 +113,7 @@ public class CraftProcessor implements IProcessor {
 
         List<CustomCraftRecipe> recipes = this.tile.getLevel().getRecipeManager().getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get())
                 .stream()
-                .filter(recipe -> recipe.getMachine().equals(this.tile.getMachine().getId()))
+                .filter(recipe -> recipe.getMachineId().equals(this.tile.getMachine().getId()))
                 .toList();
 
         CraftingContext.Mutable context = new CraftingContext.Mutable(this, this.tile.getUpgradeManager());

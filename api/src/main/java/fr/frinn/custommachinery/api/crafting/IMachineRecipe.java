@@ -17,6 +17,11 @@ public interface IMachineRecipe {
     ResourceLocation getRecipeId();
 
     /**
+     * @return The id of the machine that can process this recipe.
+     */
+    ResourceLocation getMachineId();
+
+    /**
      * @return The duration (in ticks) of the recipe.
      */
     int getRecipeTime();

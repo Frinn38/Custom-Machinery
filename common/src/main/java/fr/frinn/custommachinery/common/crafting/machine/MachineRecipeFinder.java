@@ -30,7 +30,7 @@ public class MachineRecipeFinder {
         this.recipes = tile.getLevel().getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
-                .filter(recipe -> recipe.getMachine().equals(tile.getMachine().getId()))
+                .filter(recipe -> recipe.getMachineId().equals(tile.getMachine().getId()))
                 .sorted(Comparators.RECIPE_PRIORITY_COMPARATOR.reversed())
                 .map(CustomMachineRecipe::checker)
                 .toList();

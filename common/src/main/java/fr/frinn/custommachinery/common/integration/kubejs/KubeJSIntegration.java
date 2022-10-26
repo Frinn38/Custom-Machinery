@@ -1,7 +1,11 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +15,13 @@ public class KubeJSIntegration {
     public static List<MachineUpgrade> collectMachineUpgrades() {
         ScriptType.SERVER.console.info("Collecting Custom Machine upgrades from JS scripts.");
 
-        CustomMachineJSUpgradeBuilder.UpgradeEvent event = new CustomMachineJSUpgradeBuilder.UpgradeEvent();
+        CustomMachineUpgradeJSBuilder.UpgradeEvent event = new CustomMachineUpgradeJSBuilder.UpgradeEvent();
         event.post(ScriptType.SERVER, "cm_upgrades");
 
         List<MachineUpgrade> upgrades = new ArrayList<>();
 
         try {
-            upgrades = event.getBuilders().stream().map(CustomMachineJSUpgradeBuilder::build).toList();
+            upgrades = event.getBuilders().stream().map(CustomMachineUpgradeJSBuilder::build).toList();
         } catch (Exception e) {
             ScriptType.SERVER.console.warn("Couldn't build machine upgrade", e);
         }
@@ -26,4 +30,15 @@ public class KubeJSIntegration {
         return upgrades;
     }
 
+    @Nullable
+    public static CompoundTag nbtFromStack(ItemStackJS stack) {
+        CompoundTag nbt = stack.getNbt();
+        if(nbt == null || nbt.isEmpty())
+            return null;
+        if(nbt.contains("Damage", Tag.TAG_INT) && nbt.getInt("Damage") == 0)
+            nbt.remove("Damage");
+        if(nbt.isEmpty())
+            return null;
+        return nbt;
+    }
 }

@@ -43,7 +43,8 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         this.resetOnError = resetOnError;
     }
 
-    public ResourceLocation getMachine() {
+    @Override
+    public ResourceLocation getMachineId() {
         return this.machine;
     }
 
