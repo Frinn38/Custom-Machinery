@@ -103,7 +103,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     public int insert(Item item, int amount, @Nullable CompoundTag nbt, boolean simulate, boolean byPassLimit) {
-        if(amount <= 0 || item == Items.AIR)
+        if(amount <= 0 || item == Items.AIR || !isItemValid(Utils.makeItemStack(item, amount, nbt)))
             return 0;
 
         if(!byPassLimit)

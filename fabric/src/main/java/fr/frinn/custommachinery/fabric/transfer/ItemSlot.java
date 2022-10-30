@@ -31,9 +31,6 @@ public class ItemSlot extends SnapshotParticipant<ItemStack> implements SingleSl
         if(this.side != null && !this.component.getConfig().getSideMode(this.side).isInput())
             return 0;
 
-        if(!this.component.isItemValid(resource.toStack()))
-            return 0;
-
         long inserted = this.component.insert(resource.getItem(), Utils.toInt(maxAmount), resource.getNbt(), true);
         if(inserted > 0) {
             updateSnapshots(transaction);
