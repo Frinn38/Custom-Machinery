@@ -27,7 +27,7 @@ import java.util.List;
 
 @ZenRegister
 @Name("mods.custommachinery.CMUpgradeBuilder")
-public class CustomMachineCTUpgradeBuilder {
+public class CustomMachineUpgradeCTBuilder {
 
     private final Item item;
     private List<Component> tooltips;
@@ -35,7 +35,7 @@ public class CustomMachineCTUpgradeBuilder {
     private final List<RecipeModifier> modifiers;
     private final int maxAmount;
 
-    public CustomMachineCTUpgradeBuilder(Item item, int maxAmount) {
+    public CustomMachineUpgradeCTBuilder(Item item, int maxAmount) {
         this.item = item;
         this.tooltips = Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA));
         this.maxAmount = maxAmount;
@@ -44,8 +44,8 @@ public class CustomMachineCTUpgradeBuilder {
     }
 
     @Method
-    public static CustomMachineCTUpgradeBuilder create(Item item, @OptionalInt(64) int maxAmount) {
-        return new CustomMachineCTUpgradeBuilder(item, maxAmount);
+    public static CustomMachineUpgradeCTBuilder create(Item item, @OptionalInt(64) int maxAmount) {
+        return new CustomMachineUpgradeCTBuilder(item, maxAmount);
     }
 
     @Method
@@ -59,7 +59,7 @@ public class CustomMachineCTUpgradeBuilder {
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder machine(String... string) {
+    public CustomMachineUpgradeCTBuilder machine(String... string) {
         for(String s : string) {
             final ResourceLocation machine;
             try {
@@ -73,7 +73,7 @@ public class CustomMachineCTUpgradeBuilder {
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder tooltip(String... strings) {
+    public CustomMachineUpgradeCTBuilder tooltip(String... strings) {
         ImmutableList.Builder<Component> tooltips = ImmutableList.builder();
         for(String tooltip : strings) {
             try {
@@ -90,13 +90,13 @@ public class CustomMachineCTUpgradeBuilder {
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder tooltip(Component... components) {
+    public CustomMachineUpgradeCTBuilder tooltip(Component... components) {
         this.tooltips = ImmutableList.copyOf(components);
         return this;
     }
 
     @Method
-    public CustomMachineCTUpgradeBuilder modifier(CTRecipeModifierBuilder builder) {
+    public CustomMachineUpgradeCTBuilder modifier(CTRecipeModifierBuilder builder) {
         this.modifiers.add(builder.build());
         return this;
     }

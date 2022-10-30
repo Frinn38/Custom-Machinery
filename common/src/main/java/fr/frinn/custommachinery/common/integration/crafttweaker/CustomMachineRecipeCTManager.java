@@ -25,9 +25,9 @@ import java.util.List;
 @ZenRegister
 @ZenCodeType.Name("mods.custommachinery.CMRecipeManager")
 @IRecipeHandler.For(CustomMachineRecipe.class)
-public class CustomMachineryCTRecipeManager implements IRecipeManager<CustomMachineRecipe>, IRecipeHandler<CustomMachineRecipe> {
+public class CustomMachineRecipeCTManager implements IRecipeManager<CustomMachineRecipe>, IRecipeHandler<CustomMachineRecipe> {
 
-    public static final CustomMachineryCTRecipeManager INSTANCE = new CustomMachineryCTRecipeManager();
+    public static final CustomMachineRecipeCTManager INSTANCE = new CustomMachineRecipeCTManager();
 
     @Override
     public RecipeType<CustomMachineRecipe> getRecipeType() {
@@ -72,8 +72,8 @@ public class CustomMachineryCTRecipeManager implements IRecipeManager<CustomMach
     }
 
     @Method
-    public CustomMachineCTRecipeBuilder create(String machine, int time) {
-        return CustomMachineCTRecipeBuilder.create(machine, time);
+    public CustomMachineRecipeCTBuilder create(String machine, int time) {
+        return CustomMachineRecipeCTBuilder.create(machine, time);
     }
 
     @Override
