@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.common.network;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
+import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.client.ClientPacketHandler;
-import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -38,7 +38,7 @@ public class SRefreshCustomMachineTilePacket extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        if (context.getEnv() == EnvType.CLIENT)
+        if (context.getEnvironment() == Env.CLIENT)
             context.queue(() -> ClientPacketHandler.handleRefreshCustomMachineTilePacket(this.pos, this.machine));
     }
 }

@@ -3,11 +3,11 @@ package fr.frinn.custommachinery.common.network;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseC2SMessage;
 import dev.architectury.networking.simple.MessageType;
+import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import net.fabricmc.api.EnvType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
@@ -49,7 +49,7 @@ public class CChangeSideModePacket extends BaseC2SMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        if(context.getEnv() == EnvType.SERVER) {
+        if(context.getEnvironment() == Env.SERVER) {
             context.queue(() -> {
                 Player player = context.getPlayer();
                 if(player != null && player.containerMenu.containerId == this.containerID && player.containerMenu instanceof CustomMachineContainer container) {

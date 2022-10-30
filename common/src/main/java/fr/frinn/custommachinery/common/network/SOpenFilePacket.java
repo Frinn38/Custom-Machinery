@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.network;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
-import net.fabricmc.api.EnvType;
+import dev.architectury.utils.Env;
 import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -31,7 +31,7 @@ public class SOpenFilePacket extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        if(context.getEnv() == EnvType.CLIENT)
+        if(context.getEnvironment() == Env.CLIENT)
             context.queue(() -> Util.getPlatform().openUri(this.path));
     }
 }

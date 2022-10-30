@@ -3,10 +3,10 @@ package fr.frinn.custommachinery.common.network;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
+import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import io.netty.handler.codec.EncoderException;
-import net.fabricmc.api.EnvType;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class SUpdateUpgradesPacket extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        if(context.getEnv() == EnvType.CLIENT)
+        if(context.getEnvironment() == Env.CLIENT)
             context.queue(() -> {
                 CustomMachinery.UPGRADES.refresh(this.upgrades);
             });

@@ -4,8 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
+import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
-import net.fabricmc.api.EnvType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -58,7 +58,7 @@ public class SLootTablesPacket extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        if(context.getEnv() == EnvType.CLIENT)
+        if(context.getEnvironment() == Env.CLIENT)
             context.queue(() -> LootTableHelper.receiveLoots(this.loots));
     }
 }

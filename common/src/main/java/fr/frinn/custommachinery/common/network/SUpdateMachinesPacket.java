@@ -3,12 +3,12 @@ package fr.frinn.custommachinery.common.network;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.simple.BaseS2CMessage;
 import dev.architectury.networking.simple.MessageType;
+import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import io.netty.handler.codec.EncoderException;
-import net.fabricmc.api.EnvType;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -62,7 +62,7 @@ public class SUpdateMachinesPacket extends BaseS2CMessage {
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
-        if(context.getEnv() == EnvType.CLIENT) {
+        if(context.getEnvironment() == Env.CLIENT) {
             context.queue(() -> {
                 CustomMachinery.MACHINES.clear();
                 CustomMachinery.MACHINES.putAll(machines);
