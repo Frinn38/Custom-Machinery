@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 @ZenRegister
-@Name("mods.custommachinery.CMUpgradeBuilder")
+@Name(CTConstants.UPGRADE_BUILDER)
 public class CustomMachineUpgradeCTBuilder {
 
     private final Item item;
@@ -102,7 +102,7 @@ public class CustomMachineUpgradeCTBuilder {
     }
 
     @ZenRegister
-    @Name("mods.custommachinery.CMRecipeModifierBuilder")
+    @Name(CTConstants.MODIFIER_BUILDER)
     public static class CTRecipeModifierBuilder {
 
         private final RequirementType<?> requirementType;

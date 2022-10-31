@@ -4,11 +4,12 @@ import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.item.IItemStack;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
-import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
+import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
+import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BiomeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BlockRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.CommandRequirementCT;
@@ -39,29 +40,29 @@ import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 @ZenRegister
-@Name(CTConstants.RECIPE_BUILDER_MACHINE)
-public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomMachineRecipeCTBuilder>, EnergyPerTickRequirementCT<CustomMachineRecipeCTBuilder>,
-        FluidRequirementCT<CustomMachineRecipeCTBuilder>, FluidPerTickRequirementCT<CustomMachineRecipeCTBuilder>, ItemRequirementCT<CustomMachineRecipeCTBuilder>,
-        ItemTransformRequirementCT<CustomMachineRecipeCTBuilder>, DurabilityRequirementCT<CustomMachineRecipeCTBuilder>, TimeRequirementCT<CustomMachineRecipeCTBuilder>,
-        PositionRequirementCT<CustomMachineRecipeCTBuilder>, BiomeRequirementCT<CustomMachineRecipeCTBuilder>, DimensionRequirementCT<CustomMachineRecipeCTBuilder>,
-        FuelRequirementCT<CustomMachineRecipeCTBuilder>, CommandRequirementCT<CustomMachineRecipeCTBuilder>, EffectRequirementCT<CustomMachineRecipeCTBuilder>,
-        WeatherRequirementCT<CustomMachineRecipeCTBuilder>, RedstoneRequirementCT<CustomMachineRecipeCTBuilder>, EntityRequirementCT<CustomMachineRecipeCTBuilder>,
-        LightRequirementCT<CustomMachineRecipeCTBuilder>, BlockRequirementCT<CustomMachineRecipeCTBuilder>, StructureRequirementCT<CustomMachineRecipeCTBuilder>,
-        LootTableRequirementCT<CustomMachineRecipeCTBuilder>, DropRequirementCT<CustomMachineRecipeCTBuilder>, FunctionRequirementCT<CustomMachineRecipeCTBuilder> {
+@Name(CTConstants.RECIPE_BUILDER_CRAFT)
+public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCraftRecipeCTBuilder>, EnergyPerTickRequirementCT<CustomCraftRecipeCTBuilder>,
+        FluidRequirementCT<CustomCraftRecipeCTBuilder>, FluidPerTickRequirementCT<CustomCraftRecipeCTBuilder>, ItemRequirementCT<CustomCraftRecipeCTBuilder>,
+        ItemTransformRequirementCT<CustomCraftRecipeCTBuilder>, DurabilityRequirementCT<CustomCraftRecipeCTBuilder>, TimeRequirementCT<CustomCraftRecipeCTBuilder>,
+        PositionRequirementCT<CustomCraftRecipeCTBuilder>, BiomeRequirementCT<CustomCraftRecipeCTBuilder>, DimensionRequirementCT<CustomCraftRecipeCTBuilder>,
+        FuelRequirementCT<CustomCraftRecipeCTBuilder>, CommandRequirementCT<CustomCraftRecipeCTBuilder>, EffectRequirementCT<CustomCraftRecipeCTBuilder>,
+        WeatherRequirementCT<CustomCraftRecipeCTBuilder>, RedstoneRequirementCT<CustomCraftRecipeCTBuilder>, EntityRequirementCT<CustomCraftRecipeCTBuilder>,
+        LightRequirementCT<CustomCraftRecipeCTBuilder>, BlockRequirementCT<CustomCraftRecipeCTBuilder>, StructureRequirementCT<CustomCraftRecipeCTBuilder>,
+        LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, FunctionRequirementCT<CustomCraftRecipeCTBuilder> {
 
     private static int index = 0;
-    private final CustomMachineRecipeBuilder builder;
+    private final CustomCraftRecipeBuilder builder;
     private IRequirement<?> lastRequirement;
     private boolean jei = false;
 
-    public CustomMachineRecipeCTBuilder(CustomMachineRecipeBuilder builder) {
+    public CustomCraftRecipeCTBuilder(CustomCraftRecipeBuilder builder) {
         this.builder = builder;
     }
 
     @Method
-    public static CustomMachineRecipeCTBuilder create(String machine, int time) {
+    public static CustomCraftRecipeCTBuilder create(String machine, IItemStack output) {
         try {
-            return new CustomMachineRecipeCTBuilder(new CustomMachineRecipeBuilder(new ResourceLocation(machine), time));
+            return new CustomCraftRecipeCTBuilder(new CustomCraftRecipeBuilder(new ResourceLocation(machine), output.getImmutableInternal()));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid Machine name: " + machine + "\n" + e.getMessage());
         }
@@ -74,17 +75,17 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
             if(!name.isEmpty())
                 recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, name);
             else
-                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, "custom_machine_recipe_" + index++);
+                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, "custom_craft_recipe_" + index++);
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid Recipe name: " + name + "\n" + e.getMessage());
         }
-        CustomMachineRecipe recipe = this.builder.build(recipeID);
-        ActionAddRecipe<CustomMachineRecipe> action =  new ActionAddRecipe<>(CustomMachineRecipeCTManager.INSTANCE, recipe);
+        CustomCraftRecipe recipe = this.builder.build(recipeID);
+        ActionAddRecipe<CustomCraftRecipe> action =  new ActionAddRecipe<>(CustomCraftRecipeCTManager.INSTANCE, recipe);
         CraftTweakerAPI.apply(action);
     }
 
     @Override
-    public CustomMachineRecipeCTBuilder addRequirement(IRequirement<?> requirement) {
+    public CustomCraftRecipeCTBuilder addRequirement(IRequirement<?> requirement) {
         this.lastRequirement = requirement;
         if(!this.jei)
             this.builder.withRequirement(requirement);
@@ -94,7 +95,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
     }
 
     @Override
-    public CustomMachineRecipeCTBuilder error(String error, Object... args) {
+    public CustomCraftRecipeCTBuilder error(String error, Object... args) {
         CraftTweakerAPI.LOGGER.error(error, args);
         return this;
     }
@@ -102,7 +103,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
     /** CHANCE **/
 
     @Method
-    public CustomMachineRecipeCTBuilder chance(double chance) {
+    public CustomCraftRecipeCTBuilder chance(double chance) {
         if(this.lastRequirement != null && this.lastRequirement instanceof IChanceableRequirement)
             ((IChanceableRequirement<?>)this.lastRequirement).setChance(chance);
         else
@@ -113,7 +114,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
     /** HIDE **/
 
     @Method
-    public CustomMachineRecipeCTBuilder hide() {
+    public CustomCraftRecipeCTBuilder hide() {
         //TODO: Remake
         return this;
     }
@@ -121,7 +122,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
     /** DELAY **/
 
     @Method
-    public CustomMachineRecipeCTBuilder delay(double delay) {
+    public CustomCraftRecipeCTBuilder delay(double delay) {
         if(this.lastRequirement != null && this.lastRequirement instanceof IDelayedRequirement<?>)
             ((IDelayedRequirement<?>)this.lastRequirement).setDelay(delay);
         else
@@ -132,7 +133,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
     /** JEI **/
 
     @Method
-    public CustomMachineRecipeCTBuilder jei() {
+    public CustomCraftRecipeCTBuilder jei() {
         this.jei = true;
         return this;
     }
@@ -140,19 +141,11 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
     /** PRIORITY **/
 
     @Method
-    public CustomMachineRecipeCTBuilder priority(int priority) {
+    public CustomCraftRecipeCTBuilder priority(int priority) {
         if(!this.jei)
             this.builder.withPriority(priority);
         else
             this.builder.withJeiPriority(priority);
-        return this;
-    }
-
-    /** ERROR **/
-
-    @Method
-    public CustomMachineRecipeCTBuilder resetOnError() {
-        this.builder.setResetOnError();
         return this;
     }
 }

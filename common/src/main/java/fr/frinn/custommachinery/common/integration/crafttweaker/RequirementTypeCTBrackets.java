@@ -15,7 +15,7 @@ import org.openzen.zencode.java.ZenCodeType.Name;
 import java.util.Collection;
 
 @ZenRegister
-@Name("mods.custommachinery.RequirementTypeBracket")
+@Name(CTConstants.REQUIREMENT_TYPE_BRACKET)
 public class RequirementTypeCTBrackets {
 
     @Method

@@ -176,8 +176,8 @@ public class Registration {
     public static final RegistrySupplier<CustomMachineRecipeSerializer> CUSTOM_MACHINE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_machine", CustomMachineRecipeSerializer::new);
     public static final RegistrySupplier<CustomCraftRecipeSerializer> CUSTOM_CRAFT_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_craft", CustomCraftRecipeSerializer::new);
 
-    public static final RegistrySupplier<RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine_recipe", () -> new RecipeType<>() {});
-    public static final RegistrySupplier<RecipeType<CustomCraftRecipe>> CUSTOM_CRAFT_RECIPE = RECIPE_TYPES.register("custom_craft_recipe", () -> new RecipeType<>() {});
+    public static final RegistrySupplier<RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine", () -> new RecipeType<>() {});
+    public static final RegistrySupplier<RecipeType<CustomCraftRecipe>> CUSTOM_CRAFT_RECIPE = RECIPE_TYPES.register("custom_craft", () -> new RecipeType<>() {});
 
     public static final RegistrySupplier<GuiElementType<EnergyGuiElement>> ENERGY_GUI_ELEMENT = GUI_ELEMENTS.register("energy", () -> new GuiElementType<>(EnergyGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<FluidGuiElement>> FLUID_GUI_ELEMENT = GUI_ELEMENTS.register("fluid", () -> new GuiElementType<>(FluidGuiElement.CODEC));

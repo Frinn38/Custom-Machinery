@@ -4,6 +4,16 @@ import fr.frinn.custommachinery.CustomMachinery;
 
 public class CTConstants {
 
+    /** RECIPES **/
+    public static final String RECIPE_BUILDER_MACHINE = "mods." + CustomMachinery.MODID + ".CMRecipeBuilder";
+    public static final String RECIPE_BUILDER_CRAFT = "mods." + CustomMachinery.MODID + ".CraftRecipeBuilder";
+
+    public static final String RECIPE_MANAGER_MACHINE = "mods." + CustomMachinery.MODID + ".MachineRecipeManager";
+    public static final String RECIPE_MANAGER_CRAFT = "mods." + CustomMachinery.MODID + ".CraftRecipeManager";
+
+    /** REQUIREMENTS **/
+    public static final String REQUIREMENT_TYPE_BRACKET = "mods." + CustomMachinery.MODID + ".RequirementTypeBracket";
+
     public static final String REQUIREMENT_BIOME = "mods." + CustomMachinery.MODID + ".requirement.Biome";
     public static final String REQUIREMENT_BLOCK = "mods." + CustomMachinery.MODID + ".requirement.Block";
     public static final String REQUIREMENT_COMMAND = "mods." + CustomMachinery.MODID + ".requirement.Command";
@@ -27,4 +37,8 @@ public class CTConstants {
     public static final String REQUIREMENT_STRUCTURE = "mods." + CustomMachinery.MODID + ".requirement.Structure";
     public static final String REQUIREMENT_TIME = "mods." + CustomMachinery.MODID + ".requirement.Time";
     public static final String REQUIREMENT_WEATHER = "mods." + CustomMachinery.MODID + ".requirement.Weather";
+
+    /** UPGRADE **/
+    public static final String UPGRADE_BUILDER = "mods." + CustomMachinery.MODID + ".CMUpgradeBuilder";
+    public static final String MODIFIER_BUILDER = "mods." + CustomMachinery.MODID + ".CMRecipeModifierBuilder";
 }
