@@ -2,7 +2,9 @@ package fr.frinn.custommachinery.api.requirement;
 
 import com.mojang.serialization.Codec;
 import dev.architectury.core.RegistryEntry;
+import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.crafting.IProcessor;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -10,37 +12,56 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-
+/**
+ * A {@link RegistryEntry} used for registering custom {@link RequirementType}.
+ * An {@link IRequirement} MUST be linked to a single {@link RequirementType}.
+ * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
+ * @param <T> The {@link IRequirement} handled by this {@link RequirementType}.
+ */
 public class RequirementType<T extends IRequirement<?>> extends RegistryEntry<RequirementType<T>> {
 
+    /**
+     * The {@link ResourceKey} pointing to the {@link RequirementType} vanilla registry.
+     * Can be used to create a {@link DeferredRegister} for registering your {@link RequirementType}.
+     */
     public static final ResourceKey<Registry<RequirementType<? extends IRequirement<?>>>> REGISTRY_KEY = ResourceKey.createRegistryKey(ICustomMachineryAPI.INSTANCE.rl("requirement_type"));
 
-    private final Codec<T> codec;
-    private boolean isWorldRequirement = false;
-
     /**
-     * Create a new RequirementType, there must be only 1 instance of this class for each types, and this instance must be registered to the ForgeRegistry.
-     * @param codec A codec used to deserialize any requirement of this type from json, and to send it to the client over the network in multiplayer.
+     * Use this factory method to create new {@link RequirementType} for an {@link IRequirement} that depends on something in-world instead of the machine inventory.
+     * The handled {@link IRequirement} will be checked every tick by the machine {@link IProcessor} to see if it's still valid.
+     * @param codec A {@link Codec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
+     * @return A new {@link RequirementType} that will handle the specified {@link IRequirement}.
      */
-    public RequirementType(@Nonnull Codec<T> codec) {
-        this.codec = codec;
+    public static <T extends IRequirement<?>> RequirementType<T> world(Codec<T> codec) {
+        return new RequirementType<>(codec, true);
     }
 
     /**
-     * Set this requirement type as a world requirement, which mean that this requirement does not depend on the machine inventory, but rather on something checked in-world.
-     * @return Itself.
+     * Use this factory method to create new {@link RequirementType} for an {@link IRequirement} that depends on the machine inventory.
+     * The handled {@link IRequirement} will be checked by the machine {@link IProcessor} ONLY if the machine inventory changed to see if it's still valid.
+     * @param codec A {@link Codec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
+     * @return A new {@link RequirementType} that will handle the specified {@link IRequirement}.
      */
-    public RequirementType<T> setWorldRequirement() {
-        this.isWorldRequirement = true;
-        return this;
+    public static <T extends IRequirement<?>> RequirementType<T> inventory(Codec<T> codec) {
+        return new RequirementType<>(codec, false);
+    }
+
+    private final Codec<T> codec;
+    private final boolean isWorldRequirement;
+
+    /**
+     * A constructor for {@link RequirementType}.
+     * Use {@link RequirementType#world(Codec)} instead.
+     */
+    private RequirementType(Codec<T> codec, boolean isWorldRequirement) {
+        this.codec = codec;
+        this.isWorldRequirement = isWorldRequirement;
     }
 
     /**
      * Used by the dispatch codec that deserialize all requirements from the recipe json.
      * @return A codec that can deserialize a requirement of this type from json.
      */
-    @Nonnull
     public Codec<T> getCodec() {
         return this.codec;
     }

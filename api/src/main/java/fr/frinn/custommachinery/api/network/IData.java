@@ -5,30 +5,30 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Used to sync any kind of Object from server logical side to client.
- * @param <T> The Object to sync.
+ * Used to sync any kind of {@link Object} from server to client.
+ * @param <T> The {@link Object} to sync.
  */
 public interface IData<T> {
 
     /**
-     * @return A registered DataType corresponding to this IData.
+     * @return A registered {@link DataType} corresponding to this {@link IData}.
      */
     DataType<?, T> getType();
 
     /**
-     * @return The ID of this IData, used by the container syncing packet to read/write the data in the proper order.
+     * @return The ID of this {@link IData}, used by the container syncing packet to read/write the data in the proper order.
      */
     short getID();
 
     /**
-     * @return The value of the object hold by this IData.
+     * @return The value of the object hold by this {@link IData}.
      */
     T getValue();
 
     /**
      * Override this method to pass write the Object hold by this IData to the PacketBuffer.
      * Overriding methods MUST call super.writeData() BEFORE writing their stuff into the PacketBuffer.
-     * @param buffer The PacketBuffer that will be send to the client.
+     * @param buffer The PacketBuffer that will be sent to the client.
      */
     default void writeData(FriendlyByteBuf buffer) {
         if(getType().getId() == null)

@@ -2,36 +2,65 @@ package fr.frinn.custommachinery.api.machine;
 
 import com.mojang.serialization.Codec;
 import dev.architectury.core.RegistryEntry;
+import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
+/**
+ * A {@link RegistryEntry} used for registering custom {@link MachineAppearanceProperty}.
+ * Each registered {@link MachineAppearanceProperty} will add a new optional property in the {@link IMachineAppearance}.
+ * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
+ * @param <T> The {@link Object} handled by this {@link MachineAppearanceProperty}.
+ */
 public class MachineAppearanceProperty<T> extends RegistryEntry<MachineAppearanceProperty<T>> {
 
+    /**
+     * The {@link ResourceKey} pointing to the {@link MachineAppearanceProperty} vanilla registry.
+     * Can be used to create a {@link DeferredRegister} for registering your {@link MachineAppearanceProperty}.
+     */
     public static final ResourceKey<Registry<MachineAppearanceProperty<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(ICustomMachineryAPI.INSTANCE.rl("appearance_property"));
+
+    /**
+     * A factory method to create new {@link MachineAppearanceProperty}.
+     * @param codec A codec used to parse the {@link MachineAppearanceProperty} from the machine json file and send it to the client.
+     * @param defaultValue The default value for this property, used if the machine creator didn't specify a value in the machine json.
+     */
+    public static <T> MachineAppearanceProperty<T> create(Codec<T> codec, T defaultValue) {
+        return new MachineAppearanceProperty<>(codec, defaultValue);
+    }
 
     private final Codec<T> codec;
     private final T defaultValue;
 
     /**
-     * Create a new MachineAppearanceProperty, this MUST be registered to the forge registry.
-     * @param codec A codec used to parse the MachineAppearanceProperty from the machine json file and sed it to the client.
-     * @param defaultValue The default value for this property, used if the machine creator didn't specify a value in the machine json.
+     * A constructor for {@link MachineAppearanceProperty}.
+     * Use {@link MachineAppearanceProperty#create(Codec, Object)} instead.
      */
-    public MachineAppearanceProperty(Codec<T> codec, T defaultValue) {
+    private MachineAppearanceProperty(Codec<T> codec, T defaultValue) {
         this.codec = codec;
         this.defaultValue = defaultValue;
     }
 
+    /**
+     * @return A {@link Codec} used to parse/serialize the {@link MachineAppearanceProperty} value.
+     */
     public Codec<T> getCodec() {
         return this.codec;
     }
 
+    /**
+     * @return The default value for this {@link MachineAppearanceProperty}.
+     */
     public T getDefaultValue() {
         return this.defaultValue;
     }
 
+    /**
+     * A helper method to get the ID of this {@link MachineAppearanceProperty}.
+     * @return The ID of this {@link MachineAppearanceProperty}, or null if it is not registered.
+     */
     public ResourceLocation getId() {
         return ICustomMachineryAPI.INSTANCE.appearancePropertyRegistrar().getId(this);
     }

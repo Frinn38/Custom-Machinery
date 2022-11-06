@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.util.PositionComparator;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,7 +26,7 @@ public interface PositionRequirementCT<T> extends RecipeCTBuilder<T> {
         List<PositionComparator> positionComparators = Stream.of(positions).map(s -> Codecs.POSITION_COMPARATOR_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElseThrow(() -> new IllegalArgumentException("Invalid position comparator: " + s))).toList();
         if(!positionComparators.isEmpty())
             return addRequirement(new PositionRequirement(positionComparators));
-        return error("No valid position requirements found in array: {}", positions);
+        return error("No valid position requirements found in array: {}", Arrays.toString(positions));
     }
 
     @Method
