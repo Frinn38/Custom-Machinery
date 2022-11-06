@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,8 +33,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 public class Utils {
 
@@ -116,27 +113,6 @@ public class Utils {
         ItemStack stack = new ItemStack(item, amount);
         stack.setTag(nbt == null ? null : nbt.copy());
         return stack;
-    }
-
-    public static int getPlayerInventoryItemStackAmount(Player player, IIngredient<Item> item, CompoundTag nbt) {
-        return Stream.concat(player.getInventory().items.stream(), player.getInventory().offhand.stream())
-                .filter(stack -> item.test(stack.getItem()) && testNBT(nbt, stack.getTag()))
-                .mapToInt(ItemStack::getCount)
-                .sum();
-    }
-
-    public static void moveStackFromPlayerInvToSlot(Player player, SlotItemComponent slot, IIngredient<Item> item, int amount, CompoundTag nbt) {
-        AtomicInteger toMove = new AtomicInteger(amount);
-        Stream.concat(player.getInventory().items.stream(), player.getInventory().offhand.stream())
-                .filter(stack -> item.test(stack.getItem()) && testNBT(nbt, stack.getTag()) && slot.mayPlace(stack))
-                .forEach(stack -> {
-                    int canMove = Math.min(stack.getCount(), toMove.get());
-                    ItemStack toInsert = stack.copy();
-                    toInsert.setCount(canMove);
-                    slot.set(toInsert);
-                    stack.shrink(canMove);
-                    toMove.getAndAdd(-canMove);
-                });
     }
 
     public static int toInt(long l) {
