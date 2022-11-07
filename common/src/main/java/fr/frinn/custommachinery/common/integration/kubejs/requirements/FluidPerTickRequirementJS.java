@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import dev.latvian.mods.kubejs.fluid.FluidStackJS;
-import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
@@ -34,8 +33,7 @@ public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
         try {
             return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag), amount, nbt == null ? null : nbt.toNBT(), tank));
         } catch (IllegalArgumentException e) {
-            ScriptType.SERVER.console.warn(e.getMessage());
-            return this;
+            return error(e.getMessage());
         }
     }
 

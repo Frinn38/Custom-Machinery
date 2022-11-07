@@ -148,17 +148,15 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
             state = PartialBlockState.AIR;
         else
             state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null);
-        if(state == null) {
-            ScriptType.SERVER.console.warn("Invalid block: " + block);
-            return this;
-        }
+        if(state == null)
+            return error("Invalid block: {}", block);
+
         AABB bb = new AABB(startX, startY, startZ, endX, endY, endZ);
         List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).toList();
         try {
             return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {
-            ScriptType.SERVER.console.warn("Invalid comparator: " + comparator);
+            return error("Invalid comparator: {}", comparator);
         }
-        return this;
     }
 }

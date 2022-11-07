@@ -27,6 +27,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Structure
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import net.minecraft.resources.ResourceLocation;
+import org.slf4j.helpers.MessageFormatter;
 
 import java.util.List;
 
@@ -51,5 +52,10 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
     public CustomCraftRecipeJSBuilder addRequirement(IRequirement<?> requirement) {
         super.addRequirement(requirement);
         return this;
+    }
+
+    @Override
+    public RecipeJSBuilder error(String error, Object... args) {
+        throw new RecipeExceptionJS(MessageFormatter.arrayFormat(error, args).getMessage());
     }
 }

@@ -22,6 +22,8 @@ public class IntRange extends Range<Integer> {
     private static final Map<String, IntRange> CACHE_SPEC = Collections.synchronizedMap(new WeakHashMap<>());
     private static final Restriction<Integer> EVERYTHING = new Restriction<>(null, false, null, false);
 
+    public static final IntRange ALL = new IntRange(Collections.singletonList(EVERYTHING));
+
     private IntRange(List<Restriction<Integer>> restrictions) {
         super(restrictions);
     }
@@ -46,7 +48,10 @@ public class IntRange extends Range<Integer> {
      */
     public static IntRange createFromString(String spec) throws IllegalArgumentException {
         if(spec == null)
-            throw new IllegalArgumentException("Can't parse an iteger range fromm a null String");
+            throw new IllegalArgumentException("Can't parse an integer range fromm a null String");
+
+        if(spec.isEmpty() || spec.equals("*"))
+            return ALL;
 
         IntRange cached = CACHE_SPEC.get(spec);
         if(cached != null)
@@ -68,7 +73,7 @@ public class IntRange extends Range<Integer> {
             }
 
             if(index < 0)
-                throw new IllegalArgumentException("Unbounded range: " + spec);
+                throw new IllegalArgumentException("Unbounded range: \"" + spec + "\"");
 
             Restriction<Integer> restriction = parseRestriction(process.substring(0, index + 1));
             if(lowerBound == null)
@@ -76,7 +81,7 @@ public class IntRange extends Range<Integer> {
 
             if(upperBound != null) {
                 if(restriction.lowerBound() == null || restriction.lowerBound().compareTo(upperBound) < 0)
-                    throw new IllegalArgumentException("Ranges overlap: " + spec);
+                    throw new IllegalArgumentException("Ranges overlap: \"" + spec + "\"");
             }
             restrictions.add(restriction);
 
@@ -90,7 +95,7 @@ public class IntRange extends Range<Integer> {
 
         if(process.length() > 0) {
             if(restrictions.size() > 0)
-                throw new IllegalArgumentException("Only fully-qualified sets allowed in multiple set scenario: " + spec);
+                throw new IllegalArgumentException("Only fully-qualified sets allowed in multiple set scenario: \"" + spec + "\"");
             else {
                 try {
                     Integer bound = Integer.parseInt(process);

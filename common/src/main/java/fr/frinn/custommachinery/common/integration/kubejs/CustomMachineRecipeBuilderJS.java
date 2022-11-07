@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Dimension
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DropRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DurabilityRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EffectRequirementJS;
-import fr.frinn.custommachinery.common.integration.kubejs.requirements.EnergyPerTickRequirement;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.EnergyPerTickRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EnergyRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EntityRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FluidPerTickRequirementJS;
@@ -28,16 +28,17 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Structure
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import net.minecraft.resources.ResourceLocation;
+import org.slf4j.helpers.MessageFormatter;
 
 import java.util.List;
 
-public class CustomMachineRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
+public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
     implements ItemRequirementJS, ItemTransformRequirementJS, DurabilityRequirementJS, FluidRequirementJS, FluidPerTickRequirementJS,
-        EnergyRequirementJS, EnergyPerTickRequirement, TimeRequirementJS, PositionRequirementJS, BiomeRequirementJS, DimensionRequirementJS,
+        EnergyRequirementJS, EnergyPerTickRequirementJS, TimeRequirementJS, PositionRequirementJS, BiomeRequirementJS, DimensionRequirementJS,
         FuelRequirementJS, CommandRequirementJS, EffectRequirementJS, WeatherRequirementJS, RedstoneRequirementJS, LightRequirementJS,
         EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS {
 
-    public CustomMachineRecipeJSBuilder() {
+    public CustomMachineRecipeBuilderJS() {
         super(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineRecipeBuilder.CODEC);
     }
 
@@ -49,14 +50,19 @@ public class CustomMachineRecipeJSBuilder extends AbstractRecipeJSBuilder<Custom
     }
 
     @Override
-    public CustomMachineRecipeJSBuilder addRequirement(IRequirement<?> requirement) {
+    public CustomMachineRecipeBuilderJS addRequirement(IRequirement<?> requirement) {
         super.addRequirement(requirement);
         return this;
     }
 
+    @Override
+    public RecipeJSBuilder error(String error, Object... args) {
+        throw new RecipeExceptionJS(MessageFormatter.arrayFormat(error, args).getMessage());
+    }
+
     /** ERROR **/
 
-    public CustomMachineRecipeJSBuilder resetOnError() {
+    public CustomMachineRecipeBuilderJS resetOnError() {
         this.builder().setResetOnError();
         return this;
     }

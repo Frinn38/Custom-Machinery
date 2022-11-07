@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import dev.latvian.mods.kubejs.item.ItemStackJS;
-import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
@@ -50,8 +49,7 @@ public interface ItemTransformRequirementJS extends RecipeJSBuilder {
         try {
             return this.addRequirement(new ItemTransformRequirement(ItemTagIngredient.create(tag), inputAmount, inputSlot, inputNBT, output.getItem(), output.getCount(), outputSlot, true, new NbtTransformer(nbt)));
         } catch (IllegalArgumentException e) {
-            ScriptType.SERVER.console.warn(e.getMessage());
-            return this;
+            return error(e.getMessage());
         }
     }
 

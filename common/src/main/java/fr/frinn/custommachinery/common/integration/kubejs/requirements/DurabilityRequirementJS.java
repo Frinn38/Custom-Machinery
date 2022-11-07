@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import dev.latvian.mods.kubejs.item.ItemStackJS;
-import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
@@ -43,8 +42,7 @@ public interface DurabilityRequirementJS extends RecipeJSBuilder {
         try {
             return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag), amount, nbt == null ? null : nbt.toNBT(), true, slot));
         } catch (IllegalArgumentException e) {
-            ScriptType.SERVER.console.warn(e.getMessage());
-            return this;
+            return error(e.getMessage());
         }
     }
 
@@ -63,8 +61,7 @@ public interface DurabilityRequirementJS extends RecipeJSBuilder {
         try {
             return this.addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag), amount, nbt == null ? null : nbt.toNBT(), false, slot));
         } catch (IllegalArgumentException e) {
-            ScriptType.SERVER.console.warn(e.getMessage());
-            return this;
+            return error(e.getMessage());
         }
     }
 
@@ -91,8 +88,7 @@ public interface DurabilityRequirementJS extends RecipeJSBuilder {
         try {
             return this.addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ItemTagIngredient.create(tag), amount, nbt == null ? null : nbt.toNBT(), false, slot));
         } catch (IllegalArgumentException e) {
-            ScriptType.SERVER.console.warn(e.getMessage());
-            return this;
+            return error(e.getMessage());
         }
     }
 }

@@ -16,6 +16,7 @@ public class Range<T extends Comparable<T>> {
         return this.restrictions;
     }
 
+    @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
 
@@ -58,6 +59,21 @@ public class Range<T extends Comparable<T>> {
             if(restriction.contains(thing))
                 return true;
         return false;
+    }
+
+    public String toFormattedString() {
+        StringBuilder buf = new StringBuilder();
+
+        for (Iterator<Restriction<T>> i = this.restrictions.iterator(); i.hasNext();) {
+            Restriction<?> r = i.next();
+
+            buf.append(r.toFormattedString());
+
+            if (i.hasNext())
+                buf.append(" or ");
+        }
+
+        return buf.toString();
     }
 
     @Override

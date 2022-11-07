@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import dev.latvian.mods.kubejs.item.ItemStackJS;
-import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
@@ -35,8 +34,7 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
         try {
             return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag), amount, nbt == null ? null : nbt.toNBT(), slot));
         } catch (IllegalArgumentException e) {
-            ScriptType.SERVER.console.warn(e.getMessage());
-            return this;
+            return error(e.getMessage());
         }
     }
 

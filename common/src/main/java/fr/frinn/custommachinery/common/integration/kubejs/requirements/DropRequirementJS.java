@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import dev.latvian.mods.kubejs.item.ItemStackJS;
-import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.DropRequirement;
@@ -32,10 +31,9 @@ public interface DropRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder checkDrops(ItemStackJS[] items, int amount, int radius, boolean whitelist) {
-        if(items.length == 0) {
-            ScriptType.SERVER.console.warn("Invalid Drop requirement, checkDrop method must have at least 1 item defined when using whitelist mode");
-            return this;
-        }
+        if(items.length == 0)
+            return error("Invalid Drop requirement, checkDrop method must have at least 1 item defined when using whitelist mode");
+
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
         return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CHECK, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
@@ -53,10 +51,9 @@ public interface DropRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder consumeDropsOnStart(ItemStackJS[] items, int amount, int radius, boolean whitelist) {
-        if(items.length == 0) {
-            ScriptType.SERVER.console.warn("Invalid Drop requirement, consumeDropOnStart method must have at least 1 item defined when using whitelist mode");
-            return this;
-        }
+        if(items.length == 0)
+            return error("Invalid Drop requirement, consumeDropOnStart method must have at least 1 item defined when using whitelist mode");
+
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
         return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
@@ -74,10 +71,9 @@ public interface DropRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder consumeDropsOnEnd(ItemStackJS[] items, int amount, int radius, boolean whitelist) {
-        if(items.length == 0) {
-            ScriptType.SERVER.console.warn("Invalid Drop requirement, consumeDropOnEnd method must have at least 1 item defined when using whitelist mode");
-            return this;
-        }
+        if(items.length == 0)
+            return error("Invalid Drop requirement, consumeDropOnEnd method must have at least 1 item defined when using whitelist mode");
+
         List<IIngredient<Item>> input = Arrays.stream(items).map(ItemStackJS::getItem).map(ItemIngredient::new).collect(Collectors.toList());
         return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.CONSUME, input, whitelist, Items.AIR, nbtFromStack(items[0]), amount, radius));
     }
