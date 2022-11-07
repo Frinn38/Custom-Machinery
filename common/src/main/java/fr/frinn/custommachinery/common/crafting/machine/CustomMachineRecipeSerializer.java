@@ -14,8 +14,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class CustomMachineRecipeSerializer extends RegistryEntry<CustomMachineRecipeSerializer> implements RecipeSerializer<CustomMachineRecipe> {
 

@@ -7,10 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.awt.*;
 import java.util.List;
 
 public class MachineList extends ObjectSelectionList<MachineList.MachineEntry> {
@@ -47,7 +46,6 @@ public class MachineList extends ObjectSelectionList<MachineList.MachineEntry> {
     }
 
     //TODO: Add scrollbar
-    @ParametersAreNonnullByDefault
     @Override
     public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         double s = Minecraft.getInstance().getWindow().getGuiScale();
@@ -76,7 +74,6 @@ public class MachineList extends ObjectSelectionList<MachineList.MachineEntry> {
             this.machineList = list;
         }
 
-        @ParametersAreNonnullByDefault
         @Override
         public void render(PoseStack matrix, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean isFocused, float partialTicks) {
             if(this.machineBuilder != null) {
@@ -88,7 +85,7 @@ public class MachineList extends ObjectSelectionList<MachineList.MachineEntry> {
                 if(this.machineList.getSelected() != this)
                     Minecraft.getInstance().font.draw(matrix, this.machineBuilder.getName(), 0, 0, 0);
                 else
-                    Minecraft.getInstance().font.drawShadow(matrix, this.machineBuilder.getName(), 0, 0, Color.RED.getRGB());
+                    Minecraft.getInstance().font.drawShadow(matrix, this.machineBuilder.getName(), 0, 0, DyeColor.RED.getId());
                 matrix.scale(0.8F, 0.8F, 0.0F);
                 Minecraft.getInstance().font.draw(matrix, this.machineBuilder.getLocation().getLoader().getTranslatedName().getString(), 0, 11, this.machineBuilder.getLocation().getLoader().getColor());
                 matrix.popPose();

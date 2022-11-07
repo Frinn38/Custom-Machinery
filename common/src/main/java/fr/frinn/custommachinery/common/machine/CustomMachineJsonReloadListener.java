@@ -12,7 +12,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Map;
 
@@ -25,7 +24,6 @@ public class CustomMachineJsonReloadListener extends SimpleJsonResourceReloadLis
         super(GSON, "machines");
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
         ICustomMachineryAPI.INSTANCE.logger().info("Reading Custom Machinery Machines...");

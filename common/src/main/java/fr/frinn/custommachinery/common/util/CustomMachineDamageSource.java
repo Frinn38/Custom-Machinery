@@ -6,8 +6,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 public class CustomMachineDamageSource extends DamageSource {
 
     private String machineName;
@@ -19,7 +17,6 @@ public class CustomMachineDamageSource extends DamageSource {
         this.bypassMagic();
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public Component getLocalizedDeathMessage(LivingEntity dead) {
         return new TranslatableComponent("custommachinery.damagesource.kill", dead.getDisplayName(), this.machineName);

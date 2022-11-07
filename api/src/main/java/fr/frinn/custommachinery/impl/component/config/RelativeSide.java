@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.impl.codec.EnumCodec;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Locale;
 
 /**
@@ -35,7 +35,7 @@ public enum RelativeSide {
      *
      * @return The direction representing which side of the block this RelativeSide is actually representing based on the direction it is facing.
      */
-    public Direction getDirection(@Nonnull Direction facing) {
+    public Direction getDirection(@NotNull Direction facing) {
         return switch (this) {
             case FRONT -> facing;
             case BACK -> facing.getOpposite();
@@ -64,7 +64,7 @@ public enum RelativeSide {
      *
      * @apiNote The calculations for what side is what when facing upwards or downwards, is done as if it was facing NORTH and rotated around the X-axis
      */
-    public static RelativeSide fromDirections(@Nonnull Direction facing, @Nonnull Direction side) {
+    public static RelativeSide fromDirections(@NotNull Direction facing, @NotNull Direction side) {
         if (side == facing) {
             return FRONT;
         } else if (side == facing.getOpposite()) {

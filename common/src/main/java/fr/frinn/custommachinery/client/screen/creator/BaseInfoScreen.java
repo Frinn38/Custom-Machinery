@@ -8,9 +8,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jetbrains.annotations.Nullable;
 
 public class BaseInfoScreen extends MachineCreationTabScreen {
 
@@ -71,7 +69,6 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
         this.packNamePrompt.setResponder(packName -> this.machine.setLocation(MachineLocation.fromDatapack(this.machine.getLocation().getId(), packName)));
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         super.render(matrix, mouseX, mouseY, partialTicks);

@@ -24,8 +24,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -123,7 +123,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return Math.min(this.capacity, getMaxInput());
     }
 
-    public boolean isFluidValid(@Nonnull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) == this.whitelist && (this.fluidStack.isEmpty() || stack.isFluidEqual(this.fluidStack));
     }
 

@@ -34,22 +34,20 @@ configurations {
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    forge "net.minecraftforge:forge:${project.forge_version}"
     // Remove the next line if you don't want to depend on the API
-    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
-    modApi "dev.latvian.mods:kubejs-forge:${rootProject.kubejs_version}"
+    modApi "dev.architectury:architectury-forge:${project.architectury_version}"
+    modApi "dev.latvian.mods:kubejs-forge:${project.kubejs_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    api(project(path: ":api", configuration: "namedElements")) { transitive false }
+    api(project(path: ":api", configuration: "namedElements")) { transitive = false }
     shadowApi(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
     modCompileOnlyApi "mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}"
     modCompileOnlyApi "mezz.jei:jei-${project.minecraft_version}-forge-api:${project.jei_version}"
-    //Using JEI 9 as jei 10 won't launch ¯\_(ツ)_/¯
-    //modRuntimeOnly "mezz.jei:jei-${project.minecraft_version}-forge:${project.jei_version}"
-    modRuntimeOnly "mezz.jei:jei-${project.minecraft_version}:9.7.1.255"
+    modRuntimeOnly("mezz.jei:jei-${project.minecraft_version}-forge:${project.jei_version}") {transitive = false}
 
     modApi "me.shedaniel.cloth:cloth-config-forge:${project.cloth_config_version}"
 
@@ -60,7 +58,7 @@ dependencies {
     modImplementation("mcjty.theoneprobe:theoneprobe:${project.top_version}") {transitive = false}
 
     //Crafttweaker
-    modImplementation("com.blamejared.crafttweaker:CraftTweaker-forge-1.18.2:${project.ct_version}")
+    modImplementation "com.blamejared.crafttweaker:CraftTweaker-forge-${project.minecraft_version}:${project.ct_version}"
 
     //Mekanism
     modRuntimeOnly "mekanism:Mekanism:${project.mekanism_version}"

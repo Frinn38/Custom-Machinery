@@ -2,8 +2,7 @@ package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Provide various information about the actual crafting process, like the current IMachineRecipe or the MachineTile executing this recipe.

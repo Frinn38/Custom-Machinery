@@ -9,8 +9,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 public class TabButton extends Button {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/tabs.png");
@@ -21,7 +19,6 @@ public class TabButton extends Button {
         super(x, y, 28, 32, title, pressedAction, tooltip);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void renderButton(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         RenderSystem.enableDepthTest();

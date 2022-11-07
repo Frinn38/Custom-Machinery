@@ -6,11 +6,13 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.client.integration.jei.IJeiPlatformHelper;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.helpers.IPlatformFluidHelper;
+import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +42,6 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         this.tank = tank;
     }
 
-    @SuppressWarnings("removal")
     @Override
     public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
         if(!(element instanceof FluidGuiElement fluidElement) || element.getType() != Registration.FLUID_GUI_ELEMENT.get())
@@ -49,9 +50,8 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         List<FluidStack> ingredients = this.fluid.getAll().stream().map(fluid -> FluidStack.create(fluid, this.amount, this.nbt)).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
         if(fluidElement.getID().equals(this.tank) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
-            builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset, element.getY() - yOffset)
-                    .setFluidRenderer((int)this.amount, false, element.getWidth() - 2, element.getHeight() - 2)
-                    .addIngredientsUnsafe(ingredients.stream().map(stack -> IJeiPlatformHelper.INSTANCE.convertFluidStack(stack, helper.getJeiHelpers())).toList())
+            IRecipeSlotBuilder slot = builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset, element.getY() - yOffset)
+                    .setFluidRenderer(this.amount, false, element.getWidth() - 2, element.getHeight() - 2)
                     .addTooltipCallback((view, tooltips) -> {
                         if(this.isPerTick)
                             tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fluid.pertick"));
@@ -64,8 +64,15 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
                         if(!this.tank.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
                             tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fluid.specificTank").withStyle(ChatFormatting.DARK_RED));
                     });
+            this.addFluidIngredients(helper.getJeiHelpers().getPlatformFluidHelper(), slot);
             return true;
         }
         return false;
+    }
+
+    public <T> void addFluidIngredients(IPlatformFluidHelper<T> helper, IRecipeSlotBuilder builder) {
+        IIngredientType<T> fluidType = helper.getFluidIngredientType();
+        List<T> stacks = this.fluid.getAll().stream().map(fluid -> helper.create(fluid, this.amount, this.nbt)).toList();
+        builder.addIngredients(fluidType, stacks);
     }
 }

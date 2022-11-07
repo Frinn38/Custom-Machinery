@@ -12,7 +12,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,6 @@ public class MachineCreationScreen extends Screen {
             this.setSelectedTab(this.selectedTab);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrix);
@@ -76,7 +74,6 @@ public class MachineCreationScreen extends Screen {
         this.selectedTab.render(matrix, mouseX, mouseY, partialTicks);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void renderBackground(PoseStack matrix) {
         ClientHandler.bindTexture(MACHINE_CREATOR_TEXTURE);

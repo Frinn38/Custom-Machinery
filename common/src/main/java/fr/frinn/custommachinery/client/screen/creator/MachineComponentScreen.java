@@ -9,9 +9,8 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 public class MachineComponentScreen extends MachineCreationTabScreen {
@@ -32,7 +31,6 @@ public class MachineComponentScreen extends MachineCreationTabScreen {
         ((List<GuiEventListener>)this.children()).add(this.componentList);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrix);
@@ -47,7 +45,6 @@ public class MachineComponentScreen extends MachineCreationTabScreen {
         super.render(matrix, mouseX, mouseY, partialTicks);
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     public void renderBackground(PoseStack matrix) {
         ClientHandler.bindTexture(BACKGROUND_TEXTURE);

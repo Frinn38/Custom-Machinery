@@ -7,13 +7,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class SoundManager {
 
-    private BlockPos pos;
+    private final BlockPos pos;
     private SoundInstance sound;
 
     public SoundManager(BlockPos pos) {

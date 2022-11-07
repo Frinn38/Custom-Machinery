@@ -18,10 +18,9 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -93,7 +92,6 @@ public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEn
             this.setSelected(this.getEntry(index));
     }
 
-    @ParametersAreNonnullByDefault
     @Override
     protected boolean removeEntry(ComponentEntry entry) {
         this.parent.machine.getComponentBuilders().remove(entry.getComponentBuilder());
@@ -116,7 +114,6 @@ public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEn
     }
 
     //TODO: Add scrollbar
-    @ParametersAreNonnullByDefault
     @Override
     public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         double s = Minecraft.getInstance().getWindow().getGuiScale();
@@ -155,7 +152,6 @@ public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEn
             this.componentBuilder = componentBuilder;
         }
 
-        @ParametersAreNonnullByDefault
         @Override
         public void render(PoseStack matrix, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
             if(this.componentBuilder != null) {
@@ -167,7 +163,7 @@ public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEn
                 if(this.list.getSelected() != this)
                     Minecraft.getInstance().font.draw(matrix, this.componentBuilder.getType().getTranslatedName().getString(), 0, 0, 0);
                 else
-                    Minecraft.getInstance().font.drawShadow(matrix, this.componentBuilder.getType().getTranslatedName().getString(), 0, 0, Color.RED.getRGB());
+                    Minecraft.getInstance().font.drawShadow(matrix, this.componentBuilder.getType().getTranslatedName().getString(), 0, 0, DyeColor.RED.getId());
                 matrix.popPose();
             }
             else Minecraft.getInstance().font.draw(matrix, "NULL", x, y, 0);

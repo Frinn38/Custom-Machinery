@@ -46,7 +46,6 @@ import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegist
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -58,15 +57,13 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
@@ -151,11 +148,7 @@ public class ClientHandler {
         Minecraft.getInstance().setScreen(MachineLoadingScreen.INSTANCE);
     }
 
-    public static boolean isShifting() {
-        return Screen.hasControlDown();
-    }
-
-    @Nonnull
+    @NotNull
     public static CustomMachineTile getClientSideCustomMachineTile(BlockPos pos) {
         if(Minecraft.getInstance().level != null) {
             BlockEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);
@@ -210,53 +203,6 @@ public class ClientHandler {
         }
         RenderSystem.disableBlend();
         matrix.popPose();
-    }
-
-    @SuppressWarnings("deprecation")
-    public static void renderItemOverlayIntoGUI(PoseStack matrix, Font fr, ItemStack stack, int xPosition, int yPosition, @Nullable String text) {
-        if (!stack.isEmpty()) {
-            if (stack.getCount() != 1 || text != null) {
-                matrix.pushPose();
-                String s = text == null ? String.valueOf(stack.getCount()) : text;
-                matrix.translate(0.0D, 0.0D, Minecraft.getInstance().getItemRenderer().blitOffset + 200.0F);
-                MultiBufferSource.BufferSource irendertypebuffer$impl = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-                fr.drawInBatch(s, (float)(xPosition + 19 - 2 - fr.width(s)), (float)(yPosition + 6 + 3), 16777215, true, matrix.last().pose(), irendertypebuffer$impl, false, 0, 15728880);
-                irendertypebuffer$impl.endBatch();
-                RenderSystem.enableDepthTest();
-                matrix.popPose();
-            }
-
-            if (stack.getItem().isBarVisible(stack)) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.disableBlend();
-                Tesselator tessellator = Tesselator.getInstance();
-                BufferBuilder bufferbuilder = tessellator.getBuilder();
-                double health = stack.getItem().getBarWidth(stack);
-                int i = Math.round(13.0F - (float)health * 13.0F);
-                int j = stack.getItem().getBarColor(stack);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
-                RenderSystem.enableBlend();
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
-
-            LocalPlayer clientplayerentity = Minecraft.getInstance().player;
-            float f3 = clientplayerentity == null ? 0.0F : clientplayerentity.getCooldowns().getCooldownPercent(stack.getItem(), Minecraft.getInstance().getFrameTime());
-            if (f3 > 0.0F) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                Tesselator tessellator1 = Tesselator.getInstance();
-                BufferBuilder bufferbuilder1 = tessellator1.getBuilder();
-                draw(bufferbuilder1, xPosition, yPosition + Mth.floor(16.0F * (1.0F - f3)), 16, Mth.ceil(16.0F * f3), 255, 255, 255, 127);
-                RenderSystem.disableBlend();
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
-        }
     }
 
     private static void draw(BufferBuilder renderer, int x, int y, int width, int height, int red, int green, int blue, int alpha) {

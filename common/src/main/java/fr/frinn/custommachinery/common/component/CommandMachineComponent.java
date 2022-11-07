@@ -13,10 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec2;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
-@ParametersAreNonnullByDefault
 public class CommandMachineComponent extends AbstractMachineComponent {
 
     private static final CommandSource COMMAND_SOURCE_LOG = new CommandSource() {
