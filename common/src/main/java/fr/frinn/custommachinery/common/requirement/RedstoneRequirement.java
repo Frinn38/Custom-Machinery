@@ -12,10 +12,8 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.common.util.ComparatorMode;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
+import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
@@ -23,18 +21,15 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
 
     public static final Codec<RedstoneRequirement> CODEC = RecordCodecBuilder.create(redstoneRequirementInstance ->
             redstoneRequirementInstance.group(
-                    Codec.INT.fieldOf("power").forGetter(requirement -> requirement.powerLevel),
-                    CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparatorMode)
+                    IntRange.CODEC.fieldOf("power").forGetter(requirement -> requirement.powerLevel)
             ).apply(redstoneRequirementInstance, RedstoneRequirement::new)
     );
 
-    private final int powerLevel;
-    private final ComparatorMode comparatorMode;
+    private final IntRange powerLevel;
 
-    public RedstoneRequirement(int powerLevel, ComparatorMode comparatorMode) {
+    public RedstoneRequirement(IntRange powerLevel) {
         super(RequirementIOMode.INPUT);
         this.powerLevel = powerLevel;
-        this.comparatorMode = comparatorMode;
     }
 
     @Override
@@ -44,16 +39,14 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
 
     @Override
     public boolean test(RedstoneMachineComponent component, ICraftingContext context) {
-        int powerLevel = (int)context.getModifiedValue(this.powerLevel, this, null);
-        return this.comparatorMode.compare(component.getMachinePower(), powerLevel);
+        return this.powerLevel.contains(component.getMachinePower());
     }
 
     @Override
     public CraftingResult processStart(RedstoneMachineComponent component, ICraftingContext context) {
-        int powerLevel = (int)context.getModifiedValue(this.powerLevel, this, null);
         if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", powerLevel));
+        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", this.powerLevel.toFormattedString()));
     }
 
     @Override
@@ -68,15 +61,14 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
 
     @Override
     public CraftingResult processTick(RedstoneMachineComponent component, ICraftingContext context) {
-        int powerLevel = (int)context.getModifiedValue(this.powerLevel, this, null);
         if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", powerLevel));
+        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", this.powerLevel.toFormattedString()));
     }
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.redstone.info", new TranslatableComponent(this.comparatorMode.getTranslationKey()), this.powerLevel))
+        info.addTooltip(new TranslatableComponent("custommachinery.requirements.redstone.info", this.powerLevel.toFormattedString()))
                 .setItemIcon(Items.REDSTONE);
     }
 }
