@@ -17,6 +17,7 @@ import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
+import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.SoundManager;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
@@ -178,6 +179,12 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
         if (!tile.soundManager.isPlaying())
             tile.soundManager.play();
+    }
+
+    @Override
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        MachineList.addMachine(this);
     }
 
     @Override
