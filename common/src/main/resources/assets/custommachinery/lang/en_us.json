@@ -229,5 +229,17 @@
   "requirement.custommachinery.dimension": "Dimension",
   "requirement.custommachinery.drop": "Drop",
 
-  "config.jade.plugin_custommachinery.machine_component_provider": "Custom Machinery provider"
+  "config.jade.plugin_custommachinery.machine_component_provider": "Custom Machinery provider",
+
+  "text.autoconfig.custommachinery.category.Logs": "Logs",
+  "text.autoconfig.custommachinery.category.Rendering": "Rendering",
+  "text.autoconfig.custommachinery.category.Misc": "Misc",
+  "text.autoconfig.custommachinery.option.logMissingOptional": "Log missing optional properties",
+  "text.autoconfig.custommachinery.option.logFirstEitherError": "Log first either error",
+  "text.autoconfig.custommachinery.option.boxRenderTime": "Box render time",
+  "text.autoconfig.custommachinery.option.structureRenderTime": "Structure render time",
+  "text.autoconfig.custommachinery.option.blockTagCycleTime": "Block tag cycle time",
+  "text.autoconfig.custommachinery.option.itemSlotCycleTime": "Item slot cycle time",
+  "text.autoconfig.custommachinery.option.needAdvancedInfoForRecipeID": "Need advanced info for recipe ID",
+  "text.autoconfig.custommachinery.option.modelFolders": "Models folders"
 }

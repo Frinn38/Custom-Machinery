@@ -22,10 +22,12 @@ public class ClientHandler {
     public static void modelRegistry(final ModelRegistryEvent event) {
         ModelLoaderRegistry.registerLoader(new ResourceLocation(CustomMachinery.MODID, "custom_machine"), CustomMachineModelLoader.INSTANCE);
         ForgeModelBakery.addSpecialModel(new ResourceLocation(CustomMachinery.MODID, "block/nope"));
-        Minecraft.getInstance().getResourceManager().listResources("models/machine", s -> s.endsWith(".json")).forEach(rl -> {
-            ResourceLocation modelRL = new ResourceLocation(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
-            ForgeModelBakery.addSpecialModel(modelRL);
-        });
+        for(String folder : CMConfig.get().modelFolders) {
+            Minecraft.getInstance().getResourceManager().listResources("models/" + folder, s -> s.endsWith(".json")).forEach(rl -> {
+                ResourceLocation modelRL = new ResourceLocation(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
+                ForgeModelBakery.addSpecialModel(modelRL);
+            });
+        }
     }
     public static void setupConfig() {
         if(Platform.isModLoaded("cloth_config"))
