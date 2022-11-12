@@ -8,8 +8,10 @@ import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
+import fr.frinn.custommachinery.api.component.variant.RegisterComponentVariantEvent;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.command.CMCommand;
+import fr.frinn.custommachinery.common.component.variant.ComponentVariantRegistry;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -62,6 +64,8 @@ public class CustomMachinery {
         Registration.DATAS.register();
         Registration.PROCESSORS.register();
 
+        RegisterComponentVariantEvent.EVENT.register(Registration::registerComponentVariants);
+
         LifecycleEvent.SETUP.register(CustomMachinery::setup);
 
         LifecycleEvent.SERVER_STARTING.register(CustomMachinery::serverStarting);
@@ -79,7 +83,7 @@ public class CustomMachinery {
 
     private static void setup() {
         PacketManager.init();
-        Registration.registerComponentVariants();
+        ComponentVariantRegistry.init();
     }
 
     private static void serverStarting(final MinecraftServer server) {

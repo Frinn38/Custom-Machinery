@@ -1,9 +1,11 @@
 package fr.frinn.custommachinery.api.component.variant;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
@@ -20,19 +22,17 @@ public interface IComponentVariant {
      * The MachineComponentType must be passed as a supplier (RegistryObject is fine to use) because the codec is usually loaded statically before registry events are fired.
      * The class is used to cast the resulting variant to a specific class, like ItemComponentVariant.
      */
-    static <T extends IMachineComponent, V extends IComponentVariant> Codec<V> codec(Supplier<MachineComponentType<T>> type, Class<V> variantClass){
-        return ResourceLocation.CODEC.comapFlatMap(id -> {
-            IComponentVariant variant = type.get().getVariant(id);
-            if(variant == null)
-                return DataResult.error(String.format("Invalid component variant: %s for type: %s", id, type.get().getId()));
-            if(!variantClass.isInstance(variant))
-                return DataResult.error(String.format("Invalid class: %s can't be cast to: %s for component variant of type: %s and id: %s.%n This is a mod or addon issue. If it happen please report it.", variant.getClass(), variantClass, type.get().getId(), id));
-            return DataResult.success(variantClass.cast(variant));
-        }, IComponentVariant::getId);
+    static <C extends IMachineComponent> MapCodec<IComponentVariant> codec(Supplier<MachineComponentType<C>> type){
+        return RegistrarCodec.CM_LOC_CODEC.dispatchMap("variant", IComponentVariant::getId, id -> ICustomMachineryAPI.INSTANCE.getVariantCodec(type.get(), id));
     }
 
     /**
      * @return The id of this variant, all variant of a component must have different ids.
      */
     ResourceLocation getId();
+
+    /**
+     * @return A codec used to parse this variant.
+     */
+    Codec<? extends IComponentVariant> getCodec();
 }

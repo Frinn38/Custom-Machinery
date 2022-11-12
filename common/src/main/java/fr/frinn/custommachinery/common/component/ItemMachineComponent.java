@@ -191,10 +191,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                         CodecLogger.loggedOptional(Codec.INT, "max_output").forGetter(template -> Optional.of(template.maxOutput)),
                         CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"filter", Collections.emptyList()).forGetter(template -> template.filter),
                         CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
-                        CodecLogger.loggedOptional(IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT, ItemComponentVariant.class),"variant", DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant),
+                        IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT).orElse(DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant),
                         CodecLogger.loggedOptional(SideConfig.Template.CODEC, "config").forGetter(template -> Optional.of(template.config))
                 ).apply(itemMachineComponentTemplate, (id, mode, capacity, maxInput, maxOutput, filter, whitelist, variant, config) ->
-                        new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, variant, config.orElse(mode.getBaseConfig()))
+                        new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, (ItemComponentVariant) variant, config.orElse(mode.getBaseConfig()))
                 )
         );
 

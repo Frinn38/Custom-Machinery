@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
@@ -80,7 +81,7 @@ public class CustomMachineContainer extends SyncableContainer {
                     else
                         slotComponent = new SlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
                     this.addSlot(slotComponent);
-                    if (component.getMode().isInput())
+                    if (!(component.getVariant() == DefaultItemComponentVariant.INSTANCE) || component.getMode().isInput())
                         this.inputSlotComponents.add(slotComponent);
                 });
             }

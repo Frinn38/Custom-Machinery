@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.variant.RegisterComponentVariantEvent;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
@@ -38,6 +39,7 @@ import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
+import fr.frinn.custommachinery.common.component.variant.item.FluidItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
@@ -261,10 +263,11 @@ public class Registration {
     public static final RegistrySupplier<ProcessorType<MachineProcessor>> MACHINE_PROCESSOR = PROCESSORS.register("machine", () -> ProcessorType.create(MachineProcessor.Template.CODEC));
     public static final RegistrySupplier<ProcessorType<CraftProcessor>> CRAFT_PROCESSOR = PROCESSORS.register("craft", () -> ProcessorType.create(CraftProcessor.Template.CODEC));
 
-    public static void registerComponentVariants() {
-        ITEM_MACHINE_COMPONENT.get().addVariant(DefaultItemComponentVariant.INSTANCE);
-        ITEM_MACHINE_COMPONENT.get().addVariant(FuelItemComponentVariant.INSTANCE);
-        ITEM_MACHINE_COMPONENT.get().addVariant(UpgradeItemComponentVariant.INSTANCE);
-        ITEM_MACHINE_COMPONENT.get().addVariant(ResultItemComponentVariant.INSTANCE);
+    public static void registerComponentVariants(RegisterComponentVariantEvent event) {
+        event.register(ITEM_MACHINE_COMPONENT.get(), DefaultItemComponentVariant.ID, DefaultItemComponentVariant.CODEC);
+        event.register(ITEM_MACHINE_COMPONENT.get(), FluidItemComponentVariant.ID, FluidItemComponentVariant.CODEC);
+        event.register(ITEM_MACHINE_COMPONENT.get(), FuelItemComponentVariant.ID, FuelItemComponentVariant.CODEC);
+        event.register(ITEM_MACHINE_COMPONENT.get(), ResultItemComponentVariant.ID, ResultItemComponentVariant.CODEC);
+        event.register(ITEM_MACHINE_COMPONENT.get(), UpgradeItemComponentVariant.ID, UpgradeItemComponentVariant.CODEC);
     }
 }

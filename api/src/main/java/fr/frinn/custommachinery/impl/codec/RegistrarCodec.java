@@ -39,7 +39,7 @@ public class RegistrarCodec<V> implements Codec<V> {
     public static final Codec<DataType<?, ?>> DATA = of(ICustomMachineryAPI.INSTANCE.dataRegistrar(), true);
     public static final Codec<ProcessorType<?>> CRAFTING_PROCESSOR = of(ICustomMachineryAPI.INSTANCE.processorRegistrar(), true);
 
-    private static final Codec<ResourceLocation> CM_LOC_CODEC = Codec.STRING.comapFlatMap(
+    public static final Codec<ResourceLocation> CM_LOC_CODEC = Codec.STRING.comapFlatMap(
             s -> {
                 try {
                     if(s.contains(":"))

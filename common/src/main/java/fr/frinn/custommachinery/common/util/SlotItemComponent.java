@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +31,9 @@ public class SlotItemComponent extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return this.component.isItemValid(stack) && this.component.getMode().isInput();
+        if(this.component.getVariant() == DefaultItemComponentVariant.INSTANCE)
+            return this.component.getMode().isInput();
+        return this.component.isItemValid(stack);
     }
 
     @Override

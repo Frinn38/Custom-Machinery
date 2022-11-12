@@ -64,6 +64,7 @@ public class ForgeFluidHandler implements ICommonFluidHandler {
 
     @Override
     public void tick() {
+        //I/O between the machine and neighbour blocks.
         for(Direction side : Direction.values()) {
             if(this.fluidHandler.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == SideMode.NONE))
                 continue;
@@ -92,7 +93,7 @@ public class ForgeFluidHandler implements ICommonFluidHandler {
         }
     }
 
-    /** Right click with fluid handler compat **/
+    /** Right click with fluid handler compatibility **/
     @Override
     public boolean interactWithFluidHandler(Player player, InteractionHand hand) {
         return FluidUtil.interactWithFluidHandler(player, hand, this.interactionFluidStorage);

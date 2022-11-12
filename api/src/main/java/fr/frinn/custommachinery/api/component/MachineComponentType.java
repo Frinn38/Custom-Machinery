@@ -6,7 +6,6 @@ import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
-import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import net.minecraft.core.Registry;
@@ -15,8 +14,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -70,7 +67,6 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
     private boolean defaultComponent = false;
     private Function<IMachineComponentManager, T> defaultComponentBuilder;
     private Supplier<IMachineComponentBuilder<T>> GUIComponentBuilder;
-    private final Map<ResourceLocation, IComponentVariant> variants = new ConcurrentHashMap<>();
 
     /**
      * A constructor for {@link MachineComponentType}.
@@ -199,25 +195,5 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
         if(getId() == null)
             throw new IllegalStateException("Trying to get the registry name of an unregistered MachineComponentType");
         return new TranslatableComponent(getId().getNamespace() + ".machine.component." + getId().getPath());
-    }
-
-    /**
-     * Add an {@link IComponentVariant} to this {@link MachineComponentType}.
-     * The {@link IComponentVariant} must be a singleton, and it's id unique.
-     * This method is thread-safe, but must be used after registration (common setup is good).
-     * @param variant The {@link IComponentVariant} to register.
-     */
-    public IComponentVariant addVariant(IComponentVariant variant) {
-        if(this.variants.containsKey(variant.getId()))
-            throw new IllegalArgumentException("A component variant of type: " + getId() + " with id: " + variant.getId() + " is already registered !");
-        this.variants.put(variant.getId(), variant);
-        return variant;
-    }
-
-    /**
-     * @return An {@link IComponentVariant} for this {@link MachineComponentType}, or null if no {@link IComponentVariant} is registered with this id.
-     */
-    public IComponentVariant getVariant(ResourceLocation id) {
-        return this.variants.get(id);
     }
 }

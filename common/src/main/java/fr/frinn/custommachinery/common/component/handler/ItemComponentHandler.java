@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.CMCollectors;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +30,7 @@ import java.util.function.Predicate;
 public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ISerializableComponent, ITickableComponent, ISyncableStuff {
 
     private final Random rand = new Random();
-    private final List<ITickableComponentVariant> tickableVariants;
+    private final List<ItemMachineComponent> tickableVariants;
     private final ICommonItemHandler handler = PlatformHelper.createItemHandler(this);
 
     public ItemComponentHandler(IMachineComponentManager manager, List<ItemMachineComponent> components) {
@@ -43,7 +42,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             if(component.getMode().isOutput())
                 this.outputs.add(component);
         });
-        this.tickableVariants = components.stream().map(ItemMachineComponent::getVariant).filter(variant -> variant instanceof ITickableComponentVariant).map(variant -> (ITickableComponentVariant)variant).collect(CMCollectors.toImmutableList());
+        this.tickableVariants = components.stream().filter(component -> component.getVariant() instanceof ITickableComponentVariant).toList();
     }
 
     public ICommonItemHandler getCommonHandler() {
@@ -91,10 +90,11 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void serverTick() {
         this.handler.tick();
-        this.tickableVariants.forEach(variant -> variant.tick(getManager()));
+        this.tickableVariants.forEach(component -> ((ITickableComponentVariant<ItemMachineComponent>)component.getVariant()).tick(component));
     }
 
     @Override

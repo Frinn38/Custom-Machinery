@@ -8,10 +8,12 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
+import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
 import fr.frinn.custommachinery.fabric.init.FabricCustomMachineBlock;
 import fr.frinn.custommachinery.fabric.init.FabricCustomMachineTile;
 import fr.frinn.custommachinery.fabric.transfer.FabricEnergyHandler;
 import fr.frinn.custommachinery.fabric.transfer.FabricFluidHandler;
+import fr.frinn.custommachinery.fabric.transfer.FabricFluidHelper;
 import fr.frinn.custommachinery.fabric.transfer.FabricItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PlatformHelperImpl {
+
+    public static final FabricFluidHelper FLUID_HELPER = new FabricFluidHelper();
 
     public static ICommonEnergyHandler createEnergyHandler(EnergyMachineComponent component) {
         return new FabricEnergyHandler(component);
@@ -49,5 +53,9 @@ public class PlatformHelperImpl {
 
     public static String energyUnit() {
         return "E";
+    }
+
+    public static IFluidHelper fluid() {
+        return FLUID_HELPER;
     }
 }
