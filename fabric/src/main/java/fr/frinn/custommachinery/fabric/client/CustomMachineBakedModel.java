@@ -50,7 +50,7 @@ public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
 
     @Override
     public boolean isVanillaAdapter() {
-        return true;
+        return false;
     }
 
     @Override
