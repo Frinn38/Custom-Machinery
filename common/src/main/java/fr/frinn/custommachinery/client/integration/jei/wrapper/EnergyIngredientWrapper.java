@@ -37,9 +37,9 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
                 .addIngredient(CustomIngredientTypes.ENERGY, this.energy)
                 .addTooltipCallback((recipeSlotView, tooltip) -> {
                     Component component;
-                    String amount = Utils.format(this.energy.getAmount()) + " " + PlatformHelper.energyUnit();
+                    String amount = Utils.format(this.energy.getAmount()) + " " + PlatformHelper.energy().unit();
                     if(this.energy.isPerTick()) {
-                        String totalEnergy = Utils.format(this.energy.getAmount() * this.recipeTime) + " " + PlatformHelper.energyUnit();
+                        String totalEnergy = Utils.format(this.energy.getAmount() * this.recipeTime) + " " + PlatformHelper.energy().unit();
                         if(this.mode == RequirementIOMode.INPUT)
                             component = new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick.input", totalEnergy, amount);
                         else

@@ -8,10 +8,12 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
+import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
 import fr.frinn.custommachinery.forge.init.ForgeCustomMachineBlock;
 import fr.frinn.custommachinery.forge.init.ForgeCustomMachineTile;
 import fr.frinn.custommachinery.forge.transfer.ForgeEnergyHandler;
+import fr.frinn.custommachinery.forge.transfer.ForgeEnergyHelper;
 import fr.frinn.custommachinery.forge.transfer.ForgeFluidHandler;
 import fr.frinn.custommachinery.forge.transfer.ForgeFluidHelper;
 import fr.frinn.custommachinery.forge.transfer.ForgeItemHandler;
@@ -25,6 +27,7 @@ import java.util.List;
 
 public class PlatformHelperImpl {
 
+    public static final ForgeEnergyHelper ENERGY_HELPER = new ForgeEnergyHelper();
     public static final ForgeFluidHelper FLUID_HELPER = new ForgeFluidHelper();
 
     public static ICommonEnergyHandler createEnergyHandler(EnergyMachineComponent component) {
@@ -62,8 +65,8 @@ public class PlatformHelperImpl {
         throw new RuntimeException("NOPE");
     }
 
-    public static String energyUnit() {
-        return "FE";
+    public static IEnergyHelper energy() {
+        return ENERGY_HELPER;
     }
 
     public static IFluidHelper fluid() {

@@ -23,7 +23,7 @@ public class FabricEnergyHandler implements ICommonEnergyHandler {
     public FabricEnergyHandler(EnergyMachineComponent component) {
         this.component = component;
         for (Direction side : Direction.values()) {
-            this.sidedStorages.put(side, new SidedEnergyStorage(side, component));
+            this.sidedStorages.put(side, new EnergyBuffer(component, side));
         }
     }
 

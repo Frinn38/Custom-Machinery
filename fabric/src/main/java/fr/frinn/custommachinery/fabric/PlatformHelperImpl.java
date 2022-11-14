@@ -8,10 +8,12 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
+import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
 import fr.frinn.custommachinery.fabric.init.FabricCustomMachineBlock;
 import fr.frinn.custommachinery.fabric.init.FabricCustomMachineTile;
 import fr.frinn.custommachinery.fabric.transfer.FabricEnergyHandler;
+import fr.frinn.custommachinery.fabric.transfer.FabricEnergyHelper;
 import fr.frinn.custommachinery.fabric.transfer.FabricFluidHandler;
 import fr.frinn.custommachinery.fabric.transfer.FabricFluidHelper;
 import fr.frinn.custommachinery.fabric.transfer.FabricItemHandler;
@@ -25,6 +27,7 @@ import java.util.List;
 
 public class PlatformHelperImpl {
 
+    public static final FabricEnergyHelper ENERGY_HELPER = new FabricEnergyHelper();
     public static final FabricFluidHelper FLUID_HELPER = new FabricFluidHelper();
 
     public static ICommonEnergyHandler createEnergyHandler(EnergyMachineComponent component) {
@@ -51,8 +54,8 @@ public class PlatformHelperImpl {
         return Arrays.asList(table.pools);
     }
 
-    public static String energyUnit() {
-        return "E";
+    public static IEnergyHelper energy() {
+        return ENERGY_HELPER;
     }
 
     public static IFluidHelper fluid() {

@@ -10,7 +10,7 @@ public interface IFluidHelper {
 
     boolean isFluidHandler(ItemStack stack);
 
-    void fillTanksFromStack(List<FluidMachineComponent> tanks, ItemMachineComponent component);
+    void fillTanksFromStack(List<FluidMachineComponent> tanks, ItemMachineComponent slot);
 
-    void fillStackFromTanks(ItemMachineComponent stack, List<FluidMachineComponent> tanks);
+    void fillStackFromTanks(ItemMachineComponent slot, List<FluidMachineComponent> tanks);
 }

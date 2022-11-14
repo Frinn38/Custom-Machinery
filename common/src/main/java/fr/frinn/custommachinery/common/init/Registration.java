@@ -39,6 +39,7 @@ import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
+import fr.frinn.custommachinery.common.component.variant.item.EnergyItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.FluidItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
@@ -265,6 +266,7 @@ public class Registration {
 
     public static void registerComponentVariants(RegisterComponentVariantEvent event) {
         event.register(ITEM_MACHINE_COMPONENT.get(), DefaultItemComponentVariant.ID, DefaultItemComponentVariant.CODEC);
+        event.register(ITEM_MACHINE_COMPONENT.get(), EnergyItemComponentVariant.ID, EnergyItemComponentVariant.CODEC);
         event.register(ITEM_MACHINE_COMPONENT.get(), FluidItemComponentVariant.ID, FluidItemComponentVariant.CODEC);
         event.register(ITEM_MACHINE_COMPONENT.get(), FuelItemComponentVariant.ID, FuelItemComponentVariant.CODEC);
         event.register(ITEM_MACHINE_COMPONENT.get(), ResultItemComponentVariant.ID, ResultItemComponentVariant.CODEC);

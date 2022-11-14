@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
+import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -50,7 +51,7 @@ public class PlatformHelper {
     }
 
     @ExpectPlatform
-    public static String energyUnit() {
+    public static IEnergyHelper energy() {
         throw new AssertionError();
     }
 
