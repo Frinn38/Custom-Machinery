@@ -2,31 +2,23 @@ package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.LightRequirement;
-import fr.frinn.custommachinery.common.util.ComparatorMode;
+import fr.frinn.custommachinery.impl.util.IntRange;
 
 public interface LightRequirementJS extends RecipeJSBuilder {
 
-    default RecipeJSBuilder requireSkyLight(int amount) {
-        return this.requireSkyLight(amount, ">=");
-    }
-
-    default RecipeJSBuilder requireSkyLight(int amount, String comparator) {
+    default RecipeJSBuilder requireSkyLight(String level) {
         try {
-            return this.addRequirement(new LightRequirement(amount, ComparatorMode.value(comparator), true));
+            return this.addRequirement(new LightRequirement(IntRange.createFromString(level), true));
         } catch (IllegalArgumentException e) {
-            return error("Invalid comparator: {}", comparator);
+            return error("Invalid light level range: {}, {}", level, e.getMessage());
         }
     }
 
-    default RecipeJSBuilder requireBlockLight(int amount) {
-        return this.requireBlockLight(amount, ">=");
-    }
-
-    default RecipeJSBuilder requireBlockLight(int amount, String comparator) {
+    default RecipeJSBuilder requireBlockLight(String level) {
         try {
-            return this.addRequirement(new LightRequirement(amount, ComparatorMode.value(comparator), false));
+            return this.addRequirement(new LightRequirement(IntRange.createFromString(level), false));
         } catch (IllegalArgumentException e) {
-            return error("Invalid comparator: {}", comparator);
+            return error("Invalid light level range: {}, {}", level, e.getMessage());
         }
     }
 }

@@ -24,8 +24,6 @@ import fr.frinn.custommachinery.impl.codec.EnhancedEitherCodec;
 import fr.frinn.custommachinery.impl.codec.EnhancedListCodec;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
-import fr.frinn.custommachinery.impl.component.config.RelativeSide;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
 import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.BlockPos;
@@ -71,7 +69,6 @@ public class Codecs {
         return Codec.LONG.flatXmap(checker, checker);
     }
 
-    public static final Codec<PositionComparator> POSITION_COMPARATOR_CODEC = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePositionComparator, PositionComparator::toString), "Position Comparator");
     public static final Codec<CompoundTag> COMPOUND_NBT_CODEC               = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCompoundNBT, CompoundTag::toString), "NBT");
     public static final Codec<Character> CHARACTER_CODEC                    = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeCharacter, Object::toString), "Character");
     public static final Codec<PartialBlockState> PARTIAL_BLOCK_STATE_CODEC  = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodePartialBlockState, PartialBlockState::toString), "Block State");
@@ -88,8 +85,6 @@ public class Codecs {
     public static final Codec<RecipeModifier.OPERATION> MODIFIER_OPERATION_CODEC        = fromEnum(RecipeModifier.OPERATION.class);
     public static final Codec<ProgressBarGuiElement.Orientation> PROGRESS_DIRECTION       = fromEnum(ProgressBarGuiElement.Orientation.class);
     public static final Codec<DropRequirement.Action> DROP_REQUIREMENT_ACTION_CODEC     = fromEnum(DropRequirement.Action.class);
-    public static final Codec<RelativeSide> RELATIVE_SIDE_CODEC                         = fromEnum(RelativeSide.class);
-    public static final Codec<SideMode> SIDE_MODE_CODEC                                 = fromEnum(SideMode.class);
 
     public static final Codec<BlockPos> BLOCK_POS                 = CodecLogger.namedCodec(BlockPos.CODEC, "Block Position");
     public static final Codec<AABB> AABB_CODEC           = CodecLogger.namedCodec(DOUBLE_STREAM.comapFlatMap(stream -> validateDoubleStreamSize(stream, 6).map(array -> new AABB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> DoubleStream.of(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ)), "Box");
@@ -108,14 +103,6 @@ public class Codecs {
 
     public static <T> Codec<List<T>> list(Codec<T> codec) {
         return new EnhancedListCodec<>(codec);
-    }
-
-    private static DataResult<PositionComparator> decodePositionComparator(String encoded) {
-        try {
-            return DataResult.success(new PositionComparator(encoded));
-        } catch (IllegalArgumentException e) {
-            return DataResult.error(String.format("Not a valid Position Comparator: %s%n%s", encoded, e.getMessage()));
-        }
     }
 
     private static DataResult<CompoundTag> decodeCompoundNBT(String encoded) {

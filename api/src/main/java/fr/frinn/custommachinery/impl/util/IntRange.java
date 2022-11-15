@@ -98,7 +98,7 @@ public class IntRange extends Range<Integer> {
                 throw new IllegalArgumentException("Only fully-qualified sets allowed in multiple set scenario: \"" + spec + "\"");
             else {
                 try {
-                    Integer bound = Integer.parseInt(process);
+                    int bound = (int)Double.parseDouble(process);
                     restrictions.add(new Restriction<>(bound, true, bound, true));
                 } catch (NumberFormatException e) {
                     throw new IllegalArgumentException("Invalid integer range, \"" + process + "\" is not a number");
