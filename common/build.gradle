@@ -14,32 +14,21 @@ configurations {
 }
 
 dependencies {
-    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
-    // Do NOT use other classes from fabric loader
-    modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-    // Remove the next line if you don't want to depend on the API
-    modApi "dev.architectury:architectury:${project.architectury_version}"
-    modApi "dev.latvian.mods:kubejs:${project.kubejs_version}"
+    //Required
+    modImplementation("net.fabricmc:fabric-loader:${project.fabric_loader_version}")
+    modApi("dev.architectury:architectury:${project.architectury_version}")
+    modApi("me.shedaniel.cloth:cloth-config:${project.cloth_config_version}")
 
+    //Api module
     api(project(path: ":api", configuration: "namedElements")) { transitive false }
     shadowApi(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
-    modApi "me.shedaniel.cloth:cloth-config:${project.cloth_config_version}"
+    //JEI api
+    modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
 
-    modCompileOnlyApi "mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}"
-    modCompileOnlyApi "com.blamejared.crafttweaker:CraftTweaker-common-1.18.2:${project.ct_version}"
-}
+    //KubeJS common module
+    modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs:${project.kubejs_version}")
 
-publishing {
-    publications {
-        mavenCommon(MavenPublication) {
-            artifactId = rootProject.archives_base_name
-            from components.java
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-    }
+    //Crafttweaker common module
+    modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-common-1.18.2:${project.ct_version}")
 }

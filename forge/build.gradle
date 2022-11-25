@@ -8,8 +8,6 @@ architectury {
     forge()
 }
 
-project.version = "${project.minecraft_version}-${project.mod_version}-forge"
-
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
 
@@ -25,46 +23,44 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
-
-    api
-    shadowApi
-    compileClasspath.extendsFrom api
-    runtimeClasspath.extendsFrom api
-    developmentForge.extendsFrom api
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${project.forge_version}"
-    // Remove the next line if you don't want to depend on the API
-    modApi "dev.architectury:architectury-forge:${project.architectury_version}"
-    modApi "dev.latvian.mods:kubejs-forge:${project.kubejs_version}"
+    //Required
+    forge("net.minecraftforge:forge:${project.forge_version}")
+    modApi("dev.architectury:architectury-forge:${project.architectury_version}")
+    modApi("me.shedaniel.cloth:cloth-config-forge:${project.cloth_config_version}")
 
+    //Common module
     common(project(path: ":common", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    api(project(path: ":api", configuration: "namedElements")) { transitive = false }
-    shadowApi(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
+    //Api module
+    common(project(path: ":api", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
-    modCompileOnlyApi "mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}"
-    modCompileOnlyApi "mezz.jei:jei-${project.minecraft_version}-forge-api:${project.jei_version}"
-    modRuntimeOnly("mezz.jei:jei-${project.minecraft_version}-forge:${project.jei_version}") {transitive = false}
-
-    modApi "me.shedaniel.cloth:cloth-config-forge:${project.cloth_config_version}"
+    //JEI
+    modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
+    modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-forge-api:${project.jei_version}")
+    modLocalRuntime("mezz.jei:jei-${project.minecraft_version}-forge:${project.jei_version}") {transitive = false}
 
     //Building gadgets
-    modImplementation "curse.maven:gadgets-298187:3725903"
+    modLocalRuntime modCompileOnly("curse.maven:gadgets-298187:3725903")
 
     //The one probe
-    modImplementation("mcjty.theoneprobe:theoneprobe:${project.top_version}") {transitive = false}
+    modLocalRuntime modCompileOnly("mcjty.theoneprobe:theoneprobe:${project.top_version}") {transitive = false}
+
+    //KubeJS
+    modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs-forge:${project.kubejs_version}")
 
     //Crafttweaker
-    modImplementation "com.blamejared.crafttweaker:CraftTweaker-forge-${project.minecraft_version}:${project.ct_version}"
+    modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-forge-${project.minecraft_version}:${project.ct_version}")
 
     //Mekanism
-    modRuntimeOnly "mekanism:Mekanism:${project.mekanism_version}"
+    modLocalRuntime("mekanism:Mekanism:${project.mekanism_version}")
 
     //Jade
-    modImplementation "curse.maven:jade-324717:3865918"
+    modLocalRuntime modCompileOnly("curse.maven:jade-324717:3865918")
 }
 
 processResources {
@@ -85,11 +81,17 @@ processResources {
     }
 }
 
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
 shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
 
-    configurations = [project.configurations.shadowCommon, project.configurations.shadowApi]
+    configurations = [project.configurations.shadowCommon]
     classifier "dev-shadow"
 }
 
@@ -101,26 +103,6 @@ remapJar {
 
 jar {
     classifier "dev"
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
-}
-
-publishing {
-    publications {
-        mavenForge(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            from components.java
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-    }
 }
 
 unifiedPublishing {
@@ -156,7 +138,6 @@ unifiedPublishing {
             modrinth {
                 token = MODRINTH_TOKEN
                 id = "OrB5XFtI"
-                secondaryPublication rootProject.getApiJar()
                 relations {
                     depends "architectury-api"
                     depends "cloth-config"
