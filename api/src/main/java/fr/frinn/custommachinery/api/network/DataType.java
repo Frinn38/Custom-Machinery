@@ -81,7 +81,7 @@ public class DataType<D extends IData<T>, T> extends RegistryEntry<DataType<D, T
      */
     @SuppressWarnings("unchecked")
     public static <T> ISyncable<IData<T>, T> createSyncable(Class<T> type, Supplier<T> supplier, Consumer<T> consumer) {
-        Optional<DataType<IData<T>, T>> dataType = ICustomMachineryAPI.INSTANCE.dataRegistrar().entrySet().stream().filter(entry -> entry.getValue().type == type).map(entry -> (DataType<IData<T>, T>)entry).findFirst();
+        Optional<DataType<IData<T>, T>> dataType = ICustomMachineryAPI.INSTANCE.dataRegistrar().entrySet().stream().filter(entry -> entry.getValue().type == type).map(entry -> (DataType<IData<T>, T>)entry.getValue()).findFirst();
         if(dataType.isPresent())
             return dataType.get().createSyncable(supplier, consumer);
         throw new IllegalArgumentException("Couldn't create Syncable for provided type: " + type.getName() + ". No registered DataType for this type.");
