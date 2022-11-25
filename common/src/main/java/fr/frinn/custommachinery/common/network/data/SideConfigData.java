@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
+import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.HashMap;

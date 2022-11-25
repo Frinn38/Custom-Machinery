@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.network.data;
 
 import dev.architectury.fluid.FluidStack;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class FluidStackData extends Data<FluidStack> {

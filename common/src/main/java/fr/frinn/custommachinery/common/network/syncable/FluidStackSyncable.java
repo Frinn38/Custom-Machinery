@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.network.syncable;
 
 import dev.architectury.fluid.FluidStack;
 import fr.frinn.custommachinery.common.network.data.FluidStackData;
+import fr.frinn.custommachinery.impl.network.AbstractSyncable;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

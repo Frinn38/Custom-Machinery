@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.network.data;
 
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class StringData extends Data<String> {

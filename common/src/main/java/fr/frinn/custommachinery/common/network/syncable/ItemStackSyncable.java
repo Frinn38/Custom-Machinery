@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.network.syncable;
 
 import fr.frinn.custommachinery.common.network.data.ItemStackData;
+import fr.frinn.custommachinery.impl.network.AbstractSyncable;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;
