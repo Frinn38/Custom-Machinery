@@ -11,6 +11,7 @@ import fr.frinn.custommachinery.forge.transfer.ForgeFluidHandler;
 import fr.frinn.custommachinery.forge.transfer.ForgeItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
@@ -31,6 +32,11 @@ public class ForgeCustomMachineTile extends CustomMachineTile {
     @Override
     public void refreshClientData() {
         requestModelDataUpdate();
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
     }
 
     @NotNull
