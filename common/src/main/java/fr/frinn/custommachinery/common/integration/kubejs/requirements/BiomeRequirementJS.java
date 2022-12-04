@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import dev.latvian.mods.kubejs.script.ScriptType;
-import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
+import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.resources.ResourceLocation;

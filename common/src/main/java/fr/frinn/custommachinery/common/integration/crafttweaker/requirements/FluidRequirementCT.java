@@ -6,7 +6,7 @@ import com.blamejared.crafttweaker.api.tag.MCTag;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
-import fr.frinn.custommachinery.common.integration.crafttweaker.RecipeCTBuilder;
+import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.requirement.FluidRequirement;
 import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;

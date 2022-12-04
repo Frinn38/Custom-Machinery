@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.util.MapJS;
-import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
+import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
 import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;

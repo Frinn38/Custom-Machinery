@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 import dev.latvian.mods.kubejs.fluid.FluidStackJS;
 import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
+import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.FluidRequirement;
 import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;

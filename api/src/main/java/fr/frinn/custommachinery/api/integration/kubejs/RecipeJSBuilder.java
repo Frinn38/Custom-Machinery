@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.integration.kubejs;
+package fr.frinn.custommachinery.api.integration.kubejs;
 
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 

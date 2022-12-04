@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
-import fr.frinn.custommachinery.common.integration.kubejs.RecipeJSBuilder;
+import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.EffectRequirement;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.Registry;

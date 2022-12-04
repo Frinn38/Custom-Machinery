@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.integration.crafttweaker.requirements;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
-import fr.frinn.custommachinery.common.integration.crafttweaker.RecipeCTBuilder;
+import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.requirement.RedstoneRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import org.openzen.zencode.java.ZenCodeType.Method;

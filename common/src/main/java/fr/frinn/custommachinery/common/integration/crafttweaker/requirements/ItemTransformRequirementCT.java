@@ -7,7 +7,7 @@ import com.blamejared.crafttweaker.api.item.IItemStack;
 import com.blamejared.crafttweaker.api.tag.MCTag;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
-import fr.frinn.custommachinery.common.integration.crafttweaker.RecipeCTBuilder;
+import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
 import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;

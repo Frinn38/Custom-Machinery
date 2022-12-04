@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.integration.crafttweaker;
+package fr.frinn.custommachinery.api.integration.crafttweaker;
 
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 
