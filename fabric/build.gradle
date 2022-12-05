@@ -90,7 +90,7 @@ processResources {
 
     filesMatching("fabric.mod.json") {
         expand "modid": project.modid,
-                "version": project.version,
+                "mod_version": project.mod_version,
                 "mod_name": project.mod_name,
                 "mod_description": project.mod_description,
                 "author": project.author,

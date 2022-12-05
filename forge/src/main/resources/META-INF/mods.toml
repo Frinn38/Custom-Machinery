@@ -5,7 +5,7 @@ license = "${license}"
 
 [[mods]]
 modId = "${modid}"
-version = "${version}"
+version = "${mod_version}"
 displayName = "${mod_name}"
 authors = "${author}"
 description = '''
