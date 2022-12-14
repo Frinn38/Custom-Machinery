@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,7 @@ import java.io.IOException;
 public class CMLogger {
 
     public static final Logger INSTANCE = CustomMachinery.LOGGER;
-
+    public static final String NAME = "Custom Machinery";
     private static boolean shouldReset = false;
 
     public static void init() {
@@ -65,7 +66,7 @@ public class CMLogger {
                 .withFilePattern("logs/custommachinery-%i.log.gz")
                 .withPolicy(policy)
                 .withStrategy(strategy)
-                .setName("Custom Machinery")
+                .setName(NAME)
                 .withImmediateFlush(true)
                 .setIgnoreExceptions(false)
                 .setConfiguration(config)
@@ -76,27 +77,46 @@ public class CMLogger {
 
         config.addAppender(cmAppender);
 
-        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, "Custom Machinery", "true", new AppenderRef[0], null, config, null);
+        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, NAME, "true", new AppenderRef[0], null, config, null);
+        loggerConfig.addAppender(cmAppender, CMConfig.get().debugLevel.getLevel(), null);
 
-        loggerConfig.addAppender(cmAppender, Level.ALL, null);
         Appender debug = config.getAppender("DebugFile");
         if(debug != null)
-            loggerConfig.addAppender(debug, Level.DEBUG, null);
+            loggerConfig.addAppender(debug, Level.WARN, null);
+
         Appender file = config.getAppender("File");
         if(file != null)
-            loggerConfig.addAppender(file, Level.INFO, null);
+            loggerConfig.addAppender(file, Level.WARN, null);
+
         Appender console = config.getAppender("Console");
         if(console != null)
-            loggerConfig.addAppender(console, Level.DEBUG, null);
+            loggerConfig.addAppender(console, Level.WARN, null);
+
         Appender serverGuiConsole = config.getAppender("ServerGuiConsole");
         if(serverGuiConsole != null)
-            loggerConfig.addAppender(serverGuiConsole, Level.INFO, null);
+            loggerConfig.addAppender(serverGuiConsole, Level.WARN, null);
 
-        config.addLogger("Custom Machinery", loggerConfig);
+        config.addLogger(NAME, loggerConfig);
         ctx.updateLoggers();
     }
 
     public static void reset() {
         shouldReset = true;
+    }
+
+    public static void setDebugLevel(Level level) {
+        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        final Configuration config = ctx.getConfiguration();
+
+        final LoggerConfig cmConfig = config.getLoggers().get(NAME);
+        if(cmConfig == null)
+            throw new IllegalStateException(NAME + " logger not present!");
+
+        final Appender cmAppender = cmConfig.getAppenders().get(NAME);
+        if(cmAppender == null)
+            throw new IllegalStateException(NAME + " appender not present");
+
+        cmConfig.removeAppender(NAME);
+        cmConfig.addAppender(cmAppender, level, null);
     }
 }

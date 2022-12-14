@@ -26,6 +26,7 @@ import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.common.util.MachineList;
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -33,6 +34,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.InteractionResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,6 +51,12 @@ public class CustomMachinery {
     public static final Upgrades UPGRADES = new Upgrades();
 
     public static void init() {
+        ConfigHolder<CMConfig> config = AutoConfig.register(CMConfig.class, Toml4jConfigSerializer::new);
+        config.registerSaveListener((holder, cmConfig) -> {
+            CMLogger.setDebugLevel(cmConfig.debugLevel.getLevel());
+            return InteractionResult.SUCCESS;
+        });
+
         CMLogger.init();
 
         Registration.BLOCKS.register();
@@ -69,8 +77,6 @@ public class CustomMachinery {
         LifecycleEvent.SETUP.register(CustomMachinery::setup);
 
         LifecycleEvent.SERVER_STARTING.register(CustomMachinery::serverStarting);
-
-        AutoConfig.register(CMConfig.class, Toml4jConfigSerializer::new);
 
         ReloadListenerRegistry.register(PackType.SERVER_DATA, new CustomMachineJsonReloadListener());
         ReloadListenerRegistry.register(PackType.SERVER_DATA, new UpgradesCustomReloadListener());

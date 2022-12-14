@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.integration.config;
 
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.util.LoggingLevel;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -21,6 +22,10 @@ public class CMConfig implements ConfigData {
     @Category("Logs")
     @Comment("When parsing custom machines json files,\nsome properties can be read with 2 serializers.\nSet this to true to log when the first serializer throw an error,\neven if the second succeed.")
     public boolean logFirstEitherError = false;
+
+    @Category("Logs")
+    @Comment("Configure what logs will be printed in the custommachinery.log file.\nOnly logs with level higher or equal than selected will be printed.\nFATAL > ERROR > WARN > INFO > DEBUG > ALL")
+    public LoggingLevel debugLevel = LoggingLevel.INFO;
 
     //RENDER
     @Category("Rendering")

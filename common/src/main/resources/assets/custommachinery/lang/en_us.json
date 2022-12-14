@@ -236,6 +236,7 @@
   "text.autoconfig.custommachinery.category.Misc": "Misc",
   "text.autoconfig.custommachinery.option.logMissingOptional": "Log missing optional properties",
   "text.autoconfig.custommachinery.option.logFirstEitherError": "Log first either error",
+  "text.autoconfig.custommachinery.option.debugLevel": "Debug log level",
   "text.autoconfig.custommachinery.option.boxRenderTime": "Box render time",
   "text.autoconfig.custommachinery.option.structureRenderTime": "Structure render time",
   "text.autoconfig.custommachinery.option.blockTagCycleTime": "Block tag cycle time",
