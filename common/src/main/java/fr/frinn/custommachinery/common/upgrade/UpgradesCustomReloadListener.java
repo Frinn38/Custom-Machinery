@@ -8,10 +8,10 @@ import com.mojang.serialization.JsonOps;
 import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Items;
 import org.apache.logging.log4j.Logger;
@@ -22,13 +22,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class UpgradesCustomReloadListener extends SimpleJsonResourceReloadListener {
+public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
 
-    private static final Gson GSON = (new GsonBuilder()).create();
+    private static final Gson GSON = new GsonBuilder().create();
     private static final String MAIN_PACKNAME = "main";
 
     public UpgradesCustomReloadListener() {
-        super(GSON, "upgrades");
+        super("upgrades");
     }
 
     @Override

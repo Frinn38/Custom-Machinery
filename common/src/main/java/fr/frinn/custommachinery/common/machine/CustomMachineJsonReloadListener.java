@@ -1,27 +1,24 @@
 package fr.frinn.custommachinery.common.machine;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class CustomMachineJsonReloadListener extends SimpleJsonResourceReloadListener {
+public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
-    private static final Gson GSON = (new GsonBuilder()).create();
     private static final String MAIN_PACKNAME = "main";
 
     public CustomMachineJsonReloadListener() {
-        super(GSON, "machines");
+        super("machines");
     }
 
     @Override
