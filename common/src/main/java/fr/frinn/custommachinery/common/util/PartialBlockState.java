@@ -68,7 +68,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     }
 
     public PartialBlockState rotate(Rotation rotation) {
-        if(this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.getBlock() != Registration.CUSTOM_MACHINE_BLOCK.get()) {
+        if(this.properties.contains(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.getBlock() != Registration.CUSTOM_MACHINE_BLOCK.get()) {
             Direction direction = this.blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
             direction = rotation.rotate(direction);
             BlockState blockState = this.blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
