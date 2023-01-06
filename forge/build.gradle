@@ -39,10 +39,13 @@ dependencies {
     common(project(path: ":api", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
-    //JEI
+    //JEI 10
     modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
     modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-forge-api:${project.jei_version}")
     modLocalRuntime("mezz.jei:jei-${project.minecraft_version}-forge:${project.jei_version}") {transitive = false}
+    //JEI 9
+    //modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}:9.7.2.281:api")
+    //modLocalRuntime("mezz.jei:jei-${project.minecraft_version}:9.7.2.281") {transitive = false}
 
     //Building gadgets
     modLocalRuntime modCompileOnly("curse.maven:gadgets-298187:3725903")

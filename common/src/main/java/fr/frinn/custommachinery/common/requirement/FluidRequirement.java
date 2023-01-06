@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.hooks.fluid.FluidStackHooks;
+import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -12,7 +13,6 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.client.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
@@ -129,6 +129,6 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.nbt, this.tank));
+        return Collections.singletonList(PlatformHelper.fluidJeiIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.nbt, this.tank));
     }
 }
