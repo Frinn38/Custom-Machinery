@@ -2,104 +2,121 @@ package fr.frinn.custommachinery.client.screen.creator;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.client.screen.widget.TabButton;
+import fr.frinn.custommachinery.client.screen.BaseScreen;
+import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
+import fr.frinn.custommachinery.client.screen.widget.custom.ButtonWidget;
+import fr.frinn.custommachinery.client.screen.widget.custom.ListWidget;
+import fr.frinn.custommachinery.client.screen.widget.custom.MachineList;
+import fr.frinn.custommachinery.client.screen.widget.custom.MachineList.MachineEntry;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.Screen;
+import fr.frinn.custommachinery.common.network.CRemoveMachinePacket;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class MachineCreationScreen extends Screen {
+public class MachineCreationScreen extends BaseScreen {
 
-    private static final ResourceLocation MACHINE_CREATOR_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/machine_creator.png");
+    public static final MachineCreationScreen INSTANCE = new MachineCreationScreen();
+    private static final Component CREATE = new TranslatableComponent("custommachinery.gui.creation.create");
+    private static final Component SAVE = new TranslatableComponent("custommachinery.gui.creation.save");
+    private static final Component DELETE = new TranslatableComponent("custommachinery.gui.creation.delete");
 
-    protected int xSize = 256;
-    protected int ySize = 166;
-    protected int xPos;
-    protected int yPos;
+    private static final ResourceLocation CREATE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/create_icon.png");
+    private static final ResourceLocation SAVE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/save_icon.png");
+    private static final ResourceLocation DELETE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/delete_icon.png");
 
-    protected CustomMachineBuilder machine;
+    private ListWidget<CustomMachineBuilder, MachineEntry> machineList;
+    private ButtonWidget create;
+    private ButtonWidget save;
+    private ButtonWidget delete;
 
-    private Map<Screen, TabButton> tabs = new HashMap<>();
-    private Screen selectedTab;
+    private final List<CustomMachineBuilder> builders = new ArrayList<>();
+    @Nullable
+    private CustomMachineBuilder selected = null;
 
-    private BaseInfoScreen baseInfoScreen;
-    private MachineAppearanceScreen machineAppearanceScreen;
-    private MachineComponentScreen machineComponentScreen;
-    private MachineGuiCreationScreen machineGuiCreationScreen;
-
-    public MachineCreationScreen(CustomMachineBuilder machine) {
-        super(new TextComponent("Machine Creation Screen"));
-        this.machine = machine;
-        this.baseInfoScreen = new BaseInfoScreen(this, machine);
-        this.machineAppearanceScreen = new MachineAppearanceScreen(this, machine);
-        this.machineComponentScreen = new MachineComponentScreen(this, machine);
-        this.machineGuiCreationScreen = new MachineGuiCreationScreen(this, machine);
+    public MachineCreationScreen() {
+        super(new TextComponent("Machine Creator"), 72, 166);
+        CustomMachinery.MACHINES.values().stream().map(CustomMachineBuilder::new).forEach(this.builders::add);
     }
 
     @Override
     protected void init() {
-        this.xPos = (this.width - this.xSize) / 2;
-        this.yPos = (this.height - this.ySize) / 2;
-
-        this.tabs.clear();
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.baseinfos"), this.baseInfoScreen);
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.appearance"), this.machineAppearanceScreen);
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.components"), this.machineComponentScreen);
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.gui"), this.machineGuiCreationScreen);
-
-        this.tabs.forEach((screen, button) -> screen.init(this.minecraft, this.width, this.height));
-
-        if(this.selectedTab == null)
-            this.setSelectedTab(this.baseInfoScreen);
-        else
-            this.setSelectedTab(this.selectedTab);
+        super.init();
+        baseMoveDraggingArea();
+        baseSizeDraggingArea(3);
+        this.machineList = addCustomWidget(new MachineList(() -> this.getX() + 4, () -> this.getY() + 4, 64, 136)
+                .selectionCallback(this::select)
+        );
+        this.builders.forEach(this.machineList::add);
+        if(this.selected != null)
+            this.machineList.setSelected(this.selected);
+        this.create = addCustomWidget(new ButtonWidget(() -> this.getX() + 4, () -> this.getY() + 142, 20, 20)
+                        .title(CREATE, false)
+                        .texture(CREATE_TEXTURE)
+                        .callback(this::create)
+                        .tooltip(CREATE)
+        );
+        this.save = addCustomWidget(new ButtonWidget(() -> this.getX() + 26, () -> this.getY() + 142, 20, 20)
+                        .title(SAVE, false)
+                        .texture(SAVE_TEXTURE)
+                        .callback(this::save)
+                        .tooltip(SAVE)
+        );
+        this.delete = addCustomWidget(new ButtonWidget(() -> this.getX() + 48, () -> this.getY() + 142, 20, 20)
+                        .title(DELETE, false)
+                        .texture(DELETE_TEXTURE)
+                        .callback(button -> {
+                            if(this.selected == null)
+                                return;
+                            this.openPopup(new ConfirmPopup(190, 100, this::delete)
+                                    .text(new TextComponent("The following machine will be deleted"),
+                                            this.selected.getName(),
+                                            new TextComponent("This can't be undone!"))
+                            );
+                        })
+                        .tooltip(DELETE)
+        );
     }
 
     @Override
-    public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(matrix);
-
-        super.render(matrix, mouseX, mouseY, partialTicks);
-
-        if(this.selectedTab == null)
-            this.selectedTab = this.baseInfoScreen;
-        this.selectedTab.render(matrix, mouseX, mouseY, partialTicks);
+    public void renderBackground(PoseStack pose) {
+        blankBackground(pose, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
-    @Override
-    public void renderBackground(PoseStack matrix) {
-        ClientHandler.bindTexture(MACHINE_CREATOR_TEXTURE);
-        blit(matrix, this.xPos, this.yPos, 0, 0, this.xSize, this.ySize);
+    private void select(@Nullable CustomMachineBuilder selected) {
+        this.selected = selected;
     }
 
-    private void addTab(Component name, Screen screen) {
-        int index = this.tabs.size() + 1;
-        TabButton tabButton = this.addRenderableWidget(new TabButton(
-                this.xPos + 5 + 30 * this.tabs.size(),
-                this.yPos - 28,
-                new TextComponent(index + ""),
-                (button) -> this.setSelectedTab(screen),
-                (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, name, mouseX, mouseY)
-        ));
-        if(this.selectedTab == screen)
-            tabButton.setSelected(true);
-        this.tabs.put(screen, tabButton);
+    private void create(ButtonWidget button) {
+
     }
 
-    private void setSelectedTab(Screen screen) {
-        if(this.selectedTab != null)
-            this.removeWidget(this.selectedTab);
-        this.selectedTab = screen;
-        ((List<GuiEventListener>)this.children()).add(this.selectedTab);
-        this.tabs.forEach((tabScreen, tabButton) -> tabButton.setSelected(false));
-        this.tabs.get(screen).setSelected(true);
+    private void save(ButtonWidget button) {
+
+    }
+
+    private void delete() {
+        if(this.selected == null)
+            return;
+        this.builders.remove(this.selected);
+        ResourceLocation id = this.selected.getLocation().getId();
+        CustomMachinery.MACHINES.remove(id);
+        new CRemoveMachinePacket(id).sendToServer();
+        this.selected = null;
+        this.init();
+    }
+
+    public void refreshMachineList() {
+        this.builders.removeIf(builder -> !CustomMachinery.MACHINES.containsKey(builder.getLocation().getId()));
+        CustomMachinery.MACHINES.forEach((id, machine) -> {
+            if(this.builders.stream().noneMatch(builder -> builder.getLocation().getId().equals(id)))
+                this.builders.add(new CustomMachineBuilder(machine));
+        });
+        this.init();
     }
 }

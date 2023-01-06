@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client.screen.creator;
+package fr.frinn.custommachinery.client.screen.creator_old;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
@@ -15,7 +15,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -25,11 +24,6 @@ import java.util.Map;
 public class MachineLoadingScreen extends Screen {
 
     private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/machine_list_background.png");
-    private static final TranslatableComponent SAVE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.save");
-    private static final TranslatableComponent NO_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.nomachine");
-    private static final TranslatableComponent CANT_SAVE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.cantsave");
-    private static final TranslatableComponent DELETE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.delete");
-    private static final TranslatableComponent CANT_DELETE_MACHINE = new TranslatableComponent("custommachinery.gui.machineloading.cantdelete");
 
     public static final MachineLoadingScreen INSTANCE = new MachineLoadingScreen();
 
@@ -74,7 +68,7 @@ public class MachineLoadingScreen extends Screen {
                 TextComponent.EMPTY,
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/create_icon.png"),
                 (button) -> this.create(),
-                (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.machineloading.create"), mouseX, mouseY)
+                (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, new TextComponent(""), mouseX, mouseY)
         ));
         this.saveButton = this.addRenderableWidget(new TexturedButton(
                 this.xPos + 26,
@@ -85,7 +79,7 @@ public class MachineLoadingScreen extends Screen {
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/save_icon.png"),
                 (button) -> this.save(),
                 (button, matrix, mouseX, mouseY) -> {
-                    Component tooltip = this.selectedMachine == null ? NO_MACHINE : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? SAVE_MACHINE : CANT_SAVE_MACHINE;
+                    Component tooltip = this.selectedMachine == null ? null : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? null : null;
                     this.renderTooltip(matrix, tooltip, mouseX, mouseY);
                 }
         ));
@@ -98,7 +92,7 @@ public class MachineLoadingScreen extends Screen {
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/delete_icon.png"),
                 (button) -> this.delete(),
                 (button, matrix, mouseX, mouseY) -> {
-                    Component tooltip = this.selectedMachine == null ? NO_MACHINE : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? DELETE_MACHINE : CANT_DELETE_MACHINE;
+                    Component tooltip = this.selectedMachine == null ? null : this.selectedMachine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK ? null : null;
                     this.renderTooltip(matrix, tooltip, mouseX, mouseY);
                 }
         ));
@@ -154,7 +148,7 @@ public class MachineLoadingScreen extends Screen {
             this.machineList.removeMachineEntry(machineToDelete);
             this.machineCreationScreens.remove(machineToDelete);
             if(machineToDelete.getLocation().getLoader() == MachineLocation.Loader.DATAPACK)
-                FileUtils.deleteMachineJSON(Minecraft.getInstance().player.getServer(), machineToDelete.getLocation());
+                FileUtils.deleteMachineJSON(Minecraft.getInstance().player.getServer(), machineToDelete.getLocation().getId());
         }
     }
 

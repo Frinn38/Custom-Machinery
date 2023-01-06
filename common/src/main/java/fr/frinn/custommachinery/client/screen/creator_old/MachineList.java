@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client.screen.creator;
+package fr.frinn.custommachinery.client.screen.creator_old;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

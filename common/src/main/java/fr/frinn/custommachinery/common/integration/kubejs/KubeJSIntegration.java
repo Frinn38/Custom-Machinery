@@ -1,12 +1,16 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.latvian.mods.kubejs.KubeJSPaths;
 import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,5 +44,9 @@ public class KubeJSIntegration {
         if(nbt.isEmpty())
             return null;
         return nbt;
+    }
+
+    public static Path getMachineJsonPath(ResourceLocation location) {
+        return KubeJSPaths.DIRECTORY.resolve(String.format("%s/%s/%s", PackType.SERVER_DATA.getDirectory(), location.getNamespace(), location.getPath()));
     }
 }

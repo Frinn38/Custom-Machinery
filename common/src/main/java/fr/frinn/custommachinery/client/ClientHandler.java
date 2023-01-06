@@ -37,7 +37,7 @@ import fr.frinn.custommachinery.client.render.element.StatusGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.TextGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.TextureGuiElementWidget;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
-import fr.frinn.custommachinery.client.screen.creator.MachineLoadingScreen;
+import fr.frinn.custommachinery.client.screen.creator.MachineCreationScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
@@ -145,7 +145,7 @@ public class ClientHandler {
     }
 
     public static void openMachineLoadingScreen() {
-        Minecraft.getInstance().setScreen(MachineLoadingScreen.INSTANCE);
+        Minecraft.getInstance().setScreen(MachineCreationScreen.INSTANCE);
     }
 
     @NotNull

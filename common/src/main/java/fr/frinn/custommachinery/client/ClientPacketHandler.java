@@ -1,17 +1,23 @@
 package fr.frinn.custommachinery.client;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.IData;
+import fr.frinn.custommachinery.client.screen.creator.MachineCreationScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public class ClientPacketHandler {
 
@@ -42,5 +48,12 @@ public class ClientPacketHandler {
         if(player != null && player.containerMenu instanceof SyncableContainer container && player.containerMenu.containerId == windowId) {
             data.forEach(container::handleData);
         }
+    }
+
+    public static void handleUpdateMachinesPacket(Map<ResourceLocation, CustomMachine> machines) {
+        CustomMachinery.MACHINES.clear();
+        CustomMachinery.MACHINES.putAll(machines);
+        Registration.GROUP.fillItemList(NonNullList.create());
+        MachineCreationScreen.INSTANCE.refreshMachineList();
     }
 }

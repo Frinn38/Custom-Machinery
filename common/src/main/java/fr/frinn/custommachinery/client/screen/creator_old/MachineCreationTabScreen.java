@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client.screen.creator;
+package fr.frinn.custommachinery.client.screen.creator_old;
 
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.client.gui.screens.Screen;

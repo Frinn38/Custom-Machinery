@@ -80,12 +80,15 @@
   "custommachinery.gui.machinecreation.components": "Machine Components",
   "custommachinery.gui.machinecreation.gui": "Machine GUI",
 
-  "custommachinery.gui.machineloading.create": "Create",
-  "custommachinery.gui.machineloading.save": "Save",
-  "custommachinery.gui.machineloading.cantsave": "This Custom Machine is not loaded with datapacks and cannot be edited",
-  "custommachinery.gui.machineloading.nomachine": "No selected Machine",
-  "custommachinery.gui.machineloading.delete": "Delete",
-  "custommachinery.gui.machineloading.cantdelete": "This Custom Machine is not loaded with datapacks and cannot be deleted",
+  "custommachinery.gui.creation.create": "Create",
+  "custommachinery.gui.creation.save": "Save",
+  "custommachinery.gui.creation.cantsave": "This Custom Machine is not loaded with datapacks and cannot be edited",
+  "custommachinery.gui.creation.nomachine": "No selected Machine",
+  "custommachinery.gui.creation.delete": "Delete",
+  "custommachinery.gui.creation.cantdelete": "This Custom Machine is not loaded with datapacks and cannot be deleted",
+
+  "custommachinery.gui.popup.confirm": "Confirm",
+  "custommachinery.gui.popup.cancel": "Cancel",
 
   "custommachinery.jei.ingredient.chance": "Chance: %s%%",
   "custommachinery.jei.ingredient.chance.0": "Not consumed",

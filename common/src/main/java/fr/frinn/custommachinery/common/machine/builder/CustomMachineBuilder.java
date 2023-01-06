@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 public class CustomMachineBuilder {
 
     private Component name;
-    private Map<MachineStatus, MachineAppearanceBuilder> appearance;
-    private List<Component> tooltips;
-    private List<IGuiElement> guiElements;
-    private List<IGuiElement> jeiElements;
-    private List<ResourceLocation> catalysts;
-    private List<IMachineComponentBuilder<? extends IMachineComponent>> componentBuilders;
+    private final Map<MachineStatus, MachineAppearanceBuilder> appearance;
+    private final List<Component> tooltips;
+    private final List<IGuiElement> guiElements;
+    private final List<IGuiElement> jeiElements;
+    private final List<ResourceLocation> catalysts;
+    private final List<IMachineComponentBuilder<? extends IMachineComponent>> componentBuilders;
     private MachineLocation location;
 
     public CustomMachineBuilder() {

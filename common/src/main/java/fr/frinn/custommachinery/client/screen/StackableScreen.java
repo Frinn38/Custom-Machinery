@@ -14,7 +14,7 @@ public class StackableScreen extends BaseScreen {
     private final Runnable onClose;
 
     public StackableScreen(Runnable onClose) {
-        super(TextComponent.EMPTY);
+        super(TextComponent.EMPTY, 0, 0);
         this.onClose = onClose;
     }
 

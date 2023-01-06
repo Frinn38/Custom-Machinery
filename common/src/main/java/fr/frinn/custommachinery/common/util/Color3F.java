@@ -16,6 +16,10 @@ public class Color3F {
         return new Color3F(red, green, blue);
     }
 
+    public static Color3F of(int red, int green, int blue) {
+        return new Color3F(red / 255F, green / 255F, blue / 255F);
+    }
+
     public static Color3F of(int colorARGB) {
         return new Color3F(((colorARGB >> 16) & 0xFF) / 255F, ((colorARGB >> 8) & 0xFF) / 255F, ((colorARGB >> 0) & 0xFF) / 255F);
     }

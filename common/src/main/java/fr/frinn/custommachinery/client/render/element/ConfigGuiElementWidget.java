@@ -4,8 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
-import fr.frinn.custommachinery.client.screen.StackableScreen;
-import fr.frinn.custommachinery.client.screen.config.MachineConfigScreen;
+import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.Minecraft;
@@ -42,10 +41,7 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
 
     @Override
     public void onClick(double d, double e) {
-        StackableScreen stackableScreen = new StackableScreen(() -> Minecraft.getInstance().setScreen(this.getScreen().getScreen()));
-        Minecraft.getInstance().setScreen(stackableScreen);
-        stackableScreen.pushScreenLayer(this.getScreen().getScreen());
-        stackableScreen.pushScreenLayer(new MachineConfigScreen((CustomMachineScreen) this.getScreen(), stackableScreen));
+        Minecraft.getInstance().setScreen(new MachineConfigScreen((CustomMachineScreen) this.getScreen()));
     }
 
     @Override

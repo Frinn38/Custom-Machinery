@@ -7,15 +7,27 @@ import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
-import fr.frinn.custommachinery.common.machine.MachineLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.server.packs.AbstractPackResources;
+import net.minecraft.server.packs.FilePackResources;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PackType;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class FileUtils {
 
@@ -24,15 +36,18 @@ public class FileUtils {
             DataResult<JsonElement> result = CustomMachine.CODEC.encodeStart(JsonOps.INSTANCE, machine);
             JsonElement json = result.resultOrPartial(CustomMachinery.LOGGER::error).orElseThrow(() -> new JsonParseException("Error while writing custom machine: " + machine.getLocation().getId() + " to JSON"));
             try {
-                File file = getCustomMachineJson(server, machine.getLocation());
-                file.getParentFile().mkdirs();
-                CustomMachinery.LOGGER.info("Writing machine: " + machine.getLocation().getId() + " to: " + file.getPath());
-                if(file.exists() || file.createNewFile()) {
-                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                    JsonWriter writer = gson.newJsonWriter(new FileWriter(file));
-                    gson.toJson(json, writer);
-                    writer.close();
-                    return true;
+                List<Path> paths = getCustomMachineJson(server, machine.getLocation().getId());
+                for(Path path : paths) {
+                    File file = new File(path.toUri());
+                    file.getParentFile().mkdirs();
+                    CustomMachinery.LOGGER.info("Writing machine: " + machine.getLocation().getId() + " to: " + file.getPath());
+                    if(file.exists() || file.createNewFile()) {
+                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                        JsonWriter writer = gson.newJsonWriter(new FileWriter(file));
+                        gson.toJson(json, writer);
+                        writer.close();
+                        return true;
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -41,21 +56,53 @@ public class FileUtils {
         return false;
     }
 
-    public static boolean deleteMachineJSON(MinecraftServer server, MachineLocation loacation) {
-        if(server != null) {
-            File file = getCustomMachineJson(server, loacation);
-            if (file.exists() && file.delete()) {
-                CustomMachinery.LOGGER.info("Deleting Custom Machine: " + file.getPath());
-                return true;
+    public static boolean deleteMachineJSON(MinecraftServer server, ResourceLocation location) {
+        if(server == null)
+            return false;
+        ResourceLocation trueLocation = new ResourceLocation(location.getNamespace(), "machines/" + location.getPath() + ".json");
+        for(PackResources pack : server.getResourceManager().listPacks().toList()) {
+            if(!pack.hasResource(PackType.SERVER_DATA, trueLocation))
+                continue;
+            if(pack instanceof FilePackResources filePackResources) {
+                filePackResources.close();
+                Path zipPath = Platform.getGameFolder().resolve(filePackResources.file.toString().substring(2));
+                try(FileSystem zipfs = FileSystems.newFileSystem(zipPath, Map.of("create", "false"))) {
+                    Path path = zipfs.getPath("data/" + trueLocation.getNamespace() + "/" + trueLocation.getPath());
+                    if(Files.exists(path)) {
+                        Files.delete(path);
+                        CustomMachinery.LOGGER.info("Deleted custom machine json for id {} in zip archive {}", location, zipPath);
+                    }
+                } catch (IOException e) {
+                    CustomMachinery.LOGGER.error(e.getMessage(), e);
+                }
+                try {
+                    filePackResources.getOrCreateZipFile();
+                } catch (IOException ignored) {}
+            } else if (pack instanceof AbstractPackResources packResources) {
+                Path path = Platform.getGameFolder().resolve(packResources.file.toString().substring(2)).resolve("data/" + trueLocation.getNamespace() + "/" + trueLocation.getPath());
+                File file = new File(path.toUri());
+                if(file.exists() && file.isFile() && file.delete())
+                    CustomMachinery.LOGGER.info("Deleted custom machine json for id {} at path {}", location, path);
+            } else if(pack.getName().contains("KubeJS")) {
+                Path path = KubeJSIntegration.getMachineJsonPath(trueLocation);
+                File file = new File(path.toUri());
+                if(file.exists() && file.isFile() && file.delete())
+                    CustomMachinery.LOGGER.info("Deleted custom machine json for id {} at path {}", location, path);
             }
-            else
-                CustomMachinery.LOGGER.info("Cannot delete Custom Machine: " + file.getPath());
+
         }
         return false;
     }
 
-    public static File getCustomMachineJson(MinecraftServer server, MachineLocation location) {
-        String path = server.getWorldPath(LevelResource.DATAPACK_DIR) + File.separator + location.getPath();
-        return new File(path);
+    public static List<Path> getCustomMachineJson(MinecraftServer server, ResourceLocation location) {
+        ResourceLocation trueLocation = new ResourceLocation(location.getNamespace(), "machines/" + location.getPath() + ".json");
+        List<Path> paths = new ArrayList<>();
+        for(PackResources pack : server.getResourceManager().listPacks().toList()) {
+            if(!pack.hasResource(PackType.SERVER_DATA, trueLocation))
+                continue;
+            if(pack.getName().contains("KubeJS"))
+                paths.add(KubeJSIntegration.getMachineJsonPath(trueLocation));
+        }
+        return paths;
     }
 }
