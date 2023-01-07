@@ -189,17 +189,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public int getSpaceForItem(String slot, Item item, @Nullable CompoundNBT nbt) {
         ItemStack stack = item.getDefaultInstance();
         stack.setTag(nbt);
-        int maxStackSize = stack.getMaxStackSize();
-        Predicate<ItemMachineComponent> itemPredicate = component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()));
-        Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.outputs.stream().filter(component -> itemPredicate.and(nbtPredicate).and(slotPredicate).test(component))
-                .mapToInt(component -> {
-                    if(component.getItemStack().isEmpty())
-                        return Math.min(component.getCapacity(), maxStackSize);
-                    else
-                        return Math.min(component.getCapacity() - component.getItemStack().getCount(), maxStackSize - component.getItemStack().getCount());
-                })
+        return this.outputs.stream().filter(slotPredicate)
+                .mapToInt(component -> component.getSpaceForItem(stack))
                 .sum();
     }
 
