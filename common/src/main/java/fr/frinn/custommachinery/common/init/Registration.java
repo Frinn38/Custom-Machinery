@@ -110,6 +110,7 @@ import fr.frinn.custommachinery.common.requirement.TimeRequirement;
 import fr.frinn.custommachinery.common.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.core.Registry;
@@ -128,8 +129,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Collections;
 import java.util.List;
@@ -249,7 +248,7 @@ public class Registration {
     public static final RegistrySupplier<MachineAppearanceProperty<List<TagKey<Block>>>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> MachineAppearanceProperty.create(Codecs.list(TagKey.codec(Registry.BLOCK_REGISTRY)), Collections.singletonList(BlockTags.MINEABLE_WITH_PICKAXE)));
     public static final RegistrySupplier<MachineAppearanceProperty<TagKey<Block>>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> MachineAppearanceProperty.create(TagKey.codec(Registry.BLOCK_REGISTRY), BlockTags.NEEDS_IRON_TOOL));
     public static final RegistrySupplier<MachineAppearanceProperty<Boolean>> REQUIRES_TOOL = APPEARANCE_PROPERTIES.register("requires_tool", () -> MachineAppearanceProperty.create(Codec.BOOL, true));
-    public static final RegistrySupplier<MachineAppearanceProperty<VoxelShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> MachineAppearanceProperty.create(Codecs.VOXEL_SHAPE_CODEC, Shapes.block()));
+    public static final RegistrySupplier<MachineAppearanceProperty<MachineShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> MachineAppearanceProperty.create(MachineShape.CODEC, MachineShape.DEFAULT));
 
     public static final RegistrySupplier<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATAS.register("boolean", () -> DataType.create(Boolean.class, BooleanSyncable::create, BooleanData::new));
     public static final RegistrySupplier<DataType<IntegerData, Integer>> INTEGER_DATA = DATAS.register("integer", () -> DataType.create(Integer.class, IntegerSyncable::create, IntegerData::new));

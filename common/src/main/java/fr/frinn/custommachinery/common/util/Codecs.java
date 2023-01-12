@@ -31,9 +31,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Arrays;
 import java.util.List;
@@ -91,7 +88,6 @@ public class Codecs {
     public static final Codec<AABB> BOX_CODEC            = either(BLOCK_POS, AABB_CODEC, "Box").xmap(either -> either.map(pos -> new AABB(pos, pos), Function.identity()), Either::right);
     public static final Codec<ModelLocation> BLOCK_MODEL_CODEC = either(ModelLocation.CODEC, PARTIAL_BLOCK_STATE_CODEC, "Block Model").xmap(either -> either.map(Function.identity(), PartialBlockState::getModelLocation), Either::left);
     public static final Codec<ModelLocation> ITEM_MODEL_CODEC  = either(RegistrarCodec.ITEM, ModelLocation.CODEC, "Item Model").xmap(either -> either.map(item -> ModelLocation.of(Registry.ITEM.getKey(item)), Function.identity()), Either::right);
-    public static final Codec<VoxelShape> VOXEL_SHAPE_CODEC       = either(Codecs.PARTIAL_BLOCK_STATE_CODEC, Codecs.list(Codecs.BOX_CODEC), "Machine Shape").comapFlatMap(either -> either.map(Codecs::decodeFromBlock, Codecs::decodeFromAABBList), shape -> Either.right(shape.toAabbs()));
 
     public static <E extends Enum<E>> Codec<E> fromEnum(Class<E> enumClass) {
         return EnumCodec.of(enumClass);
@@ -127,23 +123,6 @@ public class Codecs {
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception.getMessage());
         }
-    }
-
-    public static DataResult<VoxelShape> decodeFromBlock(PartialBlockState state) {
-        try {
-            return DataResult.success(state.getBlockState().getShape(null, null));
-        } catch (Exception e) {
-            return DataResult.error("Impossible to get shape from block : " + state);
-        }
-    }
-
-    public static DataResult<VoxelShape> decodeFromAABBList(List<AABB> boxes) {
-        VoxelShape shape = Shapes.empty();
-        for(AABB box : boxes) {
-            VoxelShape partial = Shapes.create(box);
-            shape = Shapes.joinUnoptimized(shape, partial, BooleanOp.OR);
-        }
-        return DataResult.success(shape);
     }
 
     public static DataResult<double[]> validateDoubleStreamSize(DoubleStream stream, int size) {

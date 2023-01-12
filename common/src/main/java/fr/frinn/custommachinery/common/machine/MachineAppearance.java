@@ -11,12 +11,12 @@ import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
 import java.util.Map;
@@ -145,7 +145,7 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
-    public VoxelShape getShape() {
+    public MachineShape getShape() {
         return getProperty(Registration.SHAPE_PROPERTY.get());
     }
 

@@ -5,12 +5,12 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Collections;
 import java.util.List;
@@ -115,11 +115,11 @@ public class MachineAppearanceBuilder {
         setProperty(Registration.MINING_LEVEL_PROPERTY.get(), miningLevel);
     }
 
-    public VoxelShape getShape() {
+    public MachineShape getShape() {
         return getProperty(Registration.SHAPE_PROPERTY.get());
     }
 
-    public void setShape(VoxelShape shape) {
+    public void setShape(MachineShape shape) {
         setProperty(Registration.SHAPE_PROPERTY.get(), shape);
     }
 

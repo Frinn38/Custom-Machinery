@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.api.machine;
 
 import fr.frinn.custommachinery.impl.util.ModelLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -8,6 +9,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Define the appearance of the machine.
@@ -84,7 +86,7 @@ public interface IMachineAppearance {
     /**
      * @return The shape of the machine, used for collisions and block outline.
      */
-    VoxelShape getShape();
+    Function<Direction, VoxelShape> getShape();
 
     /**
      * @return An exact copy of this IMachineAppearance, this must create a new instance and copy all the properties from the copied IMachineAppearance.

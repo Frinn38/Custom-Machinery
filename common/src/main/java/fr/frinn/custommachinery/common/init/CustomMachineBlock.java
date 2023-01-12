@@ -205,7 +205,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(tile -> tile instanceof CustomMachineTile)
-                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getShape())
+                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getShape().apply(state.getValue(BlockStateProperties.HORIZONTAL_FACING)))
                 .orElse(super.getShape(state, level, pos, context));
     }
 
