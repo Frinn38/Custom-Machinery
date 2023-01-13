@@ -156,15 +156,8 @@ public class MachineJS {
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> {
                     ItemStack stack = stackJS.getItemStack();
-                    int maxInsert = component.insert(stack.getItem(), stack.getCount(), stack.getTag(), true);
-                    if(maxInsert <= 0)
-                        return stackJS;
-                    if(!simulate)
-                        component.insert(stack.getItem(), maxInsert, stack.getTag(), false);
-                    if(maxInsert >= stack.getCount())
-                        return ItemStackJS.EMPTY;
-                    else
-                        return ItemStackJS.of(Utils.makeItemStack(stack.getItem(), stack.getCount() - maxInsert, stack.getTag()));
+                    int inserted = component.insert(stack.getItem(), stack.getCount(), stack.getTag(), simulate, true);
+                    return ItemStackJS.of(Utils.makeItemStack(stack.getItem(), stack.getCount() - inserted, stack.getTag()));
                 })
                 .orElse(stackJS);
     }
@@ -173,16 +166,7 @@ public class MachineJS {
     public ItemStackJS removeItemFromSlot(String slot, int toRemove, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> {
-                    if(component.getItemStack().isEmpty())
-                        return ItemStackJS.EMPTY;
-                    int maxRemove = Math.min(toRemove, component.getItemStack().getCount());
-                    ItemStack extracted = component.getItemStack().copy();
-                    extracted.setCount(component.getItemStack().getCount() - maxRemove);
-                    if(!simulate)
-                        component.extract(maxRemove, false);
-                    return ItemStackJS.of(extracted);
-                })
+                .map(component -> ItemStackJS.of(component.extract(toRemove, simulate, true)))
                 .orElse(ItemStackJS.EMPTY);
     }
 }

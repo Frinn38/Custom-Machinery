@@ -156,7 +156,7 @@ public class MachineCT {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> {
-                    int inserted = component.insert(stackCT.getDefinition(), stackCT.getAmount(), stackCT.getInternal().getTag(), simulate);
+                    int inserted = component.insert(stackCT.getDefinition(), stackCT.getAmount(), stackCT.getInternal().getTag(), simulate, true);
                     return Services.PLATFORM.createMCItemStack(Utils.makeItemStack(stackCT.getDefinition(), stackCT.getAmount() - inserted, stackCT.getInternal().getTag()));
                 })
                 .orElse(stackCT);
@@ -167,7 +167,7 @@ public class MachineCT {
     public IItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> Services.PLATFORM.createMCItemStack(component.extract(toRemove, simulate)))
+                .map(component -> Services.PLATFORM.createMCItemStack(component.extract(toRemove, simulate, true)))
                 .orElse(Services.PLATFORM.getEmptyIItemStack());
     }
 }
