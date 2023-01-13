@@ -20,7 +20,7 @@
   "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s %s",
   "custommachinery.structure_creator.reset": "Right click in the air while crouching to reset",
 
-  "custommachinery.machine_creator.warning": "Warning : This is heavily WIP and can break your machines. Use it at your own risk and often backup your machine json",
+  "custommachinery.machine_creator.warning": "Disabled, use json files to create your machines",
 
   "custommachinery.comparator.greater": "greater than",
   "custommachinery.comparator.greater_or_equals": "greater or equals to",

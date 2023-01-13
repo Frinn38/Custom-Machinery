@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.init;
 
+import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.client.ClientHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -23,7 +24,7 @@ public class MachineCreatorItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
-        if(world.isClientSide())
+        if(world.isClientSide() && Platform.isDevelopmentEnvironment())
             ClientHandler.openMachineLoadingScreen();
         return super.use(world, player, hand);
     }
