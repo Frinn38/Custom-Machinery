@@ -24,6 +24,7 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +48,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     @Override
     public boolean useAmbientOcclusion() {
-        return false;
+        return ForgeConfig.CLIENT.experimentalForgeLightPipelineEnabled.get();
     }
 
     @Override
@@ -79,12 +80,13 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull Random rand, @NotNull IModelData data) {
         BakedModel model = getMachineModel(data);
-        if(state != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING))
-            return getRotatedQuadsTest(model, state.getValue(BlockStateProperties.HORIZONTAL_FACING), side, rand);
+        if(state != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            return getRotatedQuads(model, state.getValue(BlockStateProperties.HORIZONTAL_FACING), side, rand);
+        }
         return model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
     }
 
-    private List<BakedQuad> getRotatedQuadsTest(BakedModel model, Direction machineFacing, Direction side, Random random) {
+    private List<BakedQuad> getRotatedQuads(BakedModel model, Direction machineFacing, Direction side, Random random) {
         //side of the model before rotation
         Direction originalSide = getRotatedDirection(machineFacing, side);
         List<BakedQuad> finalQuads = model.getQuads(null, originalSide, random, EmptyModelData.INSTANCE);
@@ -113,6 +115,9 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
             newQuadData[i * 8] = Float.floatToRawIntBits(pos.x() + 0.5F);
             newQuadData[i * 8 + 1] = Float.floatToRawIntBits(pos.y() + 0.5F);
             newQuadData[i * 8 + 2] = Float.floatToRawIntBits(pos.z() + 0.5F);
+
+            //Wipe normal's data, don't know why, but it works better without that.
+            newQuadData[i * 8 + 7] = 0;
         }
         return new BakedQuad(newQuadData, quad.getTintIndex(), side, quad.getSprite(), quad.isShade());
     }
