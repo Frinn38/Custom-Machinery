@@ -91,10 +91,11 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         this.initialized = true;
         this.recipeFinder.init();
         if(this.futureRecipeID != null && this.tile.getLevel() != null) {
-            CustomMachineRecipe recipe = (CustomMachineRecipe) this.tile.getLevel().getRecipeManager().byKey(this.futureRecipeID).orElse(null);
-            if(recipe != null) {
-                this.setRecipe(recipe);
-            }
+            this.tile.getLevel().getRecipeManager()
+                    .byKey(this.futureRecipeID)
+                    .filter(recipe -> recipe instanceof CustomMachineRecipe)
+                    .map(recipe -> (CustomMachineRecipe)recipe)
+                    .ifPresent(this::setOldRecipe);
             this.futureRecipeID = null;
         }
     }
@@ -232,6 +233,25 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                 .toList();
         this.recipeTotalTime = this.currentRecipe.getRecipeTime();
         this.phase = PHASE.STARTING;
+        this.tile.setStatus(MachineStatus.RUNNING);
+    }
+
+    //Set the recipe the machine was processing before being unloaded. Save the current progress time and phase.
+    private void setOldRecipe(CustomMachineRecipe recipe) {
+        this.currentRecipe = recipe;
+        this.context = new CraftingContext(this, this.tile.getUpgradeManager(), recipe);
+        this.tickableRequirements = this.currentRecipe.getRequirements()
+                .stream()
+                .filter(requirement -> requirement instanceof ITickableRequirement)
+                .map(requirement -> (ITickableRequirement<IMachineComponent>)requirement)
+                .toList();
+        this.delayedRequirements = this.currentRecipe.getRequirements()
+                .stream()
+                .filter(requirement -> requirement instanceof IDelayedRequirement)
+                .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
+                .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
+                .toList();
+        this.recipeTotalTime = this.currentRecipe.getRecipeTime();
         this.tile.setStatus(MachineStatus.RUNNING);
     }
 
