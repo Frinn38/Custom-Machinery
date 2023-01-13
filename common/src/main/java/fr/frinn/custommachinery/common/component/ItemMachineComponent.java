@@ -109,6 +109,8 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         if(!byPassLimit)
             amount = Math.min(amount, this.maxInput);
 
+        amount = Math.min(amount, this.capacity - this.stack.getCount());
+
         if(this.stack.isEmpty()) {
             if(!simulate) {
                 this.stack = Utils.makeItemStack(item, amount, nbt);
