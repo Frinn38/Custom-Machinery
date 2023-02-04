@@ -69,7 +69,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
             this.init();
 
         if(this.currentRecipe == null)
-            this.searchForRecipe();
+            this.searchForRecipe(false);
 
         if(this.currentRecipe != null) {
             if(this.phase == PHASE.STARTING)
@@ -100,9 +100,9 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         }
     }
 
-    private void searchForRecipe() {
+    private void searchForRecipe(boolean immediately) {
         if(this.currentRecipe == null)
-            this.recipeFinder.findRecipe(this.mutableCraftingContext, this.tile.getStatus() == MachineStatus.RUNNING).ifPresent(this::setRecipe);
+            this.recipeFinder.findRecipe(this.mutableCraftingContext, immediately).ifPresent(this::setRecipe);
     }
 
     private void startProcess() {
@@ -213,6 +213,9 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
             this.recipeProgressTime = 0;
             this.context = null;
             this.processedRequirements.clear();
+
+            this.recipeFinder.setInventoryChanged(true);
+            this.searchForRecipe(true);
         }
     }
 
