@@ -22,6 +22,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.component.CommandMachineComponent;
+import fr.frinn.custommachinery.common.component.DataMachineComponent;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
@@ -211,6 +212,7 @@ public class Registration {
     public static final RegistrySupplier<MachineComponentType<StructureMachineComponent>> STRUCTURE_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("structure", () -> MachineComponentType.create(StructureMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<DropMachineComponent>> DROP_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("drop", () -> MachineComponentType.create(DropMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<FunctionMachineComponent>> FUNCTION_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("function", () -> MachineComponentType.create(FunctionMachineComponent::new));
+    public static final RegistrySupplier<MachineComponentType<DataMachineComponent>> DATA_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("data", () -> MachineComponentType.create(DataMachineComponent::new));
 
     public static final RegistrySupplier<RequirementType<ItemRequirement>> ITEM_REQUIREMENT = REQUIREMENTS.register("item", () -> RequirementType.inventory(ItemRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<EnergyRequirement>> ENERGY_REQUIREMENT = REQUIREMENTS.register("energy", () -> RequirementType.inventory(EnergyRequirement.CODEC));

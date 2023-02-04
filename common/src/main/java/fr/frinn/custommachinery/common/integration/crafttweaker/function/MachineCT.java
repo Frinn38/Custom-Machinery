@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.function;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.data.MapData;
 import com.blamejared.crafttweaker.api.data.base.IData;
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import com.blamejared.crafttweaker.platform.Services;
@@ -25,9 +26,23 @@ import org.openzen.zencode.java.ZenCodeType.Setter;
 public class MachineCT {
 
     private final CustomMachineTile internal;
+    private final MapData data;
 
     protected MachineCT(CustomMachineTile internal) {
         this.internal = internal;
+        this.data = new MapData(this.internal.getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).orElseThrow().getData());
+    }
+
+    @Getter("id")
+    @Method
+    public String getId() {
+        return this.internal.getId().toString();
+    }
+
+    @Getter("data")
+    @Method
+    public MapData getData() {
+        return this.data;
     }
 
     /** ENERGY STUFF **/

@@ -13,15 +13,19 @@ import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
 
 public class MachineJS {
 
     private final CustomMachineTile internal;
+    private final CompoundTag nbt;
 
     protected MachineJS(CustomMachineTile internal) {
         this.internal = internal;
+        this.nbt = this.internal.getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).orElseThrow().getData();
     }
 
     public static MachineJS of(Object o) {
@@ -42,6 +46,11 @@ public class MachineJS {
 
     public String getId() {
         return this.internal.getId().toString();
+    }
+
+    @Nullable
+    public CompoundTag getData() {
+        return this.nbt;
     }
 
     /** ENERGY STUFF **/
