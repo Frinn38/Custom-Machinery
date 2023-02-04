@@ -134,7 +134,7 @@ public abstract class BaseScreen extends Screen {
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         renderBackground(poseStack);
-        if(true)
+        if(false)
             GuiDebugUtils.showDragAreas(poseStack, this.draggingAreas);
         super.render(poseStack, mouseX, mouseY, partialTicks);
         this.customWidgets.forEach(widget -> widget.render(poseStack, mouseX, mouseY, partialTicks));

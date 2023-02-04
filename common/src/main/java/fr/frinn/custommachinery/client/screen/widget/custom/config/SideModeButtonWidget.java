@@ -24,13 +24,11 @@ public class SideModeButtonWidget extends Widget {
 
     private final SideConfig config;
     private final RelativeSide side;
-    private final List<Component> tooltips;
 
     public SideModeButtonWidget(Supplier<Integer> x, Supplier<Integer> y, SideConfig config, RelativeSide side) {
         super(x, y, 14, 14);
         this.config = config;
         this.side = side;
-        this.tooltips = Lists.newArrayList(this.side.getTranslationName(), this.config.getSideMode(this.side).title());
     }
 
     @Override
@@ -50,7 +48,7 @@ public class SideModeButtonWidget extends Widget {
 
     @Override
     public List<Component> getTooltips() {
-        return this.tooltips;
+        return Lists.newArrayList(this.side.getTranslationName(), this.config.getSideMode(this.side).title());
     }
 
     @Override

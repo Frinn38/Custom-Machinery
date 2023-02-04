@@ -26,6 +26,7 @@ public class ComponentConfigPopup extends PopupScreen {
     @Override
     protected void init() {
         super.init();
+        baseMoveDraggingArea();
         //TOP
         this.addCustomWidget(new SideModeButtonWidget(() -> this.getX() + 41, () -> this.getY() + 25, this.config, RelativeSide.TOP));
         //LEFT
