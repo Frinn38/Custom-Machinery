@@ -40,6 +40,8 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     private final List<IRequirement<?>> processedRequirements;
     //Use only for recipe searching, not recipe processing
     private final CraftingContext.Mutable mutableCraftingContext;
+    private final int amount;
+    private final int recipeCheckCooldown;
     private CustomMachineRecipe currentRecipe;
     //Recipe that was processed when the machine was unloaded, and we need to resume
     private ResourceLocation futureRecipeID;
@@ -54,11 +56,13 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     private PHASE phase = PHASE.STARTING;
     private final MachineRecipeFinder recipeFinder;
 
-    public MachineProcessor(MachineTile tile) {
+    public MachineProcessor(MachineTile tile, int amount, int recipeCheckCooldown) {
         this.tile = tile;
+        this.amount = amount;
+        this.recipeCheckCooldown = recipeCheckCooldown;
         this.mutableCraftingContext = new CraftingContext.Mutable(this, tile.getUpgradeManager());
         this.processedRequirements = new ArrayList<>();
-        this.recipeFinder = new MachineRecipeFinder(tile);
+        this.recipeFinder = new MachineRecipeFinder(tile, recipeCheckCooldown);
     }
 
     @Override
@@ -345,16 +349,19 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
-                        NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(template -> template.amount)
+                        NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(template -> template.amount),
+                        NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("cooldown", 20).forGetter(template -> template.recipeCheckCooldown)
                 ).apply(templateInstance, Template::new), "Machine processor"
         );
 
-        public static final Template DEFAULT = new Template(1);
+        public static final Template DEFAULT = new Template(1, 20);
 
         private final int amount;
+        private final int recipeCheckCooldown;
 
-        private Template(int amount) {
+        private Template(int amount, int cooldown) {
             this.amount = amount;
+            this.recipeCheckCooldown = cooldown;
         }
 
         @Override
@@ -364,7 +371,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
         @Override
         public MachineProcessor build(MachineTile tile) {
-            return new MachineProcessor(tile);
+            return new MachineProcessor(tile, this.amount, this.recipeCheckCooldown);
         }
     }
 }

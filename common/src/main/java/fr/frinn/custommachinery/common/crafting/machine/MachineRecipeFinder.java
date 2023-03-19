@@ -14,14 +14,16 @@ import java.util.Optional;
 public class MachineRecipeFinder {
 
     private final MachineTile tile;
+    private final int baseCooldown;
     private List<RecipeChecker<CustomMachineRecipe>> recipes;
     private List<RecipeChecker<CustomMachineRecipe>> okToCheck;
     private boolean inventoryChanged = true;
 
     private int recipeCheckCooldown;
 
-    public MachineRecipeFinder(MachineTile tile) {
+    public MachineRecipeFinder(MachineTile tile, int baseCooldown) {
         this.tile = tile;
+        this.baseCooldown = baseCooldown;
     }
 
     public void init() {
@@ -35,7 +37,7 @@ public class MachineRecipeFinder {
                 .map(CustomMachineRecipe::checker)
                 .toList();
         this.okToCheck = new ArrayList<>();
-        this.recipeCheckCooldown = tile.getLevel().random.nextInt(20);
+        this.recipeCheckCooldown = tile.getLevel().random.nextInt(this.baseCooldown);
     }
 
     public Optional<CustomMachineRecipe> findRecipe(CraftingContext.Mutable context, boolean immediately) {
@@ -43,7 +45,7 @@ public class MachineRecipeFinder {
             return Optional.empty();
 
         if(immediately || this.recipeCheckCooldown-- <= 0) {
-            this.recipeCheckCooldown = 20;
+            this.recipeCheckCooldown = this.baseCooldown;
             if(this.inventoryChanged) {
                 this.okToCheck.clear();
                 this.okToCheck.addAll(this.recipes);
