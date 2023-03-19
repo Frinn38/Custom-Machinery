@@ -1,31 +1,30 @@
 package fr.frinn.custommachinery.common.util;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.util.FastColor;
 
 import java.util.stream.DoubleStream;
 
 public class Color {
 
-    public static final MapCodec<Color> MAP_CODEC = RecordCodecBuilder.mapCodec(colorInstance ->
+    public static final NamedMapCodec<Color> MAP_CODEC = NamedCodec.record(colorInstance ->
             colorInstance.group(
-                    CodecLogger.loggedOptional(Codec.FLOAT, "alpha", 1.0F).forGetter(color -> color.getAlpha() / 255.0F),
-                    CodecLogger.loggedOptional(Codec.FLOAT, "red", 1.0F).forGetter(color -> color.getRed() / 255.0F),
-                    CodecLogger.loggedOptional(Codec.FLOAT, "green", 1.0F).forGetter(color -> color.getGreen() / 255.0F),
-                    CodecLogger.loggedOptional(Codec.FLOAT, "blue", 1.0F).forGetter(color -> color.getBlue() / 255.0F)
-            ).apply(colorInstance, Color::fromColors)
+                    NamedCodec.FLOAT.optionalFieldOf("alpha", 1.0F).forGetter(color -> color.getAlpha() / 255.0F),
+                    NamedCodec.FLOAT.optionalFieldOf("red", 1.0F).forGetter(color -> color.getRed() / 255.0F),
+                    NamedCodec.FLOAT.optionalFieldOf("green", 1.0F).forGetter(color -> color.getGreen() / 255.0F),
+                    NamedCodec.FLOAT.optionalFieldOf("blue", 1.0F).forGetter(color -> color.getBlue() / 255.0F)
+            ).apply(colorInstance, Color::fromColors), "Color"
     );
 
-    public static final Codec<Color> ARRAY_CODEC = Codecs.DOUBLE_STREAM.comapFlatMap(
+    public static final NamedCodec<Color> ARRAY_CODEC = NamedCodec.DOUBLE_STREAM.comapFlatMap(
             stream -> Codecs.validateDoubleStreamSize(stream, 4)
                     .map(array -> fromColors(array[0], array[1], array[2], array[3])),
-            color -> DoubleStream.of(color.getAlpha() / 255.0F, color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F)
+            color -> DoubleStream.of(color.getAlpha() / 255.0F, color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F),
+            "Color"
     );
 
-    public static final Codec<Color> CODEC = EitherManyCodec.of(MAP_CODEC.codec(), ARRAY_CODEC, Codec.intRange(0, Integer.MAX_VALUE).xmap(Color::fromARGB, Color::getARGB));
+    public static final NamedCodec<Color> CODEC = EitherManyCodec.of(MAP_CODEC, ARRAY_CODEC, NamedCodec.intRange(0, Integer.MAX_VALUE).xmap(Color::fromARGB, Color::getARGB, ""));
 
     public static final Color WHITE = fromColors(255, 255, 255, 255);
     public static final Color TRANSPARENT_WHITE = fromColors(127, 255, 255, 255);

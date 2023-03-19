@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
@@ -22,7 +21,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -336,6 +334,8 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         CRAFTING_DELAYED,
         ENDING;
 
+        public static final NamedCodec<PHASE> CODEC = NamedCodec.enumCodec(PHASE.class);
+
         public static PHASE value(String string) {
             return valueOf(string.toUpperCase(Locale.ENGLISH));
         }
@@ -343,10 +343,10 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
     public static class Template implements IProcessorTemplate<MachineProcessor> {
 
-        public static final Codec<Template> CODEC = RecordCodecBuilder.create(templateInstance ->
+        public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
-                        CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "amount", 1).forGetter(template -> template.amount)
-                ).apply(templateInstance, Template::new)
+                        NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(template -> template.amount)
+                ).apply(templateInstance, Template::new), "Machine processor"
         );
 
         public static final Template DEFAULT = new Template(1);

@@ -1,12 +1,10 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
 
@@ -16,10 +14,10 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
 
     private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_dump.png");
 
-    public static final Codec<DumpGuiElement> CODEC = RecordCodecBuilder.create(dumpGuiElement ->
+    public static final NamedCodec<DumpGuiElement> CODEC = NamedCodec.record(dumpGuiElement ->
             makeBaseTexturedCodec(dumpGuiElement, BASE_TEXTURE).and(
-                    Codecs.list(Codec.STRING).fieldOf("id").forGetter(element -> element.id)
-            ).apply(dumpGuiElement, DumpGuiElement::new)
+                    NamedCodec.STRING.listOf().fieldOf("id").forGetter(element -> element.id)
+            ).apply(dumpGuiElement, DumpGuiElement::new), "Dump gui element"
     );
 
     private final List<String> id;

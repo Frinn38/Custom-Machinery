@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.impl.component.config;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -22,7 +22,7 @@ public enum RelativeSide {
     BACK,
     LEFT;
 
-    public static final Codec<RelativeSide> CODEC = EnumCodec.of(RelativeSide.class);
+    public static final NamedCodec<RelativeSide> CODEC = EnumCodec.of(RelativeSide.class);
 
     public Component getTranslationName() {
         return new TranslatableComponent("custommachinery.side." + name().toLowerCase(Locale.ROOT));

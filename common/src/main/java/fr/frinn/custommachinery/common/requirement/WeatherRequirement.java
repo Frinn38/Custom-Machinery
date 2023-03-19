@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -11,20 +10,19 @@ import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
+import fr.frinn.custommachinery.common.component.WeatherMachineComponent.WeatherType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Items;
 
 public class WeatherRequirement extends AbstractRequirement<WeatherMachineComponent> implements ITickableRequirement<WeatherMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<WeatherRequirement> CODEC = RecordCodecBuilder.create(weatherRequirementInstance ->
+    public static final NamedCodec<WeatherRequirement> CODEC = NamedCodec.record(weatherRequirementInstance ->
             weatherRequirementInstance.group(
-                    Codecs.WEATHER_TYPE_CODEC.fieldOf("weather").forGetter(requirement -> requirement.weather),
-                    CodecLogger.loggedOptional(Codec.BOOL,"onmachine", true).forGetter(requirement -> requirement.onMachine)
-            ).apply(weatherRequirementInstance, WeatherRequirement::new)
+                    WeatherType.CODEC.fieldOf("weather").forGetter(requirement -> requirement.weather),
+                    NamedCodec.BOOL.optionalFieldOf("onmachine", true).forGetter(requirement -> requirement.onMachine)
+            ).apply(weatherRequirementInstance, WeatherRequirement::new), "Weather requirement"
     );
 
     private final WeatherMachineComponent.WeatherType weather;

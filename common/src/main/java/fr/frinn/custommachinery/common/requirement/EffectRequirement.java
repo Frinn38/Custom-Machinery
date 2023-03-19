@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -12,9 +11,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.RomanNumber;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedRequirement;
@@ -36,22 +33,22 @@ import java.util.List;
 
 public class EffectRequirement extends AbstractDelayedChanceableRequirement<EffectMachineComponent> implements ITickableRequirement<EffectMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<EffectRequirement> CODEC = RecordCodecBuilder.create(effectRequirementInstance ->
+    public static final NamedCodec<EffectRequirement> CODEC = NamedCodec.record(effectRequirementInstance ->
             effectRequirementInstance.group(
                     RegistrarCodec.EFFECT.fieldOf("effect").forGetter(requirement -> requirement.effect),
-                    Codec.INT.fieldOf("time").forGetter(requirement -> requirement.time),
-                    Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    CodecLogger.loggedOptional(Codec.INT,"level", 1).forGetter(requirement -> requirement.level),
-                    CodecLogger.loggedOptional(Codecs.list(RegistrarCodec.ENTITY),"filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL,"finish", false).forGetter(requirement -> requirement.applyAtEnd),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(AbstractDelayedRequirement::getDelay),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
+                    NamedCodec.INT.fieldOf("time").forGetter(requirement -> requirement.time),
+                    NamedCodec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
+                    NamedCodec.INT.optionalFieldOf("level", 1).forGetter(requirement -> requirement.level),
+                    RegistrarCodec.ENTITY.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
+                    NamedCodec.BOOL.optionalFieldOf("finish", false).forGetter(requirement -> requirement.applyAtEnd),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("delay", 0.0D).forGetter(AbstractDelayedRequirement::getDelay),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
             ).apply(effectRequirementInstance, (effect, time, radius, level, filter, finish, delay, chance) -> {
                 EffectRequirement requirement = new EffectRequirement(effect, time, radius, level, filter, finish);
                 requirement.setDelay(delay);
                 requirement.setChance(chance);
                 return requirement;
-            })
+            }), "Effect requirement"
     );
 
     private final MobEffect effect;

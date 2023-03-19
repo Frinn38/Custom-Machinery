@@ -1,10 +1,8 @@
 package fr.frinn.custommachinery.impl.component.config;
 
 import com.google.common.collect.Maps;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteTag;
@@ -112,14 +110,13 @@ public class SideConfig {
 
     public static class Template {
 
-        public static final Codec<Template> CODEC = RecordCodecBuilder.create(templateInstance ->
+        public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
             templateInstance.group(
-                    EnumMapCodec.of(RelativeSide.class, RelativeSide.CODEC, SideMode.CODEC, SideMode.BOTH).forGetter(template -> template.sides),
-                    CodecLogger.loggedOptional(Codec.BOOL, "input", false).forGetter(template -> template.autoInput),
-                    CodecLogger.loggedOptional(Codec.BOOL, "output", false).forGetter(template -> template.autoOutput),
-                    CodecLogger.loggedOptional(Codec.BOOL, "enabled", true).forGetter(template -> template.enabled)
-            ).apply(templateInstance, Template::new)
-        );
+                    EnumMapCodec.of(RelativeSide.class, SideMode.CODEC, SideMode.BOTH).forGetter(template -> template.sides),
+                    NamedCodec.BOOL.optionalFieldOf("input", false).forGetter(template -> template.autoInput),
+                    NamedCodec.BOOL.optionalFieldOf("output", false).forGetter(template -> template.autoOutput),
+                    NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(template -> template.enabled)
+            ).apply(templateInstance, Template::new), "Side Config Template");
 
         public static final Template DEFAULT_ALL_BOTH = makeDefault(SideMode.BOTH);
         public static final Template DEFAULT_ALL_INPUT = makeDefault(SideMode.INPUT);

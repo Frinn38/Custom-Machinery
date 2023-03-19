@@ -1,14 +1,13 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,13 +16,14 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
     private static final ResourceLocation BASE_ENERGY_STORAGE_EMPTY_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_energy_storage_empty.png");
     private static final ResourceLocation BASE_ENERGY_STORAGE_FILLED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_energy_storage_filled.png");
 
-    public static final Codec<EnergyGuiElement> CODEC = RecordCodecBuilder.create(energyGuiElement ->
+    public static final NamedCodec<EnergyGuiElement> CODEC = NamedCodec.record(energyGuiElement ->
             makeBaseCodec(energyGuiElement).and(
                     energyGuiElement.group(
-                        CodecLogger.loggedOptional(ResourceLocation.CODEC,"emptytexture", BASE_ENERGY_STORAGE_EMPTY_TEXTURE).forGetter(EnergyGuiElement::getEmptyTexture),
-                        CodecLogger.loggedOptional(ResourceLocation.CODEC,"filledtexture", BASE_ENERGY_STORAGE_FILLED_TEXTURE).forGetter(EnergyGuiElement::getFilledTexture)
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("emptytexture", BASE_ENERGY_STORAGE_EMPTY_TEXTURE).forGetter(EnergyGuiElement::getEmptyTexture),
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("filledtexture", BASE_ENERGY_STORAGE_FILLED_TEXTURE).forGetter(EnergyGuiElement::getFilledTexture)
                     )
-            ).apply(energyGuiElement, EnergyGuiElement::new)
+            ).apply(energyGuiElement, EnergyGuiElement::new),
+            "Energy gui element"
     );
 
     private final ResourceLocation emptyTexture;

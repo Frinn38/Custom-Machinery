@@ -23,7 +23,7 @@ public interface StructureRequirementJS extends RecipeJSBuilder {
                 return error("Invalid structure key: \"{}\" must be a single character which is not 'm'", entry.getKey());
 
             char keyChar = entry.getKey().charAt(0);
-            DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
+            DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.read(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
             if(result.error().isPresent() || result.result().isEmpty())
                 return error("Invalid structure block: \"{}\", {}", entry.getValue(), result.error().get().message());
 

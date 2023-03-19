@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.impl;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.registry.registries.Registrar;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
@@ -81,7 +81,7 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
 
     @Nullable
     @Override
-    public <C extends IMachineComponent> Codec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id) {
+    public <C extends IMachineComponent> NamedCodec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id) {
         return ComponentVariantRegistry.getVariantCodec(type, id);
     }
 }

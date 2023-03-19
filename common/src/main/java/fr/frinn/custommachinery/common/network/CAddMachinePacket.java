@@ -37,8 +37,8 @@ public class CAddMachinePacket extends BaseC2SMessage {
     public void write(FriendlyByteBuf buf) {
         buf.writeResourceLocation(this.id);
         try {
-            buf.writeWithCodec(MachineLocation.CODEC, this.machine.getLocation());
-            buf.writeWithCodec(CustomMachine.CODEC, this.machine);
+            MachineLocation.CODEC.toNetwork(this.machine.getLocation(), buf);
+            CustomMachine.CODEC.toNetwork(this.machine, buf);
         } catch (EncoderException e) {
             e.printStackTrace();
         }
@@ -50,8 +50,8 @@ public class CAddMachinePacket extends BaseC2SMessage {
         ResourceLocation id = buf.readResourceLocation();
         CustomMachine machine = CustomMachine.DUMMY;
         try {
-            MachineLocation location = buf.readWithCodec(MachineLocation.CODEC);
-            machine = buf.readWithCodec(CustomMachine.CODEC).setLocation(location);
+            MachineLocation location = MachineLocation.CODEC.fromNetwork(buf);
+            machine = CustomMachine.CODEC.fromNetwork(buf).setLocation(location);
         } catch (EncoderException e) {
             e.printStackTrace();
         }

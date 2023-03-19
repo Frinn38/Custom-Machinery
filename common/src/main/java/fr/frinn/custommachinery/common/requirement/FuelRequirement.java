@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -14,7 +13,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.FuelItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -24,10 +22,10 @@ import java.util.List;
 
 public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> implements ITickableRequirement<FuelMachineComponent>, IJEIIngredientRequirement<ItemStack> {
 
-    public static final Codec<FuelRequirement> CODEC = RecordCodecBuilder.create(fuelRequirementInstance ->
+    public static final NamedCodec<FuelRequirement> CODEC = NamedCodec.record(fuelRequirementInstance ->
             fuelRequirementInstance.group(
-                    CodecLogger.loggedOptional(Codec.intRange(0, Integer.MAX_VALUE),"amount", 1).forGetter(requirement -> requirement.amount)
-            ).apply(fuelRequirementInstance, FuelRequirement::new)
+                    NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount)
+            ).apply(fuelRequirementInstance, FuelRequirement::new), "Fuel requirement"
     );
 
     private final int amount;

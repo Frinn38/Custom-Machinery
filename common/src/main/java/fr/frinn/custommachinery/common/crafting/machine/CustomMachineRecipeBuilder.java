@@ -1,10 +1,8 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.crafting.AbstractRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 
@@ -12,24 +10,26 @@ import java.util.Collections;
 
 public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMachineRecipe> {
 
-    public static final Codec<CustomMachineRecipeBuilder> CODEC = RecordCodecBuilder.create(recipeBuilderInstance -> recipeBuilderInstance.group(
-            ResourceLocation.CODEC.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
-            Codec.INT.fieldOf("time").forGetter(builder -> builder.time),
-            CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"requirements", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getRequirements),
-            CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
-            CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractRecipeBuilder::getPriority),
-            CodecLogger.loggedOptional(Codec.INT,"jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority),
-            CodecLogger.loggedOptional(Codec.BOOL, "error", true).forGetter(builder -> !builder.resetOnError)
-    ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority, error) -> {
-        CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
-        requirements.forEach(builder::withRequirement);
-        jeiRequirements.forEach(builder::withJeiRequirement);
-        builder.withPriority(priority);
-        builder.withJeiPriority(jeiPriority);
-        if(!error)
-            builder.setResetOnError();
-        return builder;
-    }));
+    public static final NamedCodec<CustomMachineRecipeBuilder> CODEC = NamedCodec.record(recipeBuilderInstance ->
+            recipeBuilderInstance.group(
+                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
+                    NamedCodec.INT.fieldOf("time").forGetter(builder -> builder.time),
+                    IRequirement.CODEC.listOf().optionalFieldOf("requirements", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getRequirements),
+                    IRequirement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
+                    NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractRecipeBuilder::getPriority),
+                    NamedCodec.INT.optionalFieldOf("jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority),
+                    NamedCodec.BOOL.optionalFieldOf("error", true).forGetter(builder -> !builder.resetOnError)
+            ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority, error) -> {
+                    CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
+                    requirements.forEach(builder::withRequirement);
+                    jeiRequirements.forEach(builder::withJeiRequirement);
+                    builder.withPriority(priority);
+                    builder.withJeiPriority(jeiPriority);
+                    if (!error)
+                        builder.setResetOnError();
+                    return builder;
+            }), "Machine recipe builder"
+    );
 
     private final int time;
     private boolean resetOnError = false;

@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.requirements;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
-import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;

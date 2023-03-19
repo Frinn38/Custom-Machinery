@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.api;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.registry.registries.Registrar;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
@@ -106,5 +106,5 @@ public interface ICustomMachineryAPI {
      * @return A codec for the specified {@link MachineComponentType} and id, or null if this variant is not registered.
      */
     @Nullable
-    <C extends IMachineComponent> Codec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id);
+    <C extends IMachineComponent> NamedCodec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id);
 }

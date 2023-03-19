@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -12,7 +11,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -20,11 +18,11 @@ import net.minecraft.world.item.Items;
 
 public class LightRequirement extends AbstractRequirement<LightMachineComponent> implements ITickableRequirement<LightMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<LightRequirement> CODEC = RecordCodecBuilder.create(lightRequirementInstance ->
+    public static final NamedCodec<LightRequirement> CODEC = NamedCodec.record(lightRequirementInstance ->
             lightRequirementInstance.group(
                     IntRange.CODEC.fieldOf("light").forGetter(requirement -> requirement.light),
-                    CodecLogger.loggedOptional(Codec.BOOL,"sky", false).forGetter(requirement -> requirement.sky)
-            ).apply(lightRequirementInstance, LightRequirement::new)
+                    NamedCodec.BOOL.optionalFieldOf("sky", false).forGetter(requirement -> requirement.sky)
+            ).apply(lightRequirementInstance, LightRequirement::new), "Light requirement"
     );
 
     private final IntRange light;

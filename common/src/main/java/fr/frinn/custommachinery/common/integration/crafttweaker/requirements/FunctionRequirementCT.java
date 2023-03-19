@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.common.integration.crafttweaker.requirements;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
-import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
+import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.CTFunction;
 import fr.frinn.custommachinery.common.integration.crafttweaker.function.Context;
 import fr.frinn.custommachinery.common.requirement.FunctionRequirement;

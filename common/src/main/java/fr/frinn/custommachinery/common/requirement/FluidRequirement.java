@@ -1,10 +1,9 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.hooks.fluid.FluidStackHooks;
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -15,10 +14,9 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.nbt.CompoundTag;
@@ -32,19 +30,19 @@ import java.util.Optional;
 
 public class FluidRequirement extends AbstractChanceableRequirement<FluidComponentHandler> implements IJEIIngredientRequirement<FluidStack> {
 
-    public static final Codec<FluidRequirement> CODEC = RecordCodecBuilder.create(fluidRequirementInstance ->
+    public static final NamedCodec<FluidRequirement> CODEC = NamedCodec.record(fluidRequirementInstance ->
             fluidRequirementInstance.group(
-                    Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
+                    RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     IIngredient.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
-                    Codec.LONG.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
-                    CodecLogger.loggedOptional(Codec.STRING,"tank", "").forGetter(requirement -> requirement.tank)
+                    NamedCodec.LONG.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
+                    DefaultCodecs.COMPOUND_TAG.optionalFieldOf("nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
+                    NamedCodec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
             ).apply(fluidRequirementInstance, (mode, fluid, amount, chance, nbt, tank) -> {
                     FluidRequirement requirement = new FluidRequirement(mode, fluid, amount, nbt.orElse(null), tank);
                     requirement.setChance(chance);
                     return requirement;
-            })
+            }), "Fluid requirement"
     );
 
     private final IIngredient<Fluid> fluid;

@@ -1,11 +1,10 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
 
@@ -14,13 +13,13 @@ public class FuelGuiElement extends AbstractTexturedGuiElement {
     private static final ResourceLocation BASE_EMPTY_TEXURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_empty.png");
     private static final ResourceLocation BASE_FILLED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_filled.png");
 
-    public static final Codec<FuelGuiElement> CODEC = RecordCodecBuilder.create(fuelGuiElement ->
+    public static final NamedCodec<FuelGuiElement> CODEC = NamedCodec.record(fuelGuiElement ->
             makeBaseCodec(fuelGuiElement).and(
-                fuelGuiElement.group(
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"emptytexture", BASE_EMPTY_TEXURE).forGetter(FuelGuiElement::getEmptyTexture),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"filledtexture", BASE_FILLED_TEXTURE).forGetter(FuelGuiElement::getFilledTexture)
-                )
-            ).apply(fuelGuiElement, FuelGuiElement::new)
+                    fuelGuiElement.group(
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("emptytexture", BASE_EMPTY_TEXURE).forGetter(FuelGuiElement::getEmptyTexture),
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("filledtexture", BASE_FILLED_TEXTURE).forGetter(FuelGuiElement::getFilledTexture)
+                    )
+            ).apply(fuelGuiElement, FuelGuiElement::new), "Fuel gui element"
     );
 
     private final ResourceLocation emptyTexture;

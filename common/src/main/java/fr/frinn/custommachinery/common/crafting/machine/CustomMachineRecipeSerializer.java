@@ -36,7 +36,7 @@ public class CustomMachineRecipeSerializer extends RegistryEntry<CustomMachineRe
     @Override
     public CustomMachineRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
         ICustomMachineryAPI.INSTANCE.logger().info("Receiving recipe: {} from server.", recipeId);
-        DataResult<CustomMachineRecipeBuilder> result = CustomMachineRecipeBuilder.CODEC.parse(NbtOps.INSTANCE, buffer.readAnySizeNbt());
+        DataResult<CustomMachineRecipeBuilder> result = CustomMachineRecipeBuilder.CODEC.read(NbtOps.INSTANCE, buffer.readAnySizeNbt());
         if(result.result().isPresent()) {
             ICustomMachineryAPI.INSTANCE.logger().info("Sucessfully received recipe: {} from server.", recipeId);
             return result.result().get().build(recipeId);

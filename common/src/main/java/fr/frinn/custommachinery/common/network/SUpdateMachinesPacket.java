@@ -33,8 +33,8 @@ public class SUpdateMachinesPacket extends BaseS2CMessage {
         this.machines.forEach((id, machine) -> {
             try {
                 buf.writeResourceLocation(id);
-                buf.writeWithCodec(MachineLocation.CODEC, machine.getLocation());
-                buf.writeWithCodec(CustomMachine.CODEC, machine);
+                MachineLocation.CODEC.toNetwork(machine.getLocation(), buf);
+                CustomMachine.CODEC.toNetwork(machine, buf);
             } catch (EncoderException e) {
                 e.printStackTrace();
             }
@@ -47,8 +47,8 @@ public class SUpdateMachinesPacket extends BaseS2CMessage {
         for(int i = 0; i < size; i++) {
             try {
                 ResourceLocation id = buf.readResourceLocation();
-                MachineLocation location = buf.readWithCodec(MachineLocation.CODEC);
-                CustomMachine machine = buf.readWithCodec(CustomMachine.CODEC);
+                MachineLocation location = MachineLocation.CODEC.fromNetwork(buf);
+                CustomMachine machine = CustomMachine.CODEC.fromNetwork(buf);
                 machine.setLocation(location);
                 map.put(id, machine);
             } catch (EncoderException e) {

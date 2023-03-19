@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.api.machine;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -27,26 +27,26 @@ public class MachineAppearanceProperty<T> extends RegistryEntry<MachineAppearanc
      * @param codec A codec used to parse the {@link MachineAppearanceProperty} from the machine json file and send it to the client.
      * @param defaultValue The default value for this property, used if the machine creator didn't specify a value in the machine json.
      */
-    public static <T> MachineAppearanceProperty<T> create(Codec<T> codec, T defaultValue) {
+    public static <T> MachineAppearanceProperty<T> create(NamedCodec<T> codec, T defaultValue) {
         return new MachineAppearanceProperty<>(codec, defaultValue);
     }
 
-    private final Codec<T> codec;
+    private final NamedCodec<T> codec;
     private final T defaultValue;
 
     /**
      * A constructor for {@link MachineAppearanceProperty}.
-     * Use {@link MachineAppearanceProperty#create(Codec, Object)} instead.
+     * Use {@link MachineAppearanceProperty#create(NamedCodec, Object)} instead.
      */
-    private MachineAppearanceProperty(Codec<T> codec, T defaultValue) {
+    private MachineAppearanceProperty(NamedCodec<T> codec, T defaultValue) {
         this.codec = codec;
         this.defaultValue = defaultValue;
     }
 
     /**
-     * @return A {@link Codec} used to parse/serialize the {@link MachineAppearanceProperty} value.
+     * @return A {@link NamedCodec} used to parse/serialize the {@link MachineAppearanceProperty} value.
      */
-    public Codec<T> getCodec() {
+    public NamedCodec<T> getCodec() {
         return this.codec;
     }
 

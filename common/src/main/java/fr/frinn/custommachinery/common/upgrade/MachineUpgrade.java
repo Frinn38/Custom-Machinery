@@ -1,10 +1,8 @@
 package fr.frinn.custommachinery.common.upgrade;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -17,14 +15,14 @@ import java.util.List;
 
 public class MachineUpgrade {
 
-    public static final Codec<MachineUpgrade> CODEC = RecordCodecBuilder.create(machineUpgradeInstance ->
+    public static final NamedCodec<MachineUpgrade> CODEC = NamedCodec.record(machineUpgradeInstance ->
             machineUpgradeInstance.group(
                     RegistrarCodec.ITEM.fieldOf("item").forGetter(upgrade -> upgrade.item),
-                    Codecs.list(ResourceLocation.CODEC).fieldOf("machines").forGetter(upgrade -> upgrade.machines),
-                    Codecs.list(RecipeModifier.CODEC).fieldOf("modifiers").forGetter(upgrade -> upgrade.modifiers),
-                    CodecLogger.loggedOptional(Codecs.list(TextComponentUtils.TEXT_COMPONENT_CODEC),"tooltip", Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA))).forGetter(upgrade -> upgrade.tooltips),
-                    CodecLogger.loggedOptional(Codec.INT,"max", 64).forGetter(upgrade -> upgrade.max)
-            ).apply(machineUpgradeInstance, MachineUpgrade::new)
+                    DefaultCodecs.RESOURCE_LOCATION.listOf().fieldOf("machines").forGetter(upgrade -> upgrade.machines),
+                    RecipeModifier.CODEC.listOf().fieldOf("modifiers").forGetter(upgrade -> upgrade.modifiers),
+                    TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltip", Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA))).forGetter(upgrade -> upgrade.tooltips),
+                    NamedCodec.INT.optionalFieldOf("max", 64).forGetter(upgrade -> upgrade.max)
+            ).apply(machineUpgradeInstance, MachineUpgrade::new), "Machine upgrade"
     );
 
     private final Item item;

@@ -1,10 +1,8 @@
 package fr.frinn.custommachinery.common.crafting.craft;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.crafting.AbstractRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -13,14 +11,14 @@ import java.util.Collections;
 
 public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftRecipe> {
 
-    public static final Codec<CustomCraftRecipeBuilder> CODEC = RecordCodecBuilder.create(builderInstance ->
+    public static final NamedCodec<CustomCraftRecipeBuilder> CODEC = NamedCodec.record(builderInstance ->
             builderInstance.group(
-                    ResourceLocation.CODEC.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
-                    ItemStack.CODEC.fieldOf("output").forGetter(builder -> builder.output),
-                    CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"requirements", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getRequirements),
-                    CodecLogger.loggedOptional(Codecs.list(IRequirement.CODEC),"jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractRecipeBuilder::getPriority),
-                    CodecLogger.loggedOptional(Codec.INT,"jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority)
+                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
+                    DefaultCodecs.ITEM_STACK.fieldOf("output").forGetter(builder -> builder.output),
+                    IRequirement.CODEC.listOf().optionalFieldOf("requirements", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getRequirements),
+                    IRequirement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
+                    NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractRecipeBuilder::getPriority),
+                    NamedCodec.INT.optionalFieldOf("jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority)
             ).apply(builderInstance, (machine, output, requirements, jeiRequirements, priority, jeiPriority) -> {
                 CustomCraftRecipeBuilder builder = new CustomCraftRecipeBuilder(machine, output);
                 requirements.forEach(builder::withRequirement);
@@ -28,7 +26,7 @@ public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftR
                 builder.withPriority(priority);
                 builder.withJeiPriority(jeiPriority);
                 return builder;
-            })
+            }), "Craft recipe builder"
     );
 
     private final ItemStack output;

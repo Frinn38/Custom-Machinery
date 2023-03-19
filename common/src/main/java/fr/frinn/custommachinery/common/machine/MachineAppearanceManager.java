@@ -2,8 +2,7 @@ package fr.frinn.custommachinery.common.machine;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -12,20 +11,21 @@ import java.util.Map;
 
 public class MachineAppearanceManager {
 
-    public static final Codec<MachineAppearanceManager> CODEC = RecordCodecBuilder.create(builder ->
+    public static final NamedCodec<MachineAppearanceManager> CODEC = NamedCodec.record(builder ->
             builder.group(
                     MachineAppearance.CODEC.forGetter(manager -> manager.defaultProperties),
-                    MachineAppearance.CODEC.fieldOf("idle").orElse(Maps.newHashMap()).forGetter(manager -> manager.idle.getProperties()),
-                    MachineAppearance.CODEC.fieldOf("running").orElse(Maps.newHashMap()).forGetter(manager -> manager.running.getProperties()),
-                    MachineAppearance.CODEC.fieldOf("errored").orElse(Maps.newHashMap()).forGetter(manager -> manager.errored.getProperties()),
-                    MachineAppearance.CODEC.fieldOf("paused").orElse(Maps.newHashMap()).forGetter(manager -> manager.paused.getProperties())
+                    MachineAppearance.CODEC.optionalFieldOf("idle", Maps.newHashMap()).forGetter(manager -> manager.idle.getProperties()),
+                    MachineAppearance.CODEC.optionalFieldOf("running", Maps.newHashMap()).forGetter(manager -> manager.running.getProperties()),
+                    MachineAppearance.CODEC.optionalFieldOf("errored", Maps.newHashMap()).forGetter(manager -> manager.errored.getProperties()),
+                    MachineAppearance.CODEC.optionalFieldOf("paused", Maps.newHashMap()).forGetter(manager -> manager.paused.getProperties())
             ).apply(builder, (defaults, idle, running, errored, paused) -> {
                 MachineAppearance idleAppearance = buildAppearance(defaults, idle);
                 MachineAppearance runningAppearance = buildAppearance(defaults, running);
                 MachineAppearance erroredAppearance = buildAppearance(defaults, errored);
                 MachineAppearance pausedAppearance = buildAppearance(defaults, paused);
                 return new MachineAppearanceManager(defaults, idleAppearance, runningAppearance, erroredAppearance, pausedAppearance);
-            })
+            }),
+            "Machine appearance"
     );
 
     private final Map<MachineAppearanceProperty<?>, Object> defaultProperties;

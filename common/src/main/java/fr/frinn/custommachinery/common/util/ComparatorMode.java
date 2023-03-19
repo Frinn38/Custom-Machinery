@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
+
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -12,6 +15,14 @@ public enum ComparatorMode {
     LESSER_OR_EQUALS("<="),
     LESSER("<<");
 
+    public static final NamedCodec<ComparatorMode> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
+        try {
+            return DataResult.success(value(s));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error(e.getMessage());
+        }
+    }, ComparatorMode::getPrefix, "Comparator mode");
+
     private final String prefix;
 
     ComparatorMode(String prefix) {
@@ -23,20 +34,13 @@ public enum ComparatorMode {
     }
 
     public <T> boolean compare(T first, T second, Comparator<T> comparator) {
-        switch (this) {
-            case GREATER:
-                return comparator.compare(first, second) > 0;
-            case GREATER_OR_EQUALS:
-                return comparator.compare(first, second) >= 0;
-            case EQUALS:
-                return comparator.compare(first, second) == 0;
-            case LESSER_OR_EQUALS:
-                return comparator.compare(first, second) <= 0;
-            case LESSER:
-                return comparator.compare(first, second) < 0;
-            default:
-                return false;
-        }
+        return switch (this) {
+            case GREATER -> comparator.compare(first, second) > 0;
+            case GREATER_OR_EQUALS -> comparator.compare(first, second) >= 0;
+            case EQUALS -> comparator.compare(first, second) == 0;
+            case LESSER_OR_EQUALS -> comparator.compare(first, second) <= 0;
+            case LESSER -> comparator.compare(first, second) < 0;
+        };
     }
 
     public <T extends Comparable<T>> boolean compare(T first, T second) {
@@ -44,20 +48,13 @@ public enum ComparatorMode {
     }
 
     public String getTranslationKey() {
-        switch (this) {
-            case GREATER:
-                return "custommachinery.comparator.greater";
-            case GREATER_OR_EQUALS:
-                return "custommachinery.comparator.greater_or_equals";
-            case EQUALS:
-                return "custommachinery.comparator.equals";
-            case LESSER_OR_EQUALS:
-                return "custommachinery.comparator.lesser_or_equals";
-            case LESSER:
-                return "custommachinery.comparator.lesser";
-            default:
-                return "";
-        }
+        return switch (this) {
+            case GREATER -> "custommachinery.comparator.greater";
+            case GREATER_OR_EQUALS -> "custommachinery.comparator.greater_or_equals";
+            case EQUALS -> "custommachinery.comparator.equals";
+            case LESSER_OR_EQUALS -> "custommachinery.comparator.lesser_or_equals";
+            case LESSER -> "custommachinery.comparator.lesser";
+        };
     }
 
     public static ComparatorMode value(String value) {

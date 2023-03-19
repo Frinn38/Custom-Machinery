@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.api.guielement;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -28,27 +28,27 @@ public class GuiElementType<T extends IGuiElement> extends RegistryEntry<GuiElem
      * @return A {@link GuiElementType} for the specified {@link IGuiElement}.
      * @param <T> The {@link IGuiElement} handled by this {@link GuiElementType}.
      */
-    public static <T extends IGuiElement> GuiElementType<T> create(Codec<T> codec) {
+    public static <T extends IGuiElement> GuiElementType<T> create(NamedCodec<T> codec) {
         return new GuiElementType<>(codec);
     }
 
     /**
      * Used to parse the machine json file gui property entry to create the corresponding gui element.
      */
-    private final Codec<T> codec;
+    private final NamedCodec<T> codec;
 
     /**
      * Constructor for {@link GuiElementType}.
-     * Use {@link GuiElementType#create(Codec)} instead.
+     * Use {@link GuiElementType#create(NamedCodec)} instead.
      */
-    private GuiElementType(Codec<T> codec) {
+    private GuiElementType(NamedCodec<T> codec) {
         this.codec = codec;
     }
 
     /**
      * @return The codec used to parse or serialize all {@link IGuiElement} with this type.
      */
-    public Codec<T> getCodec() {
+    public NamedCodec<T> getCodec() {
         return this.codec;
     }
 

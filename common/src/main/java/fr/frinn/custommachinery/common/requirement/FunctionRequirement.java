@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class FunctionRequirement extends AbstractDelayedChanceableRequirement<FunctionMachineComponent> implements ITickableRequirement<FunctionMachineComponent> {
 
-    public static final Codec<FunctionRequirement> CODEC = Codec.unit(new FunctionRequirement(Phase.START, ctx -> CraftingResult.pass()));
+    public static final NamedCodec<FunctionRequirement> CODEC = NamedCodec.unit(new FunctionRequirement(Phase.START, ctx -> CraftingResult.pass()));
 
     private Phase phase;
     private final Function<ICraftingContext, CraftingResult> function;

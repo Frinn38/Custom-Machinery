@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.util.ingredient;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.core.Registry;
@@ -13,10 +13,10 @@ import java.util.function.Function;
 
 public class FluidIngredient implements IIngredient<Fluid> {
 
-    private static final Codec<FluidIngredient> CODEC_FOR_DATAPACK = RegistrarCodec.FLUID.xmap(FluidIngredient::new, ingredient -> ingredient.fluid);
-    private static final Codec<FluidIngredient> CODEC_FOR_KUBEJS = RegistrarCodec.FLUID.fieldOf("fluid").codec().xmap(FluidIngredient::new, ingredient -> ingredient.fluid);
-    public static final Codec<FluidIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Ingredient")
-            .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
+    private static final NamedCodec<FluidIngredient> CODEC_FOR_DATAPACK = RegistrarCodec.FLUID.xmap(FluidIngredient::new, ingredient -> ingredient.fluid, "Fluid ingredient");
+    private static final NamedCodec<FluidIngredient> CODEC_FOR_KUBEJS = RegistrarCodec.FLUID.fieldOf("fluid").xmap(FluidIngredient::new, ingredient -> ingredient.fluid, "Fluid ingredient");
+    public static final NamedCodec<FluidIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Ingredient")
+            .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left, "Fluid ingredient");
 
     private final Fluid fluid;
 

@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -18,7 +17,6 @@ import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.ChatFormatting;
@@ -35,24 +33,24 @@ import java.util.Locale;
 
 public class BlockRequirement extends AbstractDelayedChanceableRequirement<BlockMachineComponent> implements ITickableRequirement<BlockMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<BlockRequirement> CODEC = RecordCodecBuilder.create(blockRequirementInstance ->
+    public static final NamedCodec<BlockRequirement> CODEC = NamedCodec.record(blockRequirementInstance ->
             blockRequirementInstance.group(
-                    Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    Codecs.BLOCK_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
+                    RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
+                    ACTION.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
                     Codecs.BOX_CODEC.fieldOf("pos").forGetter(requirement -> requirement.pos),
-                    CodecLogger.loggedOptional(Codec.INT,"amount", 1).forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codecs.COMPARATOR_MODE_CODEC,"comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
-                    CodecLogger.loggedOptional(Codecs.PARTIAL_BLOCK_STATE_CODEC, "block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
-                    CodecLogger.loggedOptional(Codecs.list(IIngredient.BLOCK), "filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL, "whitelist", false).forGetter(requirement -> requirement.whitelist),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(requirement -> requirement.delay),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
+                    NamedCodec.INT.optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
+                    ComparatorMode.CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
+                    PartialBlockState.CODEC.optionalFieldOf("block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
+                    IIngredient.BLOCK.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("delay", 0.0D).forGetter(requirement -> requirement.delay),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
             ).apply(blockRequirementInstance, (mode, action, pos, amount, comparator, block, filter, whitelist, delay, chance) -> {
                     BlockRequirement requirement = new BlockRequirement(mode, action, pos, amount, comparator, block, filter, whitelist);
                     requirement.setDelay(delay);
                     requirement.setChance(chance);
                     return requirement;
-            })
+            }), "Block requirement"
     );
 
     private final ACTION action;
@@ -278,6 +276,8 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
         PLACE,
         REPLACE_BREAK,
         REPLACE_DESTROY;
+
+        public static final NamedCodec<ACTION> CODEC = NamedCodec.enumCodec(ACTION.class);
 
         public static ACTION value(String value) {
             return valueOf(value.toUpperCase(Locale.ENGLISH));

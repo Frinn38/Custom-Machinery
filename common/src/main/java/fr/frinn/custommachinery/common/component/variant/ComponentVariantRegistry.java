@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.component.variant;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class ComponentVariantRegistry {
 
-    private static Map<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, Codec<? extends IComponentVariant>>> map = Collections.emptyMap();
+    private static Map<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, NamedCodec<? extends IComponentVariant>>> map = Collections.emptyMap();
 
     public static void init() {
         RegisterComponentVariantEvent event = new RegisterComponentVariantEvent();
@@ -22,8 +22,8 @@ public class ComponentVariantRegistry {
     }
 
     @Nullable
-    public static <C extends IMachineComponent> Codec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id) {
-        Map<ResourceLocation, Codec<? extends IComponentVariant>> variantsMap = map.get(type);
+    public static <C extends IMachineComponent> NamedCodec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id) {
+        Map<ResourceLocation, NamedCodec<? extends IComponentVariant>> variantsMap = map.get(type);
         if(variantsMap == null)
             return null;
         return variantsMap.get(id);

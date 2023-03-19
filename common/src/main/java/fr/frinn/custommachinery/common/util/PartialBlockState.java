@@ -1,8 +1,13 @@
 package fr.frinn.custommachinery.common.util;
 
 import com.google.common.collect.Lists;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.util.ModelLocation;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -41,9 +46,19 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         }
     };
 
-    private BlockState blockState;
-    private List<Property<?>> properties;
-    private CompoundTag nbt;
+    public static final NamedCodec<PartialBlockState> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
+        StringReader reader = new StringReader(s);
+        try {
+            BlockStateParser parser = new BlockStateParser(reader, false).parse(true);
+            return DataResult.success(new PartialBlockState(parser.getState(), Lists.newArrayList(parser.getProperties().keySet()), parser.getNbt()));
+        } catch (CommandSyntaxException exception) {
+            return DataResult.error(exception.getMessage());
+        }
+    }, PartialBlockState::toString, "Partial block state");
+
+    private final BlockState blockState;
+    private final List<Property<?>> properties;
+    private final CompoundTag nbt;
 
     public PartialBlockState(BlockState blockState, List<Property<?>> properties, CompoundTag nbt) {
         this.blockState = blockState;

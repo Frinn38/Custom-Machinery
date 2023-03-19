@@ -4,19 +4,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ExtraCodecs;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -24,22 +22,22 @@ import java.util.function.Function;
 
 public class TextComponentUtils {
 
-    public static final Codec<TextColor> COLOR_CODEC = Codec.STRING.comapFlatMap(encoded -> {
+    public static final NamedCodec<TextColor> COLOR_CODEC = NamedCodec.STRING.comapFlatMap(encoded -> {
         TextColor color = TextColor.parseColor(encoded);
         if(color != null)
             return DataResult.success(color);
         return DataResult.error("Invalid color: " + encoded);
-    }, TextColor::serialize).stable();
+    }, TextColor::serialize, "Text color");
 
-    public static final MapCodec<Style> STYLE_CODEC = RecordCodecBuilder.mapCodec(styleInstance ->
+    public static final NamedMapCodec<Style> STYLE_CODEC = NamedCodec.record(styleInstance ->
             styleInstance.group(
-                    CodecLogger.loggedOptional(Codec.BOOL,"bold", false).forGetter(Style::isBold),
-                    CodecLogger.loggedOptional(Codec.BOOL,"italic", false).forGetter(Style::isItalic),
-                    CodecLogger.loggedOptional(Codec.BOOL,"underlined", false).forGetter(Style::isUnderlined),
-                    CodecLogger.loggedOptional(Codec.BOOL,"strikethrough", false).forGetter(Style::isStrikethrough),
-                    CodecLogger.loggedOptional(Codec.BOOL,"obfuscated", false).forGetter(Style::isObfuscated),
-                    CodecLogger.loggedOptional(COLOR_CODEC,"color").forGetter(style -> Optional.ofNullable(style.getColor())),
-                    CodecLogger.loggedOptional(ResourceLocation.CODEC,"font", new ResourceLocation("default")).forGetter(Style::getFont)
+                    NamedCodec.BOOL.optionalFieldOf("bold", false).forGetter(Style::isBold),
+                    NamedCodec.BOOL.optionalFieldOf("italic", false).forGetter(Style::isItalic),
+                    NamedCodec.BOOL.optionalFieldOf("underlined", false).forGetter(Style::isUnderlined),
+                    NamedCodec.BOOL.optionalFieldOf("strikethrough", false).forGetter(Style::isStrikethrough),
+                    NamedCodec.BOOL.optionalFieldOf("obfuscated", false).forGetter(Style::isObfuscated),
+                    COLOR_CODEC.optionalFieldOf("color").forGetter(style -> Optional.ofNullable(style.getColor())),
+                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("font", new ResourceLocation("default")).forGetter(Style::getFont)
             ).apply(styleInstance, (bold, italic, underlined, strikethrough, obfuscated, color, font) ->
                     Style.EMPTY
                     .withBold(bold)
@@ -49,25 +47,27 @@ public class TextComponentUtils {
                     .withObfuscated(obfuscated)
                     .withColor(color.orElse(null))
                     .withFont(font)
-            )
+            ),
+            "Style"
     );
 
-    public static final Codec<Component> TEXT_COMPONENT_CODEC = RecordCodecBuilder.create(iTextComponentInstance ->
+    public static final NamedCodec<Component> TEXT_COMPONENT_CODEC = NamedCodec.record(iTextComponentInstance ->
             iTextComponentInstance.group(
-                    Codec.STRING.fieldOf("text").forGetter(iTextComponent -> iTextComponent instanceof TranslatableComponent ? ((TranslatableComponent)iTextComponent).getKey() : iTextComponent.getContents()),
+                    NamedCodec.STRING.fieldOf("text").forGetter(iTextComponent -> iTextComponent instanceof TranslatableComponent ? ((TranslatableComponent)iTextComponent).getKey() : iTextComponent.getContents()),
                     STYLE_CODEC.forGetter(Component::getStyle),
-                    ExtraCodecs.lazyInitializedCodec(TextComponentUtils::getCodec).listOf().optionalFieldOf("childrens", Collections.emptyList()).forGetter(Component::getSiblings)
+                    NamedCodec.lazy(TextComponentUtils::getCodec, "Text component").listOf().optionalFieldOf("childrens", Collections.emptyList()).forGetter(Component::getSiblings)
             ).apply(iTextComponentInstance, (text, style, childrens) -> {
                             TranslatableComponent component = new TranslatableComponent(text);
                             component.setStyle(style);
                             childrens.forEach(component::append);
                             return component;
                     }
-            )
+            ),
+            "Text component"
     );
 
-    public static final Codec<Component> CODEC = Codec.either(TEXT_COMPONENT_CODEC, Codec.STRING)
-            .xmap(either -> either.map(Function.identity(), TranslatableComponent::new), Either::left).stable();
+    public static final NamedCodec<Component> CODEC = NamedCodec.either(TEXT_COMPONENT_CODEC, NamedCodec.STRING)
+            .xmap(either -> either.map(Function.identity(), TranslatableComponent::new), Either::left, "Text component");
 
     public static String toJsonString(Component component) {
         DataResult<JsonElement> result = TEXT_COMPONENT_CODEC.encodeStart(JsonOps.INSTANCE, component);
@@ -79,7 +79,7 @@ public class TextComponentUtils {
         return TEXT_COMPONENT_CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst).orElse(TextComponent.EMPTY);
     }
 
-    private static Codec<Component> getCodec() {
+    private static NamedCodec<Component> getCodec() {
         return TEXT_COMPONENT_CODEC;
     }
 }

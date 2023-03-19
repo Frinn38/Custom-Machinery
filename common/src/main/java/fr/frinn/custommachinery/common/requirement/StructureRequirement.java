@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -14,9 +13,9 @@ import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.BlockStructure;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextComponent;
@@ -30,11 +29,11 @@ import java.util.stream.Collectors;
 
 public class StructureRequirement extends AbstractRequirement<StructureMachineComponent> implements ITickableRequirement<StructureMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<StructureRequirement> CODEC = RecordCodecBuilder.create(structureRequirementInstance ->
+    public static final NamedCodec<StructureRequirement> CODEC = NamedCodec.record(structureRequirementInstance ->
             structureRequirementInstance.group(
-                    Codecs.list(Codecs.list(Codec.STRING)).fieldOf("pattern").forGetter(requirement -> requirement.pattern),
-                    Codec.unboundedMap(Codecs.CHARACTER_CODEC, IIngredient.BLOCK).fieldOf("keys").forGetter(requirement -> requirement.keys)
-            ).apply(structureRequirementInstance, StructureRequirement::new)
+                    NamedCodec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
+                    NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>").fieldOf("keys").forGetter(requirement -> requirement.keys)
+            ).apply(structureRequirementInstance, StructureRequirement::new), "Structure requirement"
     );
 
     private final List<List<String>> pattern;

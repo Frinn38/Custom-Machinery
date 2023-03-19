@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.component;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -12,7 +11,6 @@ import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.Direction;
@@ -95,16 +93,16 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
     public static class Template implements IMachineComponentTemplate<RedstoneMachineComponent> {
 
-        public static final Codec<Template> CODEC = RecordCodecBuilder.create(templateInstance ->
+        public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
-                        CodecLogger.loggedOptional(Codec.INT,"powertopause", 1).forGetter(template -> template.powerToPause),
-                        CodecLogger.loggedOptional(Codec.INT,"craftingpoweroutput", 0).forGetter(template -> template.craftingPowerOutput),
-                        CodecLogger.loggedOptional(Codec.INT,"idlepoweroutput", 0).forGetter(template -> template.idlePowerOutput),
-                        CodecLogger.loggedOptional(Codec.INT,"erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
-                        CodecLogger.loggedOptional(Codec.INT,"pausedpoweroutput", 0).forGetter(template -> template.pausedPowerOutput),
-                        CodecLogger.loggedOptional(RegistrarCodec.MACHINE_COMPONENT, "comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
-                        CodecLogger.loggedOptional(Codec.STRING,"comparatorinputid", "").forGetter(template -> template.comparatorInputID)
-                ).apply(templateInstance, Template::new)
+                        NamedCodec.INT.optionalFieldOf("powertopause", 1).forGetter(template -> template.powerToPause),
+                        NamedCodec.INT.optionalFieldOf("craftingpoweroutput", 0).forGetter(template -> template.craftingPowerOutput),
+                        NamedCodec.INT.optionalFieldOf("idlepoweroutput", 0).forGetter(template -> template.idlePowerOutput),
+                        NamedCodec.INT.optionalFieldOf("erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
+                        NamedCodec.INT.optionalFieldOf("pausedpoweroutput", 0).forGetter(template -> template.pausedPowerOutput),
+                        RegistrarCodec.MACHINE_COMPONENT.optionalFieldOf("comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
+                        NamedCodec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputID)
+                ).apply(templateInstance, Template::new), "Redstone machine component"
         );
 
         private final int powerToPause;

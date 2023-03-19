@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.component.variant.item;
 
-import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 public class EnergyItemComponentVariant extends ItemComponentVariant implements ITickableComponentVariant<ItemMachineComponent> {
 
     public static final EnergyItemComponentVariant INSTANCE = new EnergyItemComponentVariant();
-    public static final Codec<EnergyItemComponentVariant> CODEC = Codec.unit(INSTANCE);
+    public static final NamedCodec<EnergyItemComponentVariant> CODEC = NamedCodec.unit(INSTANCE, "Energy item component");
     public static final ResourceLocation ID = new ResourceLocation(CustomMachinery.MODID, "energy");
 
     @Override
@@ -25,7 +25,7 @@ public class EnergyItemComponentVariant extends ItemComponentVariant implements 
     }
 
     @Override
-    public Codec<EnergyItemComponentVariant> getCodec() {
+    public NamedCodec<EnergyItemComponentVariant> getCodec() {
         return CODEC;
     }
 

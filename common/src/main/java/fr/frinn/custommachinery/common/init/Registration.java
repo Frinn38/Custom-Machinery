@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.init;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.menu.MenuRegistry;
@@ -10,6 +9,7 @@ import dev.architectury.registry.registries.Registries;
 import dev.architectury.registry.registries.RegistrySupplier;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.variant.RegisterComponentVariantEvent;
@@ -112,6 +112,7 @@ import fr.frinn.custommachinery.common.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.MachineShape;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.core.Registry;
@@ -241,15 +242,15 @@ public class Registration {
 
     public static final RegistrySupplier<MachineAppearanceProperty<ModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(Codecs.BLOCK_MODEL_CODEC, ModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"))));
     public static final RegistrySupplier<MachineAppearanceProperty<ModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(Codecs.ITEM_MODEL_CODEC, ModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"))));
-    public static final RegistrySupplier<MachineAppearanceProperty<SoundEvent>> AMBIENT_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(SoundEvent.CODEC, new SoundEvent(new ResourceLocation(""))));
+    public static final RegistrySupplier<MachineAppearanceProperty<SoundEvent>> AMBIENT_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(DefaultCodecs.SOUND_EVENT, new SoundEvent(new ResourceLocation(""))));
     public static final RegistrySupplier<MachineAppearanceProperty<CMSoundType>> INTERACTION_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("interaction_sound", () -> MachineAppearanceProperty.create(CMSoundType.CODEC, CMSoundType.DEFAULT));
-    public static final RegistrySupplier<MachineAppearanceProperty<Integer>> LIGHT_PROPERTY = APPEARANCE_PROPERTIES.register("light", () -> MachineAppearanceProperty.create(Codec.intRange(0, 15), 0));
-    public static final RegistrySupplier<MachineAppearanceProperty<Integer>> COLOR_PROPERTY = APPEARANCE_PROPERTIES.register("color", () -> MachineAppearanceProperty.create(Codec.INT, 0xFFFFFF));
-    public static final RegistrySupplier<MachineAppearanceProperty<Float>> HARDNESS_PROPERTY = APPEARANCE_PROPERTIES.register("hardness", () -> MachineAppearanceProperty.create(Codec.floatRange(-1.0F, Float.MAX_VALUE), 3.5F));
-    public static final RegistrySupplier<MachineAppearanceProperty<Float>> RESISTANCE_PROPERTY = APPEARANCE_PROPERTIES.register("resistance", () -> MachineAppearanceProperty.create(Codec.floatRange(0.0F, Float.MAX_VALUE), 3.5F));
-    public static final RegistrySupplier<MachineAppearanceProperty<List<TagKey<Block>>>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> MachineAppearanceProperty.create(Codecs.list(TagKey.codec(Registry.BLOCK_REGISTRY)), Collections.singletonList(BlockTags.MINEABLE_WITH_PICKAXE)));
-    public static final RegistrySupplier<MachineAppearanceProperty<TagKey<Block>>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> MachineAppearanceProperty.create(TagKey.codec(Registry.BLOCK_REGISTRY), BlockTags.NEEDS_IRON_TOOL));
-    public static final RegistrySupplier<MachineAppearanceProperty<Boolean>> REQUIRES_TOOL = APPEARANCE_PROPERTIES.register("requires_tool", () -> MachineAppearanceProperty.create(Codec.BOOL, true));
+    public static final RegistrySupplier<MachineAppearanceProperty<Integer>> LIGHT_PROPERTY = APPEARANCE_PROPERTIES.register("light", () -> MachineAppearanceProperty.create(NamedCodec.intRange(0, 15), 0));
+    public static final RegistrySupplier<MachineAppearanceProperty<Integer>> COLOR_PROPERTY = APPEARANCE_PROPERTIES.register("color", () -> MachineAppearanceProperty.create(NamedCodec.INT, 0xFFFFFF));
+    public static final RegistrySupplier<MachineAppearanceProperty<Float>> HARDNESS_PROPERTY = APPEARANCE_PROPERTIES.register("hardness", () -> MachineAppearanceProperty.create(NamedCodec.floatRange(-1.0F, Float.MAX_VALUE), 3.5F));
+    public static final RegistrySupplier<MachineAppearanceProperty<Float>> RESISTANCE_PROPERTY = APPEARANCE_PROPERTIES.register("resistance", () -> MachineAppearanceProperty.create(NamedCodec.floatRange(0.0F, Float.MAX_VALUE), 3.5F));
+    public static final RegistrySupplier<MachineAppearanceProperty<List<TagKey<Block>>>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registry.BLOCK_REGISTRY).listOf(), Collections.singletonList(BlockTags.MINEABLE_WITH_PICKAXE)));
+    public static final RegistrySupplier<MachineAppearanceProperty<TagKey<Block>>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registry.BLOCK_REGISTRY), BlockTags.NEEDS_IRON_TOOL));
+    public static final RegistrySupplier<MachineAppearanceProperty<Boolean>> REQUIRES_TOOL = APPEARANCE_PROPERTIES.register("requires_tool", () -> MachineAppearanceProperty.create(NamedCodec.BOOL, true));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> MachineAppearanceProperty.create(MachineShape.CODEC, MachineShape.DEFAULT));
 
     public static final RegistrySupplier<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATAS.register("boolean", () -> DataType.create(Boolean.class, BooleanSyncable::create, BooleanData::new));

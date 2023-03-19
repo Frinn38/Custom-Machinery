@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -14,7 +13,7 @@ import fr.frinn.custommachinery.client.integration.jei.wrapper.LootTableIngredie
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -31,11 +30,11 @@ import java.util.List;
 
 public class LootTableRequirement extends AbstractRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
 
-    public static final Codec<LootTableRequirement> CODEC = RecordCodecBuilder.create(lootTableRequirementInstance ->
+    public static final NamedCodec<LootTableRequirement> CODEC = NamedCodec.record(lootTableRequirementInstance ->
             lootTableRequirementInstance.group(
-                    ResourceLocation.CODEC.fieldOf("table").forGetter(requirement -> requirement.lootTable),
-                    CodecLogger.loggedOptional(Codec.FLOAT,"luck", 0.0F).forGetter(requirement -> requirement.luck)
-            ).apply(lootTableRequirementInstance, LootTableRequirement::new)
+                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("table").forGetter(requirement -> requirement.lootTable),
+                    NamedCodec.FLOAT.optionalFieldOf("luck", 0.0F).forGetter(requirement -> requirement.luck)
+            ).apply(lootTableRequirementInstance, LootTableRequirement::new), "Loottable requirement"
     );
 
     private final ResourceLocation lootTable;

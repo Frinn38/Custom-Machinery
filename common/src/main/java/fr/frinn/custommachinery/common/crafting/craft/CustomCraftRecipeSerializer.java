@@ -36,7 +36,7 @@ public class CustomCraftRecipeSerializer extends RegistryEntry<CustomCraftRecipe
     @Override
     public CustomCraftRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
         ICustomMachineryAPI.INSTANCE.logger().info("Receiving craft recipe: {} from server.", recipeId);
-        DataResult<CustomCraftRecipeBuilder> result = CustomCraftRecipeBuilder.CODEC.parse(NbtOps.INSTANCE, buffer.readAnySizeNbt());
+        DataResult<CustomCraftRecipeBuilder> result = CustomCraftRecipeBuilder.CODEC.read(NbtOps.INSTANCE, buffer.readAnySizeNbt());
         if(result.result().isPresent()) {
             ICustomMachineryAPI.INSTANCE.logger().info("Sucessfully received craft recipe: {} from server.", recipeId);
             return result.result().get().build(recipeId);

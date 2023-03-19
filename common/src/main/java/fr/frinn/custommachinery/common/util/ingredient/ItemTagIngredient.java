@@ -1,8 +1,5 @@
 package fr.frinn.custommachinery.common.util.ingredient;
 
-import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TagUtil;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.Registry;
@@ -11,15 +8,9 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ItemTagIngredient implements IIngredient<Item> {
-
-    private static final Codec<ItemTagIngredient> CODEC_FOR_DATAPACK = Codec.STRING.xmap(ItemTagIngredient::create, ItemTagIngredient::toString);
-    private static final Codec<ItemTagIngredient> CODEC_FOR_KUBEJS = TagKey.codec(Registry.ITEM_REGISTRY).fieldOf("tag").codec().xmap(ItemTagIngredient::new, ingredient -> ingredient.tag);
-    public static final Codec<ItemTagIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Item Tag Ingredient")
-            .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
 
     private final TagKey<Item> tag;
 

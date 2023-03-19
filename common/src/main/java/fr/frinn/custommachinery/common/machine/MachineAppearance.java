@@ -1,17 +1,17 @@
 package fr.frinn.custommachinery.common.machine;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.MachineShape;
+import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 public class MachineAppearance implements IMachineAppearance {
 
-    public static final MapCodec<Map<MachineAppearanceProperty<?>, Object>> CODEC = new MapCodec<>() {
+    public static final NamedMapCodec<Map<MachineAppearanceProperty<?>, Object>> CODEC = new NamedMapCodec<>() {
         @Override
         public <T> Stream<T> keys(DynamicOps<T> ops) {
             return Registration.APPEARANCE_PROPERTY_REGISTRY.getIds().stream().map(loc -> ops.createString(loc.toString()));
@@ -36,7 +36,7 @@ public class MachineAppearance implements IMachineAppearance {
 
             for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY) {
                 if(property.getId() != null && input.get(property.getId().toString()) != null) {
-                    DataResult<?> result = property.getCodec().parse(ops, input.get(property.getId().toString()));
+                    DataResult<?> result = property.getCodec().read(ops, input.get(property.getId().toString()));
                     if(result.result().isPresent())
                         properties.put(property, result.result().get());
                     else if(result.error().isPresent()) {
@@ -44,7 +44,7 @@ public class MachineAppearance implements IMachineAppearance {
                         properties.put(property, property.getDefaultValue());
                     }
                 } else if(property.getId() != null && input.get(property.getId().getPath()) != null) {
-                    DataResult<?> result = property.getCodec().parse(ops, input.get(property.getId().getPath()));
+                    DataResult<?> result = property.getCodec().read(ops, input.get(property.getId().getPath()));
                     if(result.result().isPresent())
                         properties.put(property, result.result().get());
                     else if(result.error().isPresent()) {
@@ -64,13 +64,13 @@ public class MachineAppearance implements IMachineAppearance {
         public <T> RecordBuilder<T> encode(Map<MachineAppearanceProperty<?>, Object> input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
             for(Map.Entry<MachineAppearanceProperty<?>, Object> entry : input.entrySet()) {
                 if(entry.getValue() != entry.getKey().getDefaultValue() && entry.getKey().getId() != null)
-                    prefix.add(entry.getKey().getId().toString(), ((Codec<Object>)entry.getKey().getCodec()).encodeStart(ops, entry.getValue()));
+                    prefix.add(entry.getKey().getId().toString(), ((NamedCodec<Object>)entry.getKey().getCodec()).encodeStart(ops, entry.getValue()));
             }
             return prefix;
         }
 
         @Override
-        public String toString() {
+        public String name() {
             return "Machine Appearance";
         }
     };

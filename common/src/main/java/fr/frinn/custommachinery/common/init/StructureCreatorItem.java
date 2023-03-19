@@ -6,11 +6,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -47,8 +47,8 @@ import java.util.stream.Collectors;
 
 public class StructureCreatorItem extends Item {
 
-    private static final Codec<List<List<String>>> PATTERN_CODEC = Codec.STRING.listOf().listOf();
-    private static final Codec<Map<Character, PartialBlockState>> KEYS_CODEC = Codec.unboundedMap(Codecs.CHARACTER_CODEC, Codecs.PARTIAL_BLOCK_STATE_CODEC);
+    private static final NamedCodec<List<List<String>>> PATTERN_CODEC = NamedCodec.STRING.listOf().listOf();
+    private static final NamedCodec<Map<Character, PartialBlockState>> KEYS_CODEC = NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, PartialBlockState.CODEC, "Map<Character, Block>");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public StructureCreatorItem(Item.Properties properties) {

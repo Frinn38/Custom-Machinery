@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.api.crafting;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -23,27 +23,27 @@ public class ProcessorType<T extends IProcessor> extends RegistryEntry<Processor
 
     /**
      * A factory method used to create new {@link ProcessorType}.
-     * @param codec A {@link Codec} used to parse the specified {@link IProcessorTemplate} from the machine json and send it to the client.
+     * @param codec A {@link NamedCodec} used to parse the specified {@link IProcessorTemplate} from the machine json and send it to the client.
      * @param <T> The {@link IProcessor} handled by this {@link ProcessorType}.
      */
-    public static <T extends IProcessor> ProcessorType<T> create(Codec<? extends IProcessorTemplate<T>> codec) {
+    public static <T extends IProcessor> ProcessorType<T> create(NamedCodec<? extends IProcessorTemplate<T>> codec) {
         return new ProcessorType<>(codec);
     }
 
-    private final Codec<? extends IProcessorTemplate<T>> codec;
+    private final NamedCodec<? extends IProcessorTemplate<T>> codec;
 
     /**
      * A constructor for {@link ProcessorType}.
-     * Use {@link ProcessorType#create(Codec)} instead.
+     * Use {@link ProcessorType#create(NamedCodec)} instead.
      */
-    private ProcessorType(Codec<? extends IProcessorTemplate<T>> codec) {
+    private ProcessorType(NamedCodec<? extends IProcessorTemplate<T>> codec) {
         this.codec = codec;
     }
 
     /**
-     * @return A {@link Codec} used to parse the {@link IProcessorTemplate} from the machine json and send it to the clients.
+     * @return A {@link NamedCodec} used to parse the {@link IProcessorTemplate} from the machine json and send it to the clients.
      */
-    public Codec<? extends IProcessorTemplate<T>> getCodec() {
+    public NamedCodec<? extends IProcessorTemplate<T>> getCodec() {
         return this.codec;
     }
 

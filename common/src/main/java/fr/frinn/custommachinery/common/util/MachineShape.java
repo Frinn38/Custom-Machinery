@@ -2,10 +2,11 @@ package fr.frinn.custommachinery.common.util;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.RecordBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,13 +21,13 @@ import java.util.function.Function;
 
 public class MachineShape implements Function<Direction, VoxelShape> {
 
-    private static final Codec<List<AABB>> BOX_CODEC = Codecs.list(Codecs.BOX_CODEC);
-    private static final Codec<Map<Direction, List<AABB>>> MAP_CODEC = Codec.unboundedMap(Direction.CODEC, BOX_CODEC);
+    private static final NamedCodec<List<AABB>> BOX_CODEC = Codecs.BOX_CODEC.listOf();
+    private static final NamedCodec<Map<Direction, List<AABB>>> MAP_CODEC = NamedCodec.unboundedMap(DefaultCodecs.DIRECTION, BOX_CODEC, "Map<Direction, List<Box>>");
 
-    public static final Codec<MachineShape> CODEC = new Codec<>() {
+    public static final NamedCodec<MachineShape> CODEC = new NamedCodec<>() {
         @Override
         public <T> DataResult<Pair<MachineShape, T>> decode(DynamicOps<T> ops, T input) {
-            DataResult<PartialBlockState> block = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(ops, input);
+            DataResult<PartialBlockState> block = PartialBlockState.CODEC.read(ops, input);
             if(block.result().isPresent()) {
                 BlockState state = block.result().get().getBlockState();
                 Map<Direction, VoxelShape> shapes = Maps.newEnumMap(Direction.class);
@@ -39,7 +40,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
                 }
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
-            DataResult<List<AABB>> boxes = BOX_CODEC.parse(ops, input);
+            DataResult<List<AABB>> boxes = BOX_CODEC.read(ops, input);
             if(boxes.result().isPresent()) {
                 VoxelShape shape = fromAABBList(boxes.result().get());
                 Map<Direction, VoxelShape> shapes = Maps.newEnumMap(Direction.class);
@@ -50,7 +51,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
                 }
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
-            DataResult<Map<Direction, List<AABB>>> map = MAP_CODEC.parse(ops, input);
+            DataResult<Map<Direction, List<AABB>>> map = MAP_CODEC.read(ops, input);
             if(map.result().isPresent()) {
                 Map<Direction, VoxelShape> shapes = Maps.newEnumMap(Direction.class);
                 map.result().get().forEach((side, box) -> {
@@ -62,7 +63,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
         }
 
         @Override
-        public <T> DataResult<T> encode(MachineShape input, DynamicOps<T> ops, T prefix) {
+        public <T> DataResult<T> encode(DynamicOps<T> ops, MachineShape input, T prefix) {
             RecordBuilder<T> builder = ops.mapBuilder();
             input.shapes.forEach((side, shape) -> {
                 builder.add(side.getName(), BOX_CODEC.encodeStart(ops, shape.toAabbs()));
@@ -71,7 +72,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
         }
 
         @Override
-        public String toString() {
+        public String name() {
             return "Machine Shape";
         }
     };

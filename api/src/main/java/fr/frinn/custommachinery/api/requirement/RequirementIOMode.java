@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.api.requirement;
 
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 
 import java.util.Locale;
 
@@ -18,6 +19,8 @@ public enum RequirementIOMode {
      * For requirements that produce something, usually at the end of the process.
      */
     OUTPUT;
+
+    public static final NamedCodec<RequirementIOMode> CODEC = NamedCodec.enumCodec(RequirementIOMode.class);
 
     public static RequirementIOMode value(String mode) {
         return valueOf(mode.toUpperCase(Locale.ENGLISH));

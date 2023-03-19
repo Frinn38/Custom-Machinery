@@ -1,11 +1,10 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
 
@@ -15,14 +14,14 @@ public class StatusGuiElement extends AbstractTexturedGuiElement {
     private static final ResourceLocation BASE_STATUS_RUNNING_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_status_running.png");
     private static final ResourceLocation BASE_STATUS_ERRORED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_status_errored.png");
 
-    public static final Codec<StatusGuiElement> CODEC = RecordCodecBuilder.create(statusGuiElement ->
+    public static final NamedCodec<StatusGuiElement> CODEC = NamedCodec.record(statusGuiElement ->
             makeBaseCodec(statusGuiElement).and(
                     statusGuiElement.group(
-                            CodecLogger.loggedOptional(ResourceLocation.CODEC,"idleTexture", BASE_STATUS_IDLE_TEXTURE).forGetter(StatusGuiElement::getIdleTexture),
-                            CodecLogger.loggedOptional(ResourceLocation.CODEC,"runningTexture", BASE_STATUS_RUNNING_TEXTURE).forGetter(StatusGuiElement::getRunningTexture),
-                            CodecLogger.loggedOptional(ResourceLocation.CODEC,"erroredTexture", BASE_STATUS_ERRORED_TEXTURE).forGetter(StatusGuiElement::getErroredTexture)
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("idleTexture", BASE_STATUS_IDLE_TEXTURE).forGetter(StatusGuiElement::getIdleTexture),
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("runningTexture", BASE_STATUS_RUNNING_TEXTURE).forGetter(StatusGuiElement::getRunningTexture),
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("erroredTexture", BASE_STATUS_ERRORED_TEXTURE).forGetter(StatusGuiElement::getErroredTexture)
                     )
-            ).apply(statusGuiElement, StatusGuiElement::new)
+            ).apply(statusGuiElement, StatusGuiElement::new), "Status gui element"
     );
 
     private final ResourceLocation idleTexture;

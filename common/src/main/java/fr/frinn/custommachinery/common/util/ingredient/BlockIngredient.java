@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.util.ingredient;
 
-import com.mojang.serialization.Codec;
-import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 
 import java.util.Collections;
@@ -11,7 +10,7 @@ public class BlockIngredient implements IIngredient<PartialBlockState> {
 
     public static final BlockIngredient AIR = new BlockIngredient(PartialBlockState.AIR);
     public static final BlockIngredient ANY = new BlockIngredient(PartialBlockState.ANY);
-    public static final Codec<BlockIngredient> CODEC = Codecs.PARTIAL_BLOCK_STATE_CODEC.xmap(BlockIngredient::new, ingredient -> ingredient.partialBlockState);
+    public static final NamedCodec<BlockIngredient> CODEC = PartialBlockState.CODEC.xmap(BlockIngredient::new, ingredient -> ingredient.partialBlockState, "Block ingredient");
 
     private final PartialBlockState partialBlockState;
 

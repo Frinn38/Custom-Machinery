@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 
 public class SpeedRequirement extends AbstractRequirement<AbstractMachineComponent> {
 
-    public static final Codec<SpeedRequirement> CODEC = Codec.unit(SpeedRequirement::new).stable();
+    public static final NamedCodec<SpeedRequirement> CODEC = NamedCodec.unit(SpeedRequirement::new, "Speed requirement");
 
     public SpeedRequirement() {
         super(RequirementIOMode.INPUT);

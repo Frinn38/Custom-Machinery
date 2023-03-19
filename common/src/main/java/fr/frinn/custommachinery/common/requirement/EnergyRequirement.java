@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -13,8 +12,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
@@ -25,16 +22,16 @@ import java.util.List;
 
 public class EnergyRequirement extends AbstractChanceableRequirement<EnergyMachineComponent> implements IJEIIngredientRequirement<Energy> {
 
-    public static final Codec<EnergyRequirement> CODEC = RecordCodecBuilder.create(energyRequirementInstance ->
+    public static final NamedCodec<EnergyRequirement> CODEC = NamedCodec.record(energyRequirementInstance ->
             energyRequirementInstance.group(
-                    Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance)
+                    RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
+                    NamedCodec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance)
             ).apply(energyRequirementInstance, ((mode, amount, chance) -> {
                     EnergyRequirement requirement = new EnergyRequirement(mode, amount);
                     requirement.setChance(chance);
                     return requirement;
-            }))
+            })), "Energy requirement"
     );
 
     private final int amount;

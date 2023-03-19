@@ -1,9 +1,10 @@
 package fr.frinn.custommachinery.common.util;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
+import fr.frinn.custommachinery.impl.codec.NamedRecordCodec;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -15,23 +16,24 @@ public class CMSoundType extends SoundType {
 
     public static final CMSoundType DEFAULT = new CMSoundType(new PartialBlockState(Blocks.IRON_BLOCK));
 
-    public static final Codec<CMSoundType> FROM_STATE = Codecs.PARTIAL_BLOCK_STATE_CODEC.xmap(CMSoundType::new, type -> type.defaultBlock);
+    public static final NamedCodec<CMSoundType> FROM_STATE = PartialBlockState.CODEC.xmap(CMSoundType::new, type -> type.defaultBlock, "Sound type");
 
-    public static final Codec<CMSoundType> FROM_PARTS = RecordCodecBuilder.create(cmSoundTypeInstance ->
+    public static final NamedMapCodec<CMSoundType> FROM_PARTS = NamedCodec.record(cmSoundTypeInstance ->
             cmSoundTypeInstance.group(
-                    CodecLogger.loggedOptional(Codec.FLOAT, "volume", 1.0F).forGetter(SoundType::getVolume),
-                    CodecLogger.loggedOptional(Codec.FLOAT, "pitch", 1.0F).forGetter(SoundType::getPitch),
+                    NamedCodec.FLOAT.optionalFieldOf("volume", 1.0F).forGetter(SoundType::getVolume),
+                    NamedCodec.FLOAT.optionalFieldOf("pitch", 1.0F).forGetter(SoundType::getPitch),
                     partCodec("break", SoundType::getBreakSound),
                     partCodec("step", SoundType::getStepSound),
                     partCodec("place", SoundType::getPlaceSound),
                     partCodec("hit", SoundType::getHitSound),
                     partCodec("fall", SoundType::getFallSound)
-            ).apply(cmSoundTypeInstance, CMSoundType::new)
+            ).apply(cmSoundTypeInstance, CMSoundType::new), "Sound type"
     );
 
-    public static final Codec<CMSoundType> CODEC = Codecs.either(FROM_STATE, FROM_PARTS, "Interaction Sounds").xmap(
+    public static final NamedCodec<CMSoundType> CODEC = NamedCodec.either(FROM_STATE, FROM_PARTS, "Interaction sounds").xmap(
             either -> either.map(Function.identity(), Function.identity()),
-            Either::right
+            Either::right,
+            "Interaction sounds"
     );
 
     private final PartialBlockState defaultBlock;
@@ -46,10 +48,11 @@ public class CMSoundType extends SoundType {
         this.defaultBlock = state;
     }
 
-    private static RecordCodecBuilder<CMSoundType, SoundEvent> partCodec(String field, Function<SoundType, SoundEvent> typeToSound) {
-        return CodecLogger.loggedOptional(Codecs.either(Codecs.PARTIAL_BLOCK_STATE_CODEC, SoundEvent.CODEC, StringUtils.capitalize(field) + " Sound").xmap(
+    private static NamedRecordCodec<CMSoundType, SoundEvent> partCodec(String field, Function<SoundType, SoundEvent> typeToSound) {
+        return NamedCodec.either(PartialBlockState.CODEC, DefaultCodecs.SOUND_EVENT, StringUtils.capitalize(field) + " Sound").xmap(
                 either -> either.map(state -> typeToSound.apply(state.getBlockState().getSoundType()), Function.identity()),
-                Either::right
-        ), field, typeToSound.apply(DEFAULT)).forGetter(typeToSound::apply);
+                Either::right,
+                StringUtils.capitalize(field) + " Sound"
+        ).optionalFieldOf(field, typeToSound.apply(DEFAULT)).forGetter(typeToSound::apply);
     }
 }

@@ -1,13 +1,12 @@
 package fr.frinn.custommachinery.api.requirement;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 
 /**
@@ -26,8 +25,7 @@ public interface IRequirement<T extends IMachineComponent> {
     /**
      * A dispatch codec, used by the {@link IMachineRecipe} main codec to parse all requirements from json using the "type" property of the requirement.
      */
-    Codec<IRequirement<?>> CODEC = CodecLogger.loggedDispatch(
-            RegistrarCodec.REQUIREMENT,
+    NamedCodec<IRequirement<?>> CODEC = RegistrarCodec.REQUIREMENT.dispatch(
             IRequirement::getType,
             RequirementType::getCodec,
             "Requirement"

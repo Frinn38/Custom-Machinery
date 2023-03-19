@@ -1,11 +1,10 @@
 package fr.frinn.custommachinery.impl.guielement;
 
 import com.mojang.datafixers.Products;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.NamedRecordCodec;
 
 public abstract class AbstractGuiElement implements IGuiElement {
 
@@ -53,13 +52,13 @@ public abstract class AbstractGuiElement implements IGuiElement {
 
     }
 
-    public static <T extends AbstractGuiElement> Products.P5<RecordCodecBuilder.Mu<T>, Integer, Integer, Integer, Integer, Integer> makeBaseCodec(RecordCodecBuilder.Instance<T> guiElement) {
+    public static <T extends AbstractGuiElement> Products.P5<NamedRecordCodec.Mu<T>, Integer, Integer, Integer, Integer, Integer> makeBaseCodec(NamedRecordCodec.Instance<T> guiElement) {
         return guiElement.group(
-                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"width", -1).forGetter(AbstractGuiElement::getWidth),
-                CodecLogger.loggedOptional(Codec.intRange(-1, Integer.MAX_VALUE),"height", -1).forGetter(AbstractGuiElement::getHeight),
-                CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority)
+                NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
+                NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
+                NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
+                NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
+                NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority)
         );
     }
 }

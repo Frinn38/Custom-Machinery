@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -13,8 +12,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.EntityMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedRequirement;
@@ -31,22 +28,22 @@ import java.util.function.Predicate;
 
 public class EntityRequirement extends AbstractDelayedChanceableRequirement<EntityMachineComponent> implements ITickableRequirement<EntityMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<EntityRequirement> CODEC = RecordCodecBuilder.create(entityRequirementInstance ->
+    public static final NamedCodec<EntityRequirement> CODEC = NamedCodec.record(entityRequirementInstance ->
             entityRequirementInstance.group(
-                    Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
-                    Codecs.ENTITY_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
-                    Codec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    Codec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    CodecLogger.loggedOptional(Codecs.list(RegistrarCodec.ENTITY),"filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
-                    CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(requirement -> requirement.whitelist),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "delay", 0.0D).forGetter(AbstractDelayedRequirement::getDelay),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
+                    RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
+                    ACTION.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
+                    NamedCodec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    NamedCodec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
+                    RegistrarCodec.ENTITY.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("delay", 0.0D).forGetter(AbstractDelayedRequirement::getDelay),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(AbstractDelayedChanceableRequirement::getChance)
             ).apply(entityRequirementInstance, (mode, action, amount, radius, filter, whitelist, delay, chance) -> {
                 EntityRequirement requirement = new EntityRequirement(mode, action, amount, radius, filter, whitelist);
                 requirement.setDelay(delay);
                 requirement.setChance(chance);
                 return requirement;
-            })
+            }), "Entity requirement"
     );
 
     private final ACTION action;
@@ -193,6 +190,8 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
         CHECK_HEALTH,
         CONSUME_HEALTH,
         KILL;
+
+        public static final NamedCodec<ACTION> CODEC = NamedCodec.enumCodec(ACTION.class);
 
         public static ACTION value(String mode) {
             return valueOf(mode.toUpperCase(Locale.ENGLISH));

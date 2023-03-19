@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -13,9 +12,8 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.nbt.CompoundTag;
@@ -30,20 +28,20 @@ import java.util.Optional;
 
 public class DurabilityRequirement extends AbstractChanceableRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
 
-    public static final Codec<DurabilityRequirement> CODEC = RecordCodecBuilder.create(durabilityRequirementInstance ->
+    public static final NamedCodec<DurabilityRequirement> CODEC = NamedCodec.record(durabilityRequirementInstance ->
             durabilityRequirementInstance.group(
-                    Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
+                    RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
-                    Codec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC,"nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
-                    CodecLogger.loggedOptional(Codec.BOOL, "break", false).forGetter(requirement -> requirement.canBreak),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D),"chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
-                    CodecLogger.loggedOptional(Codec.STRING,"slot", "").forGetter(requirement -> requirement.slot)
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    DefaultCodecs.COMPOUND_TAG.optionalFieldOf("nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
+                    NamedCodec.BOOL.optionalFieldOf("break", false).forGetter(requirement -> requirement.canBreak),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
+                    NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
             ).apply(durabilityRequirementInstance, (mode, item, amount, nbt, canBreak, chance, slot) -> {
                     DurabilityRequirement requirement = new DurabilityRequirement(mode, item, amount, nbt.orElse(null), canBreak, slot);
                     requirement.setChance(chance);
                     return requirement;
-            })
+            }), "Durability requirement"
     );
 
     private final IIngredient<Item> item;

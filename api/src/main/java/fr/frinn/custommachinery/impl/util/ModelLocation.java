@@ -1,20 +1,20 @@
 package fr.frinn.custommachinery.impl.util;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public class ModelLocation {
 
-    public static final Codec<ModelLocation> CODEC = Codec.STRING.comapFlatMap(s -> {
+    public static final NamedCodec<ModelLocation> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         try {
             return DataResult.success(ModelLocation.of(s));
         } catch (ResourceLocationException e) {
             return DataResult.error(e.getMessage());
         }
-    }, ModelLocation::toString);
+    }, ModelLocation::toString, "Model location");
 
     private final ResourceLocation loc;
     @Nullable

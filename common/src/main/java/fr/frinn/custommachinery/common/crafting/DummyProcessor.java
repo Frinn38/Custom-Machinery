@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.crafting;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
@@ -66,7 +66,7 @@ public class DummyProcessor implements IProcessor {
 
     public static class Template implements IProcessorTemplate<DummyProcessor> {
 
-        public static final Codec<Template> CODEC = Codec.unit(Template::new);
+        public static final NamedCodec<Template> CODEC = NamedCodec.unit(Template::new, "Dummy processor");
 
         @Override
         public ProcessorType<DummyProcessor> getType() {

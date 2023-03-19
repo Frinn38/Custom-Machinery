@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -11,7 +10,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.ChatFormatting;
@@ -22,12 +20,12 @@ import net.minecraft.world.item.Items;
 
 public class PositionRequirement extends AbstractRequirement<PositionMachineComponent> implements IDisplayInfoRequirement {
 
-    public static final Codec<PositionRequirement> CODEC = RecordCodecBuilder.create(positionRequirementInstance ->
+    public static final NamedCodec<PositionRequirement> CODEC = NamedCodec.record(positionRequirementInstance ->
         positionRequirementInstance.group(
-                CodecLogger.loggedOptional(IntRange.CODEC,"x", IntRange.ALL).forGetter(requirement -> requirement.x),
-                CodecLogger.loggedOptional(IntRange.CODEC,"y", IntRange.ALL).forGetter(requirement -> requirement.y),
-                CodecLogger.loggedOptional(IntRange.CODEC,"z", IntRange.ALL).forGetter(requirement -> requirement.z)
-        ).apply(positionRequirementInstance, PositionRequirement::new)
+                IntRange.CODEC.optionalFieldOf("x", IntRange.ALL).forGetter(requirement -> requirement.x),
+                IntRange.CODEC.optionalFieldOf("y", IntRange.ALL).forGetter(requirement -> requirement.y),
+                IntRange.CODEC.optionalFieldOf("z", IntRange.ALL).forGetter(requirement -> requirement.z)
+        ).apply(positionRequirementInstance, PositionRequirement::new), "Position requirement"
     );
 
     private final IntRange x;

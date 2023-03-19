@@ -1,40 +1,49 @@
 package fr.frinn.custommachinery.impl.codec;
 
 import com.google.common.collect.Maps;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class EnumMapCodec<K extends Enum<K>, V> extends MapCodec<Map<K, V>> {
+public class EnumMapCodec<K extends Enum<K>, V> extends NamedMapCodec<Map<K, V>> {
 
-    public static <K extends Enum<K>, V> EnumMapCodec<K, V> of(Class<K> keyEnum, Codec<K> keyCodec, Codec<V> valueCodec) {
-        return new EnumMapCodec<>(keyEnum, keyCodec, valueCodec, null);
+    public static <K extends Enum<K>, V> EnumMapCodec<K, V> of(Class<K> keyEnum, NamedCodec<V> valueCodec) {
+        return of(keyEnum, valueCodec, null, "EnumMap<" + keyEnum.getSimpleName() + ", " + valueCodec.name() + ">");
     }
 
-    public static <K extends Enum<K>, V> EnumMapCodec<K, V> of(Class<K> keyEnum, Codec<K> keyCodec, Codec<V> valueCodec, V defaultValue) {
-        return new EnumMapCodec<>(keyEnum, keyCodec, valueCodec, defaultValue);
+    public static <K extends Enum<K>, V> EnumMapCodec<K, V> of(Class<K> keyEnum, NamedCodec<V> valueCodec, @Nullable V defaultValue) {
+        return of(keyEnum, valueCodec, defaultValue, "EnumMap<" + keyEnum.getSimpleName() + ", " + valueCodec.name() + ">");
+    }
+
+    public static <K extends Enum<K>, V> EnumMapCodec<K, V> of(Class<K> keyEnum, NamedCodec<V> valueCodec, String name) {
+        return of(keyEnum, valueCodec, null, name);
+    }
+
+    public static <K extends Enum<K>, V> EnumMapCodec<K, V> of(Class<K> keyEnum, NamedCodec<V> valueCodec, @Nullable V defaultValue, String name) {
+        return new EnumMapCodec<>(keyEnum, valueCodec, defaultValue, name);
     }
 
     private final Class<K> keyEnum;
-    private final Codec<K> keyCodec;
-    private final Codec<V> valueCodec;
+    private final NamedCodec<K> keyCodec;
+    private final NamedCodec<V> valueCodec;
     @Nullable
     private final V defaultValue;
+    private final String name;
 
-    public EnumMapCodec(Class<K> keyEnum, Codec<K> keyCodec, Codec<V> valueCodec, @Nullable V defaultValue) {
+    private EnumMapCodec(Class<K> keyEnum, NamedCodec<V> valueCodec, @Nullable V defaultValue, String name) {
         this.keyEnum = keyEnum;
-        this.keyCodec = keyCodec;
+        this.keyCodec = EnumCodec.of(keyEnum);
         this.valueCodec = valueCodec;
         this.defaultValue = defaultValue;
+        this.name = name;
     }
 
     @Override
@@ -48,7 +57,7 @@ public class EnumMapCodec<K extends Enum<K>, V> extends MapCodec<Map<K, V>> {
 
         V defaultValue = this.defaultValue;
         if(input.get("default") != null) {
-            DataResult<V> defaultResult = this.valueCodec.parse(ops, input.get("default"));
+            DataResult<V> defaultResult = this.valueCodec.read(ops, input.get("default"));
             if(defaultResult.result().isPresent())
                 defaultValue = defaultResult.result().get();
             else if(defaultResult.error().isPresent())
@@ -56,10 +65,10 @@ public class EnumMapCodec<K extends Enum<K>, V> extends MapCodec<Map<K, V>> {
         }
 
         input.entries().forEach(entry -> {
-            DataResult<K> keyResult = this.keyCodec.parse(ops, entry.getFirst());
+            DataResult<K> keyResult = this.keyCodec.read(ops, entry.getFirst());
             if(keyResult.result().isPresent()) {
                 K key = keyResult.result().get();
-                DataResult<V> valueResult = this.valueCodec.parse(ops, entry.getSecond());
+                DataResult<V> valueResult = this.valueCodec.read(ops, entry.getSecond());
                 if(valueResult.result().isPresent())
                     map.put(key, valueResult.result().get());
                 else if(valueResult.error().isPresent())
@@ -82,7 +91,12 @@ public class EnumMapCodec<K extends Enum<K>, V> extends MapCodec<Map<K, V>> {
     }
 
     @Override
+    public String name() {
+        return this.name;
+    }
+
+    @Override
     public String toString() {
-        return "EnumMap[" + this.keyCodec.toString() + ", " + this.valueCodec.toString() + "]";
+        return this.name;
     }
 }

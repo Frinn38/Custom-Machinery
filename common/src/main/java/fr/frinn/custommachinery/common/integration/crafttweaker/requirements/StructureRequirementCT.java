@@ -4,8 +4,8 @@ import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
+import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
@@ -30,7 +30,7 @@ public interface StructureRequirementCT<T> extends RecipeCTBuilder<T> {
                 return error("Invalid structure key: {}\nMust be a single character which is not 'm'", entry.getKey());
 
             char keyChar = entry.getKey().charAt(0);
-            DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
+            DataResult<IIngredient<PartialBlockState>> result = IIngredient.BLOCK.read(JsonOps.INSTANCE, new JsonPrimitive(entry.getValue()));
             if(result.error().isPresent() || result.result().isEmpty())
                 return error("Invalid structure block: {}\n{}", entry.getValue(), result.error().get().message());
 

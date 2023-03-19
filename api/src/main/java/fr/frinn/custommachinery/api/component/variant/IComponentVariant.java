@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.api.component.variant;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.resources.ResourceLocation;
 
@@ -22,8 +22,8 @@ public interface IComponentVariant {
      * The MachineComponentType must be passed as a supplier (RegistryObject is fine to use) because the codec is usually loaded statically before registry events are fired.
      * The class is used to cast the resulting variant to a specific class, like ItemComponentVariant.
      */
-    static <C extends IMachineComponent> MapCodec<IComponentVariant> codec(Supplier<MachineComponentType<C>> type){
-        return RegistrarCodec.CM_LOC_CODEC.dispatchMap("variant", IComponentVariant::getId, id -> ICustomMachineryAPI.INSTANCE.getVariantCodec(type.get(), id));
+    static <C extends IMachineComponent> NamedMapCodec<IComponentVariant> codec(Supplier<MachineComponentType<C>> type){
+        return RegistrarCodec.CM_LOC_CODEC.dispatch("variant", IComponentVariant::getId, id -> ICustomMachineryAPI.INSTANCE.getVariantCodec(type.get(), id), "Machine component variant");
     }
 
     /**
@@ -34,5 +34,5 @@ public interface IComponentVariant {
     /**
      * @return A codec used to parse this variant.
      */
-    Codec<? extends IComponentVariant> getCodec();
+    NamedCodec<? extends IComponentVariant> getCodec();
 }

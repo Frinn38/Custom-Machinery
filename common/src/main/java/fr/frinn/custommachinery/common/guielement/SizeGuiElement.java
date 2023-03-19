@@ -1,18 +1,17 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 
 public class SizeGuiElement extends AbstractGuiElement {
 
-    public static final Codec<SizeGuiElement> CODEC = RecordCodecBuilder.create(sizeGuiElement ->
+    public static final NamedCodec<SizeGuiElement> CODEC = NamedCodec.record(sizeGuiElement ->
             sizeGuiElement.group(
-                    Codec.intRange(1, 3840).optionalFieldOf("width", 256).forGetter(SizeGuiElement::getWidth),
-                    Codec.intRange(1, 2160).optionalFieldOf("height", 192).forGetter(SizeGuiElement::getHeight)
-            ).apply(sizeGuiElement, SizeGuiElement::new)
+                    NamedCodec.intRange(1, 3840).optionalFieldOf("width", 256).forGetter(SizeGuiElement::getWidth),
+                    NamedCodec.intRange(1, 2160).optionalFieldOf("height", 192).forGetter(SizeGuiElement::getHeight)
+            ).apply(sizeGuiElement, SizeGuiElement::new), "Size gui element"
     );
 
     private final int width;

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api.component;
 
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 
 import java.util.Locale;
@@ -11,6 +12,7 @@ public enum ComponentIOMode {
     BOTH(true, true, SideConfig.Template.DEFAULT_ALL_BOTH),
     NONE(false, false, SideConfig.Template.DEFAULT_ALL_NONE);
 
+    public static final NamedCodec<ComponentIOMode> CODEC = NamedCodec.enumCodec(ComponentIOMode.class);
     private final boolean isInput;
     private final boolean isOutput;
     private final SideConfig.Template baseConfig;

@@ -1,8 +1,7 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
@@ -15,10 +14,10 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
 
     private static final ResourceLocation BASE_FLUID_STORAGE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
 
-    public static final Codec<FluidGuiElement> CODEC = RecordCodecBuilder.create(fluidGuiElement ->
+    public static final NamedCodec<FluidGuiElement> CODEC = NamedCodec.record(fluidGuiElement ->
             makeBaseTexturedCodec(fluidGuiElement, BASE_FLUID_STORAGE_TEXTURE).and(
-                    Codec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID)
-            ).apply(fluidGuiElement, FluidGuiElement::new)
+                    NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID)
+            ).apply(fluidGuiElement, FluidGuiElement::new), "Fluid gui element"
     );
 
     private final String id;

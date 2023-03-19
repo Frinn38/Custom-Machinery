@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
@@ -38,7 +39,7 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
      * when a machine tile is created.
      * @param codec A {@link Codec} used to deserialize the {@link IMachineComponentTemplate} from the machine json.
      */
-    public static <T extends IMachineComponent> MachineComponentType<T> create(Codec<? extends IMachineComponentTemplate<T>> codec) {
+    public static <T extends IMachineComponent> MachineComponentType<T> create(NamedCodec<? extends IMachineComponentTemplate<T>> codec) {
         return new MachineComponentType<T>(codec);
     }
 
@@ -57,11 +58,11 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
      * @param codec The {@link Codec} used to deserialize the {@link IMachineComponent} in the machine json, if specified by the user.
      * @param defaultComponentBuilder The factory method used if the user didn't specify the component in the machine json.
      */
-    public static <T extends IMachineComponent> MachineComponentType<T> create(Codec<? extends IMachineComponentTemplate<T>> codec, Function<IMachineComponentManager, T> defaultComponentBuilder) {
+    public static <T extends IMachineComponent> MachineComponentType<T> create(NamedCodec<? extends IMachineComponentTemplate<T>> codec, Function<IMachineComponentManager, T> defaultComponentBuilder) {
         return new MachineComponentType<T>(codec, defaultComponentBuilder);
     }
 
-    private Codec<? extends IMachineComponentTemplate<T>> codec;
+    private NamedCodec<? extends IMachineComponentTemplate<T>> codec;
     private boolean isSingle = true;
     private BiFunction<IMachineComponentManager, List<T>, IComponentHandler<T>> handlerBuilder;
     private boolean defaultComponent = false;
@@ -70,9 +71,9 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
 
     /**
      * A constructor for {@link MachineComponentType}.
-     * Use {@link MachineComponentType#create(Codec)} instead.
+     * Use {@link MachineComponentType#create(NamedCodec)} instead.
      */
-    private MachineComponentType(Codec<? extends IMachineComponentTemplate<T>> codec) {
+    private MachineComponentType(NamedCodec<? extends IMachineComponentTemplate<T>> codec) {
         this.codec = codec;
     }
 
@@ -87,9 +88,9 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
 
     /**
      * A constructor for {@link MachineComponentType}.
-     * Use {@link MachineComponentType#create(Codec, Function)} instead.
+     * Use {@link MachineComponentType#create(NamedCodec, Function)} instead.
      */
-    private MachineComponentType(Codec<? extends IMachineComponentTemplate<T>> codec, Function<IMachineComponentManager, T> defaultComponentBuilder) {
+    private MachineComponentType(NamedCodec<? extends IMachineComponentTemplate<T>> codec, Function<IMachineComponentManager, T> defaultComponentBuilder) {
         this.codec = codec;
         this.defaultComponent = true;
         this.defaultComponentBuilder = defaultComponentBuilder;
@@ -110,9 +111,9 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
     }
 
     /**
-     * @return The {@link Codec} passed in the constructor. Used by the {@link IMachineComponent} dispatch codec to deserialize an {@link IMachineComponentTemplate} from the machine json.
+     * @return The {@link NamedCodec} passed in the constructor. Used by the {@link IMachineComponent} dispatch codec to deserialize an {@link IMachineComponentTemplate} from the machine json.
      */
-    public Codec<? extends IMachineComponentTemplate<T>> getCodec() {
+    public NamedCodec<? extends IMachineComponentTemplate<T>> getCodec() {
         if(this.codec != null)
             return this.codec;
         else throw new RuntimeException("Error while trying to serialize or deserialize Machine Component template: " + getId() + ", Codec not present !");

@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.component;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -17,10 +16,8 @@ import fr.frinn.custommachinery.common.component.variant.item.DefaultItemCompone
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
@@ -184,20 +181,20 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
 
-        public static final Codec<ItemMachineComponent.Template> CODEC = RecordCodecBuilder.create(itemMachineComponentTemplate ->
+        public static final NamedCodec<ItemMachineComponent.Template> CODEC = NamedCodec.record(itemMachineComponentTemplate ->
                 itemMachineComponentTemplate.group(
-                        Codec.STRING.fieldOf("id").forGetter(template -> template.id),
-                        CodecLogger.loggedOptional(Codecs.COMPONENT_MODE_CODEC,"mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                        CodecLogger.loggedOptional(Codec.INT,"capacity", 64).forGetter(template -> template.capacity),
-                        CodecLogger.loggedOptional(Codec.INT, "max_input").forGetter(template -> Optional.of(template.maxInput)),
-                        CodecLogger.loggedOptional(Codec.INT, "max_output").forGetter(template -> Optional.of(template.maxOutput)),
-                        CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM),"filter", Collections.emptyList()).forGetter(template -> template.filter),
-                        CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
+                        NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
+                        ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
+                        NamedCodec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
+                        NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> Optional.of(template.maxInput)),
+                        NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> Optional.of(template.maxOutput)),
+                        IIngredient.ITEM.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
+                        NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT).orElse(DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant),
-                        CodecLogger.loggedOptional(SideConfig.Template.CODEC, "config").forGetter(template -> Optional.of(template.config))
+                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config))
                 ).apply(itemMachineComponentTemplate, (id, mode, capacity, maxInput, maxOutput, filter, whitelist, variant, config) ->
                         new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, (ItemComponentVariant) variant, config.orElse(mode.getBaseConfig()))
-                )
+                ), "Item machine component"
         );
 
         private final ComponentIOMode mode;

@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.impl.util;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,13 +11,13 @@ import java.util.WeakHashMap;
 
 public class IntRange extends Range<Integer> {
 
-    public static final Codec<IntRange> CODEC = Codec.STRING.comapFlatMap(s -> {
+    public static final NamedCodec<IntRange> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         try {
             return DataResult.success(createFromString(s));
         } catch (IllegalArgumentException e) {
             return DataResult.error(e.getMessage());
         }
-    }, IntRange::toString);
+    }, IntRange::toString, "Integer range");
 
     private static final Map<String, IntRange> CACHE_SPEC = Collections.synchronizedMap(new WeakHashMap<>());
     private static final Restriction<Integer> EVERYTHING = new Restriction<>(null, false, null, false);

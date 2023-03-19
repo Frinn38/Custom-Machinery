@@ -1,11 +1,9 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -14,15 +12,15 @@ import java.util.Locale;
 
 public class TextGuiElement extends AbstractGuiElement {
 
-    public static final Codec<TextGuiElement> CODEC = RecordCodecBuilder.create(textGuiElementCodec ->
+    public static final NamedCodec<TextGuiElement> CODEC = NamedCodec.record(textGuiElementCodec ->
             textGuiElementCodec.group(
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    Codec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    Codec.STRING.fieldOf("text").forGetter(element -> element.text.getKey()),
-                    CodecLogger.loggedOptional(Codec.INT,"priority", 0).forGetter(AbstractGuiElement::getPriority),
-                    CodecLogger.loggedOptional(Codecs.ALIGNMENT_CODEC,"alignment",Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
-                    CodecLogger.loggedOptional(Codec.INT,"color", 0).forGetter(TextGuiElement::getColor)
-            ).apply(textGuiElementCodec, TextGuiElement::new)
+                    NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
+                    NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
+                    NamedCodec.STRING.fieldOf("text").forGetter(element -> element.text.getKey()),
+                    NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
+                    Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment", Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
+                    NamedCodec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor)
+            ).apply(textGuiElementCodec, TextGuiElement::new), "Text gui element"
     );
 
     private final TranslatableComponent text;

@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -19,10 +18,10 @@ import net.minecraft.world.item.Items;
 
 public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComponent> implements ITickableRequirement<RedstoneMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<RedstoneRequirement> CODEC = RecordCodecBuilder.create(redstoneRequirementInstance ->
+    public static final NamedCodec<RedstoneRequirement> CODEC = NamedCodec.record(redstoneRequirementInstance ->
             redstoneRequirementInstance.group(
                     IntRange.CODEC.fieldOf("power").forGetter(requirement -> requirement.powerLevel)
-            ).apply(redstoneRequirementInstance, RedstoneRequirement::new)
+            ).apply(redstoneRequirementInstance, RedstoneRequirement::new), "Redstone requirement"
     );
 
     private final IntRange powerLevel;

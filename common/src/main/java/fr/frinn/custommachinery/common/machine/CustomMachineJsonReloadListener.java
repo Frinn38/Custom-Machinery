@@ -46,7 +46,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                 return;
             }
 
-            DataResult<CustomMachine> result = CustomMachine.CODEC.parse(JsonOps.INSTANCE, json);
+            DataResult<CustomMachine> result = CustomMachine.CODEC.read(JsonOps.INSTANCE, json);
             if(result.result().isPresent()) {
                 CustomMachine machine = result.result().get();
                 if(packName.equals(MAIN_PACKNAME))

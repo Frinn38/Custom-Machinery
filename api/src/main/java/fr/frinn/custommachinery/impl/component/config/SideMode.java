@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.impl.component.config;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -14,7 +14,7 @@ public enum SideMode {
     BOTH(true, true, new TranslatableComponent("custommachinery.side.both").withStyle(ChatFormatting.LIGHT_PURPLE), FastColor.ARGB32.color(255, 255, 85, 255)),
     NONE(false, false, new TranslatableComponent("custommachinery.side.none").withStyle(ChatFormatting.GRAY), FastColor.ARGB32.color(0, 255, 255, 255));
 
-    public static final Codec<SideMode> CODEC = EnumCodec.of(SideMode.class);
+    public static final NamedCodec<SideMode> CODEC = EnumCodec.of(SideMode.class);
 
     private final boolean isInput;
     private final boolean isOutput;

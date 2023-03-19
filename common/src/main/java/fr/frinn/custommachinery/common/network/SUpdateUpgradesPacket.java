@@ -30,7 +30,7 @@ public class SUpdateUpgradesPacket extends BaseS2CMessage {
         buf.writeVarInt(this.upgrades.size());
         this.upgrades.forEach(upgrade -> {
             try {
-                buf.writeWithCodec(MachineUpgrade.CODEC, upgrade);
+                MachineUpgrade.CODEC.toNetwork(upgrade, buf);
             } catch (EncoderException e) {
                 e.printStackTrace();
             }
@@ -42,7 +42,7 @@ public class SUpdateUpgradesPacket extends BaseS2CMessage {
         int size = buf.readVarInt();
         for(int i = 0; i < size; i++) {
             try {
-                MachineUpgrade upgrade = buf.readWithCodec(MachineUpgrade.CODEC);
+                MachineUpgrade upgrade = MachineUpgrade.CODEC.fromNetwork(buf);
                 upgrades.add(upgrade);
             } catch (EncoderException e) {
                 e.printStackTrace();

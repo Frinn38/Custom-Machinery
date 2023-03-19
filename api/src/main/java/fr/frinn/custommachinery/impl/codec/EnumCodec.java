@@ -1,22 +1,28 @@
 package fr.frinn.custommachinery.impl.codec;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 
 import java.util.Locale;
 
-public class EnumCodec<E extends Enum<E>> implements Codec<E> {
+public class EnumCodec<E extends Enum<E>> implements NamedCodec<E> {
 
     private final Class<E> enumClass;
+    private final String name;
 
     public static <E extends Enum<E>> EnumCodec<E> of(Class<E> enumClass) {
-        return new EnumCodec<>(enumClass);
+        return of(enumClass, enumClass.getSimpleName());
     }
 
-    private EnumCodec(Class<E> enumClass) {
+    public static <E extends Enum<E>> EnumCodec<E> of(Class<E> enumClass, String name) {
+        return new EnumCodec<>(enumClass, name);
+    }
+
+    private EnumCodec(Class<E> enumClass, String name) {
         this.enumClass = enumClass;
+        this.name = name;
     }
 
     @Override
@@ -31,13 +37,18 @@ public class EnumCodec<E extends Enum<E>> implements Codec<E> {
     }
 
     @Override
-    public <T> DataResult<T> encode(E input, DynamicOps<T> ops, T prefix) {
+    public <T> DataResult<T> encode(DynamicOps<T> ops, E input, T prefix) {
         T string = ops.createString(input.toString());
         return ops.mergeToPrimitive(prefix, string);
     }
 
     @Override
+    public String name() {
+        return this.name;
+    }
+
+    @Override
     public String toString() {
-        return this.enumClass.getSimpleName();
+        return this.name;
     }
 }

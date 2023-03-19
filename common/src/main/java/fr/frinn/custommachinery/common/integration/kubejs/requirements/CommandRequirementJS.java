@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
-import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.requirement.CommandRequirement;
 
 public interface CommandRequirementJS extends RecipeJSBuilder {

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.component;
 
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
@@ -55,6 +56,8 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
         RAIN,
         SNOW,
         THUNDER;
+
+        public static final NamedCodec<WeatherType> CODEC = NamedCodec.enumCodec(WeatherType.class);
 
         public static WeatherType value(String value) {
             return valueOf(value.toUpperCase(Locale.ENGLISH));

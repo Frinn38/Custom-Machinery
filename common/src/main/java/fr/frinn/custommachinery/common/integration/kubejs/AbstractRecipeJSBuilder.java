@@ -2,13 +2,13 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ListJS;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
@@ -27,13 +27,13 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     private static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
 
     private final ResourceLocation id;
-    private final Codec<T> builderCodec;
+    private final NamedCodec<T> builderCodec;
     private T builder;
     private ResourceLocation machine;
     private IRequirement<?> lastRequirement;
     private boolean jei = false;
 
-    public AbstractRecipeJSBuilder(ResourceLocation id, Codec<T> builderCodec) {
+    public AbstractRecipeJSBuilder(ResourceLocation id, NamedCodec<T> builderCodec) {
         this.id = id;
         this.builderCodec = builderCodec;
     }
@@ -62,7 +62,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
 
     @Override
     public void deserialize() {
-        DataResult<T> result = this.builderCodec.parse(JsonOps.INSTANCE, this.json);
+        DataResult<T> result = this.builderCodec.read(JsonOps.INSTANCE, this.json);
         this.builder = result.resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new RecipeExceptionJS("Invalid Custom Machine Recipe"));
     }
 

@@ -1,8 +1,7 @@
 package fr.frinn.custommachinery.common.component;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -16,10 +15,8 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
@@ -179,13 +176,15 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     public static class Template implements IMachineComponentTemplate<EnergyMachineComponent> {
 
-        public static final Codec<Template> CODEC = RecordCodecBuilder.create(templateInstance ->
+        public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
-                        Codecs.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
-                        CodecLogger.loggedOptional(Codecs.longRange(0, Long.MAX_VALUE),"maxInput").forGetter(template -> Optional.of(template.maxInput)),
-                        CodecLogger.loggedOptional(Codecs.longRange(0, Long.MAX_VALUE),"maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
-                        CodecLogger.loggedOptional(SideConfig.Template.CODEC, "config", SideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
-                ).apply(templateInstance, (capacity, maxInput, maxOutput, config) -> new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), config))
+                        NamedCodec.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> Optional.of(template.maxInput)),
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
+                        SideConfig.Template.CODEC.optionalFieldOf("config", SideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
+                ).apply(templateInstance, (capacity, maxInput, maxOutput, config) ->
+                        new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), config)
+                ), "Energy machine component"
         );
 
         private final long capacity;

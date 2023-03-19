@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -20,10 +19,10 @@ import net.minecraft.world.item.Items;
 
 public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> implements IDisplayInfoRequirement {
 
-    public static final Codec<TimeRequirement> CODEC = RecordCodecBuilder.create(timeRequirementInstance ->
+    public static final NamedCodec<TimeRequirement> CODEC = NamedCodec.record(timeRequirementInstance ->
             timeRequirementInstance.group(
                     IntRange.CODEC.fieldOf("range").forGetter(requirement -> requirement.range)
-            ).apply(timeRequirementInstance, TimeRequirement::new)
+            ).apply(timeRequirementInstance, TimeRequirement::new), "Time requirement"
     );
 
     private final IntRange range;

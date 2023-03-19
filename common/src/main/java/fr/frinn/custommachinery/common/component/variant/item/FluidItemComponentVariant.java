@@ -1,18 +1,15 @@
 package fr.frinn.custommachinery.common.component.variant.item;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -23,10 +20,10 @@ import java.util.List;
 
 public class FluidItemComponentVariant extends ItemComponentVariant implements ITickableComponentVariant<ItemMachineComponent> {
 
-    public static final Codec<FluidItemComponentVariant> CODEC = RecordCodecBuilder.create(variantInstance ->
+    public static final NamedCodec<FluidItemComponentVariant> CODEC = NamedCodec.record(variantInstance ->
             variantInstance.group(
-                    CodecLogger.loggedOptional(Codecs.list(Codec.STRING), "tanks", Collections.emptyList()).forGetter(variant -> variant.tanks)
-            ).apply(variantInstance, FluidItemComponentVariant::new)
+                    NamedCodec.STRING.listOf().optionalFieldOf("tanks", Collections.emptyList()).forGetter(variant -> variant.tanks)
+            ).apply(variantInstance, FluidItemComponentVariant::new), "Fluid item component variant"
     );
     public static final ResourceLocation ID = new ResourceLocation(CustomMachinery.MODID, "fluid");
 
@@ -42,7 +39,7 @@ public class FluidItemComponentVariant extends ItemComponentVariant implements I
     }
 
     @Override
-    public Codec<FluidItemComponentVariant> getCodec() {
+    public NamedCodec<FluidItemComponentVariant> getCodec() {
         return CODEC;
     }
 

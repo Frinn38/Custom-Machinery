@@ -53,7 +53,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
                 return;
             }
 
-            DataResult<MachineUpgrade> result = MachineUpgrade.CODEC.parse(JsonOps.INSTANCE, json);
+            DataResult<MachineUpgrade> result = MachineUpgrade.CODEC.read(JsonOps.INSTANCE, json);
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
                 if(upgrade.getItem() == Items.AIR) {

@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.requirement;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -14,10 +13,9 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
@@ -36,24 +34,24 @@ import java.util.Optional;
 
 public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMachineComponent> implements ITickableRequirement<DropMachineComponent>, IDisplayInfoRequirement {
 
-    public static final Codec<DropRequirement> CODEC = RecordCodecBuilder.create(dropRequirementInstance ->
+    public static final NamedCodec<DropRequirement> CODEC = NamedCodec.record(dropRequirementInstance ->
             dropRequirementInstance.group(
-                    Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
-                    Codecs.DROP_REQUIREMENT_ACTION_CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
-                    CodecLogger.loggedOptional(Codecs.list(IIngredient.ITEM), "input", Collections.emptyList()).forGetter(requirement -> requirement.input),
-                    CodecLogger.loggedOptional(Codec.BOOL, "whitelist", true).forGetter(requirement -> requirement.whitelist),
-                    CodecLogger.loggedOptional(RegistrarCodec.ITEM, "output", Items.AIR).forGetter(requirement -> requirement.output),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
-                    CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "amount", 1).forGetter(requirement -> requirement.amount),
-                    CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "radius", 1).forGetter(requirement -> requirement.radius),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "chance", 1.0).forGetter(AbstractDelayedChanceableRequirement::getChance),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0, 1.0), "delay", 0.0).forGetter(IDelayedRequirement::getDelay)
+                    RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
+                    Action.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
+                    IIngredient.ITEM.listOf().optionalFieldOf("input", Collections.emptyList()).forGetter(requirement -> requirement.input),
+                    NamedCodec.BOOL.optionalFieldOf("whitelist", true).forGetter(requirement -> requirement.whitelist),
+                    RegistrarCodec.ITEM.optionalFieldOf("output", Items.AIR).forGetter(requirement -> requirement.output),
+                    DefaultCodecs.COMPOUND_TAG.optionalFieldOf("nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("radius", 1).forGetter(requirement -> requirement.radius),
+                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0).forGetter(AbstractDelayedChanceableRequirement::getChance),
+                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("delay", 0.0).forGetter(IDelayedRequirement::getDelay)
             ).apply(dropRequirementInstance, (mode, action, input, whitelist, output, nbt, amount, radius, chance, delay) -> {
-                DropRequirement requirement = new DropRequirement(mode, action, input, whitelist, output, nbt.orElse(null), amount, radius);
-                requirement.setChance(chance);
-                requirement.setDelay(delay);
-                return requirement;
-            })
+                    DropRequirement requirement = new DropRequirement(mode, action, input, whitelist, output, nbt.orElse(null), amount, radius);
+                    requirement.setChance(chance);
+                    requirement.setDelay(delay);
+                    return requirement;
+            }), "Drop requirement"
     );
 
     private final Action action;
@@ -215,6 +213,8 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
         CHECK,
         CONSUME,
         PRODUCE;
+
+        public static final NamedCodec<Action> CODEC = NamedCodec.enumCodec(Action.class);
 
         public static Action value(String mode) {
             return valueOf(mode.toUpperCase(Locale.ENGLISH));

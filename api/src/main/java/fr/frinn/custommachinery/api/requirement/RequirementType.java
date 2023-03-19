@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.api.requirement;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
@@ -29,31 +29,31 @@ public class RequirementType<T extends IRequirement<?>> extends RegistryEntry<Re
     /**
      * Use this factory method to create new {@link RequirementType} for an {@link IRequirement} that depends on something in-world instead of the machine inventory.
      * The handled {@link IRequirement} will be checked every tick by the machine {@link IProcessor} to see if it's still valid.
-     * @param codec A {@link Codec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
+     * @param codec A {@link NamedCodec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
      * @return A new {@link RequirementType} that will handle the specified {@link IRequirement}.
      */
-    public static <T extends IRequirement<?>> RequirementType<T> world(Codec<T> codec) {
+    public static <T extends IRequirement<?>> RequirementType<T> world(NamedCodec<T> codec) {
         return new RequirementType<>(codec, true);
     }
 
     /**
      * Use this factory method to create new {@link RequirementType} for an {@link IRequirement} that depends on the machine inventory.
      * The handled {@link IRequirement} will be checked by the machine {@link IProcessor} ONLY if the machine inventory changed to see if it's still valid.
-     * @param codec A {@link Codec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
+     * @param codec A {@link NamedCodec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
      * @return A new {@link RequirementType} that will handle the specified {@link IRequirement}.
      */
-    public static <T extends IRequirement<?>> RequirementType<T> inventory(Codec<T> codec) {
+    public static <T extends IRequirement<?>> RequirementType<T> inventory(NamedCodec<T> codec) {
         return new RequirementType<>(codec, false);
     }
 
-    private final Codec<T> codec;
+    private final NamedCodec<T> codec;
     private final boolean isWorldRequirement;
 
     /**
      * A constructor for {@link RequirementType}.
-     * Use {@link RequirementType#world(Codec)} instead.
+     * Use {@link RequirementType#world(NamedCodec)} instead.
      */
-    private RequirementType(Codec<T> codec, boolean isWorldRequirement) {
+    private RequirementType(NamedCodec<T> codec, boolean isWorldRequirement) {
         this.codec = codec;
         this.isWorldRequirement = isWorldRequirement;
     }
@@ -62,7 +62,7 @@ public class RequirementType<T extends IRequirement<?>> extends RegistryEntry<Re
      * Used by the dispatch codec that deserialize all requirements from the recipe json.
      * @return A codec that can deserialize a requirement of this type from json.
      */
-    public Codec<T> getCodec() {
+    public NamedCodec<T> getCodec() {
         return this.codec;
     }
 

@@ -1,14 +1,11 @@
 package fr.frinn.custommachinery.common.upgrade;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -17,18 +14,18 @@ import org.jetbrains.annotations.Nullable;
 
 public class RecipeModifier implements IRecipeModifier {
 
-    public static final Codec<RecipeModifier> CODEC = RecordCodecBuilder.create(energyModifierInstance ->
+    public static final NamedCodec<RecipeModifier> CODEC = NamedCodec.record(energyModifierInstance ->
             energyModifierInstance.group(
                     RegistrarCodec.REQUIREMENT.fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
-                    Codecs.REQUIREMENT_MODE_CODEC.fieldOf("mode").forGetter(modifier -> modifier.mode),
-                    Codecs.MODIFIER_OPERATION_CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
-                    Codec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
-                    CodecLogger.loggedOptional(Codec.STRING,"target", "").forGetter(modifier -> modifier.target),
-                    CodecLogger.loggedOptional(Codec.DOUBLE,"chance", 1.0D).forGetter(modifier -> modifier.chance),
-                    CodecLogger.loggedOptional(Codec.DOUBLE, "max", Double.POSITIVE_INFINITY).forGetter(modifier -> modifier.max),
-                    CodecLogger.loggedOptional(Codec.DOUBLE, "min", Double.NEGATIVE_INFINITY).forGetter(modifier -> modifier.min),
-                    CodecLogger.loggedOptional(TextComponentUtils.CODEC, "tooltip", TextComponent.EMPTY).forGetter(modifier -> modifier.tooltip)
-            ).apply(energyModifierInstance, RecipeModifier::new)
+                    RequirementIOMode.CODEC.fieldOf("mode").forGetter(modifier -> modifier.mode),
+                    OPERATION.CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
+                    NamedCodec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
+                    NamedCodec.STRING.optionalFieldOf("target", "").forGetter(modifier -> modifier.target),
+                    NamedCodec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(modifier -> modifier.chance),
+                    NamedCodec.DOUBLE.optionalFieldOf("max", Double.POSITIVE_INFINITY).forGetter(modifier -> modifier.max),
+                    NamedCodec.DOUBLE.optionalFieldOf("min", Double.NEGATIVE_INFINITY).forGetter(modifier -> modifier.min),
+                    TextComponentUtils.CODEC.optionalFieldOf("tooltip", TextComponent.EMPTY).forGetter(modifier -> modifier.tooltip)
+            ).apply(energyModifierInstance, RecipeModifier::new), "Recipe modifier"
     );
 
     private final RequirementType<?> requirementType;

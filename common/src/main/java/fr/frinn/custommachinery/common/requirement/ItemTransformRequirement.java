@@ -1,8 +1,7 @@
 package fr.frinn.custommachinery.common.requirement;
 
 import com.google.common.collect.Lists;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -14,10 +13,9 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import net.minecraft.nbt.CompoundTag;
@@ -33,22 +31,22 @@ import java.util.function.Function;
 
 public class ItemTransformRequirement extends AbstractChanceableRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
 
-    public static final Codec<ItemTransformRequirement> CODEC = RecordCodecBuilder.create(itemTransformRequirementInstance ->
+    public static final NamedCodec<ItemTransformRequirement> CODEC = NamedCodec.record(itemTransformRequirementInstance ->
             itemTransformRequirementInstance.group(
                     IIngredient.ITEM.fieldOf("input").forGetter(requirement -> requirement.input),
-                    CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "input_amount", 1).forGetter(requirement -> requirement.inputAmount),
-                    CodecLogger.loggedOptional(Codec.STRING, "input_slot", "").forGetter(requirement -> requirement.inputSlot),
-                    CodecLogger.loggedOptional(Codecs.COMPOUND_NBT_CODEC, "input_nbt").forGetter(requirement -> Optional.ofNullable(requirement.inputNBT)),
-                    CodecLogger.loggedOptional(RegistrarCodec.ITEM, "output", Items.AIR).forGetter(requirement -> requirement.output),
-                    CodecLogger.loggedOptional(Codec.intRange(1, Integer.MAX_VALUE), "output_amount", 1).forGetter(requirement -> requirement.outputAmount),
-                    CodecLogger.loggedOptional(Codec.STRING, "output_slot", "").forGetter(requirement -> requirement.outputSlot),
-                    CodecLogger.loggedOptional(Codec.BOOL, "copy_nbt", true).forGetter(requirement -> requirement.copyNBT),
-                    CodecLogger.loggedOptional(Codec.doubleRange(0.0D, 1.0D), "chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance)
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("input_amount", 1).forGetter(requirement -> requirement.inputAmount),
+                    NamedCodec.STRING.optionalFieldOf("input_slot", "").forGetter(requirement -> requirement.inputSlot),
+                    DefaultCodecs.COMPOUND_TAG.optionalFieldOf("input_nbt").forGetter(requirement -> Optional.ofNullable(requirement.inputNBT)),
+                    RegistrarCodec.ITEM.optionalFieldOf("output", Items.AIR).forGetter(requirement -> requirement.output),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("output_amount", 1).forGetter(requirement -> requirement.outputAmount),
+                    NamedCodec.STRING.optionalFieldOf("output_slot", "").forGetter(requirement -> requirement.outputSlot),
+                    NamedCodec.BOOL.optionalFieldOf("copy_nbt", true).forGetter(requirement -> requirement.copyNBT),
+                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance)
             ).apply(itemTransformRequirementInstance, (input, inputAmount, inputSlot, inputNBT, output, outputAmount, outputSlot, copyNBT, chance) -> {
-                ItemTransformRequirement requirement = new ItemTransformRequirement(input, inputAmount, inputSlot, inputNBT.orElse(null), output, outputAmount, outputSlot, copyNBT, null);
-                requirement.setChance(chance);
-                return requirement;
-            })
+                    ItemTransformRequirement requirement = new ItemTransformRequirement(input, inputAmount, inputSlot, inputNBT.orElse(null), output, outputAmount, outputSlot, copyNBT, null);
+                    requirement.setChance(chance);
+                    return requirement;
+            }), "Item transform requirement"
     );
 
     private final IIngredient<Item> input;

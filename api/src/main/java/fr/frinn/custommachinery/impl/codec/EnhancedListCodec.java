@@ -1,37 +1,42 @@
 package fr.frinn.custommachinery.impl.codec;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.datafixers.util.Unit;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.ListBuilder;
-import org.apache.commons.lang3.mutable.MutableObject;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-/**
- * A copy of ListCodec accept single elements and return a singleton list if so.
- * @param <A> The object the codec serialize/deserialize.
- */
-public class EnhancedListCodec<A> implements Codec<List<A>> {
-    private final Codec<A> elementCodec;
+public class EnhancedListCodec<A> implements NamedCodec<List<A>> {
 
-    public EnhancedListCodec(final Codec<A> elementCodec) {
+    private final NamedCodec<A> elementCodec;
+    private final String name;
+
+    public static <A> EnhancedListCodec<A> of(NamedCodec<A> elementCodec) {
+        return of(elementCodec, "List<" + elementCodec.name() + ">");
+    }
+
+    public static <A> EnhancedListCodec<A> of(NamedCodec<A> elementCodec, String name) {
+        return new EnhancedListCodec<>(elementCodec, name);
+    }
+
+    private EnhancedListCodec(final NamedCodec<A> elementCodec, String name) {
         this.elementCodec = elementCodec;
+        this.name = name;
     }
 
     @Override
-    public <T> DataResult<T> encode(final List<A> input, final DynamicOps<T> ops, final T prefix) {
+    public <T> DataResult<T> encode(final DynamicOps<T> ops, final List<A> input, final T prefix) {
         final ListBuilder<T> builder = ops.listBuilder();
 
         for (final A a : input) {
-            builder.add(elementCodec.encodeStart(ops, a));
+            builder.add(this.elementCodec.encodeStart(ops, a));
         }
 
         return builder.build(prefix);
@@ -40,30 +45,22 @@ public class EnhancedListCodec<A> implements Codec<List<A>> {
     @Override
     public <T> DataResult<Pair<List<A>, T>> decode(final DynamicOps<T> ops, final T input) {
         if(ops.getStream(input).error().isPresent())
-            return elementCodec.decode(ops, input).map(pair -> Pair.of(Collections.singletonList(pair.getFirst()), pair.getSecond()));
+            return this.elementCodec.decode(ops, input).map(pair -> Pair.of(Collections.singletonList(pair.getFirst()), pair.getSecond()));
 
-        return ops.getList(input).setLifecycle(Lifecycle.stable()).flatMap(stream -> {
-            final ImmutableList.Builder<A> read = ImmutableList.builder();
-            final Stream.Builder<T> failed = Stream.builder();
-
-            final MutableObject<DataResult<Unit>> result = new MutableObject<>(DataResult.success(Unit.INSTANCE, Lifecycle.stable()));
-
-            stream.accept(t -> {
-                final DataResult<Pair<A, T>> element = elementCodec.decode(ops, t);
-                element.error().ifPresent(e -> failed.add(t));
-                result.setValue(result.getValue().apply2stable((r, v) -> {
-                    read.add(v.getFirst());
-                    return r;
-                }, element));
+        DataResult<Stream<T>> streamResult = ops.getStream(input);
+        if(streamResult.result().isPresent()) {
+            Stream<T> stream = streamResult.result().get();
+            List<A> result = new ArrayList<>();
+            stream.forEach(t -> {
+                DataResult<A> a = this.elementCodec.read(ops, t);
+                if(a.result().isPresent())
+                    result.add(a.result().get());
+                else if(a.error().isPresent())
+                    ICustomMachineryAPI.INSTANCE.logger().warn("Error when parsing {} in list.\n{}", this.elementCodec.name(), a.error().get().message());
             });
-
-            final ImmutableList<A> elements = read.build();
-            final T errors = ops.createList(failed.build());
-
-            final Pair<List<A>, T> pair = Pair.of(elements, errors);
-
-            return result.getValue().map(unit -> pair).setPartial(pair);
-        });
+            return DataResult.success(Pair.of(result, ops.empty()));
+        }
+        return streamResult.map(s -> Pair.of(Collections.emptyList(), input));
     }
 
     @Override
@@ -75,16 +72,21 @@ public class EnhancedListCodec<A> implements Codec<List<A>> {
             return false;
         }
         final EnhancedListCodec<?> listCodec = (EnhancedListCodec<?>) o;
-        return Objects.equals(elementCodec, listCodec.elementCodec);
+        return Objects.equals(this.elementCodec, listCodec.elementCodec);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(elementCodec);
+        return Objects.hash(this.elementCodec);
+    }
+
+    @Override
+    public String name() {
+        return this.name;
     }
 
     @Override
     public String toString() {
-        return "List[" + elementCodec + ']';
+        return this.name;
     }
 }

@@ -1,8 +1,7 @@
 package fr.frinn.custommachinery.common.machine;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -12,17 +11,17 @@ import java.util.Locale;
 
 public class MachineLocation {
 
-    public static final Codec<MachineLocation> CODEC = RecordCodecBuilder.create(machineLocationInstance ->
+    public static final NamedCodec<MachineLocation> CODEC = NamedCodec.record(machineLocationInstance ->
             machineLocationInstance.group(
-                    ResourceLocation.CODEC.fieldOf("id").forGetter(MachineLocation::getId),
-                    Codecs.LOADER_CODEC.fieldOf("loader").forGetter(MachineLocation::getLoader),
-                    Codec.STRING.fieldOf("packName").forGetter(MachineLocation::getPackName)
-            ).apply(machineLocationInstance, MachineLocation::new)
+                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("id").forGetter(MachineLocation::getId),
+                    Loader.CODEC.fieldOf("loader").forGetter(MachineLocation::getLoader),
+                    NamedCodec.STRING.fieldOf("packName").forGetter(MachineLocation::getPackName)
+            ).apply(machineLocationInstance, MachineLocation::new), "Machine location"
     );
 
-    private ResourceLocation id;
-    private Loader loader;
-    private String packName;
+    private final ResourceLocation id;
+    private final Loader loader;
+    private final String packName;
 
     private MachineLocation(ResourceLocation id, Loader loader, String packName) {
         this.id = id;
@@ -31,17 +30,12 @@ public class MachineLocation {
     }
 
     public static MachineLocation fromLoader(Loader loader, ResourceLocation id, String packName) {
-        switch (loader) {
-            case DEFAULT:
-                return fromDefault(id);
-            case DATAPACK:
-                return fromDatapack(id, packName);
-            case CRAFTTWEAKER:
-                return fromCraftTweaker(id);
-            case KUBEJS:
-                return fromKubeJS(id);
-        }
-        throw new IllegalStateException("Invalid Custom Machine Loader: " + loader.name());
+        return switch (loader) {
+            case DEFAULT -> fromDefault(id);
+            case DATAPACK -> fromDatapack(id, packName);
+            case CRAFTTWEAKER -> fromCraftTweaker(id);
+            case KUBEJS -> fromKubeJS(id);
+        };
     }
 
     public static MachineLocation fromDefault(ResourceLocation id) {
@@ -82,23 +76,20 @@ public class MachineLocation {
         CRAFTTWEAKER,
         KUBEJS;
 
+        public static final NamedCodec<Loader> CODEC = NamedCodec.enumCodec(Loader.class);
+
         public TranslatableComponent getTranslatedName() {
             return new TranslatableComponent("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
         }
 
         @SuppressWarnings("ConstantConditions")
         public int getColor() {
-            switch (this) {
-                case DEFAULT:
-                    return ChatFormatting.BLACK.getColor();
-                case DATAPACK:
-                    return ChatFormatting.DARK_GREEN.getColor();
-                case KUBEJS:
-                    return ChatFormatting.DARK_PURPLE.getColor();
-                case CRAFTTWEAKER:
-                    return ChatFormatting.DARK_AQUA.getColor();
-            }
-            return 0;
+            return switch (this) {
+                case DEFAULT -> ChatFormatting.BLACK.getColor();
+                case DATAPACK -> ChatFormatting.DARK_GREEN.getColor();
+                case KUBEJS -> ChatFormatting.DARK_PURPLE.getColor();
+                case CRAFTTWEAKER -> ChatFormatting.DARK_AQUA.getColor();
+            };
         }
 
         public static Loader value(String value) {

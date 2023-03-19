@@ -1,8 +1,7 @@
 package fr.frinn.custommachinery.common.component;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.fluid.FluidStack;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -15,9 +14,7 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.nbt.CompoundTag;
@@ -193,19 +190,19 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     public static class Template implements IMachineComponentTemplate<FluidMachineComponent> {
 
-        public static final Codec<FluidMachineComponent.Template> CODEC = RecordCodecBuilder.create(fluidMachineComponentTemplate ->
+        public static final NamedCodec<FluidMachineComponent.Template> CODEC = NamedCodec.record(fluidMachineComponentTemplate ->
                 fluidMachineComponentTemplate.group(
-                        Codec.STRING.fieldOf("id").forGetter(template -> template.id),
-                        Codec.LONG.fieldOf("capacity").forGetter(template -> template.capacity),
-                        CodecLogger.loggedOptional(Codec.LONG,"maxInput").forGetter(template -> Optional.of(template.maxInput)),
-                        CodecLogger.loggedOptional(Codec.LONG,"maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
-                        CodecLogger.loggedOptional(Codecs.list(IIngredient.FLUID),"filter", Collections.emptyList()).forGetter(template -> template.filter),
-                        CodecLogger.loggedOptional(Codec.BOOL,"whitelist", false).forGetter(template -> template.whitelist),
-                        CodecLogger.loggedOptional(Codecs.COMPONENT_MODE_CODEC,"mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                        CodecLogger.loggedOptional(SideConfig.Template.CODEC, "config").forGetter(template -> Optional.of(template.config))
+                        NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
+                        NamedCodec.LONG.fieldOf("capacity").forGetter(template -> template.capacity),
+                        NamedCodec.LONG.optionalFieldOf("maxInput").forGetter(template -> Optional.of(template.maxInput)),
+                        NamedCodec.LONG.optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
+                        IIngredient.FLUID.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
+                        NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
+                        ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
+                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config))
                 ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode, config) ->
                         new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, mode, config.orElse(mode.getBaseConfig()))
-                )
+                ), "Fluid machine component"
         );
 
         private final String id;

@@ -40,7 +40,7 @@ public class CustomMachineRecipeCTManager implements IRecipeManager<CustomMachin
     @Override
     public void addJsonRecipe(String name, MapData mapData) {
         JsonObject recipeObject = JSON_RECIPE_GSON.fromJson(mapData.accept(DataToJsonStringVisitor.INSTANCE), JsonObject.class);
-        DataResult<CustomMachineRecipeBuilder> result = CustomMachineRecipeBuilder.CODEC.parse(JsonOps.INSTANCE, recipeObject);
+        DataResult<CustomMachineRecipeBuilder> result = CustomMachineRecipeBuilder.CODEC.read(JsonOps.INSTANCE, recipeObject);
         if(result.error().isPresent() || result.result().isEmpty()) {
             CraftTweakerAPI.LOGGER.error("Couldn't add custom machine recipe {} from json: {}", name, result.error().get().message());
             return;

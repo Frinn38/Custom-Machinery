@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.craft;
 
-import com.mojang.serialization.Codec;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -164,7 +164,7 @@ public class CraftProcessor implements IProcessor {
 
     public static class Template implements IProcessorTemplate<CraftProcessor> {
 
-        public static final Codec<Template> CODEC = Codec.unit(Template::new);
+        public static final NamedCodec<Template> CODEC = NamedCodec.unit(Template::new, "Craft processor");
 
         @Override
         public ProcessorType<CraftProcessor> getType() {

@@ -3,10 +3,9 @@ package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
 import dev.latvian.mods.kubejs.script.ScriptType;
-import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
@@ -147,12 +146,12 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
         if(block.isEmpty())
             state = PartialBlockState.AIR;
         else
-            state = Codecs.PARTIAL_BLOCK_STATE_CODEC.parse(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null);
+            state = PartialBlockState.CODEC.read(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null);
         if(state == null)
             return error("Invalid block: {}", block);
 
         AABB bb = new AABB(startX, startY, startZ, endX, endY, endZ);
-        List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.parse(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).toList();
+        List<IIngredient<PartialBlockState>> filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.read(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(ScriptType.SERVER.console::warn).orElse(null)).filter(Objects::nonNull).toList();
         try {
             return this.addRequirement(new BlockRequirement(mode, action, bb, amount, ComparatorMode.value(comparator), state, filter, whitelist));
         } catch (IllegalArgumentException e) {

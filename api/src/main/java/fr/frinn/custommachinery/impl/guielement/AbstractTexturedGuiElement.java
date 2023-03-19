@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.impl.guielement;
 
 import com.mojang.datafixers.Products;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
-import fr.frinn.custommachinery.impl.codec.CodecLogger;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import fr.frinn.custommachinery.impl.codec.NamedRecordCodec;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.resources.ResourceLocation;
 
@@ -41,9 +41,9 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
             return -1;
     }
 
-    public static <T extends AbstractTexturedGuiElement> Products.P6<RecordCodecBuilder.Mu<T>, Integer, Integer, Integer, Integer, Integer, ResourceLocation> makeBaseTexturedCodec(RecordCodecBuilder.Instance<T> texturedGuiElement, ResourceLocation defaultTexture) {
+    public static <T extends AbstractTexturedGuiElement> Products.P6<NamedRecordCodec.Mu<T>, Integer, Integer, Integer, Integer, Integer, ResourceLocation> makeBaseTexturedCodec(NamedRecordCodec.Instance<T> texturedGuiElement, ResourceLocation defaultTexture) {
         return makeBaseCodec(texturedGuiElement).and(
-                CodecLogger.loggedOptional(ResourceLocation.CODEC,"texture", defaultTexture).forGetter(AbstractTexturedGuiElement::getTexture)
+                DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture", defaultTexture).forGetter(AbstractTexturedGuiElement::getTexture)
         );
     }
 }
