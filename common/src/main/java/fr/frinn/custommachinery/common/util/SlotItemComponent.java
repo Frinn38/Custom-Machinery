@@ -32,7 +32,7 @@ public class SlotItemComponent extends Slot {
     @Override
     public boolean mayPlace(ItemStack stack) {
         if(this.component.getVariant() == DefaultItemComponentVariant.INSTANCE)
-            return this.component.getMode().isInput();
+            return this.component.getMode().isInput() && this.component.isItemValid(stack);
         return this.component.isItemValid(stack);
     }
 
