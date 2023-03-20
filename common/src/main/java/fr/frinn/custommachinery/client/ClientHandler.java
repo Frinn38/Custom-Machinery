@@ -45,6 +45,7 @@ import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.GameRenderer;
@@ -233,5 +234,13 @@ public class ClientHandler {
         }
 
         screen.renderTooltip(poseStack, textLines, Optional.empty(), x, y);
+    }
+
+    public static void renderSlotHighlight(PoseStack pose, int x, int y, int width, int height) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.colorMask(true, true, true, false);
+        GuiComponent.fill(pose, x, y, x + width, y + height, -2130706433);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.enableDepthTest();
     }
 }

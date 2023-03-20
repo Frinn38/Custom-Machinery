@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.render.element;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.architectury.hooks.fluid.FluidStackHooks;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.render.FluidRenderer;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -25,8 +26,10 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         super.renderButton(poseStack, mouseX, mouseY, partialTicks);
         this.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getID())).ifPresent(component -> {
-            FluidRenderer.renderFluid(poseStack, this.x + 1, this.y + 1, width - 2, height - 2, component.getFluidStack(), component.getCapacity());
+            FluidRenderer.renderFluid(poseStack, this.x + 1, this.y + 1, this.width - 2, this.height - 2, component.getFluidStack(), component.getCapacity());
         });
+        if(this.isHoveredOrFocused())
+            ClientHandler.renderSlotHighlight(poseStack, this.x + 1, this.y + 1, this.width - 2, this.height - 2);
     }
 
     @Override

@@ -31,6 +31,8 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
             ClientHandler.bindTexture(this.getElement().getFilledTexture());
             GuiComponent.blit(poseStack, this.x, this.y + this.height - eneryHeight, 0, this.height - eneryHeight, this.width, eneryHeight, this.width, this.height);
         });
+        if(this.isHoveredOrFocused())
+            ClientHandler.renderSlotHighlight(poseStack, this.x + 1, this.y + 1, this.width - 2, this.height - 2);
     }
 
     @Override
