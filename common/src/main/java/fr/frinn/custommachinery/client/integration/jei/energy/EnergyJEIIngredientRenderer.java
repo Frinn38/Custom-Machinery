@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.integration.jei.energy;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
@@ -12,7 +13,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +45,8 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
         int width = this.element.getWidth();
         int height = this.element.getHeight();
 
-        GuiComponent.fill(matrix, 0, 0, width - 2, height - 2, FastColor.ARGB32.color(180, 255, 0, 0));
+        ClientHandler.bindTexture(this.element.getFilledTexture());
+        GuiComponent.blit(matrix, -1, -1,0, 0, width, height, width, height);
     }
 
     @Override
