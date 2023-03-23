@@ -3,13 +3,14 @@
 [![GitHub issues](https://img.shields.io/github/issues/Frinn38/Custom-Machinery?style=flat-square)](https://github.com/Frinn38/Custom-Machinery/issues)
 [![GitHub license](https://img.shields.io/github/license/Frinn38/Custom-Machinery?color=0690ff&style=flat-square)](https://github.com/Frinn38/Custom-Machinery/blob/1.16.5/LICENSE.md)
 [![](http://cf.way2muchnoise.eu/457017.svg?badge_style=flat)](https://www.curseforge.com/minecraft/mc-mods/custom-machinery)
+[![](https://modrinth-utils.vercel.app/api/badge/downloads?id=OrB5XFtI&logo=true)]()
 [![](https://img.shields.io/discord/842550366763614258?color=7289DA)](https://discord.gg/dw9tjY4eKY)
 
-Custom Machinery is a Minecraft Forge mod currently developped for Minecraft 1.16.5
+Custom Machinery is a Minecraft Forge mod currently developed for Minecraft 1.18.2
 
 This mod can be used to create custom machines and recipes for them.
 
-For more informations and examples of how to create custom machines see the [Wiki](https://frinn.gitbook.io/custom-machinery-1.18/)
+For more information and examples of how to create custom machines see the [Wiki](https://frinn.gitbook.io/custom-machinery-1.18/)
 
 You can find some working examples of Custom Machines [here](https://github.com/Frinn38/Custom-Machinery/tree/1.16.5/test_datapack)
 
