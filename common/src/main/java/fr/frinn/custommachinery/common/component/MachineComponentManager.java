@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.component;
 
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IDumpComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
@@ -37,6 +38,7 @@ public class MachineComponentManager implements IMachineComponentManager {
     private final List<ITickableComponent> tickableComponents;
     private final List<ISyncableStuff> syncableComponents;
     private final List<IComparatorInputComponent> comparatorInputComponents;
+    private final List<IDumpComponent> dumpComponents;
     private final Map<String, ISideConfigComponent> configComponents;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -58,6 +60,7 @@ public class MachineComponentManager implements IMachineComponentManager {
         this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).toList();
         this.syncableComponents = this.components.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).toList();
         this.comparatorInputComponents = this.components.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).toList();
+        this.dumpComponents = this.components.values().stream().filter(component -> component instanceof IDumpComponent).map(component -> (IDumpComponent)component).toList();
         this.configComponents = this.components.values().stream()
                 .flatMap(component -> {
                     if(component instanceof IComponentHandler<?> handler)
@@ -92,6 +95,11 @@ public class MachineComponentManager implements IMachineComponentManager {
     @Override
     public List<IComparatorInputComponent> getComparatorInputComponents() {
         return this.comparatorInputComponents;
+    }
+
+    @Override
+    public List<IDumpComponent> getDumpComponents() {
+        return this.dumpComponents;
     }
 
     @SuppressWarnings("unchecked")

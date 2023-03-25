@@ -47,7 +47,7 @@
   "custommachinery.gui.element.reset.name": "Reset",
   "custommachinery.gui.element.reset.tooltip": "All already consumed inputs will be lost !",
   "custommachinery.gui.element.dump.name": "Dump",
-  "custommachinery.gui.element.dump.tooltip": "All fluids will be lost",
+  "custommachinery.gui.element.dump.tooltip": "All %s will be lost",
   "custommachinery.gui.element.config.name": "Config",
 
   "custommachinery.gui.baseinfo.name": "Name:",

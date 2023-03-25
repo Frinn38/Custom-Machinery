@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.component.handler;
 
 import dev.architectury.fluid.FluidStack;
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.api.component.IDumpComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
@@ -27,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements ISerializableComponent, ISyncableStuff, ITickableComponent {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements ISerializableComponent, ISyncableStuff, ITickableComponent, IDumpComponent {
 
     private final ICommonFluidHandler handler = PlatformHelper.createFluidHandler(this);
 
@@ -95,6 +96,13 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         this.getComponents().forEach(component -> component.getStuffToSync(container));
+    }
+
+    @Override
+    public void dump(List<String> ids) {
+        this.getComponents().stream()
+                .filter(component -> ids.contains(component.getId()))
+                .forEach(component -> component.setFluidStack(FluidStack.empty()));
     }
 
     public long fill(FluidStack fluid, boolean simulate) {

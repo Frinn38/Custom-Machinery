@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
+import fr.frinn.custommachinery.api.component.IDumpComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
@@ -23,10 +24,11 @@ import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent {
+public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent {
 
     private long energy;
     private final long capacity;
@@ -152,6 +154,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public int getComparatorInput() {
         return (int) (15 * ((double)this.energy / (double)this.capacity));
+    }
+
+    @Override
+    public void dump(List<String> ids) {
+        setEnergy(0L);
     }
 
     /** Recipe Stuff **/

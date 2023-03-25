@@ -13,57 +13,62 @@ import java.util.Optional;
 public interface IMachineComponentManager {
 
     /**
-     * @return A copy of the List of IMachineComponent hold by the manager.
+     * @return A copy of the List of {@link IMachineComponent} hold by the manager.
      */
     Map<MachineComponentType<?>, IMachineComponent> getComponents();
 
     /**
-     * @return A List of all components hold by this manager that implements ISerializableComponent.
+     * @return A List of all components hold by this manager that implements {@link ISerializableComponent}.
      */
     List<ISerializableComponent> getSerializableComponents();
 
     /**
-     * @return A List of all components hold by this manager that implements ITickableComponent.
+     * @return A List of all components hold by this manager that implements {@link ITickableComponent}.
      */
     List<ITickableComponent> getTickableComponents();
 
     /**
-     * @return A List of all components hold by this manager that implements ISyncableStuff.
+     * @return A List of all components hold by this manager that implements {@link ISyncableStuff}.
      */
     List<ISyncableStuff> getSyncableComponents();
 
     /**
-     * @return A List of all components hold by this manager that implements IComparatorInputComponent.
+     * @return A List of all components hold by this manager that implements {@link IComparatorInputComponent}.
      */
     List<IComparatorInputComponent> getComparatorInputComponents();
 
     /**
-     * @param type The MachineComponentType to search.
+     * @return A List of all components hold by this manager that implements {@link IDumpComponent}.
+     */
+    List<IDumpComponent> getDumpComponents();
+
+    /**
+     * @param type The {@link MachineComponentType} to search.
      * @param <T> The component.
-     * @return An Optional IMachineComponent.
+     * @return An Optional {@link IMachineComponent}.
      */
     <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type);
 
     /**
-     * @param type The MachineComponentType to search.
-     * @param <T> The Component.
-     * @return An Optional IComponentHandler<T>.
+     * @param type The {@link MachineComponentType} to search.
+     * @param <T> The component.
+     * @return An optional {@link IComponentHandler<T>}.
      */
     <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type);
 
     /**
-     * @param type The MachineComponentType to check.
+     * @param type The {@link MachineComponentType} to check.
      * @return true if this manager hold a component for this type, false otherwise.
      */
     boolean hasComponent(MachineComponentType<?> type);
 
     /**
-     * @return The MachineTile that hold this manager.
+     * @return The {@link MachineTile} that hold this manager.
      */
     MachineTile getTile();
 
     /**
-     * @return The world the machine is in.
+     * @return The level the machine is in.
      */
     Level getLevel();
 

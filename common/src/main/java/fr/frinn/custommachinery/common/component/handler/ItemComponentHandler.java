@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.component.handler;
 
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.api.component.IDumpComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ISerializableComponent, ITickableComponent, ISyncableStuff {
+public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ISerializableComponent, ITickableComponent, ISyncableStuff, IDumpComponent {
 
     private final Random rand = new Random();
     private final List<ItemMachineComponent> tickableVariants;
@@ -101,6 +102,13 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         this.getComponents().forEach(component -> component.getStuffToSync(container));
+    }
+
+    @Override
+    public void dump(List<String> ids) {
+        this.getComponents().stream()
+                .filter(component -> ids.contains(component.getId()))
+                .forEach(component -> component.setItemStack(ItemStack.EMPTY));
     }
 
     /** RECIPE STUFF **/
