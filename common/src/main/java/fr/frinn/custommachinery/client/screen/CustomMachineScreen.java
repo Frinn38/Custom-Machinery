@@ -11,10 +11,11 @@ import fr.frinn.custommachinery.common.guielement.SizeGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
 import fr.frinn.custommachinery.common.util.Comparators;
+import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -32,7 +33,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     private final CustomMachineTile tile;
     private final CustomMachine machine;
-    private final List<AbstractWidget> elementWidgets = new ArrayList<>();
+    private final List<AbstractGuiElementWidget<?>> elementWidgets = new ArrayList<>();
 
     public CustomMachineScreen(CustomMachineContainer container, Inventory inv, Component name) {
         super(container, inv, name);
@@ -62,7 +63,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
                 .forEach(element -> addElementWidget(GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType)element.getType()).get(element, this)));
     }
 
-    private void addElementWidget(AbstractWidget widget) {
+    private void addElementWidget(AbstractGuiElementWidget<?> widget) {
         this.elementWidgets.add(widget);
         addRenderableWidget(widget);
     }
@@ -159,11 +160,14 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         RenderSystem.applyModelViewMatrix();
     }
 
-    public int getGuiLeft() {
-        return this.leftPos;
-    }
-
-    public int getGuiTop() {
-        return this.topPos;
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for(AbstractGuiElementWidget<?> elementWidget : this.elementWidgets) {
+            if(elementWidget.mouseClicked(mouseX, mouseY, button)) {
+                new CGuiElementClickPacket(this.machine.getGuiElements().indexOf(elementWidget.getElement()), (byte)button).sendToServer();
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 }

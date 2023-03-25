@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.guielement;
 
-import net.minecraft.client.gui.components.AbstractWidget;
+import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 
 public interface IGuiElementWidgetSupplier<T extends IGuiElement> {
 
-    AbstractWidget get(T element, IMachineScreen screen);
+    AbstractGuiElementWidget<T> get(T element, IMachineScreen screen);
 }
