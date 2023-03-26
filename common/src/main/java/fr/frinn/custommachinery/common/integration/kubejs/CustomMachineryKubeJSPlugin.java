@@ -27,12 +27,6 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
 
     @Override
     public void addTypeWrappers(ScriptType type, TypeWrappers typeWrappers) {
-        typeWrappers.register(IntRange.class, o -> {
-            try {
-                return IntRange.of(o);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        });
+        typeWrappers.register(IntRange.class, IntRange::of);
     }
 }
