@@ -35,7 +35,7 @@ public record Restriction<T extends Comparable<T>>(@Nullable T lowerBound, boole
             return (this.lowerBoundInclusive ? "From " : "Greater than ") + this.lowerBound;
         else if(this.lowerBound == null)
             return (this.upperBoundInclusive ? "Up to " : "Less than ") + this.upperBound;
-        else if(this.lowerBound == this.upperBound)
+        else if(this.lowerBound.equals(this.upperBound))
             return "Only " + this.lowerBound;
         else
             return "Between " + this.lowerBound + (this.lowerBoundInclusive ? " (included)" : "") + " and " + this.upperBound + (this.upperBoundInclusive ? " (included)" : "");
