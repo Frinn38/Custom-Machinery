@@ -111,6 +111,19 @@ public class IntRange extends Range<Integer> {
         return cached;
     }
 
+    public static IntRange of(Object o) throws IllegalArgumentException {
+        if(o == null)
+            throw new IllegalArgumentException("Cannot build IntRange from null");
+
+        if(o instanceof CharSequence string)
+            return createFromString(string.toString());
+
+        if(o instanceof Number number)
+            return new IntRange(Collections.singletonList(new Restriction<>(number.intValue(), true, number.intValue(), true)));
+
+        throw new IllegalArgumentException("Cannot build IntRange from " + o);
+    }
+
     private static Restriction<Integer> parseRestriction(String spec ) throws IllegalArgumentException {
         boolean lowerBoundInclusive = spec.startsWith("[");
         boolean upperBoundInclusive = spec.endsWith("]");

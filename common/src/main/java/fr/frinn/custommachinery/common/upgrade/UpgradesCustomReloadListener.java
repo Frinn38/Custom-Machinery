@@ -8,6 +8,7 @@ import com.mojang.serialization.JsonOps;
 import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -77,8 +77,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
 
         if(Platform.isModLoaded("kubejs")) {
             logger.info("Collecting machine upgrades with kubeJS.");
-            //TODO: remake
-            List<MachineUpgrade> kubejsUpgrades = Collections.emptyList();//KubeJSIntegration.collectMachineUpgrades();
+            List<MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
             if(kubejsUpgrades.size() != 0)
                 logger.info("Successfully added {} machine upgrades with kubejs", kubejsUpgrades.size());
             else

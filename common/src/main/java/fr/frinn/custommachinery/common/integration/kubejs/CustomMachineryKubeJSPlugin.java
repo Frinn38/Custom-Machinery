@@ -3,9 +3,12 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
+import dev.latvian.mods.kubejs.script.ScriptType;
+import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.function.MachineJS;
 import fr.frinn.custommachinery.common.integration.kubejs.function.Result;
+import fr.frinn.custommachinery.impl.util.IntRange;
 
 public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
 
@@ -20,5 +23,16 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
         event.add("Result", Result.class);
         event.add("CustomMachine", MachineJS.class);
         event.add("CMRecipeModifierBuilder", CustomMachineUpgradeJSBuilder.JSRecipeModifierBuilder.class);
+    }
+
+    @Override
+    public void addTypeWrappers(ScriptType type, TypeWrappers typeWrappers) {
+        typeWrappers.register(IntRange.class, o -> {
+            try {
+                return IntRange.of(o);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        });
     }
 }
