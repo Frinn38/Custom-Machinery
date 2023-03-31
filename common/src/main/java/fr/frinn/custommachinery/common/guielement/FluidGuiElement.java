@@ -16,15 +16,24 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
 
     public static final NamedCodec<FluidGuiElement> CODEC = NamedCodec.record(fluidGuiElement ->
             makeBaseTexturedCodec(fluidGuiElement, BASE_FLUID_STORAGE_TEXTURE).and(
-                    NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID)
+                    fluidGuiElement.group(
+                            NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID),
+                            NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(FluidGuiElement::highlight)
+                    )
             ).apply(fluidGuiElement, FluidGuiElement::new), "Fluid gui element"
     );
 
     private final String id;
+    private final boolean highlight;
 
-    public FluidGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, String id) {
+    public FluidGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, String id, boolean highlight) {
         super(x, y, width, height, priority, texture);
         this.id = id;
+        this.highlight = highlight;
+    }
+
+    public boolean highlight() {
+        return this.highlight;
     }
 
     @Override

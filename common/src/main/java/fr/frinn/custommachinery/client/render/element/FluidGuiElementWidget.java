@@ -28,7 +28,7 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
         this.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getID())).ifPresent(component -> {
             FluidRenderer.renderFluid(poseStack, this.x + 1, this.y + 1, this.width - 2, this.height - 2, component.getFluidStack(), component.getCapacity());
         });
-        if(this.isHoveredOrFocused())
+        if(this.isHoveredOrFocused() && this.getElement().highlight())
             ClientHandler.renderSlotHighlight(poseStack, this.x + 1, this.y + 1, this.width - 2, this.height - 2);
     }
 

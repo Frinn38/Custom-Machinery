@@ -20,7 +20,8 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
             makeBaseCodec(energyGuiElement).and(
                     energyGuiElement.group(
                             DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("emptytexture", BASE_ENERGY_STORAGE_EMPTY_TEXTURE).forGetter(EnergyGuiElement::getEmptyTexture),
-                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("filledtexture", BASE_ENERGY_STORAGE_FILLED_TEXTURE).forGetter(EnergyGuiElement::getFilledTexture)
+                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("filledtexture", BASE_ENERGY_STORAGE_FILLED_TEXTURE).forGetter(EnergyGuiElement::getFilledTexture),
+                            NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(EnergyGuiElement::highlight)
                     )
             ).apply(energyGuiElement, EnergyGuiElement::new),
             "Energy gui element"
@@ -28,11 +29,13 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
 
     private final ResourceLocation emptyTexture;
     private final ResourceLocation filledTexture;
+    private final boolean highlight;
 
-    public EnergyGuiElement(int x, int y, int width, int height, int priority, ResourceLocation emptyTexture, ResourceLocation filledTexture) {
+    public EnergyGuiElement(int x, int y, int width, int height, int priority, ResourceLocation emptyTexture, ResourceLocation filledTexture, boolean highlight) {
         super(x, y, width, height, priority, emptyTexture);
         this.emptyTexture = emptyTexture;
         this.filledTexture = filledTexture;
+        this.highlight = highlight;
     }
 
     public ResourceLocation getEmptyTexture() {
@@ -41,6 +44,10 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
 
     public ResourceLocation getFilledTexture() {
         return this.filledTexture;
+    }
+
+    public boolean highlight() {
+        return this.highlight;
     }
 
     @Override
