@@ -19,7 +19,7 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
 
     public static final NamedCodec<DumpGuiElement> CODEC = NamedCodec.record(dumpGuiElement ->
             makeBaseTexturedCodec(dumpGuiElement, BASE_TEXTURE).and(dumpGuiElement.group(
-                    RegistrarCodec.MACHINE_COMPONENT.listOf().optionalFieldOf("component", Collections.singletonList(Registration.FLUID_MACHINE_COMPONENT.get())).forGetter(element -> element.components),
+                    RegistrarCodec.MACHINE_COMPONENT.listOf().optionalFieldOf("component", () -> Collections.singletonList(Registration.FLUID_MACHINE_COMPONENT.get())).forGetter(element -> element.components),
                     NamedCodec.STRING.listOf().fieldOf("id").forGetter(element -> element.id)
             )).apply(dumpGuiElement, DumpGuiElement::new), "Dump gui element"
     );
