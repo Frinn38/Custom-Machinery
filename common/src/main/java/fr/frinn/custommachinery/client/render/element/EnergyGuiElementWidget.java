@@ -41,9 +41,11 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
                 .getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
                 .map(component -> Collections.singletonList((Component)
                         new TranslatableComponent(
-                            "custommachinery.gui.element.energy.tooltip",
-                                Utils.format(component.getEnergy()) + " " + PlatformHelper.energy().unit(),
-                            Utils.format(component.getCapacity()) + " " + PlatformHelper.energy().unit()
+                                "custommachinery.gui.element.energy.tooltip",
+                                Utils.format(component.getEnergy()),
+                                PlatformHelper.energy().unit(),
+                                Utils.format(component.getCapacity()),
+                                PlatformHelper.energy().unit()
                         )
                 ))
                 .orElse(Collections.emptyList());

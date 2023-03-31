@@ -40,7 +40,7 @@
 
   "custommachinery.damagesource.kill": "%s was killed by a %s",
 
-  "custommachinery.gui.element.energy.tooltip": "Energy: %s / %s",
+  "custommachinery.gui.element.energy.tooltip": "Energy: %s %s / %s %s",
   "custommachinery.gui.element.fluid.tooltip": ": %smB / %smB",
   "custommachinery.gui.element.fluid.empty": "Empty : %smB / %smB",
   "custommachinery.gui.element.fuel.tooltip": "Burn Time: %s",
@@ -92,12 +92,12 @@
 
   "custommachinery.jei.ingredient.chance": "Chance: %s%%",
   "custommachinery.jei.ingredient.chance.0": "Not consumed",
-  "custommachinery.jei.ingredient.energy": "Energy: %s",
-  "custommachinery.jei.ingredient.energy.input": "Consume %s",
-  "custommachinery.jei.ingredient.energy.output": "Produce %s",
-  "custommachinery.jei.ingredient.energy.pertick": "Energy: %s per tick",
-  "custommachinery.jei.ingredient.energy.pertick.input": "Consume %s @ %s/t",
-  "custommachinery.jei.ingredient.energy.pertick.output": "Produce %s @ %s/t",
+  "custommachinery.jei.ingredient.energy": "Energy: %s %s",
+  "custommachinery.jei.ingredient.energy.input": "Consume %s %s",
+  "custommachinery.jei.ingredient.energy.output": "Produce %s %s",
+  "custommachinery.jei.ingredient.energy.pertick": "Energy: %s %s per tick",
+  "custommachinery.jei.ingredient.energy.pertick.input": "Consume %s %s @ %s %s/t",
+  "custommachinery.jei.ingredient.energy.pertick.output": "Produce %s %s @ %s %s/t",
   "custommachinery.jei.ingredient.fluid.pertick": "Per tick",
   "custommachinery.jei.ingredient.fluid.specificTank": "Must be inside this tank",
   "custommachinery.jei.ingredient.item.durability.consume": "Consume %s durability",
@@ -245,5 +245,8 @@
   "text.autoconfig.custommachinery.option.blockTagCycleTime": "Block tag cycle time",
   "text.autoconfig.custommachinery.option.itemSlotCycleTime": "Item slot cycle time",
   "text.autoconfig.custommachinery.option.needAdvancedInfoForRecipeID": "Need advanced info for recipe ID",
-  "text.autoconfig.custommachinery.option.modelFolders": "Models folders"
+  "text.autoconfig.custommachinery.option.modelFolders": "Models folders",
+
+  "unit.energy.forge": "FE",
+  "unit.energy.fabric": "E"
 }

@@ -37,18 +37,19 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
                 .addIngredient(CustomIngredientTypes.ENERGY, this.energy)
                 .addTooltipCallback((recipeSlotView, tooltip) -> {
                     Component component;
-                    String amount = Utils.format(this.energy.getAmount()) + " " + PlatformHelper.energy().unit();
+                    String amount = Utils.format(this.energy.getAmount());
+                    Component unit = PlatformHelper.energy().unit();
                     if(this.energy.isPerTick()) {
-                        String totalEnergy = Utils.format(this.energy.getAmount() * this.recipeTime) + " " + PlatformHelper.energy().unit();
+                        String totalEnergy = Utils.format(this.energy.getAmount() * this.recipeTime);
                         if(this.mode == RequirementIOMode.INPUT)
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick.input", totalEnergy, amount);
+                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick.input", totalEnergy, unit, amount, unit);
                         else
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick.output", totalEnergy, amount);
+                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick.output", totalEnergy, unit, amount, unit);
                     } else {
                         if(this.mode == RequirementIOMode.INPUT)
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.input", amount);
+                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.input", amount, unit);
                         else
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.output", amount);
+                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.output", amount, unit);
                     }
                     tooltip.set(0, component);
                 });

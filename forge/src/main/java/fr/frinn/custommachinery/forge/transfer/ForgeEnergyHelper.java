@@ -4,6 +4,8 @@ import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -11,9 +13,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class ForgeEnergyHelper implements IEnergyHelper {
 
+    private static final Component ENERGY_UNIT = new TranslatableComponent("unit.energy.forge");
+
     @Override
-    public String unit() {
-        return "FE";
+    public Component unit() {
+        return ENERGY_UNIT;
     }
 
     @Override

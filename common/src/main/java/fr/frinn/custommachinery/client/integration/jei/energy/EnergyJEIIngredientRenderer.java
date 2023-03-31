@@ -52,11 +52,12 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     @Override
     public List<Component> getTooltip(Energy ingredient, TooltipFlag iTooltipFlag) {
         List<Component> tooltips = new ArrayList<>();
-        String amount = Utils.format(ingredient.getAmount()) + " " + PlatformHelper.energy().unit();
+        String amount = Utils.format(ingredient.getAmount());
+        Component unit = PlatformHelper.energy().unit();
         if(ingredient.isPerTick())
-            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick", amount));
+            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick", amount, unit));
         else
-            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.energy", amount));
+            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.energy", amount, unit));
         if(ingredient.getChance() == 0)
             tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
         if(ingredient.getChance() < 1.0D && ingredient.getChance() > 0)
