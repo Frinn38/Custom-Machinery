@@ -18,6 +18,8 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
+import mezz.jei.api.recipe.IFocusFactory;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IModIngredientRegistration;
@@ -25,7 +27,9 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -112,7 +116,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                     boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && progress.getDirection() != ProgressBarGuiElement.Orientation.RIGHT && progress.getDirection() != ProgressBarGuiElement.Orientation.LEFT;
                     int width = invertAxis ? progress.getHeight() : progress.getWidth();
                     int height = invertAxis ? progress.getWidth() : progress.getHeight();
-                    return Collections.singleton(IGuiClickableArea.createBasic(posX, posY, width, height, CMRecipeTypes.fromID(screen.getMachine().getId())));
+                    return Collections.singleton(createBasic(posX, posY, width, height, screen.getMachine().getId()));
                 }
                 return Collections.emptyList();
             }
@@ -124,9 +128,27 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         CustomMachinery.MACHINES.forEach((id, machine) -> {
             RecipeType<?> type = CMRecipeTypes.fromID(id);
             if(type != null) {
-                registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), type);
-                machine.getCatalysts().stream().filter(catalyst -> CustomMachinery.MACHINES.containsKey(catalyst) && !catalyst.equals(id)).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type));
+                List<ResourceLocation> catalysts = machine.getCatalysts();
+                if(!catalysts.contains(id))
+                    registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), type);
+                machine.getCatalysts().stream().filter(CustomMachinery.MACHINES::containsKey).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type));
             }
         });
+    }
+
+    private static IGuiClickableArea createBasic(int xPos, int yPos, int width, int height, ResourceLocation id) {
+        Rect2i area = new Rect2i(xPos, yPos, width, height);
+        ItemStack stack = CustomMachineItem.makeMachineItem(id);
+        return new IGuiClickableArea() {
+            @Override
+            public Rect2i getArea() {
+                return area;
+            }
+
+            @Override
+            public void onClick(IFocusFactory factory, IRecipesGui recipesGui) {
+                recipesGui.show(factory.createFocus(RecipeIngredientRole.CATALYST, VanillaTypes.ITEM_STACK, stack));
+            }
+        };
     }
 }
