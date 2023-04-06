@@ -13,5 +13,7 @@ public interface IRecipeBuilder<T extends IMachineRecipe> {
 
     IRecipeBuilder<T> withJeiPriority(int jeiPriority);
 
+    IRecipeBuilder<T> hide();
+
     T build(ResourceLocation id);
 }

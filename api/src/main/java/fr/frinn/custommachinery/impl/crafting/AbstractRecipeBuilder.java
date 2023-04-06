@@ -15,6 +15,7 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
     private List<IRequirement<?>> jeiRequirements = new ArrayList<>();
     private int priority = 0;
     private int jeiPriority = 0;
+    private boolean hidden = false;
 
     public AbstractRecipeBuilder(ResourceLocation machine) {
         this.machine = machine;
@@ -32,6 +33,7 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
         return this.machine;
     }
 
+    @Override
     public AbstractRecipeBuilder<T> withRequirement(IRequirement<?> requirement) {
         this.requirements.add(requirement);
         return this;
@@ -41,6 +43,7 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
         return this.requirements;
     }
 
+    @Override
     public AbstractRecipeBuilder<T> withJeiRequirement(IRequirement<?> requirement) {
         this.jeiRequirements.add(requirement);
         return this;
@@ -50,6 +53,7 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
         return this.jeiRequirements;
     }
 
+    @Override
     public AbstractRecipeBuilder<T> withPriority(int priority) {
         this.priority = priority;
         return this;
@@ -59,6 +63,7 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
         return this.priority;
     }
 
+    @Override
     public AbstractRecipeBuilder<T> withJeiPriority(int jeiPriority) {
         this.jeiPriority = jeiPriority;
         return this;
@@ -66,5 +71,15 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
 
     public int getJeiPriority() {
         return this.jeiPriority;
+    }
+
+    @Override
+    public AbstractRecipeBuilder<T> hide() {
+        this.hidden = true;
+        return this;
+    }
+
+    public boolean isHidden() {
+        return this.hidden;
     }
 }

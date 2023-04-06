@@ -33,8 +33,9 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
     private final List<IRequirement<?>> jeiRequirements;
     private final int priority;
     private final int jeiPriority;
+    private final boolean hidden;
 
-    public CustomCraftRecipe(ResourceLocation id, ResourceLocation machine, ItemStack output, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority) {
+    public CustomCraftRecipe(ResourceLocation id, ResourceLocation machine, ItemStack output, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean hidden) {
         this.id = id;
         this.machine = machine;
         this.output = output;
@@ -42,6 +43,7 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
         this.jeiRequirements = validateRequirements(jeiRequirements);
         this.priority = priority;
         this.jeiPriority = jeiPriority;
+        this.hidden = hidden;
     }
 
     @Override
@@ -95,6 +97,11 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
     @Override
     public boolean shouldResetOnError() {
         return false;
+    }
+
+    @Override
+    public boolean showInJei() {
+        return !this.hidden;
     }
 
     /** VANILLA RECIPE STUFF **/

@@ -114,7 +114,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
 
     @Method
     public CustomMachineRecipeCTBuilder hide() {
-        //TODO: Remake
+        this.builder.hide();
         return this;
     }
 

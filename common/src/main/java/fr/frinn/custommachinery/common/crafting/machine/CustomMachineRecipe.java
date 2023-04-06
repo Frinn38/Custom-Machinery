@@ -30,9 +30,10 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     private final int priority;
     private final int jeiPriority;
     private final boolean resetOnError;
+    private final boolean hidden;
     private final Supplier<RecipeChecker<CustomMachineRecipe>> checker = Suppliers.memoize(() -> new RecipeChecker<>(this));
 
-    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError) {
+    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden) {
         this.id = id;
         this.machine = machine;
         this.time = time;
@@ -41,6 +42,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         this.priority = priority;
         this.jeiPriority = jeiPriority;
         this.resetOnError = resetOnError;
+        this.hidden = hidden;
     }
 
     @Override
@@ -98,6 +100,11 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     @Override
     public boolean shouldResetOnError() {
         return this.resetOnError;
+    }
+
+    @Override
+    public boolean showInJei() {
+        return !this.hidden;
     }
 
     public RecipeChecker<CustomMachineRecipe> checker() {

@@ -70,6 +70,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         Map<ResourceLocation, List<CustomMachineRecipe>> machineRecipes = Minecraft.getInstance().level.getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
+                .filter(CustomMachineRecipe::showInJei)
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
                 .collect(Collectors.groupingBy(CustomMachineRecipe::getMachineId));
         machineRecipes.forEach((id, list) -> {
@@ -81,6 +82,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         Map<ResourceLocation, List<CustomCraftRecipe>> craftRecipes = Minecraft.getInstance().level.getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get())
                 .stream()
+                .filter(CustomCraftRecipe::showInJei)
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
                 .collect(Collectors.groupingBy(CustomCraftRecipe::getMachineId));
         craftRecipes.forEach((id, list) -> {

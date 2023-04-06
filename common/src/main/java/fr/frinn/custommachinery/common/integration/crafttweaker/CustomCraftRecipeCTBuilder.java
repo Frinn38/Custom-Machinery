@@ -115,7 +115,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
 
     @Method
     public CustomCraftRecipeCTBuilder hide() {
-        //TODO: Remake
+        this.builder.hide();
         return this;
     }
 

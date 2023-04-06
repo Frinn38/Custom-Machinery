@@ -18,14 +18,17 @@ public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftR
                     IRequirement.CODEC.listOf().optionalFieldOf("requirements", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getRequirements),
                     IRequirement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
                     NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractRecipeBuilder::getPriority),
-                    NamedCodec.INT.optionalFieldOf("jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority)
-            ).apply(builderInstance, (machine, output, requirements, jeiRequirements, priority, jeiPriority) -> {
-                CustomCraftRecipeBuilder builder = new CustomCraftRecipeBuilder(machine, output);
-                requirements.forEach(builder::withRequirement);
-                jeiRequirements.forEach(builder::withJeiRequirement);
-                builder.withPriority(priority);
-                builder.withJeiPriority(jeiPriority);
-                return builder;
+                    NamedCodec.INT.optionalFieldOf("jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority),
+                    NamedCodec.BOOL.optionalFieldOf("hidden", false).forGetter(AbstractRecipeBuilder::isHidden)
+            ).apply(builderInstance, (machine, output, requirements, jeiRequirements, priority, jeiPriority, hidden) -> {
+                    CustomCraftRecipeBuilder builder = new CustomCraftRecipeBuilder(machine, output);
+                    requirements.forEach(builder::withRequirement);
+                    jeiRequirements.forEach(builder::withJeiRequirement);
+                    builder.withPriority(priority);
+                    builder.withJeiPriority(jeiPriority);
+                    if(hidden)
+                        builder.hide();
+                    return builder;
             }), "Craft recipe builder"
     );
 
@@ -43,6 +46,6 @@ public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftR
 
     @Override
     public CustomCraftRecipe build(ResourceLocation id) {
-        return new CustomCraftRecipe(id, this.getMachine(), this.output, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority());
+        return new CustomCraftRecipe(id, this.getMachine(), this.output, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority(), this.isHidden());
     }
 }

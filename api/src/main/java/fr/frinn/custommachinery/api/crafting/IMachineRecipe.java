@@ -74,4 +74,9 @@ public interface IMachineRecipe {
      * @return A boolean which determinate if the machine will pause or reset when a recipe requirement couldn't be fulfilled.
      */
     boolean shouldResetOnError();
+
+    /**
+     * If set to true the recipe will be shown in jei recipe gui. If false the recipe will be hidden but still work in the machine.
+     */
+    boolean showInJei();
 }

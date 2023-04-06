@@ -105,7 +105,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     }
 
     public AbstractRecipeJSBuilder<T> hide() {
-        //TODO: Remake
+        this.builder.hide();
         return this;
     }
 

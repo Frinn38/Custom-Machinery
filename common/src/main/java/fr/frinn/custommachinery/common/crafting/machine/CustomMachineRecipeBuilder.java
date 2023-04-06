@@ -18,8 +18,9 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
                     IRequirement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
                     NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractRecipeBuilder::getPriority),
                     NamedCodec.INT.optionalFieldOf("jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority),
-                    NamedCodec.BOOL.optionalFieldOf("error", true).forGetter(builder -> !builder.resetOnError)
-            ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority, error) -> {
+                    NamedCodec.BOOL.optionalFieldOf("error", true).forGetter(builder -> !builder.resetOnError),
+                    NamedCodec.BOOL.optionalFieldOf("hidden", false).forGetter(AbstractRecipeBuilder::isHidden)
+            ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority, error, hidden) -> {
                     CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
                     requirements.forEach(builder::withRequirement);
                     jeiRequirements.forEach(builder::withJeiRequirement);
@@ -27,6 +28,8 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
                     builder.withJeiPriority(jeiPriority);
                     if (!error)
                         builder.setResetOnError();
+                    if(hidden)
+                        builder.hide();
                     return builder;
             }), "Machine recipe builder"
     );
@@ -51,7 +54,7 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
     }
 
     public CustomMachineRecipe build(ResourceLocation id) {
-        return new CustomMachineRecipe(id, this.getMachine(), this.time, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority(), this.resetOnError);
+        return new CustomMachineRecipe(id, this.getMachine(), this.time, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority(), this.resetOnError, this.isHidden());
     }
 
     @Override
@@ -64,6 +67,7 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
                 ", priority=" + getPriority() +
                 ", jeiPriority=" + getJeiPriority() +
                 ", resetOnError=" + resetOnError +
+                ", hidden=" + isHidden() +
                 '}';
     }
 }
