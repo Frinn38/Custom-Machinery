@@ -146,6 +146,7 @@ unifiedPublishing {
                 relations {
                     depends "architectury-api"
                     depends "cloth-config"
+                    depends "reborncore"
                     optional "crafttweaker"
                     optional "jei"
                     optional "kubejs"
