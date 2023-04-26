@@ -185,6 +185,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     public void setLevel(Level level) {
         super.setLevel(level);
         MachineList.addMachine(this);
+        this.componentManager.getComponents().values().forEach(component -> component.setLevel(level));
     }
 
     @Override

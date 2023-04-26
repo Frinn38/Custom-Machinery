@@ -78,11 +78,6 @@ dependencies {
     modLocalRuntime("RebornCore:RebornCore-${project.rc_version}") {
         exclude group: "net.fabricmc.fabric-api"
     }
-
-    //Sodium
-    modLocalRuntime modCompileOnly("curse.maven:sodium-394468:3669187")
-    modLocalRuntime modCompileOnly("org.joml:joml:1.10.2")
-    modLocalRuntime modCompileOnly("curse.maven:indium-459496:3911811")
 }
 
 processResources {
