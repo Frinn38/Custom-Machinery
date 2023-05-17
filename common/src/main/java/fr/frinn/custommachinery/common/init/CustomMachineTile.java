@@ -60,6 +60,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         this.id = id;
         this.processor = getMachine().getProcessorTemplate().build(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
+        this.componentManager.getComponents().values().forEach(IMachineComponent::init);
     }
 
     /** MachineTile Implementation **/
@@ -86,6 +87,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     @Override
     public void setStatus(MachineStatus status, Component message) {
         if(this.status != status) {
+            this.componentManager.getComponents().values().forEach(component -> component.onStatusChanged(this.status, status, message));
             this.status = status;
             this.errorMessage = message;
             this.setChanged();
@@ -104,9 +106,12 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         CompoundTag componentManagerNBT = this.componentManager.serializeNBT();
         if(id == null)
             id = getId();
-        this.setId(id);
+        this.id = id;
+        this.processor = getMachine().getProcessorTemplate().build(this);
+        this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
         this.processor.deserialize(craftingManagerNBT);
         this.componentManager.deserializeNBT(componentManagerNBT);
+        this.componentManager.getComponents().values().forEach(IMachineComponent::init);
 
         new SRefreshCustomMachineTilePacket(this.worldPosition, id).sendToChunkListeners(this.level.getChunkAt(this.worldPosition));
     }
@@ -185,7 +190,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     public void setLevel(Level level) {
         super.setLevel(level);
         MachineList.addMachine(this);
-        this.componentManager.getComponents().values().forEach(component -> component.setLevel(level));
+        this.componentManager.getComponents().values().forEach(IMachineComponent::init);
     }
 
     @Override
