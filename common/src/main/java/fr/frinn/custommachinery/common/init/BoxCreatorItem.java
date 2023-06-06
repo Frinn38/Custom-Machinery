@@ -74,7 +74,7 @@ public class BoxCreatorItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        if(context.getPlayer() == null || context.getLevel().isClientSide)
+        if(context.getPlayer() == null)
             return InteractionResult.PASS;
         ItemStack stack = context.getItemInHand();
         BlockPos pos = context.getClickedPos();
@@ -85,7 +85,7 @@ public class BoxCreatorItem extends Item {
         if(!context.getLevel().getBlockState(pos).is(Registration.CUSTOM_MACHINE_BLOCK.get())) {
             setSelectedBlock(false, stack, pos);
             return InteractionResult.SUCCESS;
-        } else if(block1 != null && block2 != null) {
+        } else if(block1 != null && block2 != null && !context.getLevel().isClientSide()) {
             AABB aabb = new AABB(block1, block2);
             aabb = aabb.move(-pos.getX(), -pos.getY(), -pos.getZ());
             Direction direction = context.getLevel().getBlockState(pos).getValue(BlockStateProperties.HORIZONTAL_FACING);

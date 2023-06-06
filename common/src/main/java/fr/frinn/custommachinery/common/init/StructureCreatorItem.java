@@ -64,13 +64,12 @@ public class StructureCreatorItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         if(context.getPlayer() == null)
             return InteractionResult.FAIL;
-        if(context.getLevel().isClientSide())
-            return super.useOn(context);
         BlockPos pos = context.getClickedPos();
         BlockState state = context.getLevel().getBlockState(pos);
         ItemStack stack = context.getItemInHand();
         if(state.is(Registration.CUSTOM_MACHINE_BLOCK.get())) {
-            finishStructure(stack, pos, state.getValue(BlockStateProperties.HORIZONTAL_FACING), (ServerPlayer) context.getPlayer());
+            if(!context.getLevel().isClientSide())
+                finishStructure(stack, pos, state.getValue(BlockStateProperties.HORIZONTAL_FACING), (ServerPlayer) context.getPlayer());
             return InteractionResult.SUCCESS;
         } else if(!getSelectedBlocks(stack).contains(pos)) {
             addSelectedBlock(stack, pos);
