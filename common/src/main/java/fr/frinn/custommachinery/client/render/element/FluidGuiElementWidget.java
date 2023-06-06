@@ -49,4 +49,9 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
                 })
                 .orElse(Collections.emptyList());
     }
+
+    @Override
+    public boolean isClickable() {
+        return true;
+    }
 }

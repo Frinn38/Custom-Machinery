@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.network;
 
+import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -12,6 +13,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     public SyncableContainer(@Nullable MenuType<?> type, int id, ISyncableStuff syncableStuff, Player player) {
         super(type, id);
         this.player = player instanceof ServerPlayer serverPlayer ? serverPlayer : null;
+        this.stuffToSync.add(DataType.createSyncable(ItemStack.class, this::getCarried, this::setCarried));
         syncableStuff.getStuffToSync(this.stuffToSync::add);
     }
 
@@ -75,5 +78,9 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     protected Slot addSyncedSlot(Slot slot) {
         this.stuffToSync.add(ItemStackSyncable.create(slot::getItem, slot::set));
         return this.addSlot(slot);
+    }
+
+    public ServerPlayer getPlayer() {
+        return this.player;
     }
 }

@@ -1,14 +1,19 @@
 package fr.frinn.custommachinery.common.guielement;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
+import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 
 public class FluidGuiElement extends AbstractTexturedGuiElement implements IComponentGuiElement<FluidMachineComponent> {
 
@@ -49,5 +54,20 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
     @Override
     public String getID() {
         return this.id;
+    }
+
+    @Override
+    public void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {
+        ItemStack carried = container.getCarried();
+        if(carried.isEmpty() || !PlatformHelper.fluid().isFluidHandler(carried))
+            return;
+
+        tile.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(this.id))
+                .ifPresent(component -> {
+                    ItemStack stack = PlatformHelper.fluid().transferFluid(carried, component);
+                    if(!player.isCreative())
+                        container.setCarried(stack);
+                });
     }
 }

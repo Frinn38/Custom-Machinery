@@ -13,4 +13,6 @@ public interface IFluidHelper {
     void fillTanksFromStack(List<FluidMachineComponent> tanks, ItemMachineComponent slot);
 
     void fillStackFromTanks(ItemMachineComponent slot, List<FluidMachineComponent> tanks);
+
+    ItemStack transferFluid(ItemStack stack, FluidMachineComponent component);
 }

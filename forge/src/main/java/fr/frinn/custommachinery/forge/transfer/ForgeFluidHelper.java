@@ -6,7 +6,9 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
@@ -77,5 +79,17 @@ public class ForgeFluidHelper implements IFluidHelper {
             }
         }
         slot.setItemStack(handlerItem.getContainer());
+    }
+
+    @Override
+    public ItemStack transferFluid(ItemStack stack, FluidMachineComponent component) {
+        FluidTank tank = new FluidTank(component);
+        FluidActionResult result = FluidUtil.tryEmptyContainer(stack, tank, Integer.MAX_VALUE, null, true);
+        if(result.isSuccess())
+            return result.getResult();
+        result = FluidUtil.tryFillContainer(stack, tank, Integer.MAX_VALUE, null, true);
+        if(result.isSuccess())
+            return result.getResult();
+        return stack;
     }
 }

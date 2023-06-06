@@ -9,6 +9,8 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +45,7 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
     }
 
     @Override
-    public void handleClick(byte button, MachineTile tile) {
+    public void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {
         tile.getComponentManager()
                 .getDumpComponents()
                 .stream()

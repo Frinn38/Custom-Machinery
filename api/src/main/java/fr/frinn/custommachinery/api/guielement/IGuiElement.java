@@ -4,6 +4,8 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import java.util.Collections;
 import java.util.List;
@@ -73,5 +75,5 @@ public interface IGuiElement {
      *               2 : middle
      * @param tile The machine the player is currently using.
      */
-    void handleClick(byte button, MachineTile tile);
+    default void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {}
 }

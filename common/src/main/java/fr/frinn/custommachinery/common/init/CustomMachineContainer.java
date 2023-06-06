@@ -172,6 +172,6 @@ public class CustomMachineContainer extends SyncableContainer {
     public void elementClicked(int element, byte button) {
         if(element < 0 || element >= this.tile.getMachine().getGuiElements().size())
             throw new IllegalArgumentException("Invalid gui element ID: " + element);
-        this.tile.getMachine().getGuiElements().get(element).handleClick(button, this.tile);
+        this.tile.getMachine().getGuiElements().get(element).handleClick(button, this.tile, this, this.getPlayer());
     }
 }

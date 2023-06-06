@@ -7,6 +7,8 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class ResetGuiElement extends AbstractTexturedGuiElement {
 
@@ -27,7 +29,7 @@ public class ResetGuiElement extends AbstractTexturedGuiElement {
     }
 
     @Override
-    public void handleClick(byte button, MachineTile tile) {
+    public void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {
         tile.resetProcess();
     }
 }

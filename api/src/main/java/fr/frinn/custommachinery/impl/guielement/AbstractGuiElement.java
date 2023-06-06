@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.impl.guielement;
 import com.mojang.datafixers.Products;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.impl.codec.NamedRecordCodec;
 
 public abstract class AbstractGuiElement implements IGuiElement {
@@ -45,11 +44,6 @@ public abstract class AbstractGuiElement implements IGuiElement {
     @Override
     public int getPriority() {
         return this.priority;
-    }
-
-    @Override
-    public void handleClick(byte button, MachineTile tile) {
-
     }
 
     public static <T extends AbstractGuiElement> Products.P5<NamedRecordCodec.Mu<T>, Integer, Integer, Integer, Integer, Integer> makeBaseCodec(NamedRecordCodec.Instance<T> guiElement) {
