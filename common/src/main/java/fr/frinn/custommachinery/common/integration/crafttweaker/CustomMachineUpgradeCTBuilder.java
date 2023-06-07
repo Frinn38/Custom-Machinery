@@ -8,9 +8,15 @@ import com.google.common.collect.ImmutableList;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.api.upgrade.IRecipeModifier.OPERATION;
+import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.crafttweaker.RequirementTypeCTBrackets.CTRequirementType;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.AdditionRecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.ExponentialRecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.MultiplicationRecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.SpeedRecipeModifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
@@ -105,7 +111,7 @@ public class CustomMachineUpgradeCTBuilder {
     @Name(CTConstants.MODIFIER_BUILDER)
     public static class CTRecipeModifierBuilder {
 
-        private final RequirementType<?> requirementType;
+        private final RequirementType<?> requirement;
         private final RequirementIOMode mode;
         private final RecipeModifier.OPERATION operation;
         private final double modifier;
@@ -116,7 +122,7 @@ public class CustomMachineUpgradeCTBuilder {
         private Component tooltip = null;
 
         private CTRecipeModifierBuilder(RequirementType<?> type, RequirementIOMode mode, RecipeModifier.OPERATION operation, double modifier) {
-            this.requirementType = type;
+            this.requirement = type;
             this.mode = mode;
             this.operation = operation;
             this.modifier = modifier;
@@ -133,6 +139,11 @@ public class CustomMachineUpgradeCTBuilder {
         }
 
         @Method
+        public static CTRecipeModifierBuilder expInput(CTRequirementType type, double modifier) {
+            return new CTRecipeModifierBuilder(type.getType(), RequirementIOMode.INPUT, OPERATION.EXPONENTIAL, modifier);
+        }
+
+        @Method
         public static CTRecipeModifierBuilder addOutput(CTRequirementType type, double modifier) {
             return new CTRecipeModifierBuilder(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, modifier);
         }
@@ -140,6 +151,11 @@ public class CustomMachineUpgradeCTBuilder {
         @Method
         public static CTRecipeModifierBuilder mulOutput(CTRequirementType type, double modifier) {
             return new CTRecipeModifierBuilder(type.getType(), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, modifier);
+        }
+
+        @Method
+        public static CTRecipeModifierBuilder expOutput(CTRequirementType type, double modifier) {
+            return new CTRecipeModifierBuilder(type.getType(), RequirementIOMode.OUTPUT, OPERATION.EXPONENTIAL, modifier);
         }
 
         @Method
@@ -183,7 +199,13 @@ public class CustomMachineUpgradeCTBuilder {
         }
 
         private RecipeModifier build() {
-            return new RecipeModifier(this.requirementType, this.mode, this.operation, this.modifier, this.target, this.chance, this.max, this.min, this.tooltip);
+            if(requirement == Registration.SPEED_REQUIREMENT.get())
+                return new SpeedRecipeModifier(operation, modifier, chance, max, min, tooltip);
+            return switch (operation) {
+                case ADDITION -> new AdditionRecipeModifier(requirement, mode, modifier, target, chance, max, min, tooltip);
+                case MULTIPLICATION -> new MultiplicationRecipeModifier(requirement, mode, modifier, target, chance, max, min, tooltip);
+                case EXPONENTIAL -> new ExponentialRecipeModifier(requirement, mode, modifier, target, chance, max, min, tooltip);
+            };
         }
     }
 

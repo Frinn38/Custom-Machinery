@@ -2,14 +2,11 @@ package fr.frinn.custommachinery.common.crafting;
 
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,22 +40,10 @@ public class UpgradeManager implements IMachineUpgradeManager {
                 ).toList());
     }
 
-    private boolean checkModifier(IRecipeModifier modifier, RequirementType<?> type, @Nullable String target, @Nullable RequirementIOMode mode) {
-        if(modifier.getRequirementType() != type)
-            return false;
-
-        if(target == null && !modifier.getTarget().isEmpty())
-            return false;
-        else if(target != null && !modifier.getTarget().equals(target))
-            return false;
-
-        return mode == null || modifier.getMode() == mode;
-    }
-
     @Override
-    public List<Pair<IRecipeModifier, Integer>> getModifiers(RequirementType<?> type, @Nullable String target, @Nullable RequirementIOMode mode) {
+    public List<Pair<IRecipeModifier, Integer>> getAllModifiers() {
         if(this.isDirty)
             refreshUpgrades();
-        return this.activeModifiers.stream().filter(pair -> checkModifier(pair.getFirst(), type, target, mode)).toList();
+        return this.activeModifiers;
     }
 }

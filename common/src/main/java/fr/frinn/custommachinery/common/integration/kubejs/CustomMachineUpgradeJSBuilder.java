@@ -4,9 +4,14 @@ import com.google.common.collect.ImmutableList;
 import dev.latvian.mods.kubejs.event.EventJS;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.api.upgrade.IRecipeModifier.OPERATION;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.AdditionRecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.ExponentialRecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.MultiplicationRecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.modifier.SpeedRecipeModifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Registry;
@@ -68,7 +73,7 @@ public class CustomMachineUpgradeJSBuilder {
 
     public static class JSRecipeModifierBuilder {
 
-        private final RequirementType<?> requirementType;
+        private final RequirementType<?> requirement;
         private final RequirementIOMode mode;
         private final RecipeModifier.OPERATION operation;
         private final double modifier;
@@ -79,7 +84,7 @@ public class CustomMachineUpgradeJSBuilder {
         private Component tooltip = null;
 
         private JSRecipeModifierBuilder(RequirementType<?> type, RequirementIOMode mode, RecipeModifier.OPERATION operation, double modifier) {
-            this.requirementType = type;
+            this.requirement = type;
             this.mode = mode;
             this.operation = operation;
             this.modifier = modifier;
@@ -100,12 +105,20 @@ public class CustomMachineUpgradeJSBuilder {
             return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.INPUT, RecipeModifier.OPERATION.MULTIPLICATION, modifier);
         }
 
+        public static JSRecipeModifierBuilder expInput(ResourceLocation type, double modifier) {
+            return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.INPUT, OPERATION.EXPONENTIAL, modifier);
+        }
+
         public static JSRecipeModifierBuilder addOutput(ResourceLocation type, double modifier) {
             return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.ADDITION, modifier);
         }
 
         public static JSRecipeModifierBuilder mulOutput(ResourceLocation type, double modifier) {
             return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.OUTPUT, RecipeModifier.OPERATION.MULTIPLICATION, modifier);
+        }
+
+        public static JSRecipeModifierBuilder expOutput(ResourceLocation type, double modifier) {
+            return new JSRecipeModifierBuilder(getType(type), RequirementIOMode.OUTPUT, OPERATION.EXPONENTIAL, modifier);
         }
 
         public JSRecipeModifierBuilder target(String target) {
@@ -134,7 +147,13 @@ public class CustomMachineUpgradeJSBuilder {
         }
 
         private RecipeModifier build() {
-            return new RecipeModifier(this.requirementType, this.mode, this.operation, this.modifier, this.target, this.chance, this.max, this.min, this.tooltip);
+            if(requirement == Registration.SPEED_REQUIREMENT.get())
+                return new SpeedRecipeModifier(operation, modifier, chance, max, min, tooltip);
+            return switch (operation) {
+                case ADDITION -> new AdditionRecipeModifier(requirement, mode, modifier, target, chance, max, min, tooltip);
+                case MULTIPLICATION -> new MultiplicationRecipeModifier(requirement, mode, modifier, target, chance, max, min, tooltip);
+                case EXPONENTIAL -> new ExponentialRecipeModifier(requirement, mode, modifier, target, chance, max, min, tooltip);
+            };
         }
     }
 

@@ -5,27 +5,23 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nullable;
 import java.util.Locale;
 
 public interface IRecipeModifier {
 
-    RequirementType<?> getRequirementType();
+    boolean shouldApply(RequirementType<?> type, RequirementIOMode mode, @Nullable String target);
 
-    String getTarget();
-
-    RequirementIOMode getMode();
-
-    OPERATION getOperation();
-
-    double getModifier();
-
-    double getChance();
+    double apply(double original, int upgradeAmount);
 
     Component getTooltip();
 
+    Component getDefaultTooltip();
+
     enum OPERATION {
         ADDITION,
-        MULTIPLICATION;
+        MULTIPLICATION,
+        EXPONENTIAL;
 
         public static final NamedCodec<OPERATION> CODEC = NamedCodec.enumCodec(OPERATION.class);
 

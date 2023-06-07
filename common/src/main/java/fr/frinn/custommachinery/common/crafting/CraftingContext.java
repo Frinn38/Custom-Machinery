@@ -1,10 +1,12 @@
 package fr.frinn.custommachinery.common.crafting;
 
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
@@ -12,23 +14,21 @@ import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.IntStream;
 
 public class CraftingContext implements ICraftingContext {
-
-    private static final Random RAND = new Random();
 
     private final IProcessor manager;
     private final IMachineUpgradeManager upgrades;
     private final IMachineRecipe recipe;
+    private final List<Pair<IRecipeModifier, Integer>> fixedModifiers;
 
     public CraftingContext(IProcessor manager, IMachineUpgradeManager upgrades, IMachineRecipe recipe) {
         this.manager = manager;
         this.upgrades = upgrades;
         this.recipe = recipe;
+        this.fixedModifiers = Collections.unmodifiableList(upgrades.getAllModifiers());
     }
 
     @Override
@@ -71,21 +71,13 @@ public class CraftingContext implements ICraftingContext {
     }
 
     private double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, @Nullable RequirementIOMode mode) {
-        List<IRecipeModifier> toApply = new ArrayList<>();
-        this.upgrades.getModifiers(type, target, mode)
-                .stream()
-                .filter(entry -> entry.getFirst().getChance() > RAND.nextDouble())
-                .forEach(entry -> IntStream.range(0, entry.getSecond()).forEach(index -> toApply.add(entry.getFirst())));
-
-        double toAdd = 0.0D;
-        double toMult = 1.0D;
-        for(IRecipeModifier modifier : toApply) {
-            switch (modifier.getOperation()) {
-                case ADDITION -> toAdd += modifier.getModifier();
-                case MULTIPLICATION -> toMult *= modifier.getModifier();
-            }
+        double modified = value;
+        List<Pair<IRecipeModifier, Integer>> modifiers = type instanceof ITickableRequirement<?> ? this.upgrades.getAllModifiers() : this.fixedModifiers;
+        for(Pair<IRecipeModifier, Integer> pair : modifiers) {
+            if(pair.getFirst().shouldApply(type, mode, target))
+                modified = pair.getFirst().apply(modified, pair.getSecond());
         }
-        return (value + toAdd) * toMult;
+        return modified;
     }
 
     public static class Mutable extends CraftingContext {
