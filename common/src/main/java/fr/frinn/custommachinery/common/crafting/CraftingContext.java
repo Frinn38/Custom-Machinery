@@ -23,6 +23,7 @@ public class CraftingContext implements ICraftingContext {
     private final IMachineUpgradeManager upgrades;
     private final IMachineRecipe recipe;
     private final List<Pair<IRecipeModifier, Integer>> fixedModifiers;
+    private double baseSpeed = 1.0D;
 
     public CraftingContext(IProcessor manager, IMachineUpgradeManager upgrades, IMachineRecipe recipe) {
         this.manager = manager;
@@ -49,12 +50,22 @@ public class CraftingContext implements ICraftingContext {
     }
 
     @Override
+    public double getBaseSpeed() {
+        return this.baseSpeed;
+    }
+
+    @Override
+    public void setBaseSpeed(double baseSpeed) {
+        this.baseSpeed = baseSpeed;
+    }
+
+    @Override
     public double getModifiedSpeed() {
         if(getRecipe() == null)
-            return 1;
+            return this.baseSpeed;
         int baseTime = getRecipe().getRecipeTime();
         double modifiedTime = getModifiedValue(baseTime, Registration.SPEED_REQUIREMENT.get(), null, null);
-        double speed = baseTime / modifiedTime;
+        double speed = baseTime * this.baseSpeed / modifiedTime;
         return Math.max(0.01, speed);
     }
 

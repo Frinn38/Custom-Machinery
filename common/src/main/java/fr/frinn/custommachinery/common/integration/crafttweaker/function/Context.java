@@ -4,10 +4,13 @@ import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.openzen.zencode.java.ZenCodeType;
+import org.openzen.zencode.java.ZenCodeType.Getter;
+import org.openzen.zencode.java.ZenCodeType.Method;
+import org.openzen.zencode.java.ZenCodeType.Name;
+import org.openzen.zencode.java.ZenCodeType.Setter;
 
 @ZenRegister
-@ZenCodeType.Name("mods.custommachinery.Context")
+@Name("mods.custommachinery.Context")
 public class Context {
 
     private final ICraftingContext internal;
@@ -18,20 +21,38 @@ public class Context {
         this.machine = new MachineCT((CustomMachineTile)internal.getMachineTile());
     }
 
-    @ZenCodeType.Getter("remainingTime")
-    @ZenCodeType.Method
+    @Getter("remainingTime")
+    @Method
     public double getRemainingTime() {
-        return internal.getRemainingTime();
+        return this.internal.getRemainingTime();
     }
 
-    @ZenCodeType.Getter("tile")
-    @ZenCodeType.Method
+    @Getter("baseSpeed")
+    @Method
+    public double getBaseSpeed() {
+        return this.internal.getBaseSpeed();
+    }
+
+    @Setter("baseSpeed")
+    @Method
+    public void setBaseSpeed(double baseSpeed) {
+        this.internal.setBaseSpeed(baseSpeed);
+    }
+
+    @Getter("modifiedSpeed")
+    @Method
+    public double getModifiedSpeed() {
+        return this.internal.getModifiedSpeed();
+    }
+
+    @Getter("tile")
+    @Method
     public BlockEntity getTile() {
-        return internal.getMachineTile();
+        return this.internal.getMachineTile();
     }
 
-    @ZenCodeType.Getter("machine")
-    @ZenCodeType.Method
+    @Getter("machine")
+    @Method
     public MachineCT getMachine() {
         return this.machine;
     }

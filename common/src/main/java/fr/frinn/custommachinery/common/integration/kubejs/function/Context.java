@@ -19,6 +19,18 @@ public class Context {
         return this.internal.getRemainingTime();
     }
 
+    public double getBaseSpeed() {
+        return this.internal.getBaseSpeed();
+    }
+
+    public void setBaseSpeed(double baseSpeed) {
+        this.internal.setBaseSpeed(baseSpeed);
+    }
+
+    public double getModifiedSpeed() {
+        return this.internal.getModifiedSpeed();
+    }
+
     public MachineTile getTile() {
         return this.internal.getMachineTile();
     }

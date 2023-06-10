@@ -27,6 +27,18 @@ public interface ICraftingContext {
     double getRemainingTime();
 
     /**
+     * @return The base speed (in ticks) of for the processing of the current recipe. By default, '1.0' unless another base speed is set using {@link ICraftingContext#setBaseSpeed(double)}.
+     * This value does not take in account the upgrades that might be applied to the machine, use {@link ICraftingContext#getModifiedSpeed()} if you need the final speed value.
+     */
+    double getBaseSpeed();
+
+    /**
+     * Allows to set the base speed of the recipe crafting process. Upgrades will be applied on top of this value.
+     * @param baseSpeed The new base speed (how much the recipe crafting process progress each tick)
+     */
+    void setBaseSpeed(double baseSpeed);
+
+    /**
      * By default, the recipe processing speed is 1 per tick, but can be speeded up or slowed down if the machine have some upgrades modifiers.
      * @return The speed of the crafting process.
      */
