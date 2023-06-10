@@ -4,8 +4,8 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Locale;
 
 public interface IRecipeModifier {
