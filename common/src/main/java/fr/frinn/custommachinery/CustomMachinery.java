@@ -108,7 +108,7 @@ public class CustomMachinery {
     }
 
     private static EventResult onReload(final CommandPerformEvent event) {
-        if(event.getResults().getReader().getString().startsWith("/reload")) {
+        if(event.getResults().getReader().getString().startsWith("/reload") && event.getResults().getContext().getSource().hasPermission(2)) {
             CMLogger.reset();
             MachineList.setNeedRefresh();
         }
