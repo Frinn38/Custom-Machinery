@@ -2,7 +2,7 @@
   "name": "Power Crusher",
   "appearance": {
     "running": {
-      "lightlevel": 15
+      "light": 15
     }
   },
   "gui": [
@@ -110,10 +110,6 @@
     {
       "capacity": 60000,
       "type": "custommachinery:energy"
-    },
-    {
-    	"type": "custommachinery:redstone",
-    	"poweroutput": 15
     }
   ],
   "catalysts": ["custommachinery:magic_spawner", "custommachinery:stone_generator"]

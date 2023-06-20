@@ -2,7 +2,7 @@
   "name": "Magic Spawner",
   "appearance": {
     "running": {
-      "lightlevel": 15
+      "light": 15
     }
   },
   "gui": [
