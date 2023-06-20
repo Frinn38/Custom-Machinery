@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
-import fr.frinn.custommachinery.impl.util.ModelLocation;
+import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -90,12 +90,12 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
-    public ModelLocation getBlockModel() {
+    public IMachineModelLocation getBlockModel() {
         return getProperty(Registration.BLOCK_MODEL_PROPERTY.get());
     }
 
     @Override
-    public ModelLocation getItemModel() {
+    public IMachineModelLocation getItemModel() {
         return getProperty(Registration.ITEM_MODEL_PROPERTY.get());
     }
 

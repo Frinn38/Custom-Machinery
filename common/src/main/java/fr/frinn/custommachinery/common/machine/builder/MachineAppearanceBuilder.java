@@ -5,8 +5,8 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.MachineShape;
-import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -43,19 +43,19 @@ public class MachineAppearanceBuilder {
         this.properties.put(property, value);
     }
 
-    public ModelLocation getBlockModel() {
+    public MachineModelLocation getBlockModel() {
         return getProperty(Registration.BLOCK_MODEL_PROPERTY.get());
     }
 
-    public void setBlockModel(ModelLocation blockModel) {
+    public void setBlockModel(MachineModelLocation blockModel) {
         setProperty(Registration.BLOCK_MODEL_PROPERTY.get(), blockModel);
     }
 
-    public ModelLocation getItemModel() {
+    public MachineModelLocation getItemModel() {
         return getProperty(Registration.ITEM_MODEL_PROPERTY.get());
     }
 
-    public void setItemModel(ModelLocation itemModel) {
+    public void setItemModel(MachineModelLocation itemModel) {
         setProperty(Registration.ITEM_MODEL_PROPERTY.get(), itemModel);
     }
 

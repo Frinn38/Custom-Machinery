@@ -3,11 +3,11 @@ package fr.frinn.custommachinery.forge.client;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
+import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.impl.util.ModelLocation;
+import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -16,8 +16,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -152,49 +151,44 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return model;
     }
 
-    public BakedModel getMachineBlockModel(MachineAppearance appearance, @Nullable MachineStatus status) {
+    public BakedModel getMachineBlockModel(IMachineAppearance appearance, @Nullable MachineStatus status) {
         BakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
-        BakedModel model;
-        ModelLocation blockModelLocation = appearance.getBlockModel();
-        if(blockModelLocation.getProperties() != null)
+        BakedModel model = missing;
+        IMachineModelLocation blockModelLocation = appearance.getBlockModel();
+
+        if(blockModelLocation.getState() != null)
+            model = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockModelLocation.getState());
+        else if(blockModelLocation.getLoc() != null && blockModelLocation.getProperties() != null)
             model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(blockModelLocation.getLoc(), blockModelLocation.getProperties()));
-        else {
-            Block block = ForgeRegistries.BLOCKS.getValue(blockModelLocation.getLoc());
-            if(block != null && block != Blocks.AIR)
-                model = Minecraft.getInstance().getModelManager().getModel(BlockModelShaper.stateToModelLocation(block.defaultBlockState()));
-            else
-                model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation.getLoc());
-        }
+        else if(blockModelLocation.getLoc() != null)
+            model = Minecraft.getInstance().getModelManager().getModel(blockModelLocation.getLoc());
+
         if(model == missing)
             model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(status == null ? MachineStatus.IDLE : status));
 
         return model;
     }
 
-    public BakedModel getMachineItemModel(@Nullable MachineAppearance appearance) {
+    public BakedModel getMachineItemModel(@Nullable IMachineAppearance appearance) {
         BakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
         BakedModel model = missing;
 
         if(appearance != null) {
-            ModelLocation itemModelLocation = appearance.getItemModel();
-            Item item = ForgeRegistries.ITEMS.getValue(itemModelLocation.getLoc());
-            if(item != null && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item) != null)
-                model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
+            IMachineModelLocation itemModelLocation = appearance.getItemModel();
+            if(itemModelLocation.getState() != null && itemModelLocation.getState().getBlock().asItem() != Items.AIR)
+                model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(itemModelLocation.getState().getBlock().asItem());
+            else if(itemModelLocation.getLoc() != null) {
+                Item item = ForgeRegistries.ITEMS.getValue(itemModelLocation.getLoc());
+                if(itemModelLocation.getProperties() != null)
+                    model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(itemModelLocation.getLoc(), itemModelLocation.getProperties()));
+                else if(item != null && item != Items.AIR && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item) != null)
+                    model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
+                else
+                    model = Minecraft.getInstance().getModelManager().getModel(itemModelLocation.getLoc());
+            }
 
             if(model == missing)
-                if(itemModelLocation.getProperties() == null)
-                    model = Minecraft.getInstance().getModelManager().getModel(itemModelLocation.getLoc());
-                else
-                    model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(itemModelLocation.getLoc(), itemModelLocation.getProperties() == null ? "" : itemModelLocation.getProperties()));
-
-            if(model == Minecraft.getInstance().getModelManager().getModel(this.defaults.get(MachineStatus.IDLE)) || model == missing) {
-                Item item2 = ForgeRegistries.ITEMS.getValue(appearance.getBlockModel().getLoc());
-                if(item2 != null && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item2) != null)
-                    model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item2);
-
-                if(model == missing)
-                    model = getMachineBlockModel(appearance, MachineStatus.IDLE);
-            }
+                model = getMachineBlockModel(appearance, MachineStatus.IDLE);
         }
 
         if(model == missing)

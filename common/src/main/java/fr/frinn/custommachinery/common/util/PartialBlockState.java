@@ -6,7 +6,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -14,7 +13,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
@@ -28,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 
 public class PartialBlockState implements Predicate<BlockInWorld> {
@@ -142,28 +139,6 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
 
     public MutableComponent getName() {
         return new TranslatableComponent(this.blockState.getBlock().getDescriptionId());
-    }
-
-    public ModelLocation getModelLocation() {
-        ResourceLocation location = Registry.BLOCK.getKey(this.blockState.getBlock());
-        StringBuilder stringbuilder = new StringBuilder();
-
-        for(Map.Entry<Property<?>, Comparable<?>> entry : this.getBlockState().getValues().entrySet()) {
-            if (stringbuilder.length() != 0)
-                stringbuilder.append(',');
-
-            Property<?> property = entry.getKey();
-            stringbuilder.append(property.getName());
-            stringbuilder.append('=');
-            stringbuilder.append(getPropertyValueString(property, entry.getValue()));
-        }
-
-        String properties = stringbuilder.toString();
-        return ModelLocation.of(location, properties);
-    }
-
-    private static <T extends Comparable<T>> String getPropertyValueString(Property<T> property, Comparable<?> value) {
-        return property.getName((T)value);
     }
 
     @Override

@@ -110,11 +110,10 @@ import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.requirement.TimeRequirement;
 import fr.frinn.custommachinery.common.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.util.CMSoundType;
-import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -240,8 +239,8 @@ public class Registration {
     public static final RegistrySupplier<RequirementType<FunctionRequirement>> FUNCTION_REQUIREMENT = REQUIREMENTS.register("function", () -> RequirementType.world(FunctionRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<ItemTransformRequirement>> ITEM_TRANSFORM_REQUIREMENT = REQUIREMENTS.register("item_transform", () -> RequirementType.inventory(ItemTransformRequirement.CODEC));
 
-    public static final RegistrySupplier<MachineAppearanceProperty<ModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(Codecs.BLOCK_MODEL_CODEC, ModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"))));
-    public static final RegistrySupplier<MachineAppearanceProperty<ModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(Codecs.ITEM_MODEL_CODEC, ModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block"))));
+    public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
+    public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
     public static final RegistrySupplier<MachineAppearanceProperty<SoundEvent>> AMBIENT_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(DefaultCodecs.SOUND_EVENT, new SoundEvent(new ResourceLocation(""))));
     public static final RegistrySupplier<MachineAppearanceProperty<CMSoundType>> INTERACTION_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("interaction_sound", () -> MachineAppearanceProperty.create(CMSoundType.CODEC, CMSoundType.DEFAULT));
     public static final RegistrySupplier<MachineAppearanceProperty<Integer>> LIGHT_PROPERTY = APPEARANCE_PROPERTIES.register("light", () -> MachineAppearanceProperty.create(NamedCodec.intRange(0, 15), 0));

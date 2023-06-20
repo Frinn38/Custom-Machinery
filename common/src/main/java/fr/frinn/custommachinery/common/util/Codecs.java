@@ -9,10 +9,7 @@ import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import fr.frinn.custommachinery.impl.codec.EnhancedEitherCodec;
 import fr.frinn.custommachinery.impl.codec.EnhancedListCodec;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
-import fr.frinn.custommachinery.impl.util.ModelLocation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.phys.AABB;
@@ -32,8 +29,6 @@ public class Codecs {
     public static final NamedCodec<BlockPos> BLOCK_POS              = NamedCodec.of(BlockPos.CODEC, "Block Position");
     public static final NamedCodec<AABB> AABB_CODEC                 = NamedCodec.DOUBLE_STREAM.comapFlatMap(stream -> validateDoubleStreamSize(stream, 6).map(array -> new AABB(array[0], array[1], array[2], array[3], array[4], array[5])), box -> DoubleStream.of(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ), "Box");
     public static final NamedCodec<AABB> BOX_CODEC                  = either(BLOCK_POS, AABB_CODEC, "Box").xmap(either -> either.map(pos -> new AABB(pos, pos), Function.identity()), Either::right, "Box");
-    public static final NamedCodec<ModelLocation> BLOCK_MODEL_CODEC = either(ModelLocation.CODEC, PartialBlockState.CODEC, "Block Model").xmap(either -> either.map(Function.identity(), PartialBlockState::getModelLocation), Either::left, "Block model location");
-    public static final NamedCodec<ModelLocation> ITEM_MODEL_CODEC  = either(RegistrarCodec.ITEM, ModelLocation.CODEC, "Item Model").xmap(either -> either.map(item -> ModelLocation.of(Registry.ITEM.getKey(item)), Function.identity()), Either::right, "Item model location");
 
     public static <E extends Enum<E>> NamedCodec<E> fromEnum(Class<E> enumClass) {
         return EnumCodec.of(enumClass);
