@@ -18,13 +18,13 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.material.Material;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Random;
 import java.util.function.Function;
 
 public class StructureRenderer {
@@ -70,9 +70,9 @@ public class StructureRenderer {
             Arrays.fill(new int[4], LightTexture.pack(15, 15));
             if(model != Minecraft.getInstance().getModelManager().getMissingModel()) {
                 Arrays.stream(Direction.values())
-                        .flatMap(direction -> model.getQuads(state.getBlockState(), direction, new Random(42L)).stream())
+                        .flatMap(direction -> model.getQuads(state.getBlockState(), direction, RandomSource.create(42L)).stream())
                         .forEach(quad -> builder.putBulkData(matrix.last(), quad, new float[]{1.0F, 1.0F, 1.0F, 0.8F}, 1.0F, 1.0F, 1.0F, light, OverlayTexture.NO_OVERLAY, false));
-                model.getQuads(state.getBlockState(), null, new Random(42L))
+                model.getQuads(state.getBlockState(), null, RandomSource.create(42L))
                         .forEach(quad -> builder.putBulkData(matrix.last(), quad, new float[]{1.0F, 1.0F, 1.0F, 0.8F}, 1.0F, 1.0F, 1.0F, light, OverlayTexture.NO_OVERLAY, false));
             }
     }
@@ -85,9 +85,9 @@ public class StructureRenderer {
         int[] light = new int[4];
         Arrays.fill(new int[4], LightTexture.pack(15, 15));
         Arrays.stream(Direction.values())
-                .flatMap(direction -> model.getQuads(null, direction, new Random(42L)).stream())
+                .flatMap(direction -> model.getQuads(null, direction, RandomSource.create(42L)).stream())
                 .forEach(quad -> builder.putBulkData(matrix.last(), quad, new float[]{1.0F, 1.0F, 1.0F, 0.8F}, 1.0F, 1.0F, 1.0F, light, OverlayTexture.NO_OVERLAY, false));
-        model.getQuads(null, null, new Random(42L))
+        model.getQuads(null, null, RandomSource.create(42L))
                 .forEach(quad -> builder.putBulkData(matrix.last(), quad, new float[]{1.0F, 1.0F, 1.0F, 0.8F}, 1.0F, 1.0F, 1.0F, light, OverlayTexture.NO_OVERLAY, false));
     }
 

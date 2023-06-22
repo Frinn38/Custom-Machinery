@@ -68,7 +68,7 @@ dependencies {
     modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs-fabric:${project.kubejs_version}")
 
     //Crafttweaker
-    modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-fabric-1.18.2:${project.ct_version}")
+    modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-fabric-${project.minecraft_version}:${project.ct_version}")
 
     //Tech Reborn
     modLocalRuntime("TechReborn:TechReborn-${project.tr_version}") {

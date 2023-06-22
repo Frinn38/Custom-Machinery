@@ -27,7 +27,7 @@ public class ClientHandler {
         out.accept(new ResourceLocation(CustomMachinery.MODID, "block/nope"));
         out.accept(new ResourceLocation(CustomMachinery.MODID, "default/custom_machine_default"));
         for(String folder : CMConfig.get().modelFolders) {
-            manager.listResources("models/" + folder, s -> s.endsWith(".json")).forEach(rl -> {
+            manager.listResources("models/" + folder, s -> s.getPath().endsWith(".json")).forEach((rl, resource) -> {
                 ResourceLocation modelRL = new ResourceLocation(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
                 out.accept(modelRL);
             });

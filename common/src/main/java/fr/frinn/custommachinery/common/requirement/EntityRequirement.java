@@ -15,8 +15,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedRequirement;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
@@ -86,22 +85,26 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
         int radius = (int)context.getModifiedValue(this.radius, this, "radius");
         if(getMode() == RequirementIOMode.INPUT) {
             switch (this.action) {
-                case CHECK_AMOUNT:
-                    return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
-                case CHECK_HEALTH:
-                    return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
-                case CONSUME_HEALTH:
-                    if(component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {
+                case CHECK_AMOUNT -> {
+                    return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(Component.translatable("custommachinery.requirements.entity.amount.error"));
+                }
+                case CHECK_HEALTH -> {
+                    return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(Component.translatable("custommachinery.requirements.entity.health.error", amount));
+                }
+                case CONSUME_HEALTH -> {
+                    if (component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {
                         component.removeEntitiesHealth(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
-                case KILL:
-                    if(component.getEntitiesInRadius(radius, this.predicate) >= amount) {
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.entity.health.error", amount));
+                }
+                case KILL -> {
+                    if (component.getEntitiesInRadius(radius, this.predicate) >= amount) {
                         component.killEntities(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.entity.amount.error"));
+                }
             }
         }
         return CraftingResult.pass();
@@ -120,14 +123,14 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
                         component.removeEntitiesHealth(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.entity.health.error", amount));
                 }
                 case KILL -> {
                     if (component.getEntitiesInRadius(radius, this.predicate) >= amount) {
                         component.killEntities(radius, this.predicate, amount);
                         return CraftingResult.success();
                     }
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.entity.amount.error"));
                 }
             }
         }
@@ -144,9 +147,9 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
         int amount = (int)context.getModifiedValue(this.amount, this, null);
         int radius = (int)context.getModifiedValue(this.radius, this, "radius");
         if(this.action == ACTION.CHECK_AMOUNT)
-            return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
+            return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(Component.translatable("custommachinery.requirements.entity.amount.error"));
         else if(this.action == ACTION.CHECK_HEALTH)
-            return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
+            return component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(Component.translatable("custommachinery.requirements.entity.health.error", amount));
         else
             return CraftingResult.pass();
     }
@@ -159,14 +162,14 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
                     component.removeEntitiesHealth(radius, this.predicate, amount);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.health.error", amount));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.entity.health.error", amount));
             }
             case KILL -> {
                 if (component.getEntitiesInRadius(radius, this.predicate) >= amount) {
                     component.killEntities(radius, this.predicate, amount);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.entity.amount.error"));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.entity.amount.error"));
             }
         }
         return CraftingResult.pass();
@@ -174,14 +177,14 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.entity." + this.action.toString().toLowerCase(Locale.ENGLISH) + ".info", this.amount, this.radius));
+        info.addTooltip(Component.translatable("custommachinery.requirements.entity." + this.action.toString().toLowerCase(Locale.ENGLISH) + ".info", this.amount, this.radius));
         if(!this.filter.isEmpty()) {
             if(this.whitelist)
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.entity.whitelist"));
+                info.addTooltip(Component.translatable("custommachinery.requirements.entity.whitelist"));
             else
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.entity.blacklist"));
+                info.addTooltip(Component.translatable("custommachinery.requirements.entity.blacklist"));
         }
-        this.filter.forEach(type -> info.addTooltip(new TextComponent("*").append(type.getDescription())));
+        this.filter.forEach(type -> info.addTooltip(Component.literal("*").append(type.getDescription())));
         info.setItemIcon(Items.COW_SPAWN_EGG);
     }
 

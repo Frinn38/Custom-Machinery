@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import dev.latvian.mods.kubejs.item.ItemStackJS;
+import dev.latvian.mods.kubejs.recipe.RecipeArguments;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -28,9 +28,8 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Structure
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.helpers.MessageFormatter;
-
-import java.util.List;
 
 public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCraftRecipeBuilder> implements
         BiomeRequirementJS, BlockRequirementJS, CommandRequirementJS, DimensionRequirementJS, DropRequirementJS, DurabilityRequirementJS,
@@ -43,10 +42,10 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
     }
 
     @Override
-    public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine, List<Object> args) {
-        if(args.size() < 1 || !(args.get(0) instanceof ItemStackJS output))
+    public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine, RecipeArguments args) {
+        if(args.size() < 2 || !(args.get(1) instanceof ItemStack output))
             throw new RecipeExceptionJS("Custom Craft recipe must have an output item specified");
-        return new CustomCraftRecipeBuilder(machine, output.getItemStack());
+        return new CustomCraftRecipeBuilder(machine, output);
     }
 
     @Override

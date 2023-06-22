@@ -14,8 +14,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
@@ -70,10 +69,10 @@ public class BiomeRequirement extends AbstractRequirement<PositionMachineCompone
     public void getDisplayInfo(IDisplayInfo info) {
         if(!this.filter.isEmpty()) {
             if(this.blacklist)
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.biome.blacklist").withStyle(ChatFormatting.AQUA));
+                info.addTooltip(Component.translatable("custommachinery.requirements.position.info.biome.blacklist").withStyle(ChatFormatting.AQUA));
             else
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.biome.whitelist").withStyle(ChatFormatting.AQUA));
-            this.filter.forEach(biome -> info.addTooltip(new TextComponent("* ").append(new TranslatableComponent("biome." + biome.getNamespace() + "." + biome.getPath()))));
+                info.addTooltip(Component.translatable("custommachinery.requirements.position.info.biome.whitelist").withStyle(ChatFormatting.AQUA));
+            this.filter.forEach(biome -> info.addTooltip(Component.literal("* ").append(Component.translatable("biome." + biome.getNamespace() + "." + biome.getPath()))));
         }
         info.setItemIcon(Items.MAP);
     }

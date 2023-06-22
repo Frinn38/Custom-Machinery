@@ -15,7 +15,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +69,7 @@ public class EnergyRequirement extends AbstractChanceableRequirement<EnergyMachi
                 energy.extractRecipeEnergy(amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.energy.error.input", amount, canExtract));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.energy.error.input", amount, canExtract));
         }
         return CraftingResult.pass();
     }
@@ -83,7 +83,7 @@ public class EnergyRequirement extends AbstractChanceableRequirement<EnergyMachi
                 energy.receiveRecipeEnergy(amount, false);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.energy.error.output", amount));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.energy.error.output", amount));
         }
         return CraftingResult.pass();
     }

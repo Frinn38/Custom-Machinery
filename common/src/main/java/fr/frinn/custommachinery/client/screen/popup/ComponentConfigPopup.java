@@ -8,13 +8,12 @@ import fr.frinn.custommachinery.client.screen.widget.custom.config.SideModeButto
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class ComponentConfigPopup extends PopupScreen {
 
     private static final ResourceLocation EXIT_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/config/exit_button.png");
-    private static final Component TITLE = new TranslatableComponent("custommachinery.gui.config.component");
+    private static final Component TITLE = Component.translatable("custommachinery.gui.config.component");
 
     private final SideConfig config;
 
@@ -49,7 +48,7 @@ public class ComponentConfigPopup extends PopupScreen {
                 .hoverTexture(EXIT_TEXTURE, 0, 9)
                 .noBackground()
                 .callback(button -> this.close())
-                .tooltip(new TranslatableComponent("custommachinery.gui.config.close"))
+                .tooltip(Component.translatable("custommachinery.gui.config.close"))
         );
     }
 

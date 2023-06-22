@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -19,7 +19,7 @@ public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElemen
     private static final CycleTimer timer = new CycleTimer(() -> CMConfig.get().itemSlotCycleTime);
 
     public SlotGuiElementWidget(SlotGuiElement element, IMachineScreen screen) {
-        super(element, screen, new TextComponent("Slot"));
+        super(element, screen, Component.literal("Slot"));
     }
 
     @Override

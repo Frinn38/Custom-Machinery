@@ -4,7 +4,6 @@ import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.client.ClientHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +30,6 @@ public class MachineCreatorItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltips, TooltipFlag flagIn) {
-        tooltips.add(new TranslatableComponent("custommachinery.machine_creator.warning").withStyle(ChatFormatting.DARK_RED));
+        tooltips.add(Component.translatable("custommachinery.machine_creator.warning").withStyle(ChatFormatting.DARK_RED));
     }
 }

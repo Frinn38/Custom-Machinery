@@ -17,8 +17,6 @@ import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequir
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -121,15 +119,15 @@ public class EffectRequirement extends AbstractDelayedChanceableRequirement<Effe
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        Component effect = new TextComponent(this.effect.getDisplayName().getString()).withStyle(ChatFormatting.AQUA);
-        Component level = this.level <= 0 ? TextComponent.EMPTY : new TextComponent(RomanNumber.toRoman(this.level)).withStyle(ChatFormatting.GOLD);
+        Component effect = Component.literal(this.effect.getDisplayName().getString()).withStyle(ChatFormatting.AQUA);
+        Component level = this.level <= 0 ? Component.empty() : Component.literal(RomanNumber.toRoman(this.level)).withStyle(ChatFormatting.GOLD);
         if(this.applyAtEnd)
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.effect.info.end", effect, level, this.time, this.radius));
+            info.addTooltip(Component.translatable("custommachinery.requirements.effect.info.end", effect, level, this.time, this.radius));
         else
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.effect.info.tick", effect, level, this.time, this.radius));
+            info.addTooltip(Component.translatable("custommachinery.requirements.effect.info.tick", effect, level, this.time, this.radius));
         if(!this.filter.isEmpty()) {
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.effect.info.whitelist").withStyle(ChatFormatting.AQUA));
-            this.filter.forEach(type -> info.addTooltip(new TextComponent("* ").append(new TranslatableComponent(type.getDescriptionId()))));
+            info.addTooltip(Component.translatable("custommachinery.requirements.effect.info.whitelist").withStyle(ChatFormatting.AQUA));
+            this.filter.forEach(type -> info.addTooltip(Component.literal("* ").append(Component.translatable(type.getDescriptionId()))));
         }
         info.setItemIcon(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.HEALING));
     }

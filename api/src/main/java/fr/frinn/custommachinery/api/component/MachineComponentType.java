@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.api.component;
 
 import com.mojang.serialization.Codec;
-import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
@@ -10,7 +9,7 @@ import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
@@ -25,7 +24,7 @@ import java.util.function.Supplier;
  * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
  * @param <T> The {@link IMachineComponent} handled by this {@link MachineComponentType}.
  */
-public class MachineComponentType<T extends IMachineComponent> extends RegistryEntry<MachineComponentType<T>> {
+public class MachineComponentType<T extends IMachineComponent> {
 
     /**
      * The {@link ResourceKey} pointing to the {@link MachineComponentType} vanilla registry.
@@ -192,9 +191,9 @@ public class MachineComponentType<T extends IMachineComponent> extends RegistryE
      * Utility method to get the display name of a {@link MachineComponentType}.
      * The translation key for the {@link MachineComponentType} will be : "namespace.machine.component.path".
      */
-    public TranslatableComponent getTranslatedName() {
+    public Component getTranslatedName() {
         if(getId() == null)
             throw new IllegalStateException("Trying to get the registry name of an unregistered MachineComponentType");
-        return new TranslatableComponent(getId().getNamespace() + ".machine.component." + getId().getPath());
+        return Component.translatable(getId().getNamespace() + ".machine.component." + getId().getPath());
     }
 }

@@ -8,8 +8,6 @@ import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -36,7 +34,7 @@ public class MachineCreationScreen extends Screen {
     private MachineGuiCreationScreen machineGuiCreationScreen;
 
     public MachineCreationScreen(CustomMachineBuilder machine) {
-        super(new TextComponent("Machine Creation Screen"));
+        super(Component.literal("Machine Creation Screen"));
         this.machine = machine;
         this.baseInfoScreen = new BaseInfoScreen(this, machine);
         this.machineAppearanceScreen = new MachineAppearanceScreen(this, machine);
@@ -50,10 +48,10 @@ public class MachineCreationScreen extends Screen {
         this.yPos = (this.height - this.ySize) / 2;
 
         this.tabs.clear();
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.baseinfos"), this.baseInfoScreen);
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.appearance"), this.machineAppearanceScreen);
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.components"), this.machineComponentScreen);
-        this.addTab(new TranslatableComponent("custommachinery.gui.machinecreation.gui"), this.machineGuiCreationScreen);
+        this.addTab(Component.translatable("custommachinery.gui.machinecreation.baseinfos"), this.baseInfoScreen);
+        this.addTab(Component.translatable("custommachinery.gui.machinecreation.appearance"), this.machineAppearanceScreen);
+        this.addTab(Component.translatable("custommachinery.gui.machinecreation.components"), this.machineComponentScreen);
+        this.addTab(Component.translatable("custommachinery.gui.machinecreation.gui"), this.machineGuiCreationScreen);
 
         this.tabs.forEach((screen, button) -> screen.init(this.minecraft, this.width, this.height));
 
@@ -85,7 +83,7 @@ public class MachineCreationScreen extends Screen {
         TabButton tabButton = this.addRenderableWidget(new TabButton(
                 this.xPos + 5 + 30 * this.tabs.size(),
                 this.yPos - 28,
-                new TextComponent(index + ""),
+                Component.literal(index + ""),
                 (button) -> this.setSelectedTab(screen),
                 (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, name, mouseX, mouseY)
         ));

@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
@@ -50,29 +50,29 @@ public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
     }
 
     @Override
-    public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, RenderContext context) {
+    public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
         Optional.ofNullable(blockView.getBlockEntity(pos))
                 .filter(be -> be instanceof MachineTile)
                 .map(be -> ((MachineTile)be))
                 .ifPresentOrElse(
                         machine -> {
                             context.pushTransform(QuadRotator.fromDirection(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
-                            context.fallbackConsumer().accept(getMachineBlockModel(machine.getAppearance(), machine.getStatus()));
+                            context.bakedModelConsumer().accept(getMachineBlockModel(machine.getAppearance(), machine.getStatus()));
                             context.popTransform();
                         },
-                        () -> context.fallbackConsumer().accept(this)
+                        () -> context.bakedModelConsumer().accept(this)
                 );
     }
 
     @Override
-    public void emitItemQuads(ItemStack stack, Supplier<Random> randomSupplier, RenderContext context) {
-        context.fallbackConsumer().accept(this);
+    public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
+        context.bakedModelConsumer().accept(this);
     }
 
     /** VANILLA STUFF **/
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, Random random) {
+    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource random) {
         return getModel(this.defaults.get(MachineStatus.IDLE)).getQuads(blockState, direction, random);
     }
 

@@ -5,15 +5,14 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ForgeEnergyHelper implements IEnergyHelper {
 
-    private static final Component ENERGY_UNIT = new TranslatableComponent("unit.energy.forge");
+    private static final Component ENERGY_UNIT = Component.translatable("unit.energy.forge");
 
     @Override
     public Component unit() {
@@ -22,7 +21,7 @@ public class ForgeEnergyHelper implements IEnergyHelper {
 
     @Override
     public boolean isEnergyHandler(ItemStack stack) {
-        return stack.getCapability(CapabilityEnergy.ENERGY).isPresent();
+        return stack.getCapability(ForgeCapabilities.ENERGY).isPresent();
     }
 
     @Override
@@ -30,7 +29,7 @@ public class ForgeEnergyHelper implements IEnergyHelper {
         ItemStack stack = slot.getItemStack();
         if(stack.isEmpty())
             return;
-        IEnergyStorage handler =  stack.getCapability(CapabilityEnergy.ENERGY).orElseThrow(() -> new IllegalStateException("Can't fill energy buffer from non energy storage item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
+        IEnergyStorage handler =  stack.getCapability(ForgeCapabilities.ENERGY).orElseThrow(() -> new IllegalStateException("Can't fill energy buffer from non energy storage item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
         if(!handler.canExtract())
             return;
 
@@ -55,7 +54,7 @@ public class ForgeEnergyHelper implements IEnergyHelper {
         ItemStack stack = slot.getItemStack();
         if(stack.isEmpty())
             return;
-        IEnergyStorage handler =  stack.getCapability(CapabilityEnergy.ENERGY).orElseThrow(() -> new IllegalStateException("Can't fill energy buffer from non energy storage item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
+        IEnergyStorage handler =  stack.getCapability(ForgeCapabilities.ENERGY).orElseThrow(() -> new IllegalStateException("Can't fill energy buffer from non energy storage item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
         if(!handler.canReceive())
             return;
 

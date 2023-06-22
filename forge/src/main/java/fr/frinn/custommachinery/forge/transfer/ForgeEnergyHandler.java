@@ -8,8 +8,8 @@ import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,7 +62,7 @@ public class ForgeEnergyHandler implements ICommonEnergyHandler {
             LazyOptional<IEnergyStorage> neighbour;
 
             if(this.neighbourStorages.get(side) == null) {
-                neighbour = Optional.ofNullable(this.component.getManager().getLevel().getBlockEntity(this.component.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(CapabilityEnergy.ENERGY, side.getOpposite())).orElse(LazyOptional.empty());
+                neighbour = Optional.ofNullable(this.component.getManager().getLevel().getBlockEntity(this.component.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(ForgeCapabilities.ENERGY, side.getOpposite())).orElse(LazyOptional.empty());
                 neighbour.ifPresent(storage -> {
                     neighbour.addListener(cap -> this.neighbourStorages.remove(side));
                     this.neighbourStorages.put(side, neighbour);

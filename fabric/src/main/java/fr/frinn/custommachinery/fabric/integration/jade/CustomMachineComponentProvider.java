@@ -7,8 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -36,7 +35,7 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
 
             if(nbt.contains("status", Tag.TAG_BYTE)) {
                 MachineStatus machineStatus = MachineStatus.values()[nbt.getByte("status")];
-                TranslatableComponent status = machineStatus.getTranslatedName();
+                MutableComponent status = machineStatus.getTranslatedName();
                 switch (machineStatus) {
                     case ERRORED -> status.withStyle(ChatFormatting.RED);
                     case RUNNING -> status.withStyle(ChatFormatting.GREEN);
@@ -50,7 +49,7 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
                 double recipeProgressTime = nbt.getDouble("recipeProgressTime");
                 double recipeTotalTime = nbt.getDouble("recipeTotalTime");
                 float progress = (float) (recipeProgressTime / recipeTotalTime);
-                Component component = new TextComponent((int)recipeProgressTime + " / " + (int)recipeTotalTime);
+                Component component = Component.literal((int)recipeProgressTime + " / " + (int)recipeTotalTime);
                 tooltip.add(tooltip.getElementHelper().progress(progress, component, tooltip.getElementHelper().progressStyle(), tooltip.getElementHelper().borderStyle()));
             }
 

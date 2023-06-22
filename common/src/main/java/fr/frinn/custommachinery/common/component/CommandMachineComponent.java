@@ -13,13 +13,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec2;
 
-import java.util.UUID;
-
 public class CommandMachineComponent extends AbstractMachineComponent {
 
     private static final CommandSource COMMAND_SOURCE_LOG = new CommandSource() {
+
         @Override
-        public void sendMessage(Component component, UUID senderUUID) {
+        public void sendSystemMessage(Component component) {
             CustomMachinery.LOGGER.info(component.getString());
         }
 
@@ -35,7 +34,7 @@ public class CommandMachineComponent extends AbstractMachineComponent {
 
     private static final CommandSource COMMAND_SOURCE_NO_LOG = new CommandSource() {
         @Override
-        public void sendMessage(Component component, UUID senderUUID) {
+        public void sendSystemMessage(Component component) {
             CustomMachinery.LOGGER.info(component.getString());
         }
 
@@ -58,7 +57,7 @@ public class CommandMachineComponent extends AbstractMachineComponent {
             return;
 
         CommandSourceStack source = new CommandSourceStack(log ? COMMAND_SOURCE_LOG : COMMAND_SOURCE_NO_LOG, Utils.vec3dFromBlockPos(getManager().getTile().getBlockPos()), Vec2.ZERO, (ServerLevel)getManager().getLevel(), permissionLevel, "Custom Machinery", getManager().getTile().getMachine().getName(), getManager().getServer(), null);
-        getManager().getLevel().getServer().getCommands().performCommand(source, command);
+        getManager().getLevel().getServer().getCommands().performPrefixedCommand(source, command);
     }
 
     @Override

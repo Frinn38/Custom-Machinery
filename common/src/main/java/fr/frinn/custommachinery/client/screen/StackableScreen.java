@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.Stack;
 
@@ -14,7 +13,7 @@ public class StackableScreen extends BaseScreen {
     private final Runnable onClose;
 
     public StackableScreen(Runnable onClose) {
-        super(TextComponent.EMPTY, 0, 0);
+        super(Component.empty(), 0, 0);
         this.onClose = onClose;
     }
 

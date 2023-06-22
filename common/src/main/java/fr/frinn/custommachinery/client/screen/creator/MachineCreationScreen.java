@@ -11,8 +11,6 @@ import fr.frinn.custommachinery.client.screen.widget.custom.MachineList.MachineE
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.CRemoveMachinePacket;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,9 +20,9 @@ import java.util.List;
 public class MachineCreationScreen extends BaseScreen {
 
     public static final MachineCreationScreen INSTANCE = new MachineCreationScreen();
-    private static final Component CREATE = new TranslatableComponent("custommachinery.gui.creation.create");
-    private static final Component SAVE = new TranslatableComponent("custommachinery.gui.creation.save");
-    private static final Component DELETE = new TranslatableComponent("custommachinery.gui.creation.delete");
+    private static final Component CREATE = Component.translatable("custommachinery.gui.creation.create");
+    private static final Component SAVE = Component.translatable("custommachinery.gui.creation.save");
+    private static final Component DELETE = Component.translatable("custommachinery.gui.creation.delete");
 
     private static final ResourceLocation CREATE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/create_icon.png");
     private static final ResourceLocation SAVE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/save_icon.png");
@@ -40,7 +38,7 @@ public class MachineCreationScreen extends BaseScreen {
     private CustomMachineBuilder selected = null;
 
     public MachineCreationScreen() {
-        super(new TextComponent("Machine Creator"), 72, 166);
+        super(Component.literal("Machine Creator"), 72, 166);
         CustomMachinery.MACHINES.values().stream().map(CustomMachineBuilder::new).forEach(this.builders::add);
     }
 
@@ -74,9 +72,9 @@ public class MachineCreationScreen extends BaseScreen {
                             if(this.selected == null)
                                 return;
                             this.openPopup(new ConfirmPopup(190, 100, this::delete)
-                                    .text(new TextComponent("The following machine will be deleted"),
+                                    .text(Component.literal("The following machine will be deleted"),
                                             this.selected.getName(),
-                                            new TextComponent("This can't be undone!"))
+                                            Component.literal("This can't be undone!"))
                             );
                         })
                         .tooltip(DELETE)

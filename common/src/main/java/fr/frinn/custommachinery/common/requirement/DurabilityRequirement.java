@@ -17,7 +17,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +91,7 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
                     }
                 }
             }
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.durability.error.input", this.item, amount, maxRemove));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.input", this.item, amount, maxRemove));
         }
         return CraftingResult.pass();
     }
@@ -114,7 +114,7 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
                     }
                 }
             }
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.durability.error.output", this.item, amount, maxRepair));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.output", this.item, amount, maxRepair));
         }
         return CraftingResult.pass();
     }

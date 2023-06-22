@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.common.util.LootTableHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -47,13 +47,13 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
                         if(chance != 1){
                             double percentage = chance * 100;
                             if(percentage < 0.01F)
-                                tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", "<0.01"));
+                                tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", "<0.01"));
                             else {
                                 BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
                                 if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
-                                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
+                                    tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", decimal.intValue()));
                                 else
-                                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
+                                    tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
                             }
                         }
                     });

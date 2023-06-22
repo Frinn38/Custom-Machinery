@@ -13,7 +13,6 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class CustomMachineBuilder {
     private MachineLocation location;
 
     public CustomMachineBuilder() {
-        this.name = new TextComponent("New Machine");
+        this.name = Component.literal("New Machine");
         this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder()));
         this.tooltips = new ArrayList<>();
         this.guiElements = new ArrayList<>();
@@ -108,7 +107,7 @@ public class CustomMachineBuilder {
     }
 
     public CustomMachine build() {
-        Component name = this.name == null ? new TextComponent("New Machine") : this.name;
+        Component name = this.name == null ? Component.literal("New Machine") : this.name;
         MachineAppearanceManager appearance = new MachineAppearanceManager(Maps.newHashMap(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<Component> tooltips = this.tooltips == null ? ImmutableList.of() : ImmutableList.copyOf(this.tooltips);
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);

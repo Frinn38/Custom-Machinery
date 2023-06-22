@@ -14,8 +14,7 @@ import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 public class PositionRequirement extends AbstractRequirement<PositionMachineComponent> implements IDisplayInfoRequirement {
@@ -67,10 +66,10 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.position.info.pos").withStyle(ChatFormatting.AQUA));
-        info.addTooltip(new TextComponent("X: ").append(new TextComponent(this.x.toFormattedString())));
-        info.addTooltip(new TextComponent("Y: ").append(new TextComponent(this.y.toFormattedString())));
-        info.addTooltip(new TextComponent("Z: ").append(new TextComponent(this.z.toFormattedString())));
+        info.addTooltip(Component.translatable("custommachinery.requirements.position.info.pos").withStyle(ChatFormatting.AQUA));
+        info.addTooltip(Component.literal("X: ").append(Component.literal(this.x.toFormattedString())));
+        info.addTooltip(Component.literal("Y: ").append(Component.literal(this.y.toFormattedString())));
+        info.addTooltip(Component.literal("Z: ").append(Component.literal(this.z.toFormattedString())));
         info.setItemIcon(Items.COMPASS);
     }
 }

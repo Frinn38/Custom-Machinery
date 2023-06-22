@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.api.crafting;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 /**
  * This represents the result of any crafting operation.
@@ -14,8 +13,8 @@ public final class CraftingResult {
     /**
      * Default instances of the success and pass result, to avoid creating tons of new objects.
      */
-    private static final CraftingResult SUCCESS = new CraftingResult(RESULT.SUCCESS, new TextComponent("success"));
-    private static final CraftingResult PASS = new CraftingResult(RESULT.PASS, new TextComponent("pass"));
+    private static final CraftingResult SUCCESS = new CraftingResult(RESULT.SUCCESS, Component.literal("success"));
+    private static final CraftingResult PASS = new CraftingResult(RESULT.PASS, Component.literal("pass"));
 
     private final RESULT result;
     private final Component message;

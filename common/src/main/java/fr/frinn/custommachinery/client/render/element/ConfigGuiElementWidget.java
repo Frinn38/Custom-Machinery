@@ -11,14 +11,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiElement> {
 
-    private static final Component TITLE = new TranslatableComponent("custommachinery.gui.element.config.name");
+    private static final Component TITLE = Component.translatable("custommachinery.gui.element.config.name");
 
     public ConfigGuiElementWidget(ConfigGuiElement element, IMachineScreen screen) {
         super(element, screen, TITLE);

@@ -6,16 +6,15 @@ import fr.frinn.custommachinery.common.guielement.ResetGuiElement;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.List;
 
 public class ResetGuiElementWidget extends TexturedGuiElementWidget<ResetGuiElement> {
 
-    private static final Component TITLE = new TranslatableComponent("custommachinery.gui.element.reset.name");
+    private static final Component TITLE = Component.translatable("custommachinery.gui.element.reset.name");
     private static final List<Component> TOOLTIPS = Lists.newArrayList(
             TITLE,
-            new TranslatableComponent("custommachinery.gui.element.reset.tooltip").withStyle(ChatFormatting.DARK_RED)
+            Component.translatable("custommachinery.gui.element.reset.tooltip").withStyle(ChatFormatting.DARK_RED)
     );
 
     public ResetGuiElementWidget(ResetGuiElement element, IMachineScreen screen) {

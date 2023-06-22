@@ -48,7 +48,7 @@ dependencies {
     //modLocalRuntime("mezz.jei:jei-${project.minecraft_version}:9.7.2.281") {transitive = false}
 
     //Building gadgets
-    modLocalRuntime modCompileOnly("curse.maven:gadgets-298187:3725903")
+    modLocalRuntime modCompileOnly("curse.maven:gadgets-298187:4413103")
 
     //The one probe
     modLocalRuntime modCompileOnly("mcjty.theoneprobe:theoneprobe:${project.top_version}") {transitive = false}
@@ -63,7 +63,7 @@ dependencies {
     modLocalRuntime("mekanism:Mekanism:${project.mekanism_version}")
 
     //Jade
-    modLocalRuntime modCompileOnly("curse.maven:jade-324717:3865918")
+    modLocalRuntime modCompileOnly("curse.maven:jade-324717:4433884")
 }
 
 processResources {

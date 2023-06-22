@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.common.requirement.FuelRequirement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +35,7 @@ public class FuelGuiElementJeiRenderer implements IJEIElementRenderer<FuelGuiEle
     public List<Component> getJEITooltips(FuelGuiElement element, IMachineRecipe recipe) {
         int amount = recipe.getRequirements().stream().filter(requirement -> requirement instanceof FuelRequirement).findFirst().map(requirement -> ((FuelRequirement)requirement).getAmount()).orElse(0);
         if(amount > 0)
-            return Lists.newArrayList(new TranslatableComponent("custommachinery.jei.ingredient.fuel.amount", amount));
+            return Lists.newArrayList(Component.translatable("custommachinery.jei.ingredient.fuel.amount", amount));
         return Collections.emptyList();
     }
 }

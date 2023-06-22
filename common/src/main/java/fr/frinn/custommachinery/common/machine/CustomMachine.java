@@ -14,7 +14,6 @@ import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collections;
@@ -37,7 +36,7 @@ public class CustomMachine implements ICustomMachine {
     );
 
     public static final CustomMachine DUMMY = new CustomMachineBuilder()
-            .setName(new TextComponent("Dummy"))
+            .setName(Component.literal("Dummy"))
             .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")))
             .build();
 

@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.api.network;
 
-import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import net.minecraft.core.Registry;
@@ -15,11 +14,11 @@ import java.util.function.Supplier;
 
 /**
  * Used by the machine container to sync some data of a specific type T.
- * A {@link RegistryEntry} used for registering custom {@link DataType}.
+ * Used for registering custom {@link DataType}.
  * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
  * @param <T> The {@link IData} handled by this {@link DataType}.
  */
-public class DataType<D extends IData<T>, T> extends RegistryEntry<DataType<D, T>> {
+public class DataType<D extends IData<T>, T> {
 
     /**
      * The {@link ResourceKey} pointing to the {@link DataType} vanilla registry.

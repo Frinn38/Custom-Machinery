@@ -20,9 +20,8 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
@@ -99,27 +98,27 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
                 case PLACE -> {
                     if (component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 }
                 case REPLACE_BREAK -> {
                     if (component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 }
                 case REPLACE_DESTROY -> {
                     if (component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 }
                 case BREAK -> {
                     if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
                 }
                 case DESTROY -> {
                     if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
                 }
             }
         }
@@ -134,27 +133,27 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
                 case PLACE -> {
                     if (component.placeBlock(this.pos, this.block, amount))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 }
                 case REPLACE_BREAK -> {
                     if (component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 }
                 case REPLACE_DESTROY -> {
                     if (component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
                 }
                 case BREAK -> {
                     if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
                 }
                 case DESTROY -> {
                     if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                         return CraftingResult.success();
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
                 }
             }
         }
@@ -171,7 +170,7 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
         if(this.action == ACTION.CHECK) {
             long found = component.getBlockAmount(this.pos, this.filter, this.whitelist);
             if(!this.comparator.compare((int)found, this.amount))
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.check.error", amount, this.pos.toString(), found));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.block.check.error", amount, this.pos.toString(), found));
             return CraftingResult.success();
         }
         return CraftingResult.pass();
@@ -193,27 +192,27 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
             case PLACE -> {
                 if (component.placeBlock(this.pos, this.block, amount))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             }
             case REPLACE_BREAK -> {
                 if (component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             }
             case REPLACE_DESTROY -> {
                 if (component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             }
             case BREAK -> {
                 if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
             }
             case DESTROY -> {
                 if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
             }
         }
         return CraftingResult.pass();
@@ -224,47 +223,47 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
         MutableComponent action = null;
         switch (this.action) {
             case CHECK:
-                action = new TranslatableComponent("custommachinery.requirements.block.check.info");
+                action = Component.translatable("custommachinery.requirements.block.check.info");
                 break;
             case BREAK:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslatableComponent("custommachinery.requirements.block.break.info.input");
+                    action = Component.translatable("custommachinery.requirements.block.break.info.input");
                 else
-                    action = new TranslatableComponent("custommachinery.requirements.block.break.info.output");
+                    action = Component.translatable("custommachinery.requirements.block.break.info.output");
                 break;
             case DESTROY:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslatableComponent("custommachinery.requirements.block.destroy.info.input");
+                    action = Component.translatable("custommachinery.requirements.block.destroy.info.input");
                 else
-                    action = new TranslatableComponent("custommachinery.requirements.block.destroy.info.output");
+                    action = Component.translatable("custommachinery.requirements.block.destroy.info.output");
                 break;
             case PLACE:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslatableComponent("custommachinery.requirements.block.place.info.input", this.amount, this.block.getName());
+                    action = Component.translatable("custommachinery.requirements.block.place.info.input", this.amount, this.block.getName());
                 else
-                    action = new TranslatableComponent("custommachinery.requirements.block.place.info.output", this.amount, this.block.getName());
+                    action = Component.translatable("custommachinery.requirements.block.place.info.output", this.amount, this.block.getName());
                 break;
             case REPLACE_BREAK:
             case REPLACE_DESTROY:
                 if(this.getMode() == RequirementIOMode.INPUT)
-                    action = new TranslatableComponent("custommachinery.requirements.block.replace.info.input", this.amount, this.block.getName());
+                    action = Component.translatable("custommachinery.requirements.block.replace.info.input", this.amount, this.block.getName());
                 else
-                    action = new TranslatableComponent("custommachinery.requirements.block.replace.info.output", this.amount, this.block.getName());
+                    action = Component.translatable("custommachinery.requirements.block.replace.info.output", this.amount, this.block.getName());
                 break;
         }
         if(action != null)
             info.addTooltip(action.withStyle(ChatFormatting.AQUA));
         if(this.action != ACTION.PLACE) {
             if(this.action != ACTION.CHECK)
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.block." + (this.whitelist ? "allowed" : "denied")).withStyle(this.whitelist ? ChatFormatting.GREEN : ChatFormatting.RED));
+                info.addTooltip(Component.translatable("custommachinery.requirements.block." + (this.whitelist ? "allowed" : "denied")).withStyle(this.whitelist ? ChatFormatting.GREEN : ChatFormatting.RED));
             if(this.whitelist && this.filter.isEmpty())
-                info.addTooltip(new TextComponent("-").append(new TranslatableComponent("custommachinery.requirements.block.none")));
+                info.addTooltip(Component.literal("-").append(Component.translatable("custommachinery.requirements.block.none")));
             else if(!this.whitelist && this.filter.isEmpty())
-                info.addTooltip(new TextComponent("-").append(new TranslatableComponent("custommachinery.requirements.block.all")));
+                info.addTooltip(Component.literal("-").append(Component.translatable("custommachinery.requirements.block.all")));
             else
-                this.filter.forEach(block -> info.addTooltip(new TextComponent("- " + block.toString())));
+                this.filter.forEach(block -> info.addTooltip(Component.literal("- " + block.toString())));
         }
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
+        info.addTooltip(Component.translatable("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
         info.setItemIcon(Items.GRASS_BLOCK);
     }

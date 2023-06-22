@@ -6,7 +6,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -15,8 +14,8 @@ import java.util.List;
 
 public class ConfirmPopup extends PopupScreen {
 
-    public static final Component CONFIRM = new TranslatableComponent("custommachinery.gui.popup.confirm").withStyle(ChatFormatting.GREEN);
-    public static final Component CANCEL = new TranslatableComponent("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.RED);
+    public static final Component CONFIRM = Component.translatable("custommachinery.gui.popup.confirm").withStyle(ChatFormatting.GREEN);
+    public static final Component CANCEL = Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.RED);
 
     private final Runnable onConfirm;
     private final List<Component> text = new ArrayList<>();

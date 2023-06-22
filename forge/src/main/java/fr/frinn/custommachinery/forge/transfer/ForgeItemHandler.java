@@ -9,8 +9,8 @@ import fr.frinn.custommachinery.impl.component.config.SideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
@@ -74,7 +74,7 @@ public class ForgeItemHandler implements ICommonItemHandler {
             LazyOptional<IItemHandler> neighbour;
 
             if(this.neighbourStorages.get(side) == null) {
-                neighbour = Optional.ofNullable(this.handler.getManager().getLevel().getBlockEntity(this.handler.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite())).orElse(LazyOptional.empty());
+                neighbour = Optional.ofNullable(this.handler.getManager().getLevel().getBlockEntity(this.handler.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(ForgeCapabilities.ITEM_HANDLER, side.getOpposite())).orElse(LazyOptional.empty());
                 neighbour.ifPresent(storage -> {
                     neighbour.addListener(cap -> this.neighbourStorages.remove(side));
                     this.neighbourStorages.put(side, neighbour);

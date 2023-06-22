@@ -6,8 +6,7 @@ import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +19,7 @@ public class MachineComponentScreen extends MachineCreationTabScreen {
     private ComponentList componentList;
 
     public MachineComponentScreen(MachineCreationScreen parent, CustomMachineBuilder machine) {
-        super(new TextComponent("Machine Components"), parent, machine);
+        super(Component.literal("Machine Components"), parent, machine);
     }
 
     @Override
@@ -36,9 +35,9 @@ public class MachineComponentScreen extends MachineCreationTabScreen {
         this.renderBackground(matrix);
 
         if(this.componentList.children().isEmpty())
-            this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.component.empty").getString(), this.xPos + 5, this.yPos + 130, 0);
+            this.font.draw(matrix, Component.translatable("custommachinery.gui.component.empty").getString(), this.xPos + 5, this.yPos + 130, 0);
         else if(this.componentList.getSelected() == null)
-            this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.component.select").getString(), this.xPos + 5, this.yPos + 5, 0);
+            this.font.draw(matrix, Component.translatable("custommachinery.gui.component.select").getString(), this.xPos + 5, this.yPos + 5, 0);
 
         this.componentList.render(matrix, mouseX, mouseY, partialTicks);
 

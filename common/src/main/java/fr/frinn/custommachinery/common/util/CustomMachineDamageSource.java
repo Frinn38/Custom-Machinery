@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -19,6 +18,6 @@ public class CustomMachineDamageSource extends DamageSource {
 
     @Override
     public Component getLocalizedDeathMessage(LivingEntity dead) {
-        return new TranslatableComponent("custommachinery.damagesource.kill", dead.getDisplayName(), this.machineName);
+        return Component.translatable("custommachinery.damagesource.kill", dead.getDisplayName(), this.machineName);
     }
 }

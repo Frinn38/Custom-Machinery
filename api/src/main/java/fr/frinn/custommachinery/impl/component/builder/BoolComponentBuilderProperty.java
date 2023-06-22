@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.impl.component.builder;
 
 import fr.frinn.custommachinery.impl.util.EnumButton;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Arrays;
 
@@ -27,7 +27,7 @@ public class BoolComponentBuilderProperty extends AbstractComponentBuilderProper
                 height,
                 button -> this.set(((EnumButton<Boolean>)button).getValue()),
                 (button, matrix, mouseX, mouseY) -> {},
-                value -> new TextComponent(value.toString()),
+                value -> Component.literal(value.toString()),
                 Arrays.asList(true, false),
                 get()
         );

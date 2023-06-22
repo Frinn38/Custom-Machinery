@@ -19,7 +19,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -122,7 +122,7 @@ public class ItemTransformRequirement extends AbstractChanceableRequirement<Item
             component.addToOutputs(this.outputSlot, this.output == Items.AIR ? item : this.output, this.outputAmount, outputNBT);
             return CraftingResult.success();
         }
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.item_transform.error", this.input.toString(), this.inputAmount));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.item_transform.error", this.input.toString(), this.inputAmount));
     }
 
     @Override

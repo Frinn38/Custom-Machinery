@@ -22,7 +22,7 @@ import mcjty.theoneprobe.api.ProbeMode;
 import mcjty.theoneprobe.api.TextStyleClass;
 import mcjty.theoneprobe.config.Config;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -75,7 +75,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
     }
 
     private void showCraftingManagerInfo(CustomMachineTile tile, IProbeInfo info) {
-        TranslatableComponent status = tile.getStatus().getTranslatedName();
+        MutableComponent status = tile.getStatus().getTranslatedName();
         switch (tile.getStatus()) {
             case ERRORED -> status.withStyle(ChatFormatting.RED);
             case RUNNING -> status.withStyle(ChatFormatting.GREEN);

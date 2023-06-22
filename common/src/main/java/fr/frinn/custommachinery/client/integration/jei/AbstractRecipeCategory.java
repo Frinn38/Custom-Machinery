@@ -27,7 +27,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,20 +111,6 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     @Override
     public RecipeType<T> getRecipeType() {
         return this.recipeType;
-    }
-
-    //Safe delete when needed
-    @SuppressWarnings("removal")
-    @Override
-    public ResourceLocation getUid() {
-        return getRecipeType().getUid();
-    }
-
-    //Safe delete when needed
-    @SuppressWarnings("removal")
-    @Override
-    public Class<? extends T> getRecipeClass() {
-        return getRecipeType().getRecipeClass();
     }
 
     @Override

@@ -16,7 +16,7 @@ import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 
 import java.util.List;
@@ -54,15 +54,15 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
                     .setFluidRenderer(this.amount, false, element.getWidth() - 2, element.getHeight() - 2)
                     .addTooltipCallback((view, tooltips) -> {
                         if(this.isPerTick)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fluid.pertick"));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.fluid.pertick"));
 
                         if(this.chance == 0)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
                         else if(this.chance != 1.0)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", (int)(this.chance * 100)));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", (int)(this.chance * 100)));
 
                         if(!this.tank.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fluid.specificTank").withStyle(ChatFormatting.DARK_RED));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.fluid.specificTank").withStyle(ChatFormatting.DARK_RED));
                     });
             this.addFluidIngredients(helper.getJeiHelpers().getPlatformFluidHelper(), slot);
             return true;

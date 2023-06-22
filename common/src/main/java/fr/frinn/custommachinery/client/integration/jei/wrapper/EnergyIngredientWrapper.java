@@ -13,7 +13,6 @@ import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
@@ -42,14 +41,14 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
                     if(this.energy.isPerTick()) {
                         String totalEnergy = Utils.format(this.energy.getAmount() * this.recipeTime);
                         if(this.mode == RequirementIOMode.INPUT)
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick.input", totalEnergy, unit, amount, unit);
+                            component = Component.translatable("custommachinery.jei.ingredient.energy.pertick.input", totalEnergy, unit, amount, unit);
                         else
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick.output", totalEnergy, unit, amount, unit);
+                            component = Component.translatable("custommachinery.jei.ingredient.energy.pertick.output", totalEnergy, unit, amount, unit);
                     } else {
                         if(this.mode == RequirementIOMode.INPUT)
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.input", amount, unit);
+                            component = Component.translatable("custommachinery.jei.ingredient.energy.input", amount, unit);
                         else
-                            component = new TranslatableComponent("custommachinery.jei.ingredient.energy.output", amount, unit);
+                            component = Component.translatable("custommachinery.jei.ingredient.energy.output", amount, unit);
                     }
                     tooltip.set(0, component);
                 });

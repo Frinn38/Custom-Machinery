@@ -9,8 +9,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +17,7 @@ public class FuelGuiElementWidget extends AbstractGuiElementWidget<FuelGuiElemen
 
 
     public FuelGuiElementWidget(FuelGuiElement element, IMachineScreen screen) {
-        super(element, screen, new TextComponent("Fuel"));
+        super(element, screen, Component.literal("Fuel"));
     }
 
     @Override
@@ -39,7 +37,7 @@ public class FuelGuiElementWidget extends AbstractGuiElementWidget<FuelGuiElemen
     public List<Component> getTooltips() {
         return this.getScreen().getTile().getComponentManager()
                 .getComponent(Registration.FUEL_MACHINE_COMPONENT.get())
-                .map(component -> Collections.singletonList((Component)new TranslatableComponent("custommachinery.gui.element.fuel.tooltip", component.getFuel())))
+                .map(component -> Collections.singletonList((Component)Component.translatable("custommachinery.gui.element.fuel.tooltip", component.getFuel())))
                 .orElse(Collections.emptyList());
     }
 }

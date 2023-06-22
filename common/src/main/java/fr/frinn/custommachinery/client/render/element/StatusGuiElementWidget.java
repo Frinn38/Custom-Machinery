@@ -8,8 +8,6 @@ import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +16,7 @@ import java.util.Locale;
 public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiElement> {
 
     public StatusGuiElementWidget(StatusGuiElement element, IMachineScreen screen) {
-        super(element, screen, new TextComponent("Status"));
+        super(element, screen, Component.literal("Status"));
     }
 
     @Override
@@ -34,7 +32,7 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
     @Override
     public List<Component> getTooltips() {
         List<Component> tooltips = new ArrayList<>();
-        tooltips.add(new TranslatableComponent("custommachinery.craftingstatus." + this.getScreen().getTile().getStatus().toString().toLowerCase(Locale.ENGLISH)));
+        tooltips.add(Component.translatable("custommachinery.craftingstatus." + this.getScreen().getTile().getStatus().toString().toLowerCase(Locale.ENGLISH)));
         if(this.getScreen().getTile().getStatus() == MachineStatus.ERRORED)
             tooltips.add(this.getScreen().getTile().getMessage());
         return tooltips;

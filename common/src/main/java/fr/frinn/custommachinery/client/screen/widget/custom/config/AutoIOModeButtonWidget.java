@@ -11,7 +11,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 
@@ -22,10 +21,10 @@ import java.util.function.Supplier;
 public class AutoIOModeButtonWidget extends Widget {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/config/auto_io_mode.png");
-    private static final Component INPUT = new TranslatableComponent("custommachinery.gui.config.auto_input");
-    private static final Component OUTPUT = new TranslatableComponent("custommachinery.gui.config.auto_output");
-    private static final Component ENABLED = new TranslatableComponent("custommachinery.gui.config.enabled").withStyle(ChatFormatting.GREEN);
-    private static final Component DISABLED = new TranslatableComponent("custommachinery.gui.config.disabled").withStyle(ChatFormatting.RED);
+    private static final Component INPUT = Component.translatable("custommachinery.gui.config.auto_input");
+    private static final Component OUTPUT = Component.translatable("custommachinery.gui.config.auto_output");
+    private static final Component ENABLED = Component.translatable("custommachinery.gui.config.enabled").withStyle(ChatFormatting.GREEN);
+    private static final Component DISABLED = Component.translatable("custommachinery.gui.config.disabled").withStyle(ChatFormatting.RED);
 
     private final SideConfig config;
     private final boolean input;

@@ -18,8 +18,7 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 import java.util.List;
@@ -82,17 +81,17 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
     public CraftingResult processTick(StructureMachineComponent component, ICraftingContext context) {
         if(component.checkStructure(this.structure))
             return CraftingResult.success();
-        else return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.structure.error"));
+        else return CraftingResult.error(Component.translatable("custommachinery.requirements.structure.error"));
     }
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.info"));
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.click"));
+        info.addTooltip(Component.translatable("custommachinery.requirements.structure.info"));
+        info.addTooltip(Component.translatable("custommachinery.requirements.structure.click"));
         this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {
             IIngredient<PartialBlockState> ingredient = this.keys.get(key);
             if(ingredient != null && amount > 0)
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.list", amount, new TextComponent(ingredient.toString()).withStyle(ChatFormatting.GOLD)));
+                info.addTooltip(Component.translatable("custommachinery.requirements.structure.list", amount, Component.literal(ingredient.toString()).withStyle(ChatFormatting.GOLD)));
         });
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
         info.setItemIcon(Items.STRUCTURE_BLOCK);

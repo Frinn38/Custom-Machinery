@@ -30,5 +30,5 @@ dependencies {
     modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs:${project.kubejs_version}")
 
     //Crafttweaker common module
-    modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-common-1.18.2:${project.ct_version}")
+    modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-common-${project.minecraft_version}:${project.ct_version}")
 }

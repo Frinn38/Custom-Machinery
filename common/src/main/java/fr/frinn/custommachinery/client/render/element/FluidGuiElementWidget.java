@@ -10,8 +10,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.List;
 public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElement> {
 
     public FluidGuiElementWidget(FluidGuiElement element, IMachineScreen screen) {
-        super(element, screen, new TextComponent("Fluid"));
+        super(element, screen, Component.literal("Fluid"));
     }
 
     @Override
@@ -42,9 +40,9 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
                     long amount = component.getFluidStack().getAmount() * 1000L / FluidStackHooks.bucketAmount();
                     long capacity = component.getCapacity() * 1000L / FluidStackHooks.bucketAmount();
                     if(!component.getFluidStack().isEmpty() && amount > 0)
-                        tooltip = new TranslatableComponent(component.getFluidStack().getTranslationKey()).append(new TranslatableComponent("custommachinery.gui.element.fluid.tooltip", Utils.format(amount), Utils.format(capacity)));
+                        tooltip = Component.translatable(component.getFluidStack().getTranslationKey()).append(Component.translatable("custommachinery.gui.element.fluid.tooltip", Utils.format(amount), Utils.format(capacity)));
                     else
-                        tooltip = new TranslatableComponent("custommachinery.gui.element.fluid.empty", 0, Utils.format(capacity));
+                        tooltip = Component.translatable("custommachinery.gui.element.fluid.empty", 0, Utils.format(capacity));
                     return Collections.singletonList(tooltip);
                 })
                 .orElse(Collections.emptyList());

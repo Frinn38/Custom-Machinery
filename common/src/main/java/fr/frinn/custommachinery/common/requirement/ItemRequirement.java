@@ -18,7 +18,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -101,7 +101,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
                     }
                 }
             }
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.item.error.input", this.item.toString(), amount, maxExtract));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", this.item.toString(), amount, maxExtract));
         }
         return CraftingResult.pass();
     }
@@ -117,7 +117,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
                     component.addToOutputs(this.slot, item, amount, this.nbt);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.item.error.output", amount, new TranslatableComponent(item.getDescriptionId())));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, Component.translatable(item.getDescriptionId())));
             } else throw new IllegalStateException("Can't use output item requirement with item tag");
         }
         return CraftingResult.pass();

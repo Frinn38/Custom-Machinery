@@ -13,7 +13,7 @@ import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComponent> implements ITickableRequirement<RedstoneMachineComponent>, IDisplayInfoRequirement {
@@ -45,7 +45,7 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
     public CraftingResult processStart(RedstoneMachineComponent component, ICraftingContext context) {
         if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", this.powerLevel.toFormattedString()));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.redstone.error", this.powerLevel.toFormattedString()));
     }
 
     @Override
@@ -62,12 +62,12 @@ public class RedstoneRequirement extends AbstractRequirement<RedstoneMachineComp
     public CraftingResult processTick(RedstoneMachineComponent component, ICraftingContext context) {
         if(this.test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.redstone.error", this.powerLevel.toFormattedString()));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.redstone.error", this.powerLevel.toFormattedString()));
     }
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.redstone.info", this.powerLevel.toFormattedString()))
+        info.addTooltip(Component.translatable("custommachinery.requirements.redstone.info", this.powerLevel.toFormattedString()))
                 .setItemIcon(Items.REDSTONE);
     }
 }

@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Locale;
 
@@ -16,20 +15,20 @@ public class TextGuiElement extends AbstractGuiElement {
             textGuiElementCodec.group(
                     NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
                     NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    NamedCodec.STRING.fieldOf("text").forGetter(element -> element.text.getKey()),
+                    NamedCodec.STRING.fieldOf("text").forGetter(element -> element.text.getString()),
                     NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment", Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
                     NamedCodec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor)
             ).apply(textGuiElementCodec, TextGuiElement::new), "Text gui element"
     );
 
-    private final TranslatableComponent text;
+    private final Component text;
     private final Alignment alignment;
     private final int color;
 
     public TextGuiElement(int x, int y, String text, int priority, Alignment alignment, int color) {
         super(x, y, 0, 0, priority);
-        this.text = new TranslatableComponent(text);
+        this.text = Component.translatable(text);
         this.alignment = alignment;
         this.color = color;
     }

@@ -10,10 +10,9 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collections;
@@ -53,11 +52,11 @@ public class TextComponentUtils {
 
     public static final NamedCodec<Component> TEXT_COMPONENT_CODEC = NamedCodec.record(iTextComponentInstance ->
             iTextComponentInstance.group(
-                    NamedCodec.STRING.fieldOf("text").forGetter(iTextComponent -> iTextComponent instanceof TranslatableComponent ? ((TranslatableComponent)iTextComponent).getKey() : iTextComponent.getContents()),
+                    NamedCodec.STRING.fieldOf("text").forGetter(Component::getString),
                     STYLE_CODEC.forGetter(Component::getStyle),
                     NamedCodec.lazy(TextComponentUtils::getCodec, "Text component").listOf().optionalFieldOf("childrens", Collections.emptyList()).forGetter(Component::getSiblings)
             ).apply(iTextComponentInstance, (text, style, childrens) -> {
-                            TranslatableComponent component = new TranslatableComponent(text);
+                            MutableComponent component = Component.translatable(text);
                             component.setStyle(style);
                             childrens.forEach(component::append);
                             return component;
@@ -67,7 +66,7 @@ public class TextComponentUtils {
     );
 
     public static final NamedCodec<Component> CODEC = NamedCodec.either(TEXT_COMPONENT_CODEC, NamedCodec.STRING)
-            .xmap(either -> either.map(Function.identity(), TranslatableComponent::new), Either::left, "Text component");
+            .xmap(either -> either.map(Function.identity(), Component::translatable), Either::left, "Text component");
 
     public static String toJsonString(Component component) {
         DataResult<JsonElement> result = TEXT_COMPONENT_CODEC.encodeStart(JsonOps.INSTANCE, component);
@@ -76,7 +75,7 @@ public class TextComponentUtils {
 
     public static Component fromJsonString(String jsonString) {
         JsonElement json = JsonParser.parseString(jsonString);
-        return TEXT_COMPONENT_CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst).orElse(TextComponent.EMPTY);
+        return TEXT_COMPONENT_CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst).orElse(Component.empty());
     }
 
     private static NamedCodec<Component> getCodec() {

@@ -4,7 +4,6 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
@@ -25,7 +24,7 @@ public enum RelativeSide {
     public static final NamedCodec<RelativeSide> CODEC = EnumCodec.of(RelativeSide.class);
 
     public Component getTranslationName() {
-        return new TranslatableComponent("custommachinery.side." + name().toLowerCase(Locale.ROOT));
+        return Component.translatable("custommachinery.side." + name().toLowerCase(Locale.ROOT));
     }
 
     /**

@@ -8,7 +8,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.function.Supplier;
 
 public class ButtonWidget extends Widget {
 
-    private Component title = TextComponent.EMPTY;
+    private Component title = Component.empty();
     private boolean displayTitle = false;
     private Consumer<ButtonWidget> onPress = button -> {};
     private ResourceLocation texture = null;
@@ -126,7 +125,7 @@ public class ButtonWidget extends Widget {
                 AbstractWidget.blit(pose, getX(), getY(), this.width, this.height, this.u, this.v, this.uWidth, this.vHeight, TextureSizeHelper.getTextureWidth(this.texture), TextureSizeHelper.getTextureHeight(this.texture));
             }
         }
-        if(this.displayTitle && this.title != null && this.title != TextComponent.EMPTY) {
+        if(this.displayTitle && this.title != null && this.title != Component.empty()) {
             Font font = Minecraft.getInstance().font;
             int x = getX() + (this.width - font.width(this.title)) / 2;
             int y = getY() + (this.height - font.lineHeight) / 2;

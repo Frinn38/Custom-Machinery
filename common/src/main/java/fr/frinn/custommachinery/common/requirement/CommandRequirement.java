@@ -16,8 +16,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedRequirement;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 import java.util.Locale;
@@ -99,8 +98,8 @@ public class CommandRequirement extends AbstractDelayedChanceableRequirement<Com
     public void getDisplayInfo(IDisplayInfo info) {
         info.setItemIcon(Items.COMMAND_BLOCK);
         if(!isDelayed())
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.command.info", new TextComponent(this.command).withStyle(ChatFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));
+            info.addTooltip(Component.translatable("custommachinery.requirements.command.info", Component.literal(this.command).withStyle(ChatFormatting.AQUA), this.phase.toString().toLowerCase(Locale.ENGLISH)));
         else
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.command.delay", new TextComponent(this.command).withStyle(ChatFormatting.AQUA), (int)(getDelay() * 100) + "%"));
+            info.addTooltip(Component.translatable("custommachinery.requirements.command.delay", Component.literal(this.command).withStyle(ChatFormatting.AQUA), (int)(getDelay() * 100) + "%"));
     }
 }

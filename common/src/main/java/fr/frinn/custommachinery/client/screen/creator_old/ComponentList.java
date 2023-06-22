@@ -14,8 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
@@ -49,7 +47,7 @@ public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEn
                 63,
                 20,
                 button -> {},
-                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.component.buildertypewidget"), mouseX, mouseY),
+                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, Component.translatable("custommachinery.gui.component.buildertypewidget"), mouseX, mouseY),
                 MachineComponentType::getTranslatedName,
                 StreamSupport.stream(Registration.MACHINE_COMPONENT_TYPE_REGISTRY.spliterator(), false).filter(MachineComponentType::haveGUIBuilder).toList(),
                 Registration.ENERGY_MACHINE_COMPONENT.get()
@@ -60,10 +58,10 @@ public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEn
                 y + 136,
                 20,
                 20,
-                TextComponent.EMPTY,
+                Component.empty(),
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/create_icon.png"),
                 button -> this.addComponent(this.builderTypeWidget.getValue().getGUIBuilder().get()),
-                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.machineloading.create"), mouseX, mouseY)
+                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, Component.empty(), mouseX, mouseY)
         );
         this.parent.getChildrens().add(this.addButton);
         this.removeButton = new TexturedButton(
@@ -71,13 +69,13 @@ public class ComponentList extends ObjectSelectionList<ComponentList.ComponentEn
                 y + 136,
                 20,
                 20,
-                TextComponent.EMPTY,
+                Component.empty(),
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/delete_icon.png"),
                 button -> {
                     if(getSelected() != null)
                         this.removeEntry(this.getSelected());
                 },
-                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, new TranslatableComponent("custommachinery.gui.machineloading.delete"), mouseX, mouseY)
+                (button, matrix, mouseX, mouseY) -> this.parent.renderTooltip(matrix, Component.empty(), mouseX, mouseY)
         );
         this.parent.getChildrens().add(this.removeButton);
         this.propertyWidgets = new HashMap<>();

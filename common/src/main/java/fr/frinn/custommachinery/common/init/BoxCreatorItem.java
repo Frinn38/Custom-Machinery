@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.init;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -11,8 +10,6 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -56,20 +53,20 @@ public class BoxCreatorItem extends Item {
         super.appendHoverText(stack, world, tooltip, flag);
         BlockPos block1 = getSelectedBlock(true, stack);
         if(block1 != null)
-            tooltip.add(new TranslatableComponent("custommachinery.box_creator.first_block", block1.toShortString()).withStyle(ChatFormatting.BLUE));
+            tooltip.add(Component.translatable("custommachinery.box_creator.first_block", block1.toShortString()).withStyle(ChatFormatting.BLUE));
         else
-            tooltip.add(new TranslatableComponent("custommachinery.box_creator.select_first_block").withStyle(ChatFormatting.BLUE));
+            tooltip.add(Component.translatable("custommachinery.box_creator.select_first_block").withStyle(ChatFormatting.BLUE));
 
         BlockPos block2 = getSelectedBlock(false, stack);
         if(block2 != null)
-            tooltip.add(new TranslatableComponent("custommachinery.box_creator.second_block", block2.toShortString()).withStyle(ChatFormatting.RED));
+            tooltip.add(Component.translatable("custommachinery.box_creator.second_block", block2.toShortString()).withStyle(ChatFormatting.RED));
         else
-            tooltip.add(new TranslatableComponent("custommachinery.box_creator.select_second_block").withStyle(ChatFormatting.RED));
+            tooltip.add(Component.translatable("custommachinery.box_creator.select_second_block").withStyle(ChatFormatting.RED));
 
         if(block1 != null && block2 != null)
-            tooltip.add(new TranslatableComponent("custommachinery.box_creator.select_machine").withStyle(ChatFormatting.GREEN));
+            tooltip.add(Component.translatable("custommachinery.box_creator.select_machine").withStyle(ChatFormatting.GREEN));
 
-        tooltip.add(new TranslatableComponent("custommachinery.box_creator.reset").withStyle(ChatFormatting.GOLD));
+        tooltip.add(Component.translatable("custommachinery.box_creator.reset").withStyle(ChatFormatting.GOLD));
     }
 
     @Override
@@ -91,9 +88,9 @@ public class BoxCreatorItem extends Item {
             Direction direction = context.getLevel().getBlockState(pos).getValue(BlockStateProperties.HORIZONTAL_FACING);
             aabb = Utils.rotateBox(aabb, direction);
             String boxString = "[" + (int)aabb.minX + ", " + (int)aabb.minY + ", " + (int)aabb.minZ + ", " + (int)aabb.maxX + ", " + (int)aabb.maxY + ", " + (int)aabb.maxZ + "]";
-            Component boxText = new TextComponent(boxString).withStyle(Style.EMPTY.applyFormat(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("custommachinery.box_creator.copy"))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, boxString)));
-            Component message = new TranslatableComponent("custommachinery.box_creator.create_box", boxText);
-            context.getPlayer().sendMessage(message, Util.NIL_UUID);
+            Component boxText = Component.literal(boxString).withStyle(Style.EMPTY.applyFormat(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.box_creator.copy"))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, boxString)));
+            Component message = Component.translatable("custommachinery.box_creator.create_box", boxText);
+            context.getPlayer().sendSystemMessage(message);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;

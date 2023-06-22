@@ -30,7 +30,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         map.forEach((id, json) -> {
             String packName;
             try {
-                packName = resourceManager.getResource(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).getSourceName();
+                packName = resourceManager.getResourceOrThrow(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).sourcePackId();
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }

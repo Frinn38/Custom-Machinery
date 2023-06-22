@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.api.machine;
 
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,14 +33,6 @@ public enum MachineStatus implements StringRepresentable {
         return valueOf(string.toUpperCase(Locale.ENGLISH));
     }
 
-    public static MachineStatus getValueOrNull(String value) {
-        try {
-            return value(value);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
     @Override
     public String toString() {
         return super.toString().toLowerCase(Locale.ENGLISH);
@@ -51,7 +44,7 @@ public enum MachineStatus implements StringRepresentable {
         return toString();
     }
 
-    public TranslatableComponent getTranslatedName() {
-        return new TranslatableComponent("custommachinery.craftingstatus." + this);
+    public MutableComponent getTranslatedName() {
+        return Component.translatable("custommachinery.craftingstatus." + this);
     }
 }

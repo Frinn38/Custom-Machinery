@@ -12,14 +12,11 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -85,11 +82,11 @@ public class StructureCreatorItem extends Item {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         int amount = getSelectedBlocks(stack).size();
         if(amount <= 0)
-            tooltip.add(new TranslatableComponent("custommachinery.structure_creator.no_blocks").withStyle(ChatFormatting.RED));
+            tooltip.add(Component.translatable("custommachinery.structure_creator.no_blocks").withStyle(ChatFormatting.RED));
         else
-            tooltip.add(new TranslatableComponent("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()).withStyle(ChatFormatting.BLUE));
-        tooltip.add(new TranslatableComponent("custommachinery.structure_creator.select").withStyle(ChatFormatting.GREEN));
-        tooltip.add(new TranslatableComponent("custommachinery.structure_creator.reset").withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()).withStyle(ChatFormatting.BLUE));
+        tooltip.add(Component.translatable("custommachinery.structure_creator.select").withStyle(ChatFormatting.GREEN));
+        tooltip.add(Component.translatable("custommachinery.structure_creator.reset").withStyle(ChatFormatting.GOLD));
     }
 
     @Override
@@ -126,7 +123,7 @@ public class StructureCreatorItem extends Item {
         List<BlockPos> blocks = getSelectedBlocks(stack);
         blocks.add(machinePos);
         if(blocks.size() <= 1) {
-            player.sendMessage(new TranslatableComponent("custommachinery.structure_creator.no_blocks"), Util.NIL_UUID);
+            player.sendSystemMessage(Component.translatable("custommachinery.structure_creator.no_blocks"));
             return;
         }
         Level world = player.level;
@@ -173,12 +170,12 @@ public class StructureCreatorItem extends Item {
         both.add("keys", keysJson);
         both.add("pattern", patternJson);
         String ctKubeString = ".requireStructure(" + patternJson.toString() + ", " + keysJson.toString() + ")";
-        Component jsonText = new TextComponent("[JSON]").withStyle(style -> style.applyFormats(ChatFormatting.YELLOW).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(both.toString()))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, both.toString())));
-        Component prettyJsonText = new TextComponent("[PRETTY JSON]").withStyle(style -> style.applyFormats(ChatFormatting.GOLD).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(GSON.toJson(both)))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, GSON.toJson(both))));
-        Component crafttweakerText = new TextComponent("[CRAFTTWEAKER]").withStyle(style -> style.applyFormats(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
-        Component kubeJSText = new TextComponent("[KUBEJS]").withStyle(style -> style.applyFormats(ChatFormatting.DARK_PURPLE).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
-        Component message = new TranslatableComponent("custommachinery.structure_creator.message", jsonText, prettyJsonText, crafttweakerText, kubeJSText);
-        player.sendMessage(message, Util.NIL_UUID);
+        Component jsonText = Component.literal("[JSON]").withStyle(style -> style.applyFormats(ChatFormatting.YELLOW).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(both.toString()))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, both.toString())));
+        Component prettyJsonText = Component.literal("[PRETTY JSON]").withStyle(style -> style.applyFormats(ChatFormatting.GOLD).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(GSON.toJson(both)))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, GSON.toJson(both))));
+        Component crafttweakerText = Component.literal("[CRAFTTWEAKER]").withStyle(style -> style.applyFormats(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
+        Component kubeJSText = Component.literal("[KUBEJS]").withStyle(style -> style.applyFormats(ChatFormatting.DARK_PURPLE).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
+        Component message = Component.translatable("custommachinery.structure_creator.message", jsonText, prettyJsonText, crafttweakerText, kubeJSText);
+        player.sendSystemMessage(message);
     }
 
     private PartialBlockState[][][] getStructureArray(List<BlockPos> blocks, Direction machineFacing, Level world) {

@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker;
 
-import com.blamejared.crafttweaker.api.data.base.IData;
+import com.blamejared.crafttweaker.api.data.IData;
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import com.blamejared.crafttweaker.platform.Services;
 import net.minecraft.nbt.CompoundTag;
@@ -37,6 +37,6 @@ public class CTUtils {
     }
 
     public static ResourceLocation biomeID(Biome biome) {
-        return Services.REGISTRY.getRegistryKey(biome);
+        return Services.REGISTRY.biomes().getKey(biome);
     }
 }

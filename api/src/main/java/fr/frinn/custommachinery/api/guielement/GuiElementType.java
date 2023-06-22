@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.api.guielement;
 
-import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
@@ -9,12 +8,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * A {@link RegistryEntry} used for registering custom gui elements.
+ * Used for registering custom gui elements.
  * An {@link IGuiElement} MUST be linked to a single {@link GuiElementType}.
  * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
  * @param <T> The {@link IGuiElement} handled by this {@link GuiElementType}.
  */
-public class GuiElementType<T extends IGuiElement> extends RegistryEntry<GuiElementType<T>> {
+public class GuiElementType<T extends IGuiElement> {
 
     /**
      * The {@link ResourceKey} pointing to the {@link GuiElementType} vanilla registry.

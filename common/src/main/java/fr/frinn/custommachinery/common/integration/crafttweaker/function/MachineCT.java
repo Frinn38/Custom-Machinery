@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.function;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.data.IData;
 import com.blamejared.crafttweaker.api.data.MapData;
-import com.blamejared.crafttweaker.api.data.base.IData;
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import com.blamejared.crafttweaker.platform.Services;
 import dev.architectury.fluid.FluidStack;
@@ -144,8 +144,8 @@ public class MachineCT {
     public IItemStack getItemStored(String slot) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> Services.PLATFORM.createMCItemStack(component.getItemStack()))
-                .orElse(Services.PLATFORM.getEmptyIItemStack());
+                .map(component -> Services.PLATFORM.createItemStack(component.getItemStack()))
+                .orElse(Services.PLATFORM.getEmptyItemStack());
     }
 
     @Method
@@ -172,7 +172,7 @@ public class MachineCT {
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> {
                     int inserted = component.insert(stackCT.getDefinition(), stackCT.getAmount(), stackCT.getInternal().getTag(), simulate, true);
-                    return Services.PLATFORM.createMCItemStack(Utils.makeItemStack(stackCT.getDefinition(), stackCT.getAmount() - inserted, stackCT.getInternal().getTag()));
+                    return Services.PLATFORM.createItemStack(Utils.makeItemStack(stackCT.getDefinition(), stackCT.getAmount() - inserted, stackCT.getInternal().getTag()));
                 })
                 .orElse(stackCT);
     }
@@ -182,7 +182,7 @@ public class MachineCT {
     public IItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> Services.PLATFORM.createMCItemStack(component.extract(toRemove, simulate, true)))
-                .orElse(Services.PLATFORM.getEmptyIItemStack());
+                .map(component -> Services.PLATFORM.createItemStack(component.extract(toRemove, simulate, true)))
+                .orElse(Services.PLATFORM.getEmptyItemStack());
     }
 }

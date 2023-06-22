@@ -8,8 +8,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +15,7 @@ import java.util.Objects;
 
 public class DumpGuiElementWidget extends TexturedGuiElementWidget<DumpGuiElement> {
 
-    private static final Component TITLE = new TranslatableComponent("custommachinery.gui.element.dump.name");
+    private static final Component TITLE = Component.translatable("custommachinery.gui.element.dump.name");
     private final List<Component> tooltips;
 
     public DumpGuiElementWidget(DumpGuiElement element, IMachineScreen screen) {
@@ -25,7 +23,7 @@ public class DumpGuiElementWidget extends TexturedGuiElementWidget<DumpGuiElemen
 
         this.tooltips = Lists.newArrayList(
                 TITLE,
-                new TranslatableComponent("custommachinery.gui.element.dump.tooltip", formatComponents(element.getComponents())).withStyle(ChatFormatting.DARK_RED)
+                Component.translatable("custommachinery.gui.element.dump.tooltip", formatComponents(element.getComponents())).withStyle(ChatFormatting.DARK_RED)
         );
     }
 
@@ -36,7 +34,7 @@ public class DumpGuiElementWidget extends TexturedGuiElementWidget<DumpGuiElemen
             MachineComponentType<?> type = iterator.next();
             builder.append(Objects.requireNonNull(Registration.MACHINE_COMPONENT_TYPE_REGISTRY.getId(type)).getPath());
             if(iterator.hasNext())
-                builder.append(new TextComponent(", "));
+                builder.append(Component.literal(", "));
         }
         return builder.toString();
     }

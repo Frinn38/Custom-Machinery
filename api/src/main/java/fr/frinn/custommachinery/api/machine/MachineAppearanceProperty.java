@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.api.machine;
 
-import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
@@ -9,12 +8,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * A {@link RegistryEntry} used for registering custom {@link MachineAppearanceProperty}.
+ * Used for registering custom {@link MachineAppearanceProperty}.
  * Each registered {@link MachineAppearanceProperty} will add a new optional property in the {@link IMachineAppearance}.
  * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
  * @param <T> The {@link Object} handled by this {@link MachineAppearanceProperty}.
  */
-public class MachineAppearanceProperty<T> extends RegistryEntry<MachineAppearanceProperty<T>> {
+public class MachineAppearanceProperty<T> {
 
     /**
      * The {@link ResourceKey} pointing to the {@link MachineAppearanceProperty} vanilla registry.

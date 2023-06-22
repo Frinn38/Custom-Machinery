@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.subtypes.UidContext;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,26 +19,12 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
 
     @Override
     public String getDisplayName(Energy energy) {
-        return new TranslatableComponent("custommachinery.jei.ingredient.energy", energy.getAmount()).getString();
+        return Component.translatable("custommachinery.jei.ingredient.energy", energy.getAmount()).getString();
     }
 
     @Override
     public String getUniqueId(Energy energy, UidContext context) {
         return "" + energy.getAmount() + energy.getChance() + energy.isPerTick();
-    }
-
-    //Safe delete when needed
-    @SuppressWarnings("removal")
-    @Override
-    public String getModId(Energy energy) {
-        return CustomMachinery.MODID;
-    }
-
-    //Safe delete when needed
-    @SuppressWarnings("removal")
-    @Override
-    public String getResourceId(Energy energy) {
-        return "energy";
     }
 
     @Override

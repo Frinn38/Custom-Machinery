@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import net.fabricmc.fabric.api.client.model.ModelProviderContext;
-import net.fabricmc.fabric.api.client.model.ModelProviderException;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.UnbakedModel;
@@ -24,13 +23,14 @@ public class CustomMachineModelProvider implements ModelResourceProvider {
     public static final CustomMachineModelProvider INSTANCE = new CustomMachineModelProvider();
     private static final Gson GSON = new Gson();
 
+    @Nullable
     @Override
-    public @Nullable UnbakedModel loadModelResource(ResourceLocation loc, ModelProviderContext context) throws ModelProviderException {
+    public UnbakedModel loadModelResource(ResourceLocation loc, ModelProviderContext context) {
         if(loc.equals(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")) ||
             loc.equals(new ResourceLocation(CustomMachinery.MODID, "item/custom_machine_item"))) {
             try {
                 ResourceLocation filePath = new ResourceLocation(loc.getNamespace(), "models/" + loc.getPath() + ".json");
-                JsonObject json = GSON.fromJson(new InputStreamReader(Minecraft.getInstance().getResourceManager().getResource(filePath).getInputStream()), JsonObject.class);
+                JsonObject json = GSON.fromJson(new InputStreamReader(Minecraft.getInstance().getResourceManager().open(filePath)), JsonObject.class);
                 return parse(json);
             } catch (IOException e) {
                 throw new RuntimeException(e);

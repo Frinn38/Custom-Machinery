@@ -12,7 +12,6 @@ import fr.frinn.custommachinery.common.upgrade.modifier.SpeedRecipeModifier;
 import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
@@ -29,7 +28,7 @@ public abstract class RecipeModifier implements IRecipeModifier {
                     NamedCodec.DOUBLE.optionalFieldOf("chance", 1.0D).forGetter(modifier -> modifier.chance),
                     NamedCodec.DOUBLE.optionalFieldOf("max", Double.POSITIVE_INFINITY).forGetter(modifier -> modifier.max),
                     NamedCodec.DOUBLE.optionalFieldOf("min", Double.NEGATIVE_INFINITY).forGetter(modifier -> modifier.min),
-                    TextComponentUtils.CODEC.optionalFieldOf("tooltip", TextComponent.EMPTY).forGetter(modifier -> modifier.tooltip)
+                    TextComponentUtils.CODEC.optionalFieldOf("tooltip", Component.empty()).forGetter(modifier -> modifier.tooltip)
             ).apply(energyModifierInstance, (requirement, mode, operation, modifier, target, chance, max, min, tooltip) -> {
                     if(requirement == Registration.SPEED_REQUIREMENT.get())
                         return new SpeedRecipeModifier(operation, modifier, chance, max, min, tooltip);
@@ -60,7 +59,7 @@ public abstract class RecipeModifier implements IRecipeModifier {
         this.chance = chance;
         this.max = max;
         this.min = min;
-        this.tooltip = tooltip != null && tooltip != TextComponent.EMPTY ? tooltip : getDefaultTooltip();
+        this.tooltip = tooltip != null && tooltip != Component.empty() ? tooltip : getDefaultTooltip();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.latvian.mods.kubejs.recipe.RecipeArguments;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -31,8 +32,6 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRe
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.helpers.MessageFormatter;
 
-import java.util.List;
-
 public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
     implements ItemRequirementJS, ItemTransformRequirementJS, DurabilityRequirementJS, FluidRequirementJS, FluidPerTickRequirementJS,
         EnergyRequirementJS, EnergyPerTickRequirementJS, TimeRequirementJS, PositionRequirementJS, BiomeRequirementJS, DimensionRequirementJS,
@@ -44,10 +43,10 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
     }
 
     @Override
-    public CustomMachineRecipeBuilder makeBuilder(ResourceLocation machine, List<Object> args) {
-        if(args.size() < 1 || !(args.get(0) instanceof Number))
+    public CustomMachineRecipeBuilder makeBuilder(ResourceLocation machine, RecipeArguments args) {
+        if(args.size() < 2 || !(args.get(1) instanceof Number))
             throw new RecipeExceptionJS("Custom Machine recipe must have a machine and a time specified");
-        return new CustomMachineRecipeBuilder(machine, ((Number)args.get(0)).intValue());
+        return new CustomMachineRecipeBuilder(machine, args.getInt(1, 666));
     }
 
     @Override

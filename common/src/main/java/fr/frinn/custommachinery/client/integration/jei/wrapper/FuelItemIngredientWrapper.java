@@ -13,7 +13,7 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class FuelItemIngredientWrapper implements IJEIIngredientWrapper<ItemStac
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addTooltipCallback((view, tooltips) -> {
                         view.getDisplayedIngredient(VanillaTypes.ITEM_STACK).ifPresent(stack ->
-                                tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.fuel.burntime", FuelRegistry.get(stack)).withStyle(ChatFormatting.GRAY))
+                                tooltips.add(Component.translatable("custommachinery.jei.ingredient.fuel.burntime", FuelRegistry.get(stack)).withStyle(ChatFormatting.GRAY))
                         );
                     });
                 return true;

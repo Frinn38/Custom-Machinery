@@ -2,12 +2,12 @@ package fr.frinn.custommachinery.client.screen.creator_old;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class MachineGuiCreationScreen extends MachineCreationTabScreen {
 
     public MachineGuiCreationScreen(MachineCreationScreen parent, CustomMachineBuilder machine) {
-        super(new TextComponent("Machine Gui Creation"), parent, machine);
+        super(Component.literal("Machine Gui Creation"), parent, machine);
     }
 
     @Override

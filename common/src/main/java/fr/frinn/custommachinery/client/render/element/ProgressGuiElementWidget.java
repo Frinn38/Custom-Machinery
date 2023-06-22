@@ -8,13 +8,13 @@ import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressBarGuiElement> {
 
     public ProgressGuiElementWidget(ProgressBarGuiElement element, IMachineScreen screen) {
-        super(element, screen, new TextComponent("Progress Bar"));
+        super(element, screen, Component.literal("Progress Bar"));
     }
 
     @Override

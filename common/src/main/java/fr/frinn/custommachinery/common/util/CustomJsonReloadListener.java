@@ -14,12 +14,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public abstract class CustomJsonReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, JsonElement>> {
@@ -39,22 +35,19 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
         Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
         int i = this.directory.length() + 1;
 
-        for (ResourceLocation loc : manager.listResources(this.directory, loc -> loc.endsWith(".json"))) {
+        for(Map.Entry<ResourceLocation, Resource> entry : manager.listResources(this.directory, loc -> loc.getPath().endsWith(".json")).entrySet()) {
+            ResourceLocation loc = entry.getKey();
             String path = loc.getPath();
             ResourceLocation id = new ResourceLocation(loc.getNamespace(), path.substring(i, path.length() - PATH_SUFFIX_LENGTH));
 
-            try(Resource resource = manager.getResource(loc)) {
-                try(InputStream inputStream = resource.getInputStream()) {
-                    try(Reader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                        JsonElement jsonElement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
-                        if(jsonElement != null) {
-                            JsonElement replaced = map.put(id, jsonElement);
-                            if(replaced != null)
-                                throw new IllegalStateException("Duplicate data file ignored with ID " + id);
-                        } else
-                            LOGGER.error("Couldn't load data file {} from {} as it's null or empty", id, loc);
-                    }
-                }
+            try(Reader reader = entry.getValue().openAsReader()) {
+                JsonElement jsonElement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
+                if(jsonElement != null) {
+                    JsonElement replaced = map.put(id, jsonElement);
+                    if(replaced != null)
+                        throw new IllegalStateException("Duplicate data file ignored with ID " + id);
+                } else
+                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", id, loc);
             } catch (IllegalArgumentException | IOException | JsonParseException e) {
                 LOGGER.error("Couldn't parse data file {} from {}\n{}", id, loc, e);
             }

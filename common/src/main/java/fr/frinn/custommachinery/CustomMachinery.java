@@ -28,6 +28,7 @@ import fr.frinn.custommachinery.common.util.MachineList;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.resources.ResourceLocation;
@@ -102,7 +103,7 @@ public class CustomMachinery {
             new SLootTablesPacket(LootTableHelper.getLoots()).sendTo(player);
     }
 
-    private static void registerCommands(final CommandDispatcher<CommandSourceStack> dispatcher, final Commands.CommandSelection selection) {
+    private static void registerCommands(final CommandDispatcher<CommandSourceStack> dispatcher, final CommandBuildContext registry, final Commands.CommandSelection selection) {
         dispatcher.register(CMCommand.register("custommachinery"));
         dispatcher.register(CMCommand.register("cm"));
     }

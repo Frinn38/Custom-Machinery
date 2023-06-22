@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.api.crafting;
 
-import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
@@ -9,11 +8,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * A {@link RegistryEntry} used for registering custom {@link ProcessorType}.
+ * Used for registering custom {@link ProcessorType}.
  * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
  * @param <T> The {@link IProcessor} handled by this {@link ProcessorType}.
  */
-public class ProcessorType<T extends IProcessor> extends RegistryEntry<ProcessorType<T>> {
+public class ProcessorType<T extends IProcessor> {
 
     /**
      * The {@link ResourceKey} pointing to the {@link ProcessorType} vanilla registry.

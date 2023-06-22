@@ -8,7 +8,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -64,7 +63,7 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
         }
 
         public Component getText() {
-            return new TranslatableComponent("custommachinery.component.weather." + this.toString().toLowerCase(Locale.ENGLISH));
+            return Component.translatable("custommachinery.component.weather." + this.toString().toLowerCase(Locale.ENGLISH));
         }
     }
 }

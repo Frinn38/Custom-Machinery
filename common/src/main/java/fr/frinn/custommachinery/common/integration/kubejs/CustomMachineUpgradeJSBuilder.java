@@ -16,7 +16,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -34,7 +33,7 @@ public class CustomMachineUpgradeJSBuilder {
 
     public CustomMachineUpgradeJSBuilder(Item item, int maxAmount) {
         this.item = item;
-        this.tooltips = Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA));
+        this.tooltips = Collections.singletonList(Component.translatable("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA));
         this.maxAmount = maxAmount;
         this.machines = new ArrayList<>();
         this.modifiers = new ArrayList<>();

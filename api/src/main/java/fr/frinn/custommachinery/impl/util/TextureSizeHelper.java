@@ -28,7 +28,7 @@ public class TextureSizeHelper {
             return SIZES.get(texture).getLeft();
         else {
             try {
-                BufferedImage image = ImageIO.read(Minecraft.getInstance().getResourceManager().getResource(texture).getInputStream());
+                BufferedImage image = ImageIO.read(Minecraft.getInstance().getResourceManager().open(texture));
                 int width = image.getWidth();
                 int height = image.getHeight();
                 Pair<Integer, Integer> sizes = Pair.of(width, height);
@@ -48,7 +48,7 @@ public class TextureSizeHelper {
             return SIZES.get(texture).getRight();
         else {
             try {
-                BufferedImage image = ImageIO.read(Minecraft.getInstance().getResourceManager().getResource(texture).getInputStream());
+                BufferedImage image = ImageIO.read(Minecraft.getInstance().getResourceManager().open(texture));
                 int width = image.getWidth();
                 int height = image.getHeight();
                 Pair<Integer, Integer> sizes = Pair.of(width, height);

@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.impl.component.builder;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.impl.util.EnumButton;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Arrays;
 
@@ -28,7 +28,7 @@ public class ModeComponentBuilderProperty extends AbstractComponentBuilderProper
                 height,
                 button -> this.set(((EnumButton<ComponentIOMode>)button).getValue()),
                 (button, matrix, mouseX, mouseY) -> {},
-                mode -> new TextComponent(mode.toString()),
+                mode -> Component.literal(mode.toString()),
                 Arrays.asList(ComponentIOMode.values()),
                 get()
         );

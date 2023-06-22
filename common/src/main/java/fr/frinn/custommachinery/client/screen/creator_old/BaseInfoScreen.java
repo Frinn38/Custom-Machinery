@@ -5,8 +5,7 @@ import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +17,7 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
     private EditBox packNamePrompt;
 
     public BaseInfoScreen(MachineCreationScreen parent, CustomMachineBuilder machine) {
-        super(new TextComponent("Base Machine Infos"), parent, machine);
+        super(Component.literal("Base Machine Infos"), parent, machine);
     }
 
     @Override
@@ -31,17 +30,17 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
                 this.yPos + 10,
                 150,
                 20,
-                TextComponent.EMPTY
+                Component.empty()
         ));
         this.namePrompt.setValue(this.machine.getName().getString());
-        this.namePrompt.setResponder(s -> this.machine.setName(new TextComponent(s)));
+        this.namePrompt.setResponder(s -> this.machine.setName(Component.literal(s)));
         this.namespacePrompt = this.addWidget(new EditBox(
                 this.font,
                 this.xPos + 65,
                 this.yPos + 35,
                 150,
                 20,
-                TextComponent.EMPTY
+                Component.empty()
         ));
         this.namespacePrompt.setFilter(s -> ResourceLocation.isValidResourceLocation(s + ":"));
         this.namespacePrompt.setValue(this.machine.getLocation().getId().getNamespace());
@@ -52,7 +51,7 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
                 this.yPos + 60,
                 150,
                 20,
-                TextComponent.EMPTY
+                Component.empty()
         ));
         this.idPrompt.setFilter(ResourceLocation::isValidResourceLocation);
         this.idPrompt.setValue(this.machine.getLocation().getId().getPath());
@@ -63,7 +62,7 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
                 this.yPos + 85,
                 150,
                 20,
-                TextComponent.EMPTY
+                Component.empty()
         ));
         this.packNamePrompt.setValue(this.machine.getLocation().getPackName());
         this.packNamePrompt.setResponder(packName -> this.machine.setLocation(MachineLocation.fromDatapack(this.machine.getLocation().getId(), packName)));
@@ -72,14 +71,14 @@ public class BaseInfoScreen extends MachineCreationTabScreen {
     @Override
     public void render(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
         super.render(matrix, mouseX, mouseY, partialTicks);
-        this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.baseinfo.name").getString(), this.xPos + 6, this.yPos + 15, 0);
+        this.font.draw(matrix, Component.translatable("custommachinery.gui.baseinfo.name").getString(), this.xPos + 6, this.yPos + 15, 0);
         this.namePrompt.render(matrix, mouseX, mouseY, partialTicks);
-        this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.baseinfo.namespace").getString(), this.xPos + 6, this.yPos + 40, 0);
+        this.font.draw(matrix, Component.translatable("custommachinery.gui.baseinfo.namespace").getString(), this.xPos + 6, this.yPos + 40, 0);
         this.namespacePrompt.render(matrix, mouseX, mouseY, partialTicks);
-        this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.baseinfo.id").getString(), this.xPos + 6, this.yPos + 65, 0);
+        this.font.draw(matrix, Component.translatable("custommachinery.gui.baseinfo.id").getString(), this.xPos + 6, this.yPos + 65, 0);
         this.idPrompt.render(matrix, mouseX, mouseY, partialTicks);
         if(this.machine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK) {
-            this.font.draw(matrix, new TranslatableComponent("custommachinery.gui.baseinfo.packname").getString(), this.xPos + 6, this.yPos + 90, 0);
+            this.font.draw(matrix, Component.translatable("custommachinery.gui.baseinfo.packname").getString(), this.xPos + 6, this.yPos + 90, 0);
             this.packNamePrompt.render(matrix, mouseX, mouseY, partialTicks);
         }
     }

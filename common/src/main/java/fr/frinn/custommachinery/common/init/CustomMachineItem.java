@@ -58,7 +58,7 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if(this.allowdedIn(group))
+        if(this.category == group)
             CustomMachinery.MACHINES.keySet().forEach(id -> items.add(makeMachineItem(id)));
     }
 

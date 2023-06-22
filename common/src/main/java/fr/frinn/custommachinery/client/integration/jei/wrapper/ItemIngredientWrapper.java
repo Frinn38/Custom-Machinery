@@ -14,7 +14,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -57,26 +57,26 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addTooltipCallback((view, tooltips) -> {
                         if(this.useDurability && this.mode == RequirementIOMode.INPUT)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.consume", this.amount));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.consume", this.amount));
                         else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.durability.repair", this.amount));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.repair", this.amount));
 
                         if(this.chance == 0)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
                         else if(this.chance != 1){
                             double percentage = this.chance * 100;
                             if(percentage < 0.01F)
-                                tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", "<0.01"));
+                                tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", "<0.01"));
                             else {
                                 BigDecimal decimal = BigDecimal.valueOf(percentage).setScale(2, RoundingMode.HALF_UP);
                                 if(decimal.scale() <= 0 || decimal.signum() == 0 || decimal.stripTrailingZeros().scale() <= 0)
-                                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.intValue()));
+                                    tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", decimal.intValue()));
                                 else
-                                    tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
+                                    tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
                             }
                         }
                         if(!this.slot.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
-                            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
                     });
             return true;
         }

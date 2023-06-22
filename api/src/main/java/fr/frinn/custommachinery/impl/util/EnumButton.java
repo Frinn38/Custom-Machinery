@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.impl.util;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 import java.util.List;
 import java.util.function.Function;
@@ -14,7 +13,7 @@ public class EnumButton<E> extends Button {
     private E value;
 
     public EnumButton(int x, int y, int width, int height, OnPress pressedAction, OnTooltip onTooltip, Function<E, Component> messageFunction, List<E> values, E defaultValue) {
-        super(x, y, width, height, TextComponent.EMPTY, pressedAction, onTooltip);
+        super(x, y, width, height, Component.empty(), pressedAction, onTooltip);
         this.messageFunction = messageFunction;
         this.values = values;
         if(this.values.contains(defaultValue))

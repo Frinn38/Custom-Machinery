@@ -9,9 +9,9 @@ import fr.frinn.custommachinery.impl.component.config.SideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
@@ -72,7 +72,7 @@ public class ForgeFluidHandler implements ICommonFluidHandler {
             LazyOptional<IFluidHandler> neighbour;
 
             if(this.neighbourStorages.get(side) == null) {
-                neighbour = Optional.ofNullable(this.fluidHandler.getManager().getLevel().getBlockEntity(this.fluidHandler.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side.getOpposite())).orElse(LazyOptional.empty());
+                neighbour = Optional.ofNullable(this.fluidHandler.getManager().getLevel().getBlockEntity(this.fluidHandler.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(ForgeCapabilities.FLUID_HANDLER, side.getOpposite())).orElse(LazyOptional.empty());
                 neighbour.ifPresent(storage -> {
                     neighbour.addListener(cap -> this.neighbourStorages.remove(side));
                     this.neighbourStorages.put(side, neighbour);

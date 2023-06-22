@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.client.screen.widget.custom.ButtonWidget;
 import fr.frinn.custommachinery.client.screen.widget.custom.config.ComponentConfigButtonWidget;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class MachineConfigScreen extends BaseScreen {
     private final CustomMachineScreen parent;
 
     public MachineConfigScreen(CustomMachineScreen parent) {
-        super(new TranslatableComponent("custommachinery.gui.config.title", parent.getMachine().getName()), parent.getWidth(), parent.getHeight());
+        super(Component.translatable("custommachinery.gui.config.title", parent.getMachine().getName()), parent.getWidth(), parent.getHeight());
         this.parent = parent;
     }
 
@@ -57,7 +57,7 @@ public class MachineConfigScreen extends BaseScreen {
                 () -> this.getY() + element.getY(),
                 element.getWidth(),
                 element.getHeight())
-                .tooltip(new TranslatableComponent("custommachinery.gui.config.tooltip"))
+                .tooltip(Component.translatable("custommachinery.gui.config.tooltip"))
                 .callback(button -> this.openPopup(new ComponentConfigPopup(this.getComponentFromElement(element).getConfig())))
         ));
         this.parent.getMachine().getGuiElements().stream()
@@ -69,7 +69,7 @@ public class MachineConfigScreen extends BaseScreen {
                         .hoverTexture(element.getHoveredTexture())
                         .noBackground()
                         .callback(button -> Minecraft.getInstance().setScreen(this.parent))
-                        .tooltip(new TranslatableComponent("custommachinery.gui.config.exit"))
+                        .tooltip(Component.translatable("custommachinery.gui.config.exit"))
                 ));
     }
 

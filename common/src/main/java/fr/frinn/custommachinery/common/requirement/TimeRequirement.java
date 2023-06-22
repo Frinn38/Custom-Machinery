@@ -13,8 +13,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> implements IDisplayInfoRequirement {
@@ -47,7 +46,7 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
         if(test(component, context))
             return CraftingResult.success();
         else
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.time.error"));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.time.error"));
     }
 
     @Override
@@ -62,8 +61,8 @@ public class TimeRequirement extends AbstractRequirement<TimeMachineComponent> i
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
-        info.addTooltip(new TranslatableComponent("custommachinery.requirements.time.info").withStyle(ChatFormatting.AQUA));
-        this.range.getRestrictions().forEach(restriction -> info.addTooltip(new TextComponent("* " + restriction.toFormattedString())));
+        info.addTooltip(Component.translatable("custommachinery.requirements.time.info").withStyle(ChatFormatting.AQUA));
+        this.range.getRestrictions().forEach(restriction -> info.addTooltip(Component.literal("* " + restriction.toFormattedString())));
         info.setItemIcon(Items.CLOCK);
     }
 }

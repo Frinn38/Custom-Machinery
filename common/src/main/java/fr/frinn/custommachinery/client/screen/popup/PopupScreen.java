@@ -2,13 +2,13 @@ package fr.frinn.custommachinery.client.screen.popup;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public abstract class PopupScreen extends BaseScreen {
     private BaseScreen parent;
 
     protected PopupScreen(int xSize, int ySize) {
-        super(new TextComponent("Popup"), xSize, ySize);
+        super(Component.literal("Popup"), xSize, ySize);
     }
 
     public void setParent(BaseScreen parent) {

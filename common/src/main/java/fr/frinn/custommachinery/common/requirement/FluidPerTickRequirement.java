@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.requirement;
 
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.hooks.fluid.FluidStackHooks;
-import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
@@ -14,6 +13,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.client.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
@@ -21,7 +21,7 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,7 +107,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
                     }
                 }
             }
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
         } else {
             if(this.fluid.getAll().get(0) != null) {
                 Fluid fluid = this.fluid.getAll().get(0);
@@ -117,7 +117,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
                     component.addToOutputs(this.tank, stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluidpertick.error.output", amount, FluidStackHooks.getName(FluidStack.create(fluid, this.amount))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.fluidpertick.error.output", amount, FluidStackHooks.getName(FluidStack.create(fluid, this.amount))));
             } else throw new IllegalStateException("Can't use fluid per tick requirement with fluid tag");
         }
     }
@@ -129,6 +129,6 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(PlatformHelper.fluidJeiIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.nbt, this.tank));
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.nbt, this.tank));
     }
 }

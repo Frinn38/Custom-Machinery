@@ -13,7 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
@@ -128,7 +127,7 @@ public class MachineList extends ObjectSelectionList<MachineEntry> {
         public Component getNarration() {
             if(this.machineBuilder != null)
                 return this.machineBuilder.getName();
-            return new TextComponent("NULL");
+            return Component.literal("NULL");
         }
 
         public CustomMachineBuilder getMachineBuilder() {

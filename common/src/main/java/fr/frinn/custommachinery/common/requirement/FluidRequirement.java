@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.requirement;
 
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.hooks.fluid.FluidStackHooks;
-import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
@@ -12,6 +11,7 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.client.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
@@ -20,7 +20,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
@@ -102,7 +102,7 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
                     }
                 }
             }
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
         }
         return CraftingResult.pass();
     }
@@ -119,7 +119,7 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
                     component.addToOutputs(this.tank, stack);
                     return CraftingResult.success();
                 }
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fluid.error.output", amount, FluidStackHooks.getName(FluidStack.create(fluid, this.amount))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.output", amount, FluidStackHooks.getName(FluidStack.create(fluid, this.amount))));
             } else throw new IllegalStateException("Can't use output fluid requirement with fluid tag");
         }
         return CraftingResult.pass();
@@ -127,6 +127,6 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(PlatformHelper.fluidJeiIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.nbt, this.tank));
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.nbt, this.tank));
     }
 }

@@ -12,7 +12,6 @@ import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,13 +54,13 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
         String amount = Utils.format(ingredient.getAmount());
         Component unit = PlatformHelper.energy().unit();
         if(ingredient.isPerTick())
-            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.energy.pertick", amount, unit));
+            tooltips.add(Component.translatable("custommachinery.jei.ingredient.energy.pertick", amount, unit));
         else
-            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.energy", amount, unit));
+            tooltips.add(Component.translatable("custommachinery.jei.ingredient.energy", amount, unit));
         if(ingredient.getChance() == 0)
-            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
+            tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
         if(ingredient.getChance() < 1.0D && ingredient.getChance() > 0)
-            tooltips.add(new TranslatableComponent("custommachinery.jei.ingredient.chance", (int)(ingredient.getChance() * 100)));
+            tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", (int)(ingredient.getChance() * 100)));
         return tooltips;
     }
 }

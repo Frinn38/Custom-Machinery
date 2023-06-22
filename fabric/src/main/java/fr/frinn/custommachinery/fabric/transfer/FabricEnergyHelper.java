@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.EnergyStorageUtil;
@@ -13,7 +12,7 @@ import team.reborn.energy.api.EnergyStorageUtil;
 @SuppressWarnings("UnstableApiUsage")
 public class FabricEnergyHelper implements IEnergyHelper {
 
-    private static final Component ENERGY_UNIT = new TranslatableComponent("unit.energy.fabric");
+    private static final Component ENERGY_UNIT = Component.translatable("unit.energy.fabric");
 
     @Override
     public Component unit() {

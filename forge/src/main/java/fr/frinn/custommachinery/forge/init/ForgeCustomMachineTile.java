@@ -13,13 +13,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,10 +38,10 @@ public class ForgeCustomMachineTile extends CustomMachineTile {
 
     @NotNull
     @Override
-    public IModelData getModelData() {
-        return new ModelDataMap.Builder()
-                .withInitial(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance(getStatus()).copy())
-                .withInitial(CustomMachineBakedModel.STATUS, getStatus())
+    public ModelData getModelData() {
+        return ModelData.builder()
+                .with(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance(getStatus()).copy())
+                .with(CustomMachineBakedModel.STATUS, getStatus())
                 .build();
     }
 
@@ -53,18 +50,18 @@ public class ForgeCustomMachineTile extends CustomMachineTile {
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction side) {
         MachineComponentManager manager = this.getComponentManager();
 
-        if(capability == CapabilityEnergy.ENERGY)
+        if(capability == ForgeCapabilities.ENERGY)
             return manager.getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
                     .map(energy -> ((ForgeEnergyHandler)energy.getEnergyHandler()).getCapability(side))
                     .orElse(LazyOptional.empty())
                     .cast();
-        else if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+        else if(capability == ForgeCapabilities.FLUID_HANDLER)
             return manager.getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                     .map(handler -> ((FluidComponentHandler)handler).getCommonFluidHandler())
                     .map(handler -> ((ForgeFluidHandler)handler).getCapability(side))
                     .orElse(LazyOptional.empty())
                     .cast();
-        else if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+        else if(capability == ForgeCapabilities.ITEM_HANDLER)
             return manager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                     .map(handler -> ((ItemComponentHandler)handler).getCommonHandler())
                     .map(handler -> ((ForgeItemHandler)handler).getCapability(side))

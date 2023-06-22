@@ -7,12 +7,13 @@ import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.commands.arguments.blocks.BlockStateParser.BlockResult;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
@@ -46,8 +47,8 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     public static final NamedCodec<PartialBlockState> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         StringReader reader = new StringReader(s);
         try {
-            BlockStateParser parser = new BlockStateParser(reader, false).parse(true);
-            return DataResult.success(new PartialBlockState(parser.getState(), Lists.newArrayList(parser.getProperties().keySet()), parser.getNbt()));
+            BlockResult result = BlockStateParser.parseForBlock(Registry.BLOCK, reader, false);
+            return DataResult.success(new PartialBlockState(result.blockState(), Lists.newArrayList(result.properties().keySet()), result.nbt()));
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception.getMessage());
         }
@@ -138,7 +139,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     }
 
     public MutableComponent getName() {
-        return new TranslatableComponent(this.blockState.getBlock().getDescriptionId());
+        return Component.translatable(this.blockState.getBlock().getDescriptionId());
     }
 
     @Override

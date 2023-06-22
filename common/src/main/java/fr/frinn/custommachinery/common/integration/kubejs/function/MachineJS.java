@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 import dev.architectury.fluid.FluidStack;
 import dev.latvian.mods.kubejs.fluid.EmptyFluidStackJS;
 import dev.latvian.mods.kubejs.fluid.FluidStackJS;
-import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.level.BlockContainerJS;
 import dev.latvian.mods.rhino.Wrapper;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
@@ -137,18 +136,18 @@ public class MachineJS {
 
     /** ITEM STUFF **/
 
-    public ItemStackJS getItemStored(String slot) {
+    public ItemStack getItemStored(String slot) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> ItemStackJS.of(component.getItemStack()))
-                .orElse(ItemStackJS.EMPTY);
+                .map(ItemMachineComponent::getItemStack)
+                .orElse(ItemStack.EMPTY);
     }
 
-    public void setItemStored(String slot, ItemStackJS stackJS) {
+    public void setItemStored(String slot, ItemStack stack) {
         this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .ifPresent(component -> {
-                    component.setItemStack(stackJS.getItemStack());
+                    component.setItemStack(stack);
                 });
     }
 
@@ -160,22 +159,21 @@ public class MachineJS {
     }
 
     //Return items that couldn't be added.
-    public ItemStackJS addItemToSlot(String slot, ItemStackJS stackJS, boolean simulate) {
+    public ItemStack addItemToSlot(String slot, ItemStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> {
-                    ItemStack stack = stackJS.getItemStack();
                     int inserted = component.insert(stack.getItem(), stack.getCount(), stack.getTag(), simulate, true);
-                    return ItemStackJS.of(Utils.makeItemStack(stack.getItem(), stack.getCount() - inserted, stack.getTag()));
+                    return Utils.makeItemStack(stack.getItem(), stack.getCount() - inserted, stack.getTag());
                 })
-                .orElse(stackJS);
+                .orElse(stack);
     }
 
     //Return items that were successfully removed from the slot.
-    public ItemStackJS removeItemFromSlot(String slot, int toRemove, boolean simulate) {
+    public ItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> ItemStackJS.of(component.extract(toRemove, simulate, true)))
-                .orElse(ItemStackJS.EMPTY);
+                .map(component -> component.extract(toRemove, simulate, true))
+                .orElse(ItemStack.EMPTY);
     }
 }

@@ -13,7 +13,7 @@ import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 public class LightRequirement extends AbstractRequirement<LightMachineComponent> implements ITickableRequirement<LightMachineComponent>, IDisplayInfoRequirement {
@@ -51,9 +51,9 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
         if(this.test(component, context))
             return CraftingResult.success();
         if(this.sky)
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.sky.error", this.light.toFormattedString(), component.getSkyLight()));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.light.sky.error", this.light.toFormattedString(), component.getSkyLight()));
         else
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.block.error", this.light, component.getBlockLight()));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.light.block.error", this.light, component.getBlockLight()));
     }
 
     @Override
@@ -71,17 +71,17 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
         if(this.test(component, context))
             return CraftingResult.success();
         if(this.sky)
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.sky.error", this.light.toFormattedString(), component.getSkyLight()));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.light.sky.error", this.light.toFormattedString(), component.getSkyLight()));
         else
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.light.block.error", this.light.toFormattedString(), component.getBlockLight()));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.light.block.error", this.light.toFormattedString(), component.getBlockLight()));
     }
 
     @Override
     public void getDisplayInfo(IDisplayInfo info) {
         if(this.sky)
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.light.sky.info", this.light.toFormattedString()));
+            info.addTooltip(Component.translatable("custommachinery.requirements.light.sky.info", this.light.toFormattedString()));
         else
-            info.addTooltip(new TranslatableComponent("custommachinery.requirements.light.block.info", this.light.toFormattedString()));
+            info.addTooltip(Component.translatable("custommachinery.requirements.light.block.info", this.light.toFormattedString()));
         info.setItemIcon(Items.TORCH);
     }
 }

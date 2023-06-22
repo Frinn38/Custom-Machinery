@@ -10,8 +10,6 @@ import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.List;
 public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiElement> {
 
     public EnergyGuiElementWidget(EnergyGuiElement element, IMachineScreen screen) {
-        super(element, screen, new TextComponent("Energy"));
+        super(element, screen, Component.literal("Energy"));
     }
 
     @Override
@@ -40,7 +38,7 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
         return this.getScreen().getTile().getComponentManager()
                 .getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
                 .map(component -> Collections.singletonList((Component)
-                        new TranslatableComponent(
+                        Component.translatable(
                                 "custommachinery.gui.element.energy.tooltip",
                                 Utils.format(component.getEnergy()),
                                 PlatformHelper.energy().unit(),

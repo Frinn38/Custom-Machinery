@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -20,7 +19,7 @@ public class MachineUpgrade {
                     RegistrarCodec.ITEM.fieldOf("item").forGetter(upgrade -> upgrade.item),
                     DefaultCodecs.RESOURCE_LOCATION.listOf().fieldOf("machines").forGetter(upgrade -> upgrade.machines),
                     RecipeModifier.CODEC.listOf().fieldOf("modifiers").forGetter(upgrade -> upgrade.modifiers),
-                    TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltip", Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA))).forGetter(upgrade -> upgrade.tooltips),
+                    TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltip", Collections.singletonList(Component.translatable("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA))).forGetter(upgrade -> upgrade.tooltips),
                     NamedCodec.INT.optionalFieldOf("max", 64).forGetter(upgrade -> upgrade.max)
             ).apply(machineUpgradeInstance, MachineUpgrade::new), "Machine upgrade"
     );

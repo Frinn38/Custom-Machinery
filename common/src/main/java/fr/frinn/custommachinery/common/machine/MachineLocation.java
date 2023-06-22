@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.machine;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.File;
@@ -78,8 +78,8 @@ public class MachineLocation {
 
         public static final NamedCodec<Loader> CODEC = NamedCodec.enumCodec(Loader.class);
 
-        public TranslatableComponent getTranslatedName() {
-            return new TranslatableComponent("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
+        public Component getTranslatedName() {
+            return Component.translatable("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
         }
 
         @SuppressWarnings("ConstantConditions")

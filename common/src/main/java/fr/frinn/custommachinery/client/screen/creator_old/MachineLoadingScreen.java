@@ -14,7 +14,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class MachineLoadingScreen extends Screen {
     private Button deleteButton;
 
     public MachineLoadingScreen() {
-        super(TextComponent.EMPTY);
+        super(Component.empty());
         CustomMachinery.MACHINES.forEach((id, machine) -> {
             CustomMachineBuilder machineBuilder = new CustomMachineBuilder(machine);
             this.machineCreationScreens.put(machineBuilder, new MachineCreationScreen(machineBuilder));
@@ -65,17 +64,17 @@ public class MachineLoadingScreen extends Screen {
                 this.yPos + 141,
                 20,
                 20,
-                TextComponent.EMPTY,
+                Component.empty(),
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/create_icon.png"),
                 (button) -> this.create(),
-                (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, new TextComponent(""), mouseX, mouseY)
+                (button, matrix, mouseX, mouseY) -> this.renderTooltip(matrix, Component.literal(""), mouseX, mouseY)
         ));
         this.saveButton = this.addRenderableWidget(new TexturedButton(
                 this.xPos + 26,
                 this.yPos + 141,
                 20,
                 20,
-                TextComponent.EMPTY,
+                Component.empty(),
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/save_icon.png"),
                 (button) -> this.save(),
                 (button, matrix, mouseX, mouseY) -> {
@@ -88,7 +87,7 @@ public class MachineLoadingScreen extends Screen {
                 this.yPos + 141,
                 20,
                 20,
-                TextComponent.EMPTY,
+                Component.empty(),
                 new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/delete_icon.png"),
                 (button) -> this.delete(),
                 (button, matrix, mouseX, mouseY) -> {

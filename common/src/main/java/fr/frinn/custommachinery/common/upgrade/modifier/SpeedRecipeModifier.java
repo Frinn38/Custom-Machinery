@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +40,7 @@ public class SpeedRecipeModifier extends RecipeModifier {
         String tooltip = (tooltipModifier >= 0 ? "+" : "") + (this.operation == OPERATION.ADDITION ? tooltipModifier : tooltipModifier + "%") +
                 " " +
                 this.requirementType.getName().getString();
-        return new TextComponent(tooltip);
+        return Component.literal(tooltip);
     }
 
     @Override

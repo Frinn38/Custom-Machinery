@@ -4,8 +4,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,8 +24,8 @@ public class AdditionRecipeModifier extends RecipeModifier {
                 " " +
                 this.requirementType.getName().getString() +
                 " " +
-                new TranslatableComponent(this.mode.getTranslationKey()).getString();
-        return new TextComponent(tooltip);
+                Component.translatable(this.mode.getTranslationKey()).getString();
+        return Component.literal(tooltip);
     }
 
     @Override

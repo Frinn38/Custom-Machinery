@@ -17,7 +17,7 @@ public class FabricFluidHelper implements IFluidHelper {
 
     @Override
     public boolean isFluidHandler(ItemStack stack) {
-        return FluidStorage.ITEM.find(stack, ContainerItemContext.withInitial(stack)) != null;
+        return FluidStorage.ITEM.find(stack, ContainerItemContext.withConstant(stack)) != null;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class FabricFluidHelper implements IFluidHelper {
 
     @Override
     public ItemStack transferFluid(ItemStack stack, FluidMachineComponent component) {
-        ContainerItemContext ctx = ContainerItemContext.withInitial(stack);
+        ContainerItemContext ctx = ContainerItemContext.withConstant(stack);
         Storage<FluidVariant> storage = FluidStorage.ITEM.find(stack, ctx);
         FluidTank tank = new FluidTank(component, null);
         long transferred = StorageUtil.move(storage, tank, f -> true, Long.MAX_VALUE, null);

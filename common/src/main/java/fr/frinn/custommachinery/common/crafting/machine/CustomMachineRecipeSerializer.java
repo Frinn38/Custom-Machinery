@@ -6,7 +6,6 @@ import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.architectury.core.RegistryEntry;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -16,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import org.jetbrains.annotations.Nullable;
 
-public class CustomMachineRecipeSerializer extends RegistryEntry<CustomMachineRecipeSerializer> implements RecipeSerializer<CustomMachineRecipe> {
+public class CustomMachineRecipeSerializer implements RecipeSerializer<CustomMachineRecipe> {
 
     @Override
     public CustomMachineRecipe fromJson(ResourceLocation recipeId, JsonObject json) {

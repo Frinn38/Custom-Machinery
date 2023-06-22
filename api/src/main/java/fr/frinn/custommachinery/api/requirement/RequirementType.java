@@ -1,24 +1,21 @@
 package fr.frinn.custommachinery.api.requirement;
 
-import dev.architectury.core.RegistryEntry;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * A {@link RegistryEntry} used for registering custom {@link RequirementType}.
+ * Used for registering custom {@link RequirementType}.
  * An {@link IRequirement} MUST be linked to a single {@link RequirementType}.
  * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link DeferredRegister} for Forge or Architectury.
  * @param <T> The {@link IRequirement} handled by this {@link RequirementType}.
  */
-public class RequirementType<T extends IRequirement<?>> extends RegistryEntry<RequirementType<T>> {
+public class RequirementType<T extends IRequirement<?>> {
 
     /**
      * The {@link ResourceKey} pointing to the {@link RequirementType} vanilla registry.
@@ -86,7 +83,7 @@ public class RequirementType<T extends IRequirement<?>> extends RegistryEntry<Re
      */
     public Component getName() {
         if(getId() == null)
-            return new TextComponent("unknown");
-        return new TranslatableComponent("requirement." + getId().getNamespace() + "." + getId().getPath());
+            return Component.literal("unknown");
+        return Component.translatable("requirement." + getId().getNamespace() + "." + getId().getPath());
     }
 }

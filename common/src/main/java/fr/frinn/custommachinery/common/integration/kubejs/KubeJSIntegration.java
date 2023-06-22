@@ -1,13 +1,13 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import dev.latvian.mods.kubejs.KubeJSPaths;
-import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -20,7 +20,7 @@ public class KubeJSIntegration {
         ScriptType.SERVER.console.info("Collecting Custom Machine upgrades from JS scripts.");
 
         CustomMachineUpgradeJSBuilder.UpgradeEvent event = new CustomMachineUpgradeJSBuilder.UpgradeEvent();
-        event.post(ScriptType.SERVER, "cm_upgrades");
+        CustomMachineryKubeJSPlugin.UPGRADES.post(event);
 
         List<MachineUpgrade> upgrades = new ArrayList<>();
 
@@ -35,8 +35,8 @@ public class KubeJSIntegration {
     }
 
     @Nullable
-    public static CompoundTag nbtFromStack(ItemStackJS stack) {
-        CompoundTag nbt = stack.getNbt();
+    public static CompoundTag nbtFromStack(ItemStack stack) {
+        CompoundTag nbt = stack.getTag();
         if(nbt == null || nbt.isEmpty())
             return null;
         if(nbt.contains("Damage", Tag.TAG_INT) && nbt.getInt("Damage") == 0)
@@ -45,6 +45,7 @@ public class KubeJSIntegration {
             return null;
         return nbt;
     }
+
 
     public static Path getMachineJsonPath(ResourceLocation location) {
         return KubeJSPaths.DIRECTORY.resolve(String.format("%s/%s/%s", PackType.SERVER_DATA.getDirectory(), location.getNamespace(), location.getPath()));

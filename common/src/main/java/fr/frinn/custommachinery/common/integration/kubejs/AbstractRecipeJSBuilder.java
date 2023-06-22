@@ -4,10 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.latvian.mods.kubejs.recipe.IngredientMatch;
+import dev.latvian.mods.kubejs.recipe.ItemInputTransformer;
+import dev.latvian.mods.kubejs.recipe.ItemOutputTransformer;
+import dev.latvian.mods.kubejs.recipe.RecipeArguments;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
-import dev.latvian.mods.kubejs.util.ListJS;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
@@ -16,10 +19,11 @@ import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends Recipe<?>>> extends RecipeJS implements RecipeJSBuilder {
@@ -38,17 +42,17 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         this.builderCodec = builderCodec;
     }
 
-    public abstract T makeBuilder(ResourceLocation machine, List<Object> args);
+    public abstract T makeBuilder(ResourceLocation machine, RecipeArguments args);
 
     public T builder() {
         return this.builder;
     }
 
     @Override
-    public void create(ListJS args) {
+    public void create(RecipeArguments args) {
         if(args.size() < 1 || !(args.get(0) instanceof String) || !Utils.isResourceNameValid((String)args.get(0)))
             throw new RecipeExceptionJS("Custom Machine recipe must have a machine id specified as first argument");
-        this.machine = new ResourceLocation((String) args.remove(0));
+        this.machine = new ResourceLocation(args.getString(0, ""));
         this.builder = makeBuilder(this.machine, args);
         int uniqueID = IDS.computeIfAbsent(this.id, id -> new HashMap<>()).computeIfAbsent(this.machine, m -> 0);
         IDS.get(this.id).put(this.machine, uniqueID + 1);
@@ -58,6 +62,26 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     @Override
     public Recipe<?> createRecipe() {
         return this.builder.build(getOrCreateId());
+    }
+
+    @Override
+    public boolean hasInput(IngredientMatch match) {
+        return false;
+    }
+
+    @Override
+    public boolean hasOutput(IngredientMatch match) {
+        return false;
+    }
+
+    @Override
+    public boolean replaceInput(IngredientMatch match, Ingredient with, ItemInputTransformer transformer) {
+        return false;
+    }
+
+    @Override
+    public boolean replaceOutput(IngredientMatch match, ItemStack with, ItemOutputTransformer transformer) {
+        return false;
     }
 
     @Override
@@ -75,12 +99,6 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     @Override
     public String getFromToString() {
         return this.builder.toString();
-    }
-
-    @Override
-    public RecipeJS merge(Object data) {
-        ScriptType.SERVER.console.warn("Don't use 'merge' method on custom machine recipe");
-        return this;
     }
 
     public AbstractRecipeJSBuilder<T> jei() {

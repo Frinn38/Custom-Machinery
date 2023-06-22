@@ -20,8 +20,7 @@ import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -98,21 +97,23 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
         int amount = (int) context.getModifiedValue(this.amount, this, null);
         double radius = context.getModifiedValue(this.radius, this, "radius");
         switch (this.action) {
-            case CONSUME:
+            case CONSUME -> {
                 int found = component.getItemAmount(this.input, radius, this.whitelist);
-                if(found >= amount) {
+                if (found >= amount) {
                     component.consumeItem(this.input, amount, radius, this.whitelist);
                     return CraftingResult.success();
-                }
-                else
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
-            case PRODUCE:
+                } else
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
+            }
+            case PRODUCE -> {
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
-                if(component.produceItem(stack))
+                if (component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
-            default:
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
+            }
+            default -> {
                 return CraftingResult.pass();
+            }
         }
     }
 
@@ -130,12 +131,12 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.success();
                 }
                 else
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
             case PRODUCE:
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
             default:
                 return CraftingResult.pass();
         }
@@ -154,7 +155,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
             int found = component.getItemAmount(this.input, radius, this.whitelist);
             if(found >= amount)
                 return CraftingResult.success();
-            return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
         }
         return CraftingResult.pass();
     }
@@ -173,12 +174,12 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.success();
                 }
                 else
-                    return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
+                    return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
             case PRODUCE:
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
             default:
                 return CraftingResult.pass();
         }
@@ -191,19 +192,19 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     public void getDisplayInfo(IDisplayInfo info) {
         switch (this.action) {
             case CHECK -> {
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.check", this.amount, this.radius));
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                this.input.forEach(ingredient -> info.addTooltip(new TextComponent(ingredient.toString())));
+                info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.check", this.amount, this.radius));
+                info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
+                this.input.forEach(ingredient -> info.addTooltip(Component.literal(ingredient.toString())));
                 info.setItemIcon(Items.OAK_PRESSURE_PLATE);
             }
             case CONSUME -> {
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                this.input.forEach(ingredient -> info.addTooltip(new TextComponent("- " + ingredient.toString())));
+                info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
+                info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
+                this.input.forEach(ingredient -> info.addTooltip(Component.literal("- " + ingredient.toString())));
                 info.setItemIcon(Items.HOPPER);
             }
             case PRODUCE -> {
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.drop.info.produce", new TextComponent(this.amount + "x ").append(new TranslatableComponent(this.output.getDescriptionId())).withStyle(ChatFormatting.GOLD)));
+                info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.produce", Component.literal(this.amount + "x ").append(Component.translatable(this.output.getDescriptionId())).withStyle(ChatFormatting.GOLD)));
                 info.setItemIcon(Items.DROPPER);
             }
         }

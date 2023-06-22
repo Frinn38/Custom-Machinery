@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.client.screen.creator_old;
 
 import fr.frinn.custommachinery.client.screen.widget.ToogleTextFieldWidget;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class MachineAppearanceScreen extends MachineCreationTabScreen {
 
@@ -11,7 +11,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
     private ToogleTextFieldWidget blockStatePrompt;
 
     public MachineAppearanceScreen(MachineCreationScreen parent, CustomMachineBuilder machine) {
-        super(new TextComponent("Machine Appearance"), parent, machine);
+        super(Component.literal("Machine Appearance"), parent, machine);
     }
     /*
     @Override
@@ -34,7 +34,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
                 this.yPos + 35,
                 150,
                 20,
-                StringTextComponent.EMPTY,
+                StringComponent.empty(),
                 widget -> this.machine.getAppearance().getType() == MachineAppearance.AppearanceType.MODEL
         ));
         this.modelPrompt.setMaxStringLength(100);
@@ -47,7 +47,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
                 this.yPos + 35,
                 150,
                 20,
-                StringTextComponent.EMPTY,
+                StringComponent.empty(),
                 widget -> this.machine.getAppearance().getType() == MachineAppearance.AppearanceType.BLOCK
         ));
         this.blockPrompt.setMaxStringLength(100);
@@ -60,7 +60,7 @@ public class MachineAppearanceScreen extends MachineCreationTabScreen {
                 this.yPos + 35,
                 150,
                 20,
-                StringTextComponent.EMPTY,
+                StringComponent.empty(),
                 widget -> this.machine.getAppearance().getType() == MachineAppearance.AppearanceType.BLOCKSTATE
         ));
         this.blockStatePrompt.setMaxStringLength(100);

@@ -11,7 +11,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,11 +69,11 @@ public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<Progre
     public List<Component> getJEITooltips(ProgressBarGuiElement element, IMachineRecipe recipe) {
         List<Component> tooltips = new ArrayList<>();
         if(recipe.getRecipeTime() > 0)
-            tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
+            tooltips.add(Component.translatable("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
         else
-            tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.instant"));
+            tooltips.add(Component.translatable("custommachinery.jei.recipe.instant"));
         if(!CMConfig.get().needAdvancedInfoForRecipeID || Minecraft.getInstance().options.advancedItemTooltips)
-            tooltips.add(new TranslatableComponent("custommachinery.jei.recipe.id", recipe.getRecipeId().toString()).withStyle(ChatFormatting.DARK_GRAY));
+            tooltips.add(Component.translatable("custommachinery.jei.recipe.id", recipe.getRecipeId().toString()).withStyle(ChatFormatting.DARK_GRAY));
         return tooltips;
     }
 }

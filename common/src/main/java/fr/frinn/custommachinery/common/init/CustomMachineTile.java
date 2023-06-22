@@ -24,7 +24,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -46,7 +45,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     private SoundManager soundManager;
 
     private MachineStatus status = MachineStatus.IDLE;
-    private Component errorMessage = TextComponent.EMPTY;
+    private Component errorMessage = Component.empty();
 
     public CustomMachineTile(BlockPos pos, BlockState state) {
         super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);

@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -61,7 +60,7 @@ public abstract class MachineTile extends BlockEntity {
     public abstract void setStatus(MachineStatus status, Component message);
 
     public void setStatus(MachineStatus status) {
-        this.setStatus(status, TextComponent.EMPTY);
+        this.setStatus(status, Component.empty());
     }
 
     /**

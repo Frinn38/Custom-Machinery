@@ -6,10 +6,10 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -20,7 +20,7 @@ public class ForgeFluidHelper implements IFluidHelper {
 
     @Override
     public boolean isFluidHandler(ItemStack stack) {
-        return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
+        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent();
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ForgeFluidHelper implements IFluidHelper {
         ItemStack stack = slot.getItemStack();
         if(stack.isEmpty())
             return;
-        IFluidHandlerItem handlerItem =  stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).orElseThrow(() -> new IllegalStateException("Can't fill tanks from non fluid handler item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
+        IFluidHandlerItem handlerItem =  stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow(() -> new IllegalStateException("Can't fill tanks from non fluid handler item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
         for(FluidMachineComponent component : tanks) {
             FluidStack maxExtract;
             if(component.getFluidStack().isEmpty())
@@ -57,7 +57,7 @@ public class ForgeFluidHelper implements IFluidHelper {
         ItemStack stack = slot.getItemStack();
         if(stack.isEmpty())
             return;
-        IFluidHandlerItem handlerItem =  stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).orElseThrow(() -> new IllegalStateException("Can't fill tanks from non fluid handler item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
+        IFluidHandlerItem handlerItem =  stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow(() -> new IllegalStateException("Can't fill tanks from non fluid handler item: " + ForgeRegistries.ITEMS.getKey(stack.getItem())));
         for(FluidMachineComponent component : tanks) {
             for(int i = 0; i < handlerItem.getTanks(); i++) {
                 if(handlerItem.getFluidInTank(i).isEmpty() || handlerItem.getFluidInTank(i).isFluidEqual(FluidStackHooksForge.toForge(component.getFluidStack()))) {

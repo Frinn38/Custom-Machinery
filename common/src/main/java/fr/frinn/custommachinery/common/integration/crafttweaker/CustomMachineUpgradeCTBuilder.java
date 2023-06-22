@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.integration.crafttweaker;
 import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.action.base.IRuntimeAction;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
-import com.blamejared.crafttweaker.platform.Services;
 import com.google.common.collect.ImmutableList;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
@@ -19,8 +18,8 @@ import fr.frinn.custommachinery.common.upgrade.modifier.MultiplicationRecipeModi
 import fr.frinn.custommachinery.common.upgrade.modifier.SpeedRecipeModifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.openzen.zencode.java.ZenCodeType.Method;
@@ -43,7 +42,7 @@ public class CustomMachineUpgradeCTBuilder {
 
     public CustomMachineUpgradeCTBuilder(Item item, int maxAmount) {
         this.item = item;
-        this.tooltips = Collections.singletonList(new TranslatableComponent("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA));
+        this.tooltips = Collections.singletonList(Component.translatable("custommachinery.upgrade.tooltip").withStyle(ChatFormatting.AQUA));
         this.maxAmount = maxAmount;
         this.machines = new ArrayList<>();
         this.modifiers = new ArrayList<>();
@@ -57,9 +56,9 @@ public class CustomMachineUpgradeCTBuilder {
     @Method
     public void build() {
         if(this.machines.isEmpty())
-            throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + Services.REGISTRY.getRegistryKey(this.item));
+            throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + Registry.ITEM.getKey(this.item));
         if(this.modifiers.isEmpty())
-            throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + Services.REGISTRY.getRegistryKey(this.item));
+            throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + Registry.ITEM.getKey(this.item));
         MachineUpgrade upgrade = new MachineUpgrade(this.item, this.machines, this.modifiers, this.tooltips, this.maxAmount);
         CraftTweakerAPI.apply(new AddMachineUpgradeAction(upgrade));
     }
@@ -88,7 +87,7 @@ public class CustomMachineUpgradeCTBuilder {
                     throw new IllegalArgumentException("");
                 tooltips.add(component);
             } catch (Exception e) {
-                tooltips.add(new TranslatableComponent(tooltip));
+                tooltips.add(Component.translatable(tooltip));
             }
         }
         this.tooltips = tooltips.build();
@@ -187,7 +186,7 @@ public class CustomMachineUpgradeCTBuilder {
             try {
                 this.tooltip = Component.Serializer.fromJson(tooltip);
             } catch (Exception e) {
-                this.tooltip = new TranslatableComponent(tooltip);
+                this.tooltip = Component.translatable(tooltip);
             }
             return this;
         }
@@ -224,7 +223,7 @@ public class CustomMachineUpgradeCTBuilder {
 
         @Override
         public String describe() {
-            return "Add a custom machine upgrade for item: " + Services.REGISTRY.getRegistryKey(this.upgrade.getItem());
+            return "Add a custom machine upgrade for item: " + Registry.ITEM.getKey(this.upgrade.getItem());
         }
     }
 }

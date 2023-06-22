@@ -15,7 +15,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -82,7 +82,7 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
             if(component.getSpaceForItem("", stack.getItem(), stack.getTag()) < stack.getCount())
-                return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.item.error.output", stack.getCount(), new TranslatableComponent(stack.getDescriptionId())));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", stack.getCount(), Component.translatable(stack.getDescriptionId())));
             component.addToOutputs("", stack.getItem(), stack.getCount(), stack.getTag());
             iterator.remove();
         }

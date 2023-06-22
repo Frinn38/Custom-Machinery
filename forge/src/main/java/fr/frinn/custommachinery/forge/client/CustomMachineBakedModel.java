@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -15,13 +16,13 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -31,7 +32,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class CustomMachineBakedModel implements IDynamicBakedModel {
 
@@ -65,9 +65,10 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return this.getParticleIcon(EmptyModelData.INSTANCE);
+        return this.getParticleIcon(ModelData.EMPTY);
     }
 
     @Override
@@ -77,18 +78,18 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     @NotNull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull Random rand, @NotNull IModelData data) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData data, RenderType type) {
         BakedModel model = getMachineModel(data);
         if(state != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            return getRotatedQuads(model, state.getValue(BlockStateProperties.HORIZONTAL_FACING), side, rand);
+            return getRotatedQuads(model, state.getValue(BlockStateProperties.HORIZONTAL_FACING), side, rand, type);
         }
-        return model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
+        return model.getQuads(state, side, rand, ModelData.EMPTY, type);
     }
 
-    private List<BakedQuad> getRotatedQuads(BakedModel model, Direction machineFacing, Direction side, Random random) {
+    private List<BakedQuad> getRotatedQuads(BakedModel model, Direction machineFacing, Direction side, RandomSource random, RenderType type) {
         //side of the model before rotation
         Direction originalSide = getRotatedDirection(machineFacing, side);
-        List<BakedQuad> finalQuads = model.getQuads(null, originalSide, random, EmptyModelData.INSTANCE);
+        List<BakedQuad> finalQuads = model.getQuads(null, originalSide, random, ModelData.EMPTY, type);
         return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? quad.getDirection() : side)).toList();
     }
 
@@ -134,17 +135,17 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon(@NotNull IModelData data) {
+    public TextureAtlasSprite getParticleIcon(@NotNull ModelData data) {
         return getMachineModel(data).getParticleIcon(data);
     }
 
-    private BakedModel getMachineModel(@NotNull IModelData data) {
-        MachineAppearance appearance = data.getData(APPEARANCE);
-        MachineStatus status = data.getData(STATUS);
+    private BakedModel getMachineModel(@NotNull ModelData data) {
+        MachineAppearance appearance = data.get(APPEARANCE);
+        MachineStatus status = data.get(STATUS);
         BakedModel model;
         if(appearance != null)
-            model = getMachineBlockModel(appearance, data.getData(STATUS));
-        else if(data.getData(STATUS) != null)
+            model = getMachineBlockModel(appearance, data.get(STATUS));
+        else if(data.get(STATUS) != null)
             model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(status));
         else
             model = Minecraft.getInstance().getModelManager().getModel(this.defaults.get(MachineStatus.IDLE));

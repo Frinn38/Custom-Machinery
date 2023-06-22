@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.client.integration.jei.wrapper.FuelItemIngredien
 import fr.frinn.custommachinery.common.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Collections;
@@ -58,7 +58,7 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
     public CraftingResult processTick(FuelMachineComponent component, ICraftingContext context) {
         if(component.burn(this.amount))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.fuel.error"));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.fuel.error"));
     }
 
     @Override

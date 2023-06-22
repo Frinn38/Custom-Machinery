@@ -4,15 +4,14 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FastColor;
 
 public enum SideMode {
 
-    INPUT(true, false, new TranslatableComponent("custommachinery.side.input").withStyle(ChatFormatting.RED), FastColor.ARGB32.color(255, 255, 85, 85)),
-    OUTPUT(false, true, new TranslatableComponent("custommachinery.side.output").withStyle(ChatFormatting.BLUE), FastColor.ARGB32.color(255, 85, 85, 255)),
-    BOTH(true, true, new TranslatableComponent("custommachinery.side.both").withStyle(ChatFormatting.LIGHT_PURPLE), FastColor.ARGB32.color(255, 255, 85, 255)),
-    NONE(false, false, new TranslatableComponent("custommachinery.side.none").withStyle(ChatFormatting.GRAY), FastColor.ARGB32.color(0, 255, 255, 255));
+    INPUT(true, false, Component.translatable("custommachinery.side.input").withStyle(ChatFormatting.RED), FastColor.ARGB32.color(255, 255, 85, 85)),
+    OUTPUT(false, true, Component.translatable("custommachinery.side.output").withStyle(ChatFormatting.BLUE), FastColor.ARGB32.color(255, 85, 85, 255)),
+    BOTH(true, true, Component.translatable("custommachinery.side.both").withStyle(ChatFormatting.LIGHT_PURPLE), FastColor.ARGB32.color(255, 255, 85, 255)),
+    NONE(false, false, Component.translatable("custommachinery.side.none").withStyle(ChatFormatting.GRAY), FastColor.ARGB32.color(0, 255, 255, 255));
 
     public static final NamedCodec<SideMode> CODEC = EnumCodec.of(SideMode.class);
 
