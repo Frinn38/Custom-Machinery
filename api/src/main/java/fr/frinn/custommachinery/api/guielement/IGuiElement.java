@@ -76,4 +76,8 @@ public interface IGuiElement {
      * @param tile The machine the player is currently using.
      */
     default void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {}
+
+    default boolean showInJei() {
+        return true;
+    }
 }

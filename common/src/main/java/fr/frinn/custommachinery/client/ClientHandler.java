@@ -23,6 +23,8 @@ import fr.frinn.custommachinery.client.integration.jei.element.FluidGuiElementJe
 import fr.frinn.custommachinery.client.integration.jei.element.FuelGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.ProgressGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.render.element.ConfigGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.DumpGuiElementWidget;
@@ -143,6 +145,8 @@ public class ClientHandler {
         event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementJeiRenderer());
         event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressGuiElementJeiRenderer());
         event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementJeiRenderer());
+        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementJeiRenderer());
+        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementJeiRenderer());
     }
 
     public static void openMachineLoadingScreen() {

@@ -86,7 +86,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         int maxY = 0;
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         for(IGuiElement element : elements) {
-            if(!GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType()))
+            if(!GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType()) || !element.showInJei())
                 continue;
             minX = Math.min(minX, element.getX());
             minY = Math.min(minY, element.getY());
@@ -170,10 +170,8 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         elements.stream()
-                .filter(element -> GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType()))
+                .filter(element -> GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType()) && element.showInJei())
                 .forEach(element -> {
-                    int x = element.getX() - this.offsetX;
-                    int y = element.getY() - this.offsetY;
                     IJEIElementRenderer<IGuiElement> renderer = GuiElementJEIRendererRegistry.getJEIRenderer(element.getType());
                     matrix.pushPose();
                     matrix.translate(-this.offsetX, -this.offsetY, 0);
