@@ -26,6 +26,7 @@ import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJei
 import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
+import fr.frinn.custommachinery.client.render.element.ButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.ConfigGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.DumpGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.EnergyGuiElementWidget;
@@ -60,6 +61,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -137,6 +139,7 @@ public class ClientHandler {
         event.register(Registration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
         event.register(Registration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
         event.register(Registration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
+        event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
     }
 
     private static void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {
@@ -244,6 +247,17 @@ public class ClientHandler {
         RenderSystem.disableDepthTest();
         RenderSystem.colorMask(true, true, true, false);
         GuiComponent.fill(pose, x, y, x + width, y + height, -2130706433);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.enableDepthTest();
+    }
+
+    public static void renderButtonHover(PoseStack pose, int x, int y, int width, int height) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.colorMask(true, true, true, false);
+        GuiComponent.fill(pose, x, y, x + width, y + 1, FastColor.ARGB32.color(255, 255, 255, 255));
+        GuiComponent.fill(pose, x + width - 1, y, x + width, y + height, FastColor.ARGB32.color(255, 255, 255, 255));
+        GuiComponent.fill(pose, x, y + height - 1, x + width, y + height, FastColor.ARGB32.color(255, 255, 255, 255));
+        GuiComponent.fill(pose, x, y, x + 1, y + height, FastColor.ARGB32.color(255, 255, 255, 255));
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.enableDepthTest();
     }
