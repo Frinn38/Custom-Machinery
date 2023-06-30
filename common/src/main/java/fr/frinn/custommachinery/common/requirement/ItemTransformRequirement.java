@@ -133,8 +133,8 @@ public class ItemTransformRequirement extends AbstractChanceableRequirement<Item
         else if(this.copyNBT && this.inputNBT != null)
             outputNBT = this.inputNBT;
         return Lists.newArrayList(
-                new ItemIngredientWrapper(RequirementIOMode.INPUT, this.input, this.inputAmount, getChance(), false, this.inputNBT, this.inputSlot),
-                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == Items.AIR ? this.input : new ItemIngredient(this.output), this.outputAmount, getChance(), false, outputNBT, this.outputSlot)
+                new ItemIngredientWrapper(RequirementIOMode.INPUT, this.input, this.inputAmount, getChance(), false, this.inputNBT, this.inputSlot, true),
+                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == Items.AIR ? this.input : new ItemIngredient(this.output), this.outputAmount, getChance(), false, outputNBT, this.outputSlot, true)
         );
     }
 }
