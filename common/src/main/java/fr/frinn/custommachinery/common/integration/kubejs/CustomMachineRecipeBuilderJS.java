@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuild
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.CommandRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DimensionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DropRequirementJS;
@@ -37,7 +38,8 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
     implements ItemRequirementJS, ItemTransformRequirementJS, DurabilityRequirementJS, FluidRequirementJS, FluidPerTickRequirementJS,
         EnergyRequirementJS, EnergyPerTickRequirementJS, TimeRequirementJS, PositionRequirementJS, BiomeRequirementJS, DimensionRequirementJS,
         FuelRequirementJS, CommandRequirementJS, EffectRequirementJS, WeatherRequirementJS, RedstoneRequirementJS, LightRequirementJS,
-        EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS {
+        EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS,
+        ButtonRequirementJS {
 
     public CustomMachineRecipeBuilderJS() {
         super(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineRecipeBuilder.CODEC);

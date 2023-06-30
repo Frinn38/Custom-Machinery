@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BiomeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BlockRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ButtonRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.CommandRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.DimensionRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.DropRequirementCT;
@@ -48,7 +49,8 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         FuelRequirementCT<CustomCraftRecipeCTBuilder>, CommandRequirementCT<CustomCraftRecipeCTBuilder>, EffectRequirementCT<CustomCraftRecipeCTBuilder>,
         WeatherRequirementCT<CustomCraftRecipeCTBuilder>, RedstoneRequirementCT<CustomCraftRecipeCTBuilder>, EntityRequirementCT<CustomCraftRecipeCTBuilder>,
         LightRequirementCT<CustomCraftRecipeCTBuilder>, BlockRequirementCT<CustomCraftRecipeCTBuilder>, StructureRequirementCT<CustomCraftRecipeCTBuilder>,
-        LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, FunctionRequirementCT<CustomCraftRecipeCTBuilder> {
+        LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, FunctionRequirementCT<CustomCraftRecipeCTBuilder>,
+        ButtonRequirementCT<CustomCraftRecipeCTBuilder> {
 
     private static int index = 0;
     private final CustomCraftRecipeBuilder builder;

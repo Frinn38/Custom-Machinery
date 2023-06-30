@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.CommandRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DimensionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DropRequirementJS;
@@ -36,7 +37,7 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
         BiomeRequirementJS, BlockRequirementJS, CommandRequirementJS, DimensionRequirementJS, DropRequirementJS, DurabilityRequirementJS,
         EffectRequirementJS, EnergyRequirementJS, EntityRequirementJS, FluidRequirementJS, FuelRequirementJS, FunctionRequirementJS,
         ItemRequirementJS, ItemTransformRequirementJS, LightRequirementJS, LootTableRequirementJS, PositionRequirementJS, RedstoneRequirementJS,
-        StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS {
+        StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS, ButtonRequirementJS {
 
     public CustomCraftRecipeJSBuilder() {
         super(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomCraftRecipeBuilder.CODEC);
