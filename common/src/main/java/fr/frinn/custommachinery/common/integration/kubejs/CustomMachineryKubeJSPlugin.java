@@ -16,6 +16,7 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
     public void addRecipes(RegisterRecipeHandlersEvent event) {
         event.register(Registration.CUSTOM_MACHINE_RECIPE_SERIALIZER.getId(), CustomMachineRecipeBuilderJS::new);
         event.register(Registration.CUSTOM_CRAFT_RECIPE_SERIALIZER.getId(), CustomCraftRecipeJSBuilder::new);
+        AbstractRecipeJSBuilder.IDS.clear();
     }
 
     @Override

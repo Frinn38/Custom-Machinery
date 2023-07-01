@@ -40,6 +40,9 @@ import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ZenRegister
 @Name(CTConstants.RECIPE_BUILDER_CRAFT)
 public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCraftRecipeCTBuilder>, EnergyPerTickRequirementCT<CustomCraftRecipeCTBuilder>,
@@ -52,7 +55,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, FunctionRequirementCT<CustomCraftRecipeCTBuilder>,
         ButtonRequirementCT<CustomCraftRecipeCTBuilder> {
 
-    private static int index = 0;
+    public static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private final CustomCraftRecipeBuilder builder;
     private IRequirement<?> lastRequirement;
     private boolean jei = false;
@@ -74,10 +77,17 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
     public void build(@OptionalString String name) {
         final ResourceLocation recipeID;
         try {
-            if(!name.isEmpty())
-                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, name);
-            else
-                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, "custom_craft_recipe_" + index++);
+            if(!name.isEmpty()) {
+                if(name.contains(":"))
+                    recipeID = new ResourceLocation(name);
+                else
+                    recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, name);
+            }
+            else {
+                int uniqueID = IDS.computeIfAbsent(this.builder.getMachine(), m -> 0);
+                IDS.put(this.builder.getMachine(), uniqueID + 1);
+                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, "custom_craft/" + this.builder.getMachine().getNamespace() + "/" + this.builder.getMachine().getPath() + "/" + uniqueID);
+            }
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid Recipe name: " + name + "\n" + e.getMessage());
         }

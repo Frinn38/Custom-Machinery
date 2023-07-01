@@ -5,6 +5,7 @@ import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.CommandPerformEvent;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
@@ -14,6 +15,7 @@ import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.variant.ComponentVariantRegistry;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
+import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.network.PacketManager;
@@ -111,6 +113,8 @@ public class CustomMachinery {
         if(event.getResults().getReader().getString().startsWith("/reload") && event.getResults().getContext().getSource().hasPermission(2)) {
             CMLogger.reset();
             MachineList.setNeedRefresh();
+            if(Platform.isModLoaded("crafttweaker"))
+                CTUtils.resetRecipesIDs();
         }
         return EventResult.pass();
     }
