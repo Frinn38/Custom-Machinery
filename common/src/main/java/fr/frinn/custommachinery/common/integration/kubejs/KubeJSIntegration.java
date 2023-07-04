@@ -20,7 +20,7 @@ public class KubeJSIntegration {
         ScriptType.SERVER.console.info("Collecting Custom Machine upgrades from JS scripts.");
 
         CustomMachineUpgradeJSBuilder.UpgradeEvent event = new CustomMachineUpgradeJSBuilder.UpgradeEvent();
-        CustomMachineryKubeJSPlugin.UPGRADES.post(event);
+        CustomMachineryKubeJSPlugin.UPGRADES.post(ScriptType.SERVER, event);
 
         List<MachineUpgrade> upgrades = new ArrayList<>();
 

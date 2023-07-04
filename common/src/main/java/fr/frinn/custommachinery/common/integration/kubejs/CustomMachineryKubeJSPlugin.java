@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.event.EventGroup;
 import dev.latvian.mods.kubejs.event.EventHandler;
-import dev.latvian.mods.kubejs.recipe.RegisterRecipeTypesEvent;
+import dev.latvian.mods.kubejs.recipe.schema.RegisterRecipeSchemasEvent;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
@@ -24,9 +24,9 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
     }
 
     @Override
-    public void registerRecipeTypes(RegisterRecipeTypesEvent event) {
-        event.register(Registration.CUSTOM_MACHINE_RECIPE_SERIALIZER.getId(), CustomMachineRecipeBuilderJS::new);
-        event.register(Registration.CUSTOM_CRAFT_RECIPE_SERIALIZER.getId(), CustomCraftRecipeJSBuilder::new);
+    public void registerRecipeSchemas(RegisterRecipeSchemasEvent event) {
+        event.register(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_MACHINE);
+        event.register(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_CRAFT);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import dev.latvian.mods.kubejs.recipe.RecipeArguments;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -29,6 +28,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.RedstoneR
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -43,10 +43,8 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
     }
 
     @Override
-    public CustomMachineRecipeBuilder makeBuilder(ResourceLocation machine, RecipeArguments args) {
-        if(args.size() < 2 || !(args.get(1) instanceof Number))
-            throw new RecipeExceptionJS("Custom Machine recipe must have a machine and a time specified");
-        return new CustomMachineRecipeBuilder(machine, args.getInt(1, 666));
+    public CustomMachineRecipeBuilder makeBuilder(ResourceLocation machine) {
+        return new CustomMachineRecipeBuilder(machine, Utils.toInt(getValue(CustomMachineryRecipeSchemas.TIME)));
     }
 
     @Override

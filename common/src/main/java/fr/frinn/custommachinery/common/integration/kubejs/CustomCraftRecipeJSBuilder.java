@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import dev.latvian.mods.kubejs.recipe.RecipeArguments;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -28,7 +27,6 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Structure
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import org.slf4j.helpers.MessageFormatter;
 
 public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCraftRecipeBuilder> implements
@@ -42,10 +40,8 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
     }
 
     @Override
-    public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine, RecipeArguments args) {
-        if(args.size() < 2 || !(args.get(1) instanceof ItemStack output))
-            throw new RecipeExceptionJS("Custom Craft recipe must have an output item specified");
-        return new CustomCraftRecipeBuilder(machine, output);
+    public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine) {
+        return new CustomCraftRecipeBuilder(machine, getValue(CustomMachineryRecipeSchemas.OUTPUT).item);
     }
 
     @Override

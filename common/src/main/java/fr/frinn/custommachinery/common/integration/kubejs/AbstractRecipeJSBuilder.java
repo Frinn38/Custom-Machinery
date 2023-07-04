@@ -4,10 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.latvian.mods.kubejs.recipe.IngredientMatch;
-import dev.latvian.mods.kubejs.recipe.ItemInputTransformer;
-import dev.latvian.mods.kubejs.recipe.ItemOutputTransformer;
-import dev.latvian.mods.kubejs.recipe.RecipeArguments;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
@@ -17,10 +13,7 @@ import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.HashMap;
@@ -42,21 +35,22 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         this.builderCodec = builderCodec;
     }
 
-    public abstract T makeBuilder(ResourceLocation machine, RecipeArguments args);
+    public abstract T makeBuilder(ResourceLocation machine);
 
     public T builder() {
         return this.builder;
     }
 
     @Override
-    public void create(RecipeArguments args) {
-        if(args.size() < 1 || !(args.get(0) instanceof String) || !Utils.isResourceNameValid((String)args.get(0)))
-            throw new RecipeExceptionJS("Custom Machine recipe must have a machine id specified as first argument");
-        this.machine = new ResourceLocation(args.getString(0, ""));
-        this.builder = makeBuilder(this.machine, args);
-        int uniqueID = IDS.computeIfAbsent(this.id, id -> new HashMap<>()).computeIfAbsent(this.machine, m -> 0);
-        IDS.get(this.id).put(this.machine, uniqueID + 1);
-        this.id(new ResourceLocation("kubejs", this.id.getPath() + "/" + this.machine.getNamespace() + "/" + this.machine.getPath() + "/" + uniqueID));
+    public void afterLoaded() {
+        super.afterLoaded();
+        ResourceLocation machine = ResourceLocation.tryParse(getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
+        if(machine == null)
+            throw new RecipeExceptionJS("Invalid machine id: " + getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
+        this.builder = makeBuilder(machine);
+        int uniqueID = IDS.computeIfAbsent(this.id, id -> new HashMap<>()).computeIfAbsent(machine, m -> 0);
+        IDS.get(this.id).put(machine, uniqueID + 1);
+        this.id(new ResourceLocation("kubejs", this.id.getPath() + "/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID));
     }
 
     @Override
@@ -65,27 +59,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     }
 
     @Override
-    public boolean hasInput(IngredientMatch match) {
-        return false;
-    }
-
-    @Override
-    public boolean hasOutput(IngredientMatch match) {
-        return false;
-    }
-
-    @Override
-    public boolean replaceInput(IngredientMatch match, Ingredient with, ItemInputTransformer transformer) {
-        return false;
-    }
-
-    @Override
-    public boolean replaceOutput(IngredientMatch match, ItemStack with, ItemOutputTransformer transformer) {
-        return false;
-    }
-
-    @Override
-    public void deserialize() {
+    public void deserialize(boolean merge) {
         DataResult<T> result = this.builderCodec.read(JsonOps.INSTANCE, this.json);
         this.builder = result.resultOrPartial(ScriptType.SERVER.console::error).orElseThrow(() -> new RecipeExceptionJS("Invalid Custom Machine Recipe"));
     }
