@@ -64,6 +64,10 @@ dependencies {
 
     //Jade
     modLocalRuntime modCompileOnly("curse.maven:jade-324717:3865918")
+
+    //FTBIC
+    modLocalRuntime modCompileOnly("curse.maven:ftbic-539097:4033023")
+    modLocalRuntime modCompileOnly("curse.maven:ftblib-404465:4396792")
 }
 
 processResources {
