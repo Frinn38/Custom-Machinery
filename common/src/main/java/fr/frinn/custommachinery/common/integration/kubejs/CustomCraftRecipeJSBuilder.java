@@ -25,6 +25,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.LightRequ
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.LootTableRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.PositionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.RedstoneRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
@@ -37,7 +38,7 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
         BiomeRequirementJS, BlockRequirementJS, CommandRequirementJS, DimensionRequirementJS, DropRequirementJS, DurabilityRequirementJS,
         EffectRequirementJS, EnergyRequirementJS, EntityRequirementJS, FluidRequirementJS, FuelRequirementJS, FunctionRequirementJS,
         ItemRequirementJS, ItemTransformRequirementJS, LightRequirementJS, LootTableRequirementJS, PositionRequirementJS, RedstoneRequirementJS,
-        StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS, ButtonRequirementJS {
+        StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS, ButtonRequirementJS, SkyRequirementJS {
 
     public CustomCraftRecipeJSBuilder() {
         super(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomCraftRecipeBuilder.CODEC);

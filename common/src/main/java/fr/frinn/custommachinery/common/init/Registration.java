@@ -34,6 +34,7 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
+import fr.frinn.custommachinery.common.component.SkyMachineComponent;
 import fr.frinn.custommachinery.common.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
@@ -109,6 +110,7 @@ import fr.frinn.custommachinery.common.requirement.LightRequirement;
 import fr.frinn.custommachinery.common.requirement.LootTableRequirement;
 import fr.frinn.custommachinery.common.requirement.PositionRequirement;
 import fr.frinn.custommachinery.common.requirement.RedstoneRequirement;
+import fr.frinn.custommachinery.common.requirement.SkyRequirement;
 import fr.frinn.custommachinery.common.requirement.SpeedRequirement;
 import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.requirement.TimeRequirement;
@@ -219,6 +221,7 @@ public class Registration {
     public static final RegistrySupplier<MachineComponentType<DropMachineComponent>> DROP_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("drop", () -> MachineComponentType.create(DropMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<FunctionMachineComponent>> FUNCTION_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("function", () -> MachineComponentType.create(FunctionMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<DataMachineComponent>> DATA_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("data", () -> MachineComponentType.create(DataMachineComponent::new));
+    public static final RegistrySupplier<MachineComponentType<SkyMachineComponent>> SKY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("sky", () -> MachineComponentType.create(SkyMachineComponent::new));
 
     public static final RegistrySupplier<RequirementType<ItemRequirement>> ITEM_REQUIREMENT = REQUIREMENTS.register("item", () -> RequirementType.inventory(ItemRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<EnergyRequirement>> ENERGY_REQUIREMENT = REQUIREMENTS.register("energy", () -> RequirementType.inventory(EnergyRequirement.CODEC));
@@ -245,6 +248,7 @@ public class Registration {
     public static final RegistrySupplier<RequirementType<FunctionRequirement>> FUNCTION_REQUIREMENT = REQUIREMENTS.register("function", () -> RequirementType.world(FunctionRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<ItemTransformRequirement>> ITEM_TRANSFORM_REQUIREMENT = REQUIREMENTS.register("item_transform", () -> RequirementType.inventory(ItemTransformRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<ButtonRequirement>> BUTTON_REQUIREMENT = REQUIREMENTS.register("button", () -> RequirementType.world(ButtonRequirement.CODEC));
+    public static final RegistrySupplier<RequirementType<SkyRequirement>> SKY_REQUIREMENT = REQUIREMENTS.register("sky", () -> RequirementType.world(SkyRequirement.CODEC));
 
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
