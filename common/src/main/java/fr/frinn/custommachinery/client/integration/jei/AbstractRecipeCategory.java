@@ -204,7 +204,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         //First, check if any gui element is hovered and if so return its tooltips.
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         for(IGuiElement element : elements) {
-            if(GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType())) {
+            if(element.showInJei() && GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType())) {
                 IJEIElementRenderer<IGuiElement> renderer = GuiElementJEIRendererRegistry.getJEIRenderer(element.getType());
                 int x = element.getX() - this.offsetX;
                 int y = element.getY() - this.offsetY;
