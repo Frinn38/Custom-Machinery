@@ -46,8 +46,14 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
 
     @Override
     public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine, List<Object> args) {
-        if(args.size() < 1 || !(args.get(0) instanceof ItemStackJS output))
+
+        if(args.size() < 1)
             throw new RecipeExceptionJS("Custom Craft recipe must have an output item specified");
+
+        ItemStackJS output = ItemStackJS.of(args.get(0));
+        if(output == null || output.isEmpty())
+            throw new RecipeExceptionJS("Invalid output item specified: " + args.get(0).toString());
+
         return new CustomCraftRecipeBuilder(machine, output.getItemStack());
     }
 

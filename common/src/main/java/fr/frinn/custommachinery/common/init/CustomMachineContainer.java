@@ -142,11 +142,13 @@ public class CustomMachineContainer extends SyncableContainer {
                     return ItemStack.EMPTY;
                 slotComponent.setChanged();
 
+                int crafted = 0;
                 while (processor.bulkCraft()) {
                     removed = slotComponent.getItem();
                     if(!this.playerInv.add(removed))
                         return ItemStack.EMPTY;
                     slotComponent.setChanged();
+                    if(crafted++ == 64 && player.getAbilities().instabuild) return ItemStack.EMPTY;
                 }
                 return ItemStack.EMPTY;
             }
