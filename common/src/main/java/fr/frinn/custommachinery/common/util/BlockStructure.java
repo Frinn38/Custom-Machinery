@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.util;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.core.BlockPos;
@@ -79,7 +78,7 @@ public class BlockStructure {
 
         private Builder() {
             this.symbolMap.put(' ', BlockIngredient.ANY);
-            this.symbolMap.put('m', new BlockIngredient(new PartialBlockState(Registration.CUSTOM_MACHINE_BLOCK.get())));
+            this.symbolMap.put('m', BlockIngredient.MACHINE);
         }
 
         /**

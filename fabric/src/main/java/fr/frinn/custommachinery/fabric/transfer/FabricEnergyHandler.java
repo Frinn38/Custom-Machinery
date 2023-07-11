@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.fabric.transfer;
 
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
@@ -34,7 +33,7 @@ public class FabricEnergyHandler implements ICommonEnergyHandler {
     @Override
     public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
         if(oldMode.isNone() != newMode.isNone())
-            this.component.getManager().getLevel().updateNeighborsAt(this.component.getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+            this.component.getManager().getLevel().updateNeighborsAt(this.component.getManager().getTile().getBlockPos(), this.component.getManager().getTile().getBlockState().getBlock());
     }
 
     @Override

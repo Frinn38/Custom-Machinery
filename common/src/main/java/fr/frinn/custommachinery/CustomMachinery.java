@@ -37,6 +37,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,6 +51,7 @@ public class CustomMachinery {
     public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
+    public static final Map<ResourceLocation, Block> CUSTOM_BLOCK_MACHINES = new HashMap<>();
     public static final Upgrades UPGRADES = new Upgrades();
 
     public static void init() {

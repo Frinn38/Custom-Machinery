@@ -67,7 +67,7 @@ public class StructureCreatorItem extends Item {
         BlockPos pos = context.getClickedPos();
         BlockState state = context.getLevel().getBlockState(pos);
         ItemStack stack = context.getItemInHand();
-        if(state.is(Registration.CUSTOM_MACHINE_BLOCK.get())) {
+        if(state.getBlock() instanceof CustomMachineBlock) {
             if(!context.getLevel().isClientSide())
                 finishStructure(stack, pos, state.getValue(BlockStateProperties.HORIZONTAL_FACING), (ServerPlayer) context.getPlayer());
             return InteractionResult.SUCCESS;
@@ -137,7 +137,7 @@ public class StructureCreatorItem extends Item {
         Arrays.stream(states)
                 .flatMap(Arrays::stream)
                 .flatMap(Arrays::stream)
-                .filter(state -> !state.getBlockState().is(Registration.CUSTOM_MACHINE_BLOCK.get()) && state != PartialBlockState.ANY)
+                .filter(state -> !(state.getBlockState().getBlock() instanceof CustomMachineBlock) && state != PartialBlockState.ANY)
                 .distinct()
                 .forEach(state -> {
                     if(charIndex.get() == 109) charIndex.incrementAndGet(); //Avoid 'm' as it's reserved for the machine.
@@ -152,7 +152,7 @@ public class StructureCreatorItem extends Item {
                 for (int k = 0; k < states[i][j].length; k++) {
                     PartialBlockState partial = states[i][j][k];
                     char key;
-                    if(partial.getBlockState().is(Registration.CUSTOM_MACHINE_BLOCK.get()))
+                    if(partial.getBlockState().getBlock() instanceof CustomMachineBlock)
                         key = 'm';
                     else if(partial == PartialBlockState.ANY)
                         key = ' ';

@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.forge.transfer;
 
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.ICommonFluidHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
@@ -53,7 +52,7 @@ public class ForgeFluidHandler implements ICommonFluidHandler {
     @Override
     public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
         if(oldMode.isNone() != newMode.isNone())
-            this.fluidHandler.getManager().getLevel().updateNeighborsAt(this.fluidHandler.getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+            this.fluidHandler.getManager().getLevel().updateNeighborsAt(this.fluidHandler.getManager().getTile().getBlockPos(), this.fluidHandler.getManager().getTile().getBlockState().getBlock());
     }
 
     @Override

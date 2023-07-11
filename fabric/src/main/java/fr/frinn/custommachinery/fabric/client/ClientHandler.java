@@ -20,7 +20,9 @@ public class ClientHandler {
         ModelLoadingRegistry.INSTANCE.registerModelProvider(ClientHandler::provideModels);
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(manager -> CustomMachineModelProvider.INSTANCE);
         WorldRenderEvents.LAST.register(ClientHandler::renderLevelLast);
+
         FluidRenderHandlerRegistry.INSTANCE.setBlockTransparency(Registration.CUSTOM_MACHINE_BLOCK.get(), true);
+        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> FluidRenderHandlerRegistry.INSTANCE.setBlockTransparency(block, true));
     }
 
     private static void provideModels(ResourceManager manager, Consumer<ResourceLocation> out) {

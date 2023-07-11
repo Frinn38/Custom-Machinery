@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.fabric.transfer;
 
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
@@ -37,7 +36,7 @@ public class FabricItemHandler implements ICommonItemHandler {
     @Override
     public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
         if(oldMode.isNone() != newMode.isNone())
-            this.handler.getManager().getLevel().updateNeighborsAt(this.handler.getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+            this.handler.getManager().getLevel().updateNeighborsAt(this.handler.getManager().getTile().getBlockPos(), this.handler.getManager().getTile().getBlockState().getBlock());
     }
 
     @Override

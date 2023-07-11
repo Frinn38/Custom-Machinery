@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.fabric.mixin;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -19,8 +19,8 @@ abstract class LevelRendererMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;")
     )
     private SoundType custommachinery$getBrokenSoundType(BlockState state, Player player, int i, BlockPos blockPos, int j) {
-        if(i == 2001 && state.is(Registration.CUSTOM_MACHINE_BLOCK.get()))
-            return Registration.CUSTOM_MACHINE_BLOCK.get().getSoundType(state, player.level, blockPos, null);
+        if(i == 2001 && state.getBlock() instanceof CustomMachineBlock machineBlock)
+            return machineBlock.getSoundType(state, player.level, blockPos, null);
         return state.getSoundType();
     }
 
@@ -29,8 +29,8 @@ abstract class LevelRendererMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I")
     )
     private static int custommachinery$getLightEmission(BlockState state, BlockAndTintGetter level, BlockState state1, BlockPos pos) {
-        if(state.is(Registration.CUSTOM_MACHINE_BLOCK.get()))
-            return Registration.CUSTOM_MACHINE_BLOCK.get().getLightEmission(state, level, pos);
+        if(state.getBlock() instanceof CustomMachineBlock machineBlock)
+            return machineBlock.getLightEmission(state, level, pos);
         return state.getLightEmission();
     }
 }

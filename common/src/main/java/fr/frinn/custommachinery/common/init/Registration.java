@@ -134,6 +134,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -174,12 +175,17 @@ public class Registration {
 
     public static final RegistrySupplier<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", PlatformHelper::createMachineBlock);
 
-    public static final RegistrySupplier<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().tab(GROUP)));
+    public static final RegistrySupplier<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().tab(GROUP), null));
     public static final RegistrySupplier<MachineCreatorItem> MACHINE_CREATOR_ITEM = ITEMS.register("machine_creator_item", () ->  new MachineCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
     public static final RegistrySupplier<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
     public static final RegistrySupplier<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
 
-    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> BlockEntityType.Builder.of(PlatformHelper::createMachineTile, CUSTOM_MACHINE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, Collections.emptySet(), null) {
+        @Override
+        public boolean isValid(BlockState state) {
+            return state.getBlock() instanceof CustomMachineBlock;
+        }
+    });
 
     public static final RegistrySupplier<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> MenuRegistry.ofExtended(CustomMachineContainer::new));
 

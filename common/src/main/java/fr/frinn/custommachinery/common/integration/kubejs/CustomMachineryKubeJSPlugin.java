@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import dev.latvian.mods.kubejs.KubeJSPlugin;
+import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes;
 import dev.latvian.mods.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
@@ -11,6 +12,11 @@ import fr.frinn.custommachinery.common.integration.kubejs.function.Result;
 import fr.frinn.custommachinery.impl.util.IntRange;
 
 public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
+
+    @Override
+    public void init() {
+        RegistryObjectBuilderTypes.BLOCK.addType("custommachinery", CustomMachineBlockBuilderJS.class, CustomMachineBlockBuilderJS::new);
+    }
 
     @Override
     public void addRecipes(RegisterRecipeHandlersEvent event) {

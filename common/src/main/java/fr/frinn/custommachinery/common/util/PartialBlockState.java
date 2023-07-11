@@ -5,7 +5,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -30,8 +31,8 @@ import java.util.function.Predicate;
 
 public class PartialBlockState implements Predicate<BlockInWorld> {
 
-    public static final PartialBlockState AIR = new PartialBlockState(Blocks.AIR.defaultBlockState(), new ArrayList<>(), null);
-    public static final PartialBlockState ANY = new PartialBlockState(Blocks.AIR.defaultBlockState(), new ArrayList<>(), null) {
+    public static final PartialBlockState AIR = new PartialBlockState(Blocks.AIR.defaultBlockState(), Collections.emptyList(), null);
+    public static final PartialBlockState ANY = new PartialBlockState(Blocks.AIR.defaultBlockState(), Collections.emptyList(), null) {
         @Override
         public boolean test(BlockInWorld cachedBlockInfo) {
             return true;
@@ -40,6 +41,18 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         @Override
         public String toString() {
             return "ANY";
+        }
+    };
+
+    public static final PartialBlockState MACHINE = new PartialBlockState(Blocks.AIR.defaultBlockState(), Collections.emptyList(), null) {
+        @Override
+        public boolean test(BlockInWorld cachedBlockInfo) {
+            return cachedBlockInfo.getState().getBlock() instanceof CustomMachineBlock;
+        }
+
+        @Override
+        public String toString() {
+            return "MACHINE";
         }
     };
 
@@ -80,7 +93,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     }
 
     public PartialBlockState rotate(Rotation rotation) {
-        if(this.properties.contains(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.getBlock() != Registration.CUSTOM_MACHINE_BLOCK.get()) {
+        if(this.properties.contains(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && !(this.blockState.getBlock() instanceof CustomMachineBlock)) {
             Direction direction = this.blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
             direction = rotation.rotate(direction);
             BlockState blockState = this.blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, direction);

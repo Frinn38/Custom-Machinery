@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.forge.integration.theoneprobe;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.MachineBlockState;
 import mcjty.theoneprobe.api.CompoundText;
@@ -46,7 +46,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
 
             @Override
             public void getProbeConfig(IProbeConfig config, Player player, Level world, BlockState state, IProbeHitData data) {
-                if(state.getBlock() == Registration.CUSTOM_MACHINE_BLOCK.get()) {
+                if(state.getBlock() instanceof CustomMachineBlock) {
                     config.setRFMode(1);
                     config.setTankMode(1);
                     config.showTankSetting(IProbeConfig.ConfigMode.NORMAL);

@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.fabric.mixin;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
@@ -19,7 +19,7 @@ abstract class ExplosionDamageCalculatorMixin {
 
     @Inject(method = "getBlockExplosionResistance", at = @At("HEAD"), cancellable = true)
     private void custommachinery$injectGetBlockExplosionResistance(Explosion explosion, BlockGetter blockGetter, BlockPos blockPos, BlockState blockState, FluidState fluidState, CallbackInfoReturnable<Optional<Float>> ci) {
-        if(blockState.is(Registration.CUSTOM_MACHINE_BLOCK.get()))
-            ci.setReturnValue(Optional.of(Registration.CUSTOM_MACHINE_BLOCK.get().getExplosionResistance(blockState, blockGetter, blockPos, explosion)));
+        if(blockState.getBlock() instanceof CustomMachineBlock machineBlock)
+            ci.setReturnValue(Optional.of(machineBlock.getExplosionResistance(blockState, blockGetter, blockPos, explosion)));
     }
 }

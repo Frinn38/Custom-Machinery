@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.forge.transfer;
 
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
@@ -43,7 +42,7 @@ public class ForgeEnergyHandler implements ICommonEnergyHandler {
             this.sidedCapabilities.get(direction).invalidate();
             this.sidedCapabilities.put(direction, LazyOptional.of(() -> this.sidedStorages.get(direction)));
             if(oldMode.isNone())
-                this.component.getManager().getLevel().updateNeighborsAt(this.component.getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+                this.component.getManager().getLevel().updateNeighborsAt(this.component.getManager().getTile().getBlockPos(), this.component.getManager().getTile().getBlockState().getBlock());
         }
     }
 

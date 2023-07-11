@@ -52,7 +52,7 @@ import java.util.Optional;
 
 public abstract class CustomMachineBlock extends Block implements EntityBlock {
 
-    private static final StateArgumentPredicate<EntityType<?>> spawnPredicate = ((state, level, pos, type) -> state.isFaceSturdy(level, pos, Direction.UP) && Registration.CUSTOM_MACHINE_BLOCK.get().getLightEmission(state, level, pos) < 14);
+    private static final StateArgumentPredicate<EntityType<?>> spawnPredicate = ((state, level, pos, type) -> state.isFaceSturdy(level, pos, Direction.UP) && state.getBlock() instanceof CustomMachineBlock machineBlock && machineBlock.getLightEmission(state, level, pos) < 14);
 
     public CustomMachineBlock() {
         super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate));

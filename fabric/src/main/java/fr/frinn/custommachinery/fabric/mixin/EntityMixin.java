@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.fabric.mixin;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.SoundType;
@@ -15,9 +15,9 @@ abstract class EntityMixin {
 
     @Inject(method = "playStepSound", at = @At("HEAD"), cancellable = true)
     private void custommachinery$playStepSound(BlockPos pos, BlockState state, CallbackInfo ci) {
-        if(state.is(Registration.CUSTOM_MACHINE_BLOCK.get())) {
+        if(state.getBlock() instanceof CustomMachineBlock machineBlock) {
             Entity entity = (Entity) (Object) this;
-            SoundType sound = Registration.CUSTOM_MACHINE_BLOCK.get().getSoundType(state, entity.level, pos, entity);
+            SoundType sound = machineBlock.getSoundType(state, entity.level, pos, entity);
             entity.playSound(sound.getStepSound(), sound.getVolume() * 0.15F, sound.getPitch());
             ci.cancel();
         }
