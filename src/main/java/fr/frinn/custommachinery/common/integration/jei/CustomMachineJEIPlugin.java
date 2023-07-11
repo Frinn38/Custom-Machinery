@@ -85,7 +85,7 @@ public class CustomMachineJEIPlugin implements IModPlugin {
         registration.addGuiContainerHandler(CustomMachineScreen.class, new IGuiContainerHandler<CustomMachineScreen>() {
             @Override
             public Collection<IGuiClickableArea> getGuiClickableAreas(CustomMachineScreen screen, double mouseX, double mouseY) {
-                List<IGuiElement> elements = screen.getMachine().getJeiElements().isEmpty() ? screen.getMachine().getGuiElements() : screen.getMachine().getJeiElements();
+                List<IGuiElement> elements = screen.getMachine().getGuiElements().isEmpty() ? screen.getMachine().getGuiElements() : screen.getMachine().getJeiElements();
                 ProgressBarGuiElement progress = (ProgressBarGuiElement) elements.stream().filter(element -> element.getType() == Registration.PROGRESS_GUI_ELEMENT.get()).findFirst().orElse(null);
                 if(progress != null) {
                     int posX = progress.getX();
