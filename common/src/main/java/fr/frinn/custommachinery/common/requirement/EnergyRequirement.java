@@ -53,7 +53,7 @@ public class EnergyRequirement extends AbstractChanceableRequirement<EnergyMachi
 
     @Override
     public boolean test(EnergyMachineComponent energy, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT)
             return energy.extractRecipeEnergy(amount, true) == amount;
         else
@@ -62,7 +62,7 @@ public class EnergyRequirement extends AbstractChanceableRequirement<EnergyMachi
 
     @Override
     public CraftingResult processStart(EnergyMachineComponent energy, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             int canExtract = energy.extractRecipeEnergy(amount, true);
             if(canExtract == amount) {
@@ -76,7 +76,7 @@ public class EnergyRequirement extends AbstractChanceableRequirement<EnergyMachi
 
     @Override
     public CraftingResult processEnd(EnergyMachineComponent energy, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if (getMode() == RequirementIOMode.OUTPUT) {
             int canReceive = energy.receiveRecipeEnergy(amount, true);
             if(canReceive == amount) {

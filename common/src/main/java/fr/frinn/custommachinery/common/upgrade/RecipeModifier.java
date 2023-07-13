@@ -67,7 +67,7 @@ public abstract class RecipeModifier implements IRecipeModifier {
     public boolean shouldApply(RequirementType<?> type, RequirementIOMode mode, @Nullable String target) {
         return type == this.requirementType
                 && mode == this.mode
-                && (this.target.isEmpty() || this.target.equals(target))
+                && (this.target.isEmpty() && target == null) || this.target.equals(target)
                 && this.chance > RAND.nextDouble();
     }
 

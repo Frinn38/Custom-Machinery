@@ -54,7 +54,7 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
 
     @Override
     public boolean test(EnergyMachineComponent energy, ICraftingContext context) {
-        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
+        int amount = (int)context.getPerTickIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT)
             return energy.extractRecipeEnergy(amount, true) == amount;
         else
@@ -68,7 +68,7 @@ public class EnergyPerTickRequirement extends AbstractChanceableRequirement<Ener
 
     @Override
     public CraftingResult processTick(EnergyMachineComponent energy, ICraftingContext context) {
-        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
+        int amount = (int)context.getPerTickIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             int canExtract = energy.extractRecipeEnergy(amount, true);
             if(canExtract == amount) {

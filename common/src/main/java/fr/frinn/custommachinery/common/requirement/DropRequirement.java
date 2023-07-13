@@ -85,7 +85,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
 
     @Override
     public boolean test(DropMachineComponent component, ICraftingContext context) {
-        int amount = (int) context.getModifiedValue(this.amount, this, null);
+        int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
         if(this.action == Action.CHECK || this.action == Action.CONSUME)
             return component.getItemAmount(this.input, this.radius, this.whitelist) >= amount;
         return true;
@@ -95,24 +95,26 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     public CraftingResult processStart(DropMachineComponent component, ICraftingContext context) {
         if(getDelay() != 0.0 || getMode() != RequirementIOMode.INPUT)
             return CraftingResult.pass();
-        int amount = (int) context.getModifiedValue(this.amount, this, null);
+        int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
         double radius = context.getModifiedValue(this.radius, this, "radius");
         switch (this.action) {
-            case CONSUME:
+            case CONSUME -> {
                 int found = component.getItemAmount(this.input, radius, this.whitelist);
-                if(found >= amount) {
+                if (found >= amount) {
                     component.consumeItem(this.input, amount, radius, this.whitelist);
                     return CraftingResult.success();
-                }
-                else
+                } else
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
-            case PRODUCE:
+            }
+            case PRODUCE -> {
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
-                if(component.produceItem(stack))
+                if (component.produceItem(stack))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
-            default:
+            }
+            default -> {
                 return CraftingResult.pass();
+            }
         }
     }
 
@@ -120,24 +122,26 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     public CraftingResult processEnd(DropMachineComponent component, ICraftingContext context) {
         if(getDelay() != 0.0 || getMode() != RequirementIOMode.OUTPUT)
             return CraftingResult.pass();
-        int amount = (int) context.getModifiedValue(this.amount, this, null);
+        int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
         double radius = context.getModifiedValue(this.radius, this, "radius");
         switch (this.action) {
-            case CONSUME:
+            case CONSUME -> {
                 int found = component.getItemAmount(this.input, radius, this.whitelist);
-                if(found > amount) {
+                if (found > amount) {
                     component.consumeItem(this.input, amount, radius, this.whitelist);
                     return CraftingResult.success();
-                }
-                else
+                } else
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
-            case PRODUCE:
+            }
+            case PRODUCE -> {
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
-                if(component.produceItem(stack))
+                if (component.produceItem(stack))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
-            default:
+            }
+            default -> {
                 return CraftingResult.pass();
+            }
         }
     }
 
@@ -149,7 +153,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     @Override
     public CraftingResult processTick(DropMachineComponent component, ICraftingContext context) {
         if(this.action == Action.CHECK) {
-            int amount = (int) context.getModifiedValue(this.amount, this, null);
+            int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
             double radius = context.getModifiedValue(this.radius, this, "radius");
             int found = component.getItemAmount(this.input, radius, this.whitelist);
             if(found >= amount)
@@ -163,24 +167,26 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
 
     @Override
     public CraftingResult execute(DropMachineComponent component, ICraftingContext context) {
-        int amount = (int) context.getModifiedValue(this.amount, this, null);
+        int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
         double radius = context.getModifiedValue(this.radius, this, "radius");
         switch (this.action) {
-            case CONSUME:
+            case CONSUME -> {
                 int found = component.getItemAmount(this.input, radius, this.whitelist);
-                if(found > amount) {
+                if (found > amount) {
                     component.consumeItem(this.input, amount, radius, this.whitelist);
                     return CraftingResult.success();
-                }
-                else
+                } else
                     return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", amount, found));
-            case PRODUCE:
+            }
+            case PRODUCE -> {
                 ItemStack stack = Utils.makeItemStack(this.output, amount, null);
-                if(component.produceItem(stack))
+                if (component.produceItem(stack))
                     return CraftingResult.success();
                 return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.drop.error.input", new TextComponent(amount + "x").append(new TranslatableComponent(this.output.getDescriptionId(stack)))));
-            default:
+            }
+            default -> {
                 return CraftingResult.pass();
+            }
         }
     }
 
