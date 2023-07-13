@@ -208,8 +208,8 @@ public class StructureCreatorItem extends Item {
             }
             //TODO: change "p.getY() - minY" to "maxY - p.getY()" in 1.18 to make the pattern from top to bottom instead of from bottom to top (current)
             switch (machineFacing) {
-                case WEST -> states[p.getY() - minY][p.getX() - minX][maxZ - p.getZ()] = partial;
-                case EAST -> states[p.getY() - minY][maxX - p.getX()][p.getZ() - minZ] = partial;
+                case EAST -> states[p.getY() - minY][p.getX() - minX][maxZ - p.getZ()] = partial;
+                case WEST -> states[p.getY() - minY][maxX - p.getX()][p.getZ() - minZ] = partial;
                 case SOUTH -> states[p.getY() - minY][p.getZ() - minZ][p.getX() - minX] = partial;
                 case NORTH -> states[p.getY() - minY][maxZ - p.getZ()][maxX - p.getX()] = partial;
             }
