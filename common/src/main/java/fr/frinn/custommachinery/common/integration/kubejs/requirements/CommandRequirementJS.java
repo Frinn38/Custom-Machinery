@@ -27,7 +27,7 @@ public interface CommandRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder runCommandEachTick(String command, int permissionLevel) {
-        return this.runCommandEachTick(command, permissionLevel, true);
+        return this.runCommandEachTick(command, permissionLevel, false);
     }
 
     default RecipeJSBuilder runCommandEachTick(String command, boolean log) {
@@ -43,7 +43,7 @@ public interface CommandRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder runCommandOnEnd(String command, int permissionLevel) {
-        return this.runCommandOnEnd(command, permissionLevel, true);
+        return this.runCommandOnEnd(command, permissionLevel, false);
     }
 
     default RecipeJSBuilder runCommandOnEnd(String command, boolean log) {
