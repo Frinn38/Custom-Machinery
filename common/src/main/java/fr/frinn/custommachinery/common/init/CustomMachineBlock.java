@@ -16,7 +16,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -43,11 +42,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.storage.loot.LootContext.Builder;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 public abstract class CustomMachineBlock extends Block implements EntityBlock {
@@ -115,12 +117,19 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
 
     @Override
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
-        super.playerDestroy(level, player, pos, state, blockEntity, tool);
-        if(!level.isClientSide && !player.isCreative() && blockEntity instanceof CustomMachineTile machine) {
-            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(stack -> Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack)));
-            if(player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getMachine().getAppearance(machine.getStatus()))))
-                Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), CustomMachineItem.makeMachineItem(machine.getId()));
+        if(blockEntity instanceof CustomMachineTile machine && player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getAppearance())))
+            super.playerDestroy(level, player, pos, state, blockEntity, tool);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public List<ItemStack> getDrops(BlockState state, Builder builder) {
+        List<ItemStack> drops = super.getDrops(state, builder);
+        if(builder.getParameter(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
+            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(drops::add));
+            drops.add(CustomMachineItem.makeMachineItem(machine.getId()));
         }
+        return drops;
     }
 
     @Override
