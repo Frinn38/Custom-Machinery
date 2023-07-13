@@ -112,7 +112,9 @@ unifiedPublishing {
     project {
         displayName = "[Forge]Custom-Machinery-${project.minecraft_version}-${project.mod_version}"
         releaseType = "beta"
-        changelog = rootProject.file("CHANGELOG.md").text
+        if(rootProject.file("CHANGELOG.md").exists()) {
+            changelog = rootProject.file("CHANGELOG.md").text
+        }
         gameVersions = ["1.18.2"]
         gameLoaders = ["forge"]
         mainPublication remapJar
