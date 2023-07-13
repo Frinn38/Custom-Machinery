@@ -52,7 +52,7 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
                 LOGGER.error("Couldn't parse data file {} from {}\n{}", id, loc, e);
             }
         }
-        LOGGER.info("Finished parsing .json files in {} folder.", this.directory);
+        LOGGER.info("Finished, {} .json files successfully parsed in {} folder.", map.size(), this.directory);
         return map;
     }
 }

@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import dev.architectury.registry.registries.Registrar;
 import fr.frinn.custommachinery.impl.codec.DefaultOptionalFieldCodec;
 import fr.frinn.custommachinery.impl.codec.EnhancedDispatchCodec;
@@ -360,6 +361,10 @@ public interface NamedCodec<A> {
             throw new EncoderException(String.format("Failed to decode: %s\nError: %s\nInput: %S", name(), error.message(), tag));
         });
         return result.result().orElseThrow();
+    }
+
+    default A copy(A input) {
+        return read(JsonOps.INSTANCE, encodeStart(JsonOps.INSTANCE, input).result().orElseThrow()).result().orElseThrow();
     }
 
     /** Primitives Codecs **/

@@ -74,7 +74,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public boolean test(FluidComponentHandler component, ICraftingContext context) {
-        long amount = (long) context.getPerTickModifiedValue(this.amount, this, null);
+        long amount = context.getPerTickIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT)
             return this.fluid.getAll().stream().mapToLong(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum() >= amount;
         else {
@@ -91,7 +91,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public CraftingResult processTick(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getPerTickModifiedValue(this.amount, this, null);
+        long amount = context.getPerTickIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             long maxDrain = this.fluid.getAll().stream().mapToLong(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum();
             if(maxDrain >= amount) {

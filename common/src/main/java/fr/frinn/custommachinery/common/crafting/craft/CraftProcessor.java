@@ -8,20 +8,24 @@ import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class CraftProcessor implements IProcessor {
 
     private final MachineTile tile;
+    private final Random rand = Utils.RAND;
     private boolean shouldCheck = true;
     @Nullable
     private CraftingContext currentContext;
@@ -135,12 +139,13 @@ public class CraftProcessor implements IProcessor {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void processRecipe(CustomCraftRecipe recipe, CraftingContext context) {
-        recipe.getRequirements()
-                .forEach(requirement -> {
-                    IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(recipe, this.tile.getMachine(), requirement.getType()));
-                    ((IRequirement)requirement).processStart(component, context);
-                    ((IRequirement)requirement).processEnd(component, context);
-                });
+        for(IRequirement<?> requirement : recipe.getRequirements()) {
+            IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(recipe, this.tile.getMachine(), requirement.getType()));
+            if (requirement instanceof IChanceableRequirement chanceable && chanceable.shouldSkip(component, this.rand, context))
+                continue;
+            ((IRequirement)requirement).processStart(component, context);
+            ((IRequirement)requirement).processEnd(component, context);
+        }
     }
 
     @Override

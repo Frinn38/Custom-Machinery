@@ -70,6 +70,16 @@ public class CraftingContext implements ICraftingContext {
     }
 
     @Override
+    public long getIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
+        return Math.round(getModifiedValue(value, requirement, target));
+    }
+
+    @Override
+    public long getPerTickIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
+        return Math.round(getPerTickModifiedValue(value, requirement, target));
+    }
+
+    @Override
     public double getModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
         return getModifiedValue(value, requirement.getType(), target, requirement.getMode());
     }

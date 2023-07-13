@@ -15,9 +15,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -142,11 +142,13 @@ public class CustomMachineContainer extends SyncableContainer {
                     return ItemStack.EMPTY;
                 slotComponent.setChanged();
 
+                int crafted = 0;
                 while (processor.bulkCraft()) {
                     removed = slotComponent.getItem();
                     if(!this.playerInv.add(removed))
                         return ItemStack.EMPTY;
                     slotComponent.setChanged();
+                    if(crafted++ == 64 && player.getAbilities().instabuild) return ItemStack.EMPTY;
                 }
                 return ItemStack.EMPTY;
             }
@@ -161,7 +163,9 @@ public class CustomMachineContainer extends SyncableContainer {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(player.level, this.tile.getBlockPos()), player, Registration.CUSTOM_MACHINE_BLOCK.get());
+        return player.level.getBlockState(this.tile.getBlockPos()) == this.tile.getBlockState() &&
+                player.level.getBlockEntity(this.tile.getBlockPos()) == this.tile &&
+                player.position().distanceToSqr(Vec3.atCenterOf(this.tile.getBlockPos())) <= 64;
     }
 
     @Override

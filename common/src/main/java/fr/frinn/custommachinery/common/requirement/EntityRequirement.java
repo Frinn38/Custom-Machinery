@@ -69,8 +69,8 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
 
     @Override
     public boolean test(EntityMachineComponent component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
-        int radius = (int)context.getModifiedValue(this.radius, this, "radius");
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int radius = (int)context.getIntegerModifiedValue(this.radius, this, "radius");
         if(this.action == ACTION.CHECK_AMOUNT || this.action == ACTION.KILL)
             return component.getEntitiesInRadius(radius, this.predicate) >= amount;
         else
@@ -81,8 +81,8 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
     public CraftingResult processStart(EntityMachineComponent component, ICraftingContext context) {
         if(getDelay() != 0.0D)
             return CraftingResult.pass();
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
-        int radius = (int)context.getModifiedValue(this.radius, this, "radius");
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int radius = (int)context.getIntegerModifiedValue(this.radius, this, "radius");
         if(getMode() == RequirementIOMode.INPUT) {
             switch (this.action) {
                 case CHECK_AMOUNT -> {
@@ -114,8 +114,8 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
     public CraftingResult processEnd(EntityMachineComponent component, ICraftingContext context) {
         if(getDelay() != 0.0D)
             return CraftingResult.pass();
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
-        int radius = (int)context.getModifiedValue(this.radius, this, "radius");
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int radius = (int)context.getIntegerModifiedValue(this.radius, this, "radius");
         if(getMode() == RequirementIOMode.OUTPUT) {
             switch (this.action) {
                 case CONSUME_HEALTH -> {
@@ -144,8 +144,8 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
 
     @Override
     public CraftingResult processTick(EntityMachineComponent component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
-        int radius = (int)context.getModifiedValue(this.radius, this, "radius");
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int radius = (int)context.getIntegerModifiedValue(this.radius, this, "radius");
         if(this.action == ACTION.CHECK_AMOUNT)
             return component.getEntitiesInRadius(radius, this.predicate) >= amount ? CraftingResult.success() : CraftingResult.error(Component.translatable("custommachinery.requirements.entity.amount.error"));
         else if(this.action == ACTION.CHECK_HEALTH)
@@ -156,6 +156,8 @@ public class EntityRequirement extends AbstractDelayedChanceableRequirement<Enti
 
     @Override
     public CraftingResult execute(EntityMachineComponent component, ICraftingContext context) {
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int radius = (int)context.getIntegerModifiedValue(this.radius, this, "radius");
         switch (this.action) {
             case CONSUME_HEALTH -> {
                 if (component.getEntitiesInRadiusHealth(radius, this.predicate) >= amount) {

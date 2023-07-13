@@ -84,9 +84,9 @@ public class EffectRequirement extends AbstractDelayedChanceableRequirement<Effe
     @Override
     public CraftingResult processEnd(EffectMachineComponent component, ICraftingContext context) {
         if(this.applyAtEnd && getDelay() == 0.0D) {
-            int time = (int)context.getModifiedValue(this.time, this, "time");
-            int level = Mth.clamp((int)context.getModifiedValue(this.level, this, "level") - 1, 0, 255);
-            int radius = (int)context.getModifiedValue(this.radius, this, "radius");
+            int time = (int)context.getIntegerModifiedValue(this.time, this, "time");
+            int level = Mth.clamp((int)context.getIntegerModifiedValue(this.level, this, "level") - 1, 0, 255);
+            int radius = (int)context.getIntegerModifiedValue(this.radius, this, "radius");
             component.applyEffect(new MobEffectInstance(this.effect, time, level - 1), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         }
         return CraftingResult.success();
@@ -95,9 +95,9 @@ public class EffectRequirement extends AbstractDelayedChanceableRequirement<Effe
     @Override
     public CraftingResult processTick(EffectMachineComponent component, ICraftingContext context) {
         if(!this.applyAtEnd && getDelay() == 0.0D) {
-            int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
-            int level = Mth.clamp((int)context.getPerTickModifiedValue(this.level, this, "level") - 1, 0, 255);
-            int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
+            int time = (int)context.getPerTickIntegerModifiedValue(this.time, this, "time");
+            int level = Mth.clamp((int)context.getPerTickIntegerModifiedValue(this.level, this, "level") - 1, 0, 255);
+            int radius = (int)context.getPerTickIntegerModifiedValue(this.radius, this, "radius");
             component.applyEffect(new MobEffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         }
         return CraftingResult.success();
@@ -105,9 +105,9 @@ public class EffectRequirement extends AbstractDelayedChanceableRequirement<Effe
 
     @Override
     public CraftingResult execute(EffectMachineComponent component, ICraftingContext context) {
-        int time = (int)context.getPerTickModifiedValue(this.time, this, "time");
-        int level = Mth.clamp((int)context.getPerTickModifiedValue(this.level, this, "level") - 1, 0, 255);
-        int radius = (int)context.getPerTickModifiedValue(this.radius, this, "radius");
+        int time = (int)context.getPerTickIntegerModifiedValue(this.time, this, "time");
+        int level = Mth.clamp((int)context.getPerTickIntegerModifiedValue(this.level, this, "level") - 1, 0, 255);
+        int radius = (int)context.getPerTickIntegerModifiedValue(this.radius, this, "radius");
         component.applyEffect(new MobEffectInstance(this.effect, time, level), radius, entity -> this.filter.isEmpty() || this.filter.contains(entity.getType()));
         return CraftingResult.success();
     }

@@ -1,6 +1,3 @@
 {
-  "parent": "custommachinery:block/custom_machine_block",
-  "defaults": {
-    "": "custommachinery:default/custom_machine_default"
-  }
+  "parent": "custommachinery:block/custom_machine_block"
 }

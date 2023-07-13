@@ -34,8 +34,9 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     @Nullable
     private final CompoundTag nbt;
     private final String slot;
+    private final boolean showRequireSlot;
 
-    public ItemIngredientWrapper(RequirementIOMode mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundTag nbt, String slot) {
+    public ItemIngredientWrapper(RequirementIOMode mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundTag nbt, String slot, boolean showRequireSlot) {
         this.mode = mode;
         this.item = item;
         this.amount = amount;
@@ -43,6 +44,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         this.useDurability = useDurability;
         this.nbt = nbt;
         this.slot = slot;
+        this.showRequireSlot = showRequireSlot;
     }
 
     @Override
@@ -75,7 +77,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
                                     tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
                             }
                         }
-                        if(!this.slot.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
+                        if(!this.slot.isEmpty() && this.showRequireSlot && Minecraft.getInstance().options.advancedItemTooltips)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
                     });
             return true;

@@ -34,6 +34,7 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
+import fr.frinn.custommachinery.common.component.SkyMachineComponent;
 import fr.frinn.custommachinery.common.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
@@ -52,6 +53,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeSerialize
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeSerializer;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
+import fr.frinn.custommachinery.common.guielement.ButtonGuiElement;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import fr.frinn.custommachinery.common.guielement.DumpGuiElement;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
@@ -75,6 +77,7 @@ import fr.frinn.custommachinery.common.network.data.FluidStackData;
 import fr.frinn.custommachinery.common.network.data.IntegerData;
 import fr.frinn.custommachinery.common.network.data.ItemStackData;
 import fr.frinn.custommachinery.common.network.data.LongData;
+import fr.frinn.custommachinery.common.network.data.NbtData;
 import fr.frinn.custommachinery.common.network.data.SideConfigData;
 import fr.frinn.custommachinery.common.network.data.StringData;
 import fr.frinn.custommachinery.common.network.syncable.BooleanSyncable;
@@ -83,10 +86,12 @@ import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
+import fr.frinn.custommachinery.common.network.syncable.NbtSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.requirement.ButtonRequirement;
 import fr.frinn.custommachinery.common.requirement.CommandRequirement;
 import fr.frinn.custommachinery.common.requirement.DimensionRequirement;
 import fr.frinn.custommachinery.common.requirement.DropRequirement;
@@ -105,6 +110,7 @@ import fr.frinn.custommachinery.common.requirement.LightRequirement;
 import fr.frinn.custommachinery.common.requirement.LootTableRequirement;
 import fr.frinn.custommachinery.common.requirement.PositionRequirement;
 import fr.frinn.custommachinery.common.requirement.RedstoneRequirement;
+import fr.frinn.custommachinery.common.requirement.SkyRequirement;
 import fr.frinn.custommachinery.common.requirement.SpeedRequirement;
 import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.requirement.TimeRequirement;
@@ -115,6 +121,7 @@ import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
@@ -127,6 +134,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -167,12 +175,17 @@ public class Registration {
 
     public static final RegistrySupplier<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", PlatformHelper::createMachineBlock);
 
-    public static final RegistrySupplier<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().tab(GROUP)));
+    public static final RegistrySupplier<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().tab(GROUP), null));
     public static final RegistrySupplier<MachineCreatorItem> MACHINE_CREATOR_ITEM = ITEMS.register("machine_creator_item", () ->  new MachineCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
     public static final RegistrySupplier<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
     public static final RegistrySupplier<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
 
-    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> BlockEntityType.Builder.of(PlatformHelper::createMachineTile, CUSTOM_MACHINE_BLOCK.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, Collections.emptySet(), null) {
+        @Override
+        public boolean isValid(BlockState state) {
+            return state.getBlock() instanceof CustomMachineBlock;
+        }
+    });
 
     public static final RegistrySupplier<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> MenuRegistry.ofExtended(CustomMachineContainer::new));
 
@@ -195,6 +208,7 @@ public class Registration {
     public static final RegistrySupplier<GuiElementType<DumpGuiElement>> DUMP_GUI_ELEMENT = GUI_ELEMENTS.register("dump", () -> GuiElementType.create(DumpGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<SizeGuiElement>> SIZE_GUI_ELEMENT = GUI_ELEMENTS.register("size", () -> GuiElementType.create(SizeGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ConfigGuiElement>> CONFIG_GUI_ELEMENT = GUI_ELEMENTS.register("config", () -> GuiElementType.create(ConfigGuiElement.CODEC));
+    public static final RegistrySupplier<GuiElementType<ButtonGuiElement>> BUTTON_GUI_ELEMENT = GUI_ELEMENTS.register("button", () -> GuiElementType.create(ButtonGuiElement.CODEC));
 
     public static final RegistrySupplier<MachineComponentType<EnergyMachineComponent>> ENERGY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("energy", () -> MachineComponentType.create(EnergyMachineComponent.Template.CODEC).setGUIBuilder(EnergyComponentBuilder::new));
     public static final RegistrySupplier<MachineComponentType<FluidMachineComponent>> FLUID_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fluid", () -> MachineComponentType.create(FluidMachineComponent.Template.CODEC).setNotSingle(FluidComponentHandler::new).setGUIBuilder(FluidComponentBuilder::new));
@@ -213,6 +227,7 @@ public class Registration {
     public static final RegistrySupplier<MachineComponentType<DropMachineComponent>> DROP_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("drop", () -> MachineComponentType.create(DropMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<FunctionMachineComponent>> FUNCTION_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("function", () -> MachineComponentType.create(FunctionMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<DataMachineComponent>> DATA_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("data", () -> MachineComponentType.create(DataMachineComponent::new));
+    public static final RegistrySupplier<MachineComponentType<SkyMachineComponent>> SKY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("sky", () -> MachineComponentType.create(SkyMachineComponent::new));
 
     public static final RegistrySupplier<RequirementType<ItemRequirement>> ITEM_REQUIREMENT = REQUIREMENTS.register("item", () -> RequirementType.inventory(ItemRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<EnergyRequirement>> ENERGY_REQUIREMENT = REQUIREMENTS.register("energy", () -> RequirementType.inventory(EnergyRequirement.CODEC));
@@ -238,6 +253,8 @@ public class Registration {
     public static final RegistrySupplier<RequirementType<DropRequirement>> DROP_REQUIREMENT = REQUIREMENTS.register("drop", () -> RequirementType.world(DropRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<FunctionRequirement>> FUNCTION_REQUIREMENT = REQUIREMENTS.register("function", () -> RequirementType.world(FunctionRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<ItemTransformRequirement>> ITEM_TRANSFORM_REQUIREMENT = REQUIREMENTS.register("item_transform", () -> RequirementType.inventory(ItemTransformRequirement.CODEC));
+    public static final RegistrySupplier<RequirementType<ButtonRequirement>> BUTTON_REQUIREMENT = REQUIREMENTS.register("button", () -> RequirementType.world(ButtonRequirement.CODEC));
+    public static final RegistrySupplier<RequirementType<SkyRequirement>> SKY_REQUIREMENT = REQUIREMENTS.register("sky", () -> RequirementType.world(SkyRequirement.CODEC));
 
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
@@ -260,6 +277,7 @@ public class Registration {
     public static final RegistrySupplier<DataType<StringData, String>> STRING_DATA = DATAS.register("string", () -> DataType.create(String.class, StringSyncable::create, StringData::new));
     public static final RegistrySupplier<DataType<LongData, Long>> LONG_DATA = DATAS.register("long", () -> DataType.create(Long.class, LongSyncable::create, LongData::new));
     public static final RegistrySupplier<DataType<SideConfigData, SideConfig>> SIDE_CONFIG_DATA = DATAS.register("side_config", () -> DataType.create(SideConfig.class, SideConfigSyncable::create, SideConfigData::readData));
+    public static final RegistrySupplier<DataType<NbtData, CompoundTag>> NBT_DATA = DATAS.register("nbt", () -> DataType.create(CompoundTag.class, NbtSyncable::create, NbtData::new));
 
     public static final RegistrySupplier<ProcessorType<DummyProcessor>> DUMMY_PROCESSOR = PROCESSORS.register("dummy", () -> ProcessorType.create(DummyProcessor.Template.CODEC));
     public static final RegistrySupplier<ProcessorType<MachineProcessor>> MACHINE_PROCESSOR = PROCESSORS.register("machine", () -> ProcessorType.create(MachineProcessor.Template.CODEC));

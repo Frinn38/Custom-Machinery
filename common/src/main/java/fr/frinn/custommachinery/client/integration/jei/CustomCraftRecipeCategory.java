@@ -33,7 +33,7 @@ public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraf
                         .map(IMachineComponentTemplate::getId)
                         .orElse("");
 
-                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new ItemIngredient(recipe.getOutput().getItem()), recipe.getOutput().getCount(), 1.0, false, recipe.getOutput().getTag(), resultSlot));
+                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new ItemIngredient(recipe.getOutput().getItem()), recipe.getOutput().getCount(), 1.0, false, recipe.getOutput().getTag(), resultSlot, false));
                 return wrappers.build();
             }
         });

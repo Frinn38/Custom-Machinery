@@ -73,7 +73,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             return this.item.getAll().stream().mapToInt(item -> component.getItemAmount(this.slot, item, this.nbt)).sum() >= amount;
         } else {
@@ -85,7 +85,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public CraftingResult processStart(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             int maxExtract = this.item.getAll().stream().mapToInt(item -> component.getItemAmount(this.slot, item, this.nbt)).sum();
             if(maxExtract >= amount) {
@@ -108,7 +108,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public CraftingResult processEnd(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.OUTPUT) {
             if(this.item.getAll().get(0) != null) {
                 Item item = this.item.getAll().get(0);
@@ -125,6 +125,6 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), false, this.nbt, this.slot));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), false, this.nbt, this.slot, true));
     }
 }

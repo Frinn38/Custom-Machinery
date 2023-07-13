@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.forge.transfer;
 
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
@@ -55,7 +54,7 @@ public class ForgeItemHandler implements ICommonItemHandler {
             this.sidedWrappers.get(direction).invalidate();
             this.sidedWrappers.put(direction, LazyOptional.of(() -> this.sidedHandlers.get(direction)));
             if(oldMode.isNone())
-                this.handler.getManager().getLevel().updateNeighborsAt(this.handler.getManager().getTile().getBlockPos(), Registration.CUSTOM_MACHINE_BLOCK.get());
+                this.handler.getManager().getLevel().updateNeighborsAt(this.handler.getManager().getTile().getBlockPos(), this.handler.getManager().getTile().getBlockState().getBlock());
         }
     }
 

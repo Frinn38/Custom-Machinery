@@ -46,7 +46,8 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
 
     @Override
     public boolean test(FuelMachineComponent component, ICraftingContext context) {
-        return component.canStartRecipe(this.amount);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        return component.canStartRecipe(amount);
     }
 
     @Override
@@ -56,7 +57,8 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
 
     @Override
     public CraftingResult processTick(FuelMachineComponent component, ICraftingContext context) {
-        if(component.burn(this.amount))
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        if(component.burn(amount))
             return CraftingResult.success();
         return CraftingResult.error(Component.translatable("custommachinery.requirements.fuel.error"));
     }

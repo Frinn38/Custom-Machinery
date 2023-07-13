@@ -23,7 +23,10 @@ import fr.frinn.custommachinery.client.integration.jei.element.FluidGuiElementJe
 import fr.frinn.custommachinery.client.integration.jei.element.FuelGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.ProgressGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
+import fr.frinn.custommachinery.client.render.element.ButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.ConfigGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.DumpGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.EnergyGuiElementWidget;
@@ -58,8 +61,10 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -89,37 +94,19 @@ public class ClientHandler {
 
     private static void clientSetup() {
         RenderTypeRegistry.register(RenderType.translucent(), Registration.CUSTOM_MACHINE_BLOCK.get());
+        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> RenderTypeRegistry.register(RenderType.translucent(), block));
+
         MenuRegistry.registerScreenFactory(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
         GuiElementWidgetSupplierRegistry.init();
         if(Platform.isModLoaded("jei"))
             GuiElementJEIRendererRegistry.init();
         BlockEntityRendererRegistry.register(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
-        ColorHandlerRegistry.registerBlockColors((state, world, pos, tintIndex) -> {
-            if(world == null || pos == null)
-                return 0;
-            switch (tintIndex) {
-                case 1:
-                    return world.getBlockTint(pos, BiomeColors.WATER_COLOR_RESOLVER);
-                case 2:
-                    return world.getBlockTint(pos, BiomeColors.GRASS_COLOR_RESOLVER);
-                case 3:
-                    return world.getBlockTint(pos, BiomeColors.FOLIAGE_COLOR_RESOLVER);
-                case 4:
-                    BlockEntity tile = world.getBlockEntity(pos);
-                    if(tile instanceof CustomMachineTile machineTile) {
-                        return machineTile.getAppearance().getColor();
-                    }
-                default:
-                    return 0xFFFFFF;
-            }
-        }, Registration.CUSTOM_MACHINE_BLOCK.get());
 
-        ColorHandlerRegistry.registerItemColors((stack, tintIndex) -> {
-            BlockState state = Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState();
-            Level world = Minecraft.getInstance().level;
-            BlockPos pos = Minecraft.getInstance().player.blockPosition();
-            return Minecraft.getInstance().getBlockColors().getColor(state, world, pos, tintIndex);
-        }, Registration.CUSTOM_MACHINE_ITEM::get);
+        ColorHandlerRegistry.registerBlockColors(ClientHandler::blockColor, Registration.CUSTOM_MACHINE_BLOCK.get());
+        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> ColorHandlerRegistry.registerBlockColors(ClientHandler::blockColor, block));
+
+        ColorHandlerRegistry.registerItemColors(ClientHandler::itemColor, Registration.CUSTOM_MACHINE_ITEM::get);
+        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> ColorHandlerRegistry.registerItemColors(ClientHandler::itemColor, block));
     }
 
     private static void registerGuiElementWidgets(final RegisterGuiElementWidgetSupplierEvent event) {
@@ -135,6 +122,7 @@ public class ClientHandler {
         event.register(Registration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
         event.register(Registration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
         event.register(Registration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
+        event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
     }
 
     private static void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {
@@ -143,10 +131,41 @@ public class ClientHandler {
         event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementJeiRenderer());
         event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressGuiElementJeiRenderer());
         event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementJeiRenderer());
+        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementJeiRenderer());
+        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementJeiRenderer());
     }
 
     public static void openMachineLoadingScreen() {
         Minecraft.getInstance().setScreen(MachineCreationScreen.INSTANCE);
+    }
+
+    private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+        if(level == null || pos == null)
+            return 0;
+        switch (tintIndex) {
+            case 1:
+                return level.getBlockTint(pos, BiomeColors.WATER_COLOR_RESOLVER);
+            case 2:
+                return level.getBlockTint(pos, BiomeColors.GRASS_COLOR_RESOLVER);
+            case 3:
+                return level.getBlockTint(pos, BiomeColors.FOLIAGE_COLOR_RESOLVER);
+            case 4:
+                BlockEntity tile = level.getBlockEntity(pos);
+                if(tile instanceof CustomMachineTile machineTile) {
+                    return machineTile.getAppearance().getColor();
+                }
+            default:
+                return 0xFFFFFF;
+        }
+    }
+
+    private static int itemColor(ItemStack stack, int tintIndex) {
+        BlockState state = Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState();
+        Level level = Minecraft.getInstance().level;
+        if(Minecraft.getInstance().player == null)
+            return 0;
+        BlockPos pos = Minecraft.getInstance().player.blockPosition();
+        return Minecraft.getInstance().getBlockColors().getColor(state, level, pos, tintIndex);
     }
 
     @NotNull
@@ -240,6 +259,17 @@ public class ClientHandler {
         RenderSystem.disableDepthTest();
         RenderSystem.colorMask(true, true, true, false);
         GuiComponent.fill(pose, x, y, x + width, y + height, -2130706433);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.enableDepthTest();
+    }
+
+    public static void renderButtonHover(PoseStack pose, int x, int y, int width, int height) {
+        RenderSystem.disableDepthTest();
+        RenderSystem.colorMask(true, true, true, false);
+        GuiComponent.fill(pose, x, y, x + width, y + 1, FastColor.ARGB32.color(255, 255, 255, 255));
+        GuiComponent.fill(pose, x + width - 1, y, x + width, y + height, FastColor.ARGB32.color(255, 255, 255, 255));
+        GuiComponent.fill(pose, x, y + height - 1, x + width, y + height, FastColor.ARGB32.color(255, 255, 255, 255));
+        GuiComponent.fill(pose, x, y, x + 1, y + height, FastColor.ARGB32.color(255, 255, 255, 255));
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.enableDepthTest();
     }

@@ -79,7 +79,7 @@ public class BoxCreatorItem extends Item {
         BlockPos block1 = getSelectedBlock(true, stack);
         BlockPos block2 = getSelectedBlock(false, stack);
 
-        if(!context.getLevel().getBlockState(pos).is(Registration.CUSTOM_MACHINE_BLOCK.get())) {
+        if(!(context.getLevel().getBlockState(pos).getBlock() instanceof CustomMachineBlock)) {
             setSelectedBlock(false, stack, pos);
             return InteractionResult.SUCCESS;
         } else if(block1 != null && block2 != null && !context.getLevel().isClientSide()) {

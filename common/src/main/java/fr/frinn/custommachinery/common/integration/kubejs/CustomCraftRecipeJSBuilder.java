@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -7,6 +8,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.CommandRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DimensionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DropRequirementJS;
@@ -23,17 +25,20 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.LightRequ
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.LootTableRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.PositionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.RedstoneRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.helpers.MessageFormatter;
 
+import java.util.List;
+
 public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCraftRecipeBuilder> implements
         BiomeRequirementJS, BlockRequirementJS, CommandRequirementJS, DimensionRequirementJS, DropRequirementJS, DurabilityRequirementJS,
         EffectRequirementJS, EnergyRequirementJS, EntityRequirementJS, FluidRequirementJS, FuelRequirementJS, FunctionRequirementJS,
         ItemRequirementJS, ItemTransformRequirementJS, LightRequirementJS, LootTableRequirementJS, PositionRequirementJS, RedstoneRequirementJS,
-        StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS {
+        StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS, ButtonRequirementJS, SkyRequirementJS {
 
     public CustomCraftRecipeJSBuilder() {
         super(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomCraftRecipeBuilder.CODEC);

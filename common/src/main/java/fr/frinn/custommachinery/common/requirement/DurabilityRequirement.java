@@ -66,7 +66,7 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
 
     @Override
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT)
             return this.item.getAll().stream().mapToInt(item -> component.getDurabilityAmount(this.slot, item, this.nbt)).sum() >= amount;
         else
@@ -75,7 +75,7 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
 
     @Override
     public CraftingResult processStart(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             int maxRemove = this.item.getAll().stream().mapToInt(item -> component.getDurabilityAmount(this.slot, item, this.nbt)).sum();
             if(maxRemove >= amount) {
@@ -98,7 +98,7 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
 
     @Override
     public CraftingResult processEnd(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.OUTPUT) {
             int maxRepair = this.item.getAll().stream().mapToInt(item -> component.getSpaceForDurability(this.slot, item, this.nbt)).sum();
             if(maxRepair >= amount) {
@@ -126,6 +126,6 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), true, this.nbt, this.slot));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), true, this.nbt, this.slot, true));
     }
 }

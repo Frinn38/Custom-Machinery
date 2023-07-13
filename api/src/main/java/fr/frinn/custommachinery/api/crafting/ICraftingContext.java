@@ -2,6 +2,8 @@ package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementType;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -11,12 +13,12 @@ import org.jetbrains.annotations.Nullable;
 public interface ICraftingContext {
 
     /**
-     * @return The MachineTile currently processing the recipe.
+     * @return The {@link MachineTile} currently processing the recipe.
      */
     MachineTile getMachineTile();
 
     /**
-     * @return The IMachineRecipe currently processed by the machine.
+     * @return The {@link IMachineRecipe} currently processed by the machine.
      */
     IMachineRecipe getRecipe();
 
@@ -46,21 +48,31 @@ public interface ICraftingContext {
 
 
     /**
-     * Used to apply all currently active machine upgrades to an IRequirement value.
+     * Used to apply all currently active machine upgrades to an {@link IRequirement} value.
      * @param value The value to modify (example an amount of item, energy etc...).
-     * @param requirement The requirement the value depends, because machine upgrades can target a specific RequirementType.
+     * @param requirement The requirement the value depends, because machine upgrades can target a specific {@link RequirementType}.
      * @param target The name of the value to modify, or null, because machine upgrades can target a specific value of a requirement.
      * @return The modified value, or the same value if no upgrades could be applied.
      */
     double getModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
 
     /**
-     * Used to apply all currently active machine upgrades to an ITickableRequirement value.
+     * Same as the method above but round the value to a {@link Long}
+     */
+    long getIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
+
+    /**
+     * Used to apply all currently active machine upgrades to an {@link ITickableRequirement} value.
      * Use this method only for requirements that will be executed every tick of the crafting process.
      * @param value The value to modify (example an amount of item, energy etc...).
-     * @param requirement The requirement the value depends, because machine upgrades can target a specific RequirementType.
+     * @param requirement The requirement the value depends, because machine upgrades can target a specific {@link RequirementType}.
      * @param target The name of the value to modify, or null, because machine upgrades can target a specific value of a requirement.
      * @return The modified value, or the same value if no upgrades could be applied.
      */
     double getPerTickModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
+
+    /**
+     * Same as the method above but round the value to a {@link Long}
+     */
+    long getPerTickIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
 }

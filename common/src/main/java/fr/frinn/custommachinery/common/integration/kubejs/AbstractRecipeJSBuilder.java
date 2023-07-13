@@ -21,7 +21,7 @@ import java.util.Map;
 
 public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends Recipe<?>>> extends RecipeJS implements RecipeJSBuilder {
 
-    private static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
+    public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
 
     private final ResourceLocation id;
     private final NamedCodec<T> builderCodec;

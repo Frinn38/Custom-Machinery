@@ -73,7 +73,7 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public boolean test(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        long amount = context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             return this.fluid.getAll().stream().mapToLong(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum() >= amount;
         }
@@ -86,7 +86,7 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public CraftingResult processStart(FluidComponentHandler component, ICraftingContext context) {
-        long amount = (long) context.getModifiedValue(this.amount, this, null);
+        long amount = context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             long maxDrain = this.fluid.getAll().stream().mapToLong(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum();
             if(maxDrain >= amount) {
@@ -109,7 +109,7 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public CraftingResult processEnd(FluidComponentHandler component, ICraftingContext context) {
-        long amount = (long) context.getModifiedValue(this.amount, this, null);
+        long amount = context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.OUTPUT) {
             if(this.fluid.getAll().get(0) != null) {
                 Fluid fluid = this.fluid.getAll().get(0);

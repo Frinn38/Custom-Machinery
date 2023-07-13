@@ -195,6 +195,7 @@
   "custommachinery.requirements.drop.info.whitelist": "Accepted items :",
   "custommachinery.requirements.drop.info.blacklist": "Denied items :",
   "custommachinery.requirements.item_transform.error": "Not enough %s, %s needed !",
+  "custommachinery.requirements.sky.error": "Must see sky",
 
   "custommachinery.side.top": "Top",
   "custommachinery.side.bottom": "Bottom",

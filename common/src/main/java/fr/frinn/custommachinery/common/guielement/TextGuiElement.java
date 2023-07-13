@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.guielement;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
@@ -18,19 +19,22 @@ public class TextGuiElement extends AbstractGuiElement {
                     NamedCodec.STRING.fieldOf("text").forGetter(element -> element.text.getString()),
                     NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
                     Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment", Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
-                    NamedCodec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor)
+                    NamedCodec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor),
+                    NamedCodec.BOOL.optionalFieldOf("jei", false).forGetter(IGuiElement::showInJei)
             ).apply(textGuiElementCodec, TextGuiElement::new), "Text gui element"
     );
 
     private final Component text;
     private final Alignment alignment;
     private final int color;
+    private final boolean jei;
 
-    public TextGuiElement(int x, int y, String text, int priority, Alignment alignment, int color) {
+    public TextGuiElement(int x, int y, String text, int priority, Alignment alignment, int color, boolean jei) {
         super(x, y, 0, 0, priority);
         this.text = Component.translatable(text);
         this.alignment = alignment;
         this.color = color;
+        this.jei = jei;
     }
 
     @Override
@@ -48,6 +52,11 @@ public class TextGuiElement extends AbstractGuiElement {
 
     public int getColor() {
         return this.color;
+    }
+
+    @Override
+    public boolean showInJei() {
+        return this.jei;
     }
 
     public enum Alignment {

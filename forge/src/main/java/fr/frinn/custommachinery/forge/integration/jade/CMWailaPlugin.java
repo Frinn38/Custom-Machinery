@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.forge.integration.jade;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -15,6 +16,7 @@ public class CMWailaPlugin implements IWailaPlugin {
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(CustomMachineComponentProvider.INSTANCE, CustomMachineBlock.class);
         registration.usePickedResult(Registration.CUSTOM_MACHINE_BLOCK.get());
+        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(registration::usePickedResult);
     }
 
     @Override

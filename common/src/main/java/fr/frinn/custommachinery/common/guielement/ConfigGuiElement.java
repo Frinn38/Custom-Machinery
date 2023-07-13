@@ -15,7 +15,7 @@ public class ConfigGuiElement extends AbstractTexturedGuiElement {
 
     public static final NamedCodec<ConfigGuiElement> CODEC = NamedCodec.record(configGuiElement ->
             makeBaseTexturedCodec(configGuiElement, BASE_TEXTURE)
-                    .and(DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hevered", BASE_TEXTURE_HOVERED).forGetter(ConfigGuiElement::getHoveredTexture))
+                    .and(DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered", BASE_TEXTURE_HOVERED).forGetter(ConfigGuiElement::getHoveredTexture))
                     .apply(configGuiElement, ConfigGuiElement::new), "Config gui element"
     );
 

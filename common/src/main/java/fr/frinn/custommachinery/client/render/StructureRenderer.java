@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -67,7 +66,7 @@ public class StructureRenderer {
             matrix.scale(0.8F, 0.8F, 0.8F);
             BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state.getBlockState());
             int[] light = new int[4];
-            Arrays.fill(new int[4], LightTexture.pack(15, 15));
+            Arrays.fill(light, LightTexture.pack(15, 15));
             if(model != Minecraft.getInstance().getModelManager().getMissingModel()) {
                 Arrays.stream(Direction.values())
                         .flatMap(direction -> model.getQuads(state.getBlockState(), direction, RandomSource.create(42L)).stream())
@@ -79,11 +78,11 @@ public class StructureRenderer {
 
     private void renderNope(PoseStack matrix, MultiBufferSource buffer) {
         VertexConsumer builder = buffer.getBuffer(RenderTypes.NOPE);
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(new ResourceLocation(CustomMachinery.MODID, "block/nope"), ""));
+        BakedModel model = Minecraft.getInstance().getModelManager().bakedRegistry.getOrDefault(new ResourceLocation(CustomMachinery.MODID, "block/nope"), Minecraft.getInstance().getModelManager().getMissingModel());
         matrix.translate(-0.0005, -0.0005, -0.0005);
         matrix.scale(1.001F, 1.001F, 1.001F);
         int[] light = new int[4];
-        Arrays.fill(new int[4], LightTexture.pack(15, 15));
+        Arrays.fill(light, LightTexture.pack(15, 15));
         Arrays.stream(Direction.values())
                 .flatMap(direction -> model.getQuads(null, direction, RandomSource.create(42L)).stream())
                 .forEach(quad -> builder.putBulkData(matrix.last(), quad, new float[]{1.0F, 1.0F, 1.0F, 0.8F}, 1.0F, 1.0F, 1.0F, light, OverlayTexture.NO_OVERLAY, false));

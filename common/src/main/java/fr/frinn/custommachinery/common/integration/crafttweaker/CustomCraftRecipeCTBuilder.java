@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BiomeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BlockRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ButtonRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.CommandRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.DimensionRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.DropRequirementCT;
@@ -30,6 +31,7 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Lig
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.LootTableRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.PositionRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.RedstoneRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.SkyRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.StructureRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.TimeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.WeatherRequirementCT;
@@ -38,6 +40,9 @@ import net.minecraft.resources.ResourceLocation;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ZenRegister
 @Name(CTConstants.RECIPE_BUILDER_CRAFT)
@@ -48,9 +53,10 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         FuelRequirementCT<CustomCraftRecipeCTBuilder>, CommandRequirementCT<CustomCraftRecipeCTBuilder>, EffectRequirementCT<CustomCraftRecipeCTBuilder>,
         WeatherRequirementCT<CustomCraftRecipeCTBuilder>, RedstoneRequirementCT<CustomCraftRecipeCTBuilder>, EntityRequirementCT<CustomCraftRecipeCTBuilder>,
         LightRequirementCT<CustomCraftRecipeCTBuilder>, BlockRequirementCT<CustomCraftRecipeCTBuilder>, StructureRequirementCT<CustomCraftRecipeCTBuilder>,
-        LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, FunctionRequirementCT<CustomCraftRecipeCTBuilder> {
+        LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, FunctionRequirementCT<CustomCraftRecipeCTBuilder>,
+        ButtonRequirementCT<CustomCraftRecipeCTBuilder>, SkyRequirementCT<CustomCraftRecipeCTBuilder> {
 
-    private static int index = 0;
+    public static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private final CustomCraftRecipeBuilder builder;
     private IRequirement<?> lastRequirement;
     private boolean jei = false;
@@ -72,10 +78,17 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
     public void build(@OptionalString String name) {
         final ResourceLocation recipeID;
         try {
-            if(!name.isEmpty())
-                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, name);
-            else
-                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, "custom_craft_recipe_" + index++);
+            if(!name.isEmpty()) {
+                if(name.contains(":"))
+                    recipeID = new ResourceLocation(name);
+                else
+                    recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, name);
+            }
+            else {
+                int uniqueID = IDS.computeIfAbsent(this.builder.getMachine(), m -> 0);
+                IDS.put(this.builder.getMachine(), uniqueID + 1);
+                recipeID = new ResourceLocation(CraftTweakerConstants.MOD_ID, "custom_craft/" + this.builder.getMachine().getNamespace() + "/" + this.builder.getMachine().getPath() + "/" + uniqueID);
+            }
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid Recipe name: " + name + "\n" + e.getMessage());
         }

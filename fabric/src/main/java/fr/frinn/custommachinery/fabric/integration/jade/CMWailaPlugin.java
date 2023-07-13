@@ -41,6 +41,7 @@ public class CMWailaPlugin implements IWailaPlugin {
             Object instance = clazz.getDeclaredField("INSTANCE").get(null);
             Set<Block> pickBlocks = (Set<Block>) clazz.getDeclaredField("pickBlocks").get(instance);
             pickBlocks.add(Registration.CUSTOM_MACHINE_BLOCK.get());
+            pickBlocks.addAll(CustomMachinery.CUSTOM_BLOCK_MACHINES.values());
         } catch (Exception e) {
             CustomMachinery.LOGGER.error("Could not add Custom Machine block to jade picked blocks list");
         }

@@ -39,4 +39,9 @@ public class CTUtils {
     public static ResourceLocation biomeID(Biome biome) {
         return Services.REGISTRY.biomes().getKey(biome);
     }
+
+    public static void resetRecipesIDs() {
+        CustomMachineRecipeCTBuilder.IDS.clear();
+        CustomCraftRecipeCTBuilder.IDS.clear();
+    }
 }

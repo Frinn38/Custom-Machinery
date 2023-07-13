@@ -34,12 +34,18 @@ public class CustomMachineItem extends BlockItem {
 
     public static final String MACHINE_TAG_KEY = "machine";
 
-    public CustomMachineItem(Block block, Item.Properties properties) {
+    @Nullable
+    private final ResourceLocation machineID;
+
+    public CustomMachineItem(Block block, Item.Properties properties, @Nullable ResourceLocation machineID) {
         super(block, properties);
+        this.machineID = machineID;
     }
 
     public static Optional<CustomMachine> getMachine(ItemStack stack) {
-        if(stack.getItem() == Registration.CUSTOM_MACHINE_ITEM.get() && stack.getTag() != null && stack.getTag().contains(MACHINE_TAG_KEY, Tag.TAG_STRING) && Utils.isResourceNameValid(stack.getTag().getString(MACHINE_TAG_KEY))) {
+        if(stack.getItem() instanceof CustomMachineItem customMachineItem && customMachineItem.machineID != null)
+            return Optional.ofNullable(CustomMachinery.MACHINES.get(customMachineItem.machineID));
+        else if(stack.getItem() == Registration.CUSTOM_MACHINE_ITEM.get() && stack.getTag() != null && stack.getTag().contains(MACHINE_TAG_KEY, Tag.TAG_STRING) && Utils.isResourceNameValid(stack.getTag().getString(MACHINE_TAG_KEY))) {
             ResourceLocation machineID = new ResourceLocation(stack.getTag().getString(MACHINE_TAG_KEY));
             if(machineID.equals(CustomMachine.DUMMY.getId()))
                 return Optional.of(CustomMachine.DUMMY);
@@ -58,8 +64,14 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if(this.category == group)
-            CustomMachinery.MACHINES.keySet().forEach(id -> items.add(makeMachineItem(id)));
+        if(this.allowdedIn(group)) {
+            if(this.machineID != null)
+                items.add(this.getDefaultInstance());
+            else
+                CustomMachinery.MACHINES.keySet().stream()
+                        .filter(id -> !CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(id))
+                        .forEach(id -> items.add(makeMachineItem(id)));
+        }
     }
 
     @Override
@@ -111,9 +123,12 @@ public class CustomMachineItem extends BlockItem {
                         }
                     }
 
-                    SoundType soundType = Registration.CUSTOM_MACHINE_BLOCK.get().getSoundType(blockState, level, blockPos, player);
-                    level.playSound(player, blockPos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
-                    level.gameEvent(player, GameEvent.BLOCK_PLACE, blockPos);
+                    if(blockState2.getBlock() instanceof CustomMachineBlock machineBlock) {
+                        SoundType soundType = machineBlock.getSoundType(blockState, level, blockPos, player);
+                        level.playSound(player, blockPos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
+                        level.gameEvent(player, GameEvent.BLOCK_PLACE, blockPos);
+                    }
+
                     if (player == null || !player.getAbilities().instabuild) {
                         itemStack.shrink(1);
                     }

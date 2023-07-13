@@ -5,6 +5,7 @@ import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.CommandPerformEvent;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
@@ -14,6 +15,7 @@ import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.variant.ComponentVariantRegistry;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
+import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.network.PacketManager;
@@ -36,6 +38,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -49,6 +52,7 @@ public class CustomMachinery {
     public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
+    public static final Map<ResourceLocation, Block> CUSTOM_BLOCK_MACHINES = new HashMap<>();
     public static final Upgrades UPGRADES = new Upgrades();
 
     public static void init() {
@@ -112,6 +116,8 @@ public class CustomMachinery {
         if(event.getResults().getReader().getString().startsWith("/reload") && event.getResults().getContext().getSource().hasPermission(2)) {
             CMLogger.reset();
             MachineList.setNeedRefresh();
+            if(Platform.isModLoaded("crafttweaker"))
+                CTUtils.resetRecipesIDs();
         }
         return EventResult.pass();
     }

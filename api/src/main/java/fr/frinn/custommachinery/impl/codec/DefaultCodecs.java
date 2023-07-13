@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.impl.codec;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.ResourceLocationException;
@@ -10,9 +11,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 public class DefaultCodecs {
 
@@ -36,6 +39,8 @@ public class DefaultCodecs {
                 return stack;
             }), "Item stack"
     );
+
+    public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, ITEM_STACK).xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
 
     public static <T> NamedCodec<TagKey<T>> tagKey(ResourceKey<Registry<T>> registry) {
         return RESOURCE_LOCATION.xmap(rl -> TagKey.create(registry, rl), TagKey::location, "Tag: " + registry.location());

@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.fabric.mixin;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ProtoChunk;
@@ -16,8 +16,8 @@ public class ProtoChunkMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I")
     )
     private int custommachinery$getLightEmission(BlockState state, BlockPos pos) {
-        if(state.is(Registration.CUSTOM_MACHINE_BLOCK.get()))
-            return Registration.CUSTOM_MACHINE_BLOCK.get().getLightEmission(state, (ProtoChunk) (Object)this, pos);
+        if(state.getBlock() instanceof CustomMachineBlock machineBlock)
+            return machineBlock.getLightEmission(state, (ProtoChunk) (Object)this, pos);
         return state.getLightEmission();
     }
 }

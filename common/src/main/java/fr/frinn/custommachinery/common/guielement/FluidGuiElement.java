@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.guielement;
 
+import dev.architectury.hooks.item.ItemStackHooks;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
@@ -66,8 +67,16 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
                 .flatMap(handler -> handler.getComponentForID(this.id))
                 .ifPresent(component -> {
                     ItemStack stack = PlatformHelper.fluid().transferFluid(carried, component);
-                    if(!player.isCreative())
-                        container.setCarried(stack);
+                    if(ItemStack.matches(stack, carried))
+                        return;
+                    if(!player.isCreative()) {
+                        if(carried.getCount() > 1) {
+                            carried.shrink(1);
+                            container.setCarried(carried);
+                            ItemStackHooks.giveItem(player, stack);
+                        } else
+                            container.setCarried(stack);
+                    }
                 });
     }
 }

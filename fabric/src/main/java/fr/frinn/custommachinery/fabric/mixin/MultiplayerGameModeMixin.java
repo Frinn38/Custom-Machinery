@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.fabric.mixin;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -17,10 +17,10 @@ abstract class MultiplayerGameModeMixin {
 
     @Redirect(method = "continueDestroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"))
     private SoundType custommachinery$getHitSound(BlockState state, BlockPos pos) {
-        if(state.is(Registration.CUSTOM_MACHINE_BLOCK.get())) {
+        if(state.getBlock() instanceof CustomMachineBlock machineBlock) {
             ClientLevel level = Minecraft.getInstance().level;
             LocalPlayer player = Minecraft.getInstance().player;
-            return Registration.CUSTOM_MACHINE_BLOCK.get().getSoundType(state, level, pos, player);
+            return machineBlock.getSoundType(state, level, pos, player);
         }
         return state.getSoundType();
     }

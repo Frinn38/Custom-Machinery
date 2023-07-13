@@ -79,7 +79,7 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
 
     @Override
     public boolean test(BlockMachineComponent component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         return switch (this.action) {
             case CHECK ->
                     this.comparator.compare((int) component.getBlockAmount(this.pos, this.filter, this.whitelist), amount);
@@ -92,7 +92,7 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
 
     @Override
     public CraftingResult processStart(BlockMachineComponent component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(this.getMode() == RequirementIOMode.INPUT && this.delay == 0) {
             switch (this.action) {
                 case PLACE -> {
@@ -127,7 +127,7 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
 
     @Override
     public CraftingResult processEnd(BlockMachineComponent component, ICraftingContext context) {
-        int amount = (int)context.getModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(this.getMode() == RequirementIOMode.OUTPUT && this.delay == 0) {
             switch (this.action) {
                 case PLACE -> {
@@ -168,8 +168,9 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
     @Override
     public CraftingResult processTick(BlockMachineComponent component, ICraftingContext context) {
         if(this.action == ACTION.CHECK) {
+            int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
             long found = component.getBlockAmount(this.pos, this.filter, this.whitelist);
-            if(!this.comparator.compare((int)found, this.amount))
+            if(!this.comparator.compare((int)found, amount))
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.block.check.error", amount, this.pos.toString(), found));
             return CraftingResult.success();
         }
@@ -222,34 +223,31 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
     public void getDisplayInfo(IDisplayInfo info) {
         MutableComponent action = null;
         switch (this.action) {
-            case CHECK:
-                action = Component.translatable("custommachinery.requirements.block.check.info");
-                break;
-            case BREAK:
-                if(this.getMode() == RequirementIOMode.INPUT)
+            case CHECK -> action = Component.translatable("custommachinery.requirements.block.check.info");
+            case BREAK -> {
+                if (this.getMode() == RequirementIOMode.INPUT)
                     action = Component.translatable("custommachinery.requirements.block.break.info.input");
                 else
                     action = Component.translatable("custommachinery.requirements.block.break.info.output");
-                break;
-            case DESTROY:
-                if(this.getMode() == RequirementIOMode.INPUT)
+            }
+            case DESTROY -> {
+                if (this.getMode() == RequirementIOMode.INPUT)
                     action = Component.translatable("custommachinery.requirements.block.destroy.info.input");
                 else
                     action = Component.translatable("custommachinery.requirements.block.destroy.info.output");
-                break;
-            case PLACE:
-                if(this.getMode() == RequirementIOMode.INPUT)
+            }
+            case PLACE -> {
+                if (this.getMode() == RequirementIOMode.INPUT)
                     action = Component.translatable("custommachinery.requirements.block.place.info.input", this.amount, this.block.getName());
                 else
                     action = Component.translatable("custommachinery.requirements.block.place.info.output", this.amount, this.block.getName());
-                break;
-            case REPLACE_BREAK:
-            case REPLACE_DESTROY:
-                if(this.getMode() == RequirementIOMode.INPUT)
+            }
+            case REPLACE_BREAK, REPLACE_DESTROY -> {
+                if (this.getMode() == RequirementIOMode.INPUT)
                     action = Component.translatable("custommachinery.requirements.block.replace.info.input", this.amount, this.block.getName());
                 else
                     action = Component.translatable("custommachinery.requirements.block.replace.info.output", this.amount, this.block.getName());
-                break;
+            }
         }
         if(action != null)
             info.addTooltip(action.withStyle(ChatFormatting.AQUA));
