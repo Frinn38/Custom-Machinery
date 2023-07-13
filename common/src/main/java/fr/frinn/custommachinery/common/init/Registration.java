@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.init;
 
+import com.google.common.collect.ImmutableSet;
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.menu.MenuRegistry;
@@ -134,7 +135,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -180,12 +180,7 @@ public class Registration {
     public static final RegistrySupplier<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
     public static final RegistrySupplier<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
 
-    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, Collections.emptySet(), null) {
-        @Override
-        public boolean isValid(BlockState state) {
-            return state.getBlock() instanceof CustomMachineBlock;
-        }
-    });
+    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, ImmutableSet.<Block>builder().add(CUSTOM_MACHINE_BLOCK.get()).add(CustomMachinery.CUSTOM_BLOCK_MACHINES.values().toArray(new Block[0])).build(), null));
 
     public static final RegistrySupplier<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> MenuRegistry.ofExtended(CustomMachineContainer::new));
 
