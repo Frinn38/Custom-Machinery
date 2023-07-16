@@ -75,6 +75,11 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
         }
     }
 
+    @Override
+    public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
+
+    }
+
     protected Slot addSyncedSlot(Slot slot) {
         this.stuffToSync.add(ItemStackSyncable.create(slot::getItem, slot::set));
         return this.addSlot(slot);

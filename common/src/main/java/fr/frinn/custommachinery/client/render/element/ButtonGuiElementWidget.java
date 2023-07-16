@@ -12,11 +12,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiElement> {
 
-    private static final Component TITLE = new TextComponent("Button");
+    private static final Component TITLE = Component.literal("Button");
 
     public ButtonGuiElementWidget(ButtonGuiElement element, IMachineScreen screen) {
         super(element, screen, TITLE);

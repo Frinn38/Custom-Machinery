@@ -17,7 +17,7 @@ public class CustomMachineOverrideList extends ItemOverrides {
     @Nullable
     @Override
     public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity livingEntity, int seed) {
-        if(stack.getItem() != Registration.CUSTOM_MACHINE_ITEM.get() || !(model instanceof CustomMachineBakedModel machineModel))
+        if(!(stack.getItem() instanceof CustomMachineItem) || !(model instanceof CustomMachineBakedModel machineModel))
             return super.resolve(model, stack, world, livingEntity, seed);
 
         return CustomMachineItem.getMachine(stack).map(machine -> machineModel.getMachineItemModel(machine.getAppearance(MachineStatus.IDLE))).orElse(model);

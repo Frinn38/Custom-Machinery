@@ -41,22 +41,11 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
         StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS, ButtonRequirementJS, SkyRequirementJS {
 
     public CustomCraftRecipeJSBuilder() {
-        super(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomCraftRecipeBuilder.CODEC);
+        super(Registration.CUSTOM_CRAFT_RECIPE.getId());
     }
 
     @Override
     public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine) {
         return new CustomCraftRecipeBuilder(machine, getValue(CustomMachineryRecipeSchemas.OUTPUT).item);
-    }
-
-    @Override
-    public CustomCraftRecipeJSBuilder addRequirement(IRequirement<?> requirement) {
-        super.addRequirement(requirement);
-        return this;
-    }
-
-    @Override
-    public RecipeJSBuilder error(String error, Object... args) {
-        throw new RecipeExceptionJS(MessageFormatter.arrayFormat(error, args).getMessage());
     }
 }

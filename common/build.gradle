@@ -24,11 +24,11 @@ dependencies {
     shadowApi(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
     //JEI api
-    modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
 
     //KubeJS common module
-    modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs:${project.kubejs_version}")
+    modCompileOnly("dev.latvian.mods:kubejs:${project.kubejs_version}")
 
     //Crafttweaker common module
-    modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-common-${project.minecraft_version}:${project.ct_version}")
+    modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-common-${project.minecraft_version}:${project.ct_version}")
 }

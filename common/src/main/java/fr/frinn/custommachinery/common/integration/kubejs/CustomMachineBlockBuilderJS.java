@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import dev.latvian.mods.kubejs.BuilderBase;
-import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes;
 import dev.latvian.mods.kubejs.generator.AssetJsonGenerator;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
+import dev.latvian.mods.kubejs.registry.BuilderBase;
+import dev.latvian.mods.kubejs.registry.RegistryInfo;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
@@ -27,8 +27,8 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     }
 
     @Override
-    public RegistryObjectBuilderTypes<Block> getRegistryType() {
-        return RegistryObjectBuilderTypes.BLOCK;
+    public RegistryInfo getRegistryType() {
+        return RegistryInfo.BLOCK;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public void createAdditionalObjects() {
-        RegistryObjectBuilderTypes.ITEM.addBuilder(new ItemBuilder(this.id) {
+        RegistryInfo.ITEM.addBuilder(new ItemBuilder(this.id) {
             @Override
             public Item createObject() {
                 return new CustomMachineItem(CustomMachineBlockBuilderJS.this.get(), new Item.Properties().tab(Registration.GROUP), CustomMachineBlockBuilderJS.this.machineID);

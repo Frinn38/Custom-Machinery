@@ -49,23 +49,28 @@ dependencies {
     shadowCommon(project(path: ":api", configuration: "transformProductionFabric")) { transitive = false }
 
     //JEI
-    modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
-    modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
     modLocalRuntime("mezz.jei:jei-${project.minecraft_version}-fabric:${project.jei_version}")
 
+    //REI
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${project.rei_version}")
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${project.rei_version}")
+    modLocalRuntime("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
+
     //ModMenu
-    modLocalRuntime modCompileOnly("com.terraformersmc:modmenu:3.2.3")
+    modLocalRuntime modCompileOnly("com.terraformersmc:modmenu:4.2.0-beta.2")
 
     //Energy API
-    modLocalRuntime(modCompileOnly('teamreborn:energy:2.2.0')) {
+    modLocalRuntime(modCompileOnly('teamreborn:energy:2.3.0')) {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
     //Jade
-    modLocalRuntime modCompileOnly("curse.maven:jade-324717:3922834")
+    modLocalRuntime modCompileOnly("curse.maven:jade-324717:4328558")
 
     //KubeJS
-    modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs-fabric:${project.kubejs_version}")
+    modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs-fabric:${project.kubejs_version}") {exclude group: "me.shedaniel"}
 
     //Crafttweaker
     modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-fabric-${project.minecraft_version}:${project.ct_version}")

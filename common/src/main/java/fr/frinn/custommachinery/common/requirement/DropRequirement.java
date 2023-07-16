@@ -15,8 +15,8 @@ import fr.frinn.custommachinery.common.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -106,13 +106,14 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
             }
             case PRODUCE -> {
-                ItemStack stack = Utils.makeItemStack(this.output, amount, null);
+                ItemStack stack = Utils.makeItemStack(this.output, amount, this.nbt);
                 if (component.produceItem(stack))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
             }
             default -> {
                 return CraftingResult.pass();
+            }
         }
     }
 
@@ -128,16 +129,18 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                 if (found > amount) {
                     component.consumeItem(this.input, amount, radius, this.whitelist);
                     return CraftingResult.success();
-                }
-                else
+                } else
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
-            case PRODUCE:
-                ItemStack stack = Utils.makeItemStack(this.output, amount, null);
-                if(component.produceItem(stack))
+            }
+            case PRODUCE -> {
+                ItemStack stack = Utils.makeItemStack(this.output, amount, this.nbt);
+                if (component.produceItem(stack))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
-            default:
+            }
+            default -> {
                 return CraftingResult.pass();
+            }
         }
     }
 
@@ -175,7 +178,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
             }
             case PRODUCE -> {
-                ItemStack stack = Utils.makeItemStack(this.output, amount, null);
+                ItemStack stack = Utils.makeItemStack(this.output, amount, this.nbt);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));

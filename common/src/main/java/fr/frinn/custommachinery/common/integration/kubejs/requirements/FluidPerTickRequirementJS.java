@@ -18,7 +18,7 @@ public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.kjs$getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     default RecipeJSBuilder requireFluidTagPerTick(String tag, int amount) {
@@ -45,6 +45,6 @@ public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder produceFluidPerTick(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.kjs$getAmount(), stack.getFluidStack().getTag(), tank));
     }
 }

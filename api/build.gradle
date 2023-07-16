@@ -8,7 +8,7 @@ dependencies {
     modApi("dev.architectury:architectury:${project.architectury_version}")
 
     //JEI api
-    modLocalRuntime modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
 }
 
 remapJar {

@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.fabric.mixin;
 
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -18,9 +19,9 @@ abstract class LevelRendererMixin {
             method = "levelEvent",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;")
     )
-    private SoundType custommachinery$getBrokenSoundType(BlockState state, Player player, int i, BlockPos blockPos, int j) {
-        if(i == 2001 && state.getBlock() instanceof CustomMachineBlock machineBlock)
-            return machineBlock.getSoundType(state, player.level, blockPos, null);
+    private SoundType custommachinery$getBrokenSoundType(BlockState state, int type, BlockPos pos) {
+        if(type == 2001 && state.getBlock() instanceof CustomMachineBlock machineBlock)
+            return machineBlock.getSoundType(state, Minecraft.getInstance().level, pos, null);
         return state.getSoundType();
     }
 

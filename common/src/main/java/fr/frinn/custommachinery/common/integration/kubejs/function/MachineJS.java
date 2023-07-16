@@ -110,8 +110,8 @@ public class MachineJS {
     public long addFluidToTank(String tank, FluidStackJS stackJS, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(component -> component.insert(stackJS.getFluid(), (int)stackJS.getAmount(), stackJS.getNbt(), simulate))
-                .orElse(stackJS.getAmount());
+                .map(component -> component.insert(stackJS.getFluid(), stackJS.kjs$getAmount(), stackJS.getNbt(), simulate))
+                .orElse(stackJS.kjs$getAmount());
     }
 
     //Return fluid that was successfully removed.

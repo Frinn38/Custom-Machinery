@@ -42,29 +42,21 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         ButtonRequirementJS, SkyRequirementJS {
 
     public CustomMachineRecipeBuilderJS() {
-        super(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineRecipeBuilder.CODEC);
+        super(Registration.CUSTOM_MACHINE_RECIPE.getId());
     }
 
     @Override
     public CustomMachineRecipeBuilder makeBuilder(ResourceLocation machine) {
-        return new CustomMachineRecipeBuilder(machine, Utils.toInt(getValue(CustomMachineryRecipeSchemas.TIME)));
-    }
-
-    @Override
-    public CustomMachineRecipeBuilderJS addRequirement(IRequirement<?> requirement) {
-        super.addRequirement(requirement);
-        return this;
-    }
-
-    @Override
-    public RecipeJSBuilder error(String error, Object... args) {
-        throw new RecipeExceptionJS(MessageFormatter.arrayFormat(error, args).getMessage());
+        CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, Utils.toInt(getValue(CustomMachineryRecipeSchemas.TIME)));
+        if(getValue(CustomMachineryRecipeSchemas.ERROR))
+            builder.setResetOnError();
+        return builder;
     }
 
     /** ERROR **/
 
     public CustomMachineRecipeBuilderJS resetOnError() {
-        this.builder().setResetOnError();
+        setValue(CustomMachineryRecipeSchemas.ERROR, true);
         return this;
     }
 }

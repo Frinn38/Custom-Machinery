@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
 
@@ -139,5 +140,11 @@ public class Utils {
 
     public static String format(double number) {
         return NUMBER_FORMAT.format(number);
+    }
+
+    public static <T> T[] addToArray(T[] array, T toAdd) {
+        T[] newArray = Arrays.copyOf(array, array.length + 1);
+        newArray[array.length] = toAdd;
+        return newArray;
     }
 }

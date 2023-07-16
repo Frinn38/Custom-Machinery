@@ -9,7 +9,6 @@ import fr.frinn.custommachinery.common.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -24,7 +23,7 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
                             NamedCodec.STRING.fieldOf("id").forGetter(element -> element.id),
                             DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toogle", BASE_TEXTURE_TOOGLE).forGetter(element -> element.textureToogle),
                             NamedCodec.BOOL.optionalFieldOf("toogle", false).forGetter(element -> element.toogle),
-                            TextComponentUtils.CODEC.optionalFieldOf("text", new TextComponent("")).forGetter(element -> element.text),
+                            TextComponentUtils.CODEC.optionalFieldOf("text", Component.literal("")).forGetter(element -> element.text),
                             DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("item", ItemStack.EMPTY).forGetter(element -> element.item)
                         ).apply(buttonGuiElementInstance, ButtonGuiElement::new);
             }, "Button gui element"

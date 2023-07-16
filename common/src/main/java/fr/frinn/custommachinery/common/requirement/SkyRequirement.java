@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.SkyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 public class SkyRequirement extends AbstractRequirement<SkyMachineComponent> implements ITickableRequirement<SkyMachineComponent> {
 
@@ -39,20 +39,20 @@ public class SkyRequirement extends AbstractRequirement<SkyMachineComponent> imp
     public CraftingResult processStart(SkyMachineComponent component, ICraftingContext context) {
         if(test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.sky.error"));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.sky.error"));
     }
 
     @Override
     public CraftingResult processEnd(SkyMachineComponent component, ICraftingContext context) {
         if(test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.sky.error"));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.sky.error"));
     }
 
     @Override
     public CraftingResult processTick(SkyMachineComponent component, ICraftingContext context) {
         if(test(component, context))
             return CraftingResult.success();
-        return CraftingResult.error(new TranslatableComponent("custommachinery.requirements.sky.error"));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.sky.error"));
     }
 }

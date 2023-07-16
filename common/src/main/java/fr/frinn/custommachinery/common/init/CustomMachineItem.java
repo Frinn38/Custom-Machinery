@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -64,7 +65,7 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if(this.allowdedIn(group)) {
+        if(group == this.category) {
             if(this.machineID != null)
                 items.add(this.getDefaultInstance());
             else

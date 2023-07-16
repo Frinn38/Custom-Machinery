@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.init;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.menu.MenuRegistry;
@@ -120,6 +123,7 @@ import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -141,6 +145,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class Registration {
@@ -180,12 +185,7 @@ public class Registration {
     public static final RegistrySupplier<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
     public static final RegistrySupplier<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
 
-    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, Collections.emptySet(), null) {
-        @Override
-        public boolean isValid(BlockState state) {
-            return state.getBlock() instanceof CustomMachineBlock;
-        }
-    });
+    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, ImmutableSet.<Block>builder().add(CUSTOM_MACHINE_BLOCK.get()).add(CustomMachinery.CUSTOM_BLOCK_MACHINES.values().toArray(new Block[0])).build(), null));
 
     public static final RegistrySupplier<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> MenuRegistry.ofExtended(CustomMachineContainer::new));
 

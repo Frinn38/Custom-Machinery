@@ -18,7 +18,7 @@ public interface FluidRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.kjs$getAmount(), stack.getFluidStack().getTag(), tank));
     }
 
     default RecipeJSBuilder requireFluidTag(String tag, int amount) {
@@ -45,6 +45,6 @@ public interface FluidRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder produceFluid(FluidStackJS stack, String tank) {
-        return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), (int)stack.getAmount(), stack.getFluidStack().getTag(), tank));
+        return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.kjs$getAmount(), stack.getFluidStack().getTag(), tank));
     }
 }
