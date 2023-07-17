@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import dev.latvian.mods.kubejs.generator.AssetJsonGenerator;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
@@ -48,7 +50,12 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
             @Override
             public void generateAssetJsons(AssetJsonGenerator generator) {
-                generator.itemModel(this.id, modelGenerator -> modelGenerator.parent("custommachinery:item/custom_machine_item"));
+                JsonObject json = new JsonObject();
+                json.add("parent", new JsonPrimitive("custommachinery:block/custom_machine_block"));
+                JsonObject defaultJson = new JsonObject();
+                defaultJson.add("", new JsonPrimitive("custommachinery:default/custom_machine_default"));
+                json.add("defaults", defaultJson);
+                generator.json(AssetJsonGenerator.asItemModelLocation(this.id), json);
             }
         });
     }

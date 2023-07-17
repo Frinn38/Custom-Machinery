@@ -4,10 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
+import fr.frinn.custommachinery.common.init.CustomMachineItem;
+import fr.frinn.custommachinery.common.init.Registration;
 import net.fabricmc.fabric.api.client.model.ModelProviderContext;
 import net.fabricmc.fabric.api.client.model.ModelResourceProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +31,8 @@ public class CustomMachineModelProvider implements ModelResourceProvider {
     @Override
     public UnbakedModel loadModelResource(ResourceLocation loc, ModelProviderContext context) {
         if(loc.equals(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block")) ||
-            loc.equals(new ResourceLocation(CustomMachinery.MODID, "item/custom_machine_item"))) {
+            loc.equals(new ResourceLocation(CustomMachinery.MODID, "item/custom_machine_item")) ||
+            isCustomMachine(loc)) {
             try {
                 ResourceLocation filePath = new ResourceLocation(loc.getNamespace(), "models/" + loc.getPath() + ".json");
                 JsonObject json = GSON.fromJson(new InputStreamReader(Minecraft.getInstance().getResourceManager().open(filePath)), JsonObject.class);
@@ -54,5 +59,12 @@ public class CustomMachineModelProvider implements ModelResourceProvider {
             }
         }
         return new CustomMachineUnbakedModel(defaults);
+    }
+
+    private boolean isCustomMachine(ResourceLocation loc) {
+        String[] split = loc.getPath().split("/");
+        ResourceLocation id = new ResourceLocation(loc.getNamespace(), split[split.length -1]);
+        return Registration.REGISTRIES.get(Registry.BLOCK_REGISTRY).get(id) instanceof CustomMachineBlock ||
+                Registration.REGISTRIES.get(Registry.ITEM_REGISTRY).get(id) instanceof CustomMachineItem;
     }
 }
