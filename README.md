@@ -10,13 +10,17 @@ Custom Machinery is a Minecraft Forge mod currently developed for Minecraft 1.18
 
 This mod can be used to create custom machines and recipes for them.
 
-For more information and examples of how to create custom machines see the [Wiki](https://frinn.gitbook.io/custom-machinery-1.18/)
+## Wiki
 
-You can find some working examples of Custom Machines [here](https://github.com/Frinn38/Custom-Machinery/tree/1.16.5/test_datapack)
+[![Static Badge](https://img.shields.io/badge/1.16-blue)](https://frinn.gitbook.io/custom-machinery-1.16/) [![Static Badge](https://img.shields.io/badge/1.18-blue)](https://frinn.gitbook.io/custom-machinery-1.18/) [![Static Badge](https://img.shields.io/badge/1.19-blue)](https://frinn.gitbook.io/custom-machinery-1.19/)
 
-You can download the full test datapack [here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FFrinn38%2FCustom-Machinery%2Ftree%2F1.16.5%2Ftest_datapack) (It can takes a few seconds to complete the files zipping) Just download the zip and extract it in `World/datapacks/test_datapack/` (you can replace "test_datapack" with what you want)
+## Examples
 
-You can download a test resourcepack [here](https://download-directory.github.io/?url=https://github.com/Frinn38/Custom-Machinery/tree/1.16.5/test_resourcepack) This will give a custom model to the "Stone generator" machine present in the test resourcepack.
+You can find some working examples of Custom Machines [here](https://github.com/Frinn38/Custom-Machinery/tree/1.18.2/test_datapack)
+
+You can download the full test datapack [here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FFrinn38%2FCustom-Machinery%2Ftree%2F1.18.2%2Ftest_datapack) (It can takes a few seconds to complete the files zipping) Just download the zip and extract it in `World/datapacks/test_datapack/` (you can replace "test_datapack" with what you want)
+
+You can download a test resourcepack [here](https://download-directory.github.io/?url=https://github.com/Frinn38/Custom-Machinery/tree/1.18.2/test_resourcepack) This will give a custom model to the "Stone generator" machine present in the test resourcepack.
 
 ## Download
 
