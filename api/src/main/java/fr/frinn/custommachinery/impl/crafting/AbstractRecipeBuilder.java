@@ -27,6 +27,7 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
         this.jeiRequirements = recipe.getJeiRequirements();
         this.priority = recipe.getPriority();
         this.jeiPriority = recipe.getJeiPriority();
+        this.hidden = !recipe.showInJei();
     }
 
     public ResourceLocation getMachine() {
