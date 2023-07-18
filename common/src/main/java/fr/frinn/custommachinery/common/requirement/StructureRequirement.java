@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
@@ -16,7 +17,7 @@ import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
+import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -26,23 +27,36 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class StructureRequirement extends AbstractRequirement<StructureMachineComponent> implements ITickableRequirement<StructureMachineComponent>, IDisplayInfoRequirement {
+public class StructureRequirement extends AbstractDelayedChanceableRequirement<StructureMachineComponent> implements ITickableRequirement<StructureMachineComponent>, IDisplayInfoRequirement {
 
     public static final NamedCodec<StructureRequirement> CODEC = NamedCodec.record(structureRequirementInstance ->
             structureRequirementInstance.group(
                     NamedCodec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
-                    NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>").fieldOf("keys").forGetter(requirement -> requirement.keys)
-            ).apply(structureRequirementInstance, StructureRequirement::new), "Structure requirement"
+                    NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>").fieldOf("keys").forGetter(requirement -> requirement.keys),
+                    NamedCodec.BOOL.optionalFieldOf("destroy", false).forGetter(requirement -> requirement.destroy),
+                    NamedCodec.BOOL.optionalFieldOf("drops", true).forGetter(requirement -> requirement.drops),
+                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0).forGetter(AbstractDelayedChanceableRequirement::getChance),
+                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("delay", 0.0).forGetter(IDelayedRequirement::getDelay)
+            ).apply(structureRequirementInstance, (pattern, keys, destroy, drops, chance, delay) -> {
+                    StructureRequirement requirement = new StructureRequirement(pattern, keys, destroy, drops);
+                    requirement.setChance(chance);
+                    requirement.setDelay(delay);
+                    return requirement;
+            }), "Structure requirement"
     );
 
     private final List<List<String>> pattern;
     private final Map<Character, IIngredient<PartialBlockState>> keys;
+    private final boolean destroy;
+    private final boolean drops;
     private final BlockStructure structure;
 
-    public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys) {
+    public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys, boolean destroy, boolean drops) {
         super(RequirementIOMode.INPUT);
         this.pattern = pattern;
         this.keys = keys;
+        this.destroy = destroy;
+        this.drops = drops;
         BlockStructure.Builder builder = BlockStructure.Builder.start();
         //TODO: iterate list in inverse order in 1.18 to make the pattern from top to bottom instead of from bottom to top (current)
         for(List<String> levels : pattern)
@@ -64,12 +78,16 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
 
     @Override
     public CraftingResult processStart(StructureMachineComponent component, ICraftingContext context) {
+        if(getDelay() == 0.0D && this.destroy)
+            component.destroyStructure(this.structure, this.drops);
         return CraftingResult.pass();
     }
 
     @Override
     public CraftingResult processEnd(StructureMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
+        if(getDelay() == 1.0D && this.destroy)
+            component.destroyStructure(this.structure, this.drops);
+        return CraftingResult.success();
     }
 
     @Override
@@ -79,9 +97,19 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
 
     @Override
     public CraftingResult processTick(StructureMachineComponent component, ICraftingContext context) {
+        if(this.destroy && getDelay() < context.getRemainingTime() / context.getRecipe().getRecipeTime())
+            return CraftingResult.pass();
+
         if(component.checkStructure(this.structure))
             return CraftingResult.success();
         else return CraftingResult.error(Component.translatable("custommachinery.requirements.structure.error"));
+    }
+
+    @Override
+    public CraftingResult execute(StructureMachineComponent component, ICraftingContext context) {
+        if(getDelay() != 0.0D && getDelay() != 1.0D && this.destroy)
+            component.destroyStructure(this.structure, this.drops);
+        return CraftingResult.pass();
     }
 
     @Override
@@ -93,6 +121,11 @@ public class StructureRequirement extends AbstractRequirement<StructureMachineCo
             if(ingredient != null && amount > 0)
                 info.addTooltip(Component.translatable("custommachinery.requirements.structure.list", amount, Component.literal(ingredient.toString()).withStyle(ChatFormatting.GOLD)));
         });
+        if(this.destroy)
+            if(this.drops)
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
+            else
+                info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.destroy").withStyle(ChatFormatting.DARK_RED));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
         info.setItemIcon(Items.STRUCTURE_BLOCK);
     }

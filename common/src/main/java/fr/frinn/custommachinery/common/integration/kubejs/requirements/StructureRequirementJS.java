@@ -15,10 +15,22 @@ import java.util.Map;
 
 public interface StructureRequirementJS extends RecipeJSBuilder {
 
-    default RecipeJSBuilder requireStructure(String[][] pattern, Map<String, String> key) {
+    default RecipeJSBuilder destroyStructure(String[][] pattern, Map<String, String> keys) {
+        return requireStructure(pattern, keys, true, false);
+    }
+
+    default RecipeJSBuilder breakStructure(String[][] pattern, Map<String, String> keys) {
+        return requireStructure(pattern, keys, true, true);
+    }
+
+    default RecipeJSBuilder requireStructure(String[][] pattern, Map<String, String> keys) {
+        return requireStructure(pattern, keys, false, false);
+    }
+
+    default RecipeJSBuilder requireStructure(String[][] pattern, Map<String, String> keys, boolean destroy, boolean drops) {
         List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).toList()).toList();
         Map<Character, IIngredient<PartialBlockState>> keysMap = new HashMap<>();
-        for(Map.Entry<String, String> entry : key.entrySet()) {
+        for(Map.Entry<String, String> entry : keys.entrySet()) {
             if(entry.getKey().length() != 1)
                 return error("Invalid structure key: \"{}\" must be a single character which is not 'm'", entry.getKey());
 
@@ -29,6 +41,6 @@ public interface StructureRequirementJS extends RecipeJSBuilder {
 
             keysMap.put(keyChar, result.result().get());
         }
-        return addRequirement(new StructureRequirement(patternList, keysMap));
+        return addRequirement(new StructureRequirement(patternList, keysMap, destroy, drops));
     }
 }
