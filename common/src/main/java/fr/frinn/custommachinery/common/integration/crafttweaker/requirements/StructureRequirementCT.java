@@ -22,7 +22,22 @@ import java.util.Map;
 public interface StructureRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
+    default T destroyStructure(String[][] pattern, Map<String, String> key) {
+        return requireStructure(pattern, key, true, false);
+    }
+
+    @Method
+    default T breakStructure(String[][] pattern, Map<String, String> key) {
+        return requireStructure(pattern, key, true, true);
+    }
+
+    @Method
     default T requireStructure(String[][] pattern, Map<String, String> key) {
+        return requireStructure(pattern, key, false, false);
+    }
+
+    @Method
+    default T requireStructure(String[][] pattern, Map<String, String> key, boolean destroy, boolean drop) {
         List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).toList()).toList();
         Map<Character, IIngredient<PartialBlockState>> keysMap = new HashMap<>();
         for(Map.Entry<String, String> entry : key.entrySet()) {
@@ -36,6 +51,6 @@ public interface StructureRequirementCT<T> extends RecipeCTBuilder<T> {
 
             keysMap.put(keyChar, result.result().get());
         }
-        return addRequirement(new StructureRequirement(patternList, keysMap));
+        return addRequirement(new StructureRequirement(patternList, keysMap, destroy, drop));
     }
 }

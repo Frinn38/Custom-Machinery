@@ -181,6 +181,8 @@
   "custommachinery.requirements.structure.click": "Click to view the required structure",
   "custommachinery.requirements.structure.shift": "Press [Ctrl] to view blocks list",
   "custommachinery.requirements.structure.list": "   %sx %s",
+  "custommachinery.requirements.structure.break": "Will break structure",
+  "custommachinery.requirements.structure.destroy": "Will destroy structure",
   "custommachinery.requirements.entity.kill.info": "Kill %s entities in %s blocks radius",
   "custommachinery.requirements.entity.check_health.info": "Requires %s entity HP in a %s blocks radius (not consumed)",
   "custommachinery.requirements.entity.check_amount.info": "Requires %s entities in a %s blocks radius",

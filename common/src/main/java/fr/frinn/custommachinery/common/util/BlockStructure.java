@@ -32,16 +32,12 @@ public class BlockStructure {
     }
 
     public Map<BlockPos, IIngredient<PartialBlockState>> getBlocks(Direction direction) {
-        switch (direction) {
-            case SOUTH:
-                return blocks_south;
-            case EAST:
-                return this.blocks_east;
-            case WEST:
-                return this.blocks_west;
-            default:
-                return this.blocks_north;
-        }
+        return switch (direction) {
+            case SOUTH -> blocks_south;
+            case EAST -> this.blocks_east;
+            case WEST -> this.blocks_west;
+            default -> this.blocks_north;
+        };
     }
 
     public boolean match(LevelReader world, BlockPos machinePos, Direction machineFacing) {
