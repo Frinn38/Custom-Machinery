@@ -123,9 +123,9 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
         });
         if(this.destroy)
             if(this.drops)
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
+                info.addTooltip(Component.translatable("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
             else
-                info.addTooltip(new TranslatableComponent("custommachinery.requirements.structure.destroy").withStyle(ChatFormatting.DARK_RED));
+                info.addTooltip(Component.translatable("custommachinery.requirements.structure.destroy").withStyle(ChatFormatting.DARK_RED));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
         info.setItemIcon(Items.STRUCTURE_BLOCK);
     }
