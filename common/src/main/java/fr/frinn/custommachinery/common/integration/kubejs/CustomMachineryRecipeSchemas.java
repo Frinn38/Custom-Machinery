@@ -49,14 +49,14 @@ public interface CustomMachineryRecipeSchemas {
     RecipeKey<Long> TIME = TimeComponent.TICKS.key("time");
     RecipeKey<OutputItem> OUTPUT = ItemComponents.OUTPUT.key("output");
 
-    RecipeKey<IRequirement<?>[]> REQUIREMENTS = REQUIREMENT_LIST.key("requirements").optional(new IRequirement[0]).exclude();
-    RecipeKey<IRequirement<?>[]> JEI_REQUIREMENTS = REQUIREMENT_LIST.key("jei").optional(new IRequirement[0]).exclude();
+    RecipeKey<IRequirement<?>[]> REQUIREMENTS = REQUIREMENT_LIST.key("requirements").optional(new IRequirement[0]).alwaysWrite().exclude();
+    RecipeKey<IRequirement<?>[]> JEI_REQUIREMENTS = REQUIREMENT_LIST.key("jei").optional(new IRequirement[0]).alwaysWrite().exclude();
 
-    RecipeKey<Integer> PRIORITY = NumberComponent.INT.key("priority").optional(0).exclude();
-    RecipeKey<Integer> JEI_PRIORITY = NumberComponent.INT.key("jeiPriority").optional(0).exclude();
+    RecipeKey<Integer> PRIORITY = NumberComponent.INT.key("priority").optional(0).alwaysWrite().exclude();
+    RecipeKey<Integer> JEI_PRIORITY = NumberComponent.INT.key("jeiPriority").optional(0).alwaysWrite().exclude();
 
-    RecipeKey<Boolean> ERROR = BooleanComponent.BOOLEAN.key("error").optional(false).exclude();
-    RecipeKey<Boolean> HIDDEN = BooleanComponent.BOOLEAN.key("hidden").optional(false).exclude();
+    RecipeKey<Boolean> ERROR = BooleanComponent.BOOLEAN.key("error").optional(false).alwaysWrite().exclude();
+    RecipeKey<Boolean> HIDDEN = BooleanComponent.BOOLEAN.key("hidden").optional(false).alwaysWrite().exclude();
 
     RecipeSchema CUSTOM_MACHINE = new RecipeSchema(CustomMachineRecipeBuilderJS.class, CustomMachineRecipeBuilderJS::new, MACHINE_ID, TIME, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, ERROR, HIDDEN);
     RecipeSchema CUSTOM_CRAFT = new RecipeSchema(CustomCraftRecipeJSBuilder.class, CustomCraftRecipeJSBuilder::new, MACHINE_ID, OUTPUT, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, HIDDEN);

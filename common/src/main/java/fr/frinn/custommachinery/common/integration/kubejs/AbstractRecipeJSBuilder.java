@@ -23,7 +23,6 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
 
     private final ResourceLocation typeID;
-    private ResourceLocation machine;
     private IRequirement<?> lastRequirement;
     private boolean jei = false;
 
@@ -36,32 +35,15 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     @Override
     public void afterLoaded() {
         super.afterLoaded();
-        this.machine = ResourceLocation.tryParse(getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
-        if(this.machine == null)
+        ResourceLocation machine = ResourceLocation.tryParse(getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
+        if(machine == null)
             throw new RecipeExceptionJS("Invalid machine id: " + getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
 
-        int uniqueID = IDS.computeIfAbsent(this.typeID, id -> new HashMap<>()).computeIfAbsent(this.machine, m -> 0);
-        IDS.get(this.typeID).put(this.machine, uniqueID + 1);
-        this.id = new ResourceLocation("kubejs", this.typeID.getPath() + "/" + this.machine.getNamespace() + "/" + this.machine.getPath() + "/" + uniqueID);
-    }
-
-    @Override
-    public Recipe<?> createRecipe() {
-        if(this.changed || this.newRecipe)
-            serialize();
-
-        final T builder = makeBuilder(this.machine);
-
-        Arrays.stream(getValue(CustomMachineryRecipeSchemas.REQUIREMENTS)).forEach(builder::withRequirement);
-        Arrays.stream(getValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS)).forEach(builder::withJeiRequirement);
-
-        builder.withPriority(getValue(CustomMachineryRecipeSchemas.PRIORITY));
-        builder.withJeiPriority(getValue(CustomMachineryRecipeSchemas.JEI_PRIORITY));
-
-        if(getValue(CustomMachineryRecipeSchemas.HIDDEN))
-            builder.hide();
-
-        return builder.build(getOrCreateId());
+        if(this.newRecipe) {
+            int uniqueID = IDS.computeIfAbsent(this.typeID, id -> new HashMap<>()).computeIfAbsent(machine, m -> 0);
+            IDS.get(this.typeID).put(machine, uniqueID + 1);
+            this.id = new ResourceLocation("kubejs", this.typeID.getPath() + "/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID);
+        }
     }
 
     @Override

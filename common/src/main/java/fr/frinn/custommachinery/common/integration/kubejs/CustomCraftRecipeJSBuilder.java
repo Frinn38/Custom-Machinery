@@ -1,6 +1,11 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
+import dev.latvian.mods.kubejs.item.InputItem;
 import dev.latvian.mods.kubejs.item.ItemStackJS;
+import dev.latvian.mods.kubejs.item.OutputItem;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -29,6 +34,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequir
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -47,5 +53,10 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
     @Override
     public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine) {
         return new CustomCraftRecipeBuilder(machine, getValue(CustomMachineryRecipeSchemas.OUTPUT).item);
+    }
+
+    @Override
+    public JsonElement writeOutputItem(OutputItem value) {
+        return DefaultCodecs.ITEM_OR_STACK.encodeStart(JsonOps.INSTANCE, value.item).result().orElseThrow(() -> new RecipeExceptionJS("Can't encode output item to nbt: " + value.item));
     }
 }
