@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,6 +19,7 @@ import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -149,5 +151,11 @@ public class Utils {
         T[] newArray = Arrays.copyOf(array, array.length + 1);
         newArray[array.length] = toAdd;
         return newArray;
+    }
+
+    public static MutableComponent getBlockName(IIngredient<PartialBlockState> ingredient) {
+        if(ingredient.getAll().size() == 1)
+            return ingredient.getAll().get(0).getName();
+        else return Component.literal(ingredient.toString());
     }
 }

@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
@@ -119,7 +120,7 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
         this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {
             IIngredient<PartialBlockState> ingredient = this.keys.get(key);
             if(ingredient != null && amount > 0)
-                info.addTooltip(Component.translatable("custommachinery.requirements.structure.list", amount, Component.literal(ingredient.toString()).withStyle(ChatFormatting.GOLD)));
+                info.addTooltip(Component.translatable("custommachinery.requirements.structure.list", amount, Utils.getBlockName(ingredient).withStyle(ChatFormatting.GOLD)));
         });
         if(this.destroy)
             if(this.drops)

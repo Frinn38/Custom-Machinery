@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
@@ -259,7 +260,7 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
             else if(!this.whitelist && this.filter.isEmpty())
                 info.addTooltip(Component.literal("-").append(Component.translatable("custommachinery.requirements.block.all")));
             else
-                this.filter.forEach(block -> info.addTooltip(Component.literal("- " + block.toString())));
+                this.filter.forEach(block -> info.addTooltip(Component.literal("- ").append(Utils.getBlockName(block))));
         }
         info.addTooltip(Component.translatable("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
         info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));

@@ -152,7 +152,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     }
 
     public MutableComponent getName() {
-        return Component.translatable(this.blockState.getBlock().getDescriptionId());
+        return this.blockState.getBlock().getName();
     }
 
     @Override
