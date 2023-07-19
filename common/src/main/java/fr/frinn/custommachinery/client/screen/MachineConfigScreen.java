@@ -66,7 +66,7 @@ public class MachineConfigScreen extends BaseScreen {
                 .map(element -> (ConfigGuiElement)element)
                 .ifPresent(element -> this.addCustomWidget(new ButtonWidget(() -> this.getX() + element.getX(), () -> this.getY() + element.getY(), element.getWidth(), element.getHeight())
                         .texture(element.getTexture())
-                        .hoverTexture(element.getHoveredTexture())
+                        .hoverTexture(element.getTextureHovered())
                         .noBackground()
                         .callback(button -> Minecraft.getInstance().setScreen(this.parent))
                         .tooltip(Component.translatable("custommachinery.gui.config.exit"))

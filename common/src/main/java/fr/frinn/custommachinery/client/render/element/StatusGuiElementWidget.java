@@ -31,6 +31,8 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
 
     @Override
     public List<Component> getTooltips() {
+        if(!this.getElement().getTooltips().isEmpty())
+            return this.getElement().getTooltips();
         List<Component> tooltips = new ArrayList<>();
         tooltips.add(Component.translatable("custommachinery.craftingstatus." + this.getScreen().getTile().getStatus().toString().toLowerCase(Locale.ENGLISH)));
         if(this.getScreen().getTile().getStatus() == MachineStatus.ERRORED)

@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.util;
+package fr.frinn.custommachinery.impl.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collections;

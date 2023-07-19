@@ -6,28 +6,26 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ConfigGuiElement extends AbstractTexturedGuiElement {
 
     private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_config.png");
     private static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_config_hovered.png");
+    private static final List<Component> BASE_TOOLTIPS = Collections.singletonList(Component.translatable("custommachinery.gui.element.config.name"));
 
     public static final NamedCodec<ConfigGuiElement> CODEC = NamedCodec.record(configGuiElement ->
-            makeBaseTexturedCodec(configGuiElement, BASE_TEXTURE)
-                    .and(DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered", BASE_TEXTURE_HOVERED).forGetter(ConfigGuiElement::getHoveredTexture))
-                    .apply(configGuiElement, ConfigGuiElement::new), "Config gui element"
+            configGuiElement.group(
+                    makePropertiesCodec(BASE_TEXTURE, BASE_TEXTURE_HOVERED, BASE_TOOLTIPS).forGetter(ConfigGuiElement::getProperties)
+            ).apply(configGuiElement, ConfigGuiElement::new), "Config gui element"
     );
 
-    private final ResourceLocation hoveredTexture;
-
-    public ConfigGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, ResourceLocation hoveredTexture) {
-        super(x, y, width, height, priority, texture);
-        this.hoveredTexture = hoveredTexture;
-    }
-
-    public ResourceLocation getHoveredTexture() {
-        return this.hoveredTexture;
+    public ConfigGuiElement(Properties properties) {
+        super(properties);
     }
 
     @Override

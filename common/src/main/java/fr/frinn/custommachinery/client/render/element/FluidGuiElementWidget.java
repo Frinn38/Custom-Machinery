@@ -32,6 +32,8 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
 
     @Override
     public List<Component> getTooltips() {
+        if(!this.getElement().getTooltips().isEmpty())
+            return this.getElement().getTooltips();
         return this.getScreen().getTile().getComponentManager()
                 .getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getID()))

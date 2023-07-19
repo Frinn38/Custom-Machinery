@@ -63,9 +63,7 @@ public interface IGuiElement {
      * The element title is returned by default if not override.
      * @return The tooltips of the gui element.
      */
-    default List<Component> getTooltips() {
-        return Collections.emptyList();
-    }
+    List<Component> getTooltips();
 
     /**
      * Called server-side when player click on a gui element.

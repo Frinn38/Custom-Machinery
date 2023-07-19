@@ -29,7 +29,7 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
         if(!isHoveredOrFocused())
             RenderSystem.setShaderTexture(0, getElement().getTexture());
         else
-            RenderSystem.setShaderTexture(0, getElement().getHoveredTexture());
+            RenderSystem.setShaderTexture(0, getElement().getTextureHovered());
         GuiComponent.blit(poseStack, this.x, this.y, 0, 0, this.width, this.height, this.width, this.height);
     }
 
@@ -41,10 +41,5 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
     @Override
     public void onClick(double d, double e) {
         Minecraft.getInstance().setScreen(new MachineConfigScreen((CustomMachineScreen) this.getScreen()));
-    }
-
-    @Override
-    public List<Component> getTooltips() {
-        return Collections.singletonList(getMessage());
     }
 }

@@ -1,58 +1,88 @@
 package fr.frinn.custommachinery.impl.guielement;
 
-import com.mojang.datafixers.Products;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.impl.codec.NamedRecordCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class AbstractGuiElement implements IGuiElement {
 
-    private final int x;
-    private final int y;
-    private final int width;
-    private final int height;
-    private final int priority;
+    public record Properties(int x, int y, int width, int height, int priority, @Nullable ResourceLocation texture, @Nullable ResourceLocation textureHovered, List<Component> tooltips){}
 
-    public AbstractGuiElement(int x, int y, int width, int height, int priority) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.priority = priority;
+    private final Properties properties;
+
+    public AbstractGuiElement(Properties properties) {
+        this.properties = properties;
+    }
+
+    public Properties getProperties() {
+        return this.properties;
     }
 
     @Override
     public int getX() {
-        return this.x;
+        return this.properties.x();
     }
 
     @Override
     public int getY() {
-        return this.y;
+        return this.properties.y();
     }
 
     @Override
     public int getWidth() {
-        return this.width;
+        return this.properties.width();
     }
 
     @Override
     public int getHeight() {
-        return this.height;
+        return this.properties.height();
     }
 
     @Override
     public int getPriority() {
-        return this.priority;
+        return this.properties.priority();
     }
 
-    public static <T extends AbstractGuiElement> Products.P5<NamedRecordCodec.Mu<T>, Integer, Integer, Integer, Integer, Integer> makeBaseCodec(NamedRecordCodec.Instance<T> guiElement) {
-        return guiElement.group(
-                NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(AbstractGuiElement::getWidth),
-                NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(AbstractGuiElement::getHeight),
-                NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority)
-        );
+    @Override
+    public List<Component> getTooltips() {
+        return this.properties.tooltips();
+    }
+
+    public static NamedMapCodec<Properties> makePropertiesCodec() {
+        return makePropertiesCodec(null, null, Collections.emptyList());
+    }
+
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture) {
+        return makePropertiesCodec(defaultTexture, null, Collections.emptyList());
+    }
+
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture, @Nullable ResourceLocation defaultTextureHovered) {
+        return makePropertiesCodec(defaultTexture, defaultTextureHovered, Collections.emptyList());
+    }
+
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture, @Nullable ResourceLocation defaultTextureHovered, @NotNull List<Component> defaultTooltips) {
+        return NamedCodec.record(propertiesInstance ->
+             propertiesInstance.group(
+                     NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(Properties::x),
+                     NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(Properties::y),
+                     NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(Properties::width),
+                     NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(Properties::height),
+                     NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(Properties::priority),
+                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture").forGetter(properties -> Optional.ofNullable(properties.texture())),
+                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered").forGetter(properties -> Optional.ofNullable(properties.textureHovered())),
+                     TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltips", defaultTooltips).forGetter(Properties::tooltips)
+             ).apply(propertiesInstance, (x, y, width, height, priority, texture, textureHovered, tooltips) ->
+                     new Properties(x, y, width, height, priority, texture.orElse(defaultTexture), textureHovered.orElse(defaultTextureHovered), tooltips)
+             ), "Gui element properties");
     }
 }

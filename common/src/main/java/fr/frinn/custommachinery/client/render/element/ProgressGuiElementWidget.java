@@ -45,14 +45,6 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
         }
     }
 
-    @Override
-    public boolean clicked(double mouseX, double mouseY) {
-        boolean invertAxis = this.getElement().getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && this.getElement().getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && this.getElement().getDirection() != ProgressBarGuiElement.Orientation.RIGHT && this.getElement().getDirection() != ProgressBarGuiElement.Orientation.LEFT;
-        int width = invertAxis ? this.height : this.width;
-        int height = invertAxis ? this.width : this.height;
-        return mouseX >= this.x && mouseX <= this.x + width && mouseY >= this.y && mouseY <= this.y + height;
-    }
-
     public double getRecipeProgressPercent() {
         if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getRecipeTotalTime() > 0)
             return machineProcessor.getRecipeProgressTime() / (double) machineProcessor.getRecipeTotalTime();

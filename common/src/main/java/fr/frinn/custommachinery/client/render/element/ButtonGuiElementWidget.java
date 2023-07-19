@@ -24,15 +24,23 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        if(getElement().isToogle() && getScreen().getTile().getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).map(component -> component.getData().getBoolean(getElement().getId())).orElse(false))
-            RenderSystem.setShaderTexture(0, getElement().getTextureToogle());
-        else
-            RenderSystem.setShaderTexture(0, getElement().getTexture());
+        if(getElement().isToogle() && getScreen().getTile().getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).map(component -> component.getData().getBoolean(getElement().getId())).orElse(false)) {
+            if(isHoveredOrFocused())
+                RenderSystem.setShaderTexture(0, getElement().getBaseTextureToogleHovered());
+            else
+                RenderSystem.setShaderTexture(0, getElement().getTextureToogle());
+        } else {
+            if(isHoveredOrFocused())
+                RenderSystem.setShaderTexture(0, getElement().getTextureHovered());
+            else
+                RenderSystem.setShaderTexture(0, getElement().getTexture());
+        }
+
         GuiComponent.blit(poseStack, this.x, this.y, 0, 0, this.width, this.height, this.width, this.height);
-        if(isHoveredOrFocused())
-            ClientHandler.renderButtonHover(poseStack, this.x, this.y, this.width, this.height);
+
         if(!getElement().getText().getString().isEmpty())
             Minecraft.getInstance().font.draw(poseStack, getElement().getText(), this.x + this.width / 2.0f - Minecraft.getInstance().font.width(getElement().getText()) / 2.0f, this.y + this.height / 2.0f - Minecraft.getInstance().font.lineHeight / 2.0f, 0);
+
         if(!getElement().getItem().isEmpty())
             Minecraft.getInstance().getItemRenderer().renderGuiItem(getElement().getItem(), (int)(this.x + this.width / 2.0f - 8), (int)(this.y + this.height / 2.0f - 8));
     }

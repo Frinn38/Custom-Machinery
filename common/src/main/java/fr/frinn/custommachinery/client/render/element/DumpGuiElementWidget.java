@@ -20,9 +20,8 @@ public class DumpGuiElementWidget extends TexturedGuiElementWidget<DumpGuiElemen
 
     public DumpGuiElementWidget(DumpGuiElement element, IMachineScreen screen) {
         super(element, screen, TITLE);
-
         this.tooltips = Lists.newArrayList(
-                TITLE,
+                Component.translatable("custommachinery.gui.element.dump.name"),
                 Component.translatable("custommachinery.gui.element.dump.tooltip", formatComponents(element.getComponents())).withStyle(ChatFormatting.DARK_RED)
         );
     }
@@ -41,7 +40,9 @@ public class DumpGuiElementWidget extends TexturedGuiElementWidget<DumpGuiElemen
 
     @Override
     public List<Component> getTooltips() {
-        return tooltips;
+        if(this.getElement().getTooltips().isEmpty())
+            return this.tooltips;
+        return this.getElement().getTooltips();
     }
 
     @Override

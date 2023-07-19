@@ -15,12 +15,11 @@ public class StatusGuiElement extends AbstractTexturedGuiElement {
     private static final ResourceLocation BASE_STATUS_ERRORED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_status_errored.png");
 
     public static final NamedCodec<StatusGuiElement> CODEC = NamedCodec.record(statusGuiElement ->
-            makeBaseCodec(statusGuiElement).and(
-                    statusGuiElement.group(
-                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("idleTexture", BASE_STATUS_IDLE_TEXTURE).forGetter(StatusGuiElement::getIdleTexture),
-                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("runningTexture", BASE_STATUS_RUNNING_TEXTURE).forGetter(StatusGuiElement::getRunningTexture),
-                            DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("erroredTexture", BASE_STATUS_ERRORED_TEXTURE).forGetter(StatusGuiElement::getErroredTexture)
-                    )
+            statusGuiElement.group(
+                    makePropertiesCodec().forGetter(StatusGuiElement::getProperties),
+                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_idle", BASE_STATUS_IDLE_TEXTURE).forGetter(StatusGuiElement::getIdleTexture),
+                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_running", BASE_STATUS_RUNNING_TEXTURE).forGetter(StatusGuiElement::getRunningTexture),
+                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_errored", BASE_STATUS_ERRORED_TEXTURE).forGetter(StatusGuiElement::getErroredTexture)
             ).apply(statusGuiElement, StatusGuiElement::new), "Status gui element"
     );
 
@@ -28,8 +27,8 @@ public class StatusGuiElement extends AbstractTexturedGuiElement {
     private final ResourceLocation runningTexture;
     private final ResourceLocation erroredTexture;
 
-    public StatusGuiElement(int x, int y, int width, int height, int priority, ResourceLocation idleTexture, ResourceLocation runningTexture, ResourceLocation erroredTexture) {
-        super(x, y, width, height, priority, idleTexture);
+    public StatusGuiElement(Properties properties, ResourceLocation idleTexture, ResourceLocation runningTexture, ResourceLocation erroredTexture) {
+        super(properties, idleTexture);
         this.idleTexture = idleTexture;
         this.runningTexture = runningTexture;
         this.erroredTexture = erroredTexture;

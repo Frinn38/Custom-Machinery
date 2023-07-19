@@ -5,6 +5,8 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 
+import java.util.Collections;
+
 public class SizeGuiElement extends AbstractGuiElement {
 
     public static final NamedCodec<SizeGuiElement> CODEC = NamedCodec.record(sizeGuiElement ->
@@ -18,7 +20,7 @@ public class SizeGuiElement extends AbstractGuiElement {
     private final int height;
 
     public SizeGuiElement(int width, int height) {
-        super(0, 0, 0, 0, 0);
+        super(new Properties(0, 0, 0, 0, 0, null, null, Collections.emptyList()));
         this.width = width;
         this.height = height;
     }

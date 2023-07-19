@@ -35,6 +35,8 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
 
     @Override
     public List<Component> getTooltips() {
+        if(!this.getElement().getTooltips().isEmpty())
+            return this.getElement().getTooltips();
         return this.getScreen().getTile().getComponentManager()
                 .getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
                 .map(component -> Collections.singletonList((Component)

@@ -18,22 +18,21 @@ import net.minecraft.world.item.ItemStack;
 
 public class FluidGuiElement extends AbstractTexturedGuiElement implements IComponentGuiElement<FluidMachineComponent> {
 
-    private static final ResourceLocation BASE_FLUID_STORAGE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
+    private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
 
     public static final NamedCodec<FluidGuiElement> CODEC = NamedCodec.record(fluidGuiElement ->
-            makeBaseTexturedCodec(fluidGuiElement, BASE_FLUID_STORAGE_TEXTURE).and(
-                    fluidGuiElement.group(
-                            NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID),
-                            NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(FluidGuiElement::highlight)
-                    )
+            fluidGuiElement.group(
+                    makePropertiesCodec(BASE_TEXTURE).forGetter(FluidGuiElement::getProperties),
+                    NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID),
+                    NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(FluidGuiElement::highlight)
             ).apply(fluidGuiElement, FluidGuiElement::new), "Fluid gui element"
     );
 
     private final String id;
     private final boolean highlight;
 
-    public FluidGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, String id, boolean highlight) {
-        super(x, y, width, height, priority, texture);
+    public FluidGuiElement(Properties properties, String id, boolean highlight) {
+        super(properties);
         this.id = id;
         this.highlight = highlight;
     }

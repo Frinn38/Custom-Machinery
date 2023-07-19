@@ -35,6 +35,8 @@ public class FuelGuiElementWidget extends AbstractGuiElementWidget<FuelGuiElemen
 
     @Override
     public List<Component> getTooltips() {
+        if(!this.getElement().getTooltips().isEmpty())
+            return this.getElement().getTooltips();
         return this.getScreen().getTile().getComponentManager()
                 .getComponent(Registration.FUEL_MACHINE_COMPONENT.get())
                 .map(component -> Collections.singletonList((Component)Component.translatable("custommachinery.gui.element.fuel.tooltip", component.getFuel())))

@@ -10,9 +10,4 @@ public class TextureGuiElementWidget extends TexturedGuiElementWidget<TextureGui
     public TextureGuiElementWidget(TextureGuiElement element, IMachineScreen screen) {
         super(element, screen, Component.literal("Texture"));
     }
-
-    @Override
-    public boolean clicked(double d, double e) {
-        return false;
-    }
 }

@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 
 import java.util.Locale;
@@ -14,26 +15,21 @@ public class TextGuiElement extends AbstractGuiElement {
 
     public static final NamedCodec<TextGuiElement> CODEC = NamedCodec.record(textGuiElementCodec ->
             textGuiElementCodec.group(
-                    NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(AbstractGuiElement::getX),
-                    NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(AbstractGuiElement::getY),
-                    NamedCodec.STRING.fieldOf("text").forGetter(element -> element.text.getString()),
-                    NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractGuiElement::getPriority),
+                    makePropertiesCodec().forGetter(TextGuiElement::getProperties),
+                    TextComponentUtils.CODEC.fieldOf("text").forGetter(TextGuiElement::getText),
                     Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment", Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
-                    NamedCodec.INT.optionalFieldOf("color", 0).forGetter(TextGuiElement::getColor),
                     NamedCodec.BOOL.optionalFieldOf("jei", false).forGetter(IGuiElement::showInJei)
             ).apply(textGuiElementCodec, TextGuiElement::new), "Text gui element"
     );
 
     private final Component text;
     private final Alignment alignment;
-    private final int color;
     private final boolean jei;
 
-    public TextGuiElement(int x, int y, String text, int priority, Alignment alignment, int color, boolean jei) {
-        super(x, y, 0, 0, priority);
-        this.text = Component.translatable(text);
+    public TextGuiElement(Properties properties, Component text, Alignment alignment, boolean jei) {
+        super(properties);
+        this.text = text;
         this.alignment = alignment;
-        this.color = color;
         this.jei = jei;
     }
 
@@ -48,10 +44,6 @@ public class TextGuiElement extends AbstractGuiElement {
 
     public Alignment getAlignment() {
         return this.alignment;
-    }
-
-    public int getColor() {
-        return this.color;
     }
 
     @Override

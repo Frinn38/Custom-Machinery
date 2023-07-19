@@ -19,7 +19,7 @@ import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.SoundManager;
-import fr.frinn.custommachinery.common.util.TextComponentUtils;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

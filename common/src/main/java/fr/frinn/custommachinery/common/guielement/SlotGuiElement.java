@@ -8,25 +8,27 @@ import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.GhostItem;
+import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
 
 public class SlotGuiElement extends AbstractTexturedGuiElement implements IComponentGuiElement<ItemMachineComponent> {
 
-    private static final ResourceLocation BASE_SLOT_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_slot.png");
+    private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_slot.png");
 
     public static final NamedCodec<SlotGuiElement> CODEC = NamedCodec.record(slotGuiElementCodec ->
-            makeBaseTexturedCodec(slotGuiElementCodec, BASE_SLOT_TEXTURE)
-                    .and(NamedCodec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID))
-                    .and(GhostItem.CODEC.optionalFieldOf("ghost", GhostItem.EMPTY).forGetter(element -> element.ghost))
-                    .apply(slotGuiElementCodec, SlotGuiElement::new), "Slot gui element"
+            slotGuiElementCodec.group(
+                    makePropertiesCodec(BASE_TEXTURE).forGetter(SlotGuiElement::getProperties),
+                    NamedCodec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID),
+                    GhostItem.CODEC.optionalFieldOf("ghost", GhostItem.EMPTY).forGetter(element -> element.ghost)
+            ).apply(slotGuiElementCodec, SlotGuiElement::new), "Slot gui element"
     );
 
     private final String id;
     private final GhostItem ghost;
 
-    public SlotGuiElement(int x, int y, int width, int height, int priority, ResourceLocation texture, String id, GhostItem ghost) {
-        super(x, y, width, height, priority, texture);
+    public SlotGuiElement(Properties properties, String id, GhostItem ghost) {
+        super(properties);
         this.id = id;
         this.ghost = ghost;
     }

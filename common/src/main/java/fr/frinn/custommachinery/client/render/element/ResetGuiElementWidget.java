@@ -12,17 +12,13 @@ import java.util.List;
 public class ResetGuiElementWidget extends TexturedGuiElementWidget<ResetGuiElement> {
 
     private static final Component TITLE = Component.translatable("custommachinery.gui.element.reset.name");
-    private static final List<Component> TOOLTIPS = Lists.newArrayList(
-            TITLE,
-            Component.translatable("custommachinery.gui.element.reset.tooltip").withStyle(ChatFormatting.DARK_RED)
-    );
 
     public ResetGuiElementWidget(ResetGuiElement element, IMachineScreen screen) {
         super(element, screen, TITLE);
     }
 
     @Override
-    public List<Component> getTooltips() {
-        return TOOLTIPS;
+    public boolean isClickable() {
+        return true;
     }
 }

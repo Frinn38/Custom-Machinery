@@ -17,23 +17,34 @@ public class TextGuiElementWidget extends AbstractGuiElementWidget<TextGuiElemen
     }
 
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderButton(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
         int posX = switch (this.getElement().getAlignment()) {
             case CENTER -> this.x - Minecraft.getInstance().font.width(this.getElement().getText().getString()) / 2;
             case RIGHT -> this.x - Minecraft.getInstance().font.width(this.getElement().getText().getString());
             default -> this.x;
         };
         int posY = this.y;
-        Minecraft.getInstance().font.draw(poseStack, this.getElement().getText(), posX, posY, this.getElement().getColor());
-    }
 
-    @Override
-    public List<Component> getTooltips() {
-        return Collections.singletonList(this.getElement().getText());
-    }
+        pose.pushPose();
+        float scaleX = 1.0F;
+        float scaleY = 1.0F;
+        if(this.getElement().getWidth() >= 0)
+            scaleX = (float)this.getElement().getWidth() / (float)Minecraft.getInstance().font.width(this.getElement().getText());
 
-    @Override
-    public boolean clicked(double d, double e) {
-        return false;
+        if(this.getElement().getHeight() >= 0)
+            scaleY = (float)this.getElement().getHeight() / (float)Minecraft.getInstance().font.lineHeight;
+
+        if(scaleX == 1.0F && scaleY != 1.0F)
+            scaleX = scaleY;
+        else if(scaleX != 1.0F && scaleY == 1.0F)
+            scaleY = scaleX;
+
+        if(scaleX != 1.0F) {
+            pose.translate(this.x, this.y, 0);
+            pose.scale(scaleX, scaleY, 1.0F);
+            pose.translate(-this.x, -this.y, 0);
+        }
+        Minecraft.getInstance().font.draw(pose, this.getElement().getText(), posX, posY, 0);
+        pose.popPose();
     }
 }
