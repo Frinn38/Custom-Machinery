@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.commands.arguments.blocks.BlockStateParser.BlockResult;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -101,6 +102,16 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
             List<Property<?>> properties = Lists.newArrayList(this.properties);
             if(!properties.contains(BlockStateProperties.HORIZONTAL_FACING))
                 properties.add(BlockStateProperties.HORIZONTAL_FACING);
+            return new PartialBlockState(blockState, properties, this.nbt);
+        } else if(this.properties.contains(BlockStateProperties.FACING) && this.blockState.hasProperty(BlockStateProperties.FACING) && !(this.blockState.getBlock() instanceof CustomMachineBlock)) {
+            Direction direction = this.blockState.getValue(BlockStateProperties.FACING);
+            if(direction.getAxis() == Axis.Y)
+                return this;
+            direction = rotation.rotate(direction);
+            BlockState blockState = this.blockState.setValue(BlockStateProperties.FACING, direction);
+            List<Property<?>> properties = Lists.newArrayList(this.properties);
+            if(!properties.contains(BlockStateProperties.FACING))
+                properties.add(BlockStateProperties.FACING);
             return new PartialBlockState(blockState, properties, this.nbt);
         }
         return this;
