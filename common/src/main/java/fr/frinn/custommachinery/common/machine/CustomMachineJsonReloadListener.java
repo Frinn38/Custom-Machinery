@@ -3,9 +3,12 @@ package fr.frinn.custommachinery.common.machine;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.GameInstance;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
+import fr.frinn.custommachinery.common.util.MachineList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -63,5 +66,8 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
         ICustomMachineryAPI.INSTANCE.logger().info("Finished creating custom machines.");
+
+        if(GameInstance.getServer() != null)
+            MachineList.setNeedRefresh();
     }
 }

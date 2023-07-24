@@ -87,7 +87,6 @@ public class CustomMachinery {
         ReloadListenerRegistry.register(PackType.SERVER_DATA, new UpgradesCustomReloadListener());
 
         CommandRegistrationEvent.EVENT.register(CustomMachinery::registerCommands);
-        CommandPerformEvent.EVENT.register(CustomMachinery::onReload);
 
         EnvExecutor.runInEnv(Env.CLIENT, () -> ClientHandler::init);
     }
@@ -110,15 +109,5 @@ public class CustomMachinery {
     private static void registerCommands(final CommandDispatcher<CommandSourceStack> dispatcher, final CommandBuildContext registry, final Commands.CommandSelection selection) {
         dispatcher.register(CMCommand.register("custommachinery"));
         dispatcher.register(CMCommand.register("cm"));
-    }
-
-    private static EventResult onReload(final CommandPerformEvent event) {
-        if(event.getResults().getReader().getString().startsWith("/reload") && event.getResults().getContext().getSource().hasPermission(2)) {
-            CMLogger.reset();
-            MachineList.setNeedRefresh();
-            if(Platform.isModLoaded("crafttweaker"))
-                CTUtils.resetRecipesIDs();
-        }
-        return EventResult.pass();
     }
 }
