@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import dev.architectury.platform.Platform;
 import dev.latvian.mods.kubejs.generator.AssetJsonGenerator;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
@@ -37,6 +38,8 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     public Block createObject() {
         Block block = PlatformHelper.createMachineBlock();
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
+        if(Platform.isFabric())
+            Registration.CUSTOM_MACHINE_TILE.get().validBlocks.add(block);
         return block;
     }
 
