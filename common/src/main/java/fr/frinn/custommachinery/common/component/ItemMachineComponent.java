@@ -235,7 +235,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         @Override
         public boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager) {
-            if(isInput != this.mode.isInput())
+            if((isInput && !this.mode.isInput()) || (!isInput && !this.mode.isOutput()))
                 return false;
             if(ingredient instanceof ItemStack stack)
                 return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.canAccept(manager, stack);

@@ -13,7 +13,8 @@ public class ProtoChunkMixin {
 
     @Redirect(
             method = "setBlockState",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"),
+            require = 0 //Needed for chisels & bits compatibility
     )
     private int custommachinery$getLightEmission(BlockState state, BlockPos pos) {
         if(state.getBlock() instanceof CustomMachineBlock machineBlock)

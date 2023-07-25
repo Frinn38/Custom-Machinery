@@ -13,7 +13,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin {
 
-    @Redirect(method = "playBlockFallSound", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"))
+    @Redirect(
+            method = "playBlockFallSound",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"),
+            require = 0 //Needed for chisels & bits compatibility
+    )
     private SoundType custommachinery$getFallSound(BlockState state) {
         if(state.getBlock() instanceof CustomMachineBlock machineBlock) {
             LivingEntity entity = (LivingEntity) (Object) this;

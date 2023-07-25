@@ -16,7 +16,8 @@ abstract class LevelRendererMixin {
 
     @Redirect(
             method = "levelEvent",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"),
+            require = 0 //Needed for chisels & bits compatibility
     )
     private SoundType custommachinery$getBrokenSoundType(BlockState state, Player player, int i, BlockPos blockPos, int j) {
         if(i == 2001 && state.getBlock() instanceof CustomMachineBlock machineBlock)
@@ -26,7 +27,8 @@ abstract class LevelRendererMixin {
 
     @Redirect(
             method = "getLightColor(Lnet/minecraft/world/level/BlockAndTintGetter;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)I",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"),
+            require = 0 //Needed for chisels & bits compatibility
     )
     private static int custommachinery$getLightEmission(BlockState state, BlockAndTintGetter level, BlockState state1, BlockPos pos) {
         if(state.getBlock() instanceof CustomMachineBlock machineBlock)

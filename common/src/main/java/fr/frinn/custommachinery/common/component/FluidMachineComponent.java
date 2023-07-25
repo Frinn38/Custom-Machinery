@@ -237,7 +237,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         @Override
         public boolean canAccept(Object ingredient, boolean isInput, IMachineComponentManager manager) {
-            if(isInput != this.mode.isInput())
+            if((isInput && !this.mode.isInput()) || (!isInput && !this.mode.isOutput()))
                 return false;
             if(ingredient instanceof FluidStack stack) {
                 return this.filter.stream().flatMap(f -> f.getAll().stream()).anyMatch(f -> f == stack.getFluid()) == this.whitelist;

@@ -15,7 +15,8 @@ public class ModelBlockRendererMixin {
 
     @Redirect(
             method = "tesselateBlock",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"),
+            require = 0 //Needed for chisels & bits compatibility
     )
     private int custommachinery$getLightEmission(BlockState state, BlockAndTintGetter level, BakedModel model, BlockState state1, BlockPos pos) {
         if(state.getBlock() instanceof CustomMachineBlock machineBlock)
