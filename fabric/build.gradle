@@ -48,6 +48,9 @@ dependencies {
     common(project(path: ":api", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":api", configuration: "transformProductionFabric")) { transitive = false }
 
+    //Saecularia Caudices, for block mixins
+    modLocalRuntime "com.communi-suggestu.saecularia-caudices:saecularia-caudices-fabric:${project.saecularia_caudices_version}"
+
     //JEI
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
@@ -108,18 +111,18 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
 }
 
 remapJar {
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier = null
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 components.java {

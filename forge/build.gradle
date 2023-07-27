@@ -39,6 +39,9 @@ dependencies {
     common(project(path: ":api", configuration: "namedElements")) { transitive = false }
     shadowCommon(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
+    //Saecularia Caudices, for block mixins
+    modCompileOnly "com.communi-suggestu.saecularia-caudices:saecularia-caudices-core:${project.saecularia_caudices_version}"
+
     //JEI 10
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-forge-api:${project.jei_version}")
@@ -92,17 +95,17 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
 }
 
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier = null
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 unifiedPublishing {

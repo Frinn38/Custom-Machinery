@@ -23,6 +23,9 @@ dependencies {
     api(project(path: ":api", configuration: "namedElements")) { transitive false }
     shadowApi(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
+    //Saecularia Caudices, for block mixins
+    modCompileOnly "com.communi-suggestu.saecularia-caudices:saecularia-caudices-core:${project.saecularia_caudices_version}"
+
     //JEI api
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
 
