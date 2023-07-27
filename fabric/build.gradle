@@ -49,7 +49,8 @@ dependencies {
     shadowCommon(project(path: ":api", configuration: "transformProductionFabric")) { transitive = false }
 
     //Saecularia Caudices, for block mixins
-    modLocalRuntime "com.communi-suggestu.saecularia-caudices:saecularia-caudices-fabric:${project.saecularia_caudices_version}"
+    modImplementation "com.communi-suggestu.saecularia-caudices:saecularia-caudices-fabric:${project.saecularia_caudices_version}"
+    include "com.communi-suggestu.saecularia-caudices:saecularia-caudices-fabric:${project.saecularia_caudices_version}"
 
     //JEI
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")

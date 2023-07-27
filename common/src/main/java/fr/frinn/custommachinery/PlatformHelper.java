@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
 import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -41,11 +42,6 @@ public class PlatformHelper {
     }
 
     @ExpectPlatform
-    public static CustomMachineBlock createMachineBlock() {
-        throw new AssertionError();
-    }
-
-    @ExpectPlatform
     public static List<LootPool> getPoolsFromTable(LootTable table) {
         throw new AssertionError();
     }
@@ -57,6 +53,11 @@ public class PlatformHelper {
 
     @ExpectPlatform
     public static IFluidHelper fluid() {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static boolean hasCorrectToolsForDrops(Player player, BlockState state) {
         throw new AssertionError();
     }
 }

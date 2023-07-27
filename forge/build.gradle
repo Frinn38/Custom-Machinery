@@ -40,7 +40,8 @@ dependencies {
     shadowCommon(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
     //Saecularia Caudices, for block mixins
-    modCompileOnly "com.communi-suggestu.saecularia-caudices:saecularia-caudices-core:${project.saecularia_caudices_version}"
+    modImplementation "com.communi-suggestu.saecularia-caudices:saecularia-caudices-forge:${project.saecularia_caudices_version}"
+    include "com.communi-suggestu.saecularia-caudices:saecularia-caudices-forge:${project.saecularia_caudices_version}"
 
     //JEI 10
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")

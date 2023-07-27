@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.init;
 
+import com.communi.suggestu.saecularia.caudices.core.block.IBlockWithWorldlyProperties;
 import dev.architectury.registry.menu.MenuRegistry;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -25,15 +26,19 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -41,10 +46,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.LootContext.Builder;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +59,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class CustomMachineBlock extends Block implements EntityBlock {
+public class CustomMachineBlock extends Block implements EntityBlock, IBlockWithWorldlyProperties {
 
     private static final StateArgumentPredicate<EntityType<?>> spawnPredicate = ((state, level, pos, type) -> state.isFaceSturdy(level, pos, Direction.UP) && state.getBlock() instanceof CustomMachineBlock machineBlock && machineBlock.getLightEmission(state, level, pos) < 14);
 
@@ -106,18 +113,8 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
-        BlockEntity tile = level.getBlockEntity(pos);
-        if(tile instanceof CustomMachineTile customMachineTile) {
-            CustomMachine machine = customMachineTile.getMachine();
-            return CustomMachineItem.makeMachineItem(machine.getId());
-        }
-        return super.getCloneItemStack(level, pos, state);
-    }
-
-    @Override
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
-        if(blockEntity instanceof CustomMachineTile machine && player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getAppearance())))
+        if(blockEntity instanceof CustomMachineTile machine && PlatformHelper.hasCorrectToolsForDrops(player, MachineBlockState.CACHE.getUnchecked(machine.getAppearance())))
             super.playerDestroy(level, player, pos, state, blockEntity, tool);
     }
 
@@ -206,7 +203,16 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
                 .map(tile -> (CustomMachineTile)tile)
                 .map(tile -> tile.getMachine().getAppearance(tile.getStatus()))
                 .map(appearance -> Utils.getMachineBreakSpeed(appearance, level, pos, player))
-                .orElse(super.getDestroyProgress(state, player, level, pos));
+                .orElseGet(() -> {
+                    //Don't call super.getDestroyProgress here as it will trigger BlockBehaviourWorldlyBlockMixin#handleWorldlyBreakableCondition
+                    //which crash the game because it returns a value in a non-cancellable Mixin
+                    float f = state.getDestroySpeed(level, pos);
+                    if (f == -1.0f) {
+                        return 0.0f;
+                    }
+                    int i = PlatformHelper.hasCorrectToolsForDrops(player, state) ? 30 : 100;
+                    return player.getDestroySpeed(state) / f / (float)i;
+                });
     }
 
     @SuppressWarnings("deprecation")
@@ -218,10 +224,10 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
                 .orElse(super.getShape(state, level, pos, context));
     }
 
-    /**
-     * On forge side this is called by ForgeCustomMachineBlock#getExplosionResistance which override the method added in IForgeBlock.
-     * On fabric side this is called by CM Mixin ExplosionDamageCalculatorMixin.
-     */
+    /** {@link IBlockWithWorldlyProperties methods} **/
+
+
+    @Override
     public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(tile -> tile instanceof CustomMachineTile)
@@ -229,15 +235,7 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
                 .orElse(super.getExplosionResistance());
     }
 
-    /**
-     * On forge side this is called by ForgeCustomMachineBlock#getSoundType which override the method added in IForgeBlock.
-     * On fabric side this is called by various CM methods or mixins depending on the interaction type :
-     * Breaking : LevelRendererMixin#custommachinery$getBrokenSoundType
-     * Placing : CustomMachineItem#place
-     * Stepping : EntityMixin#custommachinery$playStepSound
-     * Falling : LivingEntityMixin#custommachinery$getFallSound
-     * Hitting : MultiplayerGameModeMixin#custommachinery$getHitSound
-     */
+    @Override
     public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
@@ -245,16 +243,12 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
                 .orElse(super.getSoundType(state));
     }
 
-    /**
-     * On Forge side this is called by ForgeCustomMachineBlock#getLightEmission which override the method added in IForgeBlock.
-     * On Fabric side this is called by various CM mixins :
-     * LevelMixin#custommachinery$getLightEmission
-     * BlockGetterMixin#custommachinery$getLightEmission
-     * LevelRendererMixin#custommachinery$getLightEmission
-     * LevelChunkMixin#custommachinery$getLightEmission
-     * ModelBlockRendererMixin#custommachinery$getLightEmission
-     * ProtoChunkMixin#custommachinery$getLightEmission
-     */
+    @Override
+    public float getFriction(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
+        return this.getFriction();
+    }
+
+    @Override
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile) {
@@ -262,5 +256,49 @@ public abstract class CustomMachineBlock extends Block implements EntityBlock {
             return manager.getComponent(Registration.LIGHT_MACHINE_COMPONENT.get()).map(LightMachineComponent::getMachineLight).orElse(0);
         }
         return 0;
+    }
+
+    @Override
+    public boolean shouldDisplayFluidOverlay(BlockState state, BlockAndTintGetter level, BlockPos pos, FluidState fluidState) {
+        return true;
+    }
+
+    @Override
+    public float[] getBeaconColorMultiplier(BlockState blockState, LevelReader levelReader, BlockPos blockPos, BlockPos blockPos1) {
+        return new float[0];
+    }
+
+    @Override
+    public boolean canHarvestBlock(BlockState state, BlockGetter level, BlockPos pos, Player player) {
+        return Optional.ofNullable(level.getBlockEntity(pos))
+                .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
+                .map(blockEntity -> (CustomMachineTile)blockEntity)
+                .map(machine -> PlatformHelper.hasCorrectToolsForDrops(player, MachineBlockState.CACHE.getUnchecked(machine.getMachine().getAppearance(machine.getStatus()))))
+                .orElse(player.hasCorrectToolForDrops(state));
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult hitResult, BlockGetter level, BlockPos pos, Player player) {
+        BlockEntity tile = level.getBlockEntity(pos);
+        if(tile instanceof CustomMachineTile customMachineTile) {
+            CustomMachine machine = customMachineTile.getMachine();
+            return CustomMachineItem.makeMachineItem(machine.getId());
+        }
+        return super.getCloneItemStack(level, pos, state);
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, LevelAccessor level, BlockPos pos, Rotation rotation) {
+        return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotation.rotate(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
+    }
+
+    @Override
+    public boolean shouldCheckWeakPower(BlockState blockState, LevelReader levelReader, BlockPos blockPos, Direction direction) {
+        return true;
+    }
+
+    @Override
+    public DyeColor getColor() {
+        return DyeColor.BLACK;
     }
 }

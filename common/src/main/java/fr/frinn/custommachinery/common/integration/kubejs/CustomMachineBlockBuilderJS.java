@@ -9,6 +9,7 @@ import dev.latvian.mods.kubejs.registry.BuilderBase;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +37,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public Block createObject() {
-        Block block = PlatformHelper.createMachineBlock();
+        Block block = new CustomMachineBlock();
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
         if(Platform.isFabric())
             Registration.CUSTOM_MACHINE_TILE.get().validBlocks.add(block);

@@ -3,14 +3,12 @@ package fr.frinn.custommachinery.forge;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
 import fr.frinn.custommachinery.common.util.transfer.IEnergyHelper;
 import fr.frinn.custommachinery.common.util.transfer.IFluidHelper;
-import fr.frinn.custommachinery.forge.init.ForgeCustomMachineBlock;
 import fr.frinn.custommachinery.forge.init.ForgeCustomMachineTile;
 import fr.frinn.custommachinery.forge.transfer.ForgeEnergyHandler;
 import fr.frinn.custommachinery.forge.transfer.ForgeEnergyHelper;
@@ -18,9 +16,11 @@ import fr.frinn.custommachinery.forge.transfer.ForgeFluidHandler;
 import fr.frinn.custommachinery.forge.transfer.ForgeFluidHelper;
 import fr.frinn.custommachinery.forge.transfer.ForgeItemHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraftforge.common.ForgeHooks;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -46,10 +46,6 @@ public class PlatformHelperImpl {
         return new ForgeCustomMachineTile(pos, state);
     }
 
-    public static CustomMachineBlock createMachineBlock() {
-        return new ForgeCustomMachineBlock();
-    }
-
     @SuppressWarnings("unchecked")
     public static List<LootPool> getPoolsFromTable(LootTable table) {
         for(Field field : LootTable.class.getDeclaredFields()) {
@@ -71,5 +67,9 @@ public class PlatformHelperImpl {
 
     public static IFluidHelper fluid() {
         return FLUID_HELPER;
+    }
+
+    public static boolean hasCorrectToolsForDrops(Player player, BlockState state) {
+        return ForgeHooks.isCorrectToolForDrops(state, player);
     }
 }
