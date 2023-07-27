@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.architectury.platform.Platform;
 import dev.latvian.mods.kubejs.BuilderBase;
 import dev.latvian.mods.kubejs.RegistryObjectBuilderTypes;
 import dev.latvian.mods.kubejs.generator.AssetJsonGenerator;
@@ -35,6 +36,9 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     public Block createObject() {
         Block block = PlatformHelper.createMachineBlock();
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
+        //On Fabric the machine BE is already initialized when we get to this point so add this new block to the list of valid blocks for the BE.
+        if(Platform.isFabric())
+            Registration.CUSTOM_MACHINE_TILE.get().validBlocks.add(block);
         return block;
     }
 

@@ -55,9 +55,12 @@ public class CustomMachineItem extends BlockItem {
     }
 
     public static ItemStack makeMachineItem(ResourceLocation machineID) {
+        if(CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(machineID))
+            return CustomMachinery.CUSTOM_BLOCK_MACHINES.get(machineID).asItem().getDefaultInstance();
+
+        ItemStack stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
         CompoundTag nbt = new CompoundTag();
         nbt.putString(MACHINE_TAG_KEY, machineID.toString());
-        ItemStack stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
         stack.setTag(nbt);
         return stack;
     }

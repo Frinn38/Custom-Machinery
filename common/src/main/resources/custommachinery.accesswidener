@@ -21,3 +21,6 @@ accessible field net/minecraft/client/resources/model/ModelManager bakedRegistry
 #DataPack path
 accessible field net/minecraft/server/packs/AbstractPackResources file Ljava/io/File;
 accessible method net/minecraft/server/packs/FilePackResources getOrCreateZipFile ()Ljava/util/zip/ZipFile;
+
+#BlockEntityType validBlocks
+accessible field net/minecraft/world/level/block/entity/BlockEntityType validBlocks Ljava/util/Set;

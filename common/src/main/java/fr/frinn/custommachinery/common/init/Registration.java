@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import com.google.common.collect.ImmutableSet;
 import dev.architectury.fluid.FluidStack;
+import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.menu.MenuRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
@@ -140,7 +141,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 public class Registration {
@@ -180,7 +183,7 @@ public class Registration {
     public static final RegistrySupplier<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
     public static final RegistrySupplier<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
 
-    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, ImmutableSet.<Block>builder().add(CUSTOM_MACHINE_BLOCK.get()).add(CustomMachinery.CUSTOM_BLOCK_MACHINES.values().toArray(new Block[0])).build(), null));
+    public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, validMachineBlocks(), null));
 
     public static final RegistrySupplier<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = CONTAINERS.register("custom_machine_container", () -> MenuRegistry.ofExtended(CustomMachineContainer::new));
 
@@ -285,5 +288,17 @@ public class Registration {
         event.register(ITEM_MACHINE_COMPONENT.get(), FuelItemComponentVariant.ID, FuelItemComponentVariant.CODEC);
         event.register(ITEM_MACHINE_COMPONENT.get(), ResultItemComponentVariant.ID, ResultItemComponentVariant.CODEC);
         event.register(ITEM_MACHINE_COMPONENT.get(), UpgradeItemComponentVariant.ID, UpgradeItemComponentVariant.CODEC);
+    }
+
+    /**
+     * On Forge all blocks from all mods (including CM and KubeJS) are initialized before BEs so we can add them here.
+     * On Fabric KubeJS blocks might not be initialized when the CM BEType is created, so we add them later in the KubeJS block builder.
+     */
+    private static Set<Block> validMachineBlocks() {
+        Set<Block> validBlocks = new HashSet<>();
+        validBlocks.add(CUSTOM_MACHINE_BLOCK.get());
+        if(Platform.isForge())
+            validBlocks.addAll(CustomMachinery.CUSTOM_BLOCK_MACHINES.values());
+        return validBlocks;
     }
 }
