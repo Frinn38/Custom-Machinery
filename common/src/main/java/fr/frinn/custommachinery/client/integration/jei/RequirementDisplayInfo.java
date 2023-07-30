@@ -2,12 +2,11 @@ package fr.frinn.custommachinery.client.integration.jei;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
-import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.gui.GuiComponent;
@@ -18,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class RequirementDisplayInfo implements IDisplayInfo {
 
@@ -29,7 +27,7 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     private int v = 0;
     private TextureAtlasSprite sprite;
     private ItemStack item;
-    private final List<Component> tooltips = new ArrayList<>();
+    private final List<Pair<Component, TooltipPredicate>> tooltips = new ArrayList<>();
     private ClickAction clickAction;
     private IconType iconType = IconType.TEXTURE;
 
@@ -59,8 +57,8 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     }
 
     @Override
-    public RequirementDisplayInfo addTooltip(Component tooltip) {
-        this.tooltips.add(tooltip);
+    public RequirementDisplayInfo addTooltip(Component tooltip, TooltipPredicate predicate) {
+        this.tooltips.add(Pair.of(tooltip, predicate));
         return this;
     }
 
@@ -86,7 +84,7 @@ public class RequirementDisplayInfo implements IDisplayInfo {
         }
     }
 
-    public List<Component> getTooltips() {
+    public List<Pair<Component, TooltipPredicate>> getTooltips() {
         return this.tooltips;
     }
 

@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -18,12 +19,23 @@ import java.util.function.BiConsumer;
 public interface IDisplayInfo {
 
     /**
-     * Add a tooltip to render when the player mouse cursor hover the requirement.
-     * Each call will start a new line on the tooltip.
+     * Add a new line on the tooltip to render when the player mouse cursor hover the requirement.
+     * This line will always be rendered.
      * @param text The tooltip to render.
      * @return Itself, to chain calls.
      */
-    IDisplayInfo addTooltip(Component text);
+    default IDisplayInfo addTooltip(Component text) {
+        return addTooltip(text, TooltipPredicate.ALWAYS);
+    };
+
+    /**
+     * Add a new line on the tooltip to render when the player mouse cursor hover the requirement.
+     * This line will be rendered only if the {@link TooltipPredicate} return true.
+     * @param text The tooltip to render.
+     * @param predicate A predicate to check if this line should be rendered.
+     * @return Itself, to chain calls.
+     */
+    IDisplayInfo addTooltip(Component text, TooltipPredicate predicate);
 
     /**
      * Set a texture as the requirement icon in the jei recipe screen.
@@ -101,5 +113,21 @@ public interface IDisplayInfo {
          * @param mouseButton The mouse button that was pressed: 0 = left, 1 = right, 2 = middle.
          */
         void handleClick(ICustomMachine machine, IMachineRecipe recipe, int mouseButton);
+    }
+
+    /**
+     * Called for each added lines of the tooltip when the player mouse hover the requirement in jei.
+     */
+    interface TooltipPredicate {
+        TooltipPredicate ALWAYS = (player, advancedTooltips) -> true;
+        TooltipPredicate ADVANCED = (player, advancedTooltips) -> advancedTooltips;
+        TooltipPredicate CREATIVE = (player, advancedTooltips) -> player.getAbilities().instabuild;
+
+        /**
+         * @param player The player that hover the requirement.
+         * @param advancedTooltips True if advanced tooltips (F3+H) are enabled.
+         * @return True if the line should be displayed on the tooltip, false otherwise.
+         */
+        boolean shouldDisplay(Player player, boolean advancedTooltips);
     }
 }

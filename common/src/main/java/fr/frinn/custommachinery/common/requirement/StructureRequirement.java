@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
@@ -125,11 +126,13 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
             if(ingredient != null && amount > 0)
                 info.addTooltip(Component.translatable("custommachinery.requirements.structure.list", amount, Utils.getBlockName(ingredient).withStyle(ChatFormatting.GOLD)));
         });
-        if(this.destroy)
+        if(this.destroy) {
             if(this.drops)
                 info.addTooltip(Component.translatable("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
             else
                 info.addTooltip(Component.translatable("custommachinery.requirements.structure.destroy").withStyle(ChatFormatting.DARK_RED));
+        }
+        info.addTooltip(Component.translatable("custommachinery.requirements.structure.creative").withStyle(ChatFormatting.DARK_PURPLE), TooltipPredicate.CREATIVE);
         info.setClickAction((machine, recipe, mouseButton) -> {
             if(ClientHandler.isShiftKeyDown())
                 new CPlaceStructurePacket(machine.getId(), this.pattern, this.keys).sendToServer();
