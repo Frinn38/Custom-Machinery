@@ -31,7 +31,7 @@ public class CButtonGuiElementPacket extends BaseC2SMessage {
         buf.writeBoolean(this.toogle);
     }
 
-    public static CButtonGuiElementPacket decode(FriendlyByteBuf buf) {
+    public static CButtonGuiElementPacket read(FriendlyByteBuf buf) {
         return new CButtonGuiElementPacket(buf.readUtf(), buf.readBoolean());
     }
 

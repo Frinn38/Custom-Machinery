@@ -273,4 +273,8 @@ public class ClientHandler {
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.enableDepthTest();
     }
+
+    public static boolean isShiftKeyDown() {
+        return Screen.hasShiftDown();
+    }
 }

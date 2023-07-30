@@ -219,6 +219,9 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
 
     @Override
     public boolean handleInput(T recipe, double mouseX, double mouseY, InputConstants.Key mouseButton) {
+        if(mouseButton.getValue() != 0 && mouseButton.getValue() != 1 && mouseButton.getValue() != 2)
+            return false;
+
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
         return recipe.getDisplayInfoRequirements().stream().map(this.infoCache).anyMatch(info -> {
@@ -229,7 +232,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 row.incrementAndGet();
             }
             if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
-                return info.handleClick(this.machine, mouseButton);
+                return info.handleClick(this.machine, recipe, mouseButton);
             return false;
         });
     }

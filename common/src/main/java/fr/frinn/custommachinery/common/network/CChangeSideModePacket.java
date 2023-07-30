@@ -43,7 +43,7 @@ public class CChangeSideModePacket extends BaseC2SMessage {
         buf.writeBoolean(this.next);
     }
 
-    public static CChangeSideModePacket decode(FriendlyByteBuf buf) {
+    public static CChangeSideModePacket read(FriendlyByteBuf buf) {
         return new CChangeSideModePacket(buf.readVarInt(), buf.readUtf(), buf.readByte(), buf.readBoolean());
     }
 

@@ -41,7 +41,7 @@ public class SLootTablesPacket extends BaseS2CMessage {
         });
     }
 
-    public static SLootTablesPacket decode(FriendlyByteBuf buf) {
+    public static SLootTablesPacket read(FriendlyByteBuf buf) {
         Map<ResourceLocation, List<Pair<ItemStack, Double>>> loots = new HashMap<>();
         int lootSize = buf.readVarInt();
         for(int i = 0; i < lootSize; i++) {

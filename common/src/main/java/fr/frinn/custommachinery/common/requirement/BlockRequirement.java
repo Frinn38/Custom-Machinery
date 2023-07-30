@@ -263,7 +263,7 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
                 this.filter.forEach(block -> info.addTooltip(Component.literal("- ").append(Utils.getBlockName(block))));
         }
         info.addTooltip(Component.translatable("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
-        info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
+        info.setClickAction((machine, recipe, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
         info.setItemIcon(Items.GRASS_BLOCK);
     }
 

@@ -351,12 +351,23 @@ public interface NamedCodec<A> {
         result.error().ifPresent(error -> {
             throw new EncoderException(String.format("Failed to encode: %s\nError: %s\nInput: %s", name(), error.message(), input.toString()));
         });
-        buf.writeNbt((CompoundTag)result.result().orElseThrow());
+        Tag tag = result.result().orElseThrow();
+        if(tag instanceof CompoundTag compoundTag)
+            buf.writeNbt(compoundTag);
+        else {
+            CompoundTag compoundTag = new CompoundTag();
+            compoundTag.put("custommachinery$special_nbt_key", tag);
+            buf.writeNbt(compoundTag);
+        }
     }
 
     default A fromNetwork(FriendlyByteBuf buf) {
         CompoundTag tag = buf.readAnySizeNbt();
-        DataResult<A> result = read(NbtOps.INSTANCE, tag);
+        DataResult<A> result;
+        if(tag != null && tag.contains("custommachinery$special_nbt_key"))
+            result = read(NbtOps.INSTANCE, tag.get("custommachinery$special_nbt_key"));
+        else
+            result = read(NbtOps.INSTANCE, tag);
         result.error().ifPresent(error -> {
             throw new EncoderException(String.format("Failed to decode: %s\nError: %s\nInput: %S", name(), error.message(), tag));
         });

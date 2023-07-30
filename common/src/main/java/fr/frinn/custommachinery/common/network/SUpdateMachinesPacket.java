@@ -41,7 +41,7 @@ public class SUpdateMachinesPacket extends BaseS2CMessage {
         });
     }
 
-    public static SUpdateMachinesPacket decode(FriendlyByteBuf buf) {
+    public static SUpdateMachinesPacket read(FriendlyByteBuf buf) {
         Map<ResourceLocation, CustomMachine> map = new HashMap<>();
         int size = buf.readInt();
         for(int i = 0; i < size; i++) {

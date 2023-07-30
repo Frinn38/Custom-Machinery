@@ -30,7 +30,7 @@ public class SUpdateMachineStatusPacket extends BaseS2CMessage {
         buf.writeEnum(this.status);
     }
 
-    public static SUpdateMachineStatusPacket decode(FriendlyByteBuf buf) {
+    public static SUpdateMachineStatusPacket read(FriendlyByteBuf buf) {
         BlockPos pos = buf.readBlockPos();
         MachineStatus status = buf.readEnum(MachineStatus.class);
         return new SUpdateMachineStatusPacket(pos, status);

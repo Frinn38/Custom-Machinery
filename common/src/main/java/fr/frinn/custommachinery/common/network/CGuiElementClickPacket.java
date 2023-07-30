@@ -29,7 +29,7 @@ public class CGuiElementClickPacket extends BaseC2SMessage {
         buf.writeByte(this.type);
     }
 
-    public static CGuiElementClickPacket decode(FriendlyByteBuf buf) {
+    public static CGuiElementClickPacket read(FriendlyByteBuf buf) {
         return new CGuiElementClickPacket(buf.readVarInt(), buf.readByte());
     }
 

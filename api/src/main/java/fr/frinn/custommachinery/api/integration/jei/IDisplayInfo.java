@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api.integration.jei;
 
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -85,8 +86,20 @@ public interface IDisplayInfo {
     /**
      * Set an action to execute when the player click on the requirement icon in the jei recipe gui.
      * Note that the action will always be executed on the client side, if you want to execute some server-side code you will need to send a packet.
-     * The {@link BiConsumer} will give you the {@link ICustomMachine} handling this recipe and which mouse button was clicked. 0 = left, 1 = right, 2 = middle
+     * The {@link ClickAction} will give you the {@link ICustomMachine} handling this {@link IMachineRecipe} and which mouse button was clicked. 0 = left, 1 = right, 2 = middle
      * @param clickAction The action to execute.
      */
-    void setClickAction(BiConsumer<ICustomMachine, Integer> clickAction);
+    void setClickAction(ClickAction clickAction);
+
+    /**
+     * Called when the player click the requirement icon in the jei recipe gui.
+     */
+    interface ClickAction {
+        /**
+         * @param machine The machine that will process the recipe.
+         * @param recipe The recipe that contain this requirement.
+         * @param mouseButton The mouse button that was pressed: 0 = left, 1 = right, 2 = middle.
+         */
+        void handleClick(ICustomMachine machine, IMachineRecipe recipe, int mouseButton);
+    }
 }

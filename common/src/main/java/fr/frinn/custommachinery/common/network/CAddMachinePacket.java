@@ -46,7 +46,7 @@ public class CAddMachinePacket extends BaseC2SMessage {
         buf.writeBoolean(this.writeToFile);
     }
 
-    public static CAddMachinePacket decode(FriendlyByteBuf buf) {
+    public static CAddMachinePacket read(FriendlyByteBuf buf) {
         ResourceLocation id = buf.readResourceLocation();
         CustomMachine machine = CustomMachine.DUMMY;
         try {

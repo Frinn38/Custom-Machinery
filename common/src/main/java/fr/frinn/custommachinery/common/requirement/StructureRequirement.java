@@ -10,9 +10,11 @@ import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.network.CPlaceStructurePacket;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -20,6 +22,7 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
@@ -127,7 +130,12 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
                 info.addTooltip(Component.translatable("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
             else
                 info.addTooltip(Component.translatable("custommachinery.requirements.structure.destroy").withStyle(ChatFormatting.DARK_RED));
-        info.setClickAction((machine, mouseButton) -> CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks));
+        info.setClickAction((machine, recipe, mouseButton) -> {
+            if(ClientHandler.isShiftKeyDown())
+                new CPlaceStructurePacket(machine.getId(), this.pattern, this.keys).sendToServer();
+            else
+                CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks);
+        });
         info.setItemIcon(Items.STRUCTURE_BLOCK);
     }
 }

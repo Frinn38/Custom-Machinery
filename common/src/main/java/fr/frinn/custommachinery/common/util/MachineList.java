@@ -2,13 +2,18 @@ package fr.frinn.custommachinery.common.util;
 
 import dev.architectury.event.events.common.TickEvent;
 import fr.frinn.custommachinery.api.machine.MachineTile;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class MachineList {
 
@@ -38,6 +43,13 @@ public class MachineList {
 
     public static void setNeedRefresh() {
         needRefresh = true;
+    }
+
+    public static Optional<MachineTile> findNearest(Player player, @Nullable ResourceLocation machine, int radius) {
+        return LOADED_MACHINES.stream().filter(ref -> {
+            MachineTile tile = ref.get();
+            return tile != null && tile.getLevel() == player.level && tile.getBlockPos().closerThan(player.blockPosition(), radius) && (machine == null || machine.equals(tile.getMachine().getId()));
+        }).map(ref -> Objects.requireNonNull(ref.get())).findFirst();
     }
 
     private static void serverTick(final MinecraftServer server) {

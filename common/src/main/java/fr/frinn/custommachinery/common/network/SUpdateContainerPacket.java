@@ -23,7 +23,7 @@ public class SUpdateContainerPacket extends BaseS2CMessage {
 
     @Override
     public MessageType getType() {
-        return PacketManager.UPDATE_CONSTAINER;
+        return PacketManager.UPDATE_CONTAINER;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class SUpdateContainerPacket extends BaseS2CMessage {
         this.data.forEach(data -> data.writeData(buf));
     }
 
-    public static SUpdateContainerPacket decode(FriendlyByteBuf buf) {
+    public static SUpdateContainerPacket read(FriendlyByteBuf buf) {
         int windowId = buf.readInt();
         List<IData<?>> dataList = new ArrayList<>();
         short size = buf.readShort();

@@ -25,7 +25,7 @@ public class SOpenFilePacket extends BaseS2CMessage {
         buf.writeUtf(this.path);
     }
 
-    public static SOpenFilePacket decode(FriendlyByteBuf buf) {
+    public static SOpenFilePacket read(FriendlyByteBuf buf) {
         return new SOpenFilePacket(buf.readUtf());
     }
 

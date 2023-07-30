@@ -37,7 +37,7 @@ public class SUpdateUpgradesPacket extends BaseS2CMessage {
         });
     }
 
-    public static SUpdateUpgradesPacket decode(FriendlyByteBuf buf) {
+    public static SUpdateUpgradesPacket read(FriendlyByteBuf buf) {
         List<MachineUpgrade> upgrades = new ArrayList<>();
         int size = buf.readVarInt();
         for(int i = 0; i < size; i++) {

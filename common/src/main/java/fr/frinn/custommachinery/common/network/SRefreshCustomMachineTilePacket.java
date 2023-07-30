@@ -30,7 +30,7 @@ public class SRefreshCustomMachineTilePacket extends BaseS2CMessage {
         buf.writeResourceLocation(this.machine);
     }
 
-    public static SRefreshCustomMachineTilePacket decode(FriendlyByteBuf buf) {
+    public static SRefreshCustomMachineTilePacket read(FriendlyByteBuf buf) {
         BlockPos pos = buf.readBlockPos();
         ResourceLocation machine = buf.readResourceLocation();
         return new SRefreshCustomMachineTilePacket(pos, machine);

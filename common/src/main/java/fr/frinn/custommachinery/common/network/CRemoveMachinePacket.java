@@ -29,7 +29,7 @@ public class CRemoveMachinePacket extends BaseC2SMessage {
         buf.writeResourceLocation(this.id);
     }
 
-    public static CRemoveMachinePacket decode(FriendlyByteBuf buf) {
+    public static CRemoveMachinePacket read(FriendlyByteBuf buf) {
         return new CRemoveMachinePacket(buf.readResourceLocation());
     }
 

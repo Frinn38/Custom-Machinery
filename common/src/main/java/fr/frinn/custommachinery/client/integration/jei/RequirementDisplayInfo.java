@@ -3,9 +3,11 @@ package fr.frinn.custommachinery.client.integration.jei;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.gui.GuiComponent;
@@ -28,7 +30,7 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     private TextureAtlasSprite sprite;
     private ItemStack item;
     private final List<Component> tooltips = new ArrayList<>();
-    private BiConsumer<ICustomMachine, Integer> clickAction;
+    private ClickAction clickAction;
     private IconType iconType = IconType.TEXTURE;
 
     @Override
@@ -63,7 +65,7 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     }
 
     @Override
-    public void setClickAction(BiConsumer<ICustomMachine, Integer> clickAction) {
+    public void setClickAction(ClickAction clickAction) {
         this.clickAction = clickAction;
     }
 
@@ -92,9 +94,9 @@ public class RequirementDisplayInfo implements IDisplayInfo {
         return this.clickAction != null;
     }
 
-    public boolean handleClick(CustomMachine machine, InputConstants.Key button) {
+    public boolean handleClick(CustomMachine machine, IMachineRecipe recipe, InputConstants.Key button) {
         if(hasClickAction()) {
-            this.clickAction.accept(machine, button.getValue());
+            this.clickAction.handleClick(machine, recipe, button.getValue());
             return true;
         }
         return false;
