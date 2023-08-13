@@ -298,7 +298,7 @@ public class Registration {
     }
 
     /**
-     * On Forge all blocks from all mods (including CM and KubeJS) are initialized before BEs so we can add them here.
+     * On Forge all blocks from all mods (including CM and KubeJS) are initialized before BEs, so we can add them here.
      * On Fabric KubeJS blocks might not be initialized when the CM BEType is created, so we add them later in the KubeJS block builder.
      */
     private static Set<Block> validMachineBlocks() {

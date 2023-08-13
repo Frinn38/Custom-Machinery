@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.fabric;
 
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
@@ -36,7 +37,7 @@ public class CustomMachineryFabric implements ModInitializer {
 
         EnvExecutor.runInEnv(Env.CLIENT, () -> ClientHandler::init);
 
-        createHandlers();
+        LifecycleEvent.SETUP.register(this::createHandlers);
     }
 
     private void afterDatapackReload(MinecraftServer server, ResourceManager manager, boolean success) {
