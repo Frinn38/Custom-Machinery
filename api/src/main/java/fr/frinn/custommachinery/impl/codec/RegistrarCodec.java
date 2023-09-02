@@ -45,7 +45,7 @@ public class RegistrarCodec<V> implements NamedCodec<V> {
                     if(s.contains(":"))
                         return DataResult.success(new ResourceLocation(s));
                     else
-                        return DataResult.success(ICustomMachineryAPI.INSTANCE.rl(s));
+                        return DataResult.success(new ResourceLocation(ICustomMachineryAPI.INSTANCE.modid(), s));
                 } catch (Exception e) {
                     return DataResult.error(e.getMessage());
                 }
