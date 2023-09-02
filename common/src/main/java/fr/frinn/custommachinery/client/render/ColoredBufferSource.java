@@ -18,7 +18,7 @@ public class ColoredBufferSource implements MultiBufferSource {
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        return new ColoredVertexConsumer(this.wrapped.getBuffer(RenderType.itemEntityTranslucentCull(InventoryMenu.BLOCK_ATLAS)), this.color);
+        return new ColoredVertexConsumer(this.wrapped.getBuffer(renderType), this.color);
     }
 
     public void endBatch() {
