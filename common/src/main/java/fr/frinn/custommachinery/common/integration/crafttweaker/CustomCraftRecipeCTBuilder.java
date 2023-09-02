@@ -43,6 +43,7 @@ import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @ZenRegister
 @Name(CTConstants.RECIPE_BUILDER_CRAFT)
@@ -159,6 +160,20 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
             this.builder.withPriority(priority);
         else
             this.builder.withJeiPriority(priority);
+        return this;
+    }
+
+    /** INFO **/
+
+    @Method
+    public CustomCraftRecipeCTBuilder info(Consumer<DisplayInfoTemplateCT> consumer) {
+        if(this.lastRequirement != null) {
+            DisplayInfoTemplateCT template = new DisplayInfoTemplateCT();
+            consumer.accept(template);
+            this.lastRequirement.setDisplayInfoTemplate(template);
+        }
+        else
+            CraftTweakerAPI.LOGGER.error("Can't put info for null requirement");
         return this;
     }
 }

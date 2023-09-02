@@ -9,6 +9,7 @@ import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.CustomMachineUpgradeJSBuilder.UpgradeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.MachineJS;
@@ -46,6 +47,7 @@ public class CustomMachineryKubeJSPlugin extends KubeJSPlugin {
         event.add("Result", Result.class);
         event.add("CustomMachine", MachineJS.class);
         event.add("CMRecipeModifierBuilder", CustomMachineUpgradeJSBuilder.JSRecipeModifierBuilder.class);
+        event.add("TooltipPredicate", TooltipPredicate.class);
     }
 
     @Override

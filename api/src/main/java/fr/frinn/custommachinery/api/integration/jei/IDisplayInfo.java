@@ -120,6 +120,7 @@ public interface IDisplayInfo {
     /**
      * Called for each added lines of the tooltip when the player mouse hover the requirement in jei.
      */
+    @FunctionalInterface
     interface TooltipPredicate {
         TooltipPredicate ALWAYS = (player, advancedTooltips) -> true;
         TooltipPredicate ADVANCED = (player, advancedTooltips) -> advancedTooltips;

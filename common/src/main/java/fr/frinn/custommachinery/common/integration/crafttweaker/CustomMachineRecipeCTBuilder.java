@@ -42,6 +42,7 @@ import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @ZenRegister
 @Name(CTConstants.RECIPE_BUILDER_MACHINE)
@@ -166,6 +167,20 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
     @Method
     public CustomMachineRecipeCTBuilder resetOnError() {
         this.builder.setResetOnError();
+        return this;
+    }
+
+    /** INFO **/
+
+    @Method
+    public CustomMachineRecipeCTBuilder info(Consumer<DisplayInfoTemplateCT> consumer) {
+        if(this.lastRequirement != null) {
+            DisplayInfoTemplateCT template = new DisplayInfoTemplateCT();
+            consumer.accept(template);
+            this.lastRequirement.setDisplayInfoTemplate(template);
+        }
+        else
+            CraftTweakerAPI.LOGGER.error("Can't put info for null requirement");
         return this;
     }
 }

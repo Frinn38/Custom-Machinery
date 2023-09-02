@@ -38,10 +38,10 @@ public class DisplayInfoTemplate {
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("sprite").forGetter(template -> Optional.ofNullable(template.sprite))
             ).apply(displayInfoTemplateInstance, (tooltips, stack, icon, width, height, u, v, atlas, sprite) -> {
                         DisplayInfoTemplate template = new DisplayInfoTemplate();
-                        tooltips.forEach(template::addTooltip);
-                        stack.ifPresent(template::setItem);
-                        template.setTexture(icon, width, height, u, v);
-                        atlas.ifPresent(a -> sprite.ifPresent(s -> template.setSprite(a, s)));
+                        tooltips.forEach(template::tooltip);
+                        stack.ifPresent(template::item);
+                        template.texture(icon, width, height, u, v);
+                        atlas.ifPresent(a -> sprite.ifPresent(s -> template.sprite(a, s)));
                         return template;
                     }
             ), "Display info template"
@@ -60,25 +60,25 @@ public class DisplayInfoTemplate {
     @Nullable
     private ResourceLocation sprite;
 
-    private DisplayInfoTemplate addTooltip(Pair<Component, TooltipPredicate> pair) {
+    private DisplayInfoTemplate tooltip(Pair<Component, TooltipPredicate> pair) {
         this.tooltips.add(pair);
         return this;
     }
 
-    public DisplayInfoTemplate addTooltip(Component component, TooltipPredicate predicate) {
-        return this.addTooltip(Pair.of(component, predicate));
+    public DisplayInfoTemplate tooltip(Component component, TooltipPredicate predicate) {
+        return this.tooltip(Pair.of(component, predicate));
     }
 
-    public DisplayInfoTemplate addTooltip(Component component) {
-        return this.addTooltip(component, TooltipPredicate.ALWAYS);
+    public DisplayInfoTemplate tooltip(Component component) {
+        return this.tooltip(component, TooltipPredicate.ALWAYS);
     }
 
-    public DisplayInfoTemplate setItem(ItemStack stack) {
+    public DisplayInfoTemplate item(ItemStack stack) {
         this.stack = stack;
         return this;
     }
 
-    public DisplayInfoTemplate setTexture(ResourceLocation icon, int width, int height, int u, int v) {
+    public DisplayInfoTemplate texture(ResourceLocation icon, int width, int height, int u, int v) {
         this.icon = icon;
         this.width = width;
         this.height = height;
@@ -87,7 +87,7 @@ public class DisplayInfoTemplate {
         return this;
     }
 
-    public DisplayInfoTemplate setSprite(ResourceLocation atlas, ResourceLocation sprite) {
+    public DisplayInfoTemplate sprite(ResourceLocation atlas, ResourceLocation sprite) {
         this.atlas = atlas;
         this.sprite = sprite;
         return this;

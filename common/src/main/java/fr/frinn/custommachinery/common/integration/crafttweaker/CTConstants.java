@@ -13,6 +13,7 @@ public class CTConstants {
 
     /** REQUIREMENTS **/
     public static final String REQUIREMENT_TYPE_BRACKET = "mods." + CustomMachinery.MODID + ".RequirementTypeBracket";
+    public static final String REQUIREMENT_DISPLAY_INFO = "mods." + CustomMachinery.MODID + ".RequirementDisplayInfo";
 
     public static final String REQUIREMENT_BIOME = "mods." + CustomMachinery.MODID + ".requirement.Biome";
     public static final String REQUIREMENT_BLOCK = "mods." + CustomMachinery.MODID + ".requirement.Block";
