@@ -9,9 +9,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -44,7 +46,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     protected final RecipeType<T> recipeType;
     protected final IGuiHelper guiHelper;
     protected final RecipeHelper recipeHelper;
-    protected final LoadingCache<IDisplayInfoRequirement, RequirementDisplayInfo> infoCache;
+    protected final LoadingCache<IRequirement<?>, RequirementDisplayInfo> infoCache;
     protected LoadingCache<T, List<IJEIIngredientWrapper<?>>> wrapperCache;
     protected int offsetX;
     protected int offsetY;
@@ -58,16 +60,22 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         this.recipeType = type;
         this.guiHelper = helpers.getGuiHelper();
         this.recipeHelper = new RecipeHelper(machine, helpers);
-        this.setupRecipeDimensions();
-        this.infoCache = CacheBuilder.newBuilder().build(new CacheLoader<IDisplayInfoRequirement, RequirementDisplayInfo>() {
+        this.infoCache = CacheBuilder.newBuilder().build(new CacheLoader<>() {
             @Override
-            public RequirementDisplayInfo load(IDisplayInfoRequirement requirement) {
+            public RequirementDisplayInfo load(IRequirement<?> requirement) {
                 RequirementDisplayInfo info = new RequirementDisplayInfo();
                 requirement.getDisplayInfo(info);
+
+                DisplayInfoTemplate template = requirement.getDisplayInfoTemplate();
+                if(template != null) {
+                    if(!template.getTooltips().isEmpty())
+                        info.getTooltips().clear();
+                    template.build(info);
+                }
                 return info;
             }
         });
-        this.wrapperCache = CacheBuilder.newBuilder().build(new CacheLoader<T, List<IJEIIngredientWrapper<?>>>() {
+        this.wrapperCache = CacheBuilder.newBuilder().build(new CacheLoader<>() {
             @Override
             public List<IJEIIngredientWrapper<?>> load(T recipe) {
                 ImmutableList.Builder<IJEIIngredientWrapper<?>> wrappers = ImmutableList.builder();
@@ -75,6 +83,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 return wrappers.build();
             }
         });
+        this.setupRecipeDimensions();
     }
 
     //Find the minimal size for the recipe layout
@@ -100,13 +109,13 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         this.offsetY = Math.max(minY, 0);
         this.width = Math.max(maxX - minX, 20);
         this.maxIconPerRow = this.width / (ICON_SIZE + 2);
-        int maxDisplayRequirement = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
+        long maxDisplayRequirement = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .filter(recipe -> recipe.getMachineId().equals(this.machine.getId()))
-                .mapToInt(recipe -> recipe.getDisplayInfoRequirements().size())
+                .mapToLong(recipe -> recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).count())
                 .max()
                 .orElse(1);
-        int rows = maxDisplayRequirement / this.maxIconPerRow + 1;
+        int rows = Math.toIntExact(maxDisplayRequirement) / this.maxIconPerRow + 1;
         this.height = this.rowY + (ICON_SIZE + 2) * rows;
     }
 
@@ -172,7 +181,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         //Render the requirements that don't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
-        recipe.getDisplayInfoRequirements().stream().map(this.infoCache).forEach(info -> {
+        recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).forEach(info -> {
             int x = index.get() * (ICON_SIZE + 2) - 2;
             int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
             if(index.incrementAndGet() >= this.maxIconPerRow) {
@@ -203,7 +212,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         //Then do the same with display info requirements.
         int index = 0;
         int row = 0;
-        for(RequirementDisplayInfo info : recipe.getDisplayInfoRequirements().stream().map(this.infoCache).toList()) {
+        for(RequirementDisplayInfo info : recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).toList()) {
             int x = index * (ICON_SIZE + 2) - 2;
             int y = this.rowY + 2 + (ICON_SIZE + 2) * row;
             if(index++ >= this.maxIconPerRow) {
@@ -226,7 +235,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
 
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
-        return recipe.getDisplayInfoRequirements().stream().map(this.infoCache).anyMatch(info -> {
+        return recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).anyMatch(info -> {
             int x = index.get() * (ICON_SIZE + 2) - 2;
             int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
             if(index.incrementAndGet() >= this.maxIconPerRow) {
@@ -234,7 +243,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 row.incrementAndGet();
             }
             if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
-                return info.handleClick(this.machine, recipe, mouseButton);
+                return info.handleClick(this.machine, recipe, mouseButton.getValue());
             return false;
         });
     }

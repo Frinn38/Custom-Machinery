@@ -75,18 +75,6 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         return this.jeiRequirements;
     }
 
-    public List<IJEIIngredientRequirement<?>> getJEIIngredientRequirements() {
-        if(this.jeiRequirements.isEmpty())
-            return this.requirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement<?>)requirement).collect(Collectors.toList());
-        return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement<?>)requirement).collect(Collectors.toList());
-    }
-
-    public List<IDisplayInfoRequirement> getDisplayInfoRequirements() {
-        if(this.jeiRequirements.isEmpty())
-            return this.requirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement)requirement).toList();
-        return this.jeiRequirements.stream().filter(requirement -> requirement instanceof IDisplayInfoRequirement).map(requirement -> (IDisplayInfoRequirement)requirement).toList();
-    }
-
     @Override
     public int getPriority() {
         return this.priority;

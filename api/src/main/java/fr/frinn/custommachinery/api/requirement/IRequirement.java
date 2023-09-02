@@ -7,7 +7,13 @@ import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
+import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * The base interface to declare an IRequirement.
@@ -25,10 +31,14 @@ public interface IRequirement<T extends IMachineComponent> {
     /**
      * A dispatch codec, used by the {@link IMachineRecipe} main codec to parse all requirements from json using the "type" property of the requirement.
      */
-    NamedCodec<IRequirement<?>> CODEC = RegistrarCodec.REQUIREMENT.dispatch(
-            IRequirement::getType,
-            RequirementType::getCodec,
-            "Requirement"
+    NamedCodec<IRequirement<?>> CODEC = NamedCodec.record(iRequirementInstance ->
+            iRequirementInstance.group(
+                    RegistrarCodec.REQUIREMENT.<IRequirement<?>>dispatch(IRequirement::getType, RequirementType::getCodec, "Requirement").forGetter(requirement -> requirement),
+                    DisplayInfoTemplate.CODEC.optionalFieldOf("info").forGetter(requirement -> Optional.ofNullable(requirement.getDisplayInfoTemplate()))
+            ).apply(iRequirementInstance, (requirement, info) -> {
+                    info.ifPresent(requirement::setDisplayInfoTemplate);
+                    return requirement;
+            }), "Requirement"
     );
 
     /**
@@ -83,4 +93,29 @@ public interface IRequirement<T extends IMachineComponent> {
      * @return The INPUT or OUTPUT mode of this requirement.
      */
     RequirementIOMode getMode();
+
+    /**
+     * Used to set a set of custom display infos, to be rendered in jei.
+     * This can be called when the requirement is parsed from json, o from the Crafttweaker or KubeJS integrations.
+     * @param template A template of requirement display info.
+     */
+    void setDisplayInfoTemplate(DisplayInfoTemplate template);
+
+    /**
+     * Get a template of requirement display info, if provided by the user, or null otherwise.
+     * @return A {@link DisplayInfoTemplate} provided by the user through json or Crafttweaker or KubeJS integrations.
+     */
+    @Nullable
+    DisplayInfoTemplate getDisplayInfoTemplate();
+
+    /**
+     * Called by the jei integration to collect all display info from the requirement.
+     * Use the passed {@link IDisplayInfo} to add some tooltips, a custom icon or a click callback to the requirement in the jei recipe.
+     * Note: The {@link DisplayInfoTemplate} returned by {@link IRequirement#getDisplayInfoTemplate()} (if present) will take priority
+     * over this method. Use it to define the "default" display info, that might be overridden by the user.
+     * @param info The display info of the requirement.
+     */
+    default void getDisplayInfo(IDisplayInfo info) {
+
+    }
 }

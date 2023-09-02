@@ -37,8 +37,8 @@ public class EnhancedEitherCodec<F, S> implements NamedCodec<Either<F, S>> {
             return firstRead;
         String firstError = firstRead.error().map(DataResult.PartialResult::message).orElse("");
         if(ICustomMachineryAPI.INSTANCE.config().logFirstEitherError())
-            ICustomMachineryAPI.INSTANCE.logger().warn("Can't deserialize {} with {}, trying with {} now.\n{}", this, first, second, firstError);
-        return second.decode(ops, input).mapError(s -> String.format(this.error, this, this.first, this.second, firstError, s)).map(vo -> vo.mapFirst(Either::right));
+            ICustomMachineryAPI.INSTANCE.logger().warn("Can't deserialize {} with {}, trying with {} now.\n{}", this, this.first.name(), this.second.name(), firstError);
+        return second.decode(ops, input).mapError(s -> String.format(this.error, this, this.first.name(), this.second.name(), firstError, s)).map(vo -> vo.mapFirst(Either::right));
     }
 
     @Override

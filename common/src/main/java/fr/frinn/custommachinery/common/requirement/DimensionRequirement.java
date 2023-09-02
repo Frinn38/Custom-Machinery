@@ -72,6 +72,6 @@ public class DimensionRequirement extends AbstractRequirement<PositionMachineCom
                 info.addTooltip(Component.translatable("custommachinery.requirements.position.info.dimension.whitelist").withStyle(ChatFormatting.DARK_GREEN));
             this.filter.forEach(dimension -> info.addTooltip(Component.literal("* " + dimension)));
         }
-        info.setSpriteIcon(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation("block/nether_portal")));
+        info.setSpriteIcon(InventoryMenu.BLOCK_ATLAS, new ResourceLocation("block/nether_portal"));
     }
 }

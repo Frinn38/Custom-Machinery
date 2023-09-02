@@ -1,15 +1,16 @@
 package fr.frinn.custommachinery.api.integration.jei;
 
+import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
+import fr.frinn.custommachinery.impl.codec.FieldCodec;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.function.BiConsumer;
 
 /**
  * Used by the JEI integration to collect information about an {@link IDisplayInfoRequirement}
@@ -74,10 +75,11 @@ public interface IDisplayInfo {
     /**
      * Set an already loaded and stitched {@link TextureAtlasSprite} as the requirement icon in the jei recipe screen.
      * A {@link TextureAtlasSprite} can be obtained using {@code <pre>Minecraft.getInstance().getAtlasSpriteGetter(atlasLocation).apply(textureLocation);</pre>}
-     * @param sprite The sprite to display, can be animated.
+     * @param atlas The location of the atlas containing the sprite.
+     * @param sprite The location of sprite to display in the atlas, can be animated.
      * @return Itself, to chain calls.
      */
-    IDisplayInfo setSpriteIcon(TextureAtlasSprite sprite);
+    IDisplayInfo setSpriteIcon(ResourceLocation atlas, ResourceLocation sprite);
 
     /**
      * Set an {@link Item} as the requirement icon in the jei recipe screen.
@@ -122,6 +124,16 @@ public interface IDisplayInfo {
         TooltipPredicate ALWAYS = (player, advancedTooltips) -> true;
         TooltipPredicate ADVANCED = (player, advancedTooltips) -> advancedTooltips;
         TooltipPredicate CREATIVE = (player, advancedTooltips) -> player.getAbilities().instabuild;
+
+        NamedCodec<TooltipPredicate> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
+            String predicate = FieldCodec.toSnakeCase(s);
+            return switch (predicate) {
+                case "advanced" -> DataResult.success(ADVANCED);
+                case "creative" -> DataResult.success(CREATIVE);
+                case "always" -> DataResult.success(ALWAYS);
+                default -> DataResult.error("Invalid tooltip predicate: " + s);
+            };
+        }, predicate -> predicate == ADVANCED ? "advanced" : predicate == CREATIVE ? "creative" : "always", "Tooltip predicate");
 
         /**
          * @param player The player that hover the requirement.

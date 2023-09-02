@@ -21,6 +21,7 @@ import fr.frinn.custommachinery.impl.codec.NamedRecordCodec.Instance;
 import fr.frinn.custommachinery.impl.codec.NamedRecordCodec.Mu;
 import fr.frinn.custommachinery.impl.codec.NumberCodec;
 import fr.frinn.custommachinery.impl.codec.OptionalFieldCodec;
+import fr.frinn.custommachinery.impl.codec.PairCodec;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.codec.UnboundedMapCodec;
 import io.netty.handler.codec.EncoderException;
@@ -197,6 +198,10 @@ public interface NamedCodec<A> {
 
     static <K, V> UnboundedMapCodec<K, V> unboundedMap(NamedCodec<K> keyCodec, NamedCodec<V> valueCodec, String name) {
         return UnboundedMapCodec.of(keyCodec, valueCodec, name);
+    }
+
+    static <F, S> PairCodec<F, S> pair(NamedCodec<F> first, NamedCodec<S> second) {
+        return PairCodec.of(first, second);
     }
 
     /** Decoder **/

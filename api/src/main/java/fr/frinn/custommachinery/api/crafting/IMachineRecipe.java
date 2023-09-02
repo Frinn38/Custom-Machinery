@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface IMachineRecipe {
 
@@ -39,22 +40,19 @@ public interface IMachineRecipe {
     /**
      * @return An Immutable list of all display info requirements of this recipe.
      */
-    default List<IDisplayInfoRequirement> getDisplayInfoRequirements() {
-        return getRequirements().stream()
-                .filter(requirement -> requirement instanceof IDisplayInfoRequirement)
-                .map(requirement -> (IDisplayInfoRequirement)requirement)
-                .toList();
+    default List<IRequirement<?>> getDisplayInfoRequirements() {
+        if(this.getJeiRequirements().isEmpty())
+            return this.getRequirements();
+        return this.getJeiRequirements();
     }
 
     /**
      * @return An Immutable list of all jei ingredient requirements of this recipe.
      */
-    @SuppressWarnings("unchecked")
-    default <T> List<IJEIIngredientRequirement<T>> getJEIIngredientRequirements() {
-        return getRequirements().stream()
-                .filter(requirement -> requirement instanceof IJEIIngredientRequirement<?>)
-                .map(requirement -> (IJEIIngredientRequirement<T>)requirement)
-                .toList();
+    default List<IJEIIngredientRequirement<?>> getJEIIngredientRequirements() {
+        if(this.getJeiRequirements().isEmpty())
+            return this.getRequirements().stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement<?>)requirement).collect(Collectors.toList());
+        return this.getJeiRequirements().stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement<?>)requirement).collect(Collectors.toList());
     }
     /**
      * Recipes with higher priorities will be tested first.

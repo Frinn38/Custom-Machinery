@@ -44,6 +44,7 @@ public class EnhancedListCodec<A> implements NamedCodec<List<A>> {
 
     @Override
     public <T> DataResult<Pair<List<A>, T>> decode(final DynamicOps<T> ops, final T input) {
+        //If the input is not a list try to parse it as a single element
         if(ops.getStream(input).error().isPresent())
             return this.elementCodec.decode(ops, input).map(pair -> Pair.of(Collections.singletonList(pair.getFirst()), pair.getSecond()));
 

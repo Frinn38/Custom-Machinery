@@ -4,6 +4,7 @@ import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
+import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends Recipe<?>>> extends RecipeJS implements RecipeJSBuilder {
 
@@ -69,6 +71,19 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
             ((IChanceableRequirement<?>)this.lastRequirement).setChance(chance);
         else
             ScriptType.SERVER.console.warn("Can't set chance for requirement: " + this.lastRequirement);
+        return this;
+    }
+
+    public AbstractRecipeJSBuilder<T> info(Consumer<DisplayInfoTemplate> consumer) {
+        if(this.lastRequirement == null)
+            this.error("Can't add info on a null requirement !");
+        try {
+            DisplayInfoTemplate template = new DisplayInfoTemplate();
+            consumer.accept(template);
+            this.lastRequirement.setDisplayInfoTemplate(template);
+        } catch (Exception e) {
+            this.error("Error when adding custom display info on requirement {}\n{}", this.lastRequirement, e);
+        }
         return this;
     }
 
