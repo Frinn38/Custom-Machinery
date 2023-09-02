@@ -18,6 +18,9 @@ import dev.architectury.registry.menu.MenuRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendererEvent;
+import fr.frinn.custommachinery.api.integration.jei.RegisterWidgetToJeiIngredientGetterEvent;
+import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
+import fr.frinn.custommachinery.client.integration.jei.FluidIngredientGetter;
 import fr.frinn.custommachinery.client.integration.jei.element.EnergyGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.FluidGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.FuelGuiElementJeiRenderer;
@@ -80,6 +83,7 @@ public class ClientHandler {
         LifecycleEvent.SETUP.register(ClientHandler::clientSetup);
         RegisterGuiElementWidgetSupplierEvent.EVENT.register(ClientHandler::registerGuiElementWidgets);
         RegisterGuiElementJEIRendererEvent.EVENT.register(ClientHandler::registerGuiElementJEIRenderers);
+        RegisterWidgetToJeiIngredientGetterEvent.EVENT.register(ClientHandler::registerWidgetToJeiIngredientGetters);
     }
 
     private static void onItemTooltip(ItemStack stack, List<Component> lines, TooltipFlag flag) {
@@ -98,8 +102,10 @@ public class ClientHandler {
 
         MenuRegistry.registerScreenFactory(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
         GuiElementWidgetSupplierRegistry.init();
-        if(Platform.isModLoaded("jei"))
+        if(Platform.isModLoaded("jei")) {
             GuiElementJEIRendererRegistry.init();
+            WidgetToJeiIngredientRegistry.init();
+        }
         BlockEntityRendererRegistry.register(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
 
         ColorHandlerRegistry.registerBlockColors(ClientHandler::blockColor, Registration.CUSTOM_MACHINE_BLOCK.get());
@@ -133,6 +139,10 @@ public class ClientHandler {
         event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementJeiRenderer());
         event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementJeiRenderer());
         event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementJeiRenderer());
+    }
+
+    private static void registerWidgetToJeiIngredientGetters(final RegisterWidgetToJeiIngredientGetterEvent event) {
+        event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidIngredientGetter());
     }
 
     public static void openMachineLoadingScreen() {

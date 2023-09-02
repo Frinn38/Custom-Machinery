@@ -10,11 +10,15 @@ import java.util.Map;
 public class GuiElementJEIRendererRegistry {
 
     private static Map<GuiElementType<?>, IJEIElementRenderer<?>> renderers;
+    private static boolean init = false;
 
     public static void init() {
+        if(init)
+            return;
         RegisterGuiElementJEIRendererEvent event = new RegisterGuiElementJEIRendererEvent();
         RegisterGuiElementJEIRendererEvent.EVENT.invoker().registerRenderers(event);
         renderers = event.getRenderers();
+        init = true;
     }
 
     public static <E extends IGuiElement> boolean hasJEIRenderer(GuiElementType<E> type) {

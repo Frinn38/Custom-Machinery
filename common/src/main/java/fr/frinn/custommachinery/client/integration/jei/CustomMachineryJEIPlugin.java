@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dev.architectury.registry.fuel.FuelRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
@@ -27,6 +28,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
@@ -35,9 +37,9 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @JeiPlugin
@@ -106,6 +108,13 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGuiContainerHandler(CustomMachineScreen.class, new IGuiContainerHandler<>() {
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            @Override
+            public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(CustomMachineScreen screen, double mouseX, double mouseY) {
+                return screen.getElementUnderMouse(mouseX, mouseY)
+                        .flatMap(widget -> Optional.ofNullable(WidgetToJeiIngredientRegistry.getIngredient(widget, mouseX, mouseY, registration.getJeiHelpers())));
+            }
+
             @Override
             public Collection<IGuiClickableArea> getGuiClickableAreas(CustomMachineScreen screen, double mouseX, double mouseY) {
                 List<IGuiElement> elements = screen.getMachine().getGuiElements();

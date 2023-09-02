@@ -28,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineContainer> implements IMachineScreen {
 
@@ -169,5 +170,14 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    public Optional<AbstractGuiElementWidget<?>> getElementUnderMouse(double mouseX, double mouseY) {
+        for(AbstractGuiElementWidget<?> elementWidget : this.elementWidgets) {
+            if(elementWidget.isMouseOver(mouseX, mouseY) && elementWidget.isClickable()) {
+                return Optional.of(elementWidget);
+            }
+        }
+        return Optional.empty();
     }
 }
