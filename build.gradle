@@ -83,6 +83,11 @@ allprojects {
                 includeGroup "com.communi-suggestu.saecularia-caudices"
             }
         }
+        //Needed for KubeJS
+        maven {
+            name = "Jitpack Maven"
+            url = "https://jitpack.io"
+        }
     }
 
     tasks.withType(JavaCompile) {

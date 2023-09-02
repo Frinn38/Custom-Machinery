@@ -24,7 +24,6 @@ import java.util.Map;
 
 public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
 
-    private static final Gson GSON = new GsonBuilder().create();
     private static final String MAIN_PACKNAME = "main";
 
     public UpgradesCustomReloadListener() {
@@ -70,7 +69,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
 
-        if(upgrades.size() != 0)
+        if(!upgrades.isEmpty())
             logger.info("Successfully parsed {} upgrade json.", upgrades.size());
         else
             logger.info("No machine upgrade json found.");
@@ -78,7 +77,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
         if(Platform.isModLoaded("kubejs")) {
             logger.info("Collecting machine upgrades with kubeJS.");
             List<MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
-            if(kubejsUpgrades.size() != 0)
+            if(!kubejsUpgrades.isEmpty())
                 logger.info("Successfully added {} machine upgrades with kubejs", kubejsUpgrades.size());
             else
                 logger.info("No machine upgrades found with kubejs");
