@@ -10,9 +10,12 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.ScoreContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
@@ -53,7 +56,7 @@ public class TextComponentUtils {
 
     public static final NamedCodec<Component> TEXT_COMPONENT_CODEC = NamedCodec.record(iTextComponentInstance ->
             iTextComponentInstance.group(
-                    NamedCodec.STRING.fieldOf("text").forGetter(Component::getString),
+                    NamedCodec.STRING.fieldOf("text").forGetter(TextComponentUtils::getString),
                     STYLE_CODEC.forGetter(Component::getStyle),
                     NamedCodec.lazy(TextComponentUtils::getCodec, "Text component").listOf().optionalFieldOf("childrens", Collections.emptyList()).forGetter(Component::getSiblings)
             ).apply(iTextComponentInstance, (text, style, childrens) -> {
@@ -81,5 +84,14 @@ public class TextComponentUtils {
 
     private static NamedCodec<Component> getCodec() {
         return TEXT_COMPONENT_CODEC;
+    }
+
+    private static String getString(Component component) {
+        ComponentContents contents = component.getContents();
+        if(contents instanceof LiteralContents literal)
+            return literal.text();
+        else if(contents instanceof TranslatableContents translatable)
+            return translatable.getKey();
+        return component.getString();
     }
 }
