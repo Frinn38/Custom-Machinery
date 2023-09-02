@@ -103,9 +103,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         if(amount <= 0 || item == Items.AIR || !isItemValid(Utils.makeItemStack(item, amount, nbt)))
             return 0;
 
+        //Check the per-tick limit
         if(!byPassLimit)
             amount = Math.min(amount, this.maxInput);
 
+        //Check the stack limit
+        amount = Math.min(amount, this.stack.getMaxStackSize() - this.stack.getCount());
+
+        //Check the slot capacity
         amount = Math.min(amount, this.capacity - this.stack.getCount());
 
         if(this.stack.isEmpty()) {
