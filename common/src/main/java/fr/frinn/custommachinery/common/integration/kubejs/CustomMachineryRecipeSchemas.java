@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
 import dev.latvian.mods.kubejs.item.OutputItem;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
@@ -12,19 +12,29 @@ import dev.latvian.mods.kubejs.recipe.component.BooleanComponent;
 import dev.latvian.mods.kubejs.recipe.component.ItemComponents;
 import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
-import dev.latvian.mods.kubejs.recipe.component.StringComponent;
 import dev.latvian.mods.kubejs.recipe.component.TimeComponent;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public interface CustomMachineryRecipeSchemas {
 
-    RecipeComponent<String> RESOURCE_LOCATION = new StringComponent("machine", ResourceLocation::isValidResourceLocation);
+    RecipeComponent<ResourceLocation> RESOURCE_LOCATION = new RecipeComponent<ResourceLocation>() {
+        @Override
+        public Class<ResourceLocation> componentClass() {
+            return ResourceLocation.class;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, ResourceLocation value) {
+            return new JsonPrimitive(value.toString());
+        }
+
+        @Override
+        public ResourceLocation read(RecipeJS recipe, Object from) {
+            return new ResourceLocation(from instanceof JsonPrimitive json ? json.getAsString() : String.valueOf(from));
+        }
+    };
     RecipeComponent<IRequirement<?>> REQUIREMENT_COMPONENT = new RecipeComponent<>() {
         @Override
         public Class<?> componentClass() {
@@ -45,7 +55,7 @@ public interface CustomMachineryRecipeSchemas {
     };
     ArrayRecipeComponent<IRequirement<?>> REQUIREMENT_LIST = REQUIREMENT_COMPONENT.asArray();
 
-    RecipeKey<String> MACHINE_ID = RESOURCE_LOCATION.key("machine");
+    RecipeKey<ResourceLocation> MACHINE_ID = RESOURCE_LOCATION.key("machine");
     RecipeKey<Long> TIME = TimeComponent.TICKS.key("time");
     RecipeKey<OutputItem> OUTPUT = ItemComponents.OUTPUT.key("output");
 

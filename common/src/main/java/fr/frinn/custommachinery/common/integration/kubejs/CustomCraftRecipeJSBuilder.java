@@ -1,14 +1,9 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
-import dev.latvian.mods.kubejs.item.InputItem;
-import dev.latvian.mods.kubejs.item.ItemStackJS;
 import dev.latvian.mods.kubejs.item.OutputItem;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
-import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
@@ -35,10 +30,6 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Structure
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import net.minecraft.resources.ResourceLocation;
-import org.slf4j.helpers.MessageFormatter;
-
-import java.util.List;
 
 public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCraftRecipeBuilder> implements
         BiomeRequirementJS, BlockRequirementJS, CommandRequirementJS, DimensionRequirementJS, DropRequirementJS, DurabilityRequirementJS,
@@ -51,8 +42,8 @@ public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCr
     }
 
     @Override
-    public CustomCraftRecipeBuilder makeBuilder(ResourceLocation machine) {
-        return new CustomCraftRecipeBuilder(machine, getValue(CustomMachineryRecipeSchemas.OUTPUT).item);
+    public CustomCraftRecipeBuilder makeBuilder() {
+        return new CustomCraftRecipeBuilder(getValue(CustomMachineryRecipeSchemas.MACHINE_ID), getValue(CustomMachineryRecipeSchemas.OUTPUT).item);
     }
 
     @Override

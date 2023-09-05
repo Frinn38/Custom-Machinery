@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
@@ -32,6 +33,8 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequi
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.helpers.MessageFormatter;
 
 public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
@@ -46,10 +49,12 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
     }
 
     @Override
-    public CustomMachineRecipeBuilder makeBuilder(ResourceLocation machine) {
-        CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, Utils.toInt(getValue(CustomMachineryRecipeSchemas.TIME)));
+    public CustomMachineRecipeBuilder makeBuilder() {
+        CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(getValue(CustomMachineryRecipeSchemas.MACHINE_ID), getValue(CustomMachineryRecipeSchemas.TIME).intValue());
+
         if(getValue(CustomMachineryRecipeSchemas.ERROR))
             builder.setResetOnError();
+
         return builder;
     }
 

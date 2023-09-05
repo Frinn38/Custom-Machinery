@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.Arrays;
@@ -32,12 +33,10 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         this.typeID = typeID;
     }
 
-    public abstract T makeBuilder(ResourceLocation machine);
-
     @Override
     public void afterLoaded() {
         super.afterLoaded();
-        ResourceLocation machine = ResourceLocation.tryParse(getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
+        ResourceLocation machine = getValue(CustomMachineryRecipeSchemas.MACHINE_ID);
         if(machine == null)
             throw new RecipeExceptionJS("Invalid machine id: " + getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
 
@@ -49,9 +48,35 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     }
 
     @Override
+    public @Nullable Recipe<?> createRecipe() {
+        if(this.removed)
+            return null;
+
+        if(!this.newRecipe)
+            return super.createRecipe();
+
+        T builder = makeBuilder();
+
+        for (IRequirement<?> requirement : getValue(CustomMachineryRecipeSchemas.REQUIREMENTS))
+            builder.withRequirement(requirement);
+        for (IRequirement<?> requirement : getValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS))
+            builder.withJeiRequirement(requirement);
+
+        builder.withPriority(getValue(CustomMachineryRecipeSchemas.PRIORITY));
+        builder.withJeiPriority(getValue(CustomMachineryRecipeSchemas.JEI_PRIORITY));
+
+        if(getValue(CustomMachineryRecipeSchemas.HIDDEN))
+            builder.hide();
+
+        return builder.build(getOrCreateId());
+    }
+
+    @Override
     public String getFromToString() {
         return Objects.requireNonNull(createRecipe()).toString();
     }
+
+    public abstract T makeBuilder();
 
     public AbstractRecipeJSBuilder<T> jei() {
         this.jei = true;

@@ -41,6 +41,10 @@ public interface StructureRequirementJS extends RecipeJSBuilder {
 
             keysMap.put(keyChar, result.result().get());
         }
-        return addRequirement(new StructureRequirement(patternList, keysMap, destroy, drops));
+        try {
+            return addRequirement(new StructureRequirement(patternList, keysMap, destroy, drops));
+        } catch (IllegalStateException e) {
+            return error("Error while creating structure requirement: {}\nPattern: {}\nKeys: {}", e.getMessage(), pattern, keys);
+        }
     }
 }
