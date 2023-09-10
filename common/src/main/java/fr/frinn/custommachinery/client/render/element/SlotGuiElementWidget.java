@@ -40,6 +40,6 @@ public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElemen
                 .getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(this.getElement().getID()))
                 .map(component -> component.getItemStack().isEmpty())
-                .orElse(false);
+                .orElse(true);
     }
 }
