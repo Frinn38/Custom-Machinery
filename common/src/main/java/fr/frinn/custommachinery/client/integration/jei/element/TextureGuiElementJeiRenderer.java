@@ -12,7 +12,7 @@ public class TextureGuiElementJeiRenderer implements IJEIElementRenderer<Texture
 
     @Override
     public void renderElementInJEI(PoseStack matrix, TextureGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
-        if(isHoveredInJei(element, element.getX(), element.getY(), mouseX, mouseY))
+        if(element.getTextureHovered() != null && isHoveredInJei(element, element.getX(), element.getY(), mouseX, mouseY))
             ClientHandler.bindTexture(element.getTextureHovered());
         else
             ClientHandler.bindTexture(element.getTexture());
