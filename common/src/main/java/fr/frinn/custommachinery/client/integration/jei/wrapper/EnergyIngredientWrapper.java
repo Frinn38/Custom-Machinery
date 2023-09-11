@@ -31,7 +31,7 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
         if(!(element instanceof EnergyGuiElement energyElement) || element.getType() != Registration.ENERGY_GUI_ELEMENT.get())
             return false;
 
-        builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset, element.getY() - yOffset)
+        builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                 .setCustomRenderer(CustomIngredientTypes.ENERGY, new EnergyJEIIngredientRenderer(energyElement))
                 .addIngredient(CustomIngredientTypes.ENERGY, this.energy)
                 .addTooltipCallback((recipeSlotView, tooltip) -> {

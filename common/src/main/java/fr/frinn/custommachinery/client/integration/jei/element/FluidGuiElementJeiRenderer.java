@@ -11,8 +11,8 @@ public class FluidGuiElementJeiRenderer implements IJEIElementRenderer<FluidGuiE
 
     @Override
     public void renderElementInJEI(PoseStack matrix, FluidGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
-        int posX = element.getX() - 1;
-        int posY = element.getY() - 1;
+        int posX = element.getX();
+        int posY = element.getY();
         int width = element.getWidth();
         int height = element.getHeight();
         ClientHandler.bindTexture(element.getTexture());

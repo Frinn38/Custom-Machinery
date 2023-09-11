@@ -11,8 +11,8 @@ public class EnergyGuiElementJeiRenderer implements IJEIElementRenderer<EnergyGu
 
     @Override
     public void renderElementInJEI(PoseStack matrix, EnergyGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
-        int posX = element.getX() - 1;
-        int posY = element.getY() - 1;
+        int posX = element.getX();
+        int posY = element.getY();
         int width = element.getWidth();
         int height = element.getHeight();
 
