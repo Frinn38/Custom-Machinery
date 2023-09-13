@@ -6,10 +6,17 @@ import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * The base class of the custom machine tile entity,
@@ -80,4 +87,57 @@ public abstract class MachineTile extends BlockEntity {
     public abstract IProcessor getProcessor();
 
     public abstract IMachineAppearance getAppearance();
+
+    /**
+     * Set an entity as the owner of the machine.
+     * This is done automatically when the machine block is placed by a player of fake-player.
+     */
+    public abstract void setOwner(LivingEntity entity);
+
+    /**
+     * Get the UUID of the {@link net.minecraft.world.entity.LivingEntity} that placed the machine,
+     * or null if the machine was not placed by an entity.
+     */
+    @Nullable
+    public abstract UUID getOwnerId();
+
+    /**
+     * Get the name of the owner of the machine, or null if the machine doesn't have an owner.
+     */
+    @Nullable
+    public abstract Component getOwnerName();
+
+    /**
+     * Check if the machine is owned by the specified entity.
+     * @param entity The entity to check.
+     * @return True if the machine is owned by this entity, false otherwise.
+     */
+    public boolean isOwner(LivingEntity entity) {
+        return entity.getUUID().equals(this.getOwnerId());
+    }
+
+    /**
+     * Try to get the machine owner as a {@link LivingEntity}.
+     * This works only if the owner is present on the server.
+     * @return The entity that own the machine.
+     */
+    @Nullable
+    public LivingEntity getOwner() {
+        if(this.getOwnerId() == null || this.getLevel() == null || this.getLevel().getServer() == null)
+            return null;
+
+        //Try to get the owner as a player
+        ServerPlayer player = this.getLevel().getServer().getPlayerList().getPlayer(this.getOwnerId());
+        if(player != null)
+            return player;
+
+        //Try to get the owner as a player
+        for(ServerLevel level : this.getLevel().getServer().getAllLevels()) {
+            Entity entity = level.getEntity(this.getOwnerId());
+            if(entity instanceof LivingEntity living)
+                return living;
+        }
+
+        return null;
+    }
 }

@@ -118,6 +118,8 @@
   "custommachinery.machine.component.fluid": "Fluid",
   "custommachinery.machine.component.item": "Item",
 
+  "custommachinery.machine.info.owner": "Owned by %s",
+
   "custommachinery.requirement.mode.input": "Input",
   "custommachinery.requirement.mode.output": "Output",
 

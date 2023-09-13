@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +23,8 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
         if(tile instanceof CustomMachineTile machine) {
             IProcessor processor = machine.getProcessor();
             CompoundTag tag = new CompoundTag();
+            if(machine.getOwnerName() != null)
+                tag.putString("owner", TextComponentUtils.toJsonString(machine.getOwnerName()));
             tag.putByte("status", (byte)machine.getStatus().ordinal());
             if(processor instanceof MachineProcessor machineProcessor && processor.getCurrentContext() != null) {
                 tag.putDouble("recipeProgressTime", machineProcessor.getRecipeProgressTime());

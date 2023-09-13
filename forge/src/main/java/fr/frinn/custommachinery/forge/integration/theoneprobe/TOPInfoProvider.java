@@ -22,6 +22,7 @@ import mcjty.theoneprobe.api.ProbeMode;
 import mcjty.theoneprobe.api.TextStyleClass;
 import mcjty.theoneprobe.config.Config;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -68,6 +69,8 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
     public void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level world, BlockState state, IProbeHitData data) {
         BlockEntity tile = world.getBlockEntity(data.getPos());
         if(tile instanceof CustomMachineTile machine) {
+            if(machine.getOwnerName() != null)
+                info.text(CompoundText.create().label(Component.translatable("custommachinery.machine.info.owner", machine.getOwnerName())));
             MachineAppearance appearance = machine.getMachine().getAppearance(machine.getStatus());
             showHarvestInfo(info, appearance, player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance)));
             showCraftingManagerInfo(machine, info);

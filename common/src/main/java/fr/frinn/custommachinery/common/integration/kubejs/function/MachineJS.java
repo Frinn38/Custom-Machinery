@@ -13,9 +13,13 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class MachineJS {
 
@@ -50,6 +54,27 @@ public class MachineJS {
     @Nullable
     public CompoundTag getData() {
         return this.nbt;
+    }
+
+    /** OWNER STUFF **/
+
+    @Nullable
+    public Component getOwnerName() {
+        return this.internal.getOwnerName();
+    }
+
+    @Nullable
+    public UUID getOwnerId() {
+        return this.internal.getOwnerId();
+    }
+
+    public boolean isOwner(LivingEntity entity) {
+        return this.internal.isOwner(entity);
+    }
+
+    @Nullable
+    public LivingEntity getOwner() {
+        return this.internal.getOwner();
     }
 
     /** ENERGY STUFF **/

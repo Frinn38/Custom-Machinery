@@ -14,12 +14,17 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.Fluid;
+import org.jetbrains.annotations.Nullable;
 import org.openzen.zencode.java.ZenCodeType.Getter;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.Optional;
 import org.openzen.zencode.java.ZenCodeType.Setter;
+
+import java.util.UUID;
 
 @ZenRegister
 @Name("mods.custommachinery.Machine")
@@ -43,6 +48,34 @@ public class MachineCT {
     @Method
     public MapData getData() {
         return this.data;
+    }
+
+    /** OWNER STUFF **/
+
+    @Nullable
+    @Getter("ownerName")
+    @Method
+    public Component getOwnerName() {
+        return this.internal.getOwnerName();
+    }
+
+    @Nullable
+    @Getter("ownerId")
+    @Method
+    public UUID getOwnerId() {
+        return this.internal.getOwnerId();
+    }
+
+    @Method
+    public boolean isOwner(LivingEntity entity) {
+        return this.internal.isOwner(entity);
+    }
+
+    @Nullable
+    @Getter("owner")
+    @Method
+    public LivingEntity getOwner() {
+        return this.internal.getOwner();
     }
 
     /** ENERGY STUFF **/

@@ -104,8 +104,10 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         CustomMachineItem.getMachine(stack).ifPresent(machine -> {
             BlockEntity tile = level.getBlockEntity(pos);
-            if(tile instanceof CustomMachineTile) {
-                ((CustomMachineTile)tile).setId(machine.getId());
+            if(tile instanceof CustomMachineTile machineTile) {
+                machineTile.setId(machine.getId());
+                if(placer != null)
+                    machineTile.setOwner(placer);
                 if(!level.isClientSide() && level.getServer() != null && placer != null && placer.getItemInHand(InteractionHand.OFF_HAND) == stack)
                     level.getServer().tell(new TickTask(1, () -> new SRefreshCustomMachineTilePacket(pos, machine.getId()).sendToChunkListeners(level.getChunkAt(pos))));
             }

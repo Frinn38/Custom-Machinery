@@ -26,10 +26,12 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public abstract class CustomMachineTile extends MachineTile implements ISyncableStuff {
@@ -46,6 +48,12 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
     private MachineStatus status = MachineStatus.IDLE;
     private Component errorMessage = Component.empty();
+
+    //Owner values
+    @Nullable
+    private Component ownerName;
+    @Nullable
+    private UUID ownerID;
 
     public CustomMachineTile(BlockPos pos, BlockState state) {
         super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);
@@ -150,6 +158,27 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     @Override
     public MachineAppearance getAppearance() {
         return getMachine().getAppearance(getStatus());
+    }
+
+    @Override
+    public void setOwner(LivingEntity entity) {
+        if(entity == null)
+            return;
+
+        this.ownerName = entity.getName();
+        this.ownerID = entity.getUUID();
+    }
+
+    @Nullable
+    @Override
+    public UUID getOwnerId() {
+        return this.ownerID;
+    }
+
+    @Nullable
+    @Override
+    public Component getOwnerName() {
+        return this.ownerName;
     }
 
     /** TileEntity Stuff **/

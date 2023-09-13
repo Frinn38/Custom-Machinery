@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.fabric.integration.jade;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -32,6 +33,12 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
                 return;
 
             boolean errored = false;
+
+            if(nbt.contains("owner", Tag.TAG_STRING)) {
+                Component ownerName = TextComponentUtils.fromJsonString(nbt.getString("owner"));
+                if(ownerName != null && !ownerName.getString().isEmpty())
+                    tooltip.add(Component.translatable("custommachinery.machine.info.owner", ownerName));
+            }
 
             if(nbt.contains("status", Tag.TAG_BYTE)) {
                 MachineStatus machineStatus = MachineStatus.values()[nbt.getByte("status")];
