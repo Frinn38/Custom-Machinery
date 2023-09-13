@@ -78,6 +78,12 @@ public class MachineCT {
         return this.internal.getOwner();
     }
 
+    @Setter("owner")
+    @Method
+    public void setOwner(LivingEntity entity) {
+        this.internal.setOwner(entity);
+    }
+
     /** ENERGY STUFF **/
 
     @Getter("energyStored")

@@ -77,6 +77,10 @@ public class MachineJS {
         return this.internal.getOwner();
     }
 
+    public void setOwner(LivingEntity entity) {
+        this.internal.setOwner(entity);
+    }
+
     /** ENERGY STUFF **/
 
     public long getEnergyStored() {
