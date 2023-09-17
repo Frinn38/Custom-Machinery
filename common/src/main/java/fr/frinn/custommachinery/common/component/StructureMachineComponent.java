@@ -37,11 +37,14 @@ public class StructureMachineComponent extends AbstractMachineComponent {
         });
     }
 
-    public void placeStructure(BlockStructure pattern, boolean override) {
+    public void placeStructure(BlockStructure pattern, boolean drops) {
         pattern.getBlocks(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)).forEach((pos, ingredient) -> {
-            if(!ingredient.test(PartialBlockState.MACHINE) && !ingredient.test(PartialBlockState.ANY))
-                if(override || getManager().getLevel().getBlockState(pos).isAir())
-                    setBlock(getManager().getLevel(), pos.offset(getManager().getTile().getBlockPos()), ingredient.getAll().get(0));
+            BlockPos worldPos = pos.offset(getManager().getTile().getBlockPos());
+            if(pos != BlockPos.ZERO && !ingredient.test(PartialBlockState.ANY)) {
+                if(!getManager().getLevel().getBlockState(worldPos).isAir())
+                    getManager().getLevel().destroyBlock(worldPos, drops);
+                setBlock(getManager().getLevel(), worldPos, ingredient.getAll().get(0));
+            }
         });
     }
 

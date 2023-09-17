@@ -38,12 +38,11 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
             structureRequirementInstance.group(
                     NamedCodec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
                     NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>").fieldOf("keys").forGetter(requirement -> requirement.keys),
-                    NamedCodec.BOOL.optionalFieldOf("destroy", false).forGetter(requirement -> requirement.destroy),
-                    NamedCodec.BOOL.optionalFieldOf("drops", true).forGetter(requirement -> requirement.drops),
+                    NamedCodec.enumCodec(Action.class).optionalFieldOf("action", Action.CHECK).forGetter(requirement -> requirement.action),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0).forGetter(AbstractDelayedChanceableRequirement::getChance),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("delay", 0.0).forGetter(IDelayedRequirement::getDelay)
-            ).apply(structureRequirementInstance, (pattern, keys, destroy, drops, chance, delay) -> {
-                    StructureRequirement requirement = new StructureRequirement(pattern, keys, destroy, drops);
+            ).apply(structureRequirementInstance, (pattern, keys, action, chance, delay) -> {
+                    StructureRequirement requirement = new StructureRequirement(pattern, keys, action);
                     requirement.setChance(chance);
                     requirement.setDelay(delay);
                     return requirement;
@@ -52,16 +51,14 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
 
     private final List<List<String>> pattern;
     private final Map<Character, IIngredient<PartialBlockState>> keys;
-    private final boolean destroy;
-    private final boolean drops;
+    private final Action action;
     private final BlockStructure structure;
 
-    public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys, boolean destroy, boolean drops) {
+    public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys, Action action) {
         super(RequirementIOMode.INPUT);
         this.pattern = pattern;
         this.keys = keys;
-        this.destroy = destroy;
-        this.drops = drops;
+        this.action = action;
         BlockStructure.Builder builder = BlockStructure.Builder.start();
         //TODO: iterate list in inverse order in 1.18 to make the pattern from top to bottom instead of from bottom to top (current)
         for(List<String> levels : pattern)
@@ -78,20 +75,37 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
 
     @Override
     public boolean test(StructureMachineComponent component, ICraftingContext context) {
-        return component.checkStructure(this.structure);
+        return switch(this.action) {
+            case CHECK, DESTROY, BREAK -> component.checkStructure(this.structure);
+            default -> true;
+        };
     }
 
     @Override
     public CraftingResult processStart(StructureMachineComponent component, ICraftingContext context) {
-        if(getDelay() == 0.0D && this.destroy)
-            component.destroyStructure(this.structure, this.drops);
-        return CraftingResult.pass();
+        if(this.getDelay() != 0.0D)
+            return CraftingResult.pass();
+
+        switch(this.action) {
+            case BREAK -> component.destroyStructure(this.structure, true);
+            case DESTROY -> component.destroyStructure(this.structure, false);
+            case PLACE_BREAK -> component.placeStructure(this.structure, true);
+            case PLACE_DESTROY -> component.placeStructure(this.structure, false);
+        }
+        return CraftingResult.success();
     }
 
     @Override
     public CraftingResult processEnd(StructureMachineComponent component, ICraftingContext context) {
-        if(getDelay() == 1.0D && this.destroy)
-            component.destroyStructure(this.structure, this.drops);
+        if(this.getDelay() != 1.0D)
+            return CraftingResult.pass();
+
+        switch(this.action) {
+            case BREAK -> component.destroyStructure(this.structure, true);
+            case DESTROY -> component.destroyStructure(this.structure, false);
+            case PLACE_BREAK -> component.placeStructure(this.structure, true);
+            case PLACE_DESTROY -> component.placeStructure(this.structure, false);
+        }
         return CraftingResult.success();
     }
 
@@ -102,7 +116,7 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
 
     @Override
     public CraftingResult processTick(StructureMachineComponent component, ICraftingContext context) {
-        if(this.destroy && getDelay() < context.getRemainingTime() / context.getRecipe().getRecipeTime())
+        if(this.action != Action.CHECK && getDelay() < context.getRemainingTime() / context.getRecipe().getRecipeTime())
             return CraftingResult.pass();
 
         if(component.checkStructure(this.structure))
@@ -112,8 +126,15 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
 
     @Override
     public CraftingResult execute(StructureMachineComponent component, ICraftingContext context) {
-        if(getDelay() != 0.0D && getDelay() != 1.0D && this.destroy)
-            component.destroyStructure(this.structure, this.drops);
+        if(getDelay() != 0.0D && getDelay() != 1.0D && this.action != Action.CHECK) {
+            switch(this.action) {
+                case BREAK -> component.destroyStructure(this.structure, true);
+                case DESTROY -> component.destroyStructure(this.structure, false);
+                case PLACE_BREAK -> component.placeStructure(this.structure, true);
+                case PLACE_DESTROY -> component.placeStructure(this.structure, false);
+            }
+            return CraftingResult.success();
+        }
         return CraftingResult.pass();
     }
 
@@ -126,11 +147,10 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
             if(ingredient != null && amount > 0)
                 info.addTooltip(Component.translatable("custommachinery.requirements.structure.list", amount, Utils.getBlockName(ingredient).withStyle(ChatFormatting.GOLD)));
         });
-        if(this.destroy) {
-            if(this.drops)
-                info.addTooltip(Component.translatable("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
-            else
-                info.addTooltip(Component.translatable("custommachinery.requirements.structure.destroy").withStyle(ChatFormatting.DARK_RED));
+        switch(this.action) {
+            case BREAK -> info.addTooltip(Component.translatable("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
+            case DESTROY -> info.addTooltip(Component.translatable("custommachinery.requirements.structure.destroy").withStyle(ChatFormatting.DARK_RED));
+            case PLACE_BREAK, PLACE_DESTROY -> info.addTooltip(Component.translatable("custommachinery.requirements.structure.place").withStyle(ChatFormatting.DARK_RED));
         }
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.creative").withStyle(ChatFormatting.DARK_PURPLE), TooltipPredicate.CREATIVE);
         info.setClickAction((machine, recipe, mouseButton) -> {
@@ -140,5 +160,13 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
                 CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks);
         });
         info.setItemIcon(Items.STRUCTURE_BLOCK);
+    }
+
+    public enum Action {
+        CHECK,
+        DESTROY,
+        BREAK,
+        PLACE_BREAK,
+        PLACE_DESTROY
     }
 }

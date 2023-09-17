@@ -7,6 +7,7 @@ import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.requirement.StructureRequirement;
+import fr.frinn.custommachinery.common.requirement.StructureRequirement.Action;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import org.openzen.zencode.java.ZenCodeType.Method;
@@ -22,22 +23,26 @@ import java.util.Map;
 public interface StructureRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
-    default T destroyStructure(String[][] pattern, Map<String, String> key) {
-        return requireStructure(pattern, key, true, false);
+    default T destroyStructure(String[][] pattern, Map<String, String> keys) {
+        return requireStructure(pattern, keys, Action.DESTROY);
     }
 
     @Method
-    default T breakStructure(String[][] pattern, Map<String, String> key) {
-        return requireStructure(pattern, key, true, true);
+    default T breakStructure(String[][] pattern, Map<String, String> keys) {
+        return requireStructure(pattern, keys, Action.BREAK);
     }
 
     @Method
-    default T requireStructure(String[][] pattern, Map<String, String> key) {
-        return requireStructure(pattern, key, false, false);
+    default T requireStructure(String[][] pattern, Map<String, String> keys) {
+        return requireStructure(pattern, keys, Action.CHECK);
+    }
+
+    default T placeStructure(String[][] pattern, Map<String, String> keys, boolean drops) {
+        return requireStructure(pattern, keys, drops ? Action.PLACE_BREAK : Action.PLACE_DESTROY);
     }
 
     @Method
-    default T requireStructure(String[][] pattern, Map<String, String> keys, boolean destroy, boolean drops) {
+    default T requireStructure(String[][] pattern, Map<String, String> keys, Action action) {
         List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).toList()).toList();
         Map<Character, IIngredient<PartialBlockState>> keysMap = new HashMap<>();
         for(Map.Entry<String, String> entry : keys.entrySet()) {
@@ -52,7 +57,7 @@ public interface StructureRequirementCT<T> extends RecipeCTBuilder<T> {
             keysMap.put(keyChar, result.result().get());
         }
         try {
-            return addRequirement(new StructureRequirement(patternList, keysMap, destroy, drops));
+            return addRequirement(new StructureRequirement(patternList, keysMap, action));
         } catch (IllegalStateException e) {
             return error("Error while creating structure requirement: {}\nPattern: {}\nKeys: {}", e.getMessage(), pattern, keys);
         }
