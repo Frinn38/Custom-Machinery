@@ -61,7 +61,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     public static final NamedCodec<PartialBlockState> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         StringReader reader = new StringReader(s);
         try {
-            BlockResult result = BlockStateParser.parseForBlock(Registry.BLOCK, reader, false);
+            BlockResult result = BlockStateParser.parseForBlock(Registry.BLOCK, reader, true);
             return DataResult.success(new PartialBlockState(result.blockState(), Lists.newArrayList(result.properties().keySet()), result.nbt()));
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception.getMessage());

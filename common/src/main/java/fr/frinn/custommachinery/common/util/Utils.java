@@ -1,5 +1,8 @@
 package fr.frinn.custommachinery.common.util;
 
+import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.ResourceLocationException;
@@ -154,8 +157,18 @@ public class Utils {
     }
 
     public static MutableComponent getBlockName(IIngredient<PartialBlockState> ingredient) {
-        if(ingredient.getAll().size() == 1)
-            return ingredient.getAll().get(0).getName();
+        if(ingredient.getAll().size() == 1) {
+            PartialBlockState partialBlockState = ingredient.getAll().get(0);
+            if(partialBlockState.getBlockState().getBlock() instanceof CustomMachineBlock && partialBlockState.getNbt() != null && partialBlockState.getNbt().contains("machineID", Tag.TAG_STRING)) {
+                ResourceLocation machineID = ResourceLocation.tryParse(partialBlockState.getNbt().getString("machineID"));
+                if(machineID != null) {
+                    CustomMachine machine = CustomMachinery.MACHINES.get(machineID);
+                    if(machine != null)
+                        return (MutableComponent)machine.getName();
+                }
+            }
+            return partialBlockState.getName();
+        }
         else return Component.literal(ingredient.toString());
     }
 }
