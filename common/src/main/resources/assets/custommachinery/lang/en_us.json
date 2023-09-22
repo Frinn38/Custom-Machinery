@@ -36,7 +36,7 @@
   "custommachinery.craftingstatus.idle": "Idle",
   "custommachinery.craftingstatus.running": "Running",
   "custommachinery.craftingstatus.errored": "Errored",
-  "custommachinery.craftingstatus.paused": "Paused via redstone",
+  "custommachinery.craftingstatus.paused": "Paused",
 
   "custommachinery.damagesource.kill": "%s was killed by a %s",
 

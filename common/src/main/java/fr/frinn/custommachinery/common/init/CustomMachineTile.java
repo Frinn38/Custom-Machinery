@@ -83,6 +83,8 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
     @Override
     public MachineStatus getStatus() {
+        if(this.isPaused())
+            return MachineStatus.PAUSED;
         return this.status;
     }
 
@@ -189,7 +191,12 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
         level.getProfiler().push("Component tick");
         tile.componentManager.serverTick();
-        level.getProfiler().popPush("Crafting Manager tick");
+        level.getProfiler().pop();
+
+        if(tile.isPaused())
+            return;
+
+        level.getProfiler().push("Crafting Manager tick");
         try {
             tile.processor.tick();
         } catch (ComponentNotFoundException e) {

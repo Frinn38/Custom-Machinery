@@ -27,6 +27,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     private final MachineComponentType<?> comparatorInputType;
     private final String comparatorInputID;
     private int checkRedstoneCooldown = Utils.RAND.nextInt(20);
+    private boolean paused = false;
 
     public RedstoneMachineComponent(IMachineComponentManager manager, int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, int pausedPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
         super(manager, ComponentIOMode.BOTH);
@@ -53,10 +54,14 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         if(this.checkRedstoneCooldown-- > 0)
             return;
         this.checkRedstoneCooldown = 20;
-        if(!getManager().getTile().isPaused() && this.shouldPauseMachine())
+        if(!getManager().getTile().isPaused() && this.shouldPauseMachine()) {
             getManager().getTile().setPaused(true);
-        if(getManager().getTile().isPaused() && !this.shouldPauseMachine())
+            this.paused = true;
+        }
+        if(this.paused && !this.shouldPauseMachine()) {
             getManager().getTile().setPaused(false);
+            this.paused = false;
+        }
     }
 
     private boolean shouldPauseMachine() {

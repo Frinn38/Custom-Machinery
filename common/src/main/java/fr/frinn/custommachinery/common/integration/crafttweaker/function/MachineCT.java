@@ -12,9 +12,11 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.TaskDelayer;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +44,19 @@ public class MachineCT {
     @Method
     public String getId() {
         return this.internal.getId().toString();
+    }
+
+    @Setter("id")
+    @Method
+    public void setId(String id) {
+        ResourceLocation loc = ResourceLocation.tryParse(id);
+        if(loc != null) {
+            TaskDelayer.enqueue(0, () -> {
+                this.internal.resetProcess();
+                this.internal.refreshMachine(loc);
+            });
+        }
+        else throw new IllegalArgumentException("Invalid machine ID: " + id);
     }
 
     @Getter("data")

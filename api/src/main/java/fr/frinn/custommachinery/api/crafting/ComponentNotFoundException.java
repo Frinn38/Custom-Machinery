@@ -28,4 +28,9 @@ public class ComponentNotFoundException extends RuntimeException {
         builder.append(" doesn't have !");
         return builder.toString();
     }
+
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
 }
