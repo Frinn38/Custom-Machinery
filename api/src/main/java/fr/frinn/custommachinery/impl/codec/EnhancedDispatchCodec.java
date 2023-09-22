@@ -33,7 +33,14 @@ public class EnhancedDispatchCodec<K, V> extends NamedMapCodec<V> {
 
     @Override
     public <T> DataResult<V> decode(final DynamicOps<T> ops, final MapLike<T> input) {
-        final T elementName = input.get(typeKey);
+        T elementName = input.get(typeKey);
+        if(elementName == null) {
+            for(String alias : this.aliases) {
+                elementName = input.get(alias);
+                if(elementName != null)
+                    break;
+            }
+        }
         if (elementName == null) {
             return DataResult.error("Input does not contain a key [" + typeKey + "]: " + input);
         }

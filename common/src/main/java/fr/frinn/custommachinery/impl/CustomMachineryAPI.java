@@ -81,7 +81,7 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
 
     @Nullable
     @Override
-    public <C extends IMachineComponent> NamedCodec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id) {
+    public <C extends IMachineComponent> NamedCodec<IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id) {
         return ComponentVariantRegistry.getVariantCodec(type, id);
     }
 }

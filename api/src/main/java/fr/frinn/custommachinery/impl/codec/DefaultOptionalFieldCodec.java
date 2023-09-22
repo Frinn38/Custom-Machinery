@@ -7,13 +7,17 @@ import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class DefaultOptionalFieldCodec<A> extends NamedMapCodec<A> {
 
-    public static <A> DefaultOptionalFieldCodec<A> of(String fieldName, NamedCodec<A> elementCodec, Supplier<A> defaultValue, String name) {
+    public static <A> NamedMapCodec<A> of(String fieldName, NamedCodec<A> elementCodec, Supplier<A> defaultValue, String name) {
         return new DefaultOptionalFieldCodec<>(fieldName, elementCodec, defaultValue, name);
     }
 
@@ -29,9 +33,21 @@ public class DefaultOptionalFieldCodec<A> extends NamedMapCodec<A> {
         this.name = name;
     }
 
+    public DefaultOptionalFieldCodec<A> aliases(String... aliases) {
+        this.aliases.addAll(Arrays.asList(aliases));
+        return this;
+    }
+
     @Override
     public <T> DataResult<A> decode(DynamicOps<T> ops, MapLike<T> input) {
-        final T value = FieldCodec.tryGetValue(ops, input, fieldName);
+        T value = FieldCodec.tryGetValue(ops, input, fieldName);
+        if(value == null) {
+            for(String alias : this.aliases) {
+                value = input.get(alias);
+                if(value != null)
+                    break;
+            }
+        }
         if (value == null) {
             if(ICustomMachineryAPI.INSTANCE.config().logMissingOptional())
                 ICustomMachineryAPI.INSTANCE.logger().debug("Missing optional property: \"{}\" of type: {}, using default value: {}", fieldName, name, defaultValue.get());

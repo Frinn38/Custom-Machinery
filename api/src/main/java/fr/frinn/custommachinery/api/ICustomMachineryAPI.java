@@ -106,5 +106,5 @@ public interface ICustomMachineryAPI {
      * @return A codec for the specified {@link MachineComponentType} and id, or null if this variant is not registered.
      */
     @Nullable
-    <C extends IMachineComponent> NamedCodec<? extends IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id);
+    <C extends IMachineComponent> NamedCodec<IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id);
 }

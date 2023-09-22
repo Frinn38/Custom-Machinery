@@ -14,6 +14,9 @@ import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -180,5 +183,12 @@ public abstract class NamedMapCodec<A> extends CompressorHolder implements MapDe
                 return t;
             }
         });
+    }
+
+    protected final List<String> aliases = new ArrayList<>();
+
+    public NamedMapCodec<A> aliases(String... aliases) {
+        this.aliases.addAll(Arrays.asList(aliases));
+        return this;
     }
 }

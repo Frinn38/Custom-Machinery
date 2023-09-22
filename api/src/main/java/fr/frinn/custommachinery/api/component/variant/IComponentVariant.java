@@ -23,7 +23,7 @@ public interface IComponentVariant {
      * The class is used to cast the resulting variant to a specific class, like ItemComponentVariant.
      */
     static <C extends IMachineComponent> NamedMapCodec<IComponentVariant> codec(Supplier<MachineComponentType<C>> type){
-        return RegistrarCodec.CM_LOC_CODEC.dispatch("variant", IComponentVariant::getId, id -> ICustomMachineryAPI.INSTANCE.getVariantCodec(type.get(), id), "Machine component variant");
+        return RegistrarCodec.CM_LOC_CODEC.dispatch("variant", IComponentVariant::getId, id -> ICustomMachineryAPI.INSTANCE.getVariantCodec(type.get(), id), "Machine component variant").aliases("varient");
     }
 
     /**

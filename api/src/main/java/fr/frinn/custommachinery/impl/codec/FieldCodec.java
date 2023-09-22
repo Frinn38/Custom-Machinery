@@ -9,12 +9,16 @@ import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
 public class FieldCodec<A> extends NamedMapCodec<A> {
 
-    public static <A> FieldCodec<A> of(String fieldName, NamedCodec<A> elementCodec, String name) {
+    public static <A> NamedMapCodec<A> of(String fieldName, NamedCodec<A> elementCodec, String name) {
         return new FieldCodec<>(fieldName, elementCodec, name);
     }
 
@@ -22,16 +26,28 @@ public class FieldCodec<A> extends NamedMapCodec<A> {
     private final NamedCodec<A> elementCodec;
     private final String name;
 
-    private FieldCodec(String fieldName, NamedCodec<A> elementCodec, String name) {
+    protected FieldCodec(String fieldName, NamedCodec<A> elementCodec, String name) {
         this.fieldName = toSnakeCase(fieldName);
         this.elementCodec = elementCodec;
         this.name = name;
     }
 
+    public FieldCodec<A> aliases(String... aliases) {
+        this.aliases.addAll(Arrays.asList(aliases));
+        return this;
+    }
+
     @Override
     public <T> DataResult<A> decode(DynamicOps<T> ops, MapLike<T> input) {
-        final T value = tryGetValue(ops, input, fieldName);
-        if (value == null) {
+        T value = tryGetValue(ops, input, fieldName);
+        if(value == null) {
+            for(String alias : this.aliases) {
+                value = input.get(alias);
+                if(value != null)
+                    break;
+            }
+        }
+        if(value == null) {
             ICustomMachineryAPI.INSTANCE.logger().error("Missing mandatory property \"{}\" of type \"{}\" in {}", fieldName, name, input);
             return DataResult.error("No key " + fieldName + " in " + input);
         }

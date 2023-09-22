@@ -15,16 +15,17 @@ public class RegisterComponentVariantEvent {
 
     public static final Event<Register> EVENT = EventFactory.createLoop();
 
-    private final Map<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, NamedCodec<? extends IComponentVariant>>> componentVariants = new HashMap<>();
+    private final Map<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, NamedCodec<IComponentVariant>>> componentVariants = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     public <C extends IMachineComponent> void register(MachineComponentType<C> type, ResourceLocation id, NamedCodec<? extends IComponentVariant> codec) {
         if(this.componentVariants.computeIfAbsent(type, t -> new HashMap<>()).containsKey(id))
             throw new IllegalArgumentException("Component variant " + id + " already registered for type: " + type.getId());
-        this.componentVariants.get(type).put(id, codec);
+        this.componentVariants.get(type).put(id, (NamedCodec<IComponentVariant>)codec);
     }
 
-    public Map<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, NamedCodec<? extends IComponentVariant>>> getComponentVariants() {
-        ImmutableMap.Builder<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, NamedCodec<? extends IComponentVariant>>> builder = ImmutableMap.builder();
+    public Map<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, NamedCodec<IComponentVariant>>> getComponentVariants() {
+        ImmutableMap.Builder<MachineComponentType<? extends IMachineComponent>, Map<ResourceLocation, NamedCodec<IComponentVariant>>> builder = ImmutableMap.builder();
         this.componentVariants.forEach((type, map) -> builder.put(type, ImmutableMap.copyOf(map)));
         return builder.build();
     }
