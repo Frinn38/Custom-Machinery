@@ -119,6 +119,8 @@ public class CustomMachineContainer extends SyncableContainer {
             else
                 components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getVariant() == UpgradeItemComponentVariant.INSTANCE ? -1 : 1)).toList();
             for (SlotItemComponent slotComponent : components) {
+                if(slotComponent.getComponent().isLocked())
+                    continue;
                 int maxInput = slotComponent.getComponent().insert(stack.getItem(), stack.getCount(), stack.getTag(), true, true);
                 if(maxInput > 0) {
                     int toInsert = Math.min(maxInput, stack.getCount());
@@ -133,7 +135,7 @@ public class CustomMachineContainer extends SyncableContainer {
             else
                 clickedSlot.remove(clickedSlot.getItem().getCount() - stack.getCount());
         } else {
-            if (!(clickedSlot instanceof SlotItemComponent slotComponent))
+            if (!(clickedSlot instanceof SlotItemComponent slotComponent) || slotComponent.getComponent().isLocked())
                 return ItemStack.EMPTY;
 
             if(slotComponent instanceof ResultSlotItemComponent resultSlot && this.tile.getProcessor() instanceof CraftProcessor processor) {

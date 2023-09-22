@@ -45,8 +45,9 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     private ItemStack stack = ItemStack.EMPTY;
     private final ItemComponentVariant variant;
     private final SideConfig config;
+    private boolean locked;
 
-    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, SideConfig.Template configTemplate) {
+    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, SideConfig.Template configTemplate, boolean locked) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -56,6 +57,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         this.whitelist = whitelist;
         this.variant = variant;
         this.config = configTemplate.build(this);
+        this.locked = locked;
     }
 
     @Override
@@ -159,6 +161,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         getManager().getTile().getUpgradeManager().markDirty();
     }
 
+    public boolean isLocked() {
+        return this.locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
     @Override
     public void serialize(CompoundTag nbt) {
         if(!stack.isEmpty())
@@ -196,9 +206,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                         IIngredient.ITEM.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
                         NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT).orElse(DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant),
-                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config))
-                ).apply(itemMachineComponentTemplate, (id, mode, capacity, maxInput, maxOutput, filter, whitelist, variant, config) ->
-                        new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, (ItemComponentVariant) variant, config.orElse(mode.getBaseConfig()))
+                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config)),
+                        NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked)
+                ).apply(itemMachineComponentTemplate, (id, mode, capacity, maxInput, maxOutput, filter, whitelist, variant, config, locked) ->
+                        new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, (ItemComponentVariant) variant, config.orElse(mode.getBaseConfig()), locked)
                 ), "Item machine component"
         );
 
@@ -211,8 +222,9 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         private final boolean whitelist;
         private final ItemComponentVariant variant;
         private final SideConfig.Template config;
+        private final boolean locked;
 
-        public Template(String id, ComponentIOMode mode, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, SideConfig.Template config) {
+        public Template(String id, ComponentIOMode mode, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, SideConfig.Template config, boolean locked) {
             this.mode = mode;
             this.id = id;
             this.capacity = capacity;
@@ -222,6 +234,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
             this.whitelist = whitelist;
             this.variant = variant;
             this.config = config;
+            this.locked = locked;
         }
 
         public ItemComponentVariant getVariant() {
@@ -256,7 +269,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         @Override
         public ItemMachineComponent build(IMachineComponentManager manager) {
-            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.variant, this.config);
+            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.variant, this.config, this.locked);
         }
     }
 }

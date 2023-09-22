@@ -205,4 +205,23 @@ public class MachineJS {
                 .map(component -> component.extract(toRemove, simulate, true))
                 .orElse(ItemStack.EMPTY);
     }
+
+    public void lockSlot(String slot) {
+        this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .ifPresent(component -> component.setLocked(true));
+    }
+
+    public void unlockSlot(String slot) {
+        this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .ifPresent(component -> component.setLocked(false));
+    }
+
+    public boolean isSlotLocked(String slot) {
+        return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .map(ItemMachineComponent::isLocked)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid slot id: " + slot));
+    }
 }

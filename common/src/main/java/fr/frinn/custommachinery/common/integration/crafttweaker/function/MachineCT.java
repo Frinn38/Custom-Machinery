@@ -224,4 +224,26 @@ public class MachineCT {
                 .map(component -> Services.PLATFORM.createItemStack(component.extract(toRemove, simulate, true)))
                 .orElse(Services.PLATFORM.getEmptyItemStack());
     }
+
+    @Method
+    public void lockSlot(String slot) {
+        this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .ifPresent(component -> component.setLocked(true));
+    }
+
+    @Method
+    public void unlockSlot(String slot) {
+        this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .ifPresent(component -> component.setLocked(false));
+    }
+
+    @Method
+    public boolean isSlotLocked(String slot) {
+        return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponentForID(slot))
+                .map(ItemMachineComponent::isLocked)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid slot id: " + slot));
+    }
 }
