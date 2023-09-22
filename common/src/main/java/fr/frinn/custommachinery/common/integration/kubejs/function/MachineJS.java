@@ -56,6 +56,14 @@ public class MachineJS {
         return this.nbt;
     }
 
+    public boolean getPaused() {
+        return this.internal.isPaused();
+    }
+
+    public void setPaused(boolean paused) {
+        this.internal.setPaused(paused);
+    }
+
     /** OWNER STUFF **/
 
     @Nullable

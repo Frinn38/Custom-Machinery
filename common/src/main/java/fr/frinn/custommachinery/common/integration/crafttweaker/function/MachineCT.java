@@ -50,6 +50,18 @@ public class MachineCT {
         return this.data;
     }
 
+    @Getter("paused")
+    @Method
+    public boolean getPaused() {
+        return this.internal.isPaused();
+    }
+
+    @Setter("paused")
+    @Method
+    public void setPaused(boolean paused) {
+        this.internal.setPaused(paused);
+    }
+
     /** OWNER STUFF **/
 
     @Nullable
