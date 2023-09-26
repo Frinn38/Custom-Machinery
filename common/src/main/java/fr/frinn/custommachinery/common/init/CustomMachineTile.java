@@ -214,8 +214,12 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
         if(tile.soundManager == null)
             tile.soundManager = new SoundManager(pos);
-        if(tile.getAppearance().getAmbientSound() != Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue() && !tile.getAppearance().getAmbientSound().getLocation().equals(tile.soundManager.getSoundID()))
-            tile.soundManager.setSound(tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound());
+        if(!tile.getAppearance().getAmbientSound().getLocation().equals(tile.soundManager.getSoundID())) {
+            if(tile.getAppearance().getAmbientSound() == Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue())
+                tile.soundManager.setSound(null);
+            else
+                tile.soundManager.setSound(tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound());
+        }
 
         if (!tile.soundManager.isPlaying())
             tile.soundManager.play();

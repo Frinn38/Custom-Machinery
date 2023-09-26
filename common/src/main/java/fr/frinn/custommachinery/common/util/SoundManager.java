@@ -15,6 +15,7 @@ import java.util.Optional;
 public class SoundManager {
 
     private final BlockPos pos;
+    @Nullable
     private SoundInstance sound;
 
     public SoundManager(BlockPos pos) {
@@ -30,8 +31,14 @@ public class SoundManager {
         return Optional.ofNullable(this.sound);
     }
 
-    public void setSound(SoundEvent sound) {
+    public void setSound(@Nullable SoundEvent sound) {
         stop();
+
+        if(sound == null) {
+            this.sound = null;
+            return;
+        }
+
         this.sound = new SimpleSoundInstance(sound, SoundSource.BLOCKS, 1.0F, 1.0F, RandomSource.create(), this.pos);
         play();
     }
