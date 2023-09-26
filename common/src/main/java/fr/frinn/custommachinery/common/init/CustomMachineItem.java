@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Utils;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -68,7 +69,7 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if(group == this.category) {
+        if(group == this.category || group == CreativeModeTab.TAB_SEARCH) {
             if(this.machineID != null)
                 items.add(this.getDefaultInstance());
             else
