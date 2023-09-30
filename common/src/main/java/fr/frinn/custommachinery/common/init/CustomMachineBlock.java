@@ -16,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.TickTask;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -56,6 +57,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -114,10 +116,22 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
         });
     }
 
+    //Drop the machine block, but only if the player has correct tool or if requires-tool is disabled.
     @Override
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
         if(blockEntity instanceof CustomMachineTile machine && PlatformHelper.hasCorrectToolsForDrops(player, MachineBlockState.CACHE.getUnchecked(machine.getAppearance())))
             super.playerDestroy(level, player, pos, state, blockEntity, tool);
+    }
+
+    //Drop the content of the machine if the player is in creative mode, as the playerDestroy method won't be called then.
+    @Override
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        super.playerWillDestroy(level, pos, state, player);
+        if(player.getAbilities().instabuild && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CustomMachineTile machine)
+            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                    .map(handler -> handler.getComponents().stream().map(component -> component.getItemStack().copy()).filter(stack -> !stack.isEmpty()).toList())
+                    .orElse(Collections.emptyList())
+                    .forEach(stack -> Block.popResource(serverLevel, pos, stack));
     }
 
     @SuppressWarnings("deprecation")

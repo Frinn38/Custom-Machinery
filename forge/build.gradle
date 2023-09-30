@@ -40,7 +40,7 @@ dependencies {
     shadowCommon(project(path: ":api", configuration: "transformProductionForge")) { transitive = false }
 
     //Saecularia Caudices, for block mixins
-    modImplementation "com.communi-suggestu.saecularia-caudices:saecularia-caudices-forge:${project.saecularia_caudices_version}"
+    modImplementation "com.communi-suggestu.saecularia-caudices:saecularia-caudices-core:${project.saecularia_caudices_version}"
     include "com.communi-suggestu.saecularia-caudices:saecularia-caudices-forge:${project.saecularia_caudices_version}"
 
     //JEI 10
@@ -56,6 +56,7 @@ dependencies {
 
     //KubeJS
     modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs-forge:${project.kubejs_version}")
+    localRuntime("io.github.llamalad7:mixinextras-forge:0.2.0-rc.4")
 
     //Crafttweaker
     modLocalRuntime modCompileOnly("com.blamejared.crafttweaker:CraftTweaker-forge-${project.minecraft_version}:${project.ct_version}")
