@@ -43,6 +43,10 @@ public class BoxCreatorItem extends Item {
         return null;
     }
 
+    /**
+     * First block (blue) is set via CustomMachinery#boxRendererLeftClick
+     * Second block (red) is set via this class use and useOn methods
+     */
     public static void setSelectedBlock(boolean first, ItemStack stack, BlockPos pos) {
         long packed = pos.asLong();
         stack.getOrCreateTagElement(CustomMachinery.MODID).putLong(first ? FIRST_BLOCK_KEY : SECOND_BLOCK_KEY, packed);
@@ -98,7 +102,6 @@ public class BoxCreatorItem extends Item {
 
     @Override
     public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-        setSelectedBlock(true, player.getMainHandItem(), pos);
         return false;
     }
 

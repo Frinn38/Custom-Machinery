@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.CommandPerformEvent;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
+import dev.architectury.event.events.common.InteractionEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
@@ -13,6 +14,7 @@ import fr.frinn.custommachinery.api.component.variant.RegisterComponentVariantEv
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.variant.ComponentVariantRegistry;
+import fr.frinn.custommachinery.common.init.BoxCreatorItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
@@ -33,11 +35,15 @@ import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,6 +95,8 @@ public class CustomMachinery {
         CommandRegistrationEvent.EVENT.register(CustomMachinery::registerCommands);
 
         EnvExecutor.runInEnv(Env.CLIENT, () -> ClientHandler::init);
+
+        InteractionEvent.LEFT_CLICK_BLOCK.register(CustomMachinery::boxRendererLeftClick);
     }
 
     private static void setup() {
@@ -109,5 +117,11 @@ public class CustomMachinery {
     private static void registerCommands(final CommandDispatcher<CommandSourceStack> dispatcher, final CommandBuildContext registry, final Commands.CommandSelection selection) {
         dispatcher.register(CMCommand.register("custommachinery"));
         dispatcher.register(CMCommand.register("cm"));
+    }
+
+    private static EventResult boxRendererLeftClick(Player player, InteractionHand hand, BlockPos pos, Direction face) {
+        if(!player.level.isClientSide() && player.getItemInHand(hand).getItem() instanceof BoxCreatorItem)
+            BoxCreatorItem.setSelectedBlock(true, player.getItemInHand(hand), pos);
+        return EventResult.pass();
     }
 }
