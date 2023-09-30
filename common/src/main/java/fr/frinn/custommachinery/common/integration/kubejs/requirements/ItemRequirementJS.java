@@ -22,6 +22,10 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
         return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), KubeJSIntegration.nbtFromStack(stack), slot));
     }
 
+    default RecipeJSBuilder requireItemTag(String tag) {
+        return this.requireItemTag(tag, 1);
+    }
+
     default RecipeJSBuilder requireItemTag(String tag, int amount) {
         return this.requireItemTag(tag, amount, null, "");
     }

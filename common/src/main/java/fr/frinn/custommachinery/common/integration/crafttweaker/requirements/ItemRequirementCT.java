@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.Optional;
+import org.openzen.zencode.java.ZenCodeType.OptionalInt;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 @ZenRegister
@@ -26,7 +27,7 @@ public interface ItemRequirementCT<T> extends RecipeCTBuilder<T> {
     }
 
     @Method
-    default T requireItemTag(MCTag tag, int amount, @Optional IData data, @OptionalString String slot) {
+    default T requireItemTag(MCTag tag, @OptionalInt(1) int amount, @Optional IData data, @OptionalString String slot) {
         try {
             return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag.getTagKey()), amount, CTUtils.getNBT(data), slot));
         } catch (IllegalArgumentException e) {
