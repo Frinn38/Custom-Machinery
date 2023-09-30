@@ -20,19 +20,25 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
                     makePropertiesCodec().forGetter(ProgressBarGuiElement::getProperties),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_empty", BASE_EMPTY_TEXTURE).forGetter(ProgressBarGuiElement::getEmptyTexture),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_filled", BASE_FILLED_TEXTURE).forGetter(ProgressBarGuiElement::getFilledTexture),
-                    Codecs.PROGRESS_DIRECTION.optionalFieldOf("direction", Orientation.RIGHT).forGetter(ProgressBarGuiElement::getDirection)
+                    Codecs.PROGRESS_DIRECTION.optionalFieldOf("direction", Orientation.RIGHT).forGetter(ProgressBarGuiElement::getDirection),
+                    NamedCodec.FLOAT.optionalFieldOf("start", 0.0F).forGetter(element -> element.start),
+                    NamedCodec.FLOAT.optionalFieldOf("end", 1.0F).forGetter(element -> element.end)
             ).apply(progressGuiElement, ProgressBarGuiElement::new), "Progress bar gui element"
     );
 
     private final ResourceLocation emptyTexture;
     private final ResourceLocation filledTexture;
     private final Orientation orientation;
+    private final float start;
+    private final float end;
 
-    public ProgressBarGuiElement(Properties properties, ResourceLocation emptyTexture, ResourceLocation filledTexture, Orientation orientation) {
+    public ProgressBarGuiElement(Properties properties, ResourceLocation emptyTexture, ResourceLocation filledTexture, Orientation orientation, float start, float end) {
         super(properties, emptyTexture);
         this.emptyTexture = emptyTexture;
         this.filledTexture = filledTexture;
         this.orientation = orientation;
+        this.start = start;
+        this.end = end;
     }
 
     @Override
@@ -50,6 +56,14 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
 
     public Orientation getDirection() {
         return this.orientation;
+    }
+
+    public float getStart() {
+        return this.start;
+    }
+
+    public float getEnd() {
+        return this.end;
     }
 
     public enum Orientation {

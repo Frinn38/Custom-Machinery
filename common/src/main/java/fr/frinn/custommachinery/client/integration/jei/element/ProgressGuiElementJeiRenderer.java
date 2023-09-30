@@ -11,6 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +31,8 @@ public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<Progre
         int filledWidth = 0;
         int filledHeight = 0;
         if(recipe.getRecipeTime() > 0) {
-            filledWidth = (int)(Minecraft.getInstance().level.getGameTime() % width);
-            filledHeight = (int)(Minecraft.getInstance().level.getGameTime() % height);
+            filledWidth = (int)(width * Mth.clamp(Mth.map((float) (Minecraft.getInstance().level.getGameTime() % recipe.getRecipeTime()) / recipe.getRecipeTime(), element.getStart(), element.getEnd(), 0, 1), 0.0D, 1.0D));
+            filledHeight = (int)(height * Mth.clamp(Mth.map((float) (Minecraft.getInstance().level.getGameTime() % recipe.getRecipeTime()) / recipe.getRecipeTime(), element.getStart(), element.getEnd(), 0, 1), 0.0D, 1.0D));
         }
 
         ClientHandler.bindTexture(element.getEmptyTexture());

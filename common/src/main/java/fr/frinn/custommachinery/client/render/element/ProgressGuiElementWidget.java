@@ -19,8 +19,8 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
 
     @Override
     public void renderButton(PoseStack matrix, int mouseX, int mouseY, float partialTicks) {
-        int filledWidth = (int)(this.width * Mth.clamp(getRecipeProgressPercent(), 0.0D, 1.0D));
-        int filledHeight = (int)(this.height * Mth.clamp(getRecipeProgressPercent(), 0.0D, 1.0D));
+        int filledWidth = (int)(this.width * Mth.clamp(Mth.map(getRecipeProgressPercent(), this.getElement().getStart(), this.getElement().getEnd(), 0, 1), 0.0D, 1.0D));
+        int filledHeight = (int)(this.height * Mth.clamp(Mth.map(getRecipeProgressPercent(), this.getElement().getStart(), this.getElement().getEnd(), 0, 1), 0.0D, 1.0D));
 
         ClientHandler.bindTexture(this.getElement().getEmptyTexture());
 
