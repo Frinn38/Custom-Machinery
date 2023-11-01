@@ -109,7 +109,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         if(!byPassLimit)
             amount = Math.min(amount, this.maxInput);
 
-        //Check the stack limit
+        //Check the inserted stack max size, in case a mod like AE2 try to insert a stack of non-stackable items
+        amount = Math.min(amount, Utils.makeItemStack(item, amount, nbt).getMaxStackSize());
+
+        //Check the current stack limit
         amount = Math.min(amount, this.stack.getMaxStackSize() - this.stack.getCount());
 
         //Check the slot capacity
