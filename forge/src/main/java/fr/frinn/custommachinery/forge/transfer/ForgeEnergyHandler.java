@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -22,7 +23,7 @@ public class ForgeEnergyHandler implements ICommonEnergyHandler {
     private final LazyOptional<IEnergyStorage> generalCapability;
     private final Map<Direction, SidedEnergyStorage> sidedStorages = Maps.newEnumMap(Direction.class);
     private final Map<Direction, LazyOptional<IEnergyStorage>> sidedCapabilities = Maps.newEnumMap(Direction.class);
-    private final Map<Direction, LazyOptional<IEnergyStorage>> neighbourStorages = Maps.newEnumMap(Direction.class);
+    private final Map<Direction, BlockEntity> neighbourStorages = Maps.newEnumMap(Direction.class);
 
     public ForgeEnergyHandler(EnergyMachineComponent component) {
         this.component = component;
@@ -60,15 +61,15 @@ public class ForgeEnergyHandler implements ICommonEnergyHandler {
 
             LazyOptional<IEnergyStorage> neighbour;
 
-            if(this.neighbourStorages.get(side) == null) {
-                neighbour = Optional.ofNullable(this.component.getManager().getLevel().getBlockEntity(this.component.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(ForgeCapabilities.ENERGY, side.getOpposite())).orElse(LazyOptional.empty());
-                neighbour.ifPresent(storage -> {
-                    neighbour.addListener(cap -> this.neighbourStorages.remove(side));
-                    this.neighbourStorages.put(side, neighbour);
-                });
+            if(this.neighbourStorages.get(side) == null || this.neighbourStorages.get(side).isRemoved()) {
+                this.neighbourStorages.put(side, this.component.getManager().getLevel().getBlockEntity(this.component.getManager().getTile().getBlockPos().relative(side)));
+                if(this.neighbourStorages.get(side) != null)
+                    neighbour = this.neighbourStorages.get(side).getCapability(ForgeCapabilities.ENERGY, side.getOpposite());
+                else
+                    continue;
             }
             else
-                neighbour = this.neighbourStorages.get(side);
+                neighbour = this.neighbourStorages.get(side).getCapability(ForgeCapabilities.ENERGY, side.getOpposite());
 
             neighbour.ifPresent(storage -> {
                 if(this.component.getConfig().isAutoInput() && this.component.getConfig().getSideMode(side).isInput() && this.component.getEnergy() < this.component.getCapacity())

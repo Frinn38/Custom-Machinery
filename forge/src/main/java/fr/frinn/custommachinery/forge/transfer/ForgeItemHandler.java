@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -25,7 +26,7 @@ public class ForgeItemHandler implements ICommonItemHandler {
     private final LazyOptional<IItemHandler> capability;
     private final Map<Direction, SidedItemHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
     private final Map<Direction, LazyOptional<IItemHandler>> sidedWrappers = Maps.newEnumMap(Direction.class);
-    private final Map<Direction, LazyOptional<IItemHandler>> neighbourStorages = Maps.newEnumMap(Direction.class);
+    private final Map<Direction, BlockEntity> neighbourStorages = Maps.newEnumMap(Direction.class);
 
     public ForgeItemHandler(ItemComponentHandler handler) {
         this.handler = handler;
@@ -72,15 +73,15 @@ public class ForgeItemHandler implements ICommonItemHandler {
 
             LazyOptional<IItemHandler> neighbour;
 
-            if(this.neighbourStorages.get(side) == null) {
-                neighbour = Optional.ofNullable(this.handler.getManager().getLevel().getBlockEntity(this.handler.getManager().getTile().getBlockPos().relative(side))).map(tile -> tile.getCapability(ForgeCapabilities.ITEM_HANDLER, side.getOpposite())).orElse(LazyOptional.empty());
-                neighbour.ifPresent(storage -> {
-                    neighbour.addListener(cap -> this.neighbourStorages.remove(side));
-                    this.neighbourStorages.put(side, neighbour);
-                });
+            if(this.neighbourStorages.get(side) == null || this.neighbourStorages.get(side).isRemoved()) {
+                this.neighbourStorages.put(side, this.handler.getManager().getLevel().getBlockEntity(this.handler.getManager().getTile().getBlockPos().relative(side)));
+                if(this.neighbourStorages.get(side) != null)
+                    neighbour = this.neighbourStorages.get(side).getCapability(ForgeCapabilities.ITEM_HANDLER, side.getOpposite());
+                else
+                    continue;
             }
             else
-                neighbour = this.neighbourStorages.get(side);
+                neighbour = this.neighbourStorages.get(side).getCapability(ForgeCapabilities.ITEM_HANDLER, side.getOpposite());
 
             neighbour.ifPresent(storage -> {
                 this.sidedHandlers.get(side).getSlotList().forEach(slot -> {
