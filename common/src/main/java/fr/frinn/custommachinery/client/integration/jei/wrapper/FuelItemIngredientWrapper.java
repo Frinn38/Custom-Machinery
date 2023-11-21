@@ -34,7 +34,7 @@ public class FuelItemIngredientWrapper implements IJEIIngredientWrapper<ItemStac
         return helper.getComponentForElement(slotElement).map(t -> {
             if(t instanceof ItemMachineComponent.Template template && template.getVariant() == FuelItemComponentVariant.INSTANCE) {
                 List<ItemStack> ingredients = CustomMachineryJEIPlugin.FUEL_INGREDIENTS.stream().filter(stack -> template.canAccept(stack, true, helper.getDummyManager())).toList();
-                builder.addSlot(RecipeIngredientRole.INPUT, element.getX() - xOffset, element.getY() - yOffset)
+                builder.addSlot(RecipeIngredientRole.INPUT, element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addTooltipCallback((view, tooltips) -> {
                         view.getDisplayedIngredient(VanillaTypes.ITEM_STACK).ifPresent(stack ->
