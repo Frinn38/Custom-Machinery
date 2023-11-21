@@ -1,9 +1,5 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
-import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
@@ -31,11 +27,10 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequir
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
-import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.Recipe;
+import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.helpers.MessageFormatter;
+
+import java.util.function.Consumer;
 
 public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
     implements ItemRequirementJS, ItemTransformRequirementJS, DurabilityRequirementJS, FluidRequirementJS, FluidPerTickRequirementJS,
@@ -43,6 +38,9 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         FuelRequirementJS, CommandRequirementJS, EffectRequirementJS, WeatherRequirementJS, RedstoneRequirementJS, LightRequirementJS,
         EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS,
         ButtonRequirementJS, SkyRequirementJS {
+
+    @Nullable
+    private MachineAppearance customAppearance = null;
 
     public CustomMachineRecipeBuilderJS() {
         super(Registration.CUSTOM_MACHINE_RECIPE.getId());
@@ -55,6 +53,9 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         if(getValue(CustomMachineryRecipeSchemas.ERROR))
             builder.setResetOnError();
 
+        if(this.customAppearance != null)
+            builder.withAppearance(this.customAppearance);
+
         return builder;
     }
 
@@ -62,6 +63,15 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
 
     public CustomMachineRecipeBuilderJS resetOnError() {
         setValue(CustomMachineryRecipeSchemas.ERROR, true);
+        return this;
+    }
+
+    /* APPEARANCE */
+
+    public CustomMachineRecipeBuilderJS appearance(Consumer<MachineAppearanceBuilderJS> consumer) {
+        MachineAppearanceBuilderJS builder = new MachineAppearanceBuilderJS();
+        consumer.accept(builder);
+        this.customAppearance = builder.build();
         return this;
     }
 }

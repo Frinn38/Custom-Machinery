@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
+import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -15,6 +16,7 @@ import fr.frinn.custommachinery.common.crafting.UpgradeManager;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
+import fr.frinn.custommachinery.common.network.SUpdateMachineAppearancePacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.MachineList;
@@ -22,6 +24,7 @@ import fr.frinn.custommachinery.common.util.SoundManager;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -48,6 +51,10 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
     private MachineStatus status = MachineStatus.IDLE;
     private Component errorMessage = Component.empty();
+
+    //Set by recipes when processing
+    @Nullable
+    private MachineAppearance customAppearance = null;
 
     //Owner values
     @Nullable
@@ -159,7 +166,21 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
     @Override
     public MachineAppearance getAppearance() {
+        if(this.customAppearance != null)
+            return this.customAppearance;
         return getMachine().getAppearance(getStatus());
+    }
+
+    @Override
+    public void setCustomAppearance(@Nullable IMachineAppearance customAppearance) {
+        if(this.customAppearance == customAppearance)
+            return;
+
+        this.customAppearance = (MachineAppearance) customAppearance;
+        if(this.getLevel() != null && !this.getLevel().isClientSide()) {
+            BlockPos pos = this.getBlockPos();
+            new SUpdateMachineAppearancePacket(pos, this.customAppearance).sendToChunkListeners(this.getLevel().getChunkAt(pos));
+        }
     }
 
     @Override
@@ -218,7 +239,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
             if(tile.getAppearance().getAmbientSound() == Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue())
                 tile.soundManager.setSound(null);
             else
-                tile.soundManager.setSound(tile.getMachine().getAppearance(tile.getStatus()).getAmbientSound());
+                tile.soundManager.setSound(tile.getAppearance().getAmbientSound());
         }
 
         if (!tile.soundManager.isPlaying())
@@ -269,6 +290,9 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
         if(nbt.contains("message", Tag.TAG_STRING))
             this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
+
+        if(nbt.contains("appearance", Tag.TAG_COMPOUND))
+            this.customAppearance = MachineAppearance.CODEC.read(NbtOps.INSTANCE, nbt.get("appearance")).result().map(MachineAppearance::new).orElse(null);
     }
 
     //Needed for multiplayer sync
@@ -278,6 +302,8 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         nbt.putString("machineID", getId().toString());
         nbt.putString("status", this.status.toString());
         nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
+        if(this.customAppearance != null)
+            MachineAppearance.CODEC.encodeStart(NbtOps.INSTANCE, this.customAppearance.getProperties()).result().ifPresent(appearance -> nbt.put("appearance", appearance));
         return nbt;
     }
 

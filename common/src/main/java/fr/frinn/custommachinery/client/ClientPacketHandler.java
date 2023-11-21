@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.client.screen.creator.MachineCreationScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -15,6 +16,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -55,5 +57,16 @@ public class ClientPacketHandler {
         CustomMachinery.MACHINES.putAll(machines);
         Registration.GROUP.fillItemList(NonNullList.create());
         MachineCreationScreen.INSTANCE.refreshMachineList();
+    }
+
+    public static void handleUpdateMachineAppearancePacket(BlockPos pos, @Nullable MachineAppearance appearance) {
+        if(Minecraft.getInstance().level != null) {
+            BlockEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);
+            if(tile instanceof CustomMachineTile machineTile) {
+                machineTile.setCustomAppearance(appearance);
+                machineTile.refreshClientData();
+                Minecraft.getInstance().level.sendBlockUpdated(pos, machineTile.getBlockState(), machineTile.getBlockState(), Block.UPDATE_ALL);
+            }
+        }
     }
 }

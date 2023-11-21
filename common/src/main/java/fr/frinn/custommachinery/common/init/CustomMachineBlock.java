@@ -217,7 +217,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(tile -> tile instanceof CustomMachineTile)
                 .map(tile -> (CustomMachineTile)tile)
-                .map(tile -> tile.getMachine().getAppearance(tile.getStatus()))
+                .map(CustomMachineTile::getAppearance)
                 .map(appearance -> Utils.getMachineBreakSpeed(appearance, level, pos, player))
                 .orElseGet(() -> {
                     //Don't call super.getDestroyProgress here as it will trigger BlockBehaviourWorldlyBlockMixin#handleWorldlyBreakableCondition
@@ -236,7 +236,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(tile -> tile instanceof CustomMachineTile)
-                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getShape().apply(state.getValue(BlockStateProperties.HORIZONTAL_FACING)))
+                .map(tile -> ((CustomMachineTile)tile).getAppearance().getShape().apply(state.getValue(BlockStateProperties.HORIZONTAL_FACING)))
                 .orElse(super.getShape(state, level, pos, context));
     }
 
@@ -247,7 +247,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(tile -> tile instanceof CustomMachineTile)
-                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getResistance())
+                .map(tile -> ((CustomMachineTile)tile).getAppearance().getResistance())
                 .orElse(super.getExplosionResistance());
     }
 
@@ -255,7 +255,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     public SoundType getSoundType(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
-                .map(tile -> ((CustomMachineTile)tile).getMachine().getAppearance(((CustomMachineTile)tile).getStatus()).getInteractionSound())
+                .map(tile -> ((CustomMachineTile)tile).getAppearance().getInteractionSound())
                 .orElse(super.getSoundType(state));
     }
 
@@ -289,7 +289,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
                 .map(blockEntity -> (CustomMachineTile)blockEntity)
-                .map(machine -> PlatformHelper.hasCorrectToolsForDrops(player, MachineBlockState.CACHE.getUnchecked(machine.getMachine().getAppearance(machine.getStatus()))))
+                .map(machine -> PlatformHelper.hasCorrectToolsForDrops(player, MachineBlockState.CACHE.getUnchecked(machine.getAppearance())))
                 .orElse(player.hasCorrectToolForDrops(state));
     }
 

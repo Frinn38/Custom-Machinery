@@ -18,6 +18,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -156,5 +157,14 @@ public class MachineAppearance implements IMachineAppearance {
 
     public Map<MachineAppearanceProperty<?>, Object> getProperties() {
         return this.properties;
+    }
+
+    public static Map<MachineAppearanceProperty<?>, Object> defaultProperties() {
+        Map<MachineAppearanceProperty<?>, Object> map = new HashMap<>();
+
+        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY)
+            map.put(property, property.getDefaultValue());
+
+        return map;
     }
 }

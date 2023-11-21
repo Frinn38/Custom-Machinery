@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
-import java.util.stream.Stream;
 
 /**
  * The base class of the custom machine tile entity,
@@ -86,7 +85,23 @@ public abstract class MachineTile extends BlockEntity {
 
     public abstract IProcessor getProcessor();
 
+    /**
+     * Get the current machine appearance.
+     * The returned {@link IMachineAppearance} will be either a custom appearance set by the recipe currently processing
+     * or the default appearance specified in the machine json.
+     * This is synced from the server to client.
+     * @return The current {@link IMachineAppearance} for this {@link MachineTile}
+     */
     public abstract IMachineAppearance getAppearance();
+
+    /**
+     * This allows to set a custom {@link IMachineAppearance} to this machine.
+     * It is used by recipes for setting a custom running appearance per recipe.
+     * This method should be called on the server side only, as it will be synced to all clients automatically.
+     * Pass null to make the machine use its default appearance, as specified in the machine json.
+     * @param appearance A custom machine appearance to display.
+     */
+    public abstract void setCustomAppearance(@Nullable IMachineAppearance appearance);
 
     /**
      * Set an entity as the owner of the machine.

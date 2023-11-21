@@ -183,4 +183,14 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
             CraftTweakerAPI.LOGGER.error("Can't put info for null requirement");
         return this;
     }
+
+    /** APPEARANCE **/
+
+    @Method
+    public CustomMachineRecipeCTBuilder appearance(Consumer<MachineAppearanceBuilderCT> consumer) {
+        MachineAppearanceBuilderCT builder = new MachineAppearanceBuilderCT();
+        consumer.accept(builder);
+        this.builder.withAppearance(builder.build());
+        return this;
+    }
 }

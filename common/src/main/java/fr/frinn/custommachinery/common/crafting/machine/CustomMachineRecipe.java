@@ -1,12 +1,14 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableMap;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
+import fr.frinn.custommachinery.api.machine.IMachineAppearance;
+import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.crafting.RecipeChecker;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.Comparators;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -15,10 +17,10 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
 
@@ -31,9 +33,13 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     private final int jeiPriority;
     private final boolean resetOnError;
     private final boolean hidden;
+    @Nullable
+    private final MachineAppearance appearance;
+    @Nullable
+    private MachineAppearance customAppearance;
     private final Supplier<RecipeChecker<CustomMachineRecipe>> checker = Suppliers.memoize(() -> new RecipeChecker<>(this));
 
-    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden) {
+    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance) {
         this.id = id;
         this.machine = machine;
         this.time = time;
@@ -43,6 +49,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         this.jeiPriority = jeiPriority;
         this.resetOnError = resetOnError;
         this.hidden = hidden;
+        this.appearance = appearance;
     }
 
     @Override
@@ -93,6 +100,34 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     @Override
     public boolean showInJei() {
         return !this.hidden;
+    }
+
+    @Nullable
+    public MachineAppearance getAppearance() {
+        return this.appearance;
+    }
+
+    @Nullable
+    public MachineAppearance getCustomAppearance(IMachineAppearance baseAppearance) {
+        if(this.customAppearance != null)
+            return this.customAppearance;
+
+        if(this.appearance == null)
+            return null;
+
+        ImmutableMap.Builder<MachineAppearanceProperty<?>, Object> properties = ImmutableMap.builder();
+
+        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY) {
+            Object value = this.appearance.getProperty(property);
+            if(value == null || property.getDefaultValue().equals(value))
+                properties.put(property, baseAppearance.getProperty(property));
+            else
+                properties.put(property, value);
+        }
+
+        this.customAppearance = new MachineAppearance(properties.build());
+
+        return this.customAppearance;
     }
 
     public RecipeChecker<CustomMachineRecipe> checker() {

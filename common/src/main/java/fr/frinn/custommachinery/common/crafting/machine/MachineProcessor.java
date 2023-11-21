@@ -23,6 +23,7 @@ import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,7 +87,10 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
             if(this.phase == PHASE.ENDING)
                 this.endProcess();
         }
-        else this.tile.setStatus(MachineStatus.IDLE);
+        else {
+            this.tile.setStatus(MachineStatus.IDLE);
+            this.tile.setCustomAppearance(null);
+        }
     }
 
     private void init() {
@@ -121,7 +125,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                         reset();
                         return;
                     } else {
-                        this.tile.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        this.setErrored(result.getMessage());
                         break;
                     }
                 } else this.processedRequirements.add(requirement);
@@ -129,7 +133,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         }
 
         if (this.processedRequirements.size() == this.currentRecipe.getRequirements().size()) {
-            this.tile.setStatus(MachineStatus.RUNNING);
+            this.setRunning();
             this.phase = PHASE.CRAFTING_TICKABLE;
             this.processedRequirements.clear();
         }
@@ -149,7 +153,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                         reset();
                         return;
                     } else {
-                        this.tile.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        this.setErrored(result.getMessage());
                         break;
                     }
                 } else this.processedRequirements.add(tickableRequirement);
@@ -158,7 +162,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
         if (this.processedRequirements.size() == this.tickableRequirements.size()) {
             this.recipeProgressTime += this.context.getModifiedSpeed();
-            this.tile.setStatus(MachineStatus.RUNNING);
+            this.setRunning();
             this.processedRequirements.clear();
         }
         this.phase = PHASE.CRAFTING_DELAYED;
@@ -175,7 +179,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                         reset();
                         return;
                     } else {
-                        this.tile.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        this.setErrored(result.getMessage());
                         break;
                     }
                 } else iterator.remove();
@@ -202,7 +206,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                         reset();
                         return;
                     } else {
-                        this.tile.setStatus(MachineStatus.ERRORED, result.getMessage());
+                        this.setErrored(result.getMessage());
                         break;
                     }
                 }
@@ -238,7 +242,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                 .toList();
         this.recipeTotalTime = this.currentRecipe.getRecipeTime();
         this.phase = PHASE.STARTING;
-        this.tile.setStatus(MachineStatus.RUNNING);
+        this.setRunning();
     }
 
     //Set the recipe the machine was processing before being unloaded. Save the current progress time and phase.
@@ -257,7 +261,18 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                 .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
                 .toList();
         this.recipeTotalTime = this.currentRecipe.getRecipeTime();
+        this.setRunning();
+    }
+
+    public void setRunning() {
         this.tile.setStatus(MachineStatus.RUNNING);
+        if(this.currentRecipe.getCustomAppearance(this.tile.getAppearance()) != null)
+            this.tile.setCustomAppearance(this.currentRecipe.getCustomAppearance(this.tile.getAppearance()));
+    }
+
+    public void setErrored(Component message) {
+        this.tile.setStatus(MachineStatus.ERRORED, message);
+        this.tile.setCustomAppearance(null);
     }
 
     @Override
@@ -269,6 +284,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         this.recipeTotalTime = 0;
         this.processedRequirements.clear();
         this.context = null;
+        this.tile.setCustomAppearance(null);
     }
 
     public MachineTile getTile() {

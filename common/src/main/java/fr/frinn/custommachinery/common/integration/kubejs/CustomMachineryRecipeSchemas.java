@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
 import dev.latvian.mods.kubejs.item.OutputItem;
@@ -15,6 +16,7 @@ import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
 import dev.latvian.mods.kubejs.recipe.component.TimeComponent;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.resources.ResourceLocation;
 
 public interface CustomMachineryRecipeSchemas {
@@ -54,6 +56,28 @@ public interface CustomMachineryRecipeSchemas {
         }
     };
     ArrayRecipeComponent<IRequirement<?>> REQUIREMENT_LIST = REQUIREMENT_COMPONENT.asArray();
+    RecipeComponent<MachineAppearance> CUSTOM_APPEARANCE = new RecipeComponent<MachineAppearance>() {
+        @Override
+        public Class<MachineAppearance> componentClass() {
+            return MachineAppearance.class;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, MachineAppearance value) {
+            return MachineAppearance.CODEC.encodeStart(JsonOps.INSTANCE, value.getProperties()).result().orElse(null);
+        }
+
+        @Override
+        public MachineAppearance read(RecipeJS recipe, Object from) {
+            if(from instanceof MachineAppearance appearance)
+                return appearance;
+
+            if(from instanceof JsonObject json)
+                return MachineAppearance.CODEC.read(JsonOps.INSTANCE, json).result().map(MachineAppearance::new).orElse(null);
+
+            return null;
+        }
+    };
 
     RecipeKey<ResourceLocation> MACHINE_ID = RESOURCE_LOCATION.key("machine");
     RecipeKey<Long> TIME = TimeComponent.TICKS.key("time");
@@ -67,7 +91,8 @@ public interface CustomMachineryRecipeSchemas {
 
     RecipeKey<Boolean> ERROR = BooleanComponent.BOOLEAN.key("error").optional(false).alwaysWrite().exclude();
     RecipeKey<Boolean> HIDDEN = BooleanComponent.BOOLEAN.key("hidden").optional(false).alwaysWrite().exclude();
+    RecipeKey<MachineAppearance> APPEARANCE = CUSTOM_APPEARANCE.key("appearance").optional((MachineAppearance) null).alwaysWrite().exclude();
 
-    RecipeSchema CUSTOM_MACHINE = new RecipeSchema(CustomMachineRecipeBuilderJS.class, CustomMachineRecipeBuilderJS::new, MACHINE_ID, TIME, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, ERROR, HIDDEN);
+    RecipeSchema CUSTOM_MACHINE = new RecipeSchema(CustomMachineRecipeBuilderJS.class, CustomMachineRecipeBuilderJS::new, MACHINE_ID, TIME, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, ERROR, HIDDEN, APPEARANCE);
     RecipeSchema CUSTOM_CRAFT = new RecipeSchema(CustomCraftRecipeJSBuilder.class, CustomCraftRecipeJSBuilder::new, MACHINE_ID, OUTPUT, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, HIDDEN);
 }

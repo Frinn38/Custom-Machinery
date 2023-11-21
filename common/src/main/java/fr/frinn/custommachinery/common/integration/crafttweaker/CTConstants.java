@@ -11,6 +11,8 @@ public class CTConstants {
     public static final String RECIPE_MANAGER_MACHINE = "mods." + CustomMachinery.MODID + ".MachineRecipeManager";
     public static final String RECIPE_MANAGER_CRAFT = "mods." + CustomMachinery.MODID + ".CraftRecipeManager";
 
+    public static final String APPEARANCE_BUILDER = "mods." + CustomMachinery.MODID + ".AppearanceBuilder";
+
     /** REQUIREMENTS **/
     public static final String REQUIREMENT_TYPE_BRACKET = "mods." + CustomMachinery.MODID + ".RequirementTypeBracket";
     public static final String REQUIREMENT_DISPLAY_INFO = "mods." + CustomMachinery.MODID + ".RequirementDisplayInfo";

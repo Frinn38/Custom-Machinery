@@ -40,7 +40,7 @@ public class ForgeCustomMachineTile extends CustomMachineTile {
     @Override
     public ModelData getModelData() {
         return ModelData.builder()
-                .with(CustomMachineBakedModel.APPEARANCE, getMachine().getAppearance(getStatus()).copy())
+                .with(CustomMachineBakedModel.APPEARANCE, getAppearance().copy())
                 .with(CustomMachineBakedModel.STATUS, getStatus())
                 .build();
     }

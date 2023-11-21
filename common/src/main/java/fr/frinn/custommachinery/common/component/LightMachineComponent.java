@@ -31,7 +31,7 @@ public class LightMachineComponent extends AbstractMachineComponent implements I
 
     public int getMachineLight() {
         if(this.emmitLight)
-            return getManager().getTile().getMachine().getAppearance(getManager().getTile().getStatus()).getLightLevel();
+            return getManager().getTile().getAppearance().getLightLevel();
         return 0;
     }
 
