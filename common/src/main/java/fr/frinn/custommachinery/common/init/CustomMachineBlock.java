@@ -65,8 +65,15 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
 
     private static final StateArgumentPredicate<EntityType<?>> spawnPredicate = ((state, level, pos, type) -> state.isFaceSturdy(level, pos, Direction.UP) && state.getBlock() instanceof CustomMachineBlock machineBlock && machineBlock.getLightEmission(state, level, pos) < 14);
 
-    public CustomMachineBlock() {
+    public final String renderType;
+
+    public CustomMachineBlock(String renderType) {
         super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate));
+        this.renderType = renderType;
+    }
+
+    public CustomMachineBlock() {
+        this("translucent");
     }
 
     @SuppressWarnings("deprecation")

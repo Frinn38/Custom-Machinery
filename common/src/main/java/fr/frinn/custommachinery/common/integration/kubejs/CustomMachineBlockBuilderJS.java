@@ -8,7 +8,6 @@ import dev.latvian.mods.kubejs.item.ItemBuilder;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
 import dev.latvian.mods.kubejs.registry.RegistryInfo;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -16,17 +15,29 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
+import java.util.List;
+
 public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
+    public static final List<String> VALID_RENDER_TYPES = List.of("solid", "cutout", "translucent");
     private ResourceLocation machineID;
+    private String renderType;
 
     public CustomMachineBlockBuilderJS(ResourceLocation i) {
         super(i);
         this.machineID = id;
+        this.renderType = "translucent";
     }
 
     public CustomMachineBlockBuilderJS machine(ResourceLocation machineID) {
         this.machineID = machineID;
+        return this;
+    }
+
+    public CustomMachineBlockBuilderJS renderType(String renderType) {
+        if(!VALID_RENDER_TYPES.contains(renderType))
+            throw new IllegalArgumentException("Render type: '" + renderType + "' is not supported, must be one of " + VALID_RENDER_TYPES);
+        this.renderType = renderType;
         return this;
     }
 
@@ -37,7 +48,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public Block createObject() {
-        Block block = new CustomMachineBlock();
+        CustomMachineBlock block = new CustomMachineBlock(this.renderType);
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
         if(Platform.isFabric())
             Registration.CUSTOM_MACHINE_TILE.get().validBlocks.add(block);

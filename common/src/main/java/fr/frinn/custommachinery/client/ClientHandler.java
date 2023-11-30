@@ -19,7 +19,6 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendererEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterWidgetToJeiIngredientGetterEvent;
-import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.client.integration.jei.FluidIngredientGetter;
 import fr.frinn.custommachinery.client.integration.jei.element.EnergyGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.FluidGuiElementJeiRenderer;
@@ -49,6 +48,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
+import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -97,8 +97,8 @@ public class ClientHandler {
     }
 
     private static void clientSetup() {
-        RenderTypeRegistry.register(RenderType.translucent(), Registration.CUSTOM_MACHINE_BLOCK.get());
-        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> RenderTypeRegistry.register(RenderType.translucent(), block));
+        RenderTypeRegistry.register(getRenderType(Registration.CUSTOM_MACHINE_BLOCK.get().renderType), Registration.CUSTOM_MACHINE_BLOCK.get());
+        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> RenderTypeRegistry.register(getRenderType(block.renderType), block));
 
         MenuRegistry.registerScreenFactory(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
         GuiElementWidgetSupplierRegistry.init();
@@ -286,5 +286,14 @@ public class ClientHandler {
 
     public static boolean isShiftKeyDown() {
         return Screen.hasShiftDown();
+    }
+
+    public static RenderType getRenderType(String renderType) {
+        return switch(renderType) {
+            case "solid" -> RenderType.solid();
+            case "cutout" -> RenderType.cutout();
+            case "translucent" -> RenderType.translucent();
+            default -> throw new IllegalArgumentException("Invalid render type: " + renderType);
+        };
     }
 }

@@ -2,11 +2,9 @@ package fr.frinn.custommachinery;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.event.EventResult;
-import dev.architectury.event.events.common.CommandPerformEvent;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.InteractionEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
-import dev.architectury.platform.Platform;
 import dev.architectury.registry.ReloadListenerRegistry;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
@@ -15,9 +13,9 @@ import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.variant.ComponentVariantRegistry;
 import fr.frinn.custommachinery.common.init.BoxCreatorItem;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
-import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.network.PacketManager;
@@ -28,7 +26,6 @@ import fr.frinn.custommachinery.common.upgrade.Upgrades;
 import fr.frinn.custommachinery.common.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
-import fr.frinn.custommachinery.common.util.MachineList;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
@@ -44,7 +41,6 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,7 +54,7 @@ public class CustomMachinery {
     public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
-    public static final Map<ResourceLocation, Block> CUSTOM_BLOCK_MACHINES = new HashMap<>();
+    public static final Map<ResourceLocation, CustomMachineBlock> CUSTOM_BLOCK_MACHINES = new HashMap<>();
     public static final Upgrades UPGRADES = new Upgrades();
 
     public static void init() {
