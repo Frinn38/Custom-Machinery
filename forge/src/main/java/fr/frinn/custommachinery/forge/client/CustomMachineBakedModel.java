@@ -5,6 +5,7 @@ import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.client.Minecraft;
@@ -18,9 +19,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.RenderTypeHelper;
 import net.minecraftforge.client.model.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -74,6 +78,18 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     @Override
     public ItemOverrides getOverrides() {
         return this.overrideList;
+    }
+
+    @Override
+    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
+        return getMachineModel(data).getRenderTypes(state, rand, data);
+    }
+
+    @Override
+    public List<RenderType> getRenderTypes(ItemStack stack, boolean fabulous) {
+        return CustomMachineItem.getMachine(stack)
+                .map(machine -> getMachineItemModel(machine.getAppearance(MachineStatus.IDLE)).getRenderTypes(stack, fabulous))
+                .orElse(List.of(RenderTypeHelper.getFallbackItemRenderType(stack, this, fabulous)));
     }
 
     @NotNull
