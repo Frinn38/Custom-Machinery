@@ -25,20 +25,20 @@ public class MachineList {
         TickEvent.ServerLevelTick.SERVER_POST.register(MachineList::serverTick);
     }
 
-    public static synchronized void addMachine(MachineTile tile) {
+    public static void addMachine(MachineTile tile) {
         if(tile.getLevel() != null && !tile.getLevel().isClientSide())
             LOADED_MACHINES.add(new WeakReference<>(tile));
     }
 
-    public static synchronized void refreshAllMachines() {
-        Iterator<WeakReference<MachineTile>> iterator = LOADED_MACHINES.iterator();
-        while (iterator.hasNext()) {
-            MachineTile tile = iterator.next().get();
+    public static void refreshAllMachines() {
+        final List<WeakReference<MachineTile>> copy = List.copyOf(LOADED_MACHINES);
+        copy.forEach(weak -> {
+            MachineTile tile = weak.get();
             if(tile != null)
                 tile.refreshMachine(null);
             else
-                iterator.remove();
-        }
+                LOADED_MACHINES.remove(weak);
+        });
     }
 
     public static void setNeedRefresh() {
