@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
@@ -54,7 +56,7 @@ public class CustomMachinery {
     public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
-    public static final Map<ResourceLocation, CustomMachineBlock> CUSTOM_BLOCK_MACHINES = new HashMap<>();
+    public static final BiMap<ResourceLocation, CustomMachineBlock> CUSTOM_BLOCK_MACHINES = HashBiMap.create();
     public static final Upgrades UPGRADES = new Upgrades();
 
     public static void init() {

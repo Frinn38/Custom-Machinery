@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import com.communi.suggestu.saecularia.caudices.core.block.IBlockWithWorldlyProperties;
 import dev.architectury.registry.menu.MenuRegistry;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
@@ -15,6 +16,7 @@ import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -109,6 +111,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
         return super.use(state, level, pos, player, hand, hit);
     }
 
+    //When placed by an entity
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         CustomMachineItem.getMachine(stack).ifPresent(machine -> {
@@ -121,6 +124,15 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
                     level.getServer().tell(new TickTask(1, () -> new SRefreshCustomMachineTilePacket(pos, machine.getId()).sendToChunkListeners(level.getChunkAt(pos))));
             }
         });
+    }
+
+    //When placed by anything else than an entity
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+        ResourceLocation id = CustomMachinery.CUSTOM_BLOCK_MACHINES.inverse().get(this);
+        if(id != null && level.getBlockEntity(pos) instanceof CustomMachineTile machineTile)
+            machineTile.setId(id);
     }
 
     //Drop the machine block, but only if the player has correct tool or if requires-tool is disabled.
