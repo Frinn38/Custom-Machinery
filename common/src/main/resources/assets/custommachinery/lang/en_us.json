@@ -3,6 +3,7 @@
   "item.custommachinery.machine_creator_item": "Machine Creator",
   "item.custommachinery.box_creator_item": "Box Creator",
   "item.custommachinery.structure_creator": "Structure Creator",
+  "item.custommachinery.configuration_card": "Configuration Card",
   "itemGroup.custommachinery.group": "Custom Machinery",
 
   "custommachinery.box_creator.first_block": "First Block : %s",
@@ -19,6 +20,14 @@
   "custommachinery.structure_creator.select": "Right click a block to add or remove it",
   "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s %s",
   "custommachinery.structure_creator.reset": "Right click in the air while crouching to reset",
+
+  "custommachinery.configuration_card.usage": "Sneak and right click the machine block to copy or paste configuration",
+  "custommachinery.configuration_card.reset": "Right click in the air while crouching to reset",
+  "custommachinery.configuration_card.configured": "Configured to: %s",
+  "custommachinery.configuration_card.copied": "Configuration copied successfully",
+  "custommachinery.configuration_card.pasted": "Configuration pasted successfully",
+  "custommachinery.configuration_card.cleared": "Configuration cleared",
+  "custommachinery.configuration_card.different_machine": "This card is configured to a different machine",
 
   "custommachinery.machine_creator.warning": "Disabled, use json files to create your machines",
 
