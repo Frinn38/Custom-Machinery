@@ -46,13 +46,7 @@ public class ConfigurationCardItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        var stack = player.getItemInHand(context.getHand());
-
-        if (hasMachineId(stack)) {
-            return pasteConfiguration(level, player, machine, stack);
-        } else {
-            return copyConfiguration(level, player, machine, stack);
-        }
+        return copyConfiguration(level, player, machine, player.getItemInHand(context.getHand()));
     }
 
     @Override
@@ -81,12 +75,13 @@ public class ConfigurationCardItem extends Item {
             tooltip.add(Component.translatable("custommachinery.configuration_card.configured", machine.getName()).withStyle(ChatFormatting.AQUA));
         }
 
-        tooltip.add(Component.translatable("custommachinery.configuration_card.usage").withStyle(ChatFormatting.GREEN));
+        tooltip.add(Component.translatable("custommachinery.configuration_card.copy").withStyle(ChatFormatting.GREEN));
+        tooltip.add(Component.translatable("custommachinery.configuration_card.paste").withStyle(ChatFormatting.GREEN));
         tooltip.add(Component.translatable("custommachinery.configuration_card.reset").withStyle(ChatFormatting.GOLD));
     }
 
     private InteractionResult copyConfiguration(Level level, Player player, CustomMachineTile machine, ItemStack stack) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide && player.isCrouching()) {
             setMachineId(stack, machine.getId());
 
             for (var component : machine.getComponentManager().getConfigComponents()) {
@@ -99,10 +94,13 @@ public class ConfigurationCardItem extends Item {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    private InteractionResult pasteConfiguration(Level level, Player player, CustomMachineTile machine, ItemStack stack) {
+    public static InteractionResult pasteConfiguration(Level level, Player player, CustomMachineTile machine, ItemStack stack) {
         if (!level.isClientSide) {
             var machineId = getMachineId(stack);
 
+            if (machineId.getPath().isEmpty()) {
+                return InteractionResult.FAIL;
+            }
             if (!machineId.equals(machine.getId())) {
                 player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.different_machine").withStyle(ChatFormatting.RED));
                 return InteractionResult.FAIL;
@@ -118,23 +116,23 @@ public class ConfigurationCardItem extends Item {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    private CompoundTag getDataHolder(ItemStack stack) {
+    private static CompoundTag getDataHolder(ItemStack stack) {
         return stack.getOrCreateTagElement(CustomMachinery.MODID);
     }
 
-    private boolean hasMachineId(ItemStack stack) {
+    private static boolean hasMachineId(ItemStack stack) {
         return getDataHolder(stack).contains(MACHINE_ID);
     }
 
-    private ResourceLocation getMachineId(ItemStack stack) {
+    private static ResourceLocation getMachineId(ItemStack stack) {
         return new ResourceLocation(getDataHolder(stack).getString(MACHINE_ID));
     }
 
-    private void setMachineId(ItemStack stack, ResourceLocation id) {
+    private static void setMachineId(ItemStack stack, ResourceLocation id) {
         getDataHolder(stack).putString(MACHINE_ID, id.toString());
     }
 
-    private void deserializeSideConfig(ItemStack stack, ISideConfigComponent component) {
+    private static void deserializeSideConfig(ItemStack stack, ISideConfigComponent component) {
         var dataHolder = getDataHolder(stack);
         var sideConfig = dataHolder.getCompound(SIDE_CONFIG);
 
@@ -143,7 +141,7 @@ public class ConfigurationCardItem extends Item {
         }
     }
 
-    private void serializeSideConfig(ItemStack stack, ISideConfigComponent component) {
+    private static void serializeSideConfig(ItemStack stack, ISideConfigComponent component) {
         var dataHolder = getDataHolder(stack);
 
         if (!dataHolder.contains(SIDE_CONFIG)) {

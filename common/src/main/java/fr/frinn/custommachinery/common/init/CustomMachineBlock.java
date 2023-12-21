@@ -89,6 +89,9 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile machine) {
+            if (player.getItemInHand(hand).is(Registration.CONFIGURATION_CARD_ITEM.get())) {
+                return ConfigurationCardItem.pasteConfiguration(level, player, machine, player.getItemInHand(hand));
+            }
             if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> fluidHandler.getCommonFluidHandler().interactWithFluidHandler(player, hand)).orElse(false)) {
                 return InteractionResult.SUCCESS;
             }

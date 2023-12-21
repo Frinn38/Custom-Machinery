@@ -21,7 +21,8 @@
   "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s %s",
   "custommachinery.structure_creator.reset": "Right click in the air while crouching to reset",
 
-  "custommachinery.configuration_card.usage": "Sneak and right click the machine block to copy or paste configuration",
+  "custommachinery.configuration_card.copy": "Sneak and right click the machine block to copy configuration",
+  "custommachinery.configuration_card.paste": "Right click the machine block to paste configuration",
   "custommachinery.configuration_card.reset": "Right click in the air while crouching to reset",
   "custommachinery.configuration_card.configured": "Configured to: %s",
   "custommachinery.configuration_card.copied": "Configuration copied successfully",
