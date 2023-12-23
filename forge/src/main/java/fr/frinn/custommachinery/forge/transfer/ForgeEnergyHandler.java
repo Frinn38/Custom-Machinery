@@ -95,7 +95,7 @@ public class ForgeEnergyHandler implements ICommonEnergyHandler {
         if(maxExtracted > 0) {
             int maxInserted = to.receiveEnergy(maxExtracted, true);
             if(maxInserted > 0) {
-                from.extractEnergy(maxAmount, false);
+                from.extractEnergy(maxInserted, false);
                 to.receiveEnergy(maxExtracted, false);
             }
         }
