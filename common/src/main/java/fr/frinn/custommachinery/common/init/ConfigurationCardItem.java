@@ -4,7 +4,9 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -33,18 +35,16 @@ public class ConfigurationCardItem extends Item {
     @Override
     @NotNull
     public InteractionResult useOn(UseOnContext context) {
-        var player = context.getPlayer();
+        Player player = context.getPlayer();
 
-        if (player == null) {
+        if (player == null)
             return InteractionResult.FAIL;
-        }
 
-        var pos = context.getClickedPos();
-        var level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        Level level = context.getLevel();
 
-        if (!(level.getBlockEntity(pos) instanceof CustomMachineTile machine)) {
+        if (!(level.getBlockEntity(pos) instanceof CustomMachineTile machine))
             return InteractionResult.FAIL;
-        }
 
         return copyConfiguration(level, player, machine, player.getItemInHand(context.getHand()));
     }
@@ -52,7 +52,7 @@ public class ConfigurationCardItem extends Item {
     @Override
     @NotNull
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        var stack = player.getItemInHand(hand);
+        ItemStack stack = player.getItemInHand(hand);
 
         if (!level.isClientSide && player.isCrouching()) {
             stack.removeTagKey(CustomMachinery.MODID);
@@ -67,13 +67,11 @@ public class ConfigurationCardItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        if (hasMachineId(stack)) {
-            var machine = Optional
-                    .ofNullable(CustomMachinery.MACHINES.get(getMachineId(stack)))
-                    .orElse(CustomMachine.DUMMY);
-
-            tooltip.add(Component.translatable("custommachinery.configuration_card.configured", machine.getName()).withStyle(ChatFormatting.AQUA));
-        }
+        getMachineId(stack)
+                .flatMap(id -> Optional.ofNullable(CustomMachinery.MACHINES.get(id)))
+                .ifPresent(machine -> {
+                    tooltip.add(Component.translatable("custommachinery.configuration_card.configured", machine.getName()).withStyle(ChatFormatting.AQUA));
+                });
 
         tooltip.add(Component.translatable("custommachinery.configuration_card.copy").withStyle(ChatFormatting.GREEN));
         tooltip.add(Component.translatable("custommachinery.configuration_card.paste").withStyle(ChatFormatting.GREEN));
@@ -84,9 +82,8 @@ public class ConfigurationCardItem extends Item {
         if (!level.isClientSide && player.isCrouching()) {
             setMachineId(stack, machine.getId());
 
-            for (var component : machine.getComponentManager().getConfigComponents()) {
+            for (ISideConfigComponent component : machine.getComponentManager().getConfigComponents())
                 serializeSideConfig(stack, component);
-            }
 
             player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.copied").withStyle(ChatFormatting.GREEN));
         }
@@ -96,19 +93,15 @@ public class ConfigurationCardItem extends Item {
 
     public static InteractionResult pasteConfiguration(Level level, Player player, CustomMachineTile machine, ItemStack stack) {
         if (!level.isClientSide) {
-            var machineId = getMachineId(stack);
+            Optional<ResourceLocation> machineId = getMachineId(stack);
 
-            if (machineId.getPath().isEmpty()) {
-                return InteractionResult.FAIL;
-            }
-            if (!machineId.equals(machine.getId())) {
+            if (!machineId.map(id -> id.equals(machine.getId())).orElse(false)) {
                 player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.different_machine").withStyle(ChatFormatting.RED));
                 return InteractionResult.FAIL;
             }
 
-            for (var component : machine.getComponentManager().getConfigComponents()) {
+            for (ISideConfigComponent component : machine.getComponentManager().getConfigComponents())
                 deserializeSideConfig(stack, component);
-            }
 
             player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.pasted").withStyle(ChatFormatting.GREEN));
         }
@@ -116,40 +109,36 @@ public class ConfigurationCardItem extends Item {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    private static CompoundTag getDataHolder(ItemStack stack) {
-        return stack.getOrCreateTagElement(CustomMachinery.MODID);
+    private static Optional<CompoundTag> getDataHolder(ItemStack stack) {
+        return Optional.ofNullable(stack.getTagElement(CustomMachinery.MODID));
     }
 
-    private static boolean hasMachineId(ItemStack stack) {
-        return getDataHolder(stack).contains(MACHINE_ID);
-    }
-
-    private static ResourceLocation getMachineId(ItemStack stack) {
-        return new ResourceLocation(getDataHolder(stack).getString(MACHINE_ID));
+    private static Optional<ResourceLocation> getMachineId(ItemStack stack) {
+        return getDataHolder(stack).map(nbt -> ResourceLocation.tryParse(nbt.getString(MACHINE_ID)));
     }
 
     private static void setMachineId(ItemStack stack, ResourceLocation id) {
-        getDataHolder(stack).putString(MACHINE_ID, id.toString());
+        stack.getOrCreateTagElement(CustomMachinery.MODID).putString(MACHINE_ID, id.toString());
     }
 
     private static void deserializeSideConfig(ItemStack stack, ISideConfigComponent component) {
-        var dataHolder = getDataHolder(stack);
-        var sideConfig = dataHolder.getCompound(SIDE_CONFIG);
-
-        if (sideConfig.contains(component.getId())) {
-            component.getConfig().deserialize(sideConfig.get(component.getId()));
-        }
+        getDataHolder(stack).ifPresent(nbt -> {
+            if(nbt.contains(SIDE_CONFIG, Tag.TAG_COMPOUND)) {
+                CompoundTag sideConfig = nbt.getCompound(SIDE_CONFIG);
+                if (sideConfig.contains(component.getId())) {
+                    component.getConfig().deserialize(sideConfig.get(component.getId()));
+                }
+            }
+        });
     }
 
     private static void serializeSideConfig(ItemStack stack, ISideConfigComponent component) {
-        var dataHolder = getDataHolder(stack);
-
-        if (!dataHolder.contains(SIDE_CONFIG)) {
-            dataHolder.put(SIDE_CONFIG, new CompoundTag());
+        CompoundTag sideConfig = stack.getOrCreateTagElement(CustomMachinery.MODID).getCompound(SIDE_CONFIG);
+        if(!stack.getOrCreateTagElement(CustomMachinery.MODID).contains(SIDE_CONFIG, Tag.TAG_COMPOUND)) {
+            stack.getOrCreateTagElement(CustomMachinery.MODID).put(SIDE_CONFIG, sideConfig);
         }
 
-        var sideConfig = dataHolder.getCompound(SIDE_CONFIG);
-
         sideConfig.put(component.getId(), component.getConfig().serialize());
+        stack.getOrCreateTagElement(CustomMachinery.MODID).put(SIDE_CONFIG, sideConfig);
     }
 }
