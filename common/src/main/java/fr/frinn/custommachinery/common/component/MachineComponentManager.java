@@ -19,6 +19,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -126,6 +127,10 @@ public class MachineComponentManager implements IMachineComponentManager {
     //ID is 'component_type_registry_name:id'
     public Optional<ISideConfigComponent> getConfigComponentById(String id) {
         return Optional.ofNullable(this.configComponents.get(id));
+    }
+
+    public Collection<ISideConfigComponent> getConfigComponents() {
+        return this.configComponents.values();
     }
 
     @Override
