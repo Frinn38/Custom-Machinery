@@ -12,19 +12,25 @@ import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
+import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.Comparators;
+import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +76,8 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     }
 
     @Override
-    protected void renderBg(PoseStack poseStack, float mouseX, int mouseY, int partialTicks) {
-        super.renderBackground(poseStack);
+    protected void renderBg(PoseStack pose, float mouseX, int mouseY, int partialTicks) {
+        super.renderBackground(pose);
     }
 
     @Override
@@ -84,6 +90,14 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         });
         this.renderTooltip(poseStack, mouseX, mouseY);
         poseStack.popPose();
+    }
+
+    @Override
+    public void renderSlot(PoseStack pose, Slot slot) {
+        if(slot instanceof FilterSlotItemComponent filterSlot && slot.hasItem())
+            drawGhostItem(pose, slot.getItem(), slot.x, slot.y, FastColor.ARGB32.color(128, 255, 255, 255));
+        else
+            super.renderSlot(pose, slot);
     }
 
     @Override
@@ -128,6 +142,8 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     @Override
     public void drawGhostItem(PoseStack pose, ItemStack item, int posX, int posY, int color) {
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+
         Minecraft.getInstance().getTextureManager().getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
         RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
         RenderSystem.enableBlend();
@@ -136,21 +152,21 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
         PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
-        poseStack.translate(posX, posY, 100.0F + this.itemRenderer.blitOffset);
+        poseStack.translate(posX, posY, 100.0F + itemRenderer.blitOffset);
         poseStack.translate(8.0, 8.0, 0.0);
         poseStack.scale(1.0F, -1.0F, 1.0F);
         poseStack.scale(16.0F, 16.0F, 16.0F);
 
         RenderSystem.applyModelViewMatrix();
+
         PoseStack poseStack2 = new PoseStack();
         ColoredBufferSource bufferSource = new ColoredBufferSource(Minecraft.getInstance().renderBuffers().bufferSource(), color);
-        //MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        BakedModel model = this.itemRenderer.getModel(item, null, null, 0);
+        BakedModel model = itemRenderer.getModel(item, null, null, 0);
 
         if (!model.usesBlockLight())
             Lighting.setupForFlatItems();
 
-        this.itemRenderer.render(item, ItemTransforms.TransformType.GUI, false, poseStack2, bufferSource, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, model);
+        itemRenderer.render(item, ItemTransforms.TransformType.GUI, false, poseStack2, bufferSource, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, model);
         bufferSource.endBatch();
         RenderSystem.enableDepthTest();
 

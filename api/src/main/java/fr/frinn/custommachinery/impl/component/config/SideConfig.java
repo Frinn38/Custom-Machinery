@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
+import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
@@ -118,15 +119,17 @@ public class SideConfig {
                     NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(template -> template.enabled)
             ).apply(templateInstance, Template::new), "Side Config Template");
 
-        public static final Template DEFAULT_ALL_BOTH = makeDefault(SideMode.BOTH);
-        public static final Template DEFAULT_ALL_INPUT = makeDefault(SideMode.INPUT);
-        public static final Template DEFAULT_ALL_OUTPUT = makeDefault(SideMode.OUTPUT);
-        public static final Template DEFAULT_ALL_NONE = makeDefault(SideMode.NONE);
-        private static Template makeDefault(SideMode defaultMode) {
+        public static final Template DEFAULT_ALL_BOTH = makeDefault(SideMode.BOTH, true);
+        public static final Template DEFAULT_ALL_INPUT = makeDefault(SideMode.INPUT, true);
+        public static final Template DEFAULT_ALL_OUTPUT = makeDefault(SideMode.OUTPUT, true);
+        public static final Template DEFAULT_ALL_NONE = makeDefault(SideMode.NONE, true);
+        public static final Template DEFAULT_ALL_NONE_DISABLED = makeDefault(SideMode.NONE, false);
+
+        private static Template makeDefault(SideMode defaultMode, boolean enabled) {
             EnumMap<RelativeSide, SideMode> map = Maps.newEnumMap(RelativeSide.class);
             for(RelativeSide side : RelativeSide.values())
                 map.put(side, defaultMode);
-            return new Template(map, false, false, true);
+            return new Template(map, false, false, enabled);
         }
 
         private final Map<RelativeSide, SideMode> sides;

@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.ICommonItemHandler;
@@ -39,10 +40,12 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         super(manager, components);
         components.forEach(component -> {
             component.getConfig().setCallback(this.handler::configChanged);
-            if(component.getMode().isInput())
-                this.inputs.add(component);
-            if(component.getMode().isOutput())
-                this.outputs.add(component);
+            if(component.getVariant() != FilterItemComponentVariant.INSTANCE) {
+                if(component.getMode().isInput())
+                    this.inputs.add(component);
+                if(component.getMode().isOutput())
+                    this.outputs.add(component);
+            }
         });
         this.tickableVariants = components.stream().filter(component -> component.getVariant() instanceof ITickableComponentVariant).toList();
     }

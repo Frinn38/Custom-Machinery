@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dev.architectury.registry.fuel.FuelRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
@@ -17,8 +18,10 @@ import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
+import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.recipe.IFocusFactory;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
@@ -37,6 +40,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,6 +131,41 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                     int height = invertAxis ? progress.getWidth() : progress.getHeight();
                     return createBasic(posX, posY, width, height, screen.getMachine().getId());
                 }).toList();
+            }
+        });
+        registration.addGhostIngredientHandler(CustomMachineScreen.class, new IGhostIngredientHandler<>() {
+            //Safe to remove when needed
+            @Override
+            public <I> List<Target<I>> getTargets(CustomMachineScreen gui, I ingredient, boolean doStart) {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public <I> List<Target<I>> getTargetsTyped(CustomMachineScreen screen, ITypedIngredient<I> ingredient, boolean doStart) {
+                if(ingredient.getIngredient() instanceof ItemStack stack) {
+                    return screen.getMenu().slots.stream()
+                            .filter(slot -> slot instanceof FilterSlotItemComponent)
+                            .map(slot -> {
+                                FilterSlotItemComponent filterSlot = (FilterSlotItemComponent) slot;
+                                return new Target<I>() {
+                                    @Override
+                                    public Rect2i getArea() {
+                                        return new Rect2i(screen.getX() + filterSlot.x, screen.getY() + filterSlot.y, 16, 16);
+                                    }
+
+                                    @Override
+                                    public void accept(I ingredient) {
+                                        filterSlot.setFromClient(stack);
+                                    }
+                                };
+                            }).collect(Collectors.toList());
+                }
+                return Collections.emptyList();
+            }
+
+            @Override
+            public void onComplete() {
+
             }
         });
     }

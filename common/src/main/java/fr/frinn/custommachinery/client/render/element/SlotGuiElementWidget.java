@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
+import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;

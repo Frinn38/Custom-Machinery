@@ -24,6 +24,7 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Flu
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FuelRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FunctionRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemFilterRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemTransformRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.LightRequirementCT;
@@ -54,7 +55,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
         WeatherRequirementCT<CustomMachineRecipeCTBuilder>, RedstoneRequirementCT<CustomMachineRecipeCTBuilder>, EntityRequirementCT<CustomMachineRecipeCTBuilder>,
         LightRequirementCT<CustomMachineRecipeCTBuilder>, BlockRequirementCT<CustomMachineRecipeCTBuilder>, StructureRequirementCT<CustomMachineRecipeCTBuilder>,
         LootTableRequirementCT<CustomMachineRecipeCTBuilder>, DropRequirementCT<CustomMachineRecipeCTBuilder>, FunctionRequirementCT<CustomMachineRecipeCTBuilder>,
-        ButtonRequirementCT<CustomMachineRecipeCTBuilder>, SkyRequirementCT<CustomMachineRecipeCTBuilder> {
+        ButtonRequirementCT<CustomMachineRecipeCTBuilder>, SkyRequirementCT<CustomMachineRecipeCTBuilder>, ItemFilterRequirementCT<CustomMachineRecipeCTBuilder> {
 
     public static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private final CustomMachineRecipeBuilder builder;

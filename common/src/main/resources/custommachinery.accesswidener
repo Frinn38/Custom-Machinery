@@ -24,3 +24,6 @@ accessible method net/minecraft/server/packs/FilePackResources getOrCreateZipFil
 
 #BlockEntityType validBlocks
 accessible field net/minecraft/world/level/block/entity/BlockEntityType validBlocks Ljava/util/Set;
+
+#AbstractContainerScreen renderSlot
+extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/inventory/Slot;)V

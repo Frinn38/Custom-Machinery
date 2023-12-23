@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.util;
+package fr.frinn.custommachinery.common.util.slot;
 
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;

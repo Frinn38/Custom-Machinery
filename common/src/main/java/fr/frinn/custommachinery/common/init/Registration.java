@@ -47,6 +47,7 @@ import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.EnergyItemComponentVariant;
+import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.FluidItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
@@ -109,6 +110,7 @@ import fr.frinn.custommachinery.common.requirement.FluidPerTickRequirement;
 import fr.frinn.custommachinery.common.requirement.FluidRequirement;
 import fr.frinn.custommachinery.common.requirement.FuelRequirement;
 import fr.frinn.custommachinery.common.requirement.FunctionRequirement;
+import fr.frinn.custommachinery.common.requirement.ItemFilterRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
 import fr.frinn.custommachinery.common.requirement.LightRequirement;
@@ -260,6 +262,7 @@ public class Registration {
     public static final RegistrySupplier<RequirementType<ItemTransformRequirement>> ITEM_TRANSFORM_REQUIREMENT = REQUIREMENTS.register("item_transform", () -> RequirementType.inventory(ItemTransformRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<ButtonRequirement>> BUTTON_REQUIREMENT = REQUIREMENTS.register("button", () -> RequirementType.world(ButtonRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<SkyRequirement>> SKY_REQUIREMENT = REQUIREMENTS.register("sky", () -> RequirementType.world(SkyRequirement.CODEC));
+    public static final RegistrySupplier<RequirementType<ItemFilterRequirement>> ITEM_FILTER_REQUIREMENT = REQUIREMENTS.register("item_filter", () -> RequirementType.inventory(ItemFilterRequirement.CODEC));
 
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
@@ -295,6 +298,7 @@ public class Registration {
         event.register(ITEM_MACHINE_COMPONENT.get(), FuelItemComponentVariant.ID, FuelItemComponentVariant.CODEC);
         event.register(ITEM_MACHINE_COMPONENT.get(), ResultItemComponentVariant.ID, ResultItemComponentVariant.CODEC);
         event.register(ITEM_MACHINE_COMPONENT.get(), UpgradeItemComponentVariant.ID, UpgradeItemComponentVariant.CODEC);
+        event.register(ITEM_MACHINE_COMPONENT.get(), FilterItemComponentVariant.ID, FilterItemComponentVariant.CODEC);
     }
 
     /**

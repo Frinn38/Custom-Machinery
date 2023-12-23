@@ -202,6 +202,7 @@
   "custommachinery.requirements.drop.info.blacklist": "Denied items :",
   "custommachinery.requirements.item_transform.error": "Not enough %s, %s needed !",
   "custommachinery.requirements.sky.error": "Must see sky",
+  "custommachinery.requirements.item_filter.error": "Missing item in filter slot !",
 
   "custommachinery.side.top": "Top",
   "custommachinery.side.bottom": "Bottom",

@@ -3,14 +3,16 @@ package fr.frinn.custommachinery.common.init;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
+import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
-import fr.frinn.custommachinery.common.util.ResultSlotItemComponent;
-import fr.frinn.custommachinery.common.util.SlotItemComponent;
+import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
+import fr.frinn.custommachinery.common.util.slot.ResultSlotItemComponent;
+import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -78,10 +80,12 @@ public class CustomMachineContainer extends SyncableContainer {
                     SlotItemComponent slotComponent;
                     if(component.getVariant() == ResultItemComponentVariant.INSTANCE)
                         slotComponent = new ResultSlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
+                    else if(component.getVariant() == FilterItemComponentVariant.INSTANCE)
+                        slotComponent = new FilterSlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
                     else
                         slotComponent = new SlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
                     this.addSlot(slotComponent);
-                    if (!(component.getVariant() == DefaultItemComponentVariant.INSTANCE) || component.getMode().isInput())
+                    if(component.getVariant() != DefaultItemComponentVariant.INSTANCE || component.getMode().isInput())
                         this.inputSlotComponents.add(slotComponent);
                 });
             }

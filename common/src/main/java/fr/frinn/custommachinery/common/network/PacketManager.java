@@ -25,6 +25,7 @@ public class PacketManager {
     public static final MessageType CHANGE_SIDE_MODE = MANAGER.registerC2S("change_side_mode", CChangeSideModePacket::read);
     public static final MessageType UPDATE_MACHINE_DATA = MANAGER.registerC2S("button_gui_element", CButtonGuiElementPacket::read);
     public static final MessageType PLACE_STRUCTURE = MANAGER.registerC2S("place_structure", CPlaceStructurePacket::read);
+    public static final MessageType SET_FILTER_SLOT_ITEM = MANAGER.registerC2S("set_filter_slot_item", CSetFilterSlotItemPacket::read);
 
     public static void init() {}
 }

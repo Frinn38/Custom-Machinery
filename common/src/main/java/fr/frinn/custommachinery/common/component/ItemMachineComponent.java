@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
+import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
@@ -56,7 +57,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         this.filter = filter;
         this.whitelist = whitelist;
         this.variant = variant;
-        this.config = configTemplate.build(this);
+        if(this.variant == FilterItemComponentVariant.INSTANCE)
+            this.config = SideConfig.Template.DEFAULT_ALL_NONE_DISABLED.build(this);
+        else
+            this.config = configTemplate.build(this);
         this.locked = locked;
     }
 
@@ -165,7 +169,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     public boolean isLocked() {
-        return this.locked;
+        return this.locked || this.variant == FilterItemComponentVariant.INSTANCE;
     }
 
     public void setLocked(boolean locked) {

@@ -17,6 +17,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.FluidPerT
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FluidRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FuelRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FunctionRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ItemFilterRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ItemRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ItemTransformRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.LightRequirementJS;
@@ -37,7 +38,7 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         EnergyRequirementJS, EnergyPerTickRequirementJS, TimeRequirementJS, PositionRequirementJS, BiomeRequirementJS, DimensionRequirementJS,
         FuelRequirementJS, CommandRequirementJS, EffectRequirementJS, WeatherRequirementJS, RedstoneRequirementJS, LightRequirementJS,
         EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS,
-        ButtonRequirementJS, SkyRequirementJS {
+        ButtonRequirementJS, SkyRequirementJS, ItemFilterRequirementJS {
 
     @Nullable
     private MachineAppearance customAppearance = null;

@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.render;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.inventory.InventoryMenu;
 
@@ -18,7 +19,9 @@ public class ColoredBufferSource implements MultiBufferSource {
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        return new ColoredVertexConsumer(this.wrapped.getBuffer(renderType), this.color);
+        if(renderType == RenderType.glintDirect())
+            return new ColoredVertexConsumer(this.wrapped.getBuffer(renderType), this.color);
+        return new ColoredVertexConsumer(this.wrapped.getBuffer(RenderType.entityTranslucentCull(InventoryMenu.BLOCK_ATLAS)), this.color);
     }
 
     public void endBatch() {

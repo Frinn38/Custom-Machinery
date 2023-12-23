@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -46,6 +47,8 @@ public class DefaultCodecs {
     );
 
     public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, ITEM_STACK).xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
+
+    public static final NamedCodec<Ingredient> INGREDIENT = NamedCodec.fromJson(Ingredient::fromJson, Ingredient::toJson, "Ingredient");
 
     public static <T> NamedCodec<TagKey<T>> tagKey(ResourceKey<Registry<T>> registry) {
         return RESOURCE_LOCATION.xmap(rl -> TagKey.create(registry, rl), TagKey::location, "Tag: " + registry.location());
