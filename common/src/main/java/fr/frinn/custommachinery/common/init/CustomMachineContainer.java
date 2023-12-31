@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.ResultSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
@@ -102,6 +103,27 @@ public class CustomMachineContainer extends SyncableContainer {
 
     @Override
     public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
+        if (slotId < 0 || slotId > slots.size()) return;
+        Slot clickedSlot = this.slots.get(slotId);
+        if (clickedSlot instanceof SlotItemComponent slot) {
+            tile.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get()).ifPresent(
+                component -> {
+                    if (component.canRetrieveFromSlots()) {
+                        if (component.slotsFromCanRetrieve().isEmpty()) {
+                            player.giveExperiencePoints(Utils.toInt(component.getXp()));
+                            component.extractXp(component.getXp(), false);
+                        } else {
+                            component.slotsFromCanRetrieve().forEach(id -> {
+                                if (id.equals(slot.getComponent().getId())) {
+                                    player.giveExperiencePoints(Utils.toInt(component.getXp()));
+                                    component.extractXp(component.getXp(), false);
+                                }
+                            });
+                        }
+                    }
+                }
+            );
+        }
         this.tile.setChanged();
         super.clicked(slotId, dragType, clickTypeIn, player);
     }

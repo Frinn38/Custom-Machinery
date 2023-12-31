@@ -43,6 +43,8 @@ public class CTConstants {
     public static final String REQUIREMENT_WEATHER = "mods." + CustomMachinery.MODID + ".requirement.Weather";
     public static final String REQUIREMENT_SKY = "mods." + CustomMachinery.MODID + ".requirement.Sky";
     public static final String REQUIREMENT_ITEM_FILTER = "mods." + CustomMachinery.MODID + ".requirement.ItemFilter";
+    public static final String REQUIREMENT_EXPERIENCE = "mods." + CustomMachinery.MODID + ".requirement.Experience";
+    public static final String REQUIREMENT_EXPERIENCE_PER_TICK = "mods." + CustomMachinery.MODID + ".requirement.ExperiencePerTick";
 
     /** UPGRADE **/
     public static final String UPGRADE_BUILDER = "mods." + CustomMachinery.MODID + ".CMUpgradeBuilder";
