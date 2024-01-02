@@ -7,20 +7,20 @@ import fr.frinn.custommachinery.impl.integration.jei.Experience.Form;
 
 public interface ExperiencePerTickRequirementJS extends RecipeJSBuilder {
 
-  default RecipeJSBuilder requireXpPerTick(float xp) {
+  default RecipeJSBuilder requireXpPerTick(int xp) {
     return this.addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.INPUT, xp, Form.POINT));
   }
 
-  default RecipeJSBuilder produceXpPerTick(float xp) {
+  default RecipeJSBuilder produceXpPerTick(int xp) {
     return this.addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.OUTPUT, xp, Form.POINT));
   }
 
 
-  default RecipeJSBuilder requireLevelPerTick(float xp) {
-    return this.addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.INPUT, xp, Form.LEVEL));
+  default RecipeJSBuilder requireLevelPerTick(int levels) {
+    return this.addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.INPUT, levels, Form.LEVEL));
   }
 
-  default RecipeJSBuilder produceLevelPerTick(float xp) {
-    return this.addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.OUTPUT, xp, Form.LEVEL));
+  default RecipeJSBuilder produceLevelPerTick(int levels) {
+    return this.addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.OUTPUT, levels, Form.LEVEL));
   }
 }

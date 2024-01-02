@@ -14,23 +14,23 @@ import org.openzen.zencode.java.ZenCodeType.Method;
 public interface ExperienceRequirementCT<T> extends RecipeCTBuilder<T> {
 
   @Method
-  default T requireXp(float xp) {
+  default T requireXp(int xp) {
     return addRequirement(new ExperienceRequirement(RequirementIOMode.INPUT, xp, Form.POINT));
   }
 
   @Method
-  default T produceXp(float xp) {
+  default T produceXp(int xp) {
     return addRequirement(new ExperienceRequirement(RequirementIOMode.OUTPUT, xp, Form.POINT));
   }
 
 
   @Method
-  default T requireLevel(float xp) {
-    return addRequirement(new ExperienceRequirement(RequirementIOMode.INPUT, xp, Form.LEVEL));
+  default T requireLevel(int levels) {
+    return addRequirement(new ExperienceRequirement(RequirementIOMode.INPUT, levels, Form.LEVEL));
   }
 
   @Method
-  default T produceLevel(float xp) {
-    return addRequirement(new ExperienceRequirement(RequirementIOMode.OUTPUT, xp, Form.LEVEL));
+  default T produceLevel(int levels) {
+    return addRequirement(new ExperienceRequirement(RequirementIOMode.OUTPUT, levels, Form.LEVEL));
   }
 }

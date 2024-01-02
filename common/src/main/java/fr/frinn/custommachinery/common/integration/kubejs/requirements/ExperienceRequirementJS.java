@@ -6,19 +6,19 @@ import fr.frinn.custommachinery.common.requirement.ExperienceRequirement;
 import fr.frinn.custommachinery.impl.integration.jei.Experience.Form;
 
 public interface ExperienceRequirementJS extends RecipeJSBuilder {
-  default RecipeJSBuilder requireXp(float xp) {
+  default RecipeJSBuilder requireXp(int xp) {
     return this.addRequirement(new ExperienceRequirement(RequirementIOMode.INPUT, xp, Form.POINT));
   }
 
-  default RecipeJSBuilder produceXp(float xp) {
+  default RecipeJSBuilder produceXp(int xp) {
     return this.addRequirement(new ExperienceRequirement(RequirementIOMode.OUTPUT, xp, Form.POINT));
   }
 
-  default RecipeJSBuilder requireLevel(float xp) {
-    return this.addRequirement(new ExperienceRequirement(RequirementIOMode.INPUT, xp, Form.LEVEL));
+  default RecipeJSBuilder requireLevel(int levels) {
+    return this.addRequirement(new ExperienceRequirement(RequirementIOMode.INPUT, levels, Form.LEVEL));
   }
 
-  default RecipeJSBuilder produceLevel(float xp) {
-    return this.addRequirement(new ExperienceRequirement(RequirementIOMode.OUTPUT, xp, Form.LEVEL));
+  default RecipeJSBuilder produceLevel(int levels) {
+    return this.addRequirement(new ExperienceRequirement(RequirementIOMode.OUTPUT, levels, Form.LEVEL));
   }
 }

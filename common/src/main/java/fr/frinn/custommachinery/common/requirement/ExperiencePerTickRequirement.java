@@ -13,8 +13,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ExperienceIngredientWrapper;
 import fr.frinn.custommachinery.common.component.ExperienceMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.CMLogger;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.integration.jei.Experience;
 import fr.frinn.custommachinery.impl.integration.jei.Experience.Form;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
@@ -28,8 +26,8 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
   public static final NamedCodec<ExperiencePerTickRequirement> CODEC = NamedCodec.record(experienceRequirementInstance ->
     experienceRequirementInstance.group(
       RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-      NamedCodec.FLOAT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-      Codecs.fromEnum(Form.class).optionalFieldOf("form", Form.POINT).forGetter(requirement -> requirement.type),
+      NamedCodec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+      NamedCodec.enumCodec(Form.class).optionalFieldOf("form", Form.POINT).forGetter(requirement -> requirement.type),
       NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance)
     ).apply(
       experienceRequirementInstance, (mode, amount, type, chance) -> {
@@ -40,10 +38,10 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
     ), "Experience requirement"
   );
 
-  private final float amount;
+  private final int amount;
   private final Form type;
 
-  public ExperiencePerTickRequirement(RequirementIOMode mode, float amount, Form type) {
+  public ExperiencePerTickRequirement(RequirementIOMode mode, int amount, Form type) {
     super(mode);
     this.amount = amount;
     this.type = type;
@@ -65,8 +63,7 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
 
   @Override
   public boolean test(ExperienceMachineComponent component, ICraftingContext context) {
-    float amount = (float) context.getModifiedValue(this.amount, this, null);
-    CMLogger.INSTANCE.info("test$[amount: {}, type: {}, mode:  {}]", amount, getForm(), getMode());
+    int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
     if (getForm().isPoint()) {
       if (getMode() == RequirementIOMode.INPUT)
         return component.extractRecipeXp(amount, true) == amount;
@@ -82,25 +79,22 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
 
   @Override
   public CraftingResult processStart(ExperienceMachineComponent component, ICraftingContext context) {
-    CMLogger.INSTANCE.info("processStart$[amount: {}, type: {}, mode:  {}]", amount, getForm(), getMode());
     return CraftingResult.pass();
   }
 
   @Override
   public CraftingResult processTick(ExperienceMachineComponent component, ICraftingContext context) {
-    float amount = (float) context.getModifiedValue(this.amount, this, null);
-    CMLogger.INSTANCE.info("processTick$[amount: {}, type: {}, mode:  {}]", amount, getForm(), getMode());
+    int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
     if (getForm().isPoint()) {
       if (getMode() == RequirementIOMode.INPUT) {
-        float canExtract = component.extractRecipeXp(amount, true);
+        int canExtract = component.extractRecipeXp(amount, true);
         if(canExtract == amount) {
           component.extractRecipeXp(amount, false);
           return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.xppertick.point.error.input", amount, canExtract));
       } else {
-        CMLogger.INSTANCE.info("receiveRecipeLevelsPerTick({})", amount);
-        float canReceive = component.receiveRecipeXp(amount, true);
+        int canReceive = component.receiveRecipeXp(amount, true);
         if(canReceive == amount) {
           component.receiveRecipeXp(amount, false);
           return CraftingResult.success();
@@ -109,16 +103,14 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
       }
     } else {
       if (getMode() == RequirementIOMode.INPUT) {
-        CMLogger.INSTANCE.info("extractRecipeLevelsPerTick({})", amount);
-        float canExtract = component.extractRecipeLevel(amount, true);
+        int canExtract = component.extractRecipeLevel(amount, true);
         if(canExtract == amount) {
           component.extractRecipeLevel(amount, false);
           return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.xppertick.level.error.input", amount, canExtract));
       } else {
-        CMLogger.INSTANCE.info("receiveRecipeLevelsPerTick({})", amount);
-        float canReceive = component.receiveRecipeLevel(amount, true);
+        int canReceive = component.receiveRecipeLevel(amount, true);
         if(canReceive == amount) {
           component.receiveRecipeLevel(amount, false);
           return CraftingResult.success();
@@ -130,7 +122,6 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
 
   @Override
   public CraftingResult processEnd(ExperienceMachineComponent component, ICraftingContext context) {
-    CMLogger.INSTANCE.info("processEnd$[amount: {}, type: {}, mode:  {}]", amount, getForm(), getMode());
     return CraftingResult.pass();
   }
 

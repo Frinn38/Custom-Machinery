@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.network.chat.Component;
@@ -25,8 +24,8 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
         BASE_TEXTURE,
         BASE_TEXTURE_HOVERED
       ).forGetter(ExperienceGuiElement::getProperties),
-      Codecs.fromEnum(DisplayMode.class).optionalFieldOf("display", DisplayMode.LEVEL).forGetter(element -> element.displayMode),
-      Codecs.fromEnum(Mode.class).optionalFieldOf("mode", Mode.OUTPUT_ALL).forGetter(element -> element.mode)
+      NamedCodec.enumCodec(DisplayMode.class).optionalFieldOf("display", DisplayMode.LEVEL).forGetter(element -> element.displayMode),
+      NamedCodec.enumCodec(Mode.class).optionalFieldOf("mode", Mode.OUTPUT_ALL).forGetter(element -> element.mode)
     ).apply(experienceGuiElement, ExperienceGuiElement::new), "Experience gui element"
   );
 

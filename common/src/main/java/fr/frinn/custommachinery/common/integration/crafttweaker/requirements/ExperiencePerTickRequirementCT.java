@@ -14,23 +14,23 @@ import org.openzen.zencode.java.ZenCodeType.Method;
 public interface ExperiencePerTickRequirementCT<T> extends RecipeCTBuilder<T> {
 
   @Method
-  default T requireXpPerTick(float xp) {
+  default T requireXpPerTick(int xp) {
     return addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.INPUT, xp, Form.POINT));
   }
 
   @Method
-  default T produceXpPerTick(float xp) {
+  default T produceXpPerTick(int xp) {
     return addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.OUTPUT, xp, Form.POINT));
   }
 
 
   @Method
-  default T requireLevelPerTick(float xp) {
-    return addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.INPUT, xp, Form.LEVEL));
+  default T requireLevelPerTick(int levels) {
+    return addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.INPUT, levels, Form.LEVEL));
   }
 
   @Method
-  default T produceLevelPerTick(float xp) {
-    return addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.OUTPUT, xp, Form.LEVEL));
+  default T produceLevelPerTick(int levels) {
+    return addRequirement(new ExperiencePerTickRequirement(RequirementIOMode.OUTPUT, levels, Form.LEVEL));
   }
 }

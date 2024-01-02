@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.component.*;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.syncable.FloatSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.nbt.CompoundTag;
@@ -18,14 +17,14 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ExperienceMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff {
-  private float xp;
-  private final float capacity;
+  private int xp;
+  private final int capacity;
   private final boolean retrieveFromSlots;
   private final List<String> slotIds;
   private final int capacityLevels;
   private int xpLevels;
 
-  public ExperienceMachineComponent(IMachineComponentManager manager, float capacity, boolean retrieveFromSlots, List<String> slotIds) {
+  public ExperienceMachineComponent(IMachineComponentManager manager, int capacity, boolean retrieveFromSlots, List<String> slotIds) {
     super(manager, ComponentIOMode.BOTH);
     this.xp = 0;
     this.capacity = capacity;
@@ -34,7 +33,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     this.capacityLevels = getLevels(capacity);
     this.xpLevels = getLevels(xp);
   }
-  private int getLevels(float xp) {
+  private int getLevels(int xp) {
     int levels = 0;
     xp = Mth.clamp(xp, 0, Integer.MAX_VALUE);
     float experienceProgress = xp / (float) this.getXpNeededForNextLevel(levels);
@@ -68,11 +67,11 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
   }
 
   // For GUI element rendering
-  public float getXp() {
+  public int getXp() {
     return this.xp;
   }
 
-  public float getCapacity() {
+  public int getCapacity() {
     return this.capacity;
   }
 
@@ -84,38 +83,38 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     return this.capacityLevels;
   }
 
-  public void setXp(float xp) {
+  public void setXp(int xp) {
     this.xp = xp;
     this.xpLevels = getLevels(xp);
     getManager().markDirty();
   }
 
-  public float receiveXp(float maxReceive, boolean simulate) {
-    float xpReceived = Math.min(this.getCapacity() - this.getXp(), maxReceive);
+  public int receiveXp(int maxReceive, boolean simulate) {
+    int xpReceived = Math.min(this.getCapacity() - this.getXp(), maxReceive);
     if (!simulate && xpReceived > 0) {
       this.setXp(this.getXp() + xpReceived);
     }
     return xpReceived;
   }
 
-  public void receiveLevel(float levels, boolean simulate) {
-    float toReceive = 0;
+  public void receiveLevel(int levels, boolean simulate) {
+    int toReceive = 0;
     for (int i = 0; i < levels; i++) {
       toReceive += getXpNeededForNextLevel(i);
     }
     receiveXp(toReceive, simulate);
   }
 
-  public float extractXp(float maxExtract, boolean simulate) {
-    float xpExtracted = Math.min(this.getXp(), maxExtract);
+  public int extractXp(int maxExtract, boolean simulate) {
+    int xpExtracted = Math.min(this.getXp(), maxExtract);
     if (!simulate && xpExtracted > 0) {
       this.setXp(this.getXp() - xpExtracted);
     }
     return xpExtracted;
   }
 
-  public void extractLevel(float levels, boolean simulate) {
-    float toExtract = 0;
+  public void extractLevel(int levels, boolean simulate) {
+    int toExtract = 0;
     for (int i = 0; i < levels; i++) {
       toExtract += getXpNeededForNextLevel(i);
     }
@@ -129,52 +128,52 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
   @Override
   public void serialize(CompoundTag nbt) {
-    nbt.putFloat("xp", this.xp);
+    nbt.putInt("xp", this.xp);
     nbt.putInt("levels", this.xpLevels);
   }
 
   @Override
   public void deserialize(CompoundTag nbt) {
-    if (nbt.contains("xp", Tag.TAG_FLOAT))
-      this.xp = Math.min(nbt.getFloat("xp"), this.capacity);
+    if (nbt.contains("xp", Tag.TAG_INT))
+      this.xp = Math.min(nbt.getInt("xp"), this.capacity);
     if (nbt.contains("levels", Tag.TAG_INT))
       this.xpLevels = Math.min(nbt.getInt("levels"), this.capacityLevels);
   }
 
   @Override
   public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-    container.accept(FloatSyncable.create(() -> this.xp, xp -> this.xp = xp));
+    container.accept(IntegerSyncable.create(() -> this.xp, xp -> this.xp = xp));
     container.accept(IntegerSyncable.create(() -> this.xpLevels, xpLevels -> this.xpLevels = xpLevels));
   }
 
   /** Recipe Stuff **/
 
-  public float receiveRecipeXp(float maxReceive, boolean simulate) {
-    float xpReceived = Math.min(this.capacity - this.xp, maxReceive);
+  public int receiveRecipeXp(int maxReceive, boolean simulate) {
+    int xpReceived = Math.min(this.capacity - this.xp, maxReceive);
     if(!simulate) {
       receiveXp(xpReceived, false);
     }
     return xpReceived;
   }
 
-  public float receiveRecipeLevel(float amount, boolean simulate) {
-    float levelsReceived = Math.min(this.capacityLevels - this.xpLevels, amount);
+  public int receiveRecipeLevel(int amount, boolean simulate) {
+    int levelsReceived = Math.min(this.capacityLevels - this.xpLevels, amount);
     if (!simulate) {
       receiveLevel(levelsReceived, false);
     }
     return levelsReceived;
   }
 
-  public float extractRecipeXp(float maxExtract, boolean simulate) {
-    float xpExtracted = Math.min(this.xp, maxExtract);
+  public int extractRecipeXp(int maxExtract, boolean simulate) {
+    int xpExtracted = Math.min(this.xp, maxExtract);
     if (!simulate) {
       extractXp(xpExtracted, false);
     }
     return xpExtracted;
   }
 
-  public float extractRecipeLevel(float amount, boolean simulate) {
-    float levelsExtracted = Math.min(capacityLevels, amount);
+  public int extractRecipeLevel(int amount, boolean simulate) {
+    int levelsExtracted = Math.min(capacityLevels, amount);
     if (!simulate) {
       extractLevel(levelsExtracted, false);
     }
@@ -192,7 +191,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
   public static class Template implements IMachineComponentTemplate<ExperienceMachineComponent> {
     public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
       templateInstance.group(
-        NamedCodec.floatRange(1, Float.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
+        NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
         NamedCodec.BOOL.optionalFieldOf("retrieveFromSlots").forGetter(template -> Optional.of(template.retrieveFromSlots)),
         NamedCodec.STRING.listOf().optionalFieldOf("retrieveSlotsId").forGetter(template -> Optional.of(template.slotIds))
       ).apply(templateInstance, (capacity, retrieveFromSlots, slotIds) ->
@@ -201,11 +200,11 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
       "Experience machine component"
     );
 
-    private final float capacity;
+    private final int capacity;
     private final boolean retrieveFromSlots;
     private final List<String> slotIds;
 
-    public Template(float capacity, boolean retrieveFromSlots, List<String> slotIds) {
+    public Template(int capacity, boolean retrieveFromSlots, List<String> slotIds) {
       this.capacity = capacity;
       this.retrieveFromSlots = retrieveFromSlots;
       this.slotIds = slotIds;
