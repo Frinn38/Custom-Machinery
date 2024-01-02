@@ -32,4 +32,9 @@ public class FilterItemComponentVariant extends ItemComponentVariant {
     public boolean canOutput(IMachineComponentManager manager) {
         return true;
     }
+
+    @Override
+    public boolean shouldDrop(IMachineComponentManager manager) {
+        return false;
+    }
 }

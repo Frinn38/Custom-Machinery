@@ -11,4 +11,8 @@ public abstract class ItemComponentVariant implements IComponentVariant {
     public boolean canOutput(IMachineComponentManager manager) {
         return true;
     }
+
+    public boolean shouldDrop(IMachineComponentManager manager) {
+        return true;
+    }
 }

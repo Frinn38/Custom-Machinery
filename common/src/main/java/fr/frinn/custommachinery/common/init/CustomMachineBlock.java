@@ -5,7 +5,6 @@ import dev.architectury.registry.menu.MenuRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
@@ -151,8 +150,12 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
         super.playerWillDestroy(level, pos, state, player);
         if(player.getAbilities().instabuild && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CustomMachineTile machine)
             machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                    .map(handler -> handler.getComponents().stream().map(component -> component.getItemStack().copy()).filter(stack -> !stack.isEmpty()).toList())
-                    .orElse(Collections.emptyList())
+                    .map(handler -> handler.getComponents().stream()
+                            .filter(component -> component.getVariant().shouldDrop(machine.getComponentManager()))
+                            .map(component -> component.getItemStack().copy())
+                            .filter(stack -> !stack.isEmpty())
+                            .toList()
+                    ).orElse(Collections.emptyList())
                     .forEach(stack -> Block.popResource(serverLevel, pos, stack));
     }
 
@@ -161,7 +164,13 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     public List<ItemStack> getDrops(BlockState state, Builder builder) {
         List<ItemStack> drops = super.getDrops(state, builder);
         if(builder.getParameter(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
-            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).ifPresent(handler -> handler.getComponents().stream().map(ItemMachineComponent::getItemStack).filter(stack -> stack != ItemStack.EMPTY).forEach(drops::add));
+            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                    .ifPresent(handler -> handler.getComponents().stream()
+                            .filter(component -> component.getVariant().shouldDrop(machine.getComponentManager()))
+                            .map(component -> component.getItemStack().copy())
+                            .filter(stack -> stack != ItemStack.EMPTY)
+                            .forEach(drops::add)
+                    );
             drops.add(CustomMachineItem.makeMachineItem(machine.getId()));
         }
         return drops;
