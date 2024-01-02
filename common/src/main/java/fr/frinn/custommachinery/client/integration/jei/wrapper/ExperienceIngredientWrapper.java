@@ -9,19 +9,19 @@ import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
-import fr.frinn.custommachinery.impl.integration.jei.ExperienceStorage;
+import fr.frinn.custommachinery.impl.integration.jei.Experience;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.network.chat.Component;
 
-public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<ExperienceStorage> {
+public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<Experience> {
   private final RequirementIOMode mode;
   private final int recipeTime;
-  private final ExperienceStorage experience;
+  private final Experience experience;
 
-  public ExperienceIngredientWrapper(RequirementIOMode mode, float amount, double chance, boolean isPerTick, int recipeTime) {
+  public ExperienceIngredientWrapper(RequirementIOMode mode, float amount, double chance, boolean isPerTick, int recipeTime, Experience.Form type) {
     this.mode = mode;
     this.recipeTime = recipeTime;
-    this.experience = new ExperienceStorage(amount, chance, isPerTick);
+    this.experience = new Experience(amount, chance, isPerTick, type);
   }
 
   @Override
@@ -39,17 +39,32 @@ public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<Experi
       .addTooltipCallback((recipeSlotView, tooltip) -> {
         Component component;
         String amount = Utils.format(this.experience.getXp());
-        if (this.experience.isPerTick()) {
-          String totalExperience = Utils.format(this.experience.getXp() * this.recipeTime);
-          if (this.mode == RequirementIOMode.INPUT)
-            component = Component.translatable("custommachinery.jei.ingredient.xp.pertick.input", totalExperience, "XP", amount, "XP");
-          else
-            component = Component.translatable("custommachinery.jei.ingredient.xp.pertick.output", totalExperience, "XP", amount, "XP");
+        if (this.experience.isPoints()) {
+          if (this.experience.isPerTick()) {
+            String totalExperience = Utils.format(this.experience.getXp() * this.recipeTime);
+            if (this.mode == RequirementIOMode.INPUT)
+              component = Component.translatable("custommachinery.jei.ingredient.xp.pertick.input", totalExperience, "XP", amount, "XP");
+            else
+              component = Component.translatable("custommachinery.jei.ingredient.xp.pertick.output", totalExperience, "XP", amount, "XP");
+          } else {
+            if (this.mode == RequirementIOMode.INPUT)
+              component = Component.translatable("custommachinery.jei.ingredient.xp.input", amount, "XP");
+            else
+              component = Component.translatable("custommachinery.jei.ingredient.xp.output", amount, "XP");
+          }
         } else {
-          if(this.mode == RequirementIOMode.INPUT)
-            component = Component.translatable("custommachinery.jei.ingredient.xp.input", amount, "XP");
-          else
-            component = Component.translatable("custommachinery.jei.ingredient.xp.output", amount, "XP");
+          if (this.experience.isPerTick()) {
+            String totalExperience = Utils.format(this.experience.getLevels() * this.recipeTime);
+            if (this.mode == RequirementIOMode.INPUT)
+              component = Component.translatable("custommachinery.jei.ingredient.xp.pertick.input", totalExperience, "Level(s)", amount, "Level(s)");
+            else
+              component = Component.translatable("custommachinery.jei.ingredient.xp.pertick.output", totalExperience, "Level(s)", amount, "Level(s)");
+          } else {
+            if (this.mode == RequirementIOMode.INPUT)
+              component = Component.translatable("custommachinery.jei.ingredient.xp.input", amount, "Level(s)");
+            else
+              component = Component.translatable("custommachinery.jei.ingredient.xp.output", amount, "Level(s)");
+          }
         }
         tooltip.set(0, component);
       });

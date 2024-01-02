@@ -16,7 +16,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 public class ExperienceGuiElement extends AbstractTexturedGuiElement {
   private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_xp.png");
   private static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_xp_hovered.png");
-  private final ShowType showType;
+  private final DisplayMode displayMode;
   private final Mode mode;
 
   public static final NamedCodec<ExperienceGuiElement> CODEC = NamedCodec.record(experienceGuiElement ->
@@ -25,14 +25,14 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
         BASE_TEXTURE,
         BASE_TEXTURE_HOVERED
       ).forGetter(ExperienceGuiElement::getProperties),
-      Codecs.fromEnum(ShowType.class).optionalFieldOf("display", ShowType.LEVEL).forGetter(element -> element.showType),
+      Codecs.fromEnum(DisplayMode.class).optionalFieldOf("display", DisplayMode.LEVEL).forGetter(element -> element.displayMode),
       Codecs.fromEnum(Mode.class).optionalFieldOf("mode", Mode.OUTPUT_ALL).forGetter(element -> element.mode)
     ).apply(experienceGuiElement, ExperienceGuiElement::new), "Experience gui element"
   );
 
-  public ExperienceGuiElement(Properties properties, ShowType showType, Mode mode){
+  public ExperienceGuiElement(Properties properties, DisplayMode displayMode, Mode mode){
     super(properties);
-    this.showType = showType;
+    this.displayMode = displayMode;
     this.mode = mode;
   }
 
@@ -106,8 +106,8 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
         });
   }
 
-  public ShowType getShowType() {
-    return showType;
+  public DisplayMode getDisplayMode() {
+    return displayMode;
   }
 
   public Mode getMode() {
@@ -122,7 +122,7 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
     }
   }
 
-  public enum ShowType {
+  public enum DisplayMode {
     LITERAL, LEVEL, BOTH;
 
     public boolean isLiteral() {
@@ -137,7 +137,7 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
       return this == BOTH;
     }
 
-    public static ShowType of(String value) {
+    public static DisplayMode of(String value) {
       if (value.equalsIgnoreCase("literal")) return LITERAL;
       if (value.equalsIgnoreCase("level")) return LEVEL;
       if (value.equalsIgnoreCase("both")) return BOTH;
