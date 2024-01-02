@@ -6,10 +6,10 @@ import fr.frinn.custommachinery.common.requirement.ButtonRequirement;
 public interface ButtonRequirementJS extends RecipeJSBuilder {
 
     default RecipeJSBuilder requireButtonPressed(String id) {
-        return addRequirement(new ButtonRequirement(id, true));
+        return addRequirement(new ButtonRequirement(id, false));
     }
 
     default RecipeJSBuilder requireButtonReleased(String id) {
-        return addRequirement(new ButtonRequirement(id, false));
+        return addRequirement(new ButtonRequirement(id, true));
     }
 }
