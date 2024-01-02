@@ -32,4 +32,9 @@ public class ResultItemComponentVariant extends ItemComponentVariant {
     public boolean canOutput(IMachineComponentManager manager) {
         return false;
     }
+
+    @Override
+    public boolean shouldDrop(IMachineComponentManager manager) {
+        return false;
+    }
 }
