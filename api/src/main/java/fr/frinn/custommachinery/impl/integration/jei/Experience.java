@@ -3,66 +3,47 @@ package fr.frinn.custommachinery.impl.integration.jei;
 import net.minecraft.util.Mth;
 
 public class Experience {
-  private float xp;
-  private final float capacity, maxIn, maxOut;
+  private int xp;
+  private final int capacity;
   private final double chance;
   private final boolean isPerTick;
   private final Form type;
   private int experienceLevel = 0;
 
-  public Experience(float xp, float capacity, float maxIn, float maxOut, double chance, boolean isPerTick, Form type) {
+  public Experience(int xp, int capacity, double chance, boolean isPerTick, Form type) {
     this.xp = xp;
     this.capacity = capacity;
-    this.maxIn = maxIn;
-    this.maxOut = maxOut;
     this.chance = chance;
     this.isPerTick = isPerTick;
     this.type = type;
   }
 
-  public Experience(float xp, float capacity, float maxIn, float maxOut, Form type) {
-    this(xp, capacity, maxIn, maxOut, 1D, false, type);
+  public Experience(int xp, int capacity, Form type) {
+    this(xp, capacity, 1D, false, type);
   }
 
-  public Experience(float xp, float capacity, Form type) {
-    this(xp, capacity, capacity, capacity, 1D, false, type);
+  public Experience(int xp, Form type) {
+    this(xp, xp, 1D, false, type);
   }
 
-  public Experience(float xp, Form type) {
-    this(xp, xp, xp, xp, 1D, false, type);
+  public Experience(int xp, double chance, boolean isPerTick, Form type) {
+    this(xp, xp, chance, isPerTick, type);
   }
 
-
-  public Experience(float xp, float capacity, double chance, boolean isPerTick, Form type) {
-    this(xp, capacity, capacity, capacity, chance, isPerTick, type);
+  public Experience(int xp, int capacity, double chance, Form type) {
+    this(xp, capacity, chance, false, type);
   }
 
-  public Experience(float xp, double chance, boolean isPerTick, Form type) {
-    this(xp, xp, xp, xp, chance, isPerTick, type);
+  public Experience(int xp, double chance, Form type) {
+    this(xp, xp, chance, false, type);
   }
 
-  public Experience(float xp, float capacity, float maxIn, float maxOut, double chance, Form type) {
-    this(xp, capacity, maxIn, maxOut, chance, false, type);
+  public Experience(int xp, int capacity, boolean isPerTick, Form type) {
+    this(xp, capacity, 1D, isPerTick, type);
   }
 
-  public Experience(float xp, float capacity, double chance, Form type) {
-    this(xp, capacity, capacity, capacity, chance, false, type);
-  }
-
-  public Experience(float xp, double chance, Form type) {
-    this(xp, xp, xp, xp, chance, false, type);
-  }
-
-  public Experience(float xp, float capacity, float maxIn, float maxOut, boolean isPerTick, Form type) {
-    this(xp, capacity, maxIn, maxOut, 1D, isPerTick, type);
-  }
-
-  public Experience(float xp, float capacity, boolean isPerTick, Form type) {
-    this(xp, capacity, capacity, capacity, 1D, isPerTick, type);
-  }
-
-  public Experience(float xp, boolean isPerTick, Form type) {
-    this(xp, xp, xp, xp, 1D, isPerTick, type);
+  public Experience(int xp, boolean isPerTick, Form type) {
+    this(xp, xp, 1D, isPerTick, type);
   }
 
   public float getXp() {
@@ -73,26 +54,18 @@ public class Experience {
     return experienceLevel;
   }
 
-  public void setXp(float xp) {
+  public void setXp(int xp) {
     this.xp = xp;
     experienceLevel = getFromExperiencePoints(0);
   }
 
-  public void addXp(float xp) {
+  public void addXp(int xp) {
     this.xp += xp;
     experienceLevel = getFromExperiencePoints(0);
   }
 
-  public float getCapacity() {
+  public int getCapacity() {
     return capacity;
-  }
-
-  public float getMaxInput() {
-    return maxIn;
-  }
-
-  public float getMaxOutput() {
-    return maxOut;
   }
 
   public double getChance() {
@@ -124,7 +97,7 @@ public class Experience {
   }
 
   private int getFromExperiencePoints(int xpPoints) {
-    float experienceProgress = (float)xpPoints / (float) this.getXpNeededForNextLevel(experienceLevel);
+    float experienceProgress = (float) xpPoints / (float) this.getXpNeededForNextLevel(experienceLevel);
     xp = Mth.clamp(xp + xpPoints, 0, Integer.MAX_VALUE);
 
     while(experienceProgress < 0.0F) {
