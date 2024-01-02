@@ -46,7 +46,7 @@ public class Experience {
     this(xp, xp, 1D, isPerTick, type);
   }
 
-  public float getXp() {
+  public int getXp() {
     return xp;
   }
 
@@ -56,12 +56,12 @@ public class Experience {
 
   public void setXp(int xp) {
     this.xp = xp;
-    experienceLevel = getFromExperiencePoints(0);
+    experienceLevel = getFromExperiencePoints(this.xp);
   }
 
   public void addXp(int xp) {
     this.xp += xp;
-    experienceLevel = getFromExperiencePoints(0);
+    experienceLevel = getFromExperiencePoints(this.xp);
   }
 
   public int getCapacity() {
@@ -96,9 +96,10 @@ public class Experience {
     }
   }
 
-  private int getFromExperiencePoints(int xpPoints) {
-    float experienceProgress = (float) xpPoints / (float) this.getXpNeededForNextLevel(experienceLevel);
-    xp = Mth.clamp(xp + xpPoints, 0, Integer.MAX_VALUE);
+  private int getFromExperiencePoints(int xp) {
+    int experienceLevel = 0;
+    xp = Mth.clamp(xp, 0, Integer.MAX_VALUE);
+    float experienceProgress = (float) xp / (float) this.getXpNeededForNextLevel(experienceLevel);
 
     while(experienceProgress < 0.0F) {
       float f = experienceProgress * (float) this.getXpNeededForNextLevel(experienceLevel);

@@ -18,7 +18,7 @@ public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<Experi
   private final int recipeTime;
   private final Experience experience;
 
-  public ExperienceIngredientWrapper(RequirementIOMode mode, float amount, double chance, boolean isPerTick, int recipeTime, Experience.Form type) {
+  public ExperienceIngredientWrapper(RequirementIOMode mode, int amount, double chance, boolean isPerTick, int recipeTime, Experience.Form type) {
     this.mode = mode;
     this.recipeTime = recipeTime;
     this.experience = new Experience(amount, chance, isPerTick, type);
