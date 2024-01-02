@@ -42,7 +42,6 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     //Use only for recipe searching, not recipe processing
     private final CraftingContext.Mutable mutableCraftingContext;
     private final int amount;
-    private final int recipeCheckCooldown;
     private CustomMachineRecipe currentRecipe;
     //Recipe that was processed when the machine was unloaded, and we need to resume
     private ResourceLocation futureRecipeID;
@@ -60,7 +59,6 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     public MachineProcessor(MachineTile tile, int amount, int recipeCheckCooldown) {
         this.tile = tile;
         this.amount = amount;
-        this.recipeCheckCooldown = recipeCheckCooldown;
         this.mutableCraftingContext = new CraftingContext.Mutable(this, tile.getUpgradeManager());
         this.processedRequirements = new ArrayList<>();
         this.recipeFinder = new MachineRecipeFinder(tile, recipeCheckCooldown);
@@ -107,8 +105,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     }
 
     private void searchForRecipe(boolean immediately) {
-        if(this.currentRecipe == null)
-            this.recipeFinder.findRecipe(this.mutableCraftingContext, immediately).ifPresent(this::setRecipe);
+        this.recipeFinder.findRecipe(this.mutableCraftingContext, immediately).ifPresent(this::setRecipe);
     }
 
     private void startProcess() {

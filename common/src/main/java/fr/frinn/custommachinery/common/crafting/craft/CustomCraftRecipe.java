@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.craft;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
@@ -8,6 +9,7 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.common.crafting.RecipeChecker;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -18,6 +20,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
 
@@ -34,6 +37,7 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
     private final int priority;
     private final int jeiPriority;
     private final boolean hidden;
+    private final Supplier<RecipeChecker<CustomCraftRecipe>> checker = Suppliers.memoize(() -> new RecipeChecker<>(this));
 
     public CustomCraftRecipe(ResourceLocation id, ResourceLocation machine, ItemStack output, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean hidden) {
         this.id = id;
@@ -102,6 +106,10 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
     @Override
     public boolean showInJei() {
         return !this.hidden;
+    }
+
+    public RecipeChecker<CustomCraftRecipe> checker() {
+        return this.checker.get();
     }
 
     /** VANILLA RECIPE STUFF **/

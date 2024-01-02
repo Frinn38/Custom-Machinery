@@ -143,14 +143,14 @@ public class CustomMachineContainer extends SyncableContainer {
                 return ItemStack.EMPTY;
 
             if(slotComponent instanceof ResultSlotItemComponent resultSlot && this.tile.getProcessor() instanceof CraftProcessor processor) {
-                ItemStack removed = slotComponent.getItem();
+                ItemStack removed = slotComponent.getItem().copy();
                 if(!this.playerInv.add(removed))
                     return ItemStack.EMPTY;
                 slotComponent.setChanged();
 
                 int crafted = 0;
                 while (processor.bulkCraft()) {
-                    removed = slotComponent.getItem();
+                    removed = slotComponent.getItem().copy();
                     if(!this.playerInv.add(removed))
                         return ItemStack.EMPTY;
                     slotComponent.setChanged();

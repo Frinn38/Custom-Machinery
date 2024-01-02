@@ -18,22 +18,26 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 public class CraftProcessor implements IProcessor {
 
     private final MachineTile tile;
     private final Random rand = Utils.RAND;
+    private final CraftingContext.Mutable mutableCraftingContext;
+    private final CraftRecipeFinder recipeFinder;
     private boolean shouldCheck = true;
+    private int recipeCheckCooldown = rand.nextInt(20);
     @Nullable
     private CraftingContext currentContext;
     @Nullable
     private CustomCraftRecipe currentRecipe;
+    private boolean initialized = false;
 
     public CraftProcessor(MachineTile tile) {
         this.tile = tile;
+        this.mutableCraftingContext = new CraftingContext.Mutable(this, tile.getUpgradeManager());
+        this.recipeFinder = new CraftRecipeFinder(tile, 20);
     }
 
     @Nullable
@@ -59,24 +63,26 @@ public class CraftProcessor implements IProcessor {
 
     @Override
     public void tick() {
-        if(this.shouldCheck) {
-            this.shouldCheck = false;
-
-            if(this.currentRecipe != null && this.currentContext != null) {
-                if(checkRecipe(this.currentRecipe, this.currentContext))
-                    return;
-                else {
-                    this.reset();
-                }
-            }
-
-            findRecipe().ifPresent(this::setCurrentRecipe);
+        if(!this.initialized) {
+            this.recipeFinder.init();
+            this.initialized = true;
         }
+
+        if(currentRecipe == null)
+            this.recipeFinder.findRecipe(this.mutableCraftingContext, this.shouldCheck).ifPresent(this::setCurrentRecipe);
+        else if(this.mutableCraftingContext != null && (this.shouldCheck || this.recipeCheckCooldown-- == 0)) {
+            this.recipeCheckCooldown = 20;
+            if(!this.checkRecipe(this.currentRecipe, this.currentContext))
+                this.reset();
+        }
+
+        this.shouldCheck = false;
     }
 
     @Override
     public void setMachineInventoryChanged() {
         this.shouldCheck = true;
+        this.recipeFinder.setInventoryChanged(true);
     }
 
     public void craft() {
@@ -101,24 +107,6 @@ public class CraftProcessor implements IProcessor {
             this.reset();
             return false;
         }
-    }
-
-    private Optional<CustomCraftRecipe> findRecipe() {
-        if(this.tile.getLevel() == null)
-            return Optional.empty();
-
-        List<CustomCraftRecipe> recipes = this.tile.getLevel().getRecipeManager().getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get())
-                .stream()
-                .filter(recipe -> recipe.getMachineId().equals(this.tile.getMachine().getId()))
-                .toList();
-
-        CraftingContext.Mutable context = new CraftingContext.Mutable(this, this.tile.getUpgradeManager());
-        for(CustomCraftRecipe recipe : recipes) {
-            context.setRecipe(recipe);
-            if(checkRecipe(recipe, context)) return Optional.of(recipe);
-        }
-
-        return Optional.empty();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
