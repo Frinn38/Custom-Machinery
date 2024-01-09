@@ -1,7 +1,12 @@
 package fr.frinn.custommachinery.common.component;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.*;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.ComponentIOMode;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -9,11 +14,11 @@ import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ExperienceMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff {
@@ -33,6 +38,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     this.capacityLevels = getLevels(capacity);
     this.xpLevels = getLevels(xp);
   }
+
   private int getLevels(int xp) {
     int levels = 0;
     xp = Mth.clamp(xp, 0, Integer.MAX_VALUE);
@@ -97,12 +103,14 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     return xpReceived;
   }
 
-  public void receiveLevel(int levels, boolean simulate) {
+  public int receiveLevel(int levels, boolean simulate) {
     int toReceive = 0;
-    for (int i = 0; i < levels; i++) {
+    for (int i = xpLevels; i < xpLevels + levels; i++) {
       toReceive += getXpNeededForNextLevel(i);
     }
-    receiveXp(toReceive, simulate);
+    int prevLevels = xpLevels;
+    int received = receiveXp(toReceive, simulate);
+    return (received == toReceive) ? levels : prevLevels + getLevels(received);
   }
 
   public int extractXp(int maxExtract, boolean simulate) {
@@ -113,12 +121,14 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     return xpExtracted;
   }
 
-  public void extractLevel(int levels, boolean simulate) {
+  public int extractLevel(int levels, boolean simulate) {
     int toExtract = 0;
-    for (int i = 0; i < levels; i++) {
+    for (int i = xpLevels; i > xpLevels - levels; i--) {
       toExtract += getXpNeededForNextLevel(i);
     }
-    extractXp(toExtract, simulate);
+    int prevLevels = xpLevels;
+    int extracted = extractXp(toExtract, simulate);
+    return (extracted == toExtract) ? levels : prevLevels - getLevels(extracted);
   }
 
   @Override
@@ -146,40 +156,6 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     container.accept(IntegerSyncable.create(() -> this.xpLevels, xpLevels -> this.xpLevels = xpLevels));
   }
 
-  /** Recipe Stuff **/
-
-  public int receiveRecipeXp(int maxReceive, boolean simulate) {
-    int xpReceived = Math.min(this.capacity - this.xp, maxReceive);
-    if(!simulate) {
-      receiveXp(xpReceived, false);
-    }
-    return xpReceived;
-  }
-
-  public int receiveRecipeLevel(int amount, boolean simulate) {
-    int levelsReceived = Math.min(this.capacityLevels - this.xpLevels, amount);
-    if (!simulate) {
-      receiveLevel(levelsReceived, false);
-    }
-    return levelsReceived;
-  }
-
-  public int extractRecipeXp(int maxExtract, boolean simulate) {
-    int xpExtracted = Math.min(this.xp, maxExtract);
-    if (!simulate) {
-      extractXp(xpExtracted, false);
-    }
-    return xpExtracted;
-  }
-
-  public int extractRecipeLevel(int amount, boolean simulate) {
-    int levelsExtracted = Math.min(capacityLevels, amount);
-    if (!simulate) {
-      extractLevel(levelsExtracted, false);
-    }
-    return levelsExtracted;
-  }
-
   public boolean canRetrieveFromSlots() {
     return retrieveFromSlots;
   }
@@ -188,15 +164,49 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     return slotIds;
   }
 
+  public void receiveLevelFromPlayer(int levels, ServerPlayer player) {
+    int pointsToExtract = 0;
+    for (int i = xpLevels; i < (xpLevels + levels); i++) {
+      pointsToExtract += getXpNeededForNextLevel(i);
+    }
+    if (pointsToExtract > player.totalExperience)
+      pointsToExtract = player.totalExperience;
+    if (this.receiveXp(pointsToExtract, true) == pointsToExtract) {
+      this.receiveXp(pointsToExtract, false);
+      player.giveExperiencePoints(-pointsToExtract);
+    }
+  }
+
+  public void receiveLevelFromPlayer(ServerPlayer player) {
+    player.giveExperiencePoints(-(capacity - xp));
+    receiveXp(capacity - xp, false);
+  }
+
+  public void giveLevelToPlayer(int levels, ServerPlayer player) {
+    int pointsToExtract = 0;
+    for (int i = xpLevels; i > (xpLevels - levels); i--) {
+      pointsToExtract += getXpNeededForNextLevel(i);
+    }
+    if (pointsToExtract > xp)
+      pointsToExtract = xp;
+    if (this.extractXp(pointsToExtract, true) == pointsToExtract) {
+      this.extractXp(pointsToExtract, false);
+      player.giveExperiencePoints(pointsToExtract);
+    }
+  }
+
+  public void giveLevelToPlayer(ServerPlayer player) {
+    player.giveExperiencePoints(xp);
+    extractXp(xp, false);
+  }
+
   public static class Template implements IMachineComponentTemplate<ExperienceMachineComponent> {
     public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
       templateInstance.group(
         NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
-        NamedCodec.BOOL.optionalFieldOf("retrieveFromSlots").forGetter(template -> Optional.of(template.retrieveFromSlots)),
-        NamedCodec.STRING.listOf().optionalFieldOf("retrieveSlotsId").forGetter(template -> Optional.of(template.slotIds))
-      ).apply(templateInstance, (capacity, retrieveFromSlots, slotIds) ->
-          new ExperienceMachineComponent.Template(capacity, retrieveFromSlots.orElse(true), slotIds.orElse(Lists.newArrayList()))
-      ),
+        NamedCodec.BOOL.optionalFieldOf("retrieveFromSlots", true).forGetter(template -> template.retrieveFromSlots),
+        NamedCodec.STRING.listOf().optionalFieldOf("retrieveSlotsId", Lists.newArrayList()).forGetter(template -> template.slotIds)
+      ).apply(templateInstance, Template::new),
       "Experience machine component"
     );
 

@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -46,61 +45,12 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
     tile.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
         .ifPresent(component -> {
           switch(mode) {
-            case INPUT_ONE -> {
-              int pointsToExtract;
-              if (player.experienceLevel >= 1)
-                pointsToExtract = getXpNeededForNextLevel(player.experienceLevel - 1);
-              else
-                pointsToExtract = player.totalExperience;
-              if(component.receiveXp(pointsToExtract, true) == (float) pointsToExtract) {
-                component.receiveXp(pointsToExtract, false);
-                player.giveExperiencePoints(-pointsToExtract);
-              }
-            }
-            case INPUT_TEN -> {
-              int pointsToExtract = 0;
-              if (player.experienceLevel >= 10)
-                for (int i = player.experienceLevel - 1; i > player.experienceLevel - 11; i--) {
-                  pointsToExtract += getXpNeededForNextLevel(i);
-                }
-              else
-                pointsToExtract = player.totalExperience;
-              if(component.receiveXp(pointsToExtract, true) == (float) pointsToExtract) {
-                component.receiveXp(pointsToExtract, false);
-                player.giveExperiencePoints(-pointsToExtract);
-              }
-            }
-            case INPUT_ALL -> {
-              int pointsToExtract = player.totalExperience;
-              if(component.receiveXp(pointsToExtract, true) == (float) pointsToExtract) {
-                component.receiveXp(pointsToExtract, false);
-                player.giveExperiencePoints(-pointsToExtract);
-              }
-            }
-            case OUTPUT_ONE -> {
-              int pointsToExtract = getXpNeededForNextLevel(player.experienceLevel);
-              if (pointsToExtract > component.getXp()) pointsToExtract = Utils.toInt(component.getXp());
-              if(component.extractXp(pointsToExtract, true) == (float) pointsToExtract) {
-                component.extractXp(pointsToExtract, false);
-                player.giveExperiencePoints(pointsToExtract);
-              }
-            }
-            case OUTPUT_TEN -> {
-              int pointsToExtract = 0;
-              for (int i = player.experienceLevel; i < player.experienceLevel + 10; i++) {
-                pointsToExtract += getXpNeededForNextLevel(i);
-              }
-              if (pointsToExtract > component.getXp()) pointsToExtract = Utils.toInt(component.getXp());
-              if(component.extractXp(pointsToExtract, true) == (float) pointsToExtract) {
-                component.extractXp(pointsToExtract, false);
-                player.giveExperiencePoints(pointsToExtract);
-              }
-            }
-            case OUTPUT_ALL -> {
-              int amount = Utils.toInt(component.getXp());
-              component.extractXp(amount, false);
-              player.giveExperiencePoints(amount);
-            }
+            case INPUT_ONE -> component.receiveLevelFromPlayer(1, player);
+            case INPUT_TEN -> component.receiveLevelFromPlayer(10, player);
+            case INPUT_ALL -> component.receiveLevelFromPlayer(player);
+            case OUTPUT_ONE -> component.giveLevelToPlayer(1, player);
+            case OUTPUT_TEN -> component.giveLevelToPlayer(10, player);
+            case OUTPUT_ALL -> component.giveLevelToPlayer(player);
           }
         });
   }
@@ -111,14 +61,6 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
 
   public Mode getMode() {
     return mode;
-  }
-
-  private int getXpNeededForNextLevel(int experienceLevel) {
-    if (experienceLevel >= 30) {
-      return 112 + (experienceLevel - 30) * 9;
-    } else {
-      return experienceLevel >= 15 ? 37 + (experienceLevel - 15) * 5 : 7 + experienceLevel * 2;
-    }
   }
 
   public enum DisplayMode {

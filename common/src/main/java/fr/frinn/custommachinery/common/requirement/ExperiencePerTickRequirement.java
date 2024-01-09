@@ -66,14 +66,14 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
     int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
     if (getForm().isPoint()) {
       if (getMode() == RequirementIOMode.INPUT)
-        return component.extractRecipeXp(amount, true) == amount;
+        return component.extractXp(amount, true) == amount;
       else
-        return component.receiveRecipeXp(amount, true) == amount;
+        return component.receiveXp(amount, true) == amount;
     } else {
       if (getMode() == RequirementIOMode.INPUT)
-        return component.extractRecipeLevel(amount, true) == amount;
+        return component.extractLevel(amount, true) == amount;
       else
-        return component.receiveRecipeLevel(amount, true) == amount;
+        return component.receiveLevel(amount, true) == amount;
     }
   }
 
@@ -87,32 +87,32 @@ public class ExperiencePerTickRequirement extends AbstractChanceableRequirement<
     int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
     if (getForm().isPoint()) {
       if (getMode() == RequirementIOMode.INPUT) {
-        int canExtract = component.extractRecipeXp(amount, true);
+        int canExtract = component.extractXp(amount, true);
         if(canExtract == amount) {
-          component.extractRecipeXp(amount, false);
+          component.extractXp(amount, false);
           return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.xppertick.point.error.input", amount, canExtract));
       } else {
-        int canReceive = component.receiveRecipeXp(amount, true);
+        int canReceive = component.receiveXp(amount, true);
         if(canReceive == amount) {
-          component.receiveRecipeXp(amount, false);
+          component.receiveXp(amount, false);
           return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.xppertick.point.error.output", amount));
       }
     } else {
       if (getMode() == RequirementIOMode.INPUT) {
-        int canExtract = component.extractRecipeLevel(amount, true);
+        int canExtract = component.extractLevel(amount, true);
         if(canExtract == amount) {
-          component.extractRecipeLevel(amount, false);
+          component.extractLevel(amount, false);
           return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.xppertick.level.error.input", amount, canExtract));
       } else {
-        int canReceive = component.receiveRecipeLevel(amount, true);
+        int canReceive = component.receiveLevel(amount, true);
         if(canReceive == amount) {
-          component.receiveRecipeLevel(amount, false);
+          component.receiveLevel(amount, false);
           return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.xppertick.level.error.output", amount));

@@ -13,16 +13,20 @@ import java.util.List;
 
 public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<ExperienceGuiElement> {
   private static final Component TITLE = Component.translatable("custommachinery.gui.element.experience.name");
-  private final List<Component> tooltips;
 
   public ExperienceGuiElementWidget(ExperienceGuiElement element, IMachineScreen screen) {
     super(element, screen, TITLE);
-    this.tooltips = Lists.newArrayList(TITLE);
+  }
+
+  @Override
+  public List<Component> getTooltips() {
+    List<Component> tooltips = Lists.newArrayList();
     getScreen().getTile().getComponentManager()
       .getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
       .ifPresent(component -> {
-        if (element.getMode().isDisplay()) {
-          switch(element.getDisplayMode()) {
+        if (getElement().getMode().isDisplay()) {
+          tooltips.add(TITLE);
+          switch(getElement().getDisplayMode()) {
             case LITERAL -> {
               String value = Utils.format(component.getXp());
               String capacityValue = Utils.format(component.getCapacity()) + " XP";
@@ -64,21 +68,14 @@ public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<Experie
             }
           }
         } else {
-          tooltips.clear();
-          tooltips.add(element.getMode().title());
+          tooltips.add(getElement().getMode().title());
         }
       });
-  }
-
-  @Override
-  public List<Component> getTooltips() {
-    if(this.getElement().getTooltips().isEmpty())
-      return this.tooltips;
-    return this.getElement().getTooltips();
+    return tooltips;
   }
 
   @Override
   public boolean isClickable() {
-    return true;
+    return !this.getElement().getMode().isDisplay();
   }
 }
