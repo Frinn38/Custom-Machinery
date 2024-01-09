@@ -26,7 +26,8 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
 
     public static final List<RequirementType<?>> FORBIDDEN_REQUIREMENTS = Lists.newArrayList(
             Registration.ENERGY_PER_TICK_REQUIREMENT.get(),
-            Registration.FLUID_PER_TICK_REQUIREMENT.get()
+            Registration.FLUID_PER_TICK_REQUIREMENT.get(),
+            Registration.EXPERIENCE_PER_TICK_REQUIREMENT.get()
     );
 
     private final ResourceLocation id;

@@ -1,9 +1,5 @@
 package fr.frinn.custommachinery.common.init;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.mojang.datafixers.types.Type;
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.CreativeTabRegistry;
@@ -43,6 +39,7 @@ import fr.frinn.custommachinery.common.component.SkyMachineComponent;
 import fr.frinn.custommachinery.common.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.component.TimeMachineComponent;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
+import fr.frinn.custommachinery.common.component.ExperienceMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
@@ -73,6 +70,7 @@ import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextureGuiElement;
+import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.builder.component.EnergyComponentBuilder;
 import fr.frinn.custommachinery.common.machine.builder.component.FluidComponentBuilder;
@@ -86,6 +84,7 @@ import fr.frinn.custommachinery.common.network.data.LongData;
 import fr.frinn.custommachinery.common.network.data.NbtData;
 import fr.frinn.custommachinery.common.network.data.SideConfigData;
 import fr.frinn.custommachinery.common.network.data.StringData;
+import fr.frinn.custommachinery.common.network.data.FloatData;
 import fr.frinn.custommachinery.common.network.syncable.BooleanSyncable;
 import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
@@ -95,6 +94,7 @@ import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.network.syncable.NbtSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
+import fr.frinn.custommachinery.common.network.syncable.FloatSyncable;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
 import fr.frinn.custommachinery.common.requirement.ButtonRequirement;
@@ -122,12 +122,13 @@ import fr.frinn.custommachinery.common.requirement.SpeedRequirement;
 import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.requirement.TimeRequirement;
 import fr.frinn.custommachinery.common.requirement.WeatherRequirement;
+import fr.frinn.custommachinery.common.requirement.ExperienceRequirement;
+import fr.frinn.custommachinery.common.requirement.ExperiencePerTickRequirement;
 import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -142,7 +143,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -151,8 +151,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class Registration {
@@ -214,6 +212,7 @@ public class Registration {
     public static final RegistrySupplier<GuiElementType<FuelGuiElement>> FUEL_GUI_ELEMENT = GUI_ELEMENTS.register("fuel", () -> GuiElementType.create(FuelGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ResetGuiElement>> RESET_GUI_ELEMENT = GUI_ELEMENTS.register("reset", () -> GuiElementType.create(ResetGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<DumpGuiElement>> DUMP_GUI_ELEMENT = GUI_ELEMENTS.register("dump", () -> GuiElementType.create(DumpGuiElement.CODEC));
+    public static final RegistrySupplier<GuiElementType<ExperienceGuiElement>> EXPERIENCE_GUI_ELEMENT = GUI_ELEMENTS.register("experience", () -> GuiElementType.create(ExperienceGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<SizeGuiElement>> SIZE_GUI_ELEMENT = GUI_ELEMENTS.register("size", () -> GuiElementType.create(SizeGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ConfigGuiElement>> CONFIG_GUI_ELEMENT = GUI_ELEMENTS.register("config", () -> GuiElementType.create(ConfigGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ButtonGuiElement>> BUTTON_GUI_ELEMENT = GUI_ELEMENTS.register("button", () -> GuiElementType.create(ButtonGuiElement.CODEC));
@@ -222,6 +221,7 @@ public class Registration {
     public static final RegistrySupplier<MachineComponentType<FluidMachineComponent>> FLUID_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fluid", () -> MachineComponentType.create(FluidMachineComponent.Template.CODEC).setNotSingle(FluidComponentHandler::new).setGUIBuilder(FluidComponentBuilder::new));
     public static final RegistrySupplier<MachineComponentType<ItemMachineComponent>> ITEM_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("item", () -> MachineComponentType.create(ItemMachineComponent.Template.CODEC).setNotSingle(ItemComponentHandler::new).setGUIBuilder(ItemComponentBuilder::new));
     public static final RegistrySupplier<MachineComponentType<PositionMachineComponent>> POSITION_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("position", () -> MachineComponentType.create(PositionMachineComponent::new));
+    public static final RegistrySupplier<MachineComponentType<ExperienceMachineComponent>> EXPERIENCE_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("experience", () -> MachineComponentType.create(ExperienceMachineComponent.Template.CODEC));
     public static final RegistrySupplier<MachineComponentType<TimeMachineComponent>> TIME_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("time", () -> MachineComponentType.create(TimeMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<CommandMachineComponent>> COMMAND_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("command", () -> MachineComponentType.create(CommandMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<FuelMachineComponent>> FUEL_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fuel", () -> MachineComponentType.create(FuelMachineComponent::new));
@@ -239,6 +239,8 @@ public class Registration {
 
     public static final RegistrySupplier<RequirementType<ItemRequirement>> ITEM_REQUIREMENT = REQUIREMENTS.register("item", () -> RequirementType.inventory(ItemRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<EnergyRequirement>> ENERGY_REQUIREMENT = REQUIREMENTS.register("energy", () -> RequirementType.inventory(EnergyRequirement.CODEC));
+    public static final RegistrySupplier<RequirementType<ExperienceRequirement>> EXPERIENCE_REQUIREMENT = REQUIREMENTS.register("experience", () -> RequirementType.inventory(ExperienceRequirement.CODEC));
+    public static final RegistrySupplier<RequirementType<ExperiencePerTickRequirement>> EXPERIENCE_PER_TICK_REQUIREMENT = REQUIREMENTS.register("experience_per_tick", () -> RequirementType.inventory(ExperiencePerTickRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<EnergyPerTickRequirement>> ENERGY_PER_TICK_REQUIREMENT = REQUIREMENTS.register("energy_per_tick", () -> RequirementType.inventory(EnergyPerTickRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<FluidRequirement>> FLUID_REQUIREMENT = REQUIREMENTS.register("fluid", () -> RequirementType.inventory(FluidRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<FluidPerTickRequirement>> FLUID_PER_TICK_REQUIREMENT = REQUIREMENTS.register("fluid_per_tick", () -> RequirementType.inventory(FluidPerTickRequirement.CODEC));
@@ -281,6 +283,7 @@ public class Registration {
     public static final RegistrySupplier<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATAS.register("boolean", () -> DataType.create(Boolean.class, BooleanSyncable::create, BooleanData::new));
     public static final RegistrySupplier<DataType<IntegerData, Integer>> INTEGER_DATA = DATAS.register("integer", () -> DataType.create(Integer.class, IntegerSyncable::create, IntegerData::new));
     public static final RegistrySupplier<DataType<DoubleData, Double>> DOUBLE_DATA = DATAS.register("double", () -> DataType.create(Double.class, DoubleSyncable::create, DoubleData::new));
+    public static final RegistrySupplier<DataType<FloatData, Float>> FLOAT_DATA = DATAS.register("float", () -> DataType.create(Float.class, FloatSyncable::create, FloatData::new));
     public static final RegistrySupplier<DataType<ItemStackData, ItemStack>> ITEMSTACK_DATA = DATAS.register("itemstack", () -> DataType.create(ItemStack.class, ItemStackSyncable::create, ItemStackData::new));
     public static final RegistrySupplier<DataType<FluidStackData, FluidStack>> FLUIDSTACK_DATA = DATAS.register("fluidstack", () -> DataType.create(FluidStack.class, FluidStackSyncable::create, FluidStackData::new));
     public static final RegistrySupplier<DataType<StringData, String>> STRING_DATA = DATAS.register("string", () -> DataType.create(String.class, StringSyncable::create, StringData::new));

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import dev.architectury.registry.fuel.FuelRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceIngredientHelper;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
@@ -107,12 +108,12 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     @Override
     public void registerIngredients(IModIngredientRegistration registry) {
         registry.register(CustomIngredientTypes.ENERGY, new ArrayList<>(), new EnergyIngredientHelper(), new DummyIngredientRenderer<>());
+        registry.register(CustomIngredientTypes.EXPERIENCE, new ArrayList<>(), new ExperienceIngredientHelper(), new DummyIngredientRenderer<>());
     }
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGuiContainerHandler(CustomMachineScreen.class, new IGuiContainerHandler<>() {
-            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(CustomMachineScreen screen, double mouseX, double mouseY) {
                 return screen.getElementUnderMouse(mouseX, mouseY)
