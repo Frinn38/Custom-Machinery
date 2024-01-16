@@ -1,9 +1,11 @@
 package fr.frinn.custommachinery.common.init;
 
+import dev.architectury.registry.fuel.FuelRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
+import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
@@ -140,10 +142,12 @@ public class CustomMachineContainer extends SyncableContainer {
         if(clickedSlot.container == this.playerInv) {
             ItemStack stack = clickedSlot.getItem().copy();
             List<SlotItemComponent> components;
-            if(CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(stack.getItem(), this.tile.getId()).isEmpty())
-                components = this.inputSlotComponents;
-            else
+            if(!CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(stack.getItem(), this.tile.getId()).isEmpty())
                 components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getVariant() == UpgradeItemComponentVariant.INSTANCE ? -1 : 1)).toList();
+            else if(FuelRegistry.get(stack) > 0)
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getVariant() == FuelItemComponentVariant.INSTANCE ? -1 : 1)).toList();
+            else
+                components = this.inputSlotComponents;
             for (SlotItemComponent slotComponent : components) {
                 if(slotComponent.getComponent().isLocked())
                     continue;
