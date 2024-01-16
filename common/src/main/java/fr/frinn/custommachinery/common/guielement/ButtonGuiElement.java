@@ -1,13 +1,12 @@
 package fr.frinn.custommachinery.common.guielement;
 
-import com.mojang.datafixers.Products.P11;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +26,8 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toogle_hovered", BASE_TEXTURE_TOOGLE_HOVERED).forGetter(element -> element.textureToogleHovered),
                     NamedCodec.BOOL.optionalFieldOf("toogle", false).forGetter(element -> element.toogle),
                     TextComponentUtils.CODEC.optionalFieldOf("text", Component.literal("")).forGetter(element -> element.text),
-                    DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("item", ItemStack.EMPTY).forGetter(element -> element.item)
+                    DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("item", ItemStack.EMPTY).forGetter(element -> element.item),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("hold_time", 1).forGetter(element -> element.holdTime)
             ).apply(buttonGuiElementInstance, ButtonGuiElement::new), "Button gui element"
     );
 
@@ -37,8 +37,9 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
     private final boolean toogle;
     private final Component text;
     private final ItemStack item;
+    private final int holdTime;
 
-    public ButtonGuiElement(Properties properties, String id, ResourceLocation textureToogle, ResourceLocation textureToogleHovered, boolean toogle, Component text, ItemStack item) {
+    public ButtonGuiElement(Properties properties, String id, ResourceLocation textureToogle, ResourceLocation textureToogleHovered, boolean toogle, Component text, ItemStack item, int holdTime) {
         super(properties);
         this.id = id;
         this.textureToogle = textureToogle;
@@ -46,6 +47,7 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
         this.toogle = toogle;
         this.text = text;
         this.item = item;
+        this.holdTime = holdTime;
     }
 
     @Override
@@ -75,5 +77,9 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
 
     public ItemStack getItem() {
         return this.item;
+    }
+
+    public int getHoldTime() {
+        return this.holdTime;
     }
 }

@@ -39,7 +39,12 @@ public class CButtonGuiElementPacket extends BaseC2SMessage {
     public void handle(PacketContext context) {
         if(context.getEnvironment() == Env.SERVER && context.getPlayer().getServer() != null) {
             if(context.getPlayer().containerMenu instanceof CustomMachineContainer container) {
-                if(container.getTile().getMachine().getGuiElements().stream().noneMatch(element -> element instanceof ButtonGuiElement button && button.getId().equals(this.id)))
+                int holdTime = container.getTile().getMachine().getGuiElements().stream()
+                        .filter(element -> element instanceof ButtonGuiElement button && button.getId().equals(this.id))
+                        .findFirst()
+                        .map(element -> ((ButtonGuiElement)element).getHoldTime())
+                        .orElse(-1);
+                if(holdTime == -1)
                     return;
                 container.getTile().getComponentManager()
                         .getComponent(Registration.DATA_MACHINE_COMPONENT.get())
@@ -48,7 +53,11 @@ public class CButtonGuiElementPacket extends BaseC2SMessage {
                                 component.getData().putBoolean(this.id, !component.getData().getBoolean(this.id));
                             else {
                                 component.getData().putBoolean(this.id, true);
-                                TaskDelayer.enqueue(1, () -> component.getData().putBoolean(this.id, false));
+                                component.getManager().markDirty();
+                                TaskDelayer.enqueue(holdTime, () -> {
+                                    component.getData().putBoolean(this.id, false);
+                                    component.getManager().markDirty();
+                                });
                             }
                         });
             }
