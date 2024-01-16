@@ -45,12 +45,12 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
     tile.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
         .ifPresent(component -> {
           switch(mode) {
-            case INPUT_ONE -> component.receiveLevelFromPlayer(1, player);
-            case INPUT_TEN -> component.receiveLevelFromPlayer(10, player);
-            case INPUT_ALL -> component.receiveLevelFromPlayer(player);
-            case OUTPUT_ONE -> component.giveLevelToPlayer(1, player);
-            case OUTPUT_TEN -> component.giveLevelToPlayer(10, player);
-            case OUTPUT_ALL -> component.giveLevelToPlayer(player);
+            case INPUT_ONE -> component.addLevelToPlayer(-1, player);
+            case INPUT_TEN -> component.addLevelToPlayer(-10, player);
+            case INPUT_ALL -> component.addAllLevelToPlayer(false, player);
+            case OUTPUT_ONE -> component.addLevelToPlayer(1, player);
+            case OUTPUT_TEN -> component.addLevelToPlayer(10, player);
+            case OUTPUT_ALL -> component.addAllLevelToPlayer(true, player);
           }
         });
   }
@@ -93,7 +93,8 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
     OUTPUT_ONE,
     OUTPUT_TEN,
     OUTPUT_ALL,
-    DISPLAY;
+    DISPLAY,
+    DISPLAY_BAR;
 
     public boolean isInputOne() {
       return this == INPUT_ONE;
@@ -120,7 +121,11 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
     }
 
     public boolean isDisplay() {
-      return this == DISPLAY;
+      return this == DISPLAY || this == DISPLAY_BAR;
+    }
+
+    public boolean isDisplayBar() {
+      return this == DISPLAY_BAR;
     }
 
     public Component title() {
@@ -131,21 +136,8 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
         case OUTPUT_ONE -> Component.translatable("custommachinery.gui.element.experience.output_one");
         case OUTPUT_TEN -> Component.translatable("custommachinery.gui.element.experience.output_ten");
         case OUTPUT_ALL -> Component.translatable("custommachinery.gui.element.experience.output_all");
-        case DISPLAY -> Component.empty();
+        case DISPLAY, DISPLAY_BAR -> Component.empty();
       };
-    }
-
-    public static Mode of(String value) {
-      if (value.equalsIgnoreCase("input_one")) return INPUT_ONE;
-      if (value.equalsIgnoreCase("input_ten")) return INPUT_TEN;
-      if (value.equalsIgnoreCase("input_all")) return INPUT_ALL;
-      if (value.equalsIgnoreCase("input")) return INPUT_ALL;
-      if (value.equalsIgnoreCase("output_one")) return OUTPUT_ONE;
-      if (value.equalsIgnoreCase("output_ten")) return OUTPUT_TEN;
-      if (value.equalsIgnoreCase("output_all")) return OUTPUT_ALL;
-      if (value.equalsIgnoreCase("output")) return OUTPUT_ALL;
-      if (value.equalsIgnoreCase("display")) return DISPLAY;
-      return null;
     }
   }
 }

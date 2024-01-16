@@ -105,7 +105,7 @@ public class CustomMachineContainer extends SyncableContainer {
     public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
         if (slotId < 0 || slotId > slots.size()) return;
         Slot clickedSlot = this.slots.get(slotId);
-        if (clickedSlot instanceof SlotItemComponent slot) {
+        if (clickedSlot instanceof SlotItemComponent slot && !slot.getItem().isEmpty()) {
             tile.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get()).ifPresent(
                 component -> {
                     if (component.canRetrieveFromSlots()) {

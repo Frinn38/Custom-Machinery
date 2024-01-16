@@ -1,75 +1,41 @@
 package fr.frinn.custommachinery.common.component;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.ITickableComponent;
-import fr.frinn.custommachinery.api.component.ISerializableComponent;
-import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
-import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.common.util.ExperienceUtils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 public class ExperienceMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff {
-  private int xp;
+
   private final int capacity;
+  private final int capacityLevels;
   private final boolean retrieveFromSlots;
   private final List<String> slotIds;
-  private final int capacityLevels;
-  private int xpLevels;
+  private int xp = 0;
+  private int xpLevels = 0;
 
   public ExperienceMachineComponent(IMachineComponentManager manager, int capacity, boolean retrieveFromSlots, List<String> slotIds) {
     super(manager, ComponentIOMode.BOTH);
-    this.xp = 0;
     this.capacity = capacity;
+    this.capacityLevels = ExperienceUtils.getLevelFromXp(capacity);
     this.retrieveFromSlots = retrieveFromSlots;
     this.slotIds = slotIds;
-    this.capacityLevels = getLevels(capacity);
-    this.xpLevels = getLevels(xp);
-  }
-
-  private int getLevels(int xp) {
-    int levels = 0;
-    xp = Mth.clamp(xp, 0, Integer.MAX_VALUE);
-    float experienceProgress = xp / (float) this.getXpNeededForNextLevel(levels);
-
-    while(experienceProgress < 0.0F) {
-      float f = experienceProgress * (float) getXpNeededForNextLevel(levels);
-      if (levels > 0) {
-        levels -= 1;
-        experienceProgress = 1.0F + f / (float) getXpNeededForNextLevel(levels);
-      } else {
-        levels -= 1;
-        experienceProgress = 0.0F;
-      }
-    }
-
-    while(experienceProgress >= 1.0F) {
-      experienceProgress = (experienceProgress - 1.0F) * (float) getXpNeededForNextLevel(levels);
-      levels += 1;
-      experienceProgress /= (float) getXpNeededForNextLevel(levels);
-    }
-
-    return levels;
-  }
-
-  private int getXpNeededForNextLevel(int experienceLevel) {
-    if (experienceLevel >= 30) {
-      return 112 + (experienceLevel - 30) * 9;
-    } else {
-      return experienceLevel >= 15 ? 37 + (experienceLevel - 15) * 5 : 7 + experienceLevel * 2;
-    }
   }
 
   // For GUI element rendering
@@ -77,12 +43,12 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     return this.xp;
   }
 
-  public int getCapacity() {
-    return this.capacity;
-  }
-
   public int getLevels() {
     return this.xpLevels;
+  }
+
+  public int getCapacity() {
+    return this.capacity;
   }
 
   public int getCapacityLevels() {
@@ -91,7 +57,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
   public void setXp(int xp) {
     this.xp = xp;
-    this.xpLevels = getLevels(xp);
+    this.xpLevels = ExperienceUtils.getLevelFromXp(xp);
     getManager().markDirty();
   }
 
@@ -105,12 +71,12 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
   public int receiveLevel(int levels, boolean simulate) {
     int toReceive = 0;
-    for (int i = xpLevels; i < xpLevels + levels; i++) {
-      toReceive += getXpNeededForNextLevel(i);
+    for (int i = this.xpLevels; i < this.xpLevels + levels; i++) {
+      toReceive += ExperienceUtils.getXpNeededForNextLevel(i);
     }
-    int prevLevels = xpLevels;
+    int prevLevels = this.xpLevels;
     int received = receiveXp(toReceive, simulate);
-    return (received == toReceive) ? levels : prevLevels + getLevels(received);
+    return (received == toReceive) ? levels : prevLevels + ExperienceUtils.getLevelFromXp(received);
   }
 
   public int extractXp(int maxExtract, boolean simulate) {
@@ -123,12 +89,12 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
   public int extractLevel(int levels, boolean simulate) {
     int toExtract = 0;
-    for (int i = xpLevels; i > xpLevels - levels; i--) {
-      toExtract += getXpNeededForNextLevel(i);
+    for (int i = this.xpLevels; i > this.xpLevels - levels; i--) {
+      toExtract += ExperienceUtils.getXpNeededForNextLevel(i);
     }
-    int prevLevels = xpLevels;
+    int prevLevels = this.xpLevels;
     int extracted = extractXp(toExtract, simulate);
-    return (extracted == toExtract) ? levels : prevLevels - getLevels(extracted);
+    return (extracted == toExtract) ? levels : prevLevels - ExperienceUtils.getLevelFromXp(extracted);
   }
 
   @Override
@@ -145,9 +111,9 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
   @Override
   public void deserialize(CompoundTag nbt) {
     if (nbt.contains("xp", Tag.TAG_INT))
-      this.xp = Math.min(nbt.getInt("xp"), this.capacity);
+      this.xp = nbt.getInt("xp");
     if (nbt.contains("levels", Tag.TAG_INT))
-      this.xpLevels = Math.min(nbt.getInt("levels"), this.capacityLevels);
+      this.xpLevels = Math.min(nbt.getInt("levels"), this.capacity);
   }
 
   @Override
@@ -164,40 +130,29 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     return slotIds;
   }
 
-  public void receiveLevelFromPlayer(int levels, ServerPlayer player) {
-    int pointsToExtract = 0;
-    for (int i = xpLevels; i < (xpLevels + levels); i++) {
-      pointsToExtract += getXpNeededForNextLevel(i);
-    }
-    if (pointsToExtract > player.totalExperience)
-      pointsToExtract = player.totalExperience;
-    if (this.receiveXp(pointsToExtract, true) == pointsToExtract) {
-      this.receiveXp(pointsToExtract, false);
-      player.giveExperiencePoints(-pointsToExtract);
-    }
+  //levelDiff positive = give to player, negative = take from player
+  public void addLevelToPlayer(int levelDiff, Player player) {
+    int requestedLevel = player.experienceLevel + levelDiff;
+    requestedLevel = Math.max(requestedLevel, 0);
+    int playerXP = ExperienceUtils.getPlayerTotalXp(player);
+    int requestedXP = ExperienceUtils.getXpFromLevel(requestedLevel) - playerXP;
+    int awardXP = levelDiff > 0 ? Math.min(this.xp, requestedXP) : Math.min(requestedXP, this.capacity - this.xp);
+    awardXP(awardXP, player);
   }
 
-  public void receiveLevelFromPlayer(ServerPlayer player) {
-    player.giveExperiencePoints(-(capacity - xp));
-    receiveXp(capacity - xp, false);
+  public void addAllLevelToPlayer(boolean give, Player player) {
+    int awardXP;
+    if (give) {
+      awardXP = this.xp;
+    } else {
+      awardXP = -Math.min(ExperienceUtils.getPlayerTotalXp(player), this.capacity - this.xp);
+    }
+    awardXP(awardXP, player);
   }
 
-  public void giveLevelToPlayer(int levels, ServerPlayer player) {
-    int pointsToExtract = 0;
-    for (int i = xpLevels; i > (xpLevels - levels); i--) {
-      pointsToExtract += getXpNeededForNextLevel(i);
-    }
-    if (pointsToExtract > xp)
-      pointsToExtract = xp;
-    if (this.extractXp(pointsToExtract, true) == pointsToExtract) {
-      this.extractXp(pointsToExtract, false);
-      player.giveExperiencePoints(pointsToExtract);
-    }
-  }
-
-  public void giveLevelToPlayer(ServerPlayer player) {
-    player.giveExperiencePoints(xp);
-    extractXp(xp, false);
+  public void awardXP(int xp, Player player) {
+      this.setXp(this.xp - xp);
+      player.giveExperiencePoints(xp);
   }
 
   public static class Template implements IMachineComponentTemplate<ExperienceMachineComponent> {
@@ -237,7 +192,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
     @Override
     public ExperienceMachineComponent build(IMachineComponentManager manager) {
-      return new ExperienceMachineComponent(manager, capacity, retrieveFromSlots, slotIds);
+      return new ExperienceMachineComponent(manager, this.capacity, this.retrieveFromSlots, this.slotIds);
     }
   }
 }

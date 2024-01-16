@@ -15,7 +15,7 @@ public class ExperienceGuiElementJeiRenderer implements IJEIElementRenderer<Expe
     int posY = element.getY();
     int width = element.getWidth();
     int height = element.getHeight();
-    if (element.getMode().isDisplay()) {
+    if (!element.getMode().isDisplayBar()) {
       ClientHandler.bindTexture(element.getTexture());
       GuiComponent.blit(matrix, posX, posY, 0, 0, width, height, width, height);
     }
