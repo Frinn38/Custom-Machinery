@@ -12,7 +12,6 @@ import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
-import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
@@ -30,7 +29,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,20 +74,23 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     }
 
     @Override
-    protected void renderBg(PoseStack pose, float mouseX, int mouseY, int partialTicks) {
-        super.renderBackground(pose);
-    }
-
-    @Override
-    protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) {
-        poseStack.pushPose();
-        poseStack.translate(-this.leftPos, -this.topPos, 0);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        super.render(poseStack, mouseX, mouseY, partialTick);
         this.elementWidgets.forEach(widget -> {
             if(widget.isHoveredOrFocused())
                 widget.renderToolTip(poseStack, mouseX, mouseY);
         });
         this.renderTooltip(poseStack, mouseX, mouseY);
-        poseStack.popPose();
+    }
+
+    @Override
+    protected void renderBg(PoseStack poseStack, float partialTick, int mouseX, int mouseY) {
+
+    }
+
+    @Override
+    protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) {
+
     }
 
     @Override
