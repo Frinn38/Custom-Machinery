@@ -16,8 +16,8 @@ import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.compress.utils.Lists;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -159,8 +159,8 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
       templateInstance.group(
         NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
-        NamedCodec.BOOL.optionalFieldOf("retrieveFromSlots", true).forGetter(template -> template.retrieveFromSlots),
-        NamedCodec.STRING.listOf().optionalFieldOf("retrieveSlotsId", Lists.newArrayList()).forGetter(template -> template.slotIds)
+        NamedCodec.BOOL.optionalFieldOf("retrieve", false).forGetter(template -> template.retrieveFromSlots),
+        NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(template -> template.slotIds)
       ).apply(templateInstance, Template::new),
       "Experience machine component"
     );

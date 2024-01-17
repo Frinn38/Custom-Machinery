@@ -24,7 +24,7 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
         BASE_TEXTURE_HOVERED
       ).forGetter(ExperienceGuiElement::getProperties),
       NamedCodec.enumCodec(DisplayMode.class).optionalFieldOf("display", DisplayMode.LEVEL).forGetter(element -> element.displayMode),
-      NamedCodec.enumCodec(Mode.class).optionalFieldOf("mode", Mode.OUTPUT_ALL).forGetter(element -> element.mode)
+      NamedCodec.enumCodec(Mode.class).fieldOf("mode").forGetter(element -> element.mode)
     ).apply(experienceGuiElement, ExperienceGuiElement::new), "Experience gui element"
   );
 
