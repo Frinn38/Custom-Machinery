@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.client.screen.widget.custom;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -114,18 +113,18 @@ public class ButtonWidget extends Widget {
         if(!this.isMouseOver(mouseX, mouseY)) {
             if(this.texture != null) {
                 RenderSystem.setShaderTexture(0, this.texture);
-                AbstractWidget.blit(pose, getX(), getY(), this.width, this.height, this.u, this.v, this.uWidth, this.vHeight, TextureSizeHelper.getTextureWidth(this.texture), TextureSizeHelper.getTextureHeight(this.texture));
+                AbstractWidget.blit(pose, getX(), getY(), this.width, this.height, this.u, this.v, this.uWidth, this.vHeight, this.width, this.height);
             }
         } else {
             if(this.hoverTexture != null) {
                 RenderSystem.setShaderTexture(0, this.hoverTexture);
-                AbstractWidget.blit(pose, getX(), getY(), this.width, this.height, this.hoverU, this.hoverV, this.hoverUWidth, this.hoverVHeight, TextureSizeHelper.getTextureWidth(this.hoverTexture), TextureSizeHelper.getTextureHeight(this.hoverTexture));
+                AbstractWidget.blit(pose, getX(), getY(), this.width, this.height, this.hoverU, this.hoverV, this.hoverUWidth, this.hoverVHeight, this.width, this.height);
             } else if(this.texture != null) {
                 RenderSystem.setShaderTexture(0, this.texture);
-                AbstractWidget.blit(pose, getX(), getY(), this.width, this.height, this.u, this.v, this.uWidth, this.vHeight, TextureSizeHelper.getTextureWidth(this.texture), TextureSizeHelper.getTextureHeight(this.texture));
+                AbstractWidget.blit(pose, getX(), getY(), this.width, this.height, this.u, this.v, this.uWidth, this.vHeight, this.width, this.height);
             }
         }
-        if(this.displayTitle && this.title != null && this.title != Component.empty()) {
+        if(this.displayTitle && this.title != null && !this.title.getString().isEmpty()) {
             Font font = Minecraft.getInstance().font;
             int x = getX() + (this.width - font.width(this.title)) / 2;
             int y = getY() + (this.height - font.lineHeight) / 2;
