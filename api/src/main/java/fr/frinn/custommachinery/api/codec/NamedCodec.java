@@ -36,6 +36,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -233,6 +234,16 @@ public interface NamedCodec<A> {
         return typed.getValue() instanceof JsonElement ?
                 (JsonElement) typed.getValue() :
                 typed.getOps().convertTo(JsonOps.INSTANCE, typed.getValue());
+    }
+
+    static DataResult<double[]> validateDoubleStreamSize(DoubleStream stream, int size) {
+        double[] array = stream.limit(size + 1).toArray();
+        if (array.length != size) {
+            String s = "Input is not a list of " + size + " doubles";
+            return array.length >= size ? DataResult.error(s, Arrays.copyOf(array, size)) : DataResult.error(s);
+        } else {
+            return DataResult.success(array);
+        }
     }
 
     /** Decoder **/

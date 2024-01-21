@@ -17,9 +17,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.phys.AABB;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.DoubleStream;
 
 public class DefaultCodecs {
 
@@ -49,6 +52,16 @@ public class DefaultCodecs {
     public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, ITEM_STACK).xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
 
     public static final NamedCodec<Ingredient> INGREDIENT = NamedCodec.fromJson(Ingredient::fromJson, Ingredient::toJson, "Ingredient");
+
+    public static final NamedCodec<AABB> BOX = NamedCodec.DOUBLE_STREAM.comapFlatMap(stream -> {
+        double[] arr = stream.toArray();
+        if(arr.length == 3)
+            return DataResult.success(new AABB(arr[0], arr[1], arr[2], arr[0], arr[1], arr[2]));
+        else if(arr.length == 6)
+            return DataResult.success(new AABB(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]));
+        else
+            return DataResult.error(Arrays.toString(arr) + " is not an array of 3 or 6 elements");
+    }, aabb -> DoubleStream.of(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ), "Box");
 
     public static <T> NamedCodec<TagKey<T>> tagKey(ResourceKey<Registry<T>> registry) {
         return RESOURCE_LOCATION.xmap(rl -> TagKey.create(registry, rl), TagKey::location, "Tag: " + registry.location());

@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.util.ingredient;
 
 import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.TagUtil;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
@@ -18,7 +17,7 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
 
     private static final NamedCodec<FluidTagIngredient> CODEC_FOR_DATAPACK = NamedCodec.STRING.xmap(FluidTagIngredient::create, FluidTagIngredient::toString, "Fluid tag ingredient");
     private static final NamedCodec<FluidTagIngredient> CODEC_FOR_KUBEJS = DefaultCodecs.tagKey(Registry.FLUID_REGISTRY).fieldOf("tag").xmap(FluidTagIngredient::new, ingredient -> ingredient.tag, "Fluid tag ingredient");
-    public static final NamedCodec<FluidTagIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Tag Ingredient")
+    public static final NamedCodec<FluidTagIngredient> CODEC = NamedCodec.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Tag Ingredient")
             .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left, "Fluid tag ingredient");
 
     private final TagKey<Fluid> tag;

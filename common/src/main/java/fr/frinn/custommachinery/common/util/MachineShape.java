@@ -21,7 +21,7 @@ import java.util.function.Function;
 
 public class MachineShape implements Function<Direction, VoxelShape> {
 
-    private static final NamedCodec<List<AABB>> BOX_CODEC = Codecs.BOX_CODEC.listOf();
+    private static final NamedCodec<List<AABB>> BOX_CODEC = DefaultCodecs.BOX.listOf();
     private static final NamedCodec<Map<Direction, List<AABB>>> MAP_CODEC = NamedCodec.unboundedMap(DefaultCodecs.DIRECTION, BOX_CODEC, "Map<Direction, List<Box>>");
 
     public static final NamedCodec<MachineShape> CODEC = new NamedCodec<>() {

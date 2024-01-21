@@ -4,7 +4,6 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
@@ -17,7 +16,7 @@ public class TextGuiElement extends AbstractGuiElement {
             textGuiElementCodec.group(
                     makePropertiesCodec().forGetter(TextGuiElement::getProperties),
                     TextComponentUtils.CODEC.fieldOf("text").forGetter(TextGuiElement::getText),
-                    Codecs.ALIGNMENT_CODEC.optionalFieldOf("alignment", Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
+                    NamedCodec.enumCodec(Alignment.class).optionalFieldOf("alignment", Alignment.LEFT).forGetter(TextGuiElement::getAlignment),
                     NamedCodec.BOOL.optionalFieldOf("jei", false).forGetter(IGuiElement::showInJei)
             ).apply(textGuiElementCodec, TextGuiElement::new), "Text gui element"
     );

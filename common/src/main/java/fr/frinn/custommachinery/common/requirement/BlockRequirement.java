@@ -12,12 +12,12 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Codecs;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.ChatFormatting;
@@ -37,7 +37,7 @@ public class BlockRequirement extends AbstractDelayedChanceableRequirement<Block
             blockRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
                     ACTION.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
-                    Codecs.BOX_CODEC.fieldOf("pos").forGetter(requirement -> requirement.pos),
+                    DefaultCodecs.BOX.fieldOf("pos").forGetter(requirement -> requirement.pos),
                     NamedCodec.INT.optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
                     ComparatorMode.CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
                     PartialBlockState.CODEC.optionalFieldOf("block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),

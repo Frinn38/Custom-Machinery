@@ -18,7 +18,7 @@ public class Color {
     );
 
     public static final NamedCodec<Color> ARRAY_CODEC = NamedCodec.DOUBLE_STREAM.comapFlatMap(
-            stream -> Codecs.validateDoubleStreamSize(stream, 4)
+            stream -> NamedCodec.validateDoubleStreamSize(stream, 4)
                     .map(array -> fromColors(array[0], array[1], array[2], array[3])),
             color -> DoubleStream.of(color.getAlpha() / 255.0F, color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F),
             "Color"
