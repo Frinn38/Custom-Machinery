@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.common.util.ExperienceUtils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Collections;
@@ -56,7 +57,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
   }
 
   public void setXp(int xp) {
-    this.xp = xp;
+    this.xp = Mth.clamp(xp, 0, this.capacity);
     this.xpLevels = ExperienceUtils.getLevelFromXp(xp);
     getManager().markDirty();
   }
@@ -136,7 +137,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     requestedLevel = Math.max(requestedLevel, 0);
     int playerXP = ExperienceUtils.getPlayerTotalXp(player);
     int requestedXP = ExperienceUtils.getXpFromLevel(requestedLevel) - playerXP;
-    int awardXP = levelDiff > 0 ? Math.min(this.xp, requestedXP) : Math.min(requestedXP, this.capacity - this.xp);
+    int awardXP = levelDiff > 0 ? Math.min(this.xp, requestedXP) : -Math.min(Math.abs(requestedXP), this.capacity - this.xp);
     awardXP(awardXP, player);
   }
 
