@@ -13,14 +13,17 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class MachineAppearance implements IMachineAppearance {
@@ -148,6 +151,14 @@ public class MachineAppearance implements IMachineAppearance {
     @Override
     public MachineShape getShape() {
         return getProperty(Registration.SHAPE_PROPERTY.get());
+    }
+
+    @Override
+    public Function<Direction, VoxelShape> getCollisionShape() {
+        MachineShape collisionShape = getProperty(Registration.SHAPE_COLLISION_PROPERTY.get());
+        if(collisionShape == MachineShape.DEFAULT_COLLISION)
+            return getShape();
+        return collisionShape;
     }
 
     @Override

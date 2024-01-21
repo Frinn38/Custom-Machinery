@@ -279,6 +279,7 @@ public class Registration {
     public static final RegistrySupplier<MachineAppearanceProperty<TagKey<Block>>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registry.BLOCK_REGISTRY), BlockTags.NEEDS_IRON_TOOL));
     public static final RegistrySupplier<MachineAppearanceProperty<Boolean>> REQUIRES_TOOL = APPEARANCE_PROPERTIES.register("requires_tool", () -> MachineAppearanceProperty.create(NamedCodec.BOOL, true));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> MachineAppearanceProperty.create(MachineShape.CODEC, MachineShape.DEFAULT));
+    public static final RegistrySupplier<MachineAppearanceProperty<MachineShape>> SHAPE_COLLISION_PROPERTY = APPEARANCE_PROPERTIES.register("shape_collision", () -> MachineAppearanceProperty.create(MachineShape.CODEC, MachineShape.DEFAULT_COLLISION));
 
     public static final RegistrySupplier<DataType<BooleanData, Boolean>> BOOLEAN_DATA = DATAS.register("boolean", () -> DataType.create(Boolean.class, BooleanSyncable::create, BooleanData::new));
     public static final RegistrySupplier<DataType<IntegerData, Integer>> INTEGER_DATA = DATAS.register("integer", () -> DataType.create(Integer.class, IntegerSyncable::create, IntegerData::new));

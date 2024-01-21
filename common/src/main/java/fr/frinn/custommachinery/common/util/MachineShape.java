@@ -78,6 +78,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
     };
 
     public static final MachineShape DEFAULT = new MachineShape();
+    public static final MachineShape DEFAULT_COLLISION = new MachineShape();
 
     private final Map<Direction, VoxelShape> shapes = Maps.newEnumMap(Direction.class);
 

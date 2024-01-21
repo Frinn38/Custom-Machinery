@@ -69,7 +69,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     public final String renderType;
 
     public CustomMachineBlock(String renderType) {
-        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate));
+        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).dynamicShape().isValidSpawn(spawnPredicate));
         this.renderType = renderType;
     }
 
@@ -260,6 +260,15 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
                     int i = PlatformHelper.hasCorrectToolsForDrops(player, state) ? 30 : 100;
                     return player.getDestroySpeed(state) / f / (float)i;
                 });
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Optional.ofNullable(level.getBlockEntity(pos))
+                .filter(tile -> tile instanceof CustomMachineTile)
+                .map(tile -> ((CustomMachineTile)tile).getAppearance().getCollisionShape().apply(state.getValue(BlockStateProperties.HORIZONTAL_FACING)))
+                .orElse(super.getCollisionShape(state, level, pos, context));
     }
 
     @SuppressWarnings("deprecation")

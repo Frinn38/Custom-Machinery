@@ -84,9 +84,14 @@ public interface IMachineAppearance {
     boolean requiresCorrectToolForDrops();
 
     /**
-     * @return The shape of the machine, used for collisions and block outline.
+     * @return The shape of the machine, used by default for collisions and block outline if their specific properties aren't set.
      */
     Function<Direction, VoxelShape> getShape();
+
+    /**
+     * @return The collision shape of the machine, used only for entities and particles collisions.
+     */
+    Function<Direction, VoxelShape> getCollisionShape();
 
     /**
      * @return An exact copy of this IMachineAppearance, this must create a new instance and copy all the properties from the copied IMachineAppearance.
