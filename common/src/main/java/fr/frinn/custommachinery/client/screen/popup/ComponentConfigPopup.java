@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ComponentConfigPopup extends PopupScreen {
 
     private static final ResourceLocation EXIT_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/config/exit_button.png");
+    private static final ResourceLocation EXIT_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/config/exit_button_hovered.png");
     private static final Component TITLE = Component.translatable("custommachinery.gui.config.component");
 
     private final SideConfig config;
@@ -45,7 +46,7 @@ public class ComponentConfigPopup extends PopupScreen {
         //EXIT
         this.addCustomWidget(new ButtonWidget(() -> this.getX() + 5, () -> this.getY() + 5, 9, 9)
                 .texture(EXIT_TEXTURE)
-                .hoverTexture(EXIT_TEXTURE, 0, 9)
+                .hoverTexture(EXIT_TEXTURE_HOVERED)
                 .noBackground()
                 .callback(button -> this.close())
                 .tooltip(Component.translatable("custommachinery.gui.config.close"))
