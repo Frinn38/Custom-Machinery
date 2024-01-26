@@ -37,10 +37,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private final List<IIngredient<Fluid>> filter;
     private final boolean whitelist;
     private final SideConfig config;
+    private final boolean unique;
 
     private FluidStack fluidStack = FluidStack.empty();
 
-    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, long capacity, long maxInput, long maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, SideConfig.Template configTemplate) {
+    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, long capacity, long maxInput, long maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean unique) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -49,6 +50,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         this.filter = filter;
         this.whitelist = whitelist;
         this.config = configTemplate.build(this);
+        this.unique = unique;
     }
 
     @Override
@@ -121,7 +123,20 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public boolean isFluidValid(@NotNull FluidStack stack) {
-        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) == this.whitelist && (this.fluidStack.isEmpty() || stack.isFluidEqual(this.fluidStack));
+        //Check unique
+        if(this.unique && this.fluidStack.isEmpty() && this.getManager()
+                .getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+                .stream()
+                .flatMap(handler -> handler.getComponents().stream())
+                .anyMatch(component -> component != this && component.getFluidStack().isFluidEqual(stack)))
+            return false;
+
+        //Check filter
+        if(this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) != this.whitelist)
+            return false;
+
+        //Check if same fluid
+        return this.fluidStack.isEmpty() || stack.isFluidEqual(this.fluidStack);
     }
 
     public long insert(Fluid fluid, long amount, CompoundTag nbt, boolean simulate) {
@@ -199,9 +214,10 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                         IIngredient.FLUID.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
                         NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config))
-                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode, config) ->
-                        new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, mode, config.orElse(mode.getBaseConfig()))
+                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config)),
+                        NamedCodec.BOOL.optionalFieldOf("unique", false).forGetter(template -> template.unique)
+                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode, config, unique) ->
+                        new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, mode, config.orElse(mode.getBaseConfig()), unique)
                 ), "Fluid machine component"
         );
 
@@ -213,8 +229,9 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         private final boolean whitelist;
         private final ComponentIOMode mode;
         private final SideConfig.Template config;
+        private final boolean unique;
 
-        public Template(String id, long capacity, long maxInput, long maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, ComponentIOMode mode, SideConfig.Template config) {
+        public Template(String id, long capacity, long maxInput, long maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, ComponentIOMode mode, SideConfig.Template config, boolean unique) {
             this.id = id;
             this.capacity = capacity;
             this.maxInput = maxInput;
@@ -223,6 +240,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             this.whitelist = whitelist;
             this.mode = mode;
             this.config = config;
+            this.unique = unique;
         }
 
         @Override
@@ -253,7 +271,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         @Override
         public FluidMachineComponent build(IMachineComponentManager manager) {
-            return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config);
+            return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config, this.unique);
         }
     }
 }

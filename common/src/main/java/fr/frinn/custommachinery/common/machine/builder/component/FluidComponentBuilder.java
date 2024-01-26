@@ -49,6 +49,6 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
 
     @Override
     public IMachineComponentTemplate<FluidMachineComponent> build() {
-        return new FluidMachineComponent.Template(id.get(), capacity.get(), maxInput.get(), maxOutput.get(), new ArrayList<>(), false, mode.get(), null);
+        return new FluidMachineComponent.Template(id.get(), capacity.get(), maxInput.get(), maxOutput.get(), new ArrayList<>(), false, mode.get(), null, false);
     }
 }

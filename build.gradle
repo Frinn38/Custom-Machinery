@@ -100,7 +100,7 @@ allprojects {
         withSourcesJar()
     }
 
-    if(project.path != ':common' && project.path != ':') {
+    if(project.path != ':') {
         publishing {
             publications {
                 maven(MavenPublication) {
