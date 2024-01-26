@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util.ingredient;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.TagUtil;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -15,7 +16,13 @@ import java.util.function.Function;
 
 public class FluidTagIngredient implements IIngredient<Fluid> {
 
-    private static final NamedCodec<FluidTagIngredient> CODEC_FOR_DATAPACK = NamedCodec.STRING.xmap(FluidTagIngredient::create, FluidTagIngredient::toString, "Fluid tag ingredient");
+    private static final NamedCodec<FluidTagIngredient> CODEC_FOR_DATAPACK = NamedCodec.STRING.comapFlatMap(string -> {
+        try {
+            return DataResult.success(FluidTagIngredient.create(string));
+        } catch (IllegalArgumentException e) {
+            return DataResult.error(e.getMessage());
+        }
+    }, FluidTagIngredient::toString, "Fluid tag ingredient");
     private static final NamedCodec<FluidTagIngredient> CODEC_FOR_KUBEJS = DefaultCodecs.tagKey(Registry.FLUID_REGISTRY).fieldOf("tag").xmap(FluidTagIngredient::new, ingredient -> ingredient.tag, "Fluid tag ingredient");
     public static final NamedCodec<FluidTagIngredient> CODEC = NamedCodec.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Tag Ingredient")
             .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left, "Fluid tag ingredient");
@@ -26,7 +33,7 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
         this.tag = tag;
     }
 
-    public  static FluidTagIngredient create(String s) throws IllegalArgumentException {
+    public static FluidTagIngredient create(String s) throws IllegalArgumentException {
         if(s.startsWith("#"))
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
