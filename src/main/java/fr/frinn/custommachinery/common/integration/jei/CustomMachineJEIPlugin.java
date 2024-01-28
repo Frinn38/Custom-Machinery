@@ -90,7 +90,10 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                 if(progress != null) {
                     int posX = progress.getX();
                     int posY = progress.getY();
-                    boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && progress.getDirection() != ProgressBarGuiElement.Direction.RIGHT && progress.getDirection() != ProgressBarGuiElement.Direction.LEFT;
+                    boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE)
+                                         && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)
+                                         && progress.getDirection() != ProgressBarGuiElement.Direction.RIGHT
+                                         && progress.getDirection() != ProgressBarGuiElement.Direction.LEFT;
                     int width = invertAxis ? progress.getHeight() : progress.getWidth();
                     int height = invertAxis ? progress.getWidth() : progress.getHeight();
                     return Collections.singleton(IGuiClickableArea.createBasic(posX, posY, width, height, screen.getMachine().getId()));

@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 
 import dev.latvian.kubejs.fluid.EmptyFluidStackJS;
 import dev.latvian.kubejs.fluid.FluidStackJS;
-import dev.latvian.kubejs.item.EmptyItemStackJS;
 import dev.latvian.kubejs.item.ItemStackJS;
 import fr.frinn.custommachinery.common.data.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.data.component.FluidMachineComponent;
@@ -96,7 +95,7 @@ public class MachineJS {
         return this.internal.componentManager.getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> ItemStackJS.of(component.getItemStack()))
-                .orElse(EmptyItemStackJS.INSTANCE);
+                .orElse(ItemStackJS.EMPTY);
     }
 
     public int getItemCapacity(String slot) {
@@ -118,7 +117,7 @@ public class MachineJS {
                     if(!simulate)
                         component.insert(stack);
                     if(maxInsert >= stack.getCount())
-                        return EmptyItemStackJS.INSTANCE;
+                        return ItemStackJS.EMPTY;
                     else
                         return ItemStackJS.of(Utils.makeItemStack(stack.getItem(), stack.getCount() - maxInsert, stack.getTag()));
                 })
@@ -131,7 +130,7 @@ public class MachineJS {
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> {
                     if(component.getItemStack().isEmpty())
-                        return EmptyItemStackJS.INSTANCE;
+                        return ItemStackJS.EMPTY;
                     int maxRemove = Math.min(toRemove, component.getItemStack().getCount());
                     ItemStack extracted = component.getItemStack().copy();
                     extracted.setCount(component.getItemStack().getCount() - maxRemove);
@@ -139,6 +138,6 @@ public class MachineJS {
                         component.extract(maxRemove);
                     return ItemStackJS.of(extracted);
                 })
-                .orElse(EmptyItemStackJS.INSTANCE);
+                .orElse(ItemStackJS.EMPTY);
     }
 }

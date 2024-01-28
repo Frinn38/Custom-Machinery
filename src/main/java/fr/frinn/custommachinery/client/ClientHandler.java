@@ -118,9 +118,10 @@ public class ClientHandler {
     public static void registerItemColors(final ColorHandlerEvent.Item event) {
         event.getItemColors().register((stack, tintIndex) -> {
             BlockState state = Registration.CUSTOM_MACHINE_BLOCK.get().getDefaultState();
-            World world = Minecraft.getInstance().world;
-            BlockPos pos = Minecraft.getInstance().player.getPosition();
-            return Minecraft.getInstance().getBlockColors().getColor(state, world, pos, tintIndex);
+            Minecraft instance = Minecraft.getInstance();
+            World world = instance.world;
+            BlockPos pos = instance.player.getPosition();
+            return instance.getBlockColors().getColor(state, world, pos, tintIndex);
         }, Registration.CUSTOM_MACHINE_ITEM::get);
     }
 
@@ -212,50 +213,51 @@ public class ClientHandler {
 
     @SuppressWarnings("deprecation")
     public static void renderItemOverlayIntoGUI(MatrixStack matrix, FontRenderer fr, ItemStack stack, int xPosition, int yPosition, @Nullable String text) {
-        if (!stack.isEmpty()) {
-            if (stack.getCount() != 1 || text != null) {
-                matrix.push();
-                String s = text == null ? String.valueOf(stack.getCount()) : text;
-                matrix.translate(0.0D, 0.0D, Minecraft.getInstance().getItemRenderer().zLevel + 200.0F);
-                IRenderTypeBuffer.Impl irendertypebuffer$impl = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-                fr.renderString(s, (float)(xPosition + 19 - 2 - fr.getStringWidth(s)), (float)(yPosition + 6 + 3), 16777215, true, matrix.getLast().getMatrix(), irendertypebuffer$impl, false, 0, 15728880);
-                irendertypebuffer$impl.finish();
-                RenderSystem.enableDepthTest();
-                matrix.pop();
-            }
+        if (stack.isEmpty()) {
+            return;
+        }
+        if (stack.getCount() != 1 || text != null) {
+            matrix.push();
+            String s = text == null ? String.valueOf(stack.getCount()) : text;
+            matrix.translate(0.0D, 0.0D, Minecraft.getInstance().getItemRenderer().zLevel + 200.0F);
+            IRenderTypeBuffer.Impl irendertypebuffer$impl = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+            fr.renderString(s, (float)(xPosition + 19 - 2 - fr.getStringWidth(s)), (float)(yPosition + 6 + 3), 16777215, true, matrix.getLast().getMatrix(), irendertypebuffer$impl, false, 0, 15728880);
+            irendertypebuffer$impl.finish();
+            RenderSystem.enableDepthTest();
+            matrix.pop();
+        }
 
-            if (stack.getItem().showDurabilityBar(stack)) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.disableAlphaTest();
-                RenderSystem.disableBlend();
-                Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder bufferbuilder = tessellator.getBuffer();
-                double health = stack.getItem().getDurabilityForDisplay(stack);
-                int i = Math.round(13.0F - (float)health * 13.0F);
-                int j = stack.getItem().getRGBDurabilityForDisplay(stack);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
-                RenderSystem.enableBlend();
-                RenderSystem.enableAlphaTest();
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
+        if (stack.getItem().showDurabilityBar(stack)) {
+            RenderSystem.disableDepthTest();
+            RenderSystem.disableTexture();
+            RenderSystem.disableAlphaTest();
+            RenderSystem.disableBlend();
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferbuilder = tessellator.getBuffer();
+            double health = stack.getItem().getDurabilityForDisplay(stack);
+            int i = Math.round(13.0F - (float)health * 13.0F);
+            int j = stack.getItem().getRGBDurabilityForDisplay(stack);
+            draw(bufferbuilder, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
+            draw(bufferbuilder, xPosition + 2, yPosition + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
+            RenderSystem.enableBlend();
+            RenderSystem.enableAlphaTest();
+            RenderSystem.enableTexture();
+            RenderSystem.enableDepthTest();
+        }
 
-            ClientPlayerEntity clientplayerentity = Minecraft.getInstance().player;
-            float f3 = clientplayerentity == null ? 0.0F : clientplayerentity.getCooldownTracker().getCooldown(stack.getItem(), Minecraft.getInstance().getRenderPartialTicks());
-            if (f3 > 0.0F) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                Tessellator tessellator1 = Tessellator.getInstance();
-                BufferBuilder bufferbuilder1 = tessellator1.getBuffer();
-                draw(bufferbuilder1, xPosition, yPosition + MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 255, 255, 255, 127);
-                RenderSystem.disableBlend();
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
+        ClientPlayerEntity clientPlayer = Minecraft.getInstance().player;
+        float cooldown = clientPlayer == null ? 0.0F : clientPlayer.getCooldownTracker().getCooldown(stack.getItem(), Minecraft.getInstance().getRenderPartialTicks());
+        if (cooldown > 0.0F) {
+            RenderSystem.disableDepthTest();
+            RenderSystem.disableTexture();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            Tessellator tessellator1 = Tessellator.getInstance();
+            BufferBuilder bufferbuilder1 = tessellator1.getBuffer();
+            draw(bufferbuilder1, xPosition, yPosition + MathHelper.floor(16.0F * (1.0F - cooldown)), 16, MathHelper.ceil(16.0F * cooldown), 255, 255, 255, 127);
+            RenderSystem.disableBlend();
+            RenderSystem.enableTexture();
+            RenderSystem.enableDepthTest();
         }
     }
 
