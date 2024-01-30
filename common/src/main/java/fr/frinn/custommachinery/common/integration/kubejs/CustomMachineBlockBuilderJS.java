@@ -22,11 +22,13 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     public static final List<String> VALID_RENDER_TYPES = List.of("solid", "cutout", "translucent");
     private ResourceLocation machineID;
     private String renderType;
+    private boolean occlusion;
 
     public CustomMachineBlockBuilderJS(ResourceLocation i) {
         super(i);
         this.machineID = id;
         this.renderType = "translucent";
+        this.occlusion = false;
     }
 
     public CustomMachineBlockBuilderJS machine(ResourceLocation machineID) {
@@ -41,6 +43,11 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
         return this;
     }
 
+    public CustomMachineBlockBuilderJS occlude() {
+        this.occlusion = true;
+        return this;
+    }
+
     @Override
     public RegistryInfo getRegistryType() {
         return RegistryInfo.BLOCK;
@@ -48,7 +55,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public Block createObject() {
-        CustomMachineBlock block = new CustomMachineBlock(this.renderType);
+        CustomMachineBlock block = new CustomMachineBlock(this.renderType, this.occlusion);
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
         if(Platform.isFabric())
             Registration.CUSTOM_MACHINE_TILE.get().validBlocks.add(block);

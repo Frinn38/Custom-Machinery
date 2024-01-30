@@ -68,13 +68,20 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
 
     public final String renderType;
 
-    public CustomMachineBlock(String renderType) {
-        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).dynamicShape().isValidSpawn(spawnPredicate));
+    public static Properties makeProperties(boolean occlusion) {
+        if(occlusion)
+            return Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).dynamicShape().isValidSpawn(spawnPredicate);
+        else
+            return Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate);
+    }
+
+    public CustomMachineBlock(String renderType, boolean occlusion) {
+        super(makeProperties(occlusion));
         this.renderType = renderType;
     }
 
     public CustomMachineBlock() {
-        this("translucent");
+        this("translucent", false);
     }
 
     @SuppressWarnings("deprecation")
