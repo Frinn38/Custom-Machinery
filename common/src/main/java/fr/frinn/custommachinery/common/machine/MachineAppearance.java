@@ -79,6 +79,8 @@ public class MachineAppearance implements IMachineAppearance {
         }
     };
 
+    public static final MachineAppearance DEFAULT = new MachineAppearance(defaultProperties());
+
     private final Map<MachineAppearanceProperty<?>, Object> properties;
 
     public MachineAppearance(Map<MachineAppearanceProperty<?>, Object> properties) {

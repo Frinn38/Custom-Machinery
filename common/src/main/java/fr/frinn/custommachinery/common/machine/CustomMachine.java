@@ -11,8 +11,8 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
-import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -24,7 +24,7 @@ public class CustomMachine implements ICustomMachine {
     public static final NamedCodec<CustomMachine> CODEC = NamedCodec.record(machineCodec ->
         machineCodec.group(
                 TextComponentUtils.CODEC.fieldOf("name").forGetter(machine -> machine.name),
-                MachineAppearanceManager.CODEC.fieldOf("appearance").forGetter(machine -> machine.appearance),
+                MachineAppearanceManager.CODEC.optionalFieldOf("appearance", MachineAppearanceManager.DEFAULT).forGetter(machine -> machine.appearance),
                 TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltips", Collections.emptyList()).forGetter(CustomMachine::getTooltips),
                 IGuiElement.CODEC.listOf().optionalFieldOf("gui", Collections.emptyList()).forGetter(CustomMachine::getGuiElements),
                 IGuiElement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(CustomMachine::getJeiElements),

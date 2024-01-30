@@ -28,6 +28,8 @@ public class MachineAppearanceManager {
             "Machine appearance"
     );
 
+    public static final MachineAppearanceManager DEFAULT = new MachineAppearanceManager(MachineAppearance.defaultProperties(), MachineAppearance.DEFAULT, MachineAppearance.DEFAULT, MachineAppearance.DEFAULT, MachineAppearance.DEFAULT);
+
     private final Map<MachineAppearanceProperty<?>, Object> defaultProperties;
     private final MachineAppearance idle;
     private final MachineAppearance running;
