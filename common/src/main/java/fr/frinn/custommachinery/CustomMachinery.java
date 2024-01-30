@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.event.EventResult;
+import dev.architectury.event.events.common.CommandPerformEvent;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.InteractionEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
@@ -95,6 +96,8 @@ public class CustomMachinery {
         EnvExecutor.runInEnv(Env.CLIENT, () -> ClientHandler::init);
 
         InteractionEvent.LEFT_CLICK_BLOCK.register(CustomMachinery::boxRendererLeftClick);
+
+        CommandPerformEvent.EVENT.register(CustomMachinery::onReloadStart);
     }
 
     private static void setup() {
@@ -120,6 +123,12 @@ public class CustomMachinery {
     private static EventResult boxRendererLeftClick(Player player, InteractionHand hand, BlockPos pos, Direction face) {
         if(!player.level.isClientSide() && player.getItemInHand(hand).getItem() instanceof BoxCreatorItem)
             BoxCreatorItem.setSelectedBlock(true, player.getItemInHand(hand), pos);
+        return EventResult.pass();
+    }
+
+    private static EventResult onReloadStart(CommandPerformEvent event) {
+        if(event.getResults().getReader().getString().equals("reload") && event.getResults().getContext().getSource().hasPermission(2))
+            CMLogger.reset();
         return EventResult.pass();
     }
 }
