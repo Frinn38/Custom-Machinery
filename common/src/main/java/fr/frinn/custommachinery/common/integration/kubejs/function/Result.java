@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import net.minecraft.network.chat.Component;
 
+//TODO: Remove in favor of Context methods
 public class Result {
 
     private final CraftingResult internal;

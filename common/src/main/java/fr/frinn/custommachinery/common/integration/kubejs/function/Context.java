@@ -4,6 +4,7 @@ import dev.latvian.mods.kubejs.level.BlockContainerJS;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import net.minecraft.network.chat.Component;
 
 public class Context {
 
@@ -41,5 +42,13 @@ public class Context {
 
     public BlockContainerJS getBlock() {
         return new BlockContainerJS(getTile().getLevel(), getTile().getBlockPos());
+    }
+
+    public Result success() {
+        return Result.success();
+    }
+
+    public Result error(Component error) {
+        return Result.error(error);
     }
 }

@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.function;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -55,5 +56,15 @@ public class Context {
     @Method
     public MachineCT getMachine() {
         return this.machine;
+    }
+
+    @Method
+    public CraftingResult success() {
+        return Result.success();
+    }
+
+    @Method
+    public CraftingResult error(String error) {
+        return Result.error(error);
     }
 }

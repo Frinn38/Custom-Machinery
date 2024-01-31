@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 
+//TODO: remove in favor of Context methods
 @ZenRegister
 @Name("mods.custommachinery.Result")
 public class Result {
