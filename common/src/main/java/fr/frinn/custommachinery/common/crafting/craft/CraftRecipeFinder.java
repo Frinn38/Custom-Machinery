@@ -31,7 +31,7 @@ public class CraftRecipeFinder {
         this.recipes = tile.getLevel().getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get())
                 .stream()
-                .filter(recipe -> recipe.getMachineId().equals(tile.getMachine().getId()))
+                .filter(recipe -> tile.getMachine().getRecipeIds().contains(recipe.getMachineId()))
                 .sorted(Comparators.RECIPE_PRIORITY_COMPARATOR.reversed())
                 .map(CustomCraftRecipe::checker)
                 .toList();

@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.UpgradedCustomMachine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,8 @@ public class UpgradeManager implements IMachineUpgradeManager {
     private void refreshUpgrades() {
         this.isDirty = false;
         this.activeModifiers.clear();
+        if(this.tile.getMachine() instanceof UpgradedCustomMachine upgradedMachine)
+            upgradedMachine.getModifiers().forEach(modifier -> this.activeModifiers.add(Pair.of(modifier, 1)));
         this.activeModifiers.addAll(tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .stream()
                 .flatMap(handler -> handler.getComponents().stream())

@@ -68,6 +68,11 @@ public class CustomMachine implements ICustomMachine {
     }
 
     @Override
+    public List<ResourceLocation> getRecipeIds() {
+        return Collections.singletonList(this.getId());
+    }
+
+    @Override
     public Component getName() {
         return this.name;
     }
@@ -85,6 +90,10 @@ public class CustomMachine implements ICustomMachine {
     @Override
     public IProcessorTemplate<? extends IProcessor> getProcessorTemplate() {
         return this.processorTemplate;
+    }
+
+    public MachineAppearanceManager getAppearanceManager() {
+        return this.appearance;
     }
 
     public List<Component> getTooltips() {

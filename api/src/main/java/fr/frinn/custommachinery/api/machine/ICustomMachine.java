@@ -4,6 +4,8 @@ import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public interface ICustomMachine {
 
     /**
@@ -17,6 +19,12 @@ public interface ICustomMachine {
     ResourceLocation getId();
 
     /**
+     * @return The recipe ids supported by this machine.
+     * Normal machines just return their id but upgraded machines return both their id and their parent machine id.
+     */
+    List<ResourceLocation> getRecipeIds();
+
+    /**
      * @return true if the machine is DUMMY, usually indicate that something went wrong, or a machine was not found.
      */
     boolean isDummy();
@@ -26,5 +34,8 @@ public interface ICustomMachine {
      */
     IMachineAppearance getAppearance(MachineStatus status);
 
+    /**
+     * @return A template for the processor used to process recipes.
+     */
     IProcessorTemplate<?> getProcessorTemplate();
 }

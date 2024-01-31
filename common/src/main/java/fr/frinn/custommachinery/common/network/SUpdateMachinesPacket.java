@@ -7,6 +7,8 @@ import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.client.ClientPacketHandler;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
+import fr.frinn.custommachinery.common.machine.UpgradedCustomMachine;
+import fr.frinn.custommachinery.common.util.Comparators;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -30,11 +32,20 @@ public class SUpdateMachinesPacket extends BaseS2CMessage {
     @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeInt(this.machines.size());
-        this.machines.forEach((id, machine) -> {
+        this.machines.values()
+                .stream()
+                .sorted(Comparators.PARENT_MACHINE_FIRST)
+                .forEach(machine -> {
             try {
-                buf.writeResourceLocation(id);
                 MachineLocation.CODEC.toNetwork(machine.getLocation(), buf);
-                CustomMachine.CODEC.toNetwork(machine, buf);
+                if(machine instanceof UpgradedCustomMachine upgradedMachine) {
+                    buf.writeBoolean(true);
+                    buf.writeResourceLocation(((UpgradedCustomMachine) machine).getParentId());
+                    UpgradedCustomMachine.makeCodec(this.machines.get(upgradedMachine.getParentId())).toNetwork(upgradedMachine, buf);
+                } else {
+                    buf.writeBoolean(false);
+                    CustomMachine.CODEC.toNetwork(machine, buf);
+                }
             } catch (EncoderException e) {
                 e.printStackTrace();
             }
@@ -46,11 +57,16 @@ public class SUpdateMachinesPacket extends BaseS2CMessage {
         int size = buf.readInt();
         for(int i = 0; i < size; i++) {
             try {
-                ResourceLocation id = buf.readResourceLocation();
                 MachineLocation location = MachineLocation.CODEC.fromNetwork(buf);
-                CustomMachine machine = CustomMachine.CODEC.fromNetwork(buf);
+                CustomMachine machine;
+                if(buf.readBoolean()) {
+                    ResourceLocation parent = buf.readResourceLocation();
+                    machine = UpgradedCustomMachine.makeCodec(map.get(parent)).fromNetwork(buf);
+                } else {
+                    machine = CustomMachine.CODEC.fromNetwork(buf);
+                }
                 machine.setLocation(location);
-                map.put(id, machine);
+                map.put(location.getId(), machine);
             } catch (EncoderException e) {
                 e.printStackTrace();
             }

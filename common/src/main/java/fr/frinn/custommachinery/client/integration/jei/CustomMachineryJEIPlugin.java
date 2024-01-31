@@ -4,10 +4,8 @@ import com.google.common.collect.Lists;
 import dev.architectury.registry.fuel.FuelRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceIngredientHelper;
-import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
-import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
+import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceIngredientHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
@@ -15,7 +13,9 @@ import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
+import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
+import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -174,13 +174,15 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         CustomMachinery.MACHINES.forEach((id, machine) -> {
-            RecipeType<?> type = CMRecipeTypes.fromID(id);
-            if(type != null) {
-                List<ResourceLocation> catalysts = machine.getCatalysts();
-                if(!catalysts.contains(id))
-                    registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), type);
-                machine.getCatalysts().stream().filter(CustomMachinery.MACHINES::containsKey).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type));
-            }
+            machine.getRecipeIds().forEach(recipeId -> {
+                RecipeType<?> type = CMRecipeTypes.fromID(recipeId);
+                if(type != null) {
+                    List<ResourceLocation> catalysts = machine.getCatalysts();
+                    if(!catalysts.contains(id))
+                        registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), type);
+                    machine.getCatalysts().stream().filter(CustomMachinery.MACHINES::containsKey).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type));
+                }
+            });
         });
     }
 
