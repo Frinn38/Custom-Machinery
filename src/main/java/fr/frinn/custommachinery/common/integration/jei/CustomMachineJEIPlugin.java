@@ -27,6 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -107,7 +108,16 @@ public class CustomMachineJEIPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         CustomMachinery.MACHINES.forEach((id, machine) -> {
             registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), id);
-            machine.getCatalysts().stream().filter(catalyst -> CustomMachinery.MACHINES.containsKey(catalyst) && !catalyst.equals(id)).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id));
+            for (ResourceLocation catalyst : machine.getCatalysts()) {
+                if (CustomMachinery.MACHINES.containsKey(catalyst)) {
+                    // recognize machine first to avoid changing existed behaviour
+                    if (catalyst.equals(id)) {
+                        registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id);
+                    }
+                } else if (ForgeRegistries.ITEMS.containsKey(catalyst)) {
+                    registration.addRecipeCatalyst(catalyst, id);
+                }
+            }
         });
     }
 }
