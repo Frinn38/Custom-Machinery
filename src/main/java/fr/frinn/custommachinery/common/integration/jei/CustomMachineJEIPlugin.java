@@ -112,7 +112,7 @@ public class CustomMachineJEIPlugin implements IModPlugin {
             for (ResourceLocation catalyst : machine.getCatalysts()) {
                 if (CustomMachinery.MACHINES.containsKey(catalyst)) {
                     // recognize machine first to avoid changing existed behaviour
-                    if (catalyst.equals(id)) {
+                    if (!catalyst.equals(id)) {
                         registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id);
                     }
                 } else if (ForgeRegistries.ITEMS.containsKey(catalyst)) {
