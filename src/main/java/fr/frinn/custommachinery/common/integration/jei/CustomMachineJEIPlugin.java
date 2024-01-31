@@ -115,7 +115,7 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                         registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id);
                     }
                 } else if (ForgeRegistries.ITEMS.containsKey(catalyst)) {
-                    registration.addRecipeCatalyst(catalyst, id);
+                    registration.addRecipeCatalyst(new ItemStack(ForgeRegistries.ITEMS.getValue(catalyst)), id);
                 }
             }
         });
