@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.energy.EnergyIngredientHelper;
+import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.Comparators;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -116,6 +117,8 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                     }
                 } else if (ForgeRegistries.ITEMS.containsKey(catalyst)) {
                     registration.addRecipeCatalyst(new ItemStack(ForgeRegistries.ITEMS.getValue(catalyst)), id);
+                } else {
+                    CMLogger.INSTANCE.warn("Invalid catalyst `%s` for machine `%s`", catalyst, machine.getId());
                 }
             }
         });
