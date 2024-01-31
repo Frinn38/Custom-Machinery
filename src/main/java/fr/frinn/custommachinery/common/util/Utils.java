@@ -166,7 +166,7 @@ public class Utils {
 
     public static boolean isResourceNameValid(String resourceLocation) {
         try {
-            ResourceLocation location = new ResourceLocation(resourceLocation);
+            new ResourceLocation(resourceLocation);
             return true;
         } catch (ResourceLocationException e) {
             return false;

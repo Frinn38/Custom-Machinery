@@ -31,28 +31,30 @@ public class ClientPacketHandler {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static void handleCraftingManagerStatusChangedPacket(BlockPos pos, MachineStatus status) {
-        if(Minecraft.getInstance().world != null) {
-            TileEntity tile = Minecraft.getInstance().world.getTileEntity(pos);
+        Minecraft instance = Minecraft.getInstance();
+        if(instance.world != null) {
+            TileEntity tile = instance.world.getTileEntity(pos);
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machineTile = (CustomMachineTile)tile;
                 CraftingManager manager = machineTile.craftingManager;
                 if(status != manager.getStatus()) {
                     manager.setStatus(status);
                     machineTile.requestModelDataUpdate();
-                    Minecraft.getInstance().world.notifyBlockUpdate(tile.getPos(), tile.getBlockState(), tile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
+                    instance.world.notifyBlockUpdate(tile.getPos(), tile.getBlockState(), tile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
                 }
             }
         }
     }
 
     public static void handleRefreshCustomMachineTilePacket(BlockPos pos, ResourceLocation machine) {
-        if(Minecraft.getInstance().world != null) {
-            TileEntity tile = Minecraft.getInstance().world.getTileEntity(pos);
+        Minecraft instance = Minecraft.getInstance();
+        if(instance.world != null) {
+            TileEntity tile = instance.world.getTileEntity(pos);
             if(tile instanceof CustomMachineTile) {
                 CustomMachineTile machineTile = (CustomMachineTile) tile;
                 machineTile.setId(machine);
                 machineTile.requestModelDataUpdate();
-                Minecraft.getInstance().world.notifyBlockUpdate(pos, machineTile.getBlockState(), machineTile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
+                instance.world.notifyBlockUpdate(pos, machineTile.getBlockState(), machineTile.getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
             }
         }
     }

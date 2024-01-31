@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.data.gui.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.jei.energy.EnergyIngredientHelper;
+import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.Comparators;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -27,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -90,7 +92,10 @@ public class CustomMachineJEIPlugin implements IModPlugin {
                 if(progress != null) {
                     int posX = progress.getX();
                     int posY = progress.getY();
-                    boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && progress.getDirection() != ProgressBarGuiElement.Direction.RIGHT && progress.getDirection() != ProgressBarGuiElement.Direction.LEFT;
+                    boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE)
+                                         && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)
+                                         && progress.getDirection() != ProgressBarGuiElement.Direction.RIGHT
+                                         && progress.getDirection() != ProgressBarGuiElement.Direction.LEFT;
                     int width = invertAxis ? progress.getHeight() : progress.getWidth();
                     int height = invertAxis ? progress.getWidth() : progress.getHeight();
                     return Collections.singleton(IGuiClickableArea.createBasic(posX, posY, width, height, screen.getMachine().getId()));
@@ -104,7 +109,18 @@ public class CustomMachineJEIPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         CustomMachinery.MACHINES.forEach((id, machine) -> {
             registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), id);
-            machine.getCatalysts().stream().filter(catalyst -> CustomMachinery.MACHINES.containsKey(catalyst) && !catalyst.equals(id)).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id));
+            for (ResourceLocation catalyst : machine.getCatalysts()) {
+                if (CustomMachinery.MACHINES.containsKey(catalyst)) {
+                    // recognize machine first to avoid changing existed behaviour
+                    if (!catalyst.equals(id)) {
+                        registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), id);
+                    }
+                } else if (ForgeRegistries.ITEMS.containsKey(catalyst)) {
+                    registration.addRecipeCatalyst(new ItemStack(ForgeRegistries.ITEMS.getValue(catalyst)), id);
+                } else {
+                    CMLogger.INSTANCE.warn("Invalid catalyst `%s` for machine `%s`", catalyst, machine.getId());
+                }
+            }
         });
     }
 }
