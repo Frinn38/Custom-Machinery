@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.integration.jei;
 import com.google.common.collect.Lists;
 import dev.architectury.registry.fuel.FuelRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceIngredientHelper;
@@ -36,6 +37,7 @@ import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -180,7 +182,14 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                     List<ResourceLocation> catalysts = machine.getCatalysts();
                     if(!catalysts.contains(id))
                         registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), type);
-                    machine.getCatalysts().stream().filter(CustomMachinery.MACHINES::containsKey).forEach(catalyst -> registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type));
+                    machine.getCatalysts().forEach(catalyst -> {
+                        if(CustomMachinery.MACHINES.containsKey(catalyst))
+                            registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type);
+                        else if(Registration.REGISTRIES.get(Registry.ITEM_REGISTRY).contains(catalyst))
+                            registration.addRecipeCatalyst(new ItemStack(Registration.REGISTRIES.get(Registry.ITEM_REGISTRY).get(catalyst)), type);
+                        else
+                            ICustomMachineryAPI.INSTANCE.logger().error("Invalid catalyst '{}' for machine '{}'. Not a machine or item id", catalyst, id);
+                    });
                 }
             });
         });
