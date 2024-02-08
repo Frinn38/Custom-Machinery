@@ -21,18 +21,20 @@ import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendere
 import fr.frinn.custommachinery.api.integration.jei.RegisterWidgetToJeiIngredientGetterEvent;
 import fr.frinn.custommachinery.client.integration.jei.FluidIngredientGetter;
 import fr.frinn.custommachinery.client.integration.jei.element.EnergyGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.integration.jei.element.ExperienceGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.FluidGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.FuelGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.ProgressGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.ExperienceGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
+import fr.frinn.custommachinery.client.render.element.BarGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.ButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.ConfigGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.DumpGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.EnergyGuiElementWidget;
+import fr.frinn.custommachinery.client.render.element.ExperienceGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.FluidGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.FuelGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.PlayerInventoryGuiElementWidget;
@@ -42,7 +44,6 @@ import fr.frinn.custommachinery.client.render.element.SlotGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.StatusGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.TextGuiElementWidget;
 import fr.frinn.custommachinery.client.render.element.TextureGuiElementWidget;
-import fr.frinn.custommachinery.client.render.element.ExperienceGuiElementWidget;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creator.MachineCreationScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
@@ -132,6 +133,7 @@ public class ClientHandler {
         event.register(Registration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
         event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
         event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
+        event.register(Registration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
     }
 
     private static void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {

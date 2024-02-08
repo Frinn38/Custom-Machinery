@@ -56,6 +56,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeSerialize
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeSerializer;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
+import fr.frinn.custommachinery.common.guielement.BarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ButtonGuiElement;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import fr.frinn.custommachinery.common.guielement.DumpGuiElement;
@@ -216,6 +217,7 @@ public class Registration {
     public static final RegistrySupplier<GuiElementType<SizeGuiElement>> SIZE_GUI_ELEMENT = GUI_ELEMENTS.register("size", () -> GuiElementType.create(SizeGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ConfigGuiElement>> CONFIG_GUI_ELEMENT = GUI_ELEMENTS.register("config", () -> GuiElementType.create(ConfigGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ButtonGuiElement>> BUTTON_GUI_ELEMENT = GUI_ELEMENTS.register("button", () -> GuiElementType.create(ButtonGuiElement.CODEC));
+    public static final RegistrySupplier<GuiElementType<BarGuiElement>> BAR_GUI_ELEMENT = GUI_ELEMENTS.register("bar", () -> GuiElementType.create(BarGuiElement.CODEC));
 
     public static final RegistrySupplier<MachineComponentType<EnergyMachineComponent>> ENERGY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("energy", () -> MachineComponentType.create(EnergyMachineComponent.Template.CODEC).setGUIBuilder(EnergyComponentBuilder::new));
     public static final RegistrySupplier<MachineComponentType<FluidMachineComponent>> FLUID_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fluid", () -> MachineComponentType.create(FluidMachineComponent.Template.CODEC).setNotSingle(FluidComponentHandler::new).setGUIBuilder(FluidComponentBuilder::new));
