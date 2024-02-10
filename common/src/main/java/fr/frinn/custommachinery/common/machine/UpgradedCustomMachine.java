@@ -30,20 +30,23 @@ public class UpgradedCustomMachine extends CustomMachine {
                                 DefaultCodecs.RESOURCE_LOCATION.listOf().optionalFieldOf("catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
                                 IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", parent.getComponentTemplates()).forGetter(CustomMachine::getComponentTemplates),
                                 IProcessorTemplate.CODEC.optionalFieldOf("processor", parent.getProcessorTemplate()).forGetter(CustomMachine::getProcessorTemplate),
-                                RecipeModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(UpgradedCustomMachine::getModifiers)
-                        ).apply(upgradedMachineCodec, (name, appearance, tooltips, gui, jei, catalysts, components, processor, modifiers) ->
-                                new UpgradedCustomMachine(name, appearance, tooltips, gui, jei, catalysts, components, processor, modifiers, parent.getId())),
+                                RecipeModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(UpgradedCustomMachine::getModifiers),
+                                NamedCodec.BOOL.optionalFieldOf("allow_parent_recipes", true).forGetter(machine -> machine.canMakeParentRecipes)
+                        ).apply(upgradedMachineCodec, (name, appearance, tooltips, gui, jei, catalysts, components, processor, modifiers, parentRecipes) ->
+                                new UpgradedCustomMachine(name, appearance, tooltips, gui, jei, catalysts, components, processor, modifiers, parent.getId(), parentRecipes)),
                 "Custom machine"
         );
     }
 
     private final List<RecipeModifier> modifiers;
     private final ResourceLocation parentId;
+    private final boolean canMakeParentRecipes;
 
-    public UpgradedCustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates, IProcessorTemplate<? extends IProcessor> processorTemplate, List<RecipeModifier> modifiers, ResourceLocation parentId) {
+    public UpgradedCustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates, IProcessorTemplate<? extends IProcessor> processorTemplate, List<RecipeModifier> modifiers, ResourceLocation parentId, boolean canMakeParentRecipes) {
         super(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates, processorTemplate);
         this.modifiers = modifiers;
         this.parentId = parentId;
+        this.canMakeParentRecipes = canMakeParentRecipes;
     }
 
     public List<RecipeModifier> getModifiers() {
@@ -56,6 +59,8 @@ public class UpgradedCustomMachine extends CustomMachine {
 
     @Override
     public List<ResourceLocation> getRecipeIds() {
-        return Lists.asList(this.getId(), CustomMachinery.MACHINES.get(this.parentId).getRecipeIds().toArray(new ResourceLocation[]{}));
+        if(this.canMakeParentRecipes)
+            return Lists.asList(this.getId(), CustomMachinery.MACHINES.get(this.parentId).getRecipeIds().toArray(new ResourceLocation[]{}));
+        return Collections.singletonList(this.getId());
     }
 }
