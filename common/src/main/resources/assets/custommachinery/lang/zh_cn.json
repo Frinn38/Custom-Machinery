@@ -157,7 +157,7 @@
   "custommachinery.requirements.fluid.error.output": "容量不足，无法容纳 %s 的 %smB",
   "custommachinery.requirements.fluidpertick.error.input": "没有足够的 %s，需要 %smB 但是只找到 %smB！",
   "custommachinery.requirements.fluidpertick.error.output": "容量不足，无法容纳 %s 的 %smB",
-  "custommachinery.requirements.fuel.error": 这个配方需要一些燃料",
+  "custommachinery.requirements.fuel.error": "这个配方需要一些燃料",
   "custommachinery.requirements.fuel.info": "需要一些正在燃烧的燃料",
   "custommachinery.requirements.item.error.input": "没有足够的 %s，需要 %s 但是只找到 %s ！",
   "custommachinery.requirements.item.error.output": "没有足够的空间来储存 %s %s",
