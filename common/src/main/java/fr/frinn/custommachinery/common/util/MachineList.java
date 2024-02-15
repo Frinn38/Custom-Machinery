@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,10 +46,11 @@ public class MachineList {
     }
 
     public static Optional<MachineTile> findNearest(Player player, @Nullable ResourceLocation machine, int radius) {
-        return LOADED_MACHINES.stream().filter(ref -> {
-            MachineTile tile = ref.get();
-            return tile != null && tile.getLevel() == player.level && tile.getBlockPos().closerThan(player.blockPosition(), radius) && (machine == null || machine.equals(tile.getMachine().getId()));
-        }).map(ref -> Objects.requireNonNull(ref.get())).findFirst();
+        return LOADED_MACHINES.stream()
+                .filter(ref -> ref.get() != null)
+                .map(ref -> Objects.requireNonNull(ref.get()))
+                .filter(tile -> tile.getLevel() == player.level && tile.getBlockPos().closerThan(player.blockPosition(), radius) && (machine == null || machine.equals(tile.getMachine().getId())))
+                .min(Comparator.comparingInt(tile -> tile.getBlockPos().distManhattan(player.blockPosition())));
     }
 
     private static void serverTick(final MinecraftServer server) {

@@ -1,20 +1,16 @@
 package fr.frinn.custommachinery.common.network;
 
-import dev.architectury.networking.NetworkManager;
 import dev.architectury.networking.NetworkManager.PacketContext;
 import dev.architectury.networking.simple.BaseC2SMessage;
 import dev.architectury.networking.simple.MessageType;
 import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -63,7 +59,7 @@ public class CPlaceStructurePacket extends BaseC2SMessage {
                     for(Map.Entry<Character, IIngredient<PartialBlockState>> key : this.keys.entrySet())
                         builder.where(key.getKey(), key.getValue());
                     BlockStructure structure = builder.build();
-                    component.placeStructure(structure, true);
+                    component.placeStructure(structure, false);
                 });
             });
         }
