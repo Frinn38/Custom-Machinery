@@ -62,7 +62,7 @@ dependencies {
     }
 
     //Jade
-    modLocalRuntime modCompileOnly("curse.maven:jade-324717:3922834")
+    modLocalRuntime modCompileOnly("curse.maven:jade-324717:4573438")
 
     //KubeJS
     modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs-fabric:${project.kubejs_version}")

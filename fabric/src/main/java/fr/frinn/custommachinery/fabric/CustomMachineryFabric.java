@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.fabric.integration.jade.CMWailaPlugin;
 import fr.frinn.custommachinery.fabric.transfer.FabricEnergyHandler;
 import fr.frinn.custommachinery.fabric.transfer.FabricFluidHandler;
 import fr.frinn.custommachinery.fabric.transfer.FabricItemHandler;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -28,7 +29,7 @@ public class CustomMachineryFabric implements ModInitializer {
     public void onInitialize() {
         CustomMachinery.init();
 
-        if(Platform.isModLoaded("jade"))
+        if(Platform.isModLoaded("jade") && Platform.getEnv() == EnvType.CLIENT)
             CMWailaPlugin.addMachineBlockToPickedResults();
 
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(this::afterDatapackReload);
