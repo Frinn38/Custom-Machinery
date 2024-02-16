@@ -70,4 +70,10 @@ public class ForgeCustomMachineTile extends CustomMachineTile {
 
         return super.getCapability(capability, side);
     }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        super.unload();
+    }
 }

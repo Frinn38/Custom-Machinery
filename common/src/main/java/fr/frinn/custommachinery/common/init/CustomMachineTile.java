@@ -263,6 +263,18 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         super.setRemoved();
     }
 
+    private boolean unloaded = false;
+    /**
+     * Called when the chunk is unloaded.
+     */
+    public void unload() {
+        this.unloaded = true;
+    }
+
+    public boolean isUnloaded() {
+        return this.unloaded;
+    }
+
     @Override
     public void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);

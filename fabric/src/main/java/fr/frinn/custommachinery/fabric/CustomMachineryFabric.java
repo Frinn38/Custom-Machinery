@@ -7,6 +7,7 @@ import dev.architectury.utils.EnvExecutor;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.fabric.client.ClientHandler;
@@ -14,14 +15,16 @@ import fr.frinn.custommachinery.fabric.integration.jade.CMWailaPlugin;
 import fr.frinn.custommachinery.fabric.transfer.FabricEnergyHandler;
 import fr.frinn.custommachinery.fabric.transfer.FabricFluidHandler;
 import fr.frinn.custommachinery.fabric.transfer.FabricItemHandler;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.chunk.LevelChunk;
 import team.reborn.energy.api.EnergyStorage;
 
 public class CustomMachineryFabric implements ModInitializer {
@@ -39,6 +42,8 @@ public class CustomMachineryFabric implements ModInitializer {
         EnvExecutor.runInEnv(Env.CLIENT, () -> ClientHandler::init);
 
         LifecycleEvent.SETUP.register(this::createHandlers);
+
+        ServerChunkEvents.CHUNK_UNLOAD.register(this::onChunkUnload);
     }
 
     private void afterDatapackReload(MinecraftServer server, ResourceManager manager, boolean success) {
@@ -70,5 +75,12 @@ public class CustomMachineryFabric implements ModInitializer {
                         .orElse(null),
                 Registration.CUSTOM_MACHINE_TILE.get()
         );
+    }
+
+    private void onChunkUnload(ServerLevel level, LevelChunk chunk) {
+        chunk.getBlockEntities().values().forEach(be -> {
+            if(be instanceof CustomMachineTile machine)
+                machine.unload();
+        });
     }
 }
