@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api.machine;
 
+import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
@@ -55,6 +56,12 @@ public abstract class MachineTile extends BlockEntity {
      * @return true if the MachineTile is paused, false if not.
      */
     public abstract boolean isPaused();
+
+    /**
+     * Can be used in {@link IMachineComponent#onRemoved()} to check if the machine is removed because of a chunk unload.
+     * @return True if the chunk containing this {@link MachineTile} is being unloaded, false otherwise.
+     */
+    public abstract boolean isUnloaded();
 
     /**
      * @return The machine current status, available on both sides as it's synced automatically.

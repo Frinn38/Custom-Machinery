@@ -6,6 +6,7 @@ import com.blamejared.crafttweaker.api.data.MapData;
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import com.blamejared.crafttweaker.platform.Services;
 import dev.architectury.fluid.FluidStack;
+import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
@@ -17,6 +18,7 @@ import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
@@ -272,5 +274,39 @@ public class MachineCT {
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(ItemMachineComponent::isLocked)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid slot id: " + slot));
+    }
+
+    /** Chunkload stuff **/
+
+    @Method
+    public void enableChunkload(int radius) {
+        this.internal.getComponentManager()
+                .getComponent(Registration.CHUNKLOAD_MACHINE_COMPONENT.get())
+                .ifPresent(component -> component.setActive((ServerLevel) this.internal.getLevel(), radius));
+    }
+
+    @Method
+    public void disableChunkload() {
+        this.internal.getComponentManager()
+                .getComponent(Registration.CHUNKLOAD_MACHINE_COMPONENT.get())
+                .ifPresent(component -> component.setInactive((ServerLevel) this.internal.getLevel()));
+    }
+
+    @Method
+    @Getter("chunkloadEnabled")
+    public boolean isChunkloadEnabled() {
+        return this.internal.getComponentManager()
+                .getComponent(Registration.CHUNKLOAD_MACHINE_COMPONENT.get())
+                .map(ChunkloadMachineComponent::isActive)
+                .orElse(false);
+    }
+
+    @Method
+    @Getter("chunkloadRadius")
+    public int getChunkloadRadius() {
+        return this.internal.getComponentManager()
+                .getComponent(Registration.CHUNKLOAD_MACHINE_COMPONENT.get())
+                .map(ChunkloadMachineComponent::getRadius)
+                .orElse(0);
     }
 }

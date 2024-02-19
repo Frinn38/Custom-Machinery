@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuild
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BiomeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BlockRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ButtonRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ChunkloadRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.CommandRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.DimensionRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.DropRequirementCT;
@@ -20,6 +21,8 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Eff
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.EnergyPerTickRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.EnergyRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.EntityRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperiencePerTickRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperienceRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidPerTickRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FuelRequirementCT;
@@ -35,8 +38,6 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Sky
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.StructureRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.TimeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.WeatherRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperienceRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperiencePerTickRequirementCT;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import org.openzen.zencode.java.ZenCodeType.Method;
@@ -58,7 +59,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
         LightRequirementCT<CustomMachineRecipeCTBuilder>, BlockRequirementCT<CustomMachineRecipeCTBuilder>, StructureRequirementCT<CustomMachineRecipeCTBuilder>,
         LootTableRequirementCT<CustomMachineRecipeCTBuilder>, DropRequirementCT<CustomMachineRecipeCTBuilder>, FunctionRequirementCT<CustomMachineRecipeCTBuilder>,
         ButtonRequirementCT<CustomMachineRecipeCTBuilder>, SkyRequirementCT<CustomMachineRecipeCTBuilder>, ItemFilterRequirementCT<CustomMachineRecipeCTBuilder>,
-        ExperienceRequirementCT<CustomMachineRecipeCTBuilder>, ExperiencePerTickRequirementCT<CustomMachineRecipeCTBuilder>{
+        ExperienceRequirementCT<CustomMachineRecipeCTBuilder>, ExperiencePerTickRequirementCT<CustomMachineRecipeCTBuilder>, ChunkloadRequirementCT<CustomMachineRecipeCTBuilder> {
 
     public static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private final CustomMachineRecipeBuilder builder;

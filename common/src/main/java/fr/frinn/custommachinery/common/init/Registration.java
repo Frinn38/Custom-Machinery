@@ -22,6 +22,8 @@ import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
+import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
+import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent.Template;
 import fr.frinn.custommachinery.common.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
@@ -99,6 +101,7 @@ import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
 import fr.frinn.custommachinery.common.requirement.ButtonRequirement;
+import fr.frinn.custommachinery.common.requirement.ChunkloadRequirement;
 import fr.frinn.custommachinery.common.requirement.CommandRequirement;
 import fr.frinn.custommachinery.common.requirement.DimensionRequirement;
 import fr.frinn.custommachinery.common.requirement.DropRequirement;
@@ -238,6 +241,7 @@ public class Registration {
     public static final RegistrySupplier<MachineComponentType<FunctionMachineComponent>> FUNCTION_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("function", () -> MachineComponentType.create(FunctionMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<DataMachineComponent>> DATA_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("data", () -> MachineComponentType.create(DataMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<SkyMachineComponent>> SKY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("sky", () -> MachineComponentType.create(SkyMachineComponent::new));
+    public static final RegistrySupplier<MachineComponentType<ChunkloadMachineComponent>> CHUNKLOAD_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("chunkload", () -> MachineComponentType.create(Template.CODEC, ChunkloadMachineComponent::new));
 
     public static final RegistrySupplier<RequirementType<ItemRequirement>> ITEM_REQUIREMENT = REQUIREMENTS.register("item", () -> RequirementType.inventory(ItemRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<EnergyRequirement>> ENERGY_REQUIREMENT = REQUIREMENTS.register("energy", () -> RequirementType.inventory(EnergyRequirement.CODEC));
@@ -268,6 +272,7 @@ public class Registration {
     public static final RegistrySupplier<RequirementType<ButtonRequirement>> BUTTON_REQUIREMENT = REQUIREMENTS.register("button", () -> RequirementType.inventory(ButtonRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<SkyRequirement>> SKY_REQUIREMENT = REQUIREMENTS.register("sky", () -> RequirementType.world(SkyRequirement.CODEC));
     public static final RegistrySupplier<RequirementType<ItemFilterRequirement>> ITEM_FILTER_REQUIREMENT = REQUIREMENTS.register("item_filter", () -> RequirementType.inventory(ItemFilterRequirement.CODEC));
+    public static final RegistrySupplier<RequirementType<ChunkloadRequirement>> CHUNKLOAD_REQUIREMENT = REQUIREMENTS.register("chunkload", () -> RequirementType.inventory(ChunkloadRequirement.CODEC));
 
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));

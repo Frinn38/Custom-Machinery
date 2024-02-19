@@ -5,14 +5,15 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public class MachineList {
@@ -31,14 +32,7 @@ public class MachineList {
     }
 
     public static void refreshAllMachines() {
-        final List<WeakReference<MachineTile>> copy = List.copyOf(LOADED_MACHINES);
-        copy.forEach(weak -> {
-            MachineTile tile = weak.get();
-            if(tile != null)
-                tile.refreshMachine(null);
-            else
-                LOADED_MACHINES.remove(weak);
-        });
+        getLoadedMachines().forEach(tile -> tile.refreshMachine(null));
     }
 
     public static void setNeedRefresh() {
@@ -46,11 +40,28 @@ public class MachineList {
     }
 
     public static Optional<MachineTile> findNearest(Player player, @Nullable ResourceLocation machine, int radius) {
-        return LOADED_MACHINES.stream()
-                .filter(ref -> ref.get() != null)
-                .map(ref -> Objects.requireNonNull(ref.get()))
+        return getLoadedMachines().stream()
                 .filter(tile -> tile.getLevel() == player.level && tile.getBlockPos().closerThan(player.blockPosition(), radius) && (machine == null || machine.equals(tile.getMachine().getId())))
                 .min(Comparator.comparingInt(tile -> tile.getBlockPos().distManhattan(player.blockPosition())));
+    }
+
+    public static Optional<MachineTile> findInSameChunk(MachineTile machine) {
+        return getLoadedMachines().stream()
+                .filter(tile -> tile != machine && tile.getLevel() == machine.getLevel() && new ChunkPos(tile.getBlockPos()).equals(new ChunkPos(machine.getBlockPos())))
+                .findFirst();
+    }
+
+    public static List<MachineTile> getLoadedMachines() {
+        Iterator<WeakReference<MachineTile>> iterator = LOADED_MACHINES.iterator();
+        List<MachineTile> loadedMachines = new ArrayList<>();
+        while(iterator.hasNext()) {
+            MachineTile tile = iterator.next().get();
+            if(tile == null || tile.isRemoved())
+                iterator.remove();
+            else
+                loadedMachines.add(tile);
+        }
+        return loadedMachines;
     }
 
     private static void serverTick(final MinecraftServer server) {

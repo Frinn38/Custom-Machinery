@@ -5,13 +5,18 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ChunkloadRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.CommandRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DimensionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DropRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DurabilityRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EffectRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.EnergyPerTickRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EnergyRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EntityRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ExperiencePerTickRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ExperienceRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.FluidPerTickRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FluidRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FuelRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FunctionRequirementJS;
@@ -26,10 +31,6 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequir
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
-import fr.frinn.custommachinery.common.integration.kubejs.requirements.ExperienceRequirementJS;
-import fr.frinn.custommachinery.common.integration.kubejs.requirements.ExperiencePerTickRequirementJS;
-import fr.frinn.custommachinery.common.integration.kubejs.requirements.EnergyPerTickRequirementJS;
-import fr.frinn.custommachinery.common.integration.kubejs.requirements.FluidPerTickRequirementJS;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,8 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         EnergyRequirementJS, EnergyPerTickRequirementJS, TimeRequirementJS, PositionRequirementJS, BiomeRequirementJS, DimensionRequirementJS,
         FuelRequirementJS, CommandRequirementJS, EffectRequirementJS, WeatherRequirementJS, RedstoneRequirementJS, LightRequirementJS,
         EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS,
-        ButtonRequirementJS, SkyRequirementJS, ItemFilterRequirementJS, ExperienceRequirementJS, ExperiencePerTickRequirementJS {
+        ButtonRequirementJS, SkyRequirementJS, ItemFilterRequirementJS, ExperienceRequirementJS, ExperiencePerTickRequirementJS,
+        ChunkloadRequirementJS {
 
     @Nullable
     private MachineAppearance customAppearance = null;

@@ -20,6 +20,7 @@ public class CTConstants {
     public static final String REQUIREMENT_BIOME = "mods." + CustomMachinery.MODID + ".requirement.Biome";
     public static final String REQUIREMENT_BLOCK = "mods." + CustomMachinery.MODID + ".requirement.Block";
     public static final String REQUIREMENT_BUTTON = "mods." + CustomMachinery.MODID + ".requirement.Button";
+    public static final String REQUIREMENT_CHUNKLOAD = "mods." + CustomMachinery.MODID + ".requirement.Chunkload";
     public static final String REQUIREMENT_COMMAND = "mods." + CustomMachinery.MODID + ".requirement.Command";
     public static final String REQUIREMENT_DIMENSION = "mods." + CustomMachinery.MODID + ".requirement.Dimension";
     public static final String REQUIREMENT_DROP = "mods." + CustomMachinery.MODID + ".requirement.Drop";
