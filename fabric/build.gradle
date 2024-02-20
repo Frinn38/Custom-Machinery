@@ -63,15 +63,15 @@ dependencies {
     modLocalRuntime("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
 
     //ModMenu
-    modLocalRuntime modCompileOnly("com.terraformersmc:modmenu:4.2.0-beta.2")
+    modLocalRuntime modCompileOnly("com.terraformersmc:modmenu:7.2.2")
 
     //Energy API
-    modLocalRuntime(modCompileOnly('teamreborn:energy:2.3.0')) {
+    modLocalRuntime(modCompileOnly('teamreborn:energy:3.0.0')) {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
     //Jade
-    modLocalRuntime modCompileOnly("curse.maven:jade-324717:4328558")
+    modLocalRuntime modCompileOnly("curse.maven:jade-324717:5106745")
 
     //KubeJS
     modLocalRuntime modCompileOnly("dev.latvian.mods:kubejs-fabric:${project.kubejs_version}") {exclude group: "me.shedaniel"}
