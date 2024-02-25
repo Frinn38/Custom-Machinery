@@ -85,7 +85,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     @Override
     protected void renderBg(PoseStack poseStack, float partialTick, int mouseX, int mouseY) {
-
+        this.renderBackground(poseStack);
     }
 
     @Override
