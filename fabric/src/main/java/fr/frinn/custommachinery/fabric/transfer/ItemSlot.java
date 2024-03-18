@@ -46,7 +46,7 @@ public class ItemSlot extends SnapshotParticipant<ItemStack> implements SingleSl
             return 0;
 
 
-        if(this.component.getItemStack().getItem() != resource.getItem() || !ItemStack.tagMatches(this.component.getItemStack(), resource.toStack()))
+        if(!ItemStack.isSameItemSameTags(this.component.getItemStack(), resource.toStack()))
             return 0;
 
         long extracted = this.component.extract(Utils.toInt(maxAmount), true).getCount();

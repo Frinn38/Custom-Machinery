@@ -1,7 +1,5 @@
 package fr.frinn.custommachinery.common.upgrade;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -10,7 +8,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -56,7 +54,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
                 if(upgrade.getItem() == Items.AIR) {
-                    logger.error("Invalid item: {}, defined for upgrade: {}", Registry.ITEM.getKey(upgrade.getItem()), id);
+                    logger.error("Invalid item: {}, defined for upgrade: {}", BuiltInRegistries.ITEM.getKey(upgrade.getItem()), id);
                     return;
                 }
                 logger.info("Successfully parsed upgrade json: {}", id);

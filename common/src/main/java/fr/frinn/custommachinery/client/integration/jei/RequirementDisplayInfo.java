@@ -1,15 +1,13 @@
 package fr.frinn.custommachinery.client.integration.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -55,8 +53,8 @@ public class RequirementDisplayInfo implements IDisplayInfo {
         this.clickAction = clickAction;
     }
 
-    public void renderIcon(PoseStack pose, int size) {
-        this.renderer.render(pose, size);
+    public void renderIcon(GuiGraphics graphics, int size) {
+        this.renderer.render(graphics, size);
     }
 
     public List<Pair<Component, TooltipPredicate>> getTooltips() {
@@ -80,32 +78,30 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     }
 
     public interface IDisplayInfoRenderer {
-        void render(PoseStack pose, int size);
+        void render(GuiGraphics graphics, int size);
     }
 
     private record Item(ItemStack stack) implements IDisplayInfoRenderer {
         @Override
-        public void render(PoseStack pose, int size) {
-            pose.scale(size / 16.0F, size / 16.0F, 1.0F);
-            ClientHandler.renderItemAndEffectsIntoGUI(pose, this.stack, 0, 0);
+        public void render(GuiGraphics graphics, int size) {
+            graphics.pose().scale(size / 16.0F, size / 16.0F, 1.0F);
+            graphics.renderItem(this.stack, 0, 0);
         }
     }
 
     private record Texture(ResourceLocation icon, int width, int height, int u, int v) implements IDisplayInfoRenderer {
         @Override
-        public void render(PoseStack pose, int size) {
-            ClientHandler.bindTexture(this.icon);
+        public void render(GuiGraphics graphics, int size) {
             int textureWidth = TextureSizeHelper.getTextureWidth(this.icon);
             int textureHeight = TextureSizeHelper.getTextureHeight(this.icon);
-            GuiComponent.blit(pose, 0, 0, size, size, this.u, this.v, textureWidth, textureHeight, textureWidth, textureHeight);
+            graphics.blit(this.icon, 0, 0, size, size, this.u, this.v, textureWidth, textureHeight, textureWidth, textureHeight);
         }
     }
 
     private record Sprite(ResourceLocation atlas, ResourceLocation sprite) implements IDisplayInfoRenderer {
         @Override
-        public void render(PoseStack pose, int size) {
-            ClientHandler.bindTexture(this.atlas);
-            GuiComponent.blit(pose, 0, 0, 0, size, size, Minecraft.getInstance().getTextureAtlas(this.atlas).apply(this.sprite));
+        public void render(GuiGraphics graphics, int size) {
+            graphics.blit(0, 0, 0, size, size, Minecraft.getInstance().getTextureAtlas(this.atlas).apply(this.sprite));
         }
     }
 }

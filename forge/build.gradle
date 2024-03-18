@@ -48,9 +48,6 @@ dependencies {
     modCompileOnly("mezz.jei:jei-${project.minecraft_version}-forge-api:${project.jei_version}")
     modLocalRuntime("mezz.jei:jei-${project.minecraft_version}-forge:${project.jei_version}") { transitive = false }
 
-    //Building gadgets
-    modLocalRuntime modCompileOnly("curse.maven:gadgets-298187:4843616")
-
     //The one probe
     modLocalRuntime modCompileOnly("mcjty.theoneprobe:theoneprobe:${project.top_version}") {transitive = false}
 

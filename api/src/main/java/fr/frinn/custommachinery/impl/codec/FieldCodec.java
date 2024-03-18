@@ -9,10 +9,7 @@ import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -49,7 +46,7 @@ public class FieldCodec<A> extends NamedMapCodec<A> {
         }
         if(value == null) {
             ICustomMachineryAPI.INSTANCE.logger().error("Missing mandatory property \"{}\" of type \"{}\" in {}", fieldName, name, input);
-            return DataResult.error("No key " + fieldName + " in " + input);
+            return DataResult.error(() -> "No key " + fieldName + " in " + input);
         }
         return elementCodec.read(ops, value);
     }

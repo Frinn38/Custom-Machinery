@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
-import fr.frinn.custommachinery.impl.integration.jei.Experience.Form;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
@@ -14,6 +13,7 @@ import fr.frinn.custommachinery.client.integration.jei.wrapper.ExperienceIngredi
 import fr.frinn.custommachinery.common.component.ExperienceMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.integration.jei.Experience;
+import fr.frinn.custommachinery.impl.integration.jei.Experience.Form;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.network.chat.Component;

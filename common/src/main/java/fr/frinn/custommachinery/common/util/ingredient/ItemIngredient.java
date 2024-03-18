@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.util.ingredient;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 
 import java.util.Collections;
@@ -26,6 +26,6 @@ public class ItemIngredient implements IIngredient<Item> {
 
     @Override
     public String toString() {
-        return Registry.ITEM.getKey(this.item).toString();
+        return BuiltInRegistries.ITEM.getKey(this.item).toString();
     }
 }

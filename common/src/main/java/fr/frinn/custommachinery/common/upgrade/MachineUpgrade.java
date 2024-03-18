@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.common.upgrade;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

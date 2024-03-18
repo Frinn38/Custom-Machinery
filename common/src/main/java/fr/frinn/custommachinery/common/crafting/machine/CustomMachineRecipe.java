@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.crafting.RecipeChecker;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.Comparators;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -152,7 +153,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     }
 
     @Override
-    public ItemStack assemble(Container inv) {
+    public ItemStack assemble(Container inv, RegistryAccess access) {
         return ItemStack.EMPTY;
     }
 
@@ -162,7 +163,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess access) {
         return ItemStack.EMPTY;
     }
 }

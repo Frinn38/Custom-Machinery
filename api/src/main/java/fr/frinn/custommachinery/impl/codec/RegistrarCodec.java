@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
@@ -24,12 +24,12 @@ import net.minecraft.world.level.material.Fluid;
 public class RegistrarCodec<V> implements NamedCodec<V> {
 
     /** Vanilla registries **/
-    public static final NamedCodec<Item> ITEM = of(ICustomMachineryAPI.INSTANCE.registrar(Registry.ITEM_REGISTRY), false);
-    public static final NamedCodec<Block> BLOCK = of(ICustomMachineryAPI.INSTANCE.registrar(Registry.BLOCK_REGISTRY), false);
-    public static final NamedCodec<Fluid> FLUID = of(ICustomMachineryAPI.INSTANCE.registrar(Registry.FLUID_REGISTRY), false);
-    public static final NamedCodec<EntityType<?>> ENTITY = of(ICustomMachineryAPI.INSTANCE.registrar(Registry.ENTITY_TYPE_REGISTRY), false);
-    public static final NamedCodec<Enchantment> ENCHANTMENT = of(ICustomMachineryAPI.INSTANCE.registrar(Registry.ENCHANTMENT_REGISTRY), false);
-    public static final NamedCodec<MobEffect> EFFECT = of(ICustomMachineryAPI.INSTANCE.registrar(Registry.MOB_EFFECT_REGISTRY), false);
+    public static final NamedCodec<Item> ITEM = of(ICustomMachineryAPI.INSTANCE.registrar(Registries.ITEM), false);
+    public static final NamedCodec<Block> BLOCK = of(ICustomMachineryAPI.INSTANCE.registrar(Registries.BLOCK), false);
+    public static final NamedCodec<Fluid> FLUID = of(ICustomMachineryAPI.INSTANCE.registrar(Registries.FLUID), false);
+    public static final NamedCodec<EntityType<?>> ENTITY = of(ICustomMachineryAPI.INSTANCE.registrar(Registries.ENTITY_TYPE), false);
+    public static final NamedCodec<Enchantment> ENCHANTMENT = of(ICustomMachineryAPI.INSTANCE.registrar(Registries.ENCHANTMENT), false);
+    public static final NamedCodec<MobEffect> EFFECT = of(ICustomMachineryAPI.INSTANCE.registrar(Registries.MOB_EFFECT), false);
 
     /**CM registries**/
     public static final NamedCodec<MachineComponentType<?>> MACHINE_COMPONENT = of(ICustomMachineryAPI.INSTANCE.componentRegistrar(), true);
@@ -47,7 +47,7 @@ public class RegistrarCodec<V> implements NamedCodec<V> {
                     else
                         return DataResult.success(new ResourceLocation(ICustomMachineryAPI.INSTANCE.modid(), s));
                 } catch (Exception e) {
-                    return DataResult.error(e.getMessage());
+                    return DataResult.error(e::getMessage);
                 }
             },
             ResourceLocation::toString,
@@ -70,7 +70,7 @@ public class RegistrarCodec<V> implements NamedCodec<V> {
     public <T> DataResult<Pair<V, T>> decode(DynamicOps<T> ops, T input) {
         return (this.isCM ? CM_LOC_CODEC : DefaultCodecs.RESOURCE_LOCATION).decode(ops, input).flatMap(keyValuePair ->
                 !this.registrar.contains(keyValuePair.getFirst())
-                        ? DataResult.error("Unknown registry key in " + this.registrar.key() + ": " + keyValuePair.getFirst())
+                        ? DataResult.error(() -> "Unknown registry key in " + this.registrar.key() + ": " + keyValuePair.getFirst())
                         : DataResult.success(keyValuePair.mapFirst(this.registrar::get))
         );
     }

@@ -1,15 +1,16 @@
 package fr.frinn.custommachinery.client.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.screen.popup.ComponentConfigPopup;
-import fr.frinn.custommachinery.client.screen.widget.custom.ButtonWidget;
-import fr.frinn.custommachinery.client.screen.widget.custom.config.ComponentConfigButtonWidget;
+import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
+import fr.frinn.custommachinery.client.screen.widget.config.ComponentConfigButtonWidget;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -52,38 +53,40 @@ public class MachineConfigScreen extends BaseScreen {
     protected void init() {
         super.init();
         this.parent.init(Minecraft.getInstance(), this.width, this.height);
-        this.getConfigurableElements().forEach(element -> this.addCustomWidget(new ComponentConfigButtonWidget(
-                () -> this.getX() + element.getX(),
-                () -> this.getY() + element.getY(),
+        //Highlight elements in blue
+        this.getConfigurableElements().forEach(element -> this.addRenderableWidget(new ComponentConfigButtonWidget(
+                this.getX() + element.getX(),
+                this.getY() + element.getY(),
                 element.getWidth(),
-                element.getHeight())
-                .tooltip(Component.translatable("custommachinery.gui.config.tooltip"))
-                .callback(button -> this.openPopup(new ComponentConfigPopup(this.getComponentFromElement(element).getConfig())))
-        ));
+                element.getHeight(),
+                Component.translatable("custommachinery.gui.config.tooltip"),
+                button -> this.openPopup(new ComponentConfigPopup(this.getComponentFromElement(element).getConfig()))
+        )));
+        //Exit button
         this.parent.getMachine().getGuiElements().stream()
                 .filter(element -> element instanceof ConfigGuiElement)
                 .findFirst()
                 .map(element -> (ConfigGuiElement)element)
-                .ifPresent(element -> this.addCustomWidget(new ButtonWidget(() -> this.getX() + element.getX(), () -> this.getY() + element.getY(), element.getWidth(), element.getHeight())
-                        .texture(element.getTexture())
-                        .hoverTexture(element.getTextureHovered())
-                        .noBackground()
-                        .callback(button -> Minecraft.getInstance().setScreen(this.parent))
-                        .tooltip(Component.translatable("custommachinery.gui.config.exit"))
+                .ifPresent(element -> this.addRenderableWidget(
+                        TexturedButton.builder(Component.translatable("custommachinery.gui.config.exit"), element.getTexture(), button -> Minecraft.getInstance().setScreen(this.parent))
+                                .bounds(this.getX() + element.getX(), this.getY() + element.getY(), element.getWidth(), element.getHeight())
+                                .hovered(element.getTextureHovered())
+                                .tooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.exit")))
+                                .build()
                 ));
     }
 
     @Override
-    public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-        pose.pushPose();
-        this.parent.render(pose, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
-        pose.translate(0, 0, 500);
-        super.render(pose, mouseX, mouseY, partialTicks);
-        pose.popPose();
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        graphics.pose().pushPose();
+        this.parent.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
+        graphics.pose().translate(0, 0, 50);
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        graphics.pose().popPose();
     }
 
     @Override
-    public void renderBackground(PoseStack pose) {
+    public void renderBackground(GuiGraphics graphics) {
 
     }
 

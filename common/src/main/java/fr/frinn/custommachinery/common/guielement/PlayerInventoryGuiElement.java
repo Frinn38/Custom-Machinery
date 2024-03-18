@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.guielement;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;

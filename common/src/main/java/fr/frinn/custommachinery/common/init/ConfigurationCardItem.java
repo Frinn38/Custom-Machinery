@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
-import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

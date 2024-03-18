@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.client.integration.jei;
 
-import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry.IngredientGetter;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry.IngredientGetter;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.helpers.IPlatformFluidHelper;
 import mezz.jei.api.ingredients.ITypedIngredient;
@@ -34,7 +34,7 @@ public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement> 
 
             @Override
             public Rect2i getArea() {
-                return new Rect2i(widget.x, widget.y, widget.getWidth(), widget.getHeight());
+                return new Rect2i(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight());
             }
         };
     }

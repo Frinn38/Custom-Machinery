@@ -19,7 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
@@ -69,13 +69,13 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
             return CraftingResult.pass();
 
         if(toOutput.isEmpty()) {
-            LootTable table = context.getMachineTile().getLevel().getServer().getLootTables().get(this.lootTable);
-            LootContext lootContext = new LootContext.Builder((ServerLevel) context.getMachineTile().getLevel())
+            LootTable table = context.getMachineTile().getLevel().getServer().getLootData().getLootTable(this.lootTable);
+            LootParams params = new LootParams.Builder((ServerLevel) context.getMachineTile().getLevel())
                     .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(context.getMachineTile().getBlockPos()))
                     .withParameter(LootContextParams.BLOCK_ENTITY, context.getMachineTile())
                     .withLuck((float) context.getModifiedValue(this.luck, this, "luck"))
                     .create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
-            toOutput = table.getRandomItems(lootContext);
+            toOutput = table.getRandomItems(params);
         }
 
         Iterator<ItemStack> iterator = toOutput.iterator();

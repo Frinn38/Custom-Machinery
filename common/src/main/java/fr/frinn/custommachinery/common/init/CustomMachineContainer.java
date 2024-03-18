@@ -105,9 +105,7 @@ public class CustomMachineContainer extends SyncableContainer {
 
     @Override
     public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
-        if (slotId < 0 || slotId > slots.size()) return;
-        Slot clickedSlot = this.slots.get(slotId);
-        if (clickedSlot instanceof SlotItemComponent slot && !slot.getItem().isEmpty()) {
+        if (slotId >= 0 && slotId < this.slots.size() && this.slots.get(slotId) instanceof SlotItemComponent slot && !slot.getItem().isEmpty()) {
             tile.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get()).ifPresent(
                 component -> {
                     if (component.canRetrieveFromSlots()) {
@@ -195,8 +193,8 @@ public class CustomMachineContainer extends SyncableContainer {
 
     @Override
     public boolean stillValid(Player player) {
-        return player.level.getBlockState(this.tile.getBlockPos()) == this.tile.getBlockState() &&
-                player.level.getBlockEntity(this.tile.getBlockPos()) == this.tile &&
+        return player.level().getBlockState(this.tile.getBlockPos()) == this.tile.getBlockState() &&
+                player.level().getBlockEntity(this.tile.getBlockPos()) == this.tile &&
                 player.position().distanceToSqr(Vec3.atCenterOf(this.tile.getBlockPos())) <= 64;
     }
 

@@ -14,6 +14,7 @@ import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.ui.BoxStyle;
 
 public class CustomMachineComponentProvider implements IBlockComponentProvider {
 
@@ -57,7 +58,7 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
                 double recipeTotalTime = nbt.getDouble("recipeTotalTime");
                 float progress = (float) (recipeProgressTime / recipeTotalTime);
                 Component component = Component.literal((int)recipeProgressTime + " / " + (int)recipeTotalTime);
-                tooltip.add(tooltip.getElementHelper().progress(progress, component, tooltip.getElementHelper().progressStyle(), tooltip.getElementHelper().borderStyle()));
+                tooltip.add(tooltip.getElementHelper().progress(progress, component, tooltip.getElementHelper().progressStyle(), BoxStyle.DEFAULT, false));
             }
 
             if(errored && nbt.contains("errorMessage", Tag.TAG_STRING))

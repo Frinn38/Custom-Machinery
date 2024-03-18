@@ -9,8 +9,8 @@ import fr.frinn.custommachinery.common.upgrade.modifier.AdditionRecipeModifier;
 import fr.frinn.custommachinery.common.upgrade.modifier.ExponentialRecipeModifier;
 import fr.frinn.custommachinery.common.upgrade.modifier.MultiplicationRecipeModifier;
 import fr.frinn.custommachinery.common.upgrade.modifier.SpeedRecipeModifier;
-import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 

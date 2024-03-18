@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -37,7 +38,8 @@ public class LootTableHelper {
 
     public static void generate(MinecraftServer server) {
         lootsMap.clear();
-        LootContext context = new LootContext.Builder(server.overworld()).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
+        LootParams params = new LootParams.Builder(server.overworld()).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
+        LootContext context = new LootContext.Builder(params).create(null);
         for (ResourceLocation table : tables) {
             List<Pair<ItemStack, Double>> loots = getLoots(table, server, context);
             lootsMap.put(table, loots);
@@ -46,7 +48,7 @@ public class LootTableHelper {
 
     private static List<Pair<ItemStack, Double>> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
         List<Pair<ItemStack, Double>> loots = new ArrayList<>();
-        LootTable lootTable = server.getLootTables().get(table);
+        LootTable lootTable = server.getLootData().getLootTable(table);
         BiFunction<ItemStack, LootContext, ItemStack> globalFunction = lootTable.compositeFunction;
         List<LootPool> pools = PlatformHelper.getPoolsFromTable(lootTable);
 

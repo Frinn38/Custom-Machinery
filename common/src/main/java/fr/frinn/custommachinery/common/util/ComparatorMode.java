@@ -19,7 +19,7 @@ public enum ComparatorMode {
         try {
             return DataResult.success(value(s));
         } catch (IllegalArgumentException e) {
-            return DataResult.error(e.getMessage());
+            return DataResult.error(e::getMessage);
         }
     }, ComparatorMode::getPrefix, "Comparator mode");
 

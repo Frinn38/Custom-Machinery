@@ -32,7 +32,7 @@ public class DefaultCodecs {
     public static final NamedCodec<CompoundTag> NBT_FROM_JSON = NamedCodec.of(CompoundTag.CODEC, "NBT from JSON");
     public static final NamedCodec<CompoundTag> COMPOUND_TAG = NamedCodec.either(NBT_FROM_STRING, NBT_FROM_JSON, "Compound nbt").xmap(either -> either.map(Function.identity(), Function.identity()), Either::left, "Compound nbt");
 
-    public static final NamedCodec<SoundEvent> SOUND_EVENT = RESOURCE_LOCATION.xmap(SoundEvent::new, SoundEvent::getLocation, "Sound event");
+    public static final NamedCodec<SoundEvent> SOUND_EVENT = RESOURCE_LOCATION.xmap(SoundEvent::createVariableRangeEvent, SoundEvent::getLocation, "Sound event");
 
     public static final NamedCodec<Direction> DIRECTION = NamedCodec.enumCodec(Direction.class);
 
@@ -60,7 +60,7 @@ public class DefaultCodecs {
         else if(arr.length == 6)
             return DataResult.success(new AABB(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5]));
         else
-            return DataResult.error(Arrays.toString(arr) + " is not an array of 3 or 6 elements");
+            return DataResult.error(() -> Arrays.toString(arr) + " is not an array of 3 or 6 elements");
     }, aabb -> DoubleStream.of(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ), "Box");
 
     public static <T> NamedCodec<TagKey<T>> tagKey(ResourceKey<Registry<T>> registry) {
@@ -71,13 +71,13 @@ public class DefaultCodecs {
         try {
             return DataResult.success(new ResourceLocation(encoded));
         } catch (ResourceLocationException e) {
-            return DataResult.error(e.getMessage());
+            return DataResult.error(e::getMessage);
         }
     }
 
     private static DataResult<Character> decodeCharacter(String encoded) {
         if(encoded.length() != 1)
-            return DataResult.error("Invalid character : \"" + encoded + "\" must be a single character !");
+            return DataResult.error(() -> "Invalid character : \"" + encoded + "\" must be a single character !");
         return DataResult.success(encoded.charAt(0));
     }
 
@@ -86,7 +86,7 @@ public class DefaultCodecs {
         try {
             return DataResult.success(parser.readStruct());
         } catch (CommandSyntaxException e) {
-            return DataResult.error(e.getMessage());
+            return DataResult.error(e::getMessage);
         }
     }
 }

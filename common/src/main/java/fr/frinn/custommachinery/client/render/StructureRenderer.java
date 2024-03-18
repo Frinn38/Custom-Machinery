@@ -20,7 +20,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
-import net.minecraft.world.level.material.Material;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -49,8 +48,8 @@ public class StructureRenderer {
             if(!(pos.getX() == 0 && pos.getY() == 0 && pos.getZ() == 0) && ingredient != BlockIngredient.ANY) {
                 PartialBlockState state = timer.get(ingredient.getAll());
                 BlockPos blockPos = machinePos.offset(pos);
-                if(state != null && state != PartialBlockState.ANY && state.getBlockState().getMaterial() != Material.AIR) {
-                    if(world.getBlockState(blockPos).getMaterial() == Material.AIR)
+                if(state != null && state != PartialBlockState.ANY && !state.getBlockState().isAir()) {
+                    if(world.getBlockState(blockPos).isAir())
                         renderTransparentBlock(state, matrix, buffer);
                     else if(ingredient.getAll().stream().noneMatch(test -> test.test(new BlockInWorld(world, blockPos, false))))
                         renderNope(matrix, buffer);

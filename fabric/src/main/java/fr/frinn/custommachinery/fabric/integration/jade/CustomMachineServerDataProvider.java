@@ -8,12 +8,10 @@ import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
 
-public class CustomMachineServerDataProvider implements IServerDataProvider<BlockEntity> {
+public class CustomMachineServerDataProvider implements IServerDataProvider<BlockAccessor> {
 
     public static final CustomMachineServerDataProvider INSTANCE = new CustomMachineServerDataProvider();
     public static final ResourceLocation ID = new ResourceLocation(CustomMachinery.MODID, "machine_server_data_provider");
@@ -24,8 +22,8 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
     }
 
     @Override
-    public void appendServerData(CompoundTag nbt, ServerPlayer player, Level level, BlockEntity tile, boolean b) {
-        if(tile instanceof CustomMachineTile machine) {
+    public void appendServerData(CompoundTag nbt, BlockAccessor accessor) {
+        if(accessor.getBlockEntity() instanceof CustomMachineTile machine) {
             IProcessor processor = machine.getProcessor();
             CompoundTag tag = new CompoundTag();
             if(machine.getOwnerName() != null)

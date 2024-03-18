@@ -31,7 +31,7 @@ public class EnumCodec<E extends Enum<E>> implements NamedCodec<E> {
             try {
                 return DataResult.success(Pair.of(Enum.valueOf(this.enumClass, s.toUpperCase(Locale.ROOT)), input));
             } catch (IllegalArgumentException e) {
-                return DataResult.error(String.format("Not a valid %s: %s%n%s", this.enumClass.getSimpleName(), s, e.getMessage()));
+                return DataResult.error(() -> String.format("Not a valid %s: %s%n%s", this.enumClass.getSimpleName(), s, e.getMessage()));
             }
         });
     }

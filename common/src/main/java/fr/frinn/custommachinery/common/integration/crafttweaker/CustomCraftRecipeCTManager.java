@@ -11,6 +11,7 @@ import com.blamejared.crafttweaker.api.recipe.manager.base.IRecipeManager;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -42,12 +43,12 @@ public class CustomCraftRecipeCTManager implements IRecipeManager<CustomCraftRec
         JsonObject recipeObject = JSON_RECIPE_GSON.fromJson(mapData.accept(DataToJsonStringVisitor.INSTANCE), JsonObject.class);
         DataResult<CustomCraftRecipeBuilder> result = CustomCraftRecipeBuilder.CODEC.read(JsonOps.INSTANCE, recipeObject);
         if(result.error().isPresent() || result.result().isEmpty()) {
-            CraftTweakerAPI.LOGGER.error("Couldn't add custom craft recipe {} from json: {}", name, result.error().get().message());
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Couldn't add custom craft recipe {} from json: {}", name, result.error().get().message());
             return;
         }
         ResourceLocation id = ResourceLocation.tryParse(name);
         if(id == null) {
-            CraftTweakerAPI.LOGGER.error("Invalid id for custom craft recipe: {}", name);
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Invalid id for custom craft recipe: {}", name);
             return;
         }
         CustomCraftRecipe recipe = result.result().get().build(id);

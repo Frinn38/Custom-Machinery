@@ -16,7 +16,6 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class ForgeItemHandler implements ICommonItemHandler {
 

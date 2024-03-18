@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.TagUtil;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
@@ -20,10 +20,10 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
         try {
             return DataResult.success(FluidTagIngredient.create(string));
         } catch (IllegalArgumentException e) {
-            return DataResult.error(e.getMessage());
+            return DataResult.error(e::getMessage);
         }
     }, FluidTagIngredient::toString, "Fluid tag ingredient");
-    private static final NamedCodec<FluidTagIngredient> CODEC_FOR_KUBEJS = DefaultCodecs.tagKey(Registry.FLUID_REGISTRY).fieldOf("tag").xmap(FluidTagIngredient::new, ingredient -> ingredient.tag, "Fluid tag ingredient");
+    private static final NamedCodec<FluidTagIngredient> CODEC_FOR_KUBEJS = DefaultCodecs.tagKey(Registries.FLUID).fieldOf("tag").xmap(FluidTagIngredient::new, ingredient -> ingredient.tag, "Fluid tag ingredient");
     public static final NamedCodec<FluidTagIngredient> CODEC = NamedCodec.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Fluid Tag Ingredient")
             .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left, "Fluid tag ingredient");
 
@@ -38,7 +38,7 @@ public class FluidTagIngredient implements IIngredient<Fluid> {
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        TagKey<Fluid> tag = TagKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(s));
+        TagKey<Fluid> tag = TagKey.create(Registries.FLUID, new ResourceLocation(s));
         return new FluidTagIngredient(tag);
     }
 

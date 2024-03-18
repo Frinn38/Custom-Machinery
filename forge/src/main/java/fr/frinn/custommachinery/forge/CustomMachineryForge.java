@@ -4,7 +4,6 @@ import dev.architectury.platform.forge.EventBuses;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.forge.client.ClientHandler;
-import fr.frinn.custommachinery.forge.integration.buildinggadgets.BuildingGadgetsIntegration;
 import fr.frinn.custommachinery.forge.integration.theoneprobe.TOPInfoProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -30,9 +29,6 @@ public class CustomMachineryForge {
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientHandler::setupConfig);
 
-        if(ModList.get().isLoaded("buildinggadgets"))
-            BuildingGadgetsIntegration.init(MOD_BUS);
-
         IEventBus FORGE_BUS = MinecraftForge.EVENT_BUS;
         FORGE_BUS.addListener(EventPriority.HIGH, this::syncDatapacks);
     }
@@ -40,9 +36,6 @@ public class CustomMachineryForge {
     private void sendIMCMessages(final InterModEnqueueEvent event) {
         if(ModList.get().isLoaded("theoneprobe"))
             InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPInfoProvider::new);
-
-        if(ModList.get().isLoaded("buildinggadgets"))
-            BuildingGadgetsIntegration.sendIMC();
     }
 
     private void syncDatapacks(final OnDatapackSyncEvent event) {

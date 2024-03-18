@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
@@ -90,7 +90,7 @@ public class MachineAppearanceBuilderCT {
     @Method
     @Setter("tool_type")
     public MachineAppearanceBuilderCT toolType(String[] tools) {
-        List<TagKey<Block>> list = Arrays.stream(tools).map(key -> TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(key))).toList();
+        List<TagKey<Block>> list = Arrays.stream(tools).map(key -> TagKey.create(Registries.BLOCK, new ResourceLocation(key))).toList();
         this.put(Registration.TOOL_TYPE_PROPERTY.get(), list);
         return this;
     }
@@ -98,7 +98,7 @@ public class MachineAppearanceBuilderCT {
     @Method
     @Setter("mining_level")
     public MachineAppearanceBuilderCT miningLevel(String key) {
-        TagKey<Block> level = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(key));
+        TagKey<Block> level = TagKey.create(Registries.BLOCK, new ResourceLocation(key));
         this.put(Registration.MINING_LEVEL_PROPERTY.get(), level);
         return this;
     }

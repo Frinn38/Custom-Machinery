@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,7 @@ public class MachineModelLocation implements IMachineModelLocation {
         try {
             return DataResult.success(MachineModelLocation.of(s));
         } catch (ResourceLocationException e) {
-            return DataResult.error(e.getMessage());
+            return DataResult.error(e::getMessage);
         }
     }, MachineModelLocation::toString, "Model location");
 
@@ -35,7 +35,7 @@ public class MachineModelLocation implements IMachineModelLocation {
             return new MachineModelLocation(loc, null, new ResourceLocation(loc.substring(0, loc.indexOf("#"))), loc.substring(loc.indexOf("#") + 1));
 
         try {
-            return new MachineModelLocation(loc, BlockStateParser.parseForBlock(Registry.BLOCK, new StringReader(loc), false).blockState(), null, null);
+            return new MachineModelLocation(loc, BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(loc), false).blockState(), null, null);
         } catch (CommandSyntaxException ignored) {}
 
         return new MachineModelLocation(loc, null, new ResourceLocation(loc), null);

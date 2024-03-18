@@ -1,50 +1,103 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import fr.frinn.custommachinery.client.ClientHandler;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 public class TexturedButton extends Button {
 
+    public static Builder builder(Component message, ResourceLocation texture, OnPress onPress) {
+        return new Builder(message, texture, onPress);
+    }
+
     private final ResourceLocation texture;
-    private final boolean background;
+    @Nullable
+    private final ResourceLocation textureHovered;
 
-    public TexturedButton(int x, int y, int width, int height, Component title, ResourceLocation texture, OnPress pressedAction, OnTooltip onTooltip) {
-        super(x, y, width, height, title, pressedAction, onTooltip);
+    private TexturedButton(int x, int y, int width, int height, ResourceLocation texture, @Nullable ResourceLocation textureHovered, OnPress onPress, Component message, CreateNarration narration) {
+        super(x, y, width, height, message, onPress, narration);
         this.texture = texture;
-        this.background = false;
-    }
-
-    public TexturedButton(int x, int y, int width, int height, Component title, ResourceLocation texture, OnPress pressedAction, OnTooltip onTooltip, boolean background) {
-        super(x, y, width, height, title, pressedAction, onTooltip);
-        this.texture = texture;
-        this.background = background;
+        this.textureHovered = textureHovered;
     }
 
     @Override
-    public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-        this.isHovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-        if(this.background)
-            renderBg(pose, Minecraft.getInstance(), mouseX, mouseY);
-        ClientHandler.bindTexture(this.texture);
-        blit(pose, this.x, this.y, this.width, this.height, 0, 0, this.width, this.height, this.width, this.height);
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        if(this.isHovered() && this.textureHovered != null)
+            graphics.blit(this.textureHovered, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+        else
+            graphics.blit(this.texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
     }
 
     @Override
-    protected void renderBg(PoseStack pose, Minecraft minecraft, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-        int i = this.getYImage(this.isHoveredOrFocused());
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-        this.blit(pose, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-        this.blit(pose, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+    protected ClientTooltipPositioner createTooltipPositioner() {
+        return DefaultTooltipPositioner.INSTANCE;
+    }
+
+    public static class Builder {
+        private final Component message;
+        private final OnPress onPress;
+        private final ResourceLocation texture;
+        @Nullable
+        private Tooltip tooltip;
+        private int x;
+        private int y;
+        private int width = 150;
+        private int height = 20;
+        @Nullable
+        private ResourceLocation textureHovered;
+        private CreateNarration createNarration = DEFAULT_NARRATION;
+
+        private Builder(Component message, ResourceLocation texture, OnPress onPress) {
+            this.message = message;
+            this.texture = texture;
+            this.onPress = onPress;
+        }
+
+        public Builder pos(int x, int y) {
+            this.x = x;
+            this.y = y;
+            return this;
+        }
+
+        public Builder width(int width) {
+            this.width = width;
+            return this;
+        }
+
+        public Builder size(int width, int height) {
+            this.width = width;
+            this.height = height;
+            return this;
+        }
+
+        public Builder bounds(int x, int y, int width, int height) {
+            return this.pos(x, y).size(width, height);
+        }
+
+        public Builder hovered(ResourceLocation textureHovered) {
+            this.textureHovered = textureHovered;
+            return this;
+        }
+
+        public Builder tooltip(@Nullable Tooltip tooltip) {
+            this.tooltip = tooltip;
+            return this;
+        }
+
+        public Builder createNarration(CreateNarration createNarration) {
+            this.createNarration = createNarration;
+            return this;
+        }
+
+        public TexturedButton build() {
+            TexturedButton button = new TexturedButton(this.x, this.y, this.width, this.height, this.texture, this.textureHovered, this.onPress, this.message, this.createNarration);
+            button.setTooltip(this.tooltip);
+            return button;
+        }
     }
 }

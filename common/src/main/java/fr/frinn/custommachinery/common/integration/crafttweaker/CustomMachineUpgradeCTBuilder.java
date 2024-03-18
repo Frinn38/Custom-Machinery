@@ -18,7 +18,7 @@ import fr.frinn.custommachinery.common.upgrade.modifier.MultiplicationRecipeModi
 import fr.frinn.custommachinery.common.upgrade.modifier.SpeedRecipeModifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -56,9 +56,9 @@ public class CustomMachineUpgradeCTBuilder {
     @Method
     public void build() {
         if(this.machines.isEmpty())
-            throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + Registry.ITEM.getKey(this.item));
+            throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + BuiltInRegistries.ITEM.getKey(this.item));
         if(this.modifiers.isEmpty())
-            throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + Registry.ITEM.getKey(this.item));
+            throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + BuiltInRegistries.ITEM.getKey(this.item));
         MachineUpgrade upgrade = new MachineUpgrade(this.item, this.machines, this.modifiers, this.tooltips, this.maxAmount);
         CraftTweakerAPI.apply(new AddMachineUpgradeAction(upgrade));
     }
@@ -223,7 +223,12 @@ public class CustomMachineUpgradeCTBuilder {
 
         @Override
         public String describe() {
-            return "Add a custom machine upgrade for item: " + Registry.ITEM.getKey(this.upgrade.getItem());
+            return "Add a custom machine upgrade for item: " + BuiltInRegistries.ITEM.getKey(this.upgrade.getItem());
+        }
+
+        @Override
+        public String systemName() {
+            return CustomMachinery.MODID;
         }
     }
 }

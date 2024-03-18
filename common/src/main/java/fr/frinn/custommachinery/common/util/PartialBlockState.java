@@ -10,10 +10,9 @@ import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.commands.arguments.blocks.BlockStateParser.BlockResult;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -61,10 +60,10 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     public static final NamedCodec<PartialBlockState> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         StringReader reader = new StringReader(s);
         try {
-            BlockResult result = BlockStateParser.parseForBlock(Registry.BLOCK, reader, true);
+            BlockResult result = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), reader, true);
             return DataResult.success(new PartialBlockState(result.blockState(), Lists.newArrayList(result.properties().keySet()), result.nbt()));
         } catch (CommandSyntaxException exception) {
-            return DataResult.error(exception.getMessage());
+            return DataResult.error(exception::getMessage);
         }
     }, PartialBlockState::toString, "Partial block state");
 
@@ -141,7 +140,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(Registry.BLOCK.getKey(this.blockState.getBlock()));
+        builder.append(BuiltInRegistries.BLOCK.getKey(this.blockState.getBlock()));
         if(!this.properties.isEmpty())
             builder.append("[");
         Iterator<Property<?>> iterator = this.properties.iterator();

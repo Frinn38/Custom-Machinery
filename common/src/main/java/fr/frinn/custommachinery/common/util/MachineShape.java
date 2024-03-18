@@ -36,7 +36,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
                         shapes.put(side, state.getShape(null, null));
                     }
                 } catch (Exception e) {
-                    return DataResult.error("Can't mimic shape of block: " + block.result().get());
+                    return DataResult.error(() -> "Can't mimic shape of block: " + block.result().get());
                 }
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
@@ -59,7 +59,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
                 });
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
-            return DataResult.error("Can't parse block shape: " + input);
+            return DataResult.error(() -> "Can't parse block shape: " + input);
         }
 
         @Override

@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.util.ingredient;
 import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.material.Fluid;
 
 import java.util.Collections;
@@ -35,6 +35,6 @@ public class FluidIngredient implements IIngredient<Fluid> {
 
     @Override
     public String toString() {
-        return Registry.FLUID.getKey(this.fluid).toString();
+        return BuiltInRegistries.FLUID.getKey(this.fluid).toString();
     }
 }

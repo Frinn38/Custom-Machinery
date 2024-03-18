@@ -41,7 +41,7 @@ public class MachineList {
 
     public static Optional<MachineTile> findNearest(Player player, @Nullable ResourceLocation machine, int radius) {
         return getLoadedMachines().stream()
-                .filter(tile -> tile.getLevel() == player.level && tile.getBlockPos().closerThan(player.blockPosition(), radius) && (machine == null || machine.equals(tile.getMachine().getId())))
+                .filter(tile -> tile.getLevel() == player.level() && tile.getBlockPos().closerThan(player.blockPosition(), radius) && (machine == null || machine.equals(tile.getMachine().getId())))
                 .min(Comparator.comparingInt(tile -> tile.getBlockPos().distManhattan(player.blockPosition())));
     }
 

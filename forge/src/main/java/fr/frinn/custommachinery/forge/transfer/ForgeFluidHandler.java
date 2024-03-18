@@ -16,7 +16,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Optional;
 
 public class ForgeFluidHandler implements ICommonFluidHandler {
 

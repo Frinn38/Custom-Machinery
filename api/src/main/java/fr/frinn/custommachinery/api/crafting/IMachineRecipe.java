@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.api.crafting;
 
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import net.minecraft.resources.ResourceLocation;

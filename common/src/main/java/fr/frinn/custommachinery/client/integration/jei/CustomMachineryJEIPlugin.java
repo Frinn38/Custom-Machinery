@@ -37,7 +37,7 @@ import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -137,12 +137,6 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
             }
         });
         registration.addGhostIngredientHandler(CustomMachineScreen.class, new IGhostIngredientHandler<>() {
-            //Safe to remove when needed
-            @Override
-            public <I> List<Target<I>> getTargets(CustomMachineScreen gui, I ingredient, boolean doStart) {
-                return Collections.emptyList();
-            }
-
             @Override
             public <I> List<Target<I>> getTargetsTyped(CustomMachineScreen screen, ITypedIngredient<I> ingredient, boolean doStart) {
                 if(ingredient.getIngredient() instanceof ItemStack stack) {
@@ -185,8 +179,8 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                     machine.getCatalysts().forEach(catalyst -> {
                         if(CustomMachinery.MACHINES.containsKey(catalyst))
                             registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type);
-                        else if(Registration.REGISTRIES.get(Registry.ITEM_REGISTRY).contains(catalyst))
-                            registration.addRecipeCatalyst(new ItemStack(Registration.REGISTRIES.get(Registry.ITEM_REGISTRY).get(catalyst)), type);
+                        else if(Registration.REGISTRIES.get(Registries.ITEM).contains(catalyst))
+                            registration.addRecipeCatalyst(new ItemStack(Registration.REGISTRIES.get(Registries.ITEM).get(catalyst)), type);
                         else
                             ICustomMachineryAPI.INSTANCE.logger().error("Invalid catalyst '{}' for machine '{}'. Not a machine or item id", catalyst, id);
                     });

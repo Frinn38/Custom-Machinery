@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.EntityRequirement;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
@@ -16,8 +16,8 @@ public interface EntityRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder requireEntities(int amount, int radius, String[] filter, boolean whitelist) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }
@@ -29,8 +29,8 @@ public interface EntityRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder requireEntitiesHealth(int amount, int radius, String[] filter, boolean whitelist) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }
@@ -42,8 +42,8 @@ public interface EntityRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder consumeEntityHealthOnStart(int amount, int radius, String[] filter, boolean whitelist) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }
@@ -55,8 +55,8 @@ public interface EntityRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder consumeEntityHealthOnEnd(int amount, int radius, String[] filter, boolean whitelist) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }
@@ -68,8 +68,8 @@ public interface EntityRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder killEntitiesOnStart(int amount, int radius, String[] filter, boolean whitelist) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }
@@ -81,8 +81,8 @@ public interface EntityRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder killEntitiesOnEnd(int amount, int radius, String[] filter, boolean whitelist) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }

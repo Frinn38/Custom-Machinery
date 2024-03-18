@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import fr.frinn.custommachinery.client.screen.widget.custom.ButtonWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,32 +41,26 @@ public class ConfirmPopup extends PopupScreen {
     @Override
     protected void init() {
         super.init();
-        addCustomWidget(new ButtonWidget(() -> this.getX() + this.xSize / 4 - 25, () -> this.getY() + this.ySize - 30, 50, 20)
-                .title(CANCEL, true)
-                .callback(button -> {
-                    if(this.onCancel != null)
-                        this.onCancel.run();
-                    close();
-                })
-        );
-        addCustomWidget(new ButtonWidget(() -> this.getX() + (int)(this.xSize * 0.75) - 25, () -> this.getY() + this.ySize - 30, 50, 20)
-                .title(CONFIRM, true)
-                .callback(button -> {
-                    this.onConfirm.run();
-                    close();
-                })
-        );
+        this.addRenderableWidget(Button.builder(CANCEL, button -> {
+            if(this.onCancel != null)
+                this.onCancel.run();
+            close();
+        }).bounds(this.getX() + this.xSize / 4 - 25, this.getY() + this.ySize - 30, 50, 20).build());
+        this.addRenderableWidget(Button.builder(CONFIRM, button -> {
+            this.onConfirm.run();
+            close();
+        }).bounds(this.getX() + (int)(this.xSize * 0.75) - 25, this.getY() + this.ySize - 30, 50, 20).build());
     }
 
     @Override
-    public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-        super.render(pose, mouseX, mouseY, partialTicks);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(graphics, mouseX, mouseY, partialTicks);
         Font font = Minecraft.getInstance().font;
         for(int i = 0; i < this.text.size(); i++) {
             Component component = this.text.get(i);
             int width = font.width(component);
             int x = (this.xSize - width) / 2 + getX();
-            font.draw(pose, component, x, getY() + i * 20 + 5, 0);
+            graphics.drawString(font, component, x, getY() + i * 20 + 5, 0);
         }
     }
 }

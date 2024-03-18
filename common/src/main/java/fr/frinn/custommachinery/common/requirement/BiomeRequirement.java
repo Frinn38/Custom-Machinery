@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
@@ -46,7 +47,7 @@ public class BiomeRequirement extends AbstractRequirement<PositionMachineCompone
 
     @Override
     public boolean test(PositionMachineComponent component, ICraftingContext context) {
-        Registry<Biome> biomeRegistry = component.getManager().getLevel().registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<Biome> biomeRegistry = component.getManager().getLevel().registryAccess().registryOrThrow(Registries.BIOME);
         return this.filter.stream().anyMatch(biome -> biomeRegistry.get(biome) == component.getBiome()) != this.blacklist;
     }
 

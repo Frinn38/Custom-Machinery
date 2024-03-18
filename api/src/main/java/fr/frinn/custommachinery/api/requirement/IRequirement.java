@@ -13,7 +13,6 @@ import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * The base interface to declare an IRequirement.

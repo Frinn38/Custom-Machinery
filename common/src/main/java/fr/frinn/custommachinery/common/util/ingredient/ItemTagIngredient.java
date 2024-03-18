@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.util.ingredient;
 
 import fr.frinn.custommachinery.common.util.TagUtil;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -23,7 +23,7 @@ public class ItemTagIngredient implements IIngredient<Item> {
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        TagKey<Item> tag = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(s));
+        TagKey<Item> tag = TagKey.create(Registries.ITEM, new ResourceLocation(s));
         return new ItemTagIngredient(tag);
     }
 

@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.EffectRequirement;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
@@ -27,13 +27,13 @@ public interface EffectRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder giveEffectOnEnd(String effect, int time, int radius, int level, String[] filter) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }
-        if(ResourceLocation.isValidResourceLocation(effect) && Registry.MOB_EFFECT.containsKey(new ResourceLocation(effect)))
-            return this.addRequirement(new EffectRequirement(Registry.MOB_EFFECT.get(new ResourceLocation(effect)), time, level, radius, entityFilter, true));
+        if(ResourceLocation.isValidResourceLocation(effect) && BuiltInRegistries.MOB_EFFECT.containsKey(new ResourceLocation(effect)))
+            return this.addRequirement(new EffectRequirement(BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(effect)), time, level, radius, entityFilter, true));
         else
             return error("Invalid effect ID: {}", effect);
     }
@@ -55,13 +55,13 @@ public interface EffectRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder giveEffectEachTick(String effect, int time, int radius, int level, String[] filter) {
         List<EntityType<?>> entityFilter = new ArrayList<>();
         for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
-                entityFilter.add(Registry.ENTITY_TYPE.get(new ResourceLocation(type)));
+            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(new ResourceLocation(type)))
+                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(type)));
             else
                 return error("Invalid entity ID: {}", type);
         }
-        if(ResourceLocation.isValidResourceLocation(effect) && Registry.MOB_EFFECT.containsKey(new ResourceLocation(effect)))
-            return this.addRequirement(new EffectRequirement(Registry.MOB_EFFECT.get(new ResourceLocation(effect)), time, level, radius, entityFilter, false));
+        if(ResourceLocation.isValidResourceLocation(effect) && BuiltInRegistries.MOB_EFFECT.containsKey(new ResourceLocation(effect)))
+            return this.addRequirement(new EffectRequirement(BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(effect)), time, level, radius, entityFilter, false));
         else
             return error("Invalid effect ID: {}", effect);
     }

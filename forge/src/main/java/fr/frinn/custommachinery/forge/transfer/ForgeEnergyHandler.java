@@ -14,7 +14,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class ForgeEnergyHandler implements ICommonEnergyHandler {
 

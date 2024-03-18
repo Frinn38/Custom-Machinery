@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
-import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;

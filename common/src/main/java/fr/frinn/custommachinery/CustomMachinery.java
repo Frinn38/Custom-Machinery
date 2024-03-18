@@ -75,6 +75,7 @@ public class CustomMachinery {
         Registration.CONTAINERS.register();
         Registration.RECIPE_SERIALIZERS.register();
         Registration.RECIPE_TYPES.register();
+        Registration.CREATIVE_TABS.register();
         Registration.GUI_ELEMENTS.register();
         Registration.MACHINE_COMPONENTS.register();
         Registration.REQUIREMENTS.register();
@@ -121,7 +122,7 @@ public class CustomMachinery {
     }
 
     private static EventResult boxRendererLeftClick(Player player, InteractionHand hand, BlockPos pos, Direction face) {
-        if(!player.level.isClientSide() && player.getItemInHand(hand).getItem() instanceof BoxCreatorItem)
+        if(!player.level().isClientSide() && player.getItemInHand(hand).getItem() instanceof BoxCreatorItem)
             BoxCreatorItem.setSelectedBlock(true, player.getItemInHand(hand), pos);
         return EventResult.pass();
     }

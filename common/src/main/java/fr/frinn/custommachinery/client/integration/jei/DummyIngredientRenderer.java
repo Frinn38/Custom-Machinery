@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.integration.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +12,7 @@ import java.util.List;
 public class DummyIngredientRenderer<T> implements IIngredientRenderer<T> {
 
     @Override
-    public void render(PoseStack matrix, @Nullable T t) {
+    public void render(GuiGraphics graphics, @Nullable T t) {
 
     }
 

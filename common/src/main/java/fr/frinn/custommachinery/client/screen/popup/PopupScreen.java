@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 public abstract class PopupScreen extends BaseScreen {
@@ -20,7 +20,7 @@ public abstract class PopupScreen extends BaseScreen {
     }
 
     @Override
-    public void renderBackground(PoseStack pose) {
-        blankBackground(pose, getX(), getY(), this.xSize, this.ySize);
+    public void renderBackground(GuiGraphics graphics) {
+        blankBackground(graphics, getX(), getY(), this.xSize, this.ySize);
     }
 }

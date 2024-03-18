@@ -37,7 +37,9 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -49,8 +51,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.storage.loot.LootContext.Builder;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -70,9 +71,9 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
 
     public static Properties makeProperties(boolean occlusion) {
         if(occlusion)
-            return Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).dynamicShape().isValidSpawn(spawnPredicate);
+            return Properties.copy(Blocks.STONE).requiresCorrectToolForDrops().strength(3.5F).dynamicShape().isValidSpawn(spawnPredicate);
         else
-            return Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate);
+            return Properties.copy(Blocks.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate);
     }
 
     public CustomMachineBlock(String renderType, boolean occlusion) {
@@ -168,7 +169,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
 
     @SuppressWarnings("deprecation")
     @Override
-    public List<ItemStack> getDrops(BlockState state, Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         List<ItemStack> drops = super.getDrops(state, builder);
         if(builder.getParameter(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
             machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
@@ -356,7 +357,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
     }
 
     @Override
-    public boolean shouldCheckWeakPower(BlockState blockState, LevelReader levelReader, BlockPos blockPos, Direction direction) {
+    public boolean shouldCheckWeakPower(BlockState blockState, SignalGetter levelReader, BlockPos blockPos, Direction direction) {
         return true;
     }
 

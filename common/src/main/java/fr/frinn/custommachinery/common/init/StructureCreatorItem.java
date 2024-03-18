@@ -126,7 +126,7 @@ public class StructureCreatorItem extends Item {
             player.sendSystemMessage(Component.translatable("custommachinery.structure_creator.no_blocks"));
             return;
         }
-        Level world = player.level;
+        Level world = player.level();
 
         PartialBlockState[][][] states = getStructureArray(blocks, machineFacing, world);
         HashBiMap<Character, PartialBlockState> keys = HashBiMap.create();

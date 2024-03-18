@@ -43,7 +43,7 @@ public class CSetFilterSlotItemPacket extends BaseC2SMessage {
     public void handle(NetworkManager.PacketContext context) {
         if(context.getEnvironment() == Env.SERVER)
             context.queue(() -> {
-                if(context.getPlayer().level.getBlockEntity(this.pos) instanceof CustomMachineTile machine) {
+                if(context.getPlayer().level().getBlockEntity(this.pos) instanceof CustomMachineTile machine) {
                     machine.getComponentManager()
                             .getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                             .flatMap(handler -> handler.getComponentForID(this.slotID))

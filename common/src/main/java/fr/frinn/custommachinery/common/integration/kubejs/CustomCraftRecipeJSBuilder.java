@@ -16,6 +16,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Durabilit
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EffectRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EnergyRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.EntityRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.ExperienceRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FluidRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FuelRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.FunctionRequirementJS;
@@ -30,7 +31,6 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequir
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
-import fr.frinn.custommachinery.common.integration.kubejs.requirements.ExperienceRequirementJS;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 
 public class CustomCraftRecipeJSBuilder extends AbstractRecipeJSBuilder<CustomCraftRecipeBuilder> implements

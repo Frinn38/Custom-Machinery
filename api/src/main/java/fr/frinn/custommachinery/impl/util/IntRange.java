@@ -15,7 +15,7 @@ public class IntRange extends Range<Integer> {
         try {
             return DataResult.success(createFromString(s));
         } catch (IllegalArgumentException e) {
-            return DataResult.error(e.getMessage());
+            return DataResult.error(e::getMessage);
         }
     }, IntRange::toString, "Integer range");
 

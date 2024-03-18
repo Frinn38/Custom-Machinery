@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 import org.openzen.zencode.java.ZenCodeType.Getter;
@@ -213,7 +214,7 @@ public class MachineCT {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> Services.PLATFORM.createItemStack(component.getItemStack()))
-                .orElse(Services.PLATFORM.getEmptyItemStack());
+                .orElse(Services.PLATFORM.createItemStack(ItemStack.EMPTY));
     }
 
     @Method
@@ -251,7 +252,7 @@ public class MachineCT {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
                 .map(component -> Services.PLATFORM.createItemStack(component.extract(toRemove, simulate, true)))
-                .orElse(Services.PLATFORM.getEmptyItemStack());
+                .orElse(Services.PLATFORM.createItemStack(ItemStack.EMPTY));
     }
 
     @Method

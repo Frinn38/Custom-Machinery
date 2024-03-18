@@ -1,16 +1,14 @@
 package fr.frinn.custommachinery.client.integration.jei.energy;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
@@ -40,12 +38,11 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     }
 
     @Override
-    public void render(PoseStack matrix, @Nullable Energy ingredient) {
+    public void render(GuiGraphics graphics, @Nullable Energy ingredient) {
         int width = this.element.getWidth();
         int height = this.element.getHeight();
 
-        ClientHandler.bindTexture(this.element.getFilledTexture());
-        GuiComponent.blit(matrix, -1, -1,0, 0, width, height, width, height);
+        graphics.blit(this.element.getFilledTexture(), -1, -1,0, 0, width, height, width, height);
     }
 
     @Override

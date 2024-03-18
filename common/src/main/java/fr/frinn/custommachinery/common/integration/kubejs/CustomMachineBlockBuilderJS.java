@@ -67,7 +67,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
         RegistryInfo.ITEM.addBuilder(new ItemBuilder(this.id) {
             @Override
             public Item createObject() {
-                return new CustomMachineItem(CustomMachineBlockBuilderJS.this.get(), new Item.Properties().tab(Registration.GROUP), CustomMachineBlockBuilderJS.this.machineID);
+                return new CustomMachineItem(CustomMachineBlockBuilderJS.this.get(), new Item.Properties(), CustomMachineBlockBuilderJS.this.machineID);
             }
 
             @Override

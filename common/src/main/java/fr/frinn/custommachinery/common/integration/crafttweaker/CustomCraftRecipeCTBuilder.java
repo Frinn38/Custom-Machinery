@@ -5,6 +5,7 @@ import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.blamejared.crafttweaker.api.item.IItemStack;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -21,6 +22,8 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Eff
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.EnergyPerTickRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.EnergyRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.EntityRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperiencePerTickRequirementCT;
+import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperienceRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidPerTickRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FuelRequirementCT;
@@ -36,8 +39,6 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Sky
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.StructureRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.TimeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.WeatherRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperienceRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ExperiencePerTickRequirementCT;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import org.openzen.zencode.java.ZenCodeType.Method;
@@ -114,7 +115,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
 
     @Override
     public CustomCraftRecipeCTBuilder error(String error, Object... args) {
-        CraftTweakerAPI.LOGGER.error(error, args);
+        CraftTweakerAPI.getLogger(CustomMachinery.MODID).error(error, args);
         return this;
     }
 
@@ -125,7 +126,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         if(this.lastRequirement != null && this.lastRequirement instanceof IChanceableRequirement)
             ((IChanceableRequirement<?>)this.lastRequirement).setChance(chance);
         else
-            CraftTweakerAPI.LOGGER.error("Can't set chance for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't set chance for requirement: " + this.lastRequirement);
         return this;
     }
 
@@ -144,7 +145,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         if(this.lastRequirement != null && this.lastRequirement instanceof IDelayedRequirement<?>)
             ((IDelayedRequirement<?>)this.lastRequirement).setDelay(delay);
         else
-            CraftTweakerAPI.LOGGER.error("Can't put delay for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't put delay for requirement: " + this.lastRequirement);
         return this;
     }
 
@@ -177,7 +178,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
             this.lastRequirement.setDisplayInfoTemplate(template);
         }
         else
-            CraftTweakerAPI.LOGGER.error("Can't put info for null requirement");
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't put info for null requirement");
         return this;
     }
 }

@@ -14,12 +14,12 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.NotNull;
 
@@ -164,7 +164,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if(amount <= 0 || this.fluidStack.isEmpty())
             return FluidStack.empty();
 
-        amount = Mth.clamp(amount, 0, Math.min(this.fluidStack.getAmount(), getMaxOutput()));
+        amount = Utils.clamp(amount, 0, Math.min(this.fluidStack.getAmount(), getMaxOutput()));
         FluidStack removed = FluidStack.create(this.fluidStack.getFluid(), amount, this.fluidStack.getTag());
         if(!simulate) {
             this.fluidStack.shrink(amount);
@@ -188,7 +188,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if(this.fluidStack.isEmpty())
             this.fluidStack = FluidStack.create(fluid, amount, nbt);
         else {
-            amount = Mth.clamp(amount, 0, getRecipeRemainingSpace());
+            amount = Utils.clamp(amount, 0, getRecipeRemainingSpace());
             this.fluidStack.grow(amount);
         }
         getManager().markDirty();
@@ -198,7 +198,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         if(amount <= 0)
             return;
 
-        amount = Mth.clamp(amount, 0, this.fluidStack.getAmount());
+        amount = Utils.clamp(amount, 0, this.fluidStack.getAmount());
         this.fluidStack.shrink(amount);
         getManager().markDirty();
     }

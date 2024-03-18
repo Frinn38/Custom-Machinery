@@ -15,7 +15,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.LiteralContents;
-import net.minecraft.network.chat.contents.ScoreContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 
@@ -29,7 +28,7 @@ public class TextComponentUtils {
         TextColor color = TextColor.parseColor(encoded);
         if(color != null)
             return DataResult.success(color);
-        return DataResult.error("Invalid color: " + encoded);
+        return DataResult.error(() -> "Invalid color: " + encoded);
     }, TextColor::serialize, "Text color");
 
     public static final NamedMapCodec<Style> STYLE_CODEC = NamedCodec.record(styleInstance ->

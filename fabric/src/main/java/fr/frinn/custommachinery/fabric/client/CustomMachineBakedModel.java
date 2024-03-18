@@ -1,7 +1,5 @@
 package fr.frinn.custommachinery.fabric.client;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
@@ -9,6 +7,7 @@ import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.fabricmc.fabric.impl.renderer.VanillaModelEncoder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -18,7 +17,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
@@ -28,6 +27,8 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -57,16 +58,16 @@ public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
                 .ifPresentOrElse(
                         machine -> {
                             context.pushTransform(QuadRotator.fromDirection(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
-                            context.bakedModelConsumer().accept(getMachineBlockModel(machine.getAppearance(), machine.getStatus()));
+                            getMachineBlockModel(machine.getAppearance(), machine.getStatus()).emitBlockQuads(blockView, state, pos, randomSupplier, context);
                             context.popTransform();
                         },
-                        () -> context.bakedModelConsumer().accept(this)
+                        () -> VanillaModelEncoder.emitBlockQuads(this, state, randomSupplier, context, context.getEmitter())
                 );
     }
 
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        context.bakedModelConsumer().accept(this);
+        VanillaModelEncoder.emitItemQuads(this, null, randomSupplier, context);
     }
 
     /** VANILLA STUFF **/
@@ -140,7 +141,7 @@ public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
             if(itemModelLocation.getState() != null && itemModelLocation.getState().getBlock().asItem() != Items.AIR)
                 model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(itemModelLocation.getState().getBlock().asItem());
             else if(itemModelLocation.getLoc() != null) {
-                Item item = Registry.ITEM.get(itemModelLocation.getLoc());
+                Item item = BuiltInRegistries.ITEM.get(itemModelLocation.getLoc());
                 if(itemModelLocation.getProperties() != null)
                     model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(itemModelLocation.getLoc(), itemModelLocation.getProperties()));
                 else if(item != Items.AIR && Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item) != null)
@@ -164,10 +165,10 @@ public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
     }
 
     private enum QuadRotator implements RenderContext.QuadTransform {
-        NORTH(Direction.NORTH, Vector3f.YN.rotationDegrees(0)),
-        SOUTH(Direction.SOUTH, Vector3f.YN.rotationDegrees(180)),
-        EAST(Direction.EAST, Vector3f.YN.rotationDegrees(90)),
-        WEST(Direction.WEST, Vector3f.YN.rotationDegrees(270));
+        NORTH(Direction.NORTH, new Quaternionf().fromAxisAngleDeg(0, -1, 0, 0)),
+        SOUTH(Direction.SOUTH, new Quaternionf().fromAxisAngleDeg(0, -1, 0, 180)),
+        EAST(Direction.EAST, new Quaternionf().fromAxisAngleDeg(0, -1, 0, 90)),
+        WEST(Direction.WEST, new Quaternionf().fromAxisAngleDeg(0, -1, 0, 270));
 
         public static QuadRotator fromDirection(Direction direction) {
             return switch (direction) {
@@ -179,9 +180,9 @@ public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
         }
 
         private final Direction facing;
-        private final Quaternion rotation;
+        private final Quaternionf rotation;
 
-        QuadRotator(Direction facing, Quaternion rotation) {
+        QuadRotator(Direction facing, Quaternionf rotation) {
             this.facing = facing;
             this.rotation = rotation;
         }
@@ -191,14 +192,14 @@ public class CustomMachineBakedModel implements BakedModel, FabricBakedModel {
             for(int index = 0; index < 4; index++) {
                 Vector3f vec = quad.copyPos(index, null);
                 vec.add(-0.5F, -0.5F, -0.5F);
-                vec.transform(this.rotation);
+                vec.rotate(this.rotation);
                 vec.add(0.5F, 0.5F, 0.5F);
                 quad.pos(index, vec);
 
                 Vector3f normal = quad.copyNormal(index, null);
                 if(normal != null) {
                     normal.add(-0.5F, -0.5F, -0.5F);
-                    normal.transform(this.rotation);
+                    normal.rotate(this.rotation);
                     normal.normalize();
                     normal.add(0.5F, 0.5F, 0.5F);
                     quad.normal(index, normal);

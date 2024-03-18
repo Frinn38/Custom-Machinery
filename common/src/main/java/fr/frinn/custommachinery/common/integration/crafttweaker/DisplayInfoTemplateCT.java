@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.integration.crafttweaker;
 import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.blamejared.crafttweaker.api.item.IItemStack;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
 import net.minecraft.network.chat.Component;
@@ -27,7 +28,7 @@ public class DisplayInfoTemplateCT extends DisplayInfoTemplate {
             case "always" -> super.tooltip(tooltip, TooltipPredicate.ALWAYS);
             case "creative" -> super.tooltip(tooltip, TooltipPredicate.CREATIVE);
             case "advanced" -> super.tooltip(tooltip, TooltipPredicate.ADVANCED);
-            default -> CraftTweakerAPI.LOGGER.error("Unknown tooltip predicate: " + predicate);
+            default -> CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Unknown tooltip predicate: " + predicate);
         }
         return this;
     }

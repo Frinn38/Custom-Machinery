@@ -42,7 +42,7 @@ public class EnhancedDispatchCodec<K, V> extends NamedMapCodec<V> {
             }
         }
         if (elementName == null) {
-            return DataResult.error("Input does not contain a key [" + typeKey + "]: " + input);
+            return DataResult.error(() -> "Input does not contain a key [" + typeKey + "]: " + input);
         }
 
         return keyCodec.decode(ops, elementName).flatMap(type -> {
@@ -51,7 +51,7 @@ public class EnhancedDispatchCodec<K, V> extends NamedMapCodec<V> {
                 if (ops.compressMaps()) {
                     final T value = input.get(ops.createString(valueKey));
                     if (value == null) {
-                        return DataResult.error("Input does not have a \"value\" entry: " + input);
+                        return DataResult.error(() -> "Input does not have a \"value\" entry: " + input);
                     }
                     return c.read(ops, value).map(Function.identity());
                 }

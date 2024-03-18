@@ -5,9 +5,9 @@ import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.requirement.ItemFilterRequirement;
-import org.openzen.zencode.java.ZenCodeType.OptionalString;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
+import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 @ZenRegister
 @Name(CTConstants.REQUIREMENT_ITEM_FILTER)

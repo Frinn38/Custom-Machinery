@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -66,7 +65,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
             if(toPlace.get() > 0) {
                 BlockInWorld cached = new BlockInWorld(getManager().getLevel(), pos, false);
                 if(filter.stream().flatMap(ingredient -> ingredient.getAll().stream()).anyMatch(state -> state.test(cached)) == whitelist) {
-                    if(cached.getState().getMaterial() != Material.AIR)
+                    if(!cached.getState().isAir())
                         getManager().getLevel().destroyBlock(pos, drop);
                     setBlock(getManager().getLevel(), pos, block);
                     toPlace.addAndGet(-1);
@@ -86,7 +85,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
             if(toPlace.get() > 0) {
                 BlockInWorld cached = new BlockInWorld(getManager().getLevel(), pos, false);
                 if(filter.stream().flatMap(ingredient -> ingredient.getAll().stream()).anyMatch(state -> state.test(cached)) == whitelist) {
-                    if(cached.getState().getMaterial() != Material.AIR)
+                    if(!cached.getState().isAir())
                         getManager().getLevel().destroyBlock(pos, drop);
                     toPlace.addAndGet(-1);
                 }

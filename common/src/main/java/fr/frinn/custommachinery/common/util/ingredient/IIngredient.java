@@ -10,7 +10,8 @@ import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.Fluid;
@@ -32,8 +33,8 @@ public interface IIngredient<O> extends Predicate<O> {
                     return RegistrarCodec.ITEM.read(ops, item).map(i -> Pair.of(new ItemIngredient(i), ops.empty()));
                 T tag = map.get("tag");
                 if(tag != null)
-                    return DefaultCodecs.tagKey(Registry.ITEM_REGISTRY).read(ops, tag).map(t -> Pair.of(ItemTagIngredient.create(t), ops.empty()));
-                return DataResult.error("Couldn't get an item ingredient from: " + map);
+                    return DefaultCodecs.tagKey(Registries.ITEM).read(ops, tag).map(t -> Pair.of(ItemTagIngredient.create(t), ops.empty()));
+                return DataResult.error(() -> "Couldn't get an item ingredient from: " + map);
             }
             DataResult<String> result = ops.getStringValue(input);
             if(result.result().isPresent()) {
@@ -42,16 +43,16 @@ public interface IIngredient<O> extends Predicate<O> {
                     try {
                         return DataResult.success(Pair.of(ItemTagIngredient.create(s), ops.empty()));
                     } catch (IllegalArgumentException e) {
-                        return DataResult.error(e.getMessage());
+                        return DataResult.error(e::getMessage);
                     }
                 }
                 try {
-                    return DataResult.success(Pair.of(new ItemIngredient(Registry.ITEM.get(new ResourceLocation(s))), ops.empty()));
+                    return DataResult.success(Pair.of(new ItemIngredient(BuiltInRegistries.ITEM.get(new ResourceLocation(s))), ops.empty()));
                 } catch (ResourceLocationException e) {
-                    return DataResult.error("Invalid item ID: " + e.getMessage());
+                    return DataResult.error(() -> "Invalid item ID: " + e.getMessage());
                 }
             }
-            return DataResult.error("Unable to get an item ingredient from: " + input);
+            return DataResult.error(() -> "Unable to get an item ingredient from: " + input);
         }
 
         @Override
@@ -60,7 +61,7 @@ public interface IIngredient<O> extends Predicate<O> {
                 return ops.mergeToPrimitive(prefix, ops.createString(ingredient.toString()));
             else if(input instanceof ItemTagIngredient ingredient)
                 return ops.mergeToPrimitive(prefix, ops.createString(ingredient.toString()));
-            return DataResult.error(String.format("Item Ingredient: %s is not an item nor a tag !", input));
+            return DataResult.error(() -> String.format("Item Ingredient: %s is not an item nor a tag !", input));
         }
 
         @Override
@@ -76,7 +77,7 @@ public interface IIngredient<O> extends Predicate<O> {
                     return DataResult.success(Either.left((FluidIngredient)ingredient));
                 else if(ingredient instanceof FluidTagIngredient)
                     return DataResult.success(Either.right((FluidTagIngredient)ingredient));
-                return DataResult.error(String.format("Fluid Ingredient : %s is not a fluid nor a tag !", ingredient));
+                return DataResult.error(() -> String.format("Fluid Ingredient : %s is not a fluid nor a tag !", ingredient));
             },
             "Fluid ingredient"
     );
@@ -88,7 +89,7 @@ public interface IIngredient<O> extends Predicate<O> {
                     return DataResult.success(Either.left((BlockIngredient)ingredient));
                 else if(ingredient instanceof BlockTagIngredient)
                     return DataResult.success(Either.right((BlockTagIngredient)ingredient));
-                return DataResult.error(String.format("Block Ingredient : %s is not a block nor a tag !", ingredient));
+                return DataResult.error(() -> String.format("Block Ingredient : %s is not a block nor a tag !", ingredient));
             },
             "Block ingredient"
     );

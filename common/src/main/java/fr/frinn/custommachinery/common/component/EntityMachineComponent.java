@@ -23,7 +23,7 @@ public class EntityMachineComponent extends AbstractMachineComponent {
 
     public EntityMachineComponent(IMachineComponentManager manager) {
         super(manager, ComponentIOMode.BOTH);
-        this.damageSource = Suppliers.memoize(() -> new CustomMachineDamageSource(manager.getTile().getMachine().getName().getString()));
+        this.damageSource = Suppliers.memoize(() -> new CustomMachineDamageSource(manager.getTile()));
     }
 
     @Override

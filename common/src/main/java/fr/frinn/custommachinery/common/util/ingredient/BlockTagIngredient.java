@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.TagUtil;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -22,7 +22,7 @@ public class BlockTagIngredient implements IIngredient<PartialBlockState> {
         try {
             return DataResult.success(BlockTagIngredient.create(string));
         } catch (IllegalArgumentException e) {
-            return DataResult.error(e.getMessage());
+            return DataResult.error(e::getMessage);
         }
     }, BlockTagIngredient::toString, "Block tag ingredient");
 
@@ -39,7 +39,7 @@ public class BlockTagIngredient implements IIngredient<PartialBlockState> {
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        TagKey<Block> tag = TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(s));
+        TagKey<Block> tag = TagKey.create(Registries.BLOCK, new ResourceLocation(s));
         return new BlockTagIngredient(tag);
     }
 

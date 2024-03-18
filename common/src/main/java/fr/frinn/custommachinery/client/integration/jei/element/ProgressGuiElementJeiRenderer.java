@@ -1,15 +1,13 @@
 package fr.frinn.custommachinery.client.integration.jei.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.client.render.element.ProgressGuiElementWidget;
+import fr.frinn.custommachinery.client.element.ProgressGuiElementWidget;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
@@ -19,7 +17,7 @@ import java.util.List;
 public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<ProgressBarGuiElement> {
 
     @Override
-    public void renderElementInJEI(PoseStack matrix, ProgressBarGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
+    public void renderElementInJEI(GuiGraphics graphics, ProgressBarGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();
@@ -35,25 +33,21 @@ public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<Progre
             filledHeight = (int)(height * Mth.clamp(Mth.map((float) (Minecraft.getInstance().level.getGameTime() % recipe.getRecipeTime()) / recipe.getRecipeTime(), element.getStart(), element.getEnd(), 0, 1), 0.0D, 1.0D));
         }
 
-        ClientHandler.bindTexture(element.getEmptyTexture());
-
         if(element.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && element.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)) {
-            matrix.pushPose();
-            ProgressGuiElementWidget.rotate(matrix, element.getDirection(), posX, posY, width, height);
+            graphics.pose().pushPose();
+            ProgressGuiElementWidget.rotate(graphics.pose(), element.getDirection(), posX, posY, width, height);
 
-            GuiComponent.blit(matrix, 0, 0, 0, 0, width, height, width, height);
-            ClientHandler.bindTexture(element.getFilledTexture());
-            GuiComponent.blit(matrix, 0, 0, 0, 0, filledWidth, height, width, height);
+            graphics.blit(element.getEmptyTexture(), 0, 0, 0, 0, width, height, width, height);
+            graphics.blit(element.getFilledTexture(), 0, 0, 0, 0, filledWidth, height, width, height);
 
-            matrix.popPose();
+            graphics.pose().popPose();
         } else {
-            GuiComponent.blit(matrix, posX, posY, 0, 0, width, height, width, height);
-            ClientHandler.bindTexture(element.getFilledTexture());
+            graphics.blit(element.getEmptyTexture(), posX, posY, 0, 0, width, height, width, height);
             switch (element.getDirection()) {
-                case RIGHT -> GuiComponent.blit(matrix, posX, posY, 0, 0, filledWidth, height, width, height);
-                case LEFT -> GuiComponent.blit(matrix, posX + width - filledWidth, posY, width - filledWidth, 0, filledWidth, height, width, height);
-                case TOP -> GuiComponent.blit(matrix, posX, posY, 0, 0, width, filledHeight, width, height);
-                case BOTTOM -> GuiComponent.blit(matrix, posX, posY + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
+                case RIGHT -> graphics.blit(element.getFilledTexture(), posX, posY, 0, 0, filledWidth, height, width, height);
+                case LEFT -> graphics.blit(element.getFilledTexture(), posX + width - filledWidth, posY, width - filledWidth, 0, filledWidth, height, width, height);
+                case TOP -> graphics.blit(element.getFilledTexture(), posX, posY, 0, 0, width, filledHeight, width, height);
+                case BOTTOM -> graphics.blit(element.getFilledTexture(), posX, posY + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
             }
         }
     }

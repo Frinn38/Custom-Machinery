@@ -9,7 +9,6 @@ import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.Locale;
@@ -32,7 +31,7 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
             if(weather == WeatherType.RAIN)
                 return world.isRainingAt(pos.above());
             else if(weather == WeatherType.SNOW)
-                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().getPrecipitation() == Biome.Precipitation.SNOW;
+                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().coldEnoughToSnow(pos.above());
             else if(weather == WeatherType.THUNDER)
                 return world.isRainingAt(pos.above()) && world.isThundering();
             else if(weather == WeatherType.CLEAR)
@@ -41,7 +40,7 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
             if(weather == WeatherType.RAIN)
                 return world.isRaining();
             else if(weather == WeatherType.SNOW)
-                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().getPrecipitation() == Biome.Precipitation.SNOW;
+                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().coldEnoughToSnow(pos.above());
             else if(weather == WeatherType.THUNDER)
                 return world.isThundering();
             else if(weather == WeatherType.CLEAR)

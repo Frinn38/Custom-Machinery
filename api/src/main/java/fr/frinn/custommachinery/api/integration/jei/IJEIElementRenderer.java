@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.integration.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
@@ -18,7 +18,7 @@ public interface IJEIElementRenderer<T extends IGuiElement> {
      * Called each frame on client side for each gui element on each currently displayed recipes.
      * Render your element here.
      */
-    void renderElementInJEI(PoseStack matrix, T element, IMachineRecipe recipe, int mouseX, int mouseY);
+    void renderElementInJEI(GuiGraphics graphics, T element, IMachineRecipe recipe, int mouseX, int mouseY);
 
     /**
      * Called to check if the mouse cursor currently hover this element on a jei recipe.

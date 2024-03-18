@@ -5,12 +5,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -29,9 +27,8 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,7 +160,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public void draw(T recipe, IRecipeSlotsView slotsView, PoseStack matrix, double mouseX, double mouseY) {
+    public void draw(T recipe, IRecipeSlotsView slotsView, GuiGraphics graphics, double mouseX, double mouseY) {
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         elements.stream()
@@ -171,14 +168,14 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
                 .forEach(element -> {
                     IJEIElementRenderer<IGuiElement> renderer = GuiElementJEIRendererRegistry.getJEIRenderer(element.getType());
-                    matrix.pushPose();
-                    matrix.translate(-this.offsetX, -this.offsetY, 0);
-                    renderer.renderElementInJEI(matrix, element, recipe, (int)mouseX, (int)mouseY);
-                    matrix.popPose();
+                    graphics.pose().pushPose();
+                    graphics.pose().translate(-this.offsetX, -this.offsetY, 0);
+                    renderer.renderElementInJEI(graphics, element, recipe, (int)mouseX, (int)mouseY);
+                    graphics.pose().popPose();
                 });
 
         //Render the line between the gui elements and the requirements icons
-        GuiComponent.fill(matrix, -3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
+        graphics.fill(-3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
 
         //Render the requirements that don't have a gui element such as command, position, weather etc... with a little icon and a tooltip
         AtomicInteger index = new AtomicInteger();
@@ -190,10 +187,10 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 index.set(0);
                 row.incrementAndGet();
             }
-            matrix.pushPose();
-            matrix.translate(x, y, 0.0D);
-            info.renderIcon(matrix, ICON_SIZE);
-            matrix.popPose();
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, y, 0.0D);
+            info.renderIcon(graphics, ICON_SIZE);
+            graphics.pose().popPose();
         });
     }
 

@@ -28,7 +28,7 @@ public class DropMachineComponent extends AbstractMachineComponent {
         return Registration.DROP_MACHINE_COMPONENT.get();
     }
 
-    public int getItemAmount(List<IIngredient<Item>> items, double radius, boolean whitelist) {
+    public int getItemAmount(List<IIngredient<Item>> items, int radius, boolean whitelist) {
         List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
         AABB box = new AABB(getManager().getTile().getBlockPos().offset(radius, radius, radius), getManager().getTile().getBlockPos().offset(-radius, -radius, -radius));
         return getManager().getLevel()
@@ -38,7 +38,7 @@ public class DropMachineComponent extends AbstractMachineComponent {
                 .sum();
     }
 
-    public void consumeItem(List<IIngredient<Item>> items, int amount, double radius, boolean whitelist) {
+    public void consumeItem(List<IIngredient<Item>> items, int amount, int radius, boolean whitelist) {
         List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
         AtomicInteger toRemove = new AtomicInteger(amount);
         AABB box = new AABB(getManager().getTile().getBlockPos().offset(radius, radius, radius), getManager().getTile().getBlockPos().offset(-radius, -radius, -radius));

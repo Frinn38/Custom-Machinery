@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
@@ -66,13 +66,13 @@ public class MachineAppearanceBuilderJS {
     }
 
     public MachineAppearanceBuilderJS toolType(ResourceLocation[] tools) {
-        List<TagKey<Block>> list = Arrays.stream(tools).map(key -> TagKey.create(Registry.BLOCK_REGISTRY, key)).toList();
+        List<TagKey<Block>> list = Arrays.stream(tools).map(key -> TagKey.create(Registries.BLOCK, key)).toList();
         this.put(Registration.TOOL_TYPE_PROPERTY.get(), list);
         return this;
     }
 
     public MachineAppearanceBuilderJS miningLevel(ResourceLocation key) {
-        TagKey<Block> level = TagKey.create(Registry.BLOCK_REGISTRY, key);
+        TagKey<Block> level = TagKey.create(Registries.BLOCK, key);
         this.put(Registration.MINING_LEVEL_PROPERTY.get(), level);
         return this;
     }

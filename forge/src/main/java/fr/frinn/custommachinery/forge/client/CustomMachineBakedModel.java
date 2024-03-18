@@ -1,8 +1,5 @@
 package fr.frinn.custommachinery.forge.client;
 
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
@@ -32,6 +29,8 @@ import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector4f;
 
 import java.util.Arrays;
 import java.util.List;
@@ -109,16 +108,16 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? quad.getDirection() : side)).toList();
     }
 
-    private Quaternion getRotation(Direction machineFacing) {
+    private Quaternionf getRotation(Direction machineFacing) {
         return switch (machineFacing) {
-            case EAST -> Vector3f.YN.rotationDegrees(90);
-            case SOUTH -> Vector3f.YN.rotationDegrees(180);
-            case WEST -> Vector3f.YN.rotationDegrees(270);
-            default -> Quaternion.ONE;
+            case EAST -> new Quaternionf().fromAxisAngleDeg(0, -1, 0, 90);
+            case SOUTH -> new Quaternionf().fromAxisAngleDeg(0, -1, 0, 180);
+            case WEST -> new Quaternionf().fromAxisAngleDeg(0, -1, 0, 270);
+            default -> new Quaternionf();
         };
     }
 
-    private BakedQuad rotateQuad(BakedQuad quad, Quaternion rotation, Direction side) {
+    private BakedQuad rotateQuad(BakedQuad quad, Quaternionf rotation, Direction side) {
         int[] quadData = quad.getVertices();
         int[] newQuadData = Arrays.copyOf(quadData, quadData.length);
         for(int i = 0; i < quadData.length / 8; i++) {
@@ -126,8 +125,8 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
             float y = Float.intBitsToFloat(quadData[i * 8 + 1]);
             float z = Float.intBitsToFloat(quadData[i * 8 + 2]);
             Vector4f pos = new Vector4f(x - 0.5F, y - 0.5F, z - 0.5F, 1.0F);
-            pos.transform(rotation);
-            pos.perspectiveDivide();
+            pos.rotate(rotation);
+            pos.div(pos.w);
             newQuadData[i * 8] = Float.floatToRawIntBits(pos.x() + 0.5F);
             newQuadData[i * 8 + 1] = Float.floatToRawIntBits(pos.y() + 0.5F);
             newQuadData[i * 8 + 2] = Float.floatToRawIntBits(pos.z() + 0.5F);

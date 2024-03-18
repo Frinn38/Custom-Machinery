@@ -38,7 +38,7 @@ public class EitherManyCodec<T> implements NamedCodec<T> {
             else if(result.error().isPresent())
                 error.append(result.error().get().message());
         }
-        return DataResult.error(error.toString());
+        return DataResult.error(error::toString);
     }
 
     @Override

@@ -6,7 +6,7 @@ import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.menu.MenuRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.Registrar;
-import dev.architectury.registry.registries.Registries;
+import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.registry.registries.RegistrySupplier;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
@@ -75,9 +75,6 @@ import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextureGuiElement;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
-import fr.frinn.custommachinery.common.machine.builder.component.EnergyComponentBuilder;
-import fr.frinn.custommachinery.common.machine.builder.component.FluidComponentBuilder;
-import fr.frinn.custommachinery.common.machine.builder.component.ItemComponentBuilder;
 import fr.frinn.custommachinery.common.network.data.BooleanData;
 import fr.frinn.custommachinery.common.network.data.DoubleData;
 import fr.frinn.custommachinery.common.network.data.FloatData;
@@ -133,8 +130,9 @@ import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
@@ -156,23 +154,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnstableApiUsage"})
 public class Registration {
 
-    public static final Registries REGISTRIES = Registries.get(CustomMachinery.MODID);
-
-    public static final CreativeModeTab GROUP = CreativeTabRegistry.create(new ResourceLocation(CustomMachinery.MODID, "group"), () -> CustomMachineItem.makeMachineItem(CustomMachine.DUMMY.getId()));
+    public static final RegistrarManager REGISTRIES = RegistrarManager.get(CustomMachinery.MODID);
 
     public static final LootContextParamSet CUSTOM_MACHINE_LOOT_PARAMETER_SET = LootContextParamSets.register("custom_machine", builder ->
             builder.optional(LootContextParams.ORIGIN).optional(LootContextParams.BLOCK_ENTITY)
     );
 
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(CustomMachinery.MODID, Registry.BLOCK_REGISTRY);
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(CustomMachinery.MODID, Registry.ITEM_REGISTRY);
-    public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(CustomMachinery.MODID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
-    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(CustomMachinery.MODID, Registry.MENU_REGISTRY);
-    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(CustomMachinery.MODID, Registry.RECIPE_SERIALIZER_REGISTRY);
-    public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(CustomMachinery.MODID, Registry.RECIPE_TYPE_REGISTRY);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(CustomMachinery.MODID, Registries.BLOCK);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(CustomMachinery.MODID, Registries.ITEM);
+    public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(CustomMachinery.MODID, Registries.BLOCK_ENTITY_TYPE);
+    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(CustomMachinery.MODID, Registries.MENU);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(CustomMachinery.MODID, Registries.RECIPE_SERIALIZER);
+    public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(CustomMachinery.MODID, Registries.RECIPE_TYPE);
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(CustomMachinery.MODID, Registries.CREATIVE_MODE_TAB);
     public static final DeferredRegister<GuiElementType<? extends IGuiElement>> GUI_ELEMENTS = DeferredRegister.create(CustomMachinery.MODID, GuiElementType.REGISTRY_KEY);
     public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS = DeferredRegister.create(CustomMachinery.MODID, MachineComponentType.REGISTRY_KEY);
     public static final DeferredRegister<RequirementType<? extends IRequirement<?>>> REQUIREMENTS = DeferredRegister.create(CustomMachinery.MODID, RequirementType.REGISTRY_KEY);
@@ -189,11 +186,10 @@ public class Registration {
 
     public static final RegistrySupplier<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", CustomMachineBlock::new);
 
-    public static final RegistrySupplier<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().tab(GROUP), null));
-    public static final RegistrySupplier<MachineCreatorItem> MACHINE_CREATOR_ITEM = ITEMS.register("machine_creator_item", () ->  new MachineCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
-    public static final RegistrySupplier<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
-    public static final RegistrySupplier<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().tab(GROUP).stacksTo(1)));
-    public static final RegistrySupplier<ConfigurationCardItem> CONFIGURATION_CARD_ITEM = ITEMS.register("configuration_card", () -> new ConfigurationCardItem(new Item.Properties().tab(GROUP).stacksTo(1)));
+    public static final RegistrySupplier<CustomMachineItem> CUSTOM_MACHINE_ITEM = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties(), null));
+    public static final RegistrySupplier<BoxCreatorItem> BOX_CREATOR_ITEM = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().stacksTo(1)));
+    public static final RegistrySupplier<StructureCreatorItem> STRUCTURE_CREATOR_ITEM = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().stacksTo(1)));
+    public static final RegistrySupplier<ConfigurationCardItem> CONFIGURATION_CARD_ITEM = ITEMS.register("configuration_card", () -> new ConfigurationCardItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistrySupplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(PlatformHelper::createMachineTile, validMachineBlocks(), null));
 
@@ -204,6 +200,21 @@ public class Registration {
 
     public static final RegistrySupplier<RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine", () -> new RecipeType<>() {});
     public static final RegistrySupplier<RecipeType<CustomCraftRecipe>> CUSTOM_CRAFT_RECIPE = RECIPE_TYPES.register("custom_craft", () -> new RecipeType<>() {});
+
+    public static final RegistrySupplier<CreativeModeTab> CUSTOM_MACHINE_TAB = CREATIVE_TABS.register("custom_machine", () -> CreativeTabRegistry.create(builder -> {
+        builder.title(Component.translatable("itemGroup.custommachinery.group"));
+        builder.icon(() -> CustomMachineItem.makeMachineItem(CustomMachine.DUMMY.getId()));
+        builder.displayItems((params, output) -> {
+            output.accept(BOX_CREATOR_ITEM.get());
+            output.accept(STRUCTURE_CREATOR_ITEM.get());
+            output.accept(CONFIGURATION_CARD_ITEM.get());
+            CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> output.accept(block.asItem()));
+            CustomMachinery.MACHINES.keySet().forEach(id -> {
+                if(!CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(id))
+                    output.accept(CustomMachineItem.makeMachineItem(id));
+            });
+        });
+    }));
 
     public static final RegistrySupplier<GuiElementType<EnergyGuiElement>> ENERGY_GUI_ELEMENT = GUI_ELEMENTS.register("energy", () -> GuiElementType.create(EnergyGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<FluidGuiElement>> FLUID_GUI_ELEMENT = GUI_ELEMENTS.register("fluid", () -> GuiElementType.create(FluidGuiElement.CODEC));
@@ -222,9 +233,9 @@ public class Registration {
     public static final RegistrySupplier<GuiElementType<ButtonGuiElement>> BUTTON_GUI_ELEMENT = GUI_ELEMENTS.register("button", () -> GuiElementType.create(ButtonGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<BarGuiElement>> BAR_GUI_ELEMENT = GUI_ELEMENTS.register("bar", () -> GuiElementType.create(BarGuiElement.CODEC));
 
-    public static final RegistrySupplier<MachineComponentType<EnergyMachineComponent>> ENERGY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("energy", () -> MachineComponentType.create(EnergyMachineComponent.Template.CODEC).setGUIBuilder(EnergyComponentBuilder::new));
-    public static final RegistrySupplier<MachineComponentType<FluidMachineComponent>> FLUID_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fluid", () -> MachineComponentType.create(FluidMachineComponent.Template.CODEC).setNotSingle(FluidComponentHandler::new).setGUIBuilder(FluidComponentBuilder::new));
-    public static final RegistrySupplier<MachineComponentType<ItemMachineComponent>> ITEM_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("item", () -> MachineComponentType.create(ItemMachineComponent.Template.CODEC).setNotSingle(ItemComponentHandler::new).setGUIBuilder(ItemComponentBuilder::new));
+    public static final RegistrySupplier<MachineComponentType<EnergyMachineComponent>> ENERGY_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("energy", () -> MachineComponentType.create(EnergyMachineComponent.Template.CODEC));
+    public static final RegistrySupplier<MachineComponentType<FluidMachineComponent>> FLUID_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("fluid", () -> MachineComponentType.create(FluidMachineComponent.Template.CODEC).setNotSingle(FluidComponentHandler::new));
+    public static final RegistrySupplier<MachineComponentType<ItemMachineComponent>> ITEM_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("item", () -> MachineComponentType.create(ItemMachineComponent.Template.CODEC).setNotSingle(ItemComponentHandler::new));
     public static final RegistrySupplier<MachineComponentType<PositionMachineComponent>> POSITION_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("position", () -> MachineComponentType.create(PositionMachineComponent::new));
     public static final RegistrySupplier<MachineComponentType<ExperienceMachineComponent>> EXPERIENCE_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("experience", () -> MachineComponentType.create(ExperienceMachineComponent.Template.CODEC));
     public static final RegistrySupplier<MachineComponentType<TimeMachineComponent>> TIME_MACHINE_COMPONENT = MACHINE_COMPONENTS.register("time", () -> MachineComponentType.create(TimeMachineComponent::new));
@@ -276,14 +287,14 @@ public class Registration {
 
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.of(new ResourceLocation(CustomMachinery.MODID, "block/custom_machine_block").toString())));
-    public static final RegistrySupplier<MachineAppearanceProperty<SoundEvent>> AMBIENT_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(DefaultCodecs.SOUND_EVENT, new SoundEvent(new ResourceLocation(""))));
+    public static final RegistrySupplier<MachineAppearanceProperty<SoundEvent>> AMBIENT_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(DefaultCodecs.SOUND_EVENT, SoundEvent.createVariableRangeEvent(new ResourceLocation(""))));
     public static final RegistrySupplier<MachineAppearanceProperty<CMSoundType>> INTERACTION_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("interaction_sound", () -> MachineAppearanceProperty.create(CMSoundType.CODEC, CMSoundType.DEFAULT));
     public static final RegistrySupplier<MachineAppearanceProperty<Integer>> LIGHT_PROPERTY = APPEARANCE_PROPERTIES.register("light", () -> MachineAppearanceProperty.create(NamedCodec.intRange(0, 15), 0));
     public static final RegistrySupplier<MachineAppearanceProperty<Integer>> COLOR_PROPERTY = APPEARANCE_PROPERTIES.register("color", () -> MachineAppearanceProperty.create(NamedCodec.INT, 0xFFFFFF));
     public static final RegistrySupplier<MachineAppearanceProperty<Float>> HARDNESS_PROPERTY = APPEARANCE_PROPERTIES.register("hardness", () -> MachineAppearanceProperty.create(NamedCodec.floatRange(-1.0F, Float.MAX_VALUE), 3.5F));
     public static final RegistrySupplier<MachineAppearanceProperty<Float>> RESISTANCE_PROPERTY = APPEARANCE_PROPERTIES.register("resistance", () -> MachineAppearanceProperty.create(NamedCodec.floatRange(0.0F, Float.MAX_VALUE), 3.5F));
-    public static final RegistrySupplier<MachineAppearanceProperty<List<TagKey<Block>>>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registry.BLOCK_REGISTRY).listOf(), Collections.singletonList(BlockTags.MINEABLE_WITH_PICKAXE)));
-    public static final RegistrySupplier<MachineAppearanceProperty<TagKey<Block>>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registry.BLOCK_REGISTRY), BlockTags.NEEDS_IRON_TOOL));
+    public static final RegistrySupplier<MachineAppearanceProperty<List<TagKey<Block>>>> TOOL_TYPE_PROPERTY = APPEARANCE_PROPERTIES.register("tool_type", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registries.BLOCK).listOf(), Collections.singletonList(BlockTags.MINEABLE_WITH_PICKAXE)));
+    public static final RegistrySupplier<MachineAppearanceProperty<TagKey<Block>>> MINING_LEVEL_PROPERTY = APPEARANCE_PROPERTIES.register("mining_level", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registries.BLOCK), BlockTags.NEEDS_IRON_TOOL));
     public static final RegistrySupplier<MachineAppearanceProperty<Boolean>> REQUIRES_TOOL = APPEARANCE_PROPERTIES.register("requires_tool", () -> MachineAppearanceProperty.create(NamedCodec.BOOL, true));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineShape>> SHAPE_PROPERTY = APPEARANCE_PROPERTIES.register("shape", () -> MachineAppearanceProperty.create(MachineShape.CODEC, MachineShape.DEFAULT));
     public static final RegistrySupplier<MachineAppearanceProperty<MachineShape>> SHAPE_COLLISION_PROPERTY = APPEARANCE_PROPERTIES.register("shape_collision", () -> MachineAppearanceProperty.create(MachineShape.CODEC, MachineShape.DEFAULT_COLLISION));

@@ -19,11 +19,8 @@ accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init>
 accessible field net/minecraft/client/resources/model/ModelManager bakedRegistry Ljava/util/Map;
 
 #DataPack path
-accessible field net/minecraft/server/packs/AbstractPackResources file Ljava/io/File;
+accessible field net/minecraft/server/packs/FilePackResources file Ljava/io/File;
 accessible method net/minecraft/server/packs/FilePackResources getOrCreateZipFile ()Ljava/util/zip/ZipFile;
 
 #BlockEntityType validBlocks
 accessible field net/minecraft/world/level/block/entity/BlockEntityType validBlocks Ljava/util/Set;
-
-#AbstractContainerScreen renderSlot
-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/inventory/Slot;)V

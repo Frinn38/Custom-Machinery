@@ -1,13 +1,10 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -17,7 +14,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -32,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CustomMachineItem extends BlockItem {
 
     public static final String MACHINE_TAG_KEY = "machine";
@@ -65,18 +62,6 @@ public class CustomMachineItem extends BlockItem {
         nbt.putString(MACHINE_TAG_KEY, machineID.toString());
         stack.setTag(nbt);
         return stack;
-    }
-
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if(group == this.category || group == CreativeModeTab.TAB_SEARCH) {
-            if(this.machineID != null)
-                items.add(this.getDefaultInstance());
-            else
-                CustomMachinery.MACHINES.keySet().stream()
-                        .filter(id -> !CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(id))
-                        .forEach(id -> items.add(makeMachineItem(id)));
-        }
     }
 
     @Override

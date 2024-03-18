@@ -132,7 +132,7 @@ public interface IDisplayInfo {
                 case "advanced" -> DataResult.success(ADVANCED);
                 case "creative" -> DataResult.success(CREATIVE);
                 case "always" -> DataResult.success(ALWAYS);
-                default -> DataResult.error("Invalid tooltip predicate: " + s);
+                default -> DataResult.error(() -> "Invalid tooltip predicate: " + s);
             };
         }, predicate -> predicate == ADVANCED ? "advanced" : predicate == CREATIVE ? "creative" : "always", "Tooltip predicate");
 

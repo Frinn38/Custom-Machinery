@@ -12,8 +12,8 @@ public class EnumButton<E> extends Button {
     private final List<E> values;
     private E value;
 
-    public EnumButton(int x, int y, int width, int height, OnPress pressedAction, OnTooltip onTooltip, Function<E, Component> messageFunction, List<E> values, E defaultValue) {
-        super(x, y, width, height, Component.empty(), pressedAction, onTooltip);
+    public EnumButton(int x, int y, int width, int height, OnPress pressedAction, Function<E, Component> messageFunction, List<E> values, E defaultValue) {
+        super(x, y, width, height, Component.empty(), pressedAction, (s) -> Component.empty());
         this.messageFunction = messageFunction;
         this.values = values;
         if(this.values.contains(defaultValue))

@@ -4,6 +4,7 @@ import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
@@ -88,14 +89,14 @@ public interface BlockRequirementCT<T> extends RecipeCTBuilder<T> {
         if(block.isEmpty())
             state = PartialBlockState.AIR;
         else
-            state = PartialBlockState.CODEC.read(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElse(null);
+            state = PartialBlockState.CODEC.read(JsonOps.INSTANCE, new JsonPrimitive(block)).resultOrPartial(CraftTweakerAPI.getLogger(CustomMachinery.MODID)::error).orElse(null);
         if(state == null)
             return error("Invalid block: {}", block);
 
         AABB bb = new AABB(startX, startY, startZ, endX, endY, endZ);
         List<IIngredient<PartialBlockState>> filter;
         if(stringFilter != null)
-            filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.read(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI.LOGGER::error).orElse(null)).filter(Objects::nonNull).toList();
+            filter = Arrays.stream(stringFilter).map(s -> IIngredient.BLOCK.read(JsonOps.INSTANCE, new JsonPrimitive(s)).resultOrPartial(CraftTweakerAPI.getLogger(CustomMachinery.MODID)::error).orElse(null)).filter(Objects::nonNull).toList();
         else
             filter = Collections.emptyList();
         try {

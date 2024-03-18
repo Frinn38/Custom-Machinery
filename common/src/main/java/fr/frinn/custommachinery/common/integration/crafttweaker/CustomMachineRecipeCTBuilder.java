@@ -4,6 +4,7 @@ import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -114,7 +115,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
 
     @Override
     public CustomMachineRecipeCTBuilder error(String error, Object... args) {
-        CraftTweakerAPI.LOGGER.error(error, args);
+        CraftTweakerAPI.getLogger(CustomMachinery.MODID).error(error, args);
         return this;
     }
 
@@ -125,7 +126,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
         if(this.lastRequirement != null && this.lastRequirement instanceof IChanceableRequirement)
             ((IChanceableRequirement<?>)this.lastRequirement).setChance(chance);
         else
-            CraftTweakerAPI.LOGGER.error("Can't set chance for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't set chance for requirement: " + this.lastRequirement);
         return this;
     }
 
@@ -144,7 +145,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
         if(this.lastRequirement != null && this.lastRequirement instanceof IDelayedRequirement<?>)
             ((IDelayedRequirement<?>)this.lastRequirement).setDelay(delay);
         else
-            CraftTweakerAPI.LOGGER.error("Can't put delay for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't put delay for requirement: " + this.lastRequirement);
         return this;
     }
 
@@ -185,7 +186,7 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
             this.lastRequirement.setDisplayInfoTemplate(template);
         }
         else
-            CraftTweakerAPI.LOGGER.error("Can't put info for null requirement");
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't put info for null requirement");
         return this;
     }
 

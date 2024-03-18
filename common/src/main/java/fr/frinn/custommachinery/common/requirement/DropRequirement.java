@@ -15,8 +15,8 @@ import fr.frinn.custommachinery.common.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -95,7 +95,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
         if(getDelay() != 0.0 || getMode() != RequirementIOMode.INPUT)
             return CraftingResult.pass();
         int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
-        double radius = context.getModifiedValue(this.radius, this, "radius");
+        int radius = (int) context.getModifiedValue(this.radius, this, "radius");
         switch (this.action) {
             case CONSUME -> {
                 int found = component.getItemAmount(this.input, radius, this.whitelist);
@@ -122,7 +122,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
         if(getDelay() != 0.0 || getMode() != RequirementIOMode.OUTPUT)
             return CraftingResult.pass();
         int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
-        double radius = context.getModifiedValue(this.radius, this, "radius");
+        int radius = (int) context.getModifiedValue(this.radius, this, "radius");
         switch (this.action) {
             case CONSUME -> {
                 int found = component.getItemAmount(this.input, radius, this.whitelist);
@@ -153,7 +153,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     public CraftingResult processTick(DropMachineComponent component, ICraftingContext context) {
         if(this.action == Action.CHECK) {
             int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
-            double radius = context.getModifiedValue(this.radius, this, "radius");
+            int radius = (int) context.getModifiedValue(this.radius, this, "radius");
             int found = component.getItemAmount(this.input, radius, this.whitelist);
             if(found >= amount)
                 return CraftingResult.success();
@@ -167,7 +167,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     @Override
     public CraftingResult execute(DropMachineComponent component, ICraftingContext context) {
         int amount = (int) context.getIntegerModifiedValue(this.amount, this, null);
-        double radius = context.getModifiedValue(this.radius, this, "radius");
+        int radius = (int) context.getModifiedValue(this.radius, this, "radius");
         switch (this.action) {
             case CONSUME -> {
                 int found = component.getItemAmount(this.input, radius, this.whitelist);
@@ -181,7 +181,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                 ItemStack stack = Utils.makeItemStack(this.output, amount, this.nbt);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.output", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
             }
             default -> {
                 return CraftingResult.pass();

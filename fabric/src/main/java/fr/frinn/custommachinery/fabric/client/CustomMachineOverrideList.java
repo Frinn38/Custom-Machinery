@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.fabric.client;
 
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
-import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.resources.model.BakedModel;

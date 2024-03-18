@@ -177,4 +177,8 @@ public class Utils {
         }
         else return Component.literal(ingredient.toString());
     }
+
+    public static long clamp(long value, long min, long max) {
+        return value < min ? min : Math.min(value, max);
+    }
 }

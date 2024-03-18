@@ -7,27 +7,20 @@ import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.packs.AbstractPackResources;
-import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class FileUtils {
 
@@ -57,11 +50,12 @@ public class FileUtils {
     }
 
     public static boolean deleteMachineJSON(MinecraftServer server, ResourceLocation location) {
+        /*
         if(server == null)
             return false;
         ResourceLocation trueLocation = new ResourceLocation(location.getNamespace(), "machines/" + location.getPath() + ".json");
         for(PackResources pack : server.getResourceManager().listPacks().toList()) {
-            if(!pack.hasResource(PackType.SERVER_DATA, trueLocation))
+            if(pack.getResource(PackType.SERVER_DATA, trueLocation) == null)
                 continue;
             if(pack instanceof FilePackResources filePackResources) {
                 filePackResources.close();
@@ -83,14 +77,14 @@ public class FileUtils {
                 File file = new File(path.toUri());
                 if(file.exists() && file.isFile() && file.delete())
                     CustomMachinery.LOGGER.info("Deleted custom machine json for id {} at path {}", location, path);
-            } else if(pack.getName().contains("KubeJS")) {
+            } else if(pack.packId().contains("KubeJS")) {
                 Path path = KubeJSIntegration.getMachineJsonPath(trueLocation);
                 File file = new File(path.toUri());
                 if(file.exists() && file.isFile() && file.delete())
                     CustomMachinery.LOGGER.info("Deleted custom machine json for id {} at path {}", location, path);
             }
 
-        }
+        }*/
         return false;
     }
 
@@ -98,9 +92,9 @@ public class FileUtils {
         ResourceLocation trueLocation = new ResourceLocation(location.getNamespace(), "machines/" + location.getPath() + ".json");
         List<Path> paths = new ArrayList<>();
         for(PackResources pack : server.getResourceManager().listPacks().toList()) {
-            if(!pack.hasResource(PackType.SERVER_DATA, trueLocation))
+            if(pack.getResource(PackType.SERVER_DATA, trueLocation) == null)
                 continue;
-            if(pack.getName().contains("KubeJS"))
+            if(pack.packId().contains("KubeJS"))
                 paths.add(KubeJSIntegration.getMachineJsonPath(trueLocation));
         }
         return paths;
