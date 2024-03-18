@@ -17,6 +17,7 @@ public class PacketManager {
     public static final MessageType LOOT_TABLES = MANAGER.registerS2C("loot_tables", SLootTablesPacket::read);
     public static final MessageType OPEN_FILE = MANAGER.registerS2C("open_file", SOpenFilePacket::read);
     public static final MessageType UPDATE_MACHINE_APPEARANCE = MANAGER.registerS2C("update_machine_appearance", SUpdateMachineAppearancePacket::read);
+    public static final MessageType UPDATE_MACHINE_GUI_ELEMENTS = MANAGER.registerS2C("update_machine_gui_elements", SUpdateMachineGuiElementsPacket::read);
 
     //Client to Server
     public static final MessageType ADD_MACHINE = MANAGER.registerC2S("add_machine", CAddMachinePacket::read);

@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.api.machine;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -102,13 +104,31 @@ public abstract class MachineTile extends BlockEntity {
     public abstract IMachineAppearance getAppearance();
 
     /**
-     * This allows to set a custom {@link IMachineAppearance} to this machine.
+     * This allows to set a custom {@link IMachineAppearance} to this machine tile only (other tiles from the same machine won't be changed).
      * It is used by recipes for setting a custom running appearance per recipe.
      * This method should be called on the server side only, as it will be synced to all clients automatically.
      * Pass null to make the machine use its default appearance, as specified in the machine json.
      * @param appearance A custom machine appearance to display.
      */
     public abstract void setCustomAppearance(@Nullable IMachineAppearance appearance);
+
+    /**
+     * Get the current list of {@link IGuiElement} this tile will use in a gui.
+     * The returned list will be either a custom list set by the recipe currently processing
+     * or the default list specified in the machine json.
+     * This is synced from the server to client.
+     * @return The current {@link IMachineAppearance} for this {@link MachineTile}
+     */
+    public abstract List<IGuiElement> getGuiElements();
+
+    /**
+     * This allows to set a custom list of {@link IGuiElement} to this machine tile only (other tiles from the same machine won't be changed).
+     * It is used by recipes for setting a custom list of elements per recipe.
+     * This method should be called on the server side only, as it will be synced to all clients automatically.
+     * Pass null to make the machine use its default gui elements list, as specified in the machine json.
+     * @param guiElements A custom list of {@link IGuiElement} to display.
+     */
+    public abstract void setCustomGuiElements(@Nullable List<IGuiElement> guiElements);
 
     /**
      * Set an entity as the owner of the machine.

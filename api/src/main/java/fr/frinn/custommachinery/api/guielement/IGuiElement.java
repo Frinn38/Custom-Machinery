@@ -65,6 +65,13 @@ public interface IGuiElement {
     List<Component> getTooltips();
 
     /**
+     * Used to identify this element is case a recipe specific element needs to override a machine specific element.
+     * If not specified by the user, the id will be "" by default. In this case the element will never be overridden by a recipe's.
+     * @return The id of this element.
+     */
+    String getId();
+
+    /**
      * Called server-side when player click on a gui element.
      * @param button The mouse button that was clicked.
      *               0 : left

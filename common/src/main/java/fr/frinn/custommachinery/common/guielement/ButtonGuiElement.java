@@ -21,7 +21,6 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
     public static final NamedCodec<ButtonGuiElement> CODEC = NamedCodec.record(buttonGuiElementInstance ->
             buttonGuiElementInstance.group(
                     AbstractTexturedGuiElement.makePropertiesCodec(BASE_TEXTURE, BASE_TEXTURE_HOVERED).forGetter(ButtonGuiElement::getProperties),
-                    NamedCodec.STRING.fieldOf("id").forGetter(element -> element.id),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toogle", BASE_TEXTURE_TOOGLE).forGetter(element -> element.textureToogle),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toogle_hovered", BASE_TEXTURE_TOOGLE_HOVERED).forGetter(element -> element.textureToogleHovered),
                     NamedCodec.BOOL.optionalFieldOf("toogle", false).forGetter(element -> element.toogle),
@@ -31,7 +30,6 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
             ).apply(buttonGuiElementInstance, ButtonGuiElement::new), "Button gui element"
     );
 
-    private final String id;
     private final ResourceLocation textureToogle;
     private final ResourceLocation textureToogleHovered;
     private final boolean toogle;
@@ -39,9 +37,8 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
     private final ItemStack item;
     private final int holdTime;
 
-    public ButtonGuiElement(Properties properties, String id, ResourceLocation textureToogle, ResourceLocation textureToogleHovered, boolean toogle, Component text, ItemStack item, int holdTime) {
+    public ButtonGuiElement(Properties properties, ResourceLocation textureToogle, ResourceLocation textureToogleHovered, boolean toogle, Component text, ItemStack item, int holdTime) {
         super(properties);
-        this.id = id;
         this.textureToogle = textureToogle;
         this.textureToogleHovered = textureToogleHovered;
         this.toogle = toogle;
@@ -53,10 +50,6 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
     @Override
     public GuiElementType<ButtonGuiElement> getType() {
         return Registration.BUTTON_GUI_ELEMENT.get();
-    }
-
-    public String getId() {
-        return this.id;
     }
 
     public ResourceLocation getTextureToogle() {

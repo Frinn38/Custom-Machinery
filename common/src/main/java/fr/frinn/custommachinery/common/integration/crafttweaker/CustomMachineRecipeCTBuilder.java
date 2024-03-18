@@ -5,6 +5,8 @@ import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.CustomMachinery;
+import com.blamejared.crafttweaker.api.data.MapData;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -40,6 +42,7 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Str
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.TimeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.WeatherRequirementCT;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
@@ -197,6 +200,18 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
         MachineAppearanceBuilderCT builder = new MachineAppearanceBuilderCT();
         consumer.accept(builder);
         this.builder.withAppearance(builder.build());
+        return this;
+    }
+
+    /** GUI **/
+
+    @Method
+    public CustomMachineRecipeCTBuilder gui(MapData... elements) {
+        for(MapData data : elements) {
+            IGuiElement.CODEC.read(NbtOps.INSTANCE, data.getInternal()).resultOrPartial(s -> {
+                CraftTweakerAPI.LOGGER.error("Error when parsing recipe custom gui element\n" + data + "\n" + s);
+            }).ifPresent(this.builder::withGuiElement);
+        }
         return this;
     }
 }

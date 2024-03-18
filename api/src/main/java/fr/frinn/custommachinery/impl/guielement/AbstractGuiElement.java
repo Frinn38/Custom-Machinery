@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public abstract class AbstractGuiElement implements IGuiElement {
 
-    public record Properties(int x, int y, int width, int height, int priority, @Nullable ResourceLocation texture, @Nullable ResourceLocation textureHovered, List<Component> tooltips){}
+    public record Properties(int x, int y, int width, int height, int priority, @Nullable ResourceLocation texture, @Nullable ResourceLocation textureHovered, List<Component> tooltips, String id){}
 
     private final Properties properties;
 
@@ -58,6 +58,11 @@ public abstract class AbstractGuiElement implements IGuiElement {
         return this.properties.tooltips();
     }
 
+    @Override
+    public String getId() {
+        return this.properties.id();
+    }
+
     public static NamedMapCodec<Properties> makePropertiesCodec() {
         return makePropertiesCodec(null, null, Collections.emptyList());
     }
@@ -80,9 +85,10 @@ public abstract class AbstractGuiElement implements IGuiElement {
                      NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(Properties::priority),
                      DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture").forGetter(properties -> Optional.ofNullable(properties.texture())),
                      DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered").forGetter(properties -> Optional.ofNullable(properties.textureHovered())),
-                     TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltips", defaultTooltips).forGetter(Properties::tooltips)
-             ).apply(propertiesInstance, (x, y, width, height, priority, texture, textureHovered, tooltips) ->
-                     new Properties(x, y, width, height, priority, texture.orElse(defaultTexture), textureHovered.orElse(defaultTextureHovered), tooltips)
+                     TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltips", defaultTooltips).forGetter(Properties::tooltips),
+                     NamedCodec.STRING.optionalFieldOf("id", "").forGetter(Properties::id)
+             ).apply(propertiesInstance, (x, y, width, height, priority, texture, textureHovered, tooltips, id) ->
+                     new Properties(x, y, width, height, priority, texture.orElse(defaultTexture), textureHovered.orElse(defaultTextureHovered), tooltips, id)
              ), "Gui element properties");
     }
 }

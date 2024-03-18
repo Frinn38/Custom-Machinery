@@ -1,5 +1,9 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
+import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
@@ -31,9 +35,9 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequir
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.StructureRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
-import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import org.jetbrains.annotations.Nullable;
+import fr.frinn.custommachinery.common.util.Utils;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
@@ -43,9 +47,6 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS,
         ButtonRequirementJS, SkyRequirementJS, ItemFilterRequirementJS, ExperienceRequirementJS, ExperiencePerTickRequirementJS,
         ChunkloadRequirementJS {
-
-    @Nullable
-    private MachineAppearance customAppearance = null;
 
     public CustomMachineRecipeBuilderJS() {
         super(Registration.CUSTOM_MACHINE_RECIPE.getId());
@@ -58,8 +59,10 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         if(getValue(CustomMachineryRecipeSchemas.ERROR))
             builder.setResetOnError();
 
-        if(this.customAppearance != null)
-            builder.withAppearance(this.customAppearance);
+        if(getValue(CustomMachineryRecipeSchemas.APPEARANCE) != null)
+            builder.withAppearance(getValue(CustomMachineryRecipeSchemas.APPEARANCE));
+
+        Arrays.stream(getValue(CustomMachineryRecipeSchemas.GUI)).forEach(builder::withGuiElement);
 
         return builder;
     }
@@ -71,12 +74,23 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         return this;
     }
 
-    /* APPEARANCE */
+    /** APPEARANCE **/
 
     public CustomMachineRecipeBuilderJS appearance(Consumer<MachineAppearanceBuilderJS> consumer) {
         MachineAppearanceBuilderJS builder = new MachineAppearanceBuilderJS();
         consumer.accept(builder);
-        this.customAppearance = builder.build();
+        setValue(CustomMachineryRecipeSchemas.APPEARANCE, builder.build());
+        return this;
+    }
+
+    /** GUI **/
+
+    public CustomMachineRecipeBuilderJS gui(JsonObject... elements) {
+        for(JsonObject json : elements) {
+            IGuiElement.CODEC.read(JsonOps.INSTANCE, json).resultOrPartial(s -> {
+                throw new RecipeExceptionJS("Error when parsing recipe custom gui element\n" + json + "\n" + s);
+            }).ifPresent(element -> setValue(CustomMachineryRecipeSchemas.GUI, Utils.addToArray(getValue(CustomMachineryRecipeSchemas.GUI), element)));
+        }
         return this;
     }
 }

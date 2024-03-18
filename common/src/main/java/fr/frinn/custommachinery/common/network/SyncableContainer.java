@@ -23,12 +23,18 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
 
     private final ServerPlayer player;
     private final List<ISyncable<?, ?>> stuffToSync = new ArrayList<>();
+    private final ISyncableStuff syncableStuff;
 
     public SyncableContainer(@Nullable MenuType<?> type, int id, ISyncableStuff syncableStuff, Player player) {
         super(type, id);
         this.player = player instanceof ServerPlayer serverPlayer ? serverPlayer : null;
+        this.syncableStuff = syncableStuff;
+    }
+
+    public void init() {
+        this.stuffToSync.clear();
         this.stuffToSync.add(DataType.createSyncable(ItemStack.class, this::getCarried, this::setCarried));
-        syncableStuff.getStuffToSync(this.stuffToSync::add);
+        this.syncableStuff.getStuffToSync(this.stuffToSync::add);
     }
 
     public abstract boolean needFullSync();

@@ -28,7 +28,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         this.machine = container.getTile().getMachine();
         this.imageWidth = 256;
         this.imageHeight = 192;
-        this.machine.getGuiElements().stream()
+        this.tile.getGuiElements().stream()
                 .filter(element -> element instanceof SizeGuiElement)
                 .map(element -> (SizeGuiElement)element)
                 .findFirst()
@@ -43,7 +43,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     protected void init() {
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
-        this.machine.getGuiElements().stream()
+        this.tile.getGuiElements().stream()
                 .filter(element -> GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()))
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
                 .forEach(element -> addRenderableWidget(GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType)element.getType()).get(element, this)));

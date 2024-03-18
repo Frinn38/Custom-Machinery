@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -143,7 +144,8 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
 
         List<IJEIIngredientWrapper<?>> wrappers = new ArrayList<>(this.wrapperCache.getUnchecked(recipe));
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
-
+        if(recipe instanceof CustomMachineRecipe machineRecipe && !machineRecipe.getGuiElements().isEmpty())
+            elements = machineRecipe.getCustomGuiElements(elements);
         elements.forEach(element -> {
             //Search for ingredients to put in the corresponding slots/fluid and energy bars.
             Iterator<IJEIIngredientWrapper<?>> iterator = wrappers.iterator();
@@ -163,6 +165,8 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     public void draw(T recipe, IRecipeSlotsView slotsView, GuiGraphics graphics, double mouseX, double mouseY) {
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
+        if(recipe instanceof CustomMachineRecipe machineRecipe && !machineRecipe.getGuiElements().isEmpty())
+            elements = machineRecipe.getCustomGuiElements(elements);
         elements.stream()
                 .filter(element -> GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType()) && element.showInJei())
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
@@ -198,6 +202,8 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     public List<Component> getTooltipStrings(T recipe, IRecipeSlotsView view, double mouseX, double mouseY) {
         //First, check if any gui element is hovered and if so return its tooltips.
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
+        if(recipe instanceof CustomMachineRecipe machineRecipe && !machineRecipe.getGuiElements().isEmpty())
+            elements = machineRecipe.getCustomGuiElements(elements);
         for(IGuiElement element : elements) {
             if(element.showInJei() && GuiElementJEIRendererRegistry.hasJEIRenderer(element.getType())) {
                 IJEIElementRenderer<IGuiElement> renderer = GuiElementJEIRendererRegistry.getJEIRenderer(element.getType());

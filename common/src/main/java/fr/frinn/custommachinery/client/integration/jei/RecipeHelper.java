@@ -35,7 +35,7 @@ public class RecipeHelper implements IRecipeHelper {
 
     @Override
     public Optional<IMachineComponentTemplate<?>> getComponentForElement(IComponentGuiElement<?> element) {
-        return machine.getComponentTemplates().stream().filter(template -> template.getType() == element.getComponentType() && template.getId().equals(element.getID())).findFirst();
+        return machine.getComponentTemplates().stream().filter(template -> template.getType() == element.getComponentType() && template.getId().equals(element.getComponentId())).findFirst();
     }
 
     @Override

@@ -18,17 +18,15 @@ public class SlotGuiElement extends AbstractTexturedGuiElement implements ICompo
     public static final NamedCodec<SlotGuiElement> CODEC = NamedCodec.record(slotGuiElementCodec ->
             slotGuiElementCodec.group(
                     makePropertiesCodec(BASE_TEXTURE).forGetter(SlotGuiElement::getProperties),
-                    NamedCodec.STRING.fieldOf("id").forGetter(SlotGuiElement::getID),
+                    NamedCodec.STRING.fieldOf("id").forGetter(SlotGuiElement::getId),
                     GhostItem.CODEC.optionalFieldOf("ghost", GhostItem.EMPTY).forGetter(element -> element.ghost)
             ).apply(slotGuiElementCodec, SlotGuiElement::new), "Slot gui element"
     );
 
-    private final String id;
     private final GhostItem ghost;
 
     public SlotGuiElement(Properties properties, String id, GhostItem ghost) {
         super(properties);
-        this.id = id;
         this.ghost = ghost;
     }
 
@@ -38,8 +36,8 @@ public class SlotGuiElement extends AbstractTexturedGuiElement implements ICompo
     }
 
     @Override
-    public String getID() {
-        return this.id;
+    public String getComponentId() {
+        return this.getId();
     }
 
     @Override

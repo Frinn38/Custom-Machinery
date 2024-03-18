@@ -24,17 +24,17 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
             dumpGuiElement.group(
                     makePropertiesCodec(BASE_TEXTURE, BASE_TEXTURE_HOVERED).forGetter(DumpGuiElement::getProperties),
                     RegistrarCodec.MACHINE_COMPONENT.listOf().optionalFieldOf("component", () -> Collections.singletonList(Registration.FLUID_MACHINE_COMPONENT.get())).forGetter(element -> element.components),
-                    NamedCodec.STRING.listOf().fieldOf("id").forGetter(element -> element.id)
+                    NamedCodec.STRING.listOf().fieldOf("tanks").forGetter(element -> element.tanks)
             ).apply(dumpGuiElement, DumpGuiElement::new), "Dump gui element"
     );
 
     private final List<MachineComponentType<?>> components;
-    private final List<String> id;
+    private final List<String> tanks;
 
-    public DumpGuiElement(Properties properties, List<MachineComponentType<?>> components, List<String> id) {
+    public DumpGuiElement(Properties properties, List<MachineComponentType<?>> components, List<String> tanks) {
         super(properties);
         this.components = components;
-        this.id = id;
+        this.tanks = tanks;
     }
 
     public List<MachineComponentType<?>> getComponents() {
@@ -52,6 +52,6 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
                 .getDumpComponents()
                 .stream()
                 .filter(component -> this.components.contains(component.getType()))
-                .forEach(component -> component.dump(this.id));
+                .forEach(component -> component.dump(this.tanks));
     }
 }

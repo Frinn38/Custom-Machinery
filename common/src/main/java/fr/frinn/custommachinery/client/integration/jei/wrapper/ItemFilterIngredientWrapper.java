@@ -35,7 +35,7 @@ public class ItemFilterIngredientWrapper implements IJEIIngredientWrapper<ItemSt
 
         List<ItemStack> ingredients = Arrays.stream(this.ingredient.getItems()).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(slotElement.getID().equals(this.slot) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getVariant() == FilterItemComponentVariant.INSTANCE && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
+        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getVariant() == FilterItemComponentVariant.INSTANCE && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
             int slotY = element.getY() + (element.getHeight() - 16) / 2;
             builder.addSlot(RecipeIngredientRole.INPUT, slotX - xOffset, slotY - yOffset)

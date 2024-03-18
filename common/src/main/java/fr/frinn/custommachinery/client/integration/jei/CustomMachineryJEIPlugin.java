@@ -124,7 +124,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
             @Override
             public Collection<IGuiClickableArea> getGuiClickableAreas(CustomMachineScreen screen, double mouseX, double mouseY) {
-                List<IGuiElement> elements = screen.getMachine().getGuiElements();
+                List<IGuiElement> elements = screen.getTile().getGuiElements();
                 return elements.stream().filter(element -> element instanceof ProgressBarGuiElement).map(element -> {
                     ProgressBarGuiElement progress = (ProgressBarGuiElement)element;
                     int posX = progress.getX();

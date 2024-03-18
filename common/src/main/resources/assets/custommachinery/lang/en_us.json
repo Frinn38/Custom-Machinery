@@ -6,6 +6,8 @@
   "item.custommachinery.configuration_card": "Configuration Card",
   "itemGroup.custommachinery.group": "Custom Machinery",
 
+  "custommachinery.command.reload": "Successfully reloaded custom machines !",
+
   "custommachinery.box_creator.first_block": "First Block : %s",
   "custommachinery.box_creator.second_block": "Second Block : %s",
   "custommachinery.box_creator.select_first_block": "Left click block to select the first corner",

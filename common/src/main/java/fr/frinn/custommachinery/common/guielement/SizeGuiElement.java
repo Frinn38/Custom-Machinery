@@ -20,7 +20,7 @@ public class SizeGuiElement extends AbstractGuiElement {
     private final int height;
 
     public SizeGuiElement(int width, int height) {
-        super(new Properties(0, 0, 0, 0, 0, null, null, Collections.emptyList()));
+        super(new Properties(0, 0, 0, 0, 0, null, null, Collections.emptyList(), ""));
         this.width = width;
         this.height = height;
     }

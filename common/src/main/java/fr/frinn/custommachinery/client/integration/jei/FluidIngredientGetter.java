@@ -18,7 +18,7 @@ public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement> 
     @Override
     @Nullable
     public <T> IClickableIngredient<T> getIngredient(AbstractGuiElementWidget<FluidGuiElement> widget, double mouseX, double mouseY, IJeiHelpers helpers) {
-        FluidMachineComponent component = widget.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(widget.getElement().getID())).orElse(null);
+        FluidMachineComponent component = widget.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(widget.getElement().getComponentId())).orElse(null);
         if (component == null)
             return null;
         IIngredientManager manager = helpers.getIngredientManager();

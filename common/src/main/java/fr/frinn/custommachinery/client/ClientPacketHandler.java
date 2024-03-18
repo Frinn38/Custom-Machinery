@@ -1,8 +1,10 @@
 package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.IData;
+import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -66,6 +68,20 @@ public class ClientPacketHandler {
                 machineTile.setCustomAppearance(appearance);
                 machineTile.refreshClientData();
                 Minecraft.getInstance().level.sendBlockUpdated(pos, machineTile.getBlockState(), machineTile.getBlockState(), Block.UPDATE_ALL);
+            }
+        }
+    }
+
+    public static void handleUpdateMachineGuiElementsPacket(BlockPos pos, List<IGuiElement> elements) {
+        Minecraft mc = Minecraft.getInstance();
+        if(mc.level != null) {
+            BlockEntity tile = mc.level.getBlockEntity(pos);
+            if(tile instanceof CustomMachineTile machineTile) {
+                machineTile.setCustomGuiElements(elements);
+                if(mc.screen instanceof CustomMachineScreen screen) {
+                    screen.resize(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+                    screen.getMenu().init();
+                }
             }
         }
     }

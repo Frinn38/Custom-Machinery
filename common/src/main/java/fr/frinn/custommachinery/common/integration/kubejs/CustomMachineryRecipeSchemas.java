@@ -15,6 +15,7 @@ import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
 import dev.latvian.mods.kubejs.recipe.component.TimeComponent;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +57,7 @@ public interface CustomMachineryRecipeSchemas {
         }
     };
     ArrayRecipeComponent<IRequirement<?>> REQUIREMENT_LIST = REQUIREMENT_COMPONENT.asArray();
-    RecipeComponent<MachineAppearance> CUSTOM_APPEARANCE = new RecipeComponent<MachineAppearance>() {
+    RecipeComponent<MachineAppearance> CUSTOM_APPEARANCE = new RecipeComponent<>() {
         @Override
         public Class<MachineAppearance> componentClass() {
             return MachineAppearance.class;
@@ -79,6 +80,29 @@ public interface CustomMachineryRecipeSchemas {
         }
     };
 
+    RecipeComponent<IGuiElement> CUSTOM_GUI_ELEMENTS = new RecipeComponent<>() {
+        @Override
+        public Class<IGuiElement> componentClass() {
+            return IGuiElement.class;
+        }
+
+        @Override
+        public JsonElement write(RecipeJS recipe, IGuiElement value) {
+            return IGuiElement.CODEC.encodeStart(JsonOps.INSTANCE, value).result().orElse(null);
+        }
+
+        @Override
+        public IGuiElement read(RecipeJS recipe, Object from) {
+            if(from instanceof IGuiElement element)
+                return element;
+
+            if(from instanceof JsonObject json)
+                return IGuiElement.CODEC.read(JsonOps.INSTANCE, json).result().orElse(null);
+
+            return null;
+        }
+    };
+
     RecipeKey<ResourceLocation> MACHINE_ID = RESOURCE_LOCATION.key("machine");
     RecipeKey<Long> TIME = TimeComponent.TICKS.key("time");
     RecipeKey<OutputItem> OUTPUT = ItemComponents.OUTPUT.key("output");
@@ -92,7 +116,8 @@ public interface CustomMachineryRecipeSchemas {
     RecipeKey<Boolean> ERROR = BooleanComponent.BOOLEAN.key("error").optional(false).alwaysWrite().exclude();
     RecipeKey<Boolean> HIDDEN = BooleanComponent.BOOLEAN.key("hidden").optional(false).alwaysWrite().exclude();
     RecipeKey<MachineAppearance> APPEARANCE = CUSTOM_APPEARANCE.key("appearance").optional((MachineAppearance) null).alwaysWrite().exclude();
+    RecipeKey<IGuiElement[]> GUI = CUSTOM_GUI_ELEMENTS.asArray().key("gui").optional(new IGuiElement[0]).alwaysWrite().exclude();
 
-    RecipeSchema CUSTOM_MACHINE = new RecipeSchema(CustomMachineRecipeBuilderJS.class, CustomMachineRecipeBuilderJS::new, MACHINE_ID, TIME, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, ERROR, HIDDEN, APPEARANCE);
+    RecipeSchema CUSTOM_MACHINE = new RecipeSchema(CustomMachineRecipeBuilderJS.class, CustomMachineRecipeBuilderJS::new, MACHINE_ID, TIME, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, ERROR, HIDDEN, APPEARANCE, GUI);
     RecipeSchema CUSTOM_CRAFT = new RecipeSchema(CustomCraftRecipeJSBuilder.class, CustomCraftRecipeJSBuilder::new, MACHINE_ID, OUTPUT, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, HIDDEN);
 }

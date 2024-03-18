@@ -119,6 +119,7 @@ public class ClientHandler {
         event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
         event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
         event.register(Registration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
+        event.register(Registration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
     }
 
     private static void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {

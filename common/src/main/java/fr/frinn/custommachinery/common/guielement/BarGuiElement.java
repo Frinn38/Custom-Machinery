@@ -17,7 +17,6 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
     public static final NamedCodec<BarGuiElement> CODEC = NamedCodec.record(barGuiElementInstance ->
             barGuiElementInstance.group(
                     makePropertiesCodec().forGetter(BarGuiElement::getProperties),
-                    NamedCodec.STRING.fieldOf("id").forGetter(BarGuiElement::getId),
                     NamedCodec.INT.optionalFieldOf("min", 0).forGetter(BarGuiElement::getMin),
                     NamedCodec.INT.optionalFieldOf("max", 1000).forGetter(BarGuiElement::getMax),
                     NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(BarGuiElement::isHighlight),
@@ -27,7 +26,6 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
             ).apply(barGuiElementInstance, BarGuiElement::new), "Bar gui element"
     );
 
-    private final String id;
     private final int min;
     private final int max;
     private final boolean highlight;
@@ -35,9 +33,8 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
     private final ResourceLocation emptyTexture;
     private final ResourceLocation filledTexture;
 
-    public BarGuiElement(Properties properties, String id, int min, int max, boolean highlight, Orientation orientation, ResourceLocation emptyTexture, ResourceLocation filledTexture) {
+    public BarGuiElement(Properties properties, int min, int max, boolean highlight, Orientation orientation, ResourceLocation emptyTexture, ResourceLocation filledTexture) {
         super(properties, emptyTexture);
-        this.id = id;
         this.min = min;
         this.max = max;
         this.highlight = highlight;
@@ -49,10 +46,6 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
     @Override
     public GuiElementType<BarGuiElement> getType() {
         return Registration.BAR_GUI_ELEMENT.get();
-    }
-
-    public String getId() {
-        return this.id;
     }
 
     public int getMin() {

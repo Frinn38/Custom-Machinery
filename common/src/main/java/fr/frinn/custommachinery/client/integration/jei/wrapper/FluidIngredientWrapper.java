@@ -49,7 +49,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
 
         List<FluidStack> ingredients = this.fluid.getAll().stream().map(fluid -> FluidStack.create(fluid, this.amount, this.nbt)).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
-        if(fluidElement.getID().equals(this.tank) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
+        if(fluidElement.getComponentId().equals(this.tank) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
             IRecipeSlotBuilder slot = builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                     .setFluidRenderer(this.amount, false, element.getWidth() - 2, element.getHeight() - 2)
                     .addTooltipCallback((view, tooltips) -> {
