@@ -7,7 +7,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -64,6 +63,13 @@ public interface IGuiElement {
      * @return The tooltips of the gui element.
      */
     List<Component> getTooltips();
+
+    /**
+     * Used to identify this element is case a recipe specific element needs to override a machine specific element.
+     * If not specified by the user, the id will be "" by default. In this case the element will never be overridden by a recipe's.
+     * @return The id of this element.
+     */
+    String getId();
 
     /**
      * Called server-side when player click on a gui element.

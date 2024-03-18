@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.api.machine;
 
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -30,9 +31,14 @@ public interface ICustomMachine {
     boolean isDummy();
 
     /**
-     * @return The MachineAppearance corresponding to the supplied MachineStatus.
+     * @return The {@link IMachineAppearance} corresponding to the supplied {@link MachineStatus}.
      */
     IMachineAppearance getAppearance(MachineStatus status);
+
+    /**
+     * @return The list of {@link IGuiElement} defined for this machine.
+     */
+    List<IGuiElement> getGuiElements();
 
     /**
      * @return A template for the processor used to process recipes.

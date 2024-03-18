@@ -23,17 +23,15 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
     public static final NamedCodec<FluidGuiElement> CODEC = NamedCodec.record(fluidGuiElement ->
             fluidGuiElement.group(
                     makePropertiesCodec(BASE_TEXTURE).forGetter(FluidGuiElement::getProperties),
-                    NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getID),
+                    NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getId),
                     NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(FluidGuiElement::highlight)
             ).apply(fluidGuiElement, FluidGuiElement::new), "Fluid gui element"
     );
 
-    private final String id;
     private final boolean highlight;
 
     public FluidGuiElement(Properties properties, String id, boolean highlight) {
         super(properties);
-        this.id = id;
         this.highlight = highlight;
     }
 
@@ -52,8 +50,8 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
     }
 
     @Override
-    public String getID() {
-        return this.id;
+    public String getComponentId() {
+        return this.getId();
     }
 
     @Override
@@ -63,7 +61,7 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
             return;
 
         tile.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(this.id))
+                .flatMap(handler -> handler.getComponentForID(this.getId()))
                 .ifPresent(component -> {
                     ItemStack stack = PlatformHelper.fluid().transferFluid(carried, component);
                     if(ItemStack.matches(stack, carried))

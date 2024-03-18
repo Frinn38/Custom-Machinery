@@ -46,7 +46,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         this.machine = container.getTile().getMachine();
         this.imageWidth = 256;
         this.imageHeight = 192;
-        this.machine.getGuiElements().stream()
+        this.tile.getGuiElements().stream()
                 .filter(element -> element instanceof SizeGuiElement)
                 .map(element -> (SizeGuiElement)element)
                 .findFirst()
@@ -62,7 +62,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
         this.elementWidgets.clear();
-        this.machine.getGuiElements().stream()
+        this.tile.getGuiElements().stream()
                 .filter(element -> GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()))
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
                 .forEach(element -> addElementWidget(GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType)element.getType()).get(element, this)));
@@ -182,7 +182,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for(AbstractGuiElementWidget<?> elementWidget : this.elementWidgets) {
             if(elementWidget.mouseClicked(mouseX, mouseY, button)) {
-                new CGuiElementClickPacket(this.machine.getGuiElements().indexOf(elementWidget.getElement()), (byte)button).sendToServer();
+                new CGuiElementClickPacket(this.tile.getGuiElements().indexOf(elementWidget.getElement()), (byte)button).sendToServer();
                 return true;
             }
         }

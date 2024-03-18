@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
@@ -17,6 +18,7 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineAppearancePacket;
+import fr.frinn.custommachinery.common.network.SUpdateMachineGuiElementsPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.MachineList;
@@ -29,11 +31,18 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -55,12 +64,17 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     //Set by recipes when processing
     @Nullable
     private MachineAppearance customAppearance = null;
+    @Nullable
+    private List<IGuiElement> customGuiElements = null;
 
     //Owner values
     @Nullable
     private Component ownerName;
     @Nullable
     private UUID ownerID;
+
+    //Players currently interacting with this machine
+    private List<WeakReference<ServerPlayer>> players = new ArrayList<>();
 
     public CustomMachineTile(BlockPos pos, BlockState state) {
         super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);
@@ -168,7 +182,7 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
     public MachineAppearance getAppearance() {
         if(this.customAppearance != null)
             return this.customAppearance;
-        return getMachine().getAppearance(getStatus());
+        return this.getMachine().getAppearance(getStatus());
     }
 
     @Override
@@ -180,6 +194,33 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         if(this.getLevel() != null && !this.getLevel().isClientSide()) {
             BlockPos pos = this.getBlockPos();
             new SUpdateMachineAppearancePacket(pos, this.customAppearance).sendToChunkListeners(this.getLevel().getChunkAt(pos));
+        }
+    }
+
+    @Override
+    public List<IGuiElement> getGuiElements() {
+        if(this.customGuiElements != null && !this.customGuiElements.isEmpty())
+            return this.customGuiElements;
+        return this.getMachine().getGuiElements();
+    }
+
+    @Override
+    public void setCustomGuiElements(@Nullable List<IGuiElement> customGuiElements) {
+        if(this.customGuiElements == customGuiElements || (this.customGuiElements != null && customGuiElements != null && !customGuiElements.isEmpty() && new HashSet<>(this.customGuiElements).containsAll(customGuiElements)))
+            return;
+        this.customGuiElements = customGuiElements;
+        if(this.getLevel() != null && !this.getLevel().isClientSide()) {
+            BlockPos pos = this.getBlockPos();
+            new SUpdateMachineGuiElementsPacket(pos, this.customGuiElements).sendToChunkListeners(this.getLevel().getChunkAt(pos));
+            Iterator<WeakReference<ServerPlayer>> iterator = this.players.iterator();
+            while(iterator.hasNext()) {
+                ServerPlayer player = iterator.next().get();
+                if(player == null || !(player.containerMenu instanceof CustomMachineContainer container) || container.getTile() != this) {
+                    iterator.remove();
+                    continue;
+                }
+                container.init();
+            }
         }
     }
 
@@ -305,6 +346,9 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
 
         if(nbt.contains("appearance", Tag.TAG_COMPOUND))
             this.customAppearance = MachineAppearance.CODEC.read(NbtOps.INSTANCE, nbt.get("appearance")).result().map(MachineAppearance::new).orElse(null);
+
+        if(nbt.contains("gui", Tag.TAG_LIST))
+            this.customGuiElements = IGuiElement.CODEC.listOf().read(NbtOps.INSTANCE, nbt.getList("gui", Tag.TAG_COMPOUND)).result().orElse(Collections.emptyList());
     }
 
     //Needed for multiplayer sync
@@ -316,6 +360,8 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
         if(this.customAppearance != null)
             MachineAppearance.CODEC.encodeStart(NbtOps.INSTANCE, this.customAppearance.getProperties()).result().ifPresent(appearance -> nbt.put("appearance", appearance));
+        if(this.customGuiElements != null && !this.customGuiElements.isEmpty())
+            IGuiElement.CODEC.listOf().encodeStart(NbtOps.INSTANCE, this.customGuiElements).result().ifPresent(elements -> nbt.put("gui", elements));
         return nbt;
     }
 
@@ -335,5 +381,19 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         this.componentManager.getStuffToSync(container);
         container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = MachineStatus.value(status)));
         container.accept(StringSyncable.create(() -> Component.Serializer.toJson(this.errorMessage), errorMessage -> this.errorMessage = Component.Serializer.fromJson(errorMessage)));
+    }
+
+    public void startInteracting(ServerPlayer player) {
+        if(this.players.stream().noneMatch(ref -> ref.get() == player))
+            this.players.add(new WeakReference<>(player));
+    }
+
+    public void stopInteracting(ServerPlayer player) {
+        Iterator<WeakReference<ServerPlayer>> iterator = this.players.iterator();
+        while(iterator.hasNext()) {
+            ServerPlayer ref = iterator.next().get();
+            if(ref == null || ref == player || !(ref.containerMenu instanceof CustomMachineContainer))
+                iterator.remove();
+        }
     }
 }

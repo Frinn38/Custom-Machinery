@@ -39,7 +39,7 @@ public class CButtonGuiElementPacket extends BaseC2SMessage {
     public void handle(PacketContext context) {
         if(context.getEnvironment() == Env.SERVER && context.getPlayer().getServer() != null) {
             if(context.getPlayer().containerMenu instanceof CustomMachineContainer container) {
-                int holdTime = container.getTile().getMachine().getGuiElements().stream()
+                int holdTime = container.getTile().getGuiElements().stream()
                         .filter(element -> element instanceof ButtonGuiElement button && button.getId().equals(this.id))
                         .findFirst()
                         .map(element -> ((ButtonGuiElement)element).getHoldTime())

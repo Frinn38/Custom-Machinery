@@ -61,7 +61,7 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
     }
 
     @Override
-    public String getID() {
+    public String getComponentId() {
         return "";
     }
 }

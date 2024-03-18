@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.crafting.machine;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -35,11 +37,14 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
     private final boolean hidden;
     @Nullable
     private final MachineAppearance appearance;
+    private final List<IGuiElement> guiElements;
     @Nullable
     private MachineAppearance customAppearance;
+    @Nullable
+    private List<IGuiElement> customGuiElements;
     private final Supplier<RecipeChecker<CustomMachineRecipe>> checker = Suppliers.memoize(() -> new RecipeChecker<>(this));
 
-    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance) {
+    public CustomMachineRecipe(ResourceLocation id, ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance, List<IGuiElement> guiElements) {
         this.id = id;
         this.machine = machine;
         this.time = time;
@@ -50,6 +55,7 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         this.resetOnError = resetOnError;
         this.hidden = hidden;
         this.appearance = appearance;
+        this.guiElements = guiElements;
     }
 
     @Override
@@ -128,6 +134,32 @@ public class CustomMachineRecipe implements Recipe<Container>, IMachineRecipe {
         this.customAppearance = new MachineAppearance(properties.build());
 
         return this.customAppearance;
+    }
+
+    public List<IGuiElement> getGuiElements() {
+        return this.guiElements;
+    }
+
+    public List<IGuiElement> getCustomGuiElements(List<IGuiElement> baseGuiElements) {
+        if(this.customGuiElements != null)
+            return this.customGuiElements;
+
+        if(this.guiElements.isEmpty())
+            return null;
+
+        List<IGuiElement> elements = new ArrayList<>(baseGuiElements);
+        this.guiElements.forEach(element -> {
+            if(element.getId().isEmpty() || baseGuiElements.stream().noneMatch(e -> e.getId().equals(element.getId())))
+                elements.add(element);
+            else
+                elements.replaceAll(toReplace -> {
+                    if(toReplace.getId().equals(element.getId()))
+                        return element;
+                    return toReplace;
+                });
+        });
+        this.customGuiElements = List.copyOf(elements);
+        return elements;
     }
 
     public RecipeChecker<CustomMachineRecipe> checker() {

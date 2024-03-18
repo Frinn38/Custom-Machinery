@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -18,6 +19,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -88,6 +90,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         else {
             this.tile.setStatus(MachineStatus.IDLE);
             this.tile.setCustomAppearance(null);
+            this.tile.setCustomGuiElements(null);
         }
     }
 
@@ -263,13 +266,20 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
     public void setRunning() {
         this.tile.setStatus(MachineStatus.RUNNING);
-        if(this.currentRecipe.getCustomAppearance(this.tile.getAppearance()) != null)
-            this.tile.setCustomAppearance(this.currentRecipe.getCustomAppearance(this.tile.getAppearance()));
+
+        MachineAppearance customAppearance = this.currentRecipe.getCustomAppearance(this.tile.getMachine().getAppearance(this.getTile().getStatus()));
+        if(customAppearance != null)
+            this.tile.setCustomAppearance(customAppearance);
+
+        List<IGuiElement> customGuiElements = this.currentRecipe.getCustomGuiElements(this.tile.getMachine().getGuiElements());
+        if(customGuiElements != null && !customGuiElements.isEmpty())
+            this.tile.setCustomGuiElements(customGuiElements);
     }
 
     public void setErrored(Component message) {
         this.tile.setStatus(MachineStatus.ERRORED, message);
         this.tile.setCustomAppearance(null);
+        this.tile.setCustomGuiElements(null);
     }
 
     @Override
@@ -282,6 +292,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         this.processedRequirements.clear();
         this.context = null;
         this.tile.setCustomAppearance(null);
+        this.tile.setCustomGuiElements(null);
     }
 
     public MachineTile getTile() {

@@ -11,13 +11,13 @@ public interface IComponentGuiElement<T extends IMachineComponent> {
 
     MachineComponentType<T> getComponentType();
 
-    String getID();
+    String getComponentId();
 
     @SuppressWarnings("unchecked")
     default Optional<T> getComponent(IMachineComponentManager manager) {
         return manager.getComponent(getComponentType()).flatMap(component -> {
             if(component instanceof IComponentHandler handler)
-                return handler.getComponentForID(getID());
+                return handler.getComponentForID(getComponentId());
             return Optional.of(component);
         });
     }

@@ -26,7 +26,7 @@ public class MachineConfigScreen extends BaseScreen {
     }
 
     private List<IGuiElement> getConfigurableElements() {
-        return this.parent.getMachine().getGuiElements().stream()
+        return this.parent.getTile().getGuiElements().stream()
                 .filter(element -> element instanceof IComponentGuiElement<?> componentElement
                         && componentElement.getComponent(this.parent.getTile().getComponentManager()).isPresent()
                         && componentElement.getComponent(this.parent.getTile().getComponentManager()).get() instanceof ISideConfigComponent configComponent
@@ -60,7 +60,7 @@ public class MachineConfigScreen extends BaseScreen {
                 .tooltip(Component.translatable("custommachinery.gui.config.tooltip"))
                 .callback(button -> this.openPopup(new ComponentConfigPopup(this.getComponentFromElement(element).getConfig())))
         ));
-        this.parent.getMachine().getGuiElements().stream()
+        this.parent.getTile().getGuiElements().stream()
                 .filter(element -> element instanceof ConfigGuiElement)
                 .findFirst()
                 .map(element -> (ConfigGuiElement)element)

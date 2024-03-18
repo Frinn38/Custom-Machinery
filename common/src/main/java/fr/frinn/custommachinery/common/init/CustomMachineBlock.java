@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.init;
 
 import com.communi.suggestu.saecularia.caudices.core.block.IBlockWithWorldlyProperties;
-import dev.architectury.registry.menu.MenuRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.PlatformHelper;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -14,20 +13,16 @@ import fr.frinn.custommachinery.common.util.MachineBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -101,18 +96,8 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
             if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> fluidHandler.getCommonFluidHandler().interactWithFluidHandler(player, hand)).orElse(false)) {
                 return InteractionResult.SUCCESS;
             }
-            if(!level.isClientSide() && !machine.getMachine().getGuiElements().isEmpty()) {
-                MenuRegistry.openExtendedMenu((ServerPlayer) player, new MenuProvider() {
-                    @Override
-                    public Component getDisplayName() {
-                        return machine.getMachine().getName();
-                    }
-
-                    @Override
-                    public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
-                        return new CustomMachineContainer(id, inv, machine);
-                    }
-                }, buf -> buf.writeBlockPos(pos));
+            if(!level.isClientSide() && player instanceof ServerPlayer serverPlayer && !machine.getGuiElements().isEmpty()) {
+                CustomMachineContainer.open(serverPlayer, machine);
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.SUCCESS;

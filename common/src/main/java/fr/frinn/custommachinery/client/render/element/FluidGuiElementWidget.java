@@ -23,7 +23,7 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         super.renderButton(poseStack, mouseX, mouseY, partialTicks);
-        this.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getID())).ifPresent(component -> {
+        this.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId())).ifPresent(component -> {
             FluidRenderer.renderFluid(poseStack, this.x + 1, this.y + 1, this.width - 2, this.height - 2, component.getFluidStack(), component.getCapacity());
         });
         if(this.isHoveredOrFocused() && this.getElement().highlight())
@@ -36,7 +36,7 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
             return this.getElement().getTooltips();
         return this.getScreen().getTile().getComponentManager()
                 .getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
-                .flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getID()))
+                .flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId()))
                 .map(component -> {
                     Component tooltip;
                     long amount = component.getFluidStack().getAmount() * 1000L / FluidStackHooks.bucketAmount();
