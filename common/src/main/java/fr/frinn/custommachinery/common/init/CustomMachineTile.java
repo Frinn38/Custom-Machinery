@@ -324,6 +324,10 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         nbt.put("componentManager", this.componentManager.serializeNBT());
         nbt.putString("status", this.status.toString());
         nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
+        if(this.ownerID != null)
+            nbt.putString("ownerID", this.ownerID.toString());
+        if(this.ownerName != null)
+            nbt.putString("ownerName", TextComponentUtils.toJsonString(this.ownerName));
     }
 
     @Override
@@ -344,6 +348,12 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         if(nbt.contains("message", Tag.TAG_STRING))
             this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
 
+        if(nbt.contains("ownerID", Tag.TAG_STRING))
+            this.ownerID = UUID.fromString(nbt.getString("ownerID"));
+
+        if(nbt.contains("ownerName", Tag.TAG_STRING))
+            this.ownerName = TextComponentUtils.fromJsonString(nbt.getString("ownerName"));
+
         if(nbt.contains("appearance", Tag.TAG_COMPOUND))
             this.customAppearance = MachineAppearance.CODEC.read(NbtOps.INSTANCE, nbt.get("appearance")).result().map(MachineAppearance::new).orElse(null);
 
@@ -358,6 +368,10 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
         nbt.putString("machineID", getId().toString());
         nbt.putString("status", this.status.toString());
         nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
+        if(this.ownerID != null)
+            nbt.putString("ownerID", this.ownerID.toString());
+        if(this.ownerName != null)
+            nbt.putString("ownerName", TextComponentUtils.toJsonString(this.ownerName));
         if(this.customAppearance != null)
             MachineAppearance.CODEC.encodeStart(NbtOps.INSTANCE, this.customAppearance.getProperties()).result().ifPresent(appearance -> nbt.put("appearance", appearance));
         if(this.customGuiElements != null && !this.customGuiElements.isEmpty())
