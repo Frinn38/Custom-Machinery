@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -54,14 +55,23 @@ public class MachineConfigScreen extends BaseScreen {
         super.init();
         this.parent.init(Minecraft.getInstance(), this.width, this.height);
         //Highlight elements in blue
-        this.getConfigurableElements().forEach(element -> this.addRenderableWidget(new ComponentConfigButtonWidget(
-                this.getX() + element.getX(),
-                this.getY() + element.getY(),
-                element.getWidth(),
-                element.getHeight(),
-                Component.translatable("custommachinery.gui.config.tooltip"),
-                button -> this.openPopup(new ComponentConfigPopup(this.getComponentFromElement(element).getConfig()))
-        )));
+        this.getConfigurableElements().forEach(element -> {
+            ComponentConfigPopup popup = new ComponentConfigPopup(this, this.getComponentFromElement(element).getConfig());
+            this.addRenderableWidget(new ComponentConfigButtonWidget(
+                    this.x + element.getX(),
+                    this.y + element.getY(),
+                    element.getWidth(),
+                    element.getHeight(),
+                    Component.translatable("custommachinery.gui.config.tooltip"),
+                    button -> {
+                        this.closePopup(popup);
+                        this.openPopup(popup);
+                        Vector2i pos = getStartingPos(this.getConfigurableElements().indexOf(element));
+                        popup.move(pos.x * 20, pos.y * 20);
+                    }
+            ));
+        });
+
         //Exit button
         this.parent.getTile().getGuiElements().stream()
                 .filter(element -> element instanceof ConfigGuiElement)
@@ -69,7 +79,7 @@ public class MachineConfigScreen extends BaseScreen {
                 .map(element -> (ConfigGuiElement)element)
                 .ifPresent(element -> this.addRenderableWidget(
                         TexturedButton.builder(Component.translatable("custommachinery.gui.config.exit"), element.getTexture(), button -> Minecraft.getInstance().setScreen(this.parent))
-                                .bounds(this.getX() + element.getX(), this.getY() + element.getY(), element.getWidth(), element.getHeight())
+                                .bounds(this.x + element.getX(), this.y + element.getY(), element.getWidth(), element.getHeight())
                                 .hovered(element.getTextureHovered())
                                 .tooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.exit")))
                                 .build()
@@ -80,7 +90,7 @@ public class MachineConfigScreen extends BaseScreen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         graphics.pose().pushPose();
         this.parent.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
-        graphics.pose().translate(0, 0, 50);
+        graphics.pose().translate(0, 0, 400);
         super.render(graphics, mouseX, mouseY, partialTicks);
         graphics.pose().popPose();
     }
@@ -97,5 +107,43 @@ public class MachineConfigScreen extends BaseScreen {
             return true;
         }
         else return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private static Vector2i getStartingPos(int np) {
+        // (dx, dy) is a vector - direction in which we move right now
+        int dx = 0;
+        int dy = 1;
+        // length of current segment
+        int segment_length = 1;
+
+        // current position (x, y) and how much of current segment we passed
+        int x = 0;
+        int y = 0;
+        int segment_passed = 0;
+        if (np == 0){
+            return new Vector2i();
+        }
+        for (int n = 0; n < np; ++n) {
+            // make a step, add 'direction' vector (dx, dy) to current position (x, y)
+            x += dx;
+            y += dy;
+            ++segment_passed;
+
+            if (segment_passed == segment_length) {
+                // done with current segment
+                segment_passed = 0;
+
+                // 'rotate' directions
+                int buffer = dy;
+                dy = -dx;
+                dx = buffer;
+
+                // increase segment length if necessary
+                if (dx == 0) {
+                    ++segment_length;
+                }
+            }
+        }
+        return new Vector2i(x, y);
     }
 }

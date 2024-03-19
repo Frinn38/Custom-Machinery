@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
 import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButtonWidget;
 import fr.frinn.custommachinery.client.screen.widget.config.SideModeButtonWidget;
@@ -19,34 +20,33 @@ public class ComponentConfigPopup extends PopupScreen {
 
     private final SideConfig config;
 
-    public ComponentConfigPopup(SideConfig config) {
-        super(96, 96);
+    public ComponentConfigPopup(MachineConfigScreen parent, SideConfig config) {
+        super(parent, 96, 96);
         this.config = config;
     }
 
     @Override
     protected void init() {
         super.init();
-        baseMoveDraggingArea();
         //TOP
-        this.addRenderableWidget(new SideModeButtonWidget(this.getX() + 41, this.getY() + 25, this.config, RelativeSide.TOP));
+        this.addRenderableWidget(new SideModeButtonWidget(this.x + 41, this.y + 25, this.config, RelativeSide.TOP));
         //LEFT
-        this.addRenderableWidget(new SideModeButtonWidget(this.getX() + 25, this.getY() + 41, this.config, RelativeSide.LEFT));
+        this.addRenderableWidget(new SideModeButtonWidget(this.x + 25, this.y + 41, this.config, RelativeSide.LEFT));
         //FRONT
-        this.addRenderableWidget(new SideModeButtonWidget(this.getX() + 41, this.getY() + 41, this.config, RelativeSide.FRONT));
+        this.addRenderableWidget(new SideModeButtonWidget(this.x + 41, this.y + 41, this.config, RelativeSide.FRONT));
         //RIGHT
-        this.addRenderableWidget(new SideModeButtonWidget(this.getX() + 57, this.getY() + 41, this.config, RelativeSide.RIGHT));
+        this.addRenderableWidget(new SideModeButtonWidget(this.x + 57, this.y + 41, this.config, RelativeSide.RIGHT));
         //BACK
-        this.addRenderableWidget(new SideModeButtonWidget(this.getX() + 25, this.getY() + 57, this.config, RelativeSide.BACK));
+        this.addRenderableWidget(new SideModeButtonWidget(this.x + 25, this.y + 57, this.config, RelativeSide.BACK));
         //BOTTOM
-        this.addRenderableWidget(new SideModeButtonWidget(this.getX() + 41, this.getY() + 57, this.config, RelativeSide.BOTTOM));
+        this.addRenderableWidget(new SideModeButtonWidget(this.x + 41, this.y + 57, this.config, RelativeSide.BOTTOM));
         //AUTO-INPUT
-        this.addRenderableWidget(new AutoIOModeButtonWidget(this.getX() + 18, this.getY() + 75, this.config, true));
+        this.addRenderableWidget(new AutoIOModeButtonWidget(this.x + 18, this.y + 75, this.config, true));
         //AUTO-OUTPUT
-        this.addRenderableWidget(new AutoIOModeButtonWidget(this.getX() + 50, this.getY() + 75, this.config, false));
+        this.addRenderableWidget(new AutoIOModeButtonWidget(this.x + 50, this.y + 75, this.config, false));
         //EXIT
-        this.addRenderableWidget(TexturedButton.builder(Component.translatable("custommachinery.gui.config.close"), EXIT_TEXTURE, button -> this.close())
-                .bounds(this.getX() + 5, this.getY() + 5, 9, 9)
+        this.addRenderableWidget(TexturedButton.builder(Component.translatable("custommachinery.gui.config.close"), EXIT_TEXTURE, button -> this.parent.closePopup(this))
+                .bounds(this.x + 5, this.y + 5, 9, 9)
                 .hovered(EXIT_TEXTURE_HOVERED)
                 .build()
         );
@@ -54,7 +54,7 @@ public class ComponentConfigPopup extends PopupScreen {
 
     @Override
     public void renderBackground(GuiGraphics graphics) {
-        blankBackground(graphics, this.getX(), this.getY(), this.xSize, this.ySize);
-        graphics.drawString(Minecraft.getInstance().font, TITLE, (int)(this.getX() + this.xSize / 2F - font.width(TITLE) / 2F), this.getY() + 5, 0, false);
+        blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
+        graphics.drawString(Minecraft.getInstance().font, TITLE, (int)(this.x + this.xSize / 2F - font.width(TITLE) / 2F), this.y + 5, 0, false);
     }
 }

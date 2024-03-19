@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
+import fr.frinn.custommachinery.client.screen.BaseScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -22,8 +23,8 @@ public class ConfirmPopup extends PopupScreen {
     @Nullable
     private Runnable onCancel;
 
-    public ConfirmPopup(int xSize, int ySize, Runnable onConfirm) {
-        super(xSize, ySize);
+    public ConfirmPopup(BaseScreen parent, int xSize, int ySize, Runnable onConfirm) {
+        super(parent, xSize, ySize);
         this.onConfirm = onConfirm;
         this.onCancel = null;
     }
@@ -44,12 +45,12 @@ public class ConfirmPopup extends PopupScreen {
         this.addRenderableWidget(Button.builder(CANCEL, button -> {
             if(this.onCancel != null)
                 this.onCancel.run();
-            close();
-        }).bounds(this.getX() + this.xSize / 4 - 25, this.getY() + this.ySize - 30, 50, 20).build());
+            closed();
+        }).bounds(this.x + this.xSize / 4 - 25, this.y + this.ySize - 30, 50, 20).build());
         this.addRenderableWidget(Button.builder(CONFIRM, button -> {
             this.onConfirm.run();
-            close();
-        }).bounds(this.getX() + (int)(this.xSize * 0.75) - 25, this.getY() + this.ySize - 30, 50, 20).build());
+            closed();
+        }).bounds(this.x + (int)(this.xSize * 0.75) - 25, this.y + this.ySize - 30, 50, 20).build());
     }
 
     @Override
@@ -59,8 +60,8 @@ public class ConfirmPopup extends PopupScreen {
         for(int i = 0; i < this.text.size(); i++) {
             Component component = this.text.get(i);
             int width = font.width(component);
-            int x = (this.xSize - width) / 2 + getX();
-            graphics.drawString(font, component, x, getY() + i * 20 + 5, 0);
+            int x = (this.xSize - width) / 2 + this.x;
+            graphics.drawString(font, component, x, this.y + i * 20 + 5, 0);
         }
     }
 }

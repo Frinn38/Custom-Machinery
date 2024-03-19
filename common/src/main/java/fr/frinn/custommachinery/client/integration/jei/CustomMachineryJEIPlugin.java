@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceIngredientHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
@@ -116,6 +117,13 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGuiContainerHandler(CustomMachineScreen.class, new IGuiContainerHandler<>() {
+            @Override
+            public List<Rect2i> getGuiExtraAreas(CustomMachineScreen containerScreen) {
+                if(Minecraft.getInstance().screen instanceof MachineConfigScreen screen)
+                    return screen.popups().stream().map(popup -> new Rect2i(popup.x, popup.y, popup.xSize, popup.ySize)).toList();
+                return Collections.emptyList();
+            }
+
             @Override
             public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(CustomMachineScreen screen, double mouseX, double mouseY) {
                 return screen.getElementUnderMouse(mouseX, mouseY)
