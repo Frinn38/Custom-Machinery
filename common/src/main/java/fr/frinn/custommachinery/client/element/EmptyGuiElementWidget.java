@@ -1,9 +1,9 @@
-package fr.frinn.custommachinery.client.render.element;
+package fr.frinn.custommachinery.client.element;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.EmptyGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 public class EmptyGuiElementWidget extends AbstractGuiElementWidget<EmptyGuiElement> {
@@ -12,7 +12,7 @@ public class EmptyGuiElementWidget extends AbstractGuiElementWidget<EmptyGuiElem
     }
 
     @Override
-    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 
     }
 }

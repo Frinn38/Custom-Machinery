@@ -16,6 +16,7 @@ import fr.frinn.custommachinery.client.element.BarGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ConfigGuiElementWidget;
 import fr.frinn.custommachinery.client.element.DumpGuiElementWidget;
+import fr.frinn.custommachinery.client.element.EmptyGuiElementWidget;
 import fr.frinn.custommachinery.client.element.EnergyGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ExperienceGuiElementWidget;
 import fr.frinn.custommachinery.client.element.FluidGuiElementWidget;
