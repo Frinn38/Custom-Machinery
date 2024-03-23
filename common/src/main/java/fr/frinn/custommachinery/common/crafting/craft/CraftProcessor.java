@@ -158,6 +158,7 @@ public class CraftProcessor implements IProcessor {
     public static class Template implements IProcessorTemplate<CraftProcessor> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.unit(Template::new, "Craft processor");
+        public static final Template DEFAULT = new Template();
 
         @Override
         public ProcessorType<CraftProcessor> getType() {

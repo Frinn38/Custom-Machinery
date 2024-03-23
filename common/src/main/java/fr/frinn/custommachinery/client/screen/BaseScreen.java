@@ -4,14 +4,19 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.util.LRU;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public abstract class BaseScreen extends Screen {
 
@@ -27,6 +32,7 @@ public abstract class BaseScreen extends Screen {
     public int xSize;
     public int ySize;
     private final LRU<PopupScreen> popups = new LRU<>();
+    private final Map<PopupScreen, String> popupToId = new HashMap<>();
 
     public BaseScreen(Component component, int xSize, int ySize) {
         super(component);
@@ -37,17 +43,35 @@ public abstract class BaseScreen extends Screen {
     public void openPopup(PopupScreen popup) {
         if(this.popups.contains(popup))
             return;
+        this.setFocused(null);
         this.popups.add(popup);
         popup.init(Minecraft.getInstance(), this.width, this.height);
+    }
+
+    //Prevents opening another popup with same id
+    public void openPopup(PopupScreen popup, String id) {
+        if(this.popupToId.containsValue(id))
+            return;
+        this.popupToId.put(popup, id);
+        this.openPopup(popup);
     }
 
     public void closePopup(PopupScreen popup) {
         popup.closed();
         this.popups.remove(popup);
+        this.popupToId.remove(popup);
     }
 
     public Collection<PopupScreen> popups() {
         return this.popups;
+    }
+
+    @Nullable
+    public PopupScreen getPopupUnderMouse(double mouseX, double mouseY) {
+        return this.popups.stream()
+                .filter(popup -> mouseX >= popup.x && mouseX <= popup.x + popup.xSize && mouseY >= popup.y && mouseY <= popup.y + popup.ySize)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -69,25 +93,22 @@ public abstract class BaseScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(graphics);
+        this.renderBackground(graphics);
         graphics.pose().pushPose();
         super.render(graphics, mouseX, mouseY, partialTicks);
-        for(Iterator<PopupScreen> iterator = this.popups.descendingIterator(); iterator.hasNext();)
+        for(Iterator<PopupScreen> iterator = this.popups.descendingIterator(); iterator.hasNext();) {
+            graphics.pose().translate(0, 0, 165); //Items are rendered at z=150, tooltips z=400
             iterator.next().render(graphics, mouseX, mouseY, partialTicks);
+        }
         graphics.pose().popPose();
-    }
-
-    @Override
-    public void renderBackground(GuiGraphics graphics) {
-
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for(PopupScreen popup : this.popups) {
-            if(popup.mouseClicked(mouseX, mouseY, button)) {
+            if(popup.isMouseOver(mouseX, mouseY)) {
                 this.popups.moveUp(popup);
-                return true;
+                return popup.mouseClicked(mouseX, mouseY, button);
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -96,8 +117,10 @@ public abstract class BaseScreen extends Screen {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         for(PopupScreen popup : this.popups) {
-            if(popup.mouseReleased(mouseX, mouseY, button))
-                return true;
+            if(popup.isMouseOver(mouseX, mouseY)) {
+                this.popups.moveUp(popup);
+                return popup.mouseReleased(mouseX, mouseY, button);
+            }
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -105,8 +128,10 @@ public abstract class BaseScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         for(PopupScreen popup : this.popups) {
-            if(popup.mouseDragged(mouseX, mouseY, button, dragX, dragY))
-                return true;
+            if(popup.isMouseOver(mouseX, mouseY)) {
+                this.popups.moveUp(popup);
+                return popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            }
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
@@ -114,8 +139,10 @@ public abstract class BaseScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         for(PopupScreen popup : this.popups) {
-            if(popup.mouseScrolled(mouseX, mouseY, delta))
-                return true;
+            if(popup.isMouseOver(mouseX, mouseY)) {
+                this.popups.moveUp(popup);
+                return popup.mouseScrolled(mouseX, mouseY, delta);
+            }
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
@@ -147,8 +174,26 @@ public abstract class BaseScreen extends Screen {
     }
 
     @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        for(PopupScreen popup : this.popups) {
+            if(popup.charTyped(codePoint, modifiers))
+                return true;
+        }
+        return super.charTyped(codePoint, modifiers);
+    }
+
+    @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
+        if(this.getPopupUnderMouse(mouseX, mouseY) != null)
+            return false;
         return mouseX >= this.x && mouseX <= this.x + this.xSize && mouseY >= this.y && mouseY <= this.y + this.ySize;
+    }
+
+    @Override
+    public void setFocused(@Nullable GuiEventListener focused) {
+        super.setFocused(focused);
+        if(focused != null)
+            this.popups.forEach(popup -> popup.setFocused(null));
     }
 
     @Override
@@ -175,5 +220,23 @@ public abstract class BaseScreen extends Screen {
         graphics.blit(BLANK_BACKGROUND, x + 4, y + height - 4, width - 8, 4, 3, 4, 1, 4, 8, 8);
         //Bottom right
         graphics.blit(BLANK_BACKGROUND, x + width - 4, y + height - 4, 4, 4, 4, 4, 4, 4, 8, 8);
+    }
+
+    public static void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color, boolean shadow) {
+        graphics.drawString(font, text, x - font.width(text) / 2, y - font.lineHeight / 2, color, shadow);
+    }
+
+    public static void drawCenteredScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
+        graphics.pose().pushPose();
+        graphics.pose().scale(scale, scale, 0);
+        graphics.drawString(font, text, (int)((x - (font.width(text) * scale) / 2) / scale), (int)((y - font.lineHeight / 2) / scale), color, shadow);
+        graphics.pose().popPose();
+    }
+
+    public static void drawScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
+        graphics.pose().pushPose();
+        graphics.pose().scale(scale, scale, 0);
+        graphics.drawString(font, text, (int)(x / scale), (int)(y / scale), color, shadow);
+        graphics.pose().popPose();
     }
 }

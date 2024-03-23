@@ -6,9 +6,14 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
+import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
+import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor.Template;
+import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
@@ -32,6 +37,7 @@ public class CustomMachineBuilder {
     private final List<ResourceLocation> catalysts;
     private final List<IMachineComponentBuilder<? extends IMachineComponent>> componentBuilders;
     private MachineLocation location;
+    private IProcessorTemplate<?> processor;
 
     public CustomMachineBuilder() {
         this.name = Component.literal("New Machine");
@@ -41,7 +47,8 @@ public class CustomMachineBuilder {
         this.jeiElements = new ArrayList<>();
         this.catalysts = new ArrayList<>();
         this.componentBuilders = new ArrayList<>();
-        this.location = MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "new_machine"));
+        this.location = MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "new_machine"), "");
+        this.processor = Template.DEFAULT;
     }
 
     public CustomMachineBuilder(CustomMachine machine) {
@@ -57,6 +64,7 @@ public class CustomMachineBuilder {
                 this.componentBuilders.add(template.getType().getGUIBuilder().get().fromComponent(template.build(null)));
         });
         this.location = machine.getLocation();
+        this.processor = machine.getProcessorTemplate();
     }
 
     public Component getName() {
@@ -97,6 +105,17 @@ public class CustomMachineBuilder {
     public CustomMachineBuilder setLocation(MachineLocation location) {
         this.location = location;
         return this;
+    }
+
+    public IProcessorTemplate<?> getProcessor() {
+        return this.processor;
+    }
+
+    public void setProcessor(ProcessorType<?> type) {
+        if(type == Registration.MACHINE_PROCESSOR.get())
+            this.processor = Template.DEFAULT;
+        else
+            this.processor = CraftProcessor.Template.DEFAULT;
     }
 
     public CustomMachineBuilder setId(ResourceLocation id) {

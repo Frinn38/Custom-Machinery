@@ -37,7 +37,8 @@ public class CustomMachine implements ICustomMachine {
 
     public static final CustomMachine DUMMY = new CustomMachineBuilder()
             .setName(Component.literal("Dummy"))
-            .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy")))
+            .setLocation(MachineLocation.fromDefault(new ResourceLocation(CustomMachinery.MODID, "dummy"), ""))
+            .setId(new ResourceLocation(CustomMachinery.MODID, "dummy"))
             .build();
 
     private final Component name;

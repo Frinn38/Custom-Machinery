@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.client.screen.creation.MachineCreationScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -84,5 +85,9 @@ public class ClientPacketHandler {
                 }
             }
         }
+    }
+
+    public static void handleOpenCreationScreenPacket() {
+        Minecraft.getInstance().setScreen(new MachineCreationScreen(256, 192));
     }
 }

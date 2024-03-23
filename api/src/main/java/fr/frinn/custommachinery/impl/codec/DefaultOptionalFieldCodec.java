@@ -60,7 +60,7 @@ public class DefaultOptionalFieldCodec<A> extends NamedMapCodec<A> {
 
     @Override
     public <T> RecordBuilder<T> encode(A input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
-        if(!Objects.equals(input, defaultValue))
+        if(!Objects.equals(input, defaultValue.get()))
             return prefix.add(fieldName, elementCodec.encodeStart(ops, input));
         return prefix;
     }

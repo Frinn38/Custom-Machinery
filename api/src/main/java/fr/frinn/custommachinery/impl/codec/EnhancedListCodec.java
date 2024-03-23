@@ -33,6 +33,9 @@ public class EnhancedListCodec<A> implements NamedCodec<List<A>> {
 
     @Override
     public <T> DataResult<T> encode(final DynamicOps<T> ops, final List<A> input, final T prefix) {
+        if(input.isEmpty())
+            return DataResult.success(ops.empty());
+
         final ListBuilder<T> builder = ops.listBuilder();
 
         for (final A a : input) {

@@ -4,7 +4,11 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.storage.LevelResource;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Locale;
@@ -31,27 +35,32 @@ public class MachineLocation {
 
     public static MachineLocation fromLoader(Loader loader, ResourceLocation id, String packName) {
         return switch (loader) {
-            case DEFAULT -> fromDefault(id);
+            case DEFAULT -> fromDefault(id, packName);
             case DATAPACK -> fromDatapack(id, packName);
-            case CRAFTTWEAKER -> fromCraftTweaker(id);
-            case KUBEJS -> fromKubeJS(id);
+            case DATAPACK_ZIP -> fromDatapackZip(id, packName);
+            case KUBEJS -> fromKubeJS(id, packName);
+            case KUBEJS_SCRIPT -> fromKubeJSScript(id, packName);
         };
     }
 
-    public static MachineLocation fromDefault(ResourceLocation id) {
-        return new MachineLocation(id, Loader.DEFAULT, "");
+    public static MachineLocation fromDefault(ResourceLocation id, String packName) {
+        return new MachineLocation(id, Loader.DEFAULT, packName);
     }
 
     public static MachineLocation fromDatapack(ResourceLocation id, String packName) {
         return new MachineLocation(id, Loader.DATAPACK, packName);
     }
 
-    public static MachineLocation fromCraftTweaker(ResourceLocation id) {
-        return new MachineLocation(id, Loader.CRAFTTWEAKER, "");
+    public static MachineLocation fromDatapackZip(ResourceLocation id, String packName) {
+        return new MachineLocation(id, Loader.DATAPACK_ZIP, packName);
     }
 
-    public static MachineLocation fromKubeJS(ResourceLocation id) {
-        return new MachineLocation(id, Loader.KUBEJS, "");
+    public static MachineLocation fromKubeJS(ResourceLocation id, String packName) {
+        return new MachineLocation(id, Loader.KUBEJS, packName);
+    }
+
+    public static MachineLocation fromKubeJSScript(ResourceLocation id, String packName) {
+        return new MachineLocation(id, Loader.KUBEJS_SCRIPT, packName);
     }
 
     public ResourceLocation getId() {
@@ -66,39 +75,45 @@ public class MachineLocation {
         return this.packName;
     }
 
-    public String getPath() {
-        return this.packName + File.separator + "data" + File.separator + this.id.getNamespace() + File.separator + "machines" + File.separator + this.id.getPath() + ".json";
+    @Nullable
+    public File getFile(MinecraftServer server) {
+        String pathFromData = "data" + File.separator + this.id.getNamespace() + File.separator + "machines" + File.separator + this.id.getPath() + ".json";
+        String kubejsPath = server.getFile("kubejs" + File.separator + pathFromData).getPath();
+        kubejsPath = kubejsPath.substring(2);
+        return switch(this.loader) {
+            case DATAPACK -> server.getWorldPath(LevelResource.DATAPACK_DIR).resolveSibling(pathFromData).toFile();
+            case KUBEJS -> new File(kubejsPath);
+            default -> null;
+        };
+    }
+
+    public boolean canEdit() {
+        return this.loader.canEdit;
+    }
+
+    public MutableComponent getText() {
+        return this.loader.getTranslatedName().append(Component.literal(" : " + this.packName));
     }
 
     public enum Loader {
-        DEFAULT,
-        DATAPACK,
-        CRAFTTWEAKER,
-        KUBEJS;
+        DEFAULT(false, ChatFormatting.BLACK),
+        DATAPACK(true, ChatFormatting.DARK_GREEN),
+        DATAPACK_ZIP(false, ChatFormatting.DARK_RED),
+        KUBEJS(true, ChatFormatting.DARK_PURPLE),
+        KUBEJS_SCRIPT(false, ChatFormatting.DARK_RED);
 
         public static final NamedCodec<Loader> CODEC = NamedCodec.enumCodec(Loader.class);
 
-        public Component getTranslatedName() {
-            return Component.translatable("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ENGLISH));
+        private final boolean canEdit;
+        private final ChatFormatting color;
+
+        Loader(boolean canEdit, ChatFormatting color) {
+            this.canEdit = canEdit;
+            this.color = color;
         }
 
-        @SuppressWarnings("ConstantConditions")
-        public int getColor() {
-            return switch (this) {
-                case DEFAULT -> ChatFormatting.BLACK.getColor();
-                case DATAPACK -> ChatFormatting.DARK_GREEN.getColor();
-                case KUBEJS -> ChatFormatting.DARK_PURPLE.getColor();
-                case CRAFTTWEAKER -> ChatFormatting.DARK_AQUA.getColor();
-            };
-        }
-
-        public static Loader value(String value) {
-            return valueOf(value.toUpperCase(Locale.ENGLISH));
-        }
-
-        @Override
-        public String toString() {
-            return super.toString().toLowerCase(Locale.ENGLISH);
+        public MutableComponent getTranslatedName() {
+            return Component.translatable("custommachinery.machine.loader." + this.name().toLowerCase(Locale.ROOT)).withStyle(this.color);
         }
     }
 }

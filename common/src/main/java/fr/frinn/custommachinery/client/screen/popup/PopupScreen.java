@@ -12,7 +12,7 @@ public abstract class PopupScreen extends BaseScreen {
     private double dragX;
     private double dragY;
 
-    protected PopupScreen(BaseScreen parent, int xSize, int ySize) {
+    public PopupScreen(BaseScreen parent, int xSize, int ySize) {
         super(Component.literal("Popup"), xSize, ySize);
         this.parent = parent;
     }
@@ -78,5 +78,10 @@ public abstract class PopupScreen extends BaseScreen {
             this.dragY += deltaY;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        return this.parent.getPopupUnderMouse(mouseX, mouseY) == this;
     }
 }

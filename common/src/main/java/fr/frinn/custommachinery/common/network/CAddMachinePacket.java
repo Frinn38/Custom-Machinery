@@ -6,26 +6,22 @@ import dev.architectury.networking.simple.MessageType;
 import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
-import fr.frinn.custommachinery.common.machine.MachineLocation;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import fr.frinn.custommachinery.common.util.Utils;
-import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public class CAddMachinePacket extends BaseC2SMessage {
 
-    private final ResourceLocation id;
-    private final CustomMachine machine;
-    private final boolean shouldReload;
-    private final boolean writeToFile;
+    private final String id;
+    private final Component name;
 
-    public CAddMachinePacket(ResourceLocation id, CustomMachine machine, boolean shouldReload, boolean writeToFile) {
+    public CAddMachinePacket(String id, Component name) {
         this.id = id;
-        this.machine = machine;
-        this.shouldReload = shouldReload;
-        this.writeToFile = writeToFile;
+        this.name = name;
     }
 
     @Override
@@ -35,43 +31,23 @@ public class CAddMachinePacket extends BaseC2SMessage {
 
     @Override
     public void write(FriendlyByteBuf buf) {
-        buf.writeResourceLocation(this.id);
-        try {
-            MachineLocation.CODEC.toNetwork(this.machine.getLocation(), buf);
-            CustomMachine.CODEC.toNetwork(this.machine, buf);
-        } catch (EncoderException e) {
-            e.printStackTrace();
-        }
-        buf.writeBoolean(this.shouldReload);
-        buf.writeBoolean(this.writeToFile);
+        buf.writeUtf(this.id);
+        buf.writeComponent(this.name);
     }
 
     public static CAddMachinePacket read(FriendlyByteBuf buf) {
-        ResourceLocation id = buf.readResourceLocation();
-        CustomMachine machine = CustomMachine.DUMMY;
-        try {
-            MachineLocation location = MachineLocation.CODEC.fromNetwork(buf);
-            machine = CustomMachine.CODEC.fromNetwork(buf).setLocation(location);
-        } catch (EncoderException e) {
-            e.printStackTrace();
-        }
-        boolean shouldReload = buf.readBoolean();
-        boolean writeToFile = buf.readBoolean();
-        return new CAddMachinePacket(id, machine, shouldReload, writeToFile);
+        return new CAddMachinePacket(buf.readUtf(), buf.readComponent());
     }
 
     @Override
     public void handle(NetworkManager.PacketContext context) {
         if (context.getEnvironment() == Env.SERVER) {
             Player player = context.getPlayer();
-            if(player != null && player.getServer() != null && Utils.canPlayerManageMachines(player) && this.machine != CustomMachine.DUMMY)
+            if(player != null && player.getServer() != null && Utils.canPlayerManageMachines(player))
                 context.queue(() -> {
-                    CustomMachinery.LOGGER.info("Player: " + player.getDisplayName().getString() + " added new Machine: " + id);
-                    CustomMachinery.MACHINES.put(this.id, this.machine);
-                    if(this.shouldReload)
-                        new SUpdateMachinesPacket(CustomMachinery.MACHINES).sendToAll(player.getServer());
-                    if(this.writeToFile && this.machine.getLocation().getLoader() == MachineLocation.Loader.DATAPACK)
-                        FileUtils.writeMachineJSON(player.getServer(), this.machine);
+                    CustomMachinery.LOGGER.info("Player: " + player.getDisplayName().getString() + " added new Machine: " + this.id);
+                    CustomMachine newMachine = new CustomMachineBuilder().setId(new ResourceLocation(CustomMachinery.MODID, this.id)).setName(this.name).build();
+                    FileUtils.writeNewMachineJson(player.getServer(), newMachine);
                 });
         }
     }

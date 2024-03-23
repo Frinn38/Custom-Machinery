@@ -4,13 +4,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.architectury.platform.Platform;
 import dev.architectury.utils.GameInstance;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import fr.frinn.custommachinery.common.util.MachineList;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.FilePackResources;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import oshi.util.tuples.Triplet;
@@ -40,9 +46,9 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         List<Triplet<ResourceLocation, ResourceLocation, JsonObject>> upgradedMachines = new ArrayList<>();
 
         map.forEach((id, json) -> {
-            String packName = getPackName(resourceManager, id);
+            MachineLocation location = getMachineLocation(resourceManager, id);
 
-            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: {} in datapack: {}", id, packName);
+            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: {} in datapack: {}", id, location.getPackName());
 
             //Check if the content of the json file is a json object
             if(!json.isJsonObject()) {
@@ -78,10 +84,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
             DataResult<CustomMachine> result = CustomMachine.CODEC.read(JsonOps.INSTANCE, json);
             if(result.result().isPresent()) {
                 CustomMachine machine = result.result().get();
-                if(packName.equals(MAIN_PACKNAME))
-                    machine.setLocation(MachineLocation.fromDefault(id));
-                else
-                    machine.setLocation(MachineLocation.fromDatapack(id, packName));
+                machine.setLocation(location);
                 CustomMachinery.MACHINES.put(id, machine);
                 ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
                 return;
@@ -117,11 +120,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                 DataResult<UpgradedCustomMachine> result = UpgradedCustomMachine.makeCodec(parent).read(JsonOps.INSTANCE, triplet.getC());
                 if(result.result().isPresent()) {
                     CustomMachine machine = result.result().get();
-                    String packName = getPackName(resourceManager, id);
-                    if(packName.equals(MAIN_PACKNAME))
-                        machine.setLocation(MachineLocation.fromDefault(id));
-                    else
-                        machine.setLocation(MachineLocation.fromDatapack(id, packName));
+                    machine.setLocation(getMachineLocation(resourceManager, id));
                     CustomMachinery.MACHINES.put(id, machine);
                     ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
                 } else if(result.error().isPresent())
@@ -139,11 +138,28 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
             MachineList.setNeedRefresh();
     }
 
-    private String getPackName(ResourceManager resourceManager, ResourceLocation id) {
+    private MachineLocation getMachineLocation(ResourceManager resourceManager, ResourceLocation id) {
+        ResourceLocation path = new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json");
         try {
-            return resourceManager.getResourceOrThrow(new ResourceLocation(id.getNamespace(), "machines/" + id.getPath() + ".json")).sourcePackId();
-        } catch (IOException e) {
-            return MAIN_PACKNAME;
+            Resource res = resourceManager.getResourceOrThrow(path);
+            String packName = res.sourcePackId();
+            if(packName.equals(MAIN_PACKNAME))
+                return MachineLocation.fromDefault(id, packName);
+            else if(packName.contains("KubeJS") && Platform.isModLoaded("kubejs"))
+                return KubeJSIntegration.getMachineLocation(res, packName, id);
+            else {
+                try(PackResources pack = res.source()) {
+                    if(pack.isBuiltin())
+                        return MachineLocation.fromDefault(id, packName);
+                    if(pack instanceof FilePackResources)
+                        return MachineLocation.fromDatapackZip(id, packName);
+                    else if(pack instanceof PathPackResources)
+                        return MachineLocation.fromDatapack(id, packName);
+                }
+            }
+        } catch (IOException ignored) {
+
         }
+        return MachineLocation.fromDefault(id, MAIN_PACKNAME);
     }
 }

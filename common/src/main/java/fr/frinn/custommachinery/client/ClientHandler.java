@@ -50,11 +50,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -184,20 +182,6 @@ public class ClientHandler {
         graphics.pose().scale(scale, scale, 0);
         graphics.drawString(font, string, (int)(x / scale), (int)(y / scale), color);
         graphics.pose().popPose();
-    }
-
-    public static void drawCenteredString(GuiGraphics graphics, Font font, String string, int x, int y, int color) {
-        int width = font.width(string);
-        int height = font.lineHeight;
-        graphics.pose().pushPose();
-        graphics.pose().translate(-width / 2.0D, -height / 2.0D, 0);
-        graphics.drawString(font, string, x, y, color);
-        graphics.pose().popPose();
-    }
-
-    public static void bindTexture(ResourceLocation texture) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, texture);
     }
 
     public static void renderSlotHighlight(GuiGraphics graphics, int x, int y, int width, int height) {

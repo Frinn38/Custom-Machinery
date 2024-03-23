@@ -2,20 +2,19 @@ package fr.frinn.custommachinery.client.screen.popup;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
-import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButtonWidget;
 import fr.frinn.custommachinery.client.screen.widget.config.SideModeButtonWidget;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class ComponentConfigPopup extends PopupScreen {
 
     private static final ResourceLocation EXIT_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/config/exit_button.png");
-    private static final ResourceLocation EXIT_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/config/exit_button_hovered.png");
     private static final Component TITLE = Component.translatable("custommachinery.gui.config.component");
 
     private final SideConfig config;
@@ -45,11 +44,7 @@ public class ComponentConfigPopup extends PopupScreen {
         //AUTO-OUTPUT
         this.addRenderableWidget(new AutoIOModeButtonWidget(this.x + 50, this.y + 75, this.config, false));
         //EXIT
-        this.addRenderableWidget(TexturedButton.builder(Component.translatable("custommachinery.gui.config.close"), EXIT_TEXTURE, button -> this.parent.closePopup(this))
-                .bounds(this.x + 5, this.y + 5, 9, 9)
-                .hovered(EXIT_TEXTURE_HOVERED)
-                .build()
-        );
+        this.addRenderableWidget(new ImageButton(this.x + 5, this.y + 5, 9, 9, 0, 0, 9, EXIT_TEXTURE, 9, 18, button -> this.parent.closePopup(this)));
     }
 
     @Override

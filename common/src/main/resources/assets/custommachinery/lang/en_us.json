@@ -95,20 +95,32 @@
   "custommachinery.gui.machineappearance.type.model": "Model",
   "custommachinery.gui.machineappearance.type.default": "Default",
 
-  "custommachinery.gui.machinecreation.baseinfos": "Base Machine Infos",
-  "custommachinery.gui.machinecreation.appearance": "Machine Appearance",
-  "custommachinery.gui.machinecreation.components": "Machine Components",
-  "custommachinery.gui.machinecreation.gui": "Machine GUI",
-
   "custommachinery.gui.creation.create": "Create",
-  "custommachinery.gui.creation.save": "Save",
+  "custommachinery.gui.creation.edit": "Edit",
   "custommachinery.gui.creation.cantsave": "This Custom Machine is not loaded with datapacks and cannot be edited",
-  "custommachinery.gui.creation.nomachine": "No selected Machine",
+  "custommachinery.gui.creation.notselected": "Select a machine in the list above first",
   "custommachinery.gui.creation.delete": "Delete",
+  "custommachinery.gui.creation.delete.popup": "The following machine will be deleted forever",
   "custommachinery.gui.creation.cantdelete": "This Custom Machine is not loaded with datapacks and cannot be deleted",
+
+  "custommachinery.gui.creation.popup.create": "Create new machine",
+  "custommachinery.gui.creation.popup.create.id.tooltip": "The id of the machine, will be the name of the json file\nOnly [a-z0-9_.-] characters allowed",
+  "custommachinery.gui.creation.popup.create.name.tooltip": "The name of the machine",
+  "custommachinery.gui.creation.popup.create.success": "Machine json file created in the pack root folder\nMove the file in a valid datapack location and use /reload",
+
+  "custommachinery.gui.creation.tab.base_info": "Base Info",
+  "custommachinery.gui.creation.tab.appearance": "Appearance",
+  "custommachinery.gui.creation.tab.components": "Components",
+  "custommachinery.gui.creation.tab.gui": "Gui",
+
+  "custommachinery.gui.creation.base_info.id": "Machine id : ",
+  "custommachinery.gui.creation.base_info.name": "Machine name : ",
+  "custommachinery.gui.creation.base_info.processor": "Machine processor : ",
 
   "custommachinery.gui.popup.confirm": "Confirm",
   "custommachinery.gui.popup.cancel": "Cancel",
+  "custommachinery.gui.popup.warning": "Warning !",
+  "custommachinery.gui.popup.style": "Style",
 
   "custommachinery.jei.ingredient.chance": "Chance: %s%%",
   "custommachinery.jei.ingredient.chance.0": "Not consumed",
@@ -139,8 +151,10 @@
 
   "custommachinery.machine.loader.default": "Default",
   "custommachinery.machine.loader.datapack": "Datapack",
+  "custommachinery.machine.loader.datapack_zip": "Datapack zip",
   "custommachinery.machine.loader.crafttweaker": "CraftTweaker",
   "custommachinery.machine.loader.kubejs": "KubeJS",
+  "custommachinery.machine.loader.kubejs_script": "KubeJS script",
 
   "custommachinery.machine.component.energy": "Energy",
   "custommachinery.machine.component.fluid": "Fluid",
