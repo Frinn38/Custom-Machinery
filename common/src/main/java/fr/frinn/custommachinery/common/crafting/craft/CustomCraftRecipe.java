@@ -62,9 +62,9 @@ public class CustomCraftRecipe implements Recipe<Container>, IMachineRecipe {
 
     private List<IRequirement<?>> validateRequirements(List<IRequirement<?>> requirements) {
         return requirements.stream().filter(requirement -> {
-            if(!FORBIDDEN_REQUIREMENTS.contains(requirement.getType()) && requirement.getMode() == RequirementIOMode.INPUT)
+            if(!FORBIDDEN_REQUIREMENTS.contains(requirement.getType()))
                 return true;
-            ICustomMachineryAPI.INSTANCE.logger().error("Invalid requirement: {}", IRequirement.CODEC.encodeStart(JsonOps.INSTANCE, requirement).result().map(JsonElement::toString).orElse(requirement.getType().toString()));
+            ICustomMachineryAPI.INSTANCE.logger().error("Invalid requirement: {} in craft recipe: {}", IRequirement.CODEC.encodeStart(JsonOps.INSTANCE, requirement).result().map(JsonElement::toString).orElse(requirement.getType().toString()), this.id);
             return false;
         }).toList();
     }
