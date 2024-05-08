@@ -239,6 +239,7 @@
   "custommachinery.requirements.xp.point.error.output": "Not enough space for storing %sXP !",
   "custommachinery.requirements.xp.level.error.input": "Not enough level(s), %s needed but only %s found !",
   "custommachinery.requirements.xp.level.error.output": "Not enough space for storing %s level(s) !",
+  "custommachinery.requirements.function.error": "Can't execute function requirement, check logs for errors !",
 
   "custommachinery.side.top": "Top",
   "custommachinery.side.bottom": "Bottom",
