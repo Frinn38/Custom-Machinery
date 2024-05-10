@@ -36,8 +36,7 @@ public class FunctionRequirement extends AbstractDelayedChanceableRequirement<Fu
             return CraftingResult.error(Component.translatable("custommachinery.requirements.function.error"));
 
         try {
-            this.function.apply(context);
-            return CraftingResult.success();
+            return this.function.apply(context);
         } catch (Throwable error) {
             this.errored = true;
             this.logger.accept(error);
