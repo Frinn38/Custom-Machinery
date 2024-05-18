@@ -12,33 +12,16 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendererEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterWidgetToJeiIngredientGetterEvent;
-import fr.frinn.custommachinery.client.element.BarGuiElementWidget;
-import fr.frinn.custommachinery.client.element.ButtonGuiElementWidget;
-import fr.frinn.custommachinery.client.element.ConfigGuiElementWidget;
-import fr.frinn.custommachinery.client.element.DumpGuiElementWidget;
-import fr.frinn.custommachinery.client.element.EmptyGuiElementWidget;
-import fr.frinn.custommachinery.client.element.EnergyGuiElementWidget;
-import fr.frinn.custommachinery.client.element.ExperienceGuiElementWidget;
-import fr.frinn.custommachinery.client.element.FluidGuiElementWidget;
-import fr.frinn.custommachinery.client.element.FuelGuiElementWidget;
-import fr.frinn.custommachinery.client.element.PlayerInventoryGuiElementWidget;
-import fr.frinn.custommachinery.client.element.ProgressGuiElementWidget;
-import fr.frinn.custommachinery.client.element.ResetGuiElementWidget;
-import fr.frinn.custommachinery.client.element.SlotGuiElementWidget;
-import fr.frinn.custommachinery.client.element.StatusGuiElementWidget;
-import fr.frinn.custommachinery.client.element.TextGuiElementWidget;
-import fr.frinn.custommachinery.client.element.TextureGuiElementWidget;
+import fr.frinn.custommachinery.client.element.*;
 import fr.frinn.custommachinery.client.integration.jei.FluidIngredientGetter;
-import fr.frinn.custommachinery.client.integration.jei.element.EnergyGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.ExperienceGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.FluidGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.FuelGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.ProgressGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.integration.jei.element.*;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
+import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ModelAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.TextAppearancePropertyBuilder;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
@@ -69,6 +52,7 @@ public class ClientHandler {
         ClientTooltipEvent.ITEM.register(ClientHandler::onItemTooltip);
         LifecycleEvent.SETUP.register(ClientHandler::clientSetup);
         RegisterGuiElementWidgetSupplierEvent.EVENT.register(ClientHandler::registerGuiElementWidgets);
+        RegisterAppearancePropertyBuilderEvent.EVENT.register(ClientHandler::registerAppearancePropertyBuilders);
         RegisterGuiElementJEIRendererEvent.EVENT.register(ClientHandler::registerGuiElementJEIRenderers);
         RegisterWidgetToJeiIngredientGetterEvent.EVENT.register(ClientHandler::registerWidgetToJeiIngredientGetters);
     }
@@ -89,6 +73,7 @@ public class ClientHandler {
 
         MenuRegistry.registerScreenFactory(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
         GuiElementWidgetSupplierRegistry.init();
+        AppearancePropertyBuilderRegistry.init();
         if(Platform.isModLoaded("jei")) {
             GuiElementJEIRendererRegistry.init();
             WidgetToJeiIngredientRegistry.init();
@@ -134,6 +119,17 @@ public class ClientHandler {
 
     private static void registerWidgetToJeiIngredientGetters(final RegisterWidgetToJeiIngredientGetterEvent event) {
         event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidIngredientGetter());
+    }
+
+    private static void registerAppearancePropertyBuilders(final RegisterAppearancePropertyBuilderEvent event) {
+        event.register(Registration.BLOCK_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.literal("Block"), Registration.BLOCK_MODEL_PROPERTY.get()));
+        event.register(Registration.ITEM_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.literal("Item"), Registration.ITEM_MODEL_PROPERTY.get()));
+        //event.register(Registration.AMBIENT_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Ambient sound"), Registration.AMBIENT_SOUND_PROPERTY.get(), s -> SoundEvent.createFixedRangeEvent(new ResourceLocation(s), 15), SoundEvent::toString));
+        //event.register(Registration.INTERACTION_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Interaction sound"), Registration.INTERACTION_SOUND_PROPERTY.get(), s -> new CMSoundType(new PartialBlockState(BuiltInRegistries.BLOCK.get(new ResourceLocation(s)))), CMSoundType::toString));
+        event.register(Registration.LIGHT_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.literal("Light"), Registration.LIGHT_PROPERTY.get(), 0, 15));
+        event.register(Registration.COLOR_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Color"), Registration.COLOR_PROPERTY.get(), Integer::valueOf, Object::toString));
+        event.register(Registration.HARDNESS_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.literal("Hardness"), Registration.HARDNESS_PROPERTY.get(), -1F, 100F));
+        event.register(Registration.RESISTANCE_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.literal("Resistance"), Registration.RESISTANCE_PROPERTY.get(), 0F, 2000F));
     }
 
     private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {

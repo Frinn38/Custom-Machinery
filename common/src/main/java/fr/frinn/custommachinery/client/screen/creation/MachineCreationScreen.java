@@ -1,23 +1,32 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineListWidget.MachineEntry;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+
+import java.io.File;
+import java.util.Objects;
 
 public class MachineCreationScreen extends BaseScreen {
 
     private MachineListWidget machineList;
     private Button create;
     private Button edit;
+    private Button open;
     private Button delete;
 
-    public MachineCreationScreen(int xSize, int ySize) {
-        super(Component.literal("Machine creation"), xSize, ySize);
+    public MachineCreationScreen() {
+        super(Component.literal("Machine creation"), 256, 192);
     }
 
     public void create() {
@@ -28,6 +37,19 @@ public class MachineCreationScreen extends BaseScreen {
         MachineEntry entry = this.machineList.getSelected();
         if(entry != null)
             Minecraft.getInstance().setScreen(new MachineEditScreen(this, 256, 192, new CustomMachineBuilder(entry.getMachine())));
+    }
+
+    public void open() {
+        MachineEntry entry = this.machineList.getSelected();
+        if(entry != null) {
+            try {
+                MinecraftServer server = Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer());
+                File file = Objects.requireNonNull(entry.getMachine().getLocation().getFile(server));
+                Util.getPlatform().openUri(file.toURI());
+            } catch (NullPointerException e) {
+                CustomMachinery.LOGGER.warn("Can't open machine json for machine: {}", entry.getMachine().getId());
+            }
+        }
     }
 
     public void delete() {
@@ -46,9 +68,15 @@ public class MachineCreationScreen extends BaseScreen {
         this.machineList = this.addRenderableWidget(new MachineListWidget(this, this.mc, this.xSize - 20, this.ySize - 30, this.y + 5, this.y + this.ySize - 35, 30));
         this.machineList.setLeftPos(this.x + 10);
         this.machineList.reload();
-        this.create = this.addRenderableWidget(new Button.Builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).bounds(this.x + 10, this.y + this.ySize - 30, 72, 20).build());
-        this.edit = this.addRenderableWidget(new Button.Builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).bounds(this.x + 92, this.y + this.ySize - 30, 72, 20).build());
-        this.delete = this.addRenderableWidget(new Button.Builder(Component.translatable("custommachinery.gui.creation.delete"), button -> this.delete()).bounds(this.x + 174, this.y + this.ySize - 30, 72, 20).build());
+        GridLayout layout = new GridLayout(this.x + 10, this.y + this.ySize - 30).rowSpacing(5).columnSpacing(10);
+        GridLayout.RowHelper row = layout.createRowHelper(4);
+        LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
+        this.create = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
+        this.edit = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).bounds(0, 0, 50, 20).build(), center);
+        this.open = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.open"), button -> this.open()).bounds(0, 0, 50, 20).build(), center);
+        this.delete = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.delete"), button -> this.delete()).bounds(0, 0, 50, 20).build(), center);
+        layout.arrangeElements();
+        layout.visitWidgets(this::addRenderableWidget);
     }
 
     @Override
@@ -56,17 +84,35 @@ public class MachineCreationScreen extends BaseScreen {
         super.renderBackground(graphics);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
         MachineEntry entry = this.machineList.getSelected();
-        if(entry != null && entry.getMachine().getLocation().canEdit()) {
+        if(entry == null) {
+            Tooltip notSelected = Tooltip.create(Component.translatable("custommachinery.gui.creation.notselected"));
+            this.edit.active = false;
+            this.edit.setTooltip(notSelected);
+            this.open.active = false;
+            this.open.setTooltip(notSelected);
+            this.delete.active = false;
+            this.delete.setTooltip(notSelected);
+            return;
+        }
+        if(entry.getMachine().getLocation().canEdit()) {
             this.edit.active = true;
             this.edit.setTooltip(null);
+            if(Minecraft.getInstance().getSingleplayerServer() != null) {
+                this.open.active = true;
+                this.open.setTooltip(null);
+            } else {
+                this.open.active = false;
+                this.open.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cantopenserver")));
+            }
             this.delete.active = true;
             this.delete.setTooltip(null);
         } else {
-            Component tooltip = entry != null && entry.getMachine().getLocation().canEdit() ? Component.translatable("custommachinery.gui.creation.notselected") : Component.translatable("custommachinery.gui.creation.cantdelete");
             this.edit.active = false;
-            this.edit.setTooltip(Tooltip.create(tooltip));
+            this.edit.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cantedit")));
+            this.open.active = false;
+            this.open.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cantopen")));
             this.delete.active = false;
-            this.delete.setTooltip(Tooltip.create(tooltip));
+            this.delete.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cantdelete")));
         }
     }
 }

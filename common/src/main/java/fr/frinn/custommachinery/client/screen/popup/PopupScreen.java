@@ -3,12 +3,16 @@ package fr.frinn.custommachinery.client.screen.popup;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class PopupScreen extends BaseScreen {
 
     public final BaseScreen parent;
 
+    private boolean dragging;
     private double dragX;
     private double dragY;
 
@@ -28,6 +32,15 @@ public abstract class PopupScreen extends BaseScreen {
             if(c instanceof AbstractWidget widget)
                 widget.setPosition(widget.getX() + movedX, widget.getY() + movedY);
         });
+    }
+
+    @Nullable
+    public Tooltip getTooltip(int mouseX, int mouseY) {
+        for(GuiEventListener listener : this.children()) {
+            if(listener.isMouseOver(mouseX, mouseY) && listener instanceof AbstractWidget widget)
+                return widget.getTooltip();
+        }
+        return null;
     }
 
     @Override
@@ -59,21 +72,23 @@ public abstract class PopupScreen extends BaseScreen {
         if(super.mouseClicked(mouseX, mouseY, button))
             return true;
         if(isMouseOver(mouseX, mouseY) && mouseY < this.y + 20) {
-            this.setDragging(true);
+            this.dragging = true;
             return true;
+        } else {
+            this.setDragging(false);
+            return false;
         }
-        return false;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        this.setDragging(false);
+        this.dragging = false;
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if(this.isDragging()) {
+        if(this.dragging) {
             this.dragX += deltaX;
             this.dragY += deltaY;
         }

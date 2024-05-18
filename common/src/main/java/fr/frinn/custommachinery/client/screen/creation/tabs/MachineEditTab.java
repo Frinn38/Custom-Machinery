@@ -12,4 +12,12 @@ public class MachineEditTab extends GridLayoutTab {
         super(title);
         this.parent = parent;
     }
+
+    public void opened() {
+
+    }
+
+    public void closed() {
+
+    }
 }

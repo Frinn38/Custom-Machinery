@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.machine.builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
@@ -11,6 +12,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,17 +21,31 @@ import java.util.Map;
 
 public class MachineAppearanceBuilder {
 
+    @Nullable
+    private final MachineStatus status;
     private final Map<MachineAppearanceProperty<?>, Object> properties;
 
-    public MachineAppearanceBuilder() {
+    public MachineAppearanceBuilder(@Nullable MachineStatus status) {
+        this.status = status;
         ImmutableMap.Builder<MachineAppearanceProperty<?>, Object> builder = ImmutableMap.builder();
         for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY)
             builder.put(property, property.getDefaultValue());
         this.properties = builder.build();
     }
 
-    public MachineAppearanceBuilder(MachineAppearance appearance) {
+    public MachineAppearanceBuilder(MachineAppearance appearance, @Nullable MachineStatus status) {
+        this.status = status;
         this.properties = Maps.newHashMap(appearance.getProperties());
+    }
+
+    public MachineAppearanceBuilder(Map<MachineAppearanceProperty<?>, Object> properties, @Nullable MachineStatus status) {
+        this.status = status;
+        this.properties = Maps.newHashMap(properties);
+    }
+
+    @Nullable
+    public MachineStatus getStatus() {
+        return this.status;
     }
 
     @SuppressWarnings("unchecked")

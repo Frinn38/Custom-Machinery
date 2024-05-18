@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.machine.builder;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
@@ -11,7 +10,6 @@ import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
-import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor.Template;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -20,16 +18,14 @@ import fr.frinn.custommachinery.common.machine.MachineLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CustomMachineBuilder {
 
     private Component name;
+    private final MachineAppearanceBuilder defaultAppearance;
     private final Map<MachineStatus, MachineAppearanceBuilder> appearance;
     private final List<Component> tooltips;
     private final List<IGuiElement> guiElements;
@@ -41,7 +37,8 @@ public class CustomMachineBuilder {
 
     public CustomMachineBuilder() {
         this.name = Component.literal("New Machine");
-        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder()));
+        this.defaultAppearance = new MachineAppearanceBuilder(null);
+        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), MachineAppearanceBuilder::new));
         this.tooltips = new ArrayList<>();
         this.guiElements = new ArrayList<>();
         this.jeiElements = new ArrayList<>();
@@ -53,7 +50,8 @@ public class CustomMachineBuilder {
 
     public CustomMachineBuilder(CustomMachine machine) {
         this.name = machine.getName();
-        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder(machine.getAppearance(status))));
+        this.defaultAppearance = new MachineAppearanceBuilder(machine.getAppearanceManager().getDefaultProperties(), null);
+        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder(machine.getAppearance(status), status)));
         this.tooltips = machine.getTooltips();
         this.guiElements = machine.getGuiElements();
         this.jeiElements = machine.getJeiElements();
@@ -83,6 +81,10 @@ public class CustomMachineBuilder {
 
     public MachineAppearanceBuilder getAppearance(MachineStatus status) {
         return this.appearance.get(status);
+    }
+
+    public Collection<MachineAppearanceBuilder> getAppearanceBuilders() {
+        return ImmutableList.<MachineAppearanceBuilder>builder().add(this.defaultAppearance).addAll(this.appearance.values()).build();
     }
 
     public CustomMachineBuilder withGuiElement(IGuiElement element) {
@@ -127,13 +129,13 @@ public class CustomMachineBuilder {
 
     public CustomMachine build() {
         Component name = this.name == null ? Component.literal("New Machine") : this.name;
-        MachineAppearanceManager appearance = new MachineAppearanceManager(Maps.newHashMap(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
+        MachineAppearanceManager appearance = new MachineAppearanceManager(this.defaultAppearance.build().getProperties(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<Component> tooltips = this.tooltips == null ? ImmutableList.of() : ImmutableList.copyOf(this.tooltips);
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.guiElements);
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : ImmutableList.copyOf(this.jeiElements);
         List<ResourceLocation> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);
         List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = new ArrayList<>();
         this.componentBuilders.forEach(builder -> componentTemplates.add(builder.build()));
-        return new CustomMachine(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates, MachineProcessor.Template.DEFAULT).setLocation(this.location);
+        return new CustomMachine(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates, this.processor).setLocation(this.location);
     }
 }

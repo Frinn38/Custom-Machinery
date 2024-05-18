@@ -23,6 +23,7 @@ public class PacketManager {
     //Client to Server
     public static final MessageType ADD_MACHINE = MANAGER.registerC2S("add_machine", CAddMachinePacket::read);
     public static final MessageType REMOVE_MACHINE = MANAGER.registerC2S("remove_machine", CRemoveMachinePacket::read);
+    public static final MessageType EDIT_MACHINE = MANAGER.registerC2S("edit_machine", CEditMachinePacket::read);
     public static final MessageType ELEMENT_CLICKED = MANAGER.registerC2S("element_clicked", CGuiElementClickPacket::read);
     public static final MessageType CHANGE_SIDE_MODE = MANAGER.registerC2S("change_side_mode", CChangeSideModePacket::read);
     public static final MessageType UPDATE_MACHINE_DATA = MANAGER.registerC2S("button_gui_element", CButtonGuiElementPacket::read);

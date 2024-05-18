@@ -9,6 +9,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +26,7 @@ public class MachineModelLocation implements IMachineModelLocation {
     private final String loc;
     @Nullable
     private final BlockState state;
+    @Nullable Item item;
     @Nullable
     private final ResourceLocation id;
     @Nullable
@@ -32,18 +34,24 @@ public class MachineModelLocation implements IMachineModelLocation {
 
     public static MachineModelLocation of(String loc) {
         if(loc.contains("#"))
-            return new MachineModelLocation(loc, null, new ResourceLocation(loc.substring(0, loc.indexOf("#"))), loc.substring(loc.indexOf("#") + 1));
+            return new MachineModelLocation(loc, null, null, new ResourceLocation(loc.substring(0, loc.indexOf("#"))), loc.substring(loc.indexOf("#") + 1));
 
         try {
-            return new MachineModelLocation(loc, BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(loc), false).blockState(), null, null);
+            return new MachineModelLocation(loc, BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(loc), false).blockState(), null, null, null);
         } catch (CommandSyntaxException ignored) {}
 
-        return new MachineModelLocation(loc, null, new ResourceLocation(loc), null);
+        ResourceLocation resourceLocation = new ResourceLocation(loc);
+
+        if(BuiltInRegistries.ITEM.containsKey(resourceLocation))
+            return new MachineModelLocation(loc, null, BuiltInRegistries.ITEM.get(resourceLocation), null, null);
+
+        return new MachineModelLocation(loc, null, null, new ResourceLocation(loc), null);
     }
 
-    private MachineModelLocation(String loc, @Nullable BlockState state, @Nullable ResourceLocation id, @Nullable String properties) {
+    private MachineModelLocation(String loc, @Nullable BlockState state, @Nullable Item item, @Nullable ResourceLocation id, @Nullable String properties) {
         this.loc = loc;
         this.state = state;
+        this.item = item;
         this.id = id;
         this.properties = properties;
     }
@@ -52,6 +60,12 @@ public class MachineModelLocation implements IMachineModelLocation {
     @Nullable
     public BlockState getState() {
         return this.state;
+    }
+
+    @Override
+    @Nullable
+    public Item getItem() {
+        return this.item;
     }
 
     @Override

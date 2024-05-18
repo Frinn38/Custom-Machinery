@@ -9,7 +9,6 @@ import java.util.Map;
 
 /**
  * Subscribe to this Event to register a widget supplier for your gui element.
- * This Event is fired on the Mod bus (FMLJavaModLoadingContext.get().getModEventBus()).
  * This Event is fired only on the client side.
  */
 public class RegisterGuiElementWidgetSupplierEvent {

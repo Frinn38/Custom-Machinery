@@ -19,14 +19,14 @@ public class DeleteMachinePopup extends ConfirmPopup {
         super(parent, 128, 96, () -> {});
         this.machine = machine;
         this.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
-        this.text(Component.translatable("custommachinery.gui.creation.delete.popup"));
+        this.text(Component.translatable("custommachinery.gui.creation.delete.popup"), Component.empty(), Component.empty());
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
         int itemX = this.x + this.xSize / 2 - 8;
-        int itemY = this.y + this.ySize / 2 - 5;
+        int itemY = this.y + this.ySize / 2 + 2;
         graphics.renderItem(CustomMachineItem.makeMachineItem(this.machine.getId()), itemX, itemY);
         if(this.isMouseOver(mouseX, mouseY) && mouseX >= itemX && mouseX <= itemX + 16 && mouseY >= itemY && mouseY <= itemY + 16)
             graphics.renderTooltip(Minecraft.getInstance().font, this.machine.getName(), mouseX, mouseY);

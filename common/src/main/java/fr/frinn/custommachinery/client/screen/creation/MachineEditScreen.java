@@ -1,22 +1,36 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.tabs.AppearanceTab;
 import fr.frinn.custommachinery.client.screen.creation.tabs.BaseInfoTab;
 import fr.frinn.custommachinery.client.screen.creation.tabs.ComponentTab;
 import fr.frinn.custommachinery.client.screen.creation.tabs.GuiTab;
+import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
+import fr.frinn.custommachinery.common.network.CEditMachinePacket;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.TabManager;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public class MachineEditScreen extends BaseScreen {
 
+    public static final ResourceLocation WIDGETS = new ResourceLocation(CustomMachinery.MODID, "textures/gui/creation/edit_widget.png");
+
     private final MachineCreationScreen parent;
     private final CustomMachineBuilder builder;
+
+    private boolean changed = false;
 
     private TabManager tabManager;
     private MachineEditTabNavigationBar bar;
@@ -31,10 +45,30 @@ public class MachineEditScreen extends BaseScreen {
         return this.builder;
     }
 
+    public void setChanged() {
+        this.changed = true;
+    }
+
+    public void save() {
+        this.changed = false;
+        new CEditMachinePacket(this.builder.build()).sendToServer();
+    }
+
+    public void cancel() {
+        if(!this.changed)
+            Minecraft.getInstance().setScreen(new MachineCreationScreen());
+        ConfirmPopup popup = new ConfirmPopup(this, 128, 96, () -> Minecraft.getInstance().setScreen(new MachineCreationScreen()));
+        popup.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
+        popup.text(Component.translatable("custommachinery.gui.creation.popup.quit"));
+        this.openPopup(popup);
+    }
+
     @Override
     protected void init() {
         super.init();
-        this.tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
+        this.addRenderableWidget(new ImageButton(this.x - 20, this.y, 20, 20, 0, 0, WIDGETS, button -> this.save()));
+        this.addRenderableWidget(new ImageButton(this.x - 20, this.y + 23, 20, 20, 20, 0, WIDGETS, button -> this.cancel()));
+        this.tabManager = new MachineTabManager(this::addRenderableWidget, this::removeWidget);
         this.bar = this.addRenderableWidget(new MachineEditTabNavigationBar(this.xSize, this.tabManager, List.of(new BaseInfoTab(this), new AppearanceTab(this), new ComponentTab(this), new GuiTab(this))));
         this.bar.selectTab(0, false);
         this.repositionElements();
@@ -51,8 +85,23 @@ public class MachineEditScreen extends BaseScreen {
     }
 
     @Override
+    public  <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T widget) {
+        return super.addRenderableWidget(widget);
+    }
+
+    @Override
+    public void removeWidget(GuiEventListener listener) {
+        super.removeWidget(listener);
+    }
+
+    @Override
     public void renderBackground(GuiGraphics graphics) {
         super.renderBackground(graphics);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
+    }
+
+    @Override
+    public void onClose() {
+        this.cancel();
     }
 }

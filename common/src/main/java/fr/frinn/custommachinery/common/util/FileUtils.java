@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
@@ -55,25 +54,28 @@ public class FileUtils {
     }
 
     public static void writeMachineJson(MinecraftServer server, CustomMachine machine) {
-        if(server != null) {
-            DataResult<JsonElement> result = CustomMachine.CODEC.encodeStart(JsonOps.INSTANCE, machine);
-            JsonElement json = result.resultOrPartial(CustomMachinery.LOGGER::error).orElseThrow(() -> new JsonParseException("Error while writing custom machine: " + machine.getLocation().getId() + " to JSON"));
-            try {
-                List<Path> paths = getCustomMachineJson(server, machine.getLocation().getId());
-                for(Path path : paths) {
-                    File file = new File(path.toUri());
-                    file.getParentFile().mkdirs();
-                    CustomMachinery.LOGGER.info("Writing machine: " + machine.getLocation().getId() + " to: " + file.getPath());
-                    if(file.exists() || file.createNewFile()) {
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                        JsonWriter writer = gson.newJsonWriter(new FileWriter(file));
-                        gson.toJson(json, writer);
-                        writer.close();
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        MachineLocation location = machine.getLocation();
+        File machineJson = location.getFile(server);
+        if(machineJson == null) {
+            CustomMachinery.LOGGER.error("Error while editing machine: {}\nCan't edit machine loaded with {}", location.getId(), location.getLoader().toString());
+            return;
+        } else if(!machineJson.exists() || machineJson.isDirectory()) {
+            CustomMachinery.LOGGER.error("Error while editing machine: {}\nFile '{}' doesn't exist", location.getId(), machineJson.getAbsolutePath());
+            return;
+        }
+        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(machineJson))) {
+            DataResult<JsonElement> result = CustomMachine.CODEC.encodeStart(MachineJsonOps.INSTANCE, machine);
+            if(result.error().isPresent()) {
+                CustomMachinery.LOGGER.error("Can't edit machine json: {}\n{}", machine.getId().getPath(), result.error().get().message());
+                return;
             }
+            if(result.result().isPresent()) {
+                JsonElement json = result.result().get();
+                GSON.toJson(json, writer);
+                CustomMachinery.LOGGER.info("Successfully edited machine: {} at location '{}'", location.getId(), machineJson.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            CustomMachinery.LOGGER.error("Error while editing machine to file: {}\n{}\n{}", machineJson.getAbsolutePath(), e.getMessage(), ExceptionUtils.getStackTrace(e));
         }
     }
 

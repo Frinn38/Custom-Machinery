@@ -24,3 +24,6 @@ accessible method net/minecraft/server/packs/FilePackResources getOrCreateZipFil
 
 #BlockEntityType validBlocks
 accessible field net/minecraft/world/level/block/entity/BlockEntityType validBlocks Ljava/util/Set;
+
+#Screen deferredTooltipRendering
+accessible field net/minecraft/client/gui/screens/Screen deferredTooltipRendering Lnet/minecraft/client/gui/screens/Screen$DeferredTooltipRendering;

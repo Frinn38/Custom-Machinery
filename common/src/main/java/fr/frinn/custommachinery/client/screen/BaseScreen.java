@@ -6,8 +6,10 @@ import fr.frinn.custommachinery.common.util.LRU;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +36,8 @@ public abstract class BaseScreen extends Screen {
     private final LRU<PopupScreen> popups = new LRU<>();
     private final Map<PopupScreen, String> popupToId = new HashMap<>();
 
+    private int freezePopupsTicks;
+
     public BaseScreen(Component component, int xSize, int ySize) {
         super(component);
         this.xSize = xSize;
@@ -54,6 +58,7 @@ public abstract class BaseScreen extends Screen {
             return;
         this.popupToId.put(popup, id);
         this.openPopup(popup);
+        this.freezePopupsTicks = 40;
     }
 
     public void closePopup(PopupScreen popup) {
@@ -87,6 +92,13 @@ public abstract class BaseScreen extends Screen {
     }
 
     @Override
+    public void tick() {
+        this.popups.forEach(PopupScreen::tick);
+        if(this.freezePopupsTicks > 0)
+            this.freezePopupsTicks--;
+    }
+
+    @Override
     public void resize(Minecraft minecraft, int width, int height) {
         super.resize(minecraft, width, height);
     }
@@ -95,20 +107,33 @@ public abstract class BaseScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(graphics);
         graphics.pose().pushPose();
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        if(this.getPopupUnderMouse(mouseX, mouseY) != null)
+            super.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
+        else
+            super.render(graphics, mouseX, mouseY, partialTicks);
         for(Iterator<PopupScreen> iterator = this.popups.descendingIterator(); iterator.hasNext();) {
             graphics.pose().translate(0, 0, 165); //Items are rendered at z=150, tooltips z=400
             iterator.next().render(graphics, mouseX, mouseY, partialTicks);
         }
         graphics.pose().popPose();
+        PopupScreen popup = getPopupUnderMouse(mouseX, mouseY);
+        if(popup != null) {
+            Tooltip tooltip = popup.getTooltip(mouseX, mouseY);
+            if(tooltip != null)
+                this.setTooltipForNextRenderPass(tooltip, DefaultTooltipPositioner.INSTANCE, true);
+            else
+                this.deferredTooltipRendering = null;
+        }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for(PopupScreen popup : this.popups) {
             if(popup.isMouseOver(mouseX, mouseY)) {
-                this.popups.moveUp(popup);
-                return popup.mouseClicked(mouseX, mouseY, button);
+                boolean clicked = popup.mouseClicked(mouseX, mouseY, button);
+                if(this.freezePopupsTicks <= 0)
+                    this.popups.moveUp(popup);
+                return clicked;
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -118,8 +143,10 @@ public abstract class BaseScreen extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         for(PopupScreen popup : this.popups) {
             if(popup.isMouseOver(mouseX, mouseY)) {
-                this.popups.moveUp(popup);
-                return popup.mouseReleased(mouseX, mouseY, button);
+                boolean released = popup.mouseReleased(mouseX, mouseY, button);
+                if(this.freezePopupsTicks <= 0)
+                    this.popups.moveUp(popup);
+                return released;
             }
         }
         return super.mouseReleased(mouseX, mouseY, button);
@@ -129,8 +156,10 @@ public abstract class BaseScreen extends Screen {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         for(PopupScreen popup : this.popups) {
             if(popup.isMouseOver(mouseX, mouseY)) {
-                this.popups.moveUp(popup);
-                return popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+                boolean dragged = popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+                if(this.freezePopupsTicks <= 0)
+                    this.popups.moveUp(popup);
+                return dragged;
             }
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
@@ -140,8 +169,10 @@ public abstract class BaseScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         for(PopupScreen popup : this.popups) {
             if(popup.isMouseOver(mouseX, mouseY)) {
-                this.popups.moveUp(popup);
-                return popup.mouseScrolled(mouseX, mouseY, delta);
+                boolean scrolled = popup.mouseScrolled(mouseX, mouseY, delta);
+                if(this.freezePopupsTicks <= 0)
+                    this.popups.moveUp(popup);
+                return scrolled;
             }
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
@@ -150,6 +181,13 @@ public abstract class BaseScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if(keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            if(!this.popups.isEmpty()) {
+                PopupScreen toClose = this.getPopupUnderMouse(Minecraft.getInstance().mouseHandler.xpos(), Minecraft.getInstance().mouseHandler.ypos());
+                if(toClose == null)
+                    toClose = this.popups.iterator().next();
+                this.closePopup(toClose);
+                return true;
+            }
             this.onClose();
             return true;
         }
@@ -162,10 +200,6 @@ public abstract class BaseScreen extends Screen {
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if(keyCode == GLFW.GLFW_KEY_ESCAPE) {
-            this.onClose();
-            return true;
-        }
         for(PopupScreen popup : this.popups) {
             if(popup.keyReleased(keyCode, scanCode, modifiers))
                 return true;

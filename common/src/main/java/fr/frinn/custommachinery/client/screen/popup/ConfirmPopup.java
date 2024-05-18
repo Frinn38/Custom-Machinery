@@ -3,11 +3,12 @@ package fr.frinn.custommachinery.client.screen.popup;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineTextWidget;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -60,21 +61,19 @@ public class ConfirmPopup extends PopupScreen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(Button.builder(CANCEL, button -> this.cancel()).bounds(this.x + (int)(this.xSize * 0.75) - 25, this.y + this.ySize - 30, 50, 20).build());
-        this.addRenderableWidget(Button.builder(CONFIRM, button -> this.confirm()).bounds(this.x + this.xSize / 4 - 25, this.y + this.ySize - 30, 50, 20).build());
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        Font font = Minecraft.getInstance().font;
-        drawCenteredString(graphics, font, this.title, this.x + this.xSize / 2, this.y + 8, 0, false);
-        List<FormattedCharSequence> list = this.text.stream().flatMap(component -> font.split(component, this.xSize).stream()).toList();
-        for(int i = 0; i < list.size(); i++) {
-            FormattedCharSequence text = list.get(i);
-            int width = font.width(text);
-            int x = (this.xSize - width) / 2 + this.x;
-            graphics.drawString(font, text, x, this.y + i * font.lineHeight + 20, 0, false);
-        }
+        GridLayout layout = new GridLayout(this.x, this.y);
+        GridLayout.RowHelper row = layout.createRowHelper(2);
+        row.defaultCellSetting().paddingTop(5);
+        row.addChild(new StringWidget(this.xSize, 10, this.title, Minecraft.getInstance().font).alignCenter(), 2);
+        MutableComponent text = Component.empty();
+        for(Component component : this.text)
+            text.append("\n").append(component);
+        MultiLineTextWidget textWidget = new MultiLineTextWidget(text, Minecraft.getInstance().font).setCentered(true).setMaxWidth(this.xSize - 10);
+        this.ySize = textWidget.getHeight() + 50;
+        row.addChild(textWidget, 2, row.newCellSettings().alignHorizontallyCenter());
+        row.addChild(Button.builder(CONFIRM, b -> this.confirm()).bounds(0, 0, 50, 20).build(), row.newCellSettings().alignHorizontallyCenter());
+        row.addChild(Button.builder(CANCEL, b -> this.cancel()).bounds(0, 0, 50, 20).build(), row.newCellSettings().alignHorizontallyCenter());
+        layout.arrangeElements();
+        layout.visitWidgets(this::addRenderableWidget);
     }
 }

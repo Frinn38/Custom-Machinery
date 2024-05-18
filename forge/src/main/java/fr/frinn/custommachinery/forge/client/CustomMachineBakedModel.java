@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -18,6 +19,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.client.ChunkRenderTypeSet;
@@ -152,6 +154,12 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     @Override
     public TextureAtlasSprite getParticleIcon(@NotNull ModelData data) {
         return getMachineModel(data).getParticleIcon(data);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public ItemTransforms getTransforms() {
+        return Minecraft.getInstance().getBlockRenderer().getBlockModel(Blocks.STONE.defaultBlockState()).getTransforms();
     }
 
     private BakedModel getMachineModel(@NotNull ModelData data) {
