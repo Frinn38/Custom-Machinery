@@ -119,19 +119,15 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
         return this.radius;
     }
 
-    public static class Template implements IMachineComponentTemplate<ChunkloadMachineComponent> {
+    public record Template(
+            int radius
+    ) implements IMachineComponentTemplate<ChunkloadMachineComponent> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
                         NamedCodec.intRange(1, 32).optionalFieldOf("radius", 1).forGetter(template -> template.radius)
                 ).apply(templateInstance, Template::new), "Chunkload machine component template"
         );
-
-        private final int radius;
-
-        public Template(int radius) {
-            this.radius = radius;
-        }
 
         @Override
         public MachineComponentType<ChunkloadMachineComponent> getType() {

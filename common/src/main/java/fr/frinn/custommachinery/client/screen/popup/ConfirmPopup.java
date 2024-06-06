@@ -64,13 +64,19 @@ public class ConfirmPopup extends PopupScreen {
         GridLayout layout = new GridLayout(this.x, this.y);
         GridLayout.RowHelper row = layout.createRowHelper(2);
         row.defaultCellSetting().paddingTop(5);
-        row.addChild(new StringWidget(this.xSize, 10, this.title, Minecraft.getInstance().font).alignCenter(), 2);
-        MutableComponent text = Component.empty();
-        for(Component component : this.text)
-            text.append("\n").append(component);
-        MultiLineTextWidget textWidget = new MultiLineTextWidget(text, Minecraft.getInstance().font).setCentered(true).setMaxWidth(this.xSize - 10);
-        this.ySize = textWidget.getHeight() + 50;
-        row.addChild(textWidget, 2, row.newCellSettings().alignHorizontallyCenter());
+
+        if(this.title != null)
+            row.addChild(new StringWidget(this.xSize, 10, this.title, Minecraft.getInstance().font).alignCenter(), 2);
+
+        if(!this.text.isEmpty()) {
+            MutableComponent text = Component.empty();
+            for(Component component : this.text)
+                text.append("\n").append(component);
+            MultiLineTextWidget textWidget = new MultiLineTextWidget(text, Minecraft.getInstance().font).setCentered(true).setMaxWidth(this.xSize - 10);
+            this.ySize = textWidget.getHeight() + 50;
+            row.addChild(textWidget, 2, row.newCellSettings().alignHorizontallyCenter());
+        }
+
         row.addChild(Button.builder(CONFIRM, b -> this.confirm()).bounds(0, 0, 50, 20).build(), row.newCellSettings().alignHorizontallyCenter());
         row.addChild(Button.builder(CANCEL, b -> this.cancel()).bounds(0, 0, 50, 20).build(), row.newCellSettings().alignHorizontallyCenter());
         layout.arrangeElements();

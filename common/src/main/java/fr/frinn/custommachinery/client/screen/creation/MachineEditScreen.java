@@ -14,8 +14,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.TabManager;
+import net.minecraft.client.gui.components.toasts.TutorialToast;
+import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
@@ -32,6 +35,8 @@ public class MachineEditScreen extends BaseScreen {
 
     private boolean changed = false;
 
+    private ImageButton save;
+    private ImageButton close;
     private TabManager tabManager;
     private MachineEditTabNavigationBar bar;
 
@@ -52,6 +57,7 @@ public class MachineEditScreen extends BaseScreen {
     public void save() {
         this.changed = false;
         new CEditMachinePacket(this.builder.build()).sendToServer();
+        Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.save.toast"), null, false), 50);
     }
 
     public void cancel() {
@@ -66,8 +72,10 @@ public class MachineEditScreen extends BaseScreen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(new ImageButton(this.x - 20, this.y, 20, 20, 0, 0, WIDGETS, button -> this.save()));
-        this.addRenderableWidget(new ImageButton(this.x - 20, this.y + 23, 20, 20, 20, 0, WIDGETS, button -> this.cancel()));
+        this.save = this.addRenderableWidget(new ImageButton(this.x - 20, this.y, 20, 20, 0, 0, WIDGETS, button -> this.save()));
+        this.save.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.save")));
+        this.close = this.addRenderableWidget(new ImageButton(this.x - 20, this.y + 23, 20, 20, 20, 0, WIDGETS, button -> this.cancel()));
+        this.close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.close")));
         this.tabManager = new MachineTabManager(this::addRenderableWidget, this::removeWidget);
         this.bar = this.addRenderableWidget(new MachineEditTabNavigationBar(this.xSize, this.tabManager, List.of(new BaseInfoTab(this), new AppearanceTab(this), new ComponentTab(this), new GuiTab(this))));
         this.bar.selectTab(0, false);
@@ -76,6 +84,9 @@ public class MachineEditScreen extends BaseScreen {
 
     @Override
     public void repositionElements() {
+        this.save.setPosition(this.x - 20, this.y);
+        this.close.setPosition(this.x - 20, this.y + 23);
+
         if (this.bar == null)
             return;
 

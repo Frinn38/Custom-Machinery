@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.machine.builder.MachineAppearanceBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 
 public class AppearanceTab extends MachineEditTab {
@@ -25,6 +26,12 @@ public class AppearanceTab extends MachineEditTab {
 
     public void initList() {
         this.appearanceList.init();
+    }
+
+    @Override
+    public void doLayout(ScreenRectangle rectangle) {
+        super.doLayout(rectangle);
+        this.appearanceList.resize(this.parent.x, this.parent.y + 50, this.parent.xSize, this.parent.ySize - 60);
     }
 
     @Override

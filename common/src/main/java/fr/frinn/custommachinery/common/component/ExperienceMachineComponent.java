@@ -156,25 +156,19 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
       player.giveExperiencePoints(xp);
   }
 
-  public static class Template implements IMachineComponentTemplate<ExperienceMachineComponent> {
+  public record Template(
+          int capacity,
+          boolean retrieve,
+          List<String> slots
+  ) implements IMachineComponentTemplate<ExperienceMachineComponent> {
     public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
       templateInstance.group(
         NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
-        NamedCodec.BOOL.optionalFieldOf("retrieve", false).forGetter(template -> template.retrieveFromSlots),
-        NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(template -> template.slotIds)
+        NamedCodec.BOOL.optionalFieldOf("retrieve", false).forGetter(template -> template.retrieve),
+        NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(template -> template.slots)
       ).apply(templateInstance, Template::new),
       "Experience machine component"
     );
-
-    private final int capacity;
-    private final boolean retrieveFromSlots;
-    private final List<String> slotIds;
-
-    public Template(int capacity, boolean retrieveFromSlots, List<String> slotIds) {
-      this.capacity = capacity;
-      this.retrieveFromSlots = retrieveFromSlots;
-      this.slotIds = slotIds;
-    }
 
     @Override
     public MachineComponentType<ExperienceMachineComponent> getType() {
@@ -193,7 +187,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
     @Override
     public ExperienceMachineComponent build(IMachineComponentManager manager) {
-      return new ExperienceMachineComponent(manager, this.capacity, this.retrieveFromSlots, this.slotIds);
+      return new ExperienceMachineComponent(manager, this.capacity, this.retrieve, this.slots);
     }
   }
 }

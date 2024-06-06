@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +30,7 @@ public abstract class PopupScreen extends BaseScreen {
         this.x += movedX;
         this.y += movedY;
         this.children().forEach(c -> {
-            if(c instanceof AbstractWidget widget)
+            if(c instanceof LayoutElement widget)
                 widget.setPosition(widget.getX() + movedX, widget.getY() + movedY);
         });
     }

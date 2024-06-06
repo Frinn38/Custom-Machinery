@@ -19,9 +19,9 @@ public class MachineListWidget extends ObjectSelectionList<MachineEntry> {
     public MachineListWidget(MachineCreationScreen parent, Minecraft minecraft, int width, int height, int y0, int y1, int itemHeight) {
         super(minecraft, width, height, y0, y1, itemHeight);
         this.parent = parent;
-        setRenderBackground(false);
-        setRenderHeader(false, 0);
-        setRenderTopAndBottom(false);
+        this.setRenderBackground(false);
+        this.setRenderHeader(false, 0);
+        this.setRenderTopAndBottom(false);
     }
 
     @Override

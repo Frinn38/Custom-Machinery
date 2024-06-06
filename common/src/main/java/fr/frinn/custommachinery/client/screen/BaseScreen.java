@@ -86,8 +86,8 @@ public abstract class BaseScreen extends Screen {
 
     @Override
     protected void init() {
-        this.x = (this.mc.getWindow().getGuiScaledWidth() - this.xSize) / 2;
-        this.y = (this.mc.getWindow().getGuiScaledHeight() - this.ySize) / 2;
+        this.x = (this.width - this.xSize) / 2;
+        this.y = (this.height - this.ySize) / 2;
         this.popups.forEach(popup -> popup.init(Minecraft.getInstance(), this.width, this.height));
     }
 
@@ -100,25 +100,36 @@ public abstract class BaseScreen extends Screen {
 
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
+        this.x = (width - this.xSize) / 2;
+        this.y = (height - this.ySize) / 2;
         super.resize(minecraft, width, height);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(graphics);
+        PopupScreen hoveredPopup = this.getPopupUnderMouse(mouseX, mouseY);
+
         graphics.pose().pushPose();
-        if(this.getPopupUnderMouse(mouseX, mouseY) != null)
+
+        if(hoveredPopup != null)
             super.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
         else
             super.render(graphics, mouseX, mouseY, partialTicks);
+
         for(Iterator<PopupScreen> iterator = this.popups.descendingIterator(); iterator.hasNext();) {
             graphics.pose().translate(0, 0, 165); //Items are rendered at z=150, tooltips z=400
-            iterator.next().render(graphics, mouseX, mouseY, partialTicks);
+            PopupScreen popup = iterator.next();
+            if(hoveredPopup == popup)
+                popup.render(graphics, mouseX, mouseY, partialTicks);
+            else
+                popup.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
         }
+
         graphics.pose().popPose();
-        PopupScreen popup = getPopupUnderMouse(mouseX, mouseY);
-        if(popup != null) {
-            Tooltip tooltip = popup.getTooltip(mouseX, mouseY);
+
+        if(hoveredPopup != null) {
+            Tooltip tooltip = hoveredPopup.getTooltip(mouseX, mouseY);
             if(tooltip != null)
                 this.setTooltipForNextRenderPass(tooltip, DefaultTooltipPositioner.INSTANCE, true);
             else

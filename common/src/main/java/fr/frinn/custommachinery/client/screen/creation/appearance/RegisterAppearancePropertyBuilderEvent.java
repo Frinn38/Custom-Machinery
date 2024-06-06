@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Subscribe to this Event to register a widget supplier for your gui element.
+ * Subscribe to this Event to register a builder for an appearance property.
  * This Event is fired only on the client side.
  */
 public class RegisterAppearancePropertyBuilderEvent {

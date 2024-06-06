@@ -201,48 +201,34 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return AbstractContainerMenu.getRedstoneSignalFromContainer(new SimpleContainer(this.stack));
     }
 
-    public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
+    public record Template(String id,
+                           ComponentIOMode mode,
+                           int capacity,
+                           int maxInput,
+                           int maxOutput,
+                           List<IIngredient<Item>> filter,
+                           boolean whitelist,
+                           ItemComponentVariant variant,
+                           SideConfig.Template config,
+                           boolean locked
+    ) implements IMachineComponentTemplate<ItemMachineComponent> {
 
         public static final NamedCodec<ItemMachineComponent.Template> CODEC = NamedCodec.record(itemMachineComponentTemplate ->
                 itemMachineComponentTemplate.group(
                         NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         NamedCodec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> Optional.of(template.maxInput)),
-                        NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> Optional.of(template.maxOutput)),
+                        NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                        NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                         IIngredient.ITEM.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
                         NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT).orElse(DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant),
-                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config)),
+                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked)
                 ).apply(itemMachineComponentTemplate, (id, mode, capacity, maxInput, maxOutput, filter, whitelist, variant, config, locked) ->
                         new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, (ItemComponentVariant) variant, config.orElse(mode.getBaseConfig()), locked)
                 ), "Item machine component"
         );
-
-        private final ComponentIOMode mode;
-        private final String id;
-        private final int capacity;
-        private final int maxInput;
-        private final int maxOutput;
-        private final List<IIngredient<Item>> filter;
-        private final boolean whitelist;
-        private final ItemComponentVariant variant;
-        private final SideConfig.Template config;
-        private final boolean locked;
-
-        public Template(String id, ComponentIOMode mode, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, SideConfig.Template config, boolean locked) {
-            this.mode = mode;
-            this.id = id;
-            this.capacity = capacity;
-            this.maxInput = maxInput;
-            this.maxOutput = maxOutput;
-            this.filter = filter;
-            this.whitelist = whitelist;
-            this.variant = variant;
-            this.config = config;
-            this.locked = locked;
-        }
 
         public ItemComponentVariant getVariant() {
             return this.variant;

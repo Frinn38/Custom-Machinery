@@ -96,7 +96,15 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getLevel().getSignal(this.getManager().getTile().getBlockPos(), direction)).max().orElse(0);
     }
 
-    public static class Template implements IMachineComponentTemplate<RedstoneMachineComponent> {
+    public record Template(
+            int powerToPause,
+            int craftingPowerOutput,
+            int idlePowerOutput,
+            int erroredPowerOutput,
+            int pausedPowerOutput,
+            MachineComponentType<?> comparatorInputType,
+            String comparatorInputId
+    ) implements IMachineComponentTemplate<RedstoneMachineComponent> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
@@ -106,27 +114,9 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
                         NamedCodec.INT.optionalFieldOf("erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
                         NamedCodec.INT.optionalFieldOf("pausedpoweroutput", 0).forGetter(template -> template.pausedPowerOutput),
                         RegistrarCodec.MACHINE_COMPONENT.optionalFieldOf("comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
-                        NamedCodec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputID)
+                        NamedCodec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputId)
                 ).apply(templateInstance, Template::new), "Redstone machine component"
         );
-
-        private final int powerToPause;
-        private final int craftingPowerOutput;
-        private final int idlePowerOutput;
-        private final int erroredPowerOutput;
-        private final int pausedPowerOutput;
-        private final MachineComponentType<?> comparatorInputType;
-        private final String comparatorInputID;
-
-        public Template(int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, int pausedPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
-            this.powerToPause = powerToPause;
-            this.craftingPowerOutput = craftingPowerOutput;
-            this.idlePowerOutput = idlePowerOutput;
-            this.erroredPowerOutput = erroredPowerOutput;
-            this.pausedPowerOutput = pausedPowerOutput;
-            this.comparatorInputType = comparatorInputType;
-            this.comparatorInputID = comparatorInputID;
-        }
 
         @Override
         public MachineComponentType<RedstoneMachineComponent> getType() {
@@ -145,7 +135,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
         @Override
         public RedstoneMachineComponent build(IMachineComponentManager manager) {
-            return new RedstoneMachineComponent(manager, this.powerToPause, this.craftingPowerOutput, this.idlePowerOutput, this.erroredPowerOutput, this.pausedPowerOutput, this.comparatorInputType, this.comparatorInputID);
+            return new RedstoneMachineComponent(manager, this.powerToPause, this.craftingPowerOutput, this.idlePowerOutput, this.erroredPowerOutput, this.pausedPowerOutput, this.comparatorInputType, this.comparatorInputId);
         }
     }
 }

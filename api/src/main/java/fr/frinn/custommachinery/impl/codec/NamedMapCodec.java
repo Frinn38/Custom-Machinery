@@ -158,31 +158,33 @@ public abstract class NamedMapCodec<A> extends CompressorHolder implements MapDe
     }
 
     public NamedMapCodec<A> orElse(final A value) {
-        return mapResult(new ResultFunction<A>() {
-            @Override
-            public <T> DataResult<A> apply(final DynamicOps<T> ops, final MapLike<T> input, final DataResult<A> a) {
-                return DataResult.success(a.result().orElse(value));
-            }
-
-            @Override
-            public <T> RecordBuilder<T> coApply(final DynamicOps<T> ops, final A input, final RecordBuilder<T> t) {
-                return t;
-            }
-        });
+        return orElseGet(() -> value);
     }
 
     public NamedMapCodec<A> orElseGet(final Supplier<? extends A> value) {
-        return mapResult(new ResultFunction<>() {
+        return new NamedMapCodec<>() {
             @Override
-            public <T> DataResult<A> apply(final DynamicOps<T> ops, final MapLike<T> input, final DataResult<A> a) {
-                return DataResult.success(a.result().orElseGet(value));
+            public <T> Stream<T> keys(final DynamicOps<T> ops) {
+                return NamedMapCodec.this.keys(ops);
             }
 
             @Override
-            public <T> RecordBuilder<T> coApply(final DynamicOps<T> ops, final A input, final RecordBuilder<T> t) {
-                return t;
+            public <T> RecordBuilder<T> encode(final A input, final DynamicOps<T> ops, final RecordBuilder<T> prefix) {
+                if(value.get().equals(input))
+                    return prefix;
+                return NamedMapCodec.this.encode(input, ops, prefix);
             }
-        });
+
+            @Override
+            public <T> DataResult<A> decode(final DynamicOps<T> ops, final MapLike<T> input) {
+                return DataResult.success(NamedMapCodec.this.decode(ops, input).result().orElseGet(value));
+            }
+
+            @Override
+            public String name() {
+                return NamedMapCodec.this.name();
+            }
+        };
     }
 
     protected final List<String> aliases = new ArrayList<>();

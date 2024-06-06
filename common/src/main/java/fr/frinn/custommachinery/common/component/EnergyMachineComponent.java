@@ -181,30 +181,23 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         return energyExtracted;
     }
 
-    public static class Template implements IMachineComponentTemplate<EnergyMachineComponent> {
+    public record Template(
+            long capacity,
+            long maxInput,
+            long maxOutput,
+            SideConfig.Template config
+    ) implements IMachineComponentTemplate<EnergyMachineComponent> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
                         NamedCodec.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
-                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> Optional.of(template.maxInput)),
-                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                         SideConfig.Template.CODEC.optionalFieldOf("config", SideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
                 ).apply(templateInstance, (capacity, maxInput, maxOutput, config) ->
                         new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), config)
                 ), "Energy machine component"
         );
-
-        private final long capacity;
-        private final long maxInput;
-        private final long maxOutput;
-        private final SideConfig.Template config;
-
-        public Template(long capacity, long maxInput, long maxOutput, SideConfig.Template config) {
-            this.capacity = capacity;
-            this.maxInput = maxInput;
-            this.maxOutput = maxOutput;
-            this.config = config;
-        }
 
         @Override
         public MachineComponentType<EnergyMachineComponent> getType() {

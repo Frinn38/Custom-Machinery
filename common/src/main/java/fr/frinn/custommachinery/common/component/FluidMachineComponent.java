@@ -203,45 +203,33 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         getManager().markDirty();
     }
 
-    public static class Template implements IMachineComponentTemplate<FluidMachineComponent> {
+    public record Template(
+            String id,
+            long capacity,
+            long maxInput,
+            long maxOutput,
+            List<IIngredient<Fluid>> filter,
+            boolean whitelist,
+            ComponentIOMode mode,
+            SideConfig.Template config,
+            boolean unique
+    ) implements IMachineComponentTemplate<FluidMachineComponent> {
 
         public static final NamedCodec<FluidMachineComponent.Template> CODEC = NamedCodec.record(fluidMachineComponentTemplate ->
                 fluidMachineComponentTemplate.group(
                         NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
                         NamedCodec.LONG.fieldOf("capacity").forGetter(template -> template.capacity),
-                        NamedCodec.LONG.optionalFieldOf("maxInput").forGetter(template -> Optional.of(template.maxInput)),
-                        NamedCodec.LONG.optionalFieldOf("maxOutput").forGetter(template -> Optional.of(template.maxOutput)),
+                        NamedCodec.LONG.optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                        NamedCodec.LONG.optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                         IIngredient.FLUID.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
                         NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> Optional.of(template.config)),
+                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("unique", false).forGetter(template -> template.unique)
                 ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode, config, unique) ->
                         new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, mode, config.orElse(mode.getBaseConfig()), unique)
                 ), "Fluid machine component"
         );
-
-        private final String id;
-        private final long capacity;
-        private final long maxInput;
-        private final long maxOutput;
-        private final List<IIngredient<Fluid>> filter;
-        private final boolean whitelist;
-        private final ComponentIOMode mode;
-        private final SideConfig.Template config;
-        private final boolean unique;
-
-        public Template(String id, long capacity, long maxInput, long maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, ComponentIOMode mode, SideConfig.Template config, boolean unique) {
-            this.id = id;
-            this.capacity = capacity;
-            this.maxInput = maxInput;
-            this.maxOutput = maxOutput;
-            this.filter = filter;
-            this.whitelist = whitelist;
-            this.mode = mode;
-            this.config = config;
-            this.unique = unique;
-        }
 
         @Override
         public MachineComponentType<FluidMachineComponent> getType() {

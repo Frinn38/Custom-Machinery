@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.api.component;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import net.minecraft.network.chat.Component;
 
 import java.util.Locale;
 
@@ -35,12 +36,16 @@ public enum ComponentIOMode {
         return this.baseConfig;
     }
 
+    public Component toComponent() {
+        return Component.translatable("custommachinery.machine.component.mode." + this);
+    }
+
     public static ComponentIOMode value(String value) {
         return ComponentIOMode.valueOf(value.toUpperCase(Locale.ENGLISH));
     }
 
     @Override
     public String toString() {
-        return super.toString().toLowerCase(Locale.ENGLISH);
+        return super.toString().toLowerCase(Locale.ROOT);
     }
 }

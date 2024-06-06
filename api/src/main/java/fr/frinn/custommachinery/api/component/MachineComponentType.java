@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.builder.IMachineComponentBuilder;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
@@ -16,7 +15,6 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Used to build and/or compare {@link IMachineComponent}.
@@ -66,7 +64,6 @@ public class MachineComponentType<T extends IMachineComponent> {
     private BiFunction<IMachineComponentManager, List<T>, IComponentHandler<T>> handlerBuilder;
     private boolean defaultComponent = false;
     private Function<IMachineComponentManager, T> defaultComponentBuilder;
-    private Supplier<IMachineComponentBuilder<T>> GUIComponentBuilder;
 
     /**
      * A constructor for {@link MachineComponentType}.
@@ -151,32 +148,6 @@ public class MachineComponentType<T extends IMachineComponent> {
      */
     public Function<IMachineComponentManager, T> getDefaultComponentBuilder() {
         return this.defaultComponentBuilder;
-    }
-
-    /**
-     * Used to set a {@link IMachineComponentBuilder} that can be used by the machine creation gui to create an {@link IMachineComponentTemplate}.
-     * @param builder The {@link IMachineComponentBuilder} used by the machine creation gui.
-     * @return this
-     */
-    public MachineComponentType<T> setGUIBuilder(Supplier<IMachineComponentBuilder<T>> builder) {
-        this.GUIComponentBuilder = builder;
-        return this;
-    }
-
-    /**
-     * @return true if this component can be created by the machine creation gui.
-     */
-    public boolean haveGUIBuilder() {
-        return this.GUIComponentBuilder != null;
-    }
-
-    /**
-     * @return The {@link IMachineComponentBuilder} that will be used by the machine component gui.
-     */
-    public Supplier<IMachineComponentBuilder<T>> getGUIBuilder() {
-        if(this.GUIComponentBuilder != null)
-            return this.GUIComponentBuilder;
-        else throw new IllegalStateException("Error while trying to get a builder for Machine Component: " + getId() + " builder not present !");
     }
 
     /**

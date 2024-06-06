@@ -24,11 +24,11 @@ public class AppearanceList extends ContainerObjectSelectionList<AppearanceList.
         super(minecraft, width, height, y, y + height, itemHeight);
         this.builder = builder;
         this.parent = parent;
-        setRenderBackground(false);
-        setRenderHeader(false, 0);
-        setRenderTopAndBottom(false);
-        setLeftPos(x);
-        init();
+        this.setRenderBackground(false);
+        this.setRenderHeader(false, 0);
+        this.setRenderTopAndBottom(false);
+        this.setLeftPos(x);
+        this.init();
     }
 
     public void init() {
@@ -39,6 +39,14 @@ public class AppearanceList extends ContainerObjectSelectionList<AppearanceList.
                 continue;
             addEntry(new AppearanceEntry(propertyBuilder));
         }
+    }
+
+    public void resize(int x, int y, int width, int height) {
+        this.width = width;
+        this.height = height;
+        this.setLeftPos(x);
+        this.y0 = y;
+        this.y1 = y + height;
     }
 
     @Override
