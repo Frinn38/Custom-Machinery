@@ -3,47 +3,34 @@ package fr.frinn.custommachinery.client.screen.creation;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineListWidget.MachineEntry;
+import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 
-public class MachineListWidget extends ObjectSelectionList<MachineEntry> {
+import java.util.Collections;
+import java.util.List;
+
+public class MachineListWidget extends ListWidget<MachineEntry> {
 
     private final MachineCreationScreen parent;
 
-    public MachineListWidget(MachineCreationScreen parent, Minecraft minecraft, int width, int height, int y0, int y1, int itemHeight) {
-        super(minecraft, width, height, y0, y1, itemHeight);
+    public MachineListWidget(MachineCreationScreen parent, int x, int y, int width, int height, int itemHeight) {
+        super(x, y, width, height, itemHeight, Component.empty());
         this.parent = parent;
-        this.setRenderBackground(false);
-        this.setRenderHeader(false, 0);
-        this.setRenderTopAndBottom(false);
-    }
-
-    @Override
-    protected int getScrollbarPosition() {
-        return this.getRowRight();
+        this.setRenderSelection();
     }
 
     public void reload() {
-        this.children().clear();
+        this.clear();
         CustomMachinery.MACHINES.values().forEach(machine -> this.addEntry(new MachineEntry(machine)));
     }
 
-    @Override
-    protected void renderItem(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, int index, int left, int top, int width, int height) {
-        MachineEntry entry = this.getEntry(index);
-        entry.renderBack(graphics, index, top, left, width, height, mouseX, mouseY, entry.isMouseOver(mouseX, mouseY), partialTick);
-        if(this.isSelectedItem(index))
-            this.renderSelection(graphics, top, width, height, FastColor.ARGB32.color(255, 0, 0, 0), FastColor.ARGB32.color(255, 198, 198, 198));
-        entry.render(graphics, index, top, left, width, height, mouseX, mouseY, entry.isMouseOver(mouseX, mouseY), partialTick);
-    }
-
-    public static class MachineEntry extends Entry<MachineEntry> {
+    public static class MachineEntry extends Entry {
 
         private final Minecraft mc = Minecraft.getInstance();
         private final CustomMachine machine;
@@ -57,16 +44,16 @@ public class MachineListWidget extends ObjectSelectionList<MachineEntry> {
         }
 
         @Override
-        public Component getNarration() {
-            return this.machine.getName();
+        public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+            graphics.renderItem(CustomMachineItem.makeMachineItem(this.machine.getId()), x + 2, y + height / 2 - 8);
+            graphics.drawString(this.mc.font, this.machine.getName(), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0, false);
+            BaseScreen.drawScaledString(graphics, this.mc.font, Component.literal(this.machine.getId().toString()).withStyle(ChatFormatting.DARK_GRAY), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.8f, 0, false);
+            BaseScreen.drawScaledString(graphics, this.mc.font, this.machine.getLocation().getLoader().getTranslatedName().withStyle(ChatFormatting.ITALIC), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.7f, 0, false);
         }
 
         @Override
-        public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-            graphics.renderItem(CustomMachineItem.makeMachineItem(this.machine.getId()), left + 2, top + height / 2 - 8);
-            graphics.drawString(this.mc.font, this.machine.getName(), left + 20, top + height / 2 - this.mc.font.lineHeight / 2 - 6, 0, false);
-            BaseScreen.drawScaledString(graphics, this.mc.font, Component.literal(this.machine.getId().toString()).withStyle(ChatFormatting.DARK_GRAY), left + 20, top + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.8f, 0, false);
-            BaseScreen.drawScaledString(graphics, this.mc.font, this.machine.getLocation().getLoader().getTranslatedName().withStyle(ChatFormatting.ITALIC), left + 20, top + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.7f, 0, false);
+        public List<? extends GuiEventListener> children() {
+            return Collections.emptyList();
         }
 
         @Override

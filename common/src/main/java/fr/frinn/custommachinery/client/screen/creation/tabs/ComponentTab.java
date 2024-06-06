@@ -2,36 +2,34 @@ package fr.frinn.custommachinery.client.screen.creation.tabs;
 
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
-import fr.frinn.custommachinery.client.screen.creation.MachineComponentList;
+import fr.frinn.custommachinery.client.screen.creation.MachineComponentListWidget;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentCreationPopup;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.MachineComponentBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 public class ComponentTab extends MachineEditTab {
 
-    private final MachineComponentList componentList;
+    private final MachineComponentListWidget componentList;
     private final Button create;
     private final Button edit;
     private final Button delete;
 
     public ComponentTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.components"), parent);
-        this.componentList = new MachineComponentList(Minecraft.getInstance(), parent.x, parent.y + 10, parent.xSize, parent.ySize - 50, 40, this);
-        this.componentList.setup(parent.getBuilder());
-
         this.layout.rowSpacing(5).columnSpacing(10);
+        this.layout.defaultCellSetting().paddingTop(5);
         GridLayout.RowHelper row = this.layout.createRowHelper(3);
         LayoutSettings center = row.defaultCellSetting().alignHorizontallyCenter();
+        this.componentList = row.addChild(new MachineComponentListWidget(parent.x, parent.y + 10, parent.xSize - 10, parent.ySize - 50, 40, this), 3, center);
+        this.componentList.setup(parent.getBuilder());
         this.create = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).size(60, 20).build(), center);
         this.edit = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).size(60, 20).build(), center);
         this.delete = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.delete"), button -> this.delete()).size(60, 20).build(), center);
@@ -53,7 +51,7 @@ public class ComponentTab extends MachineEditTab {
     }
 
     public void edit() {
-        MachineComponentList.MachineComponentEntry entry = this.componentList.getSelected();
+        MachineComponentListWidget.MachineComponentEntry entry = this.componentList.getSelected();
         if(entry != null) {
             PopupScreen componentEditPopup = getComponentEditPopup(entry.getTemplate(), entry);
             if(componentEditPopup != null)
@@ -63,7 +61,7 @@ public class ComponentTab extends MachineEditTab {
 
     public void delete() {
         ConfirmPopup popup = new ConfirmPopup(this.parent, 128, 96, () -> {
-            MachineComponentList.MachineComponentEntry entry = this.componentList.getSelected();
+            MachineComponentListWidget.MachineComponentEntry entry = this.componentList.getSelected();
             if(entry != null) {
                 this.parent.getBuilder().getComponents().remove(entry.getTemplate());
                 this.parent.setChanged();
@@ -76,7 +74,7 @@ public class ComponentTab extends MachineEditTab {
     }
 
     @Nullable
-    private <C extends IMachineComponent, T extends IMachineComponentTemplate<C>> PopupScreen getComponentEditPopup(T template, MachineComponentList.MachineComponentEntry entry) {
+    private <C extends IMachineComponent, T extends IMachineComponentTemplate<C>> PopupScreen getComponentEditPopup(T template, MachineComponentListWidget.MachineComponentEntry entry) {
         IMachineComponentBuilder<C, T> builder = MachineComponentBuilderRegistry.getBuilder(template.getType());
         if(builder == null)
             return null;
@@ -84,21 +82,5 @@ public class ComponentTab extends MachineEditTab {
             entry.setTemplate(t);
             this.parent.setChanged();
         });
-    }
-
-    @Override
-    public void doLayout(ScreenRectangle rectangle) {
-        super.doLayout(new ScreenRectangle(rectangle.left(), rectangle.bottom() - 30, rectangle.width(), 30));
-        this.componentList.resize(this.parent.x, this.parent.y + 10, this.parent.xSize, this.parent.ySize - 50);
-    }
-
-    @Override
-    public void opened() {
-        this.parent.addRenderableWidget(this.componentList);
-    }
-
-    @Override
-    public void closed() {
-        this.parent.removeWidget(this.componentList);
     }
 }

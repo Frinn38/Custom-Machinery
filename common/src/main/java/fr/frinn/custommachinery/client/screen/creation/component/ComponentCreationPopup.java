@@ -2,20 +2,20 @@ package fr.frinn.custommachinery.client.screen.creation.component;
 
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
+import fr.frinn.custommachinery.client.screen.creation.component.ComponentCreationPopup.ComponentCreationListWidget.ComponentCreationListEntry;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
+import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.List;
 
 public class ComponentCreationPopup extends PopupScreen {
 
@@ -24,7 +24,7 @@ public class ComponentCreationPopup extends PopupScreen {
 
     private final Runnable onChange;
 
-    private ComponentCreationList list;
+    private ComponentCreationListWidget list;
 
     public ComponentCreationPopup(MachineEditScreen parent, Runnable onChange) {
         super(parent, 116, 144);
@@ -32,7 +32,7 @@ public class ComponentCreationPopup extends PopupScreen {
     }
 
     private void confirm() {
-        ComponentCreationList.ComponentCreationListEntry entry = this.list.getSelected();
+        ComponentCreationListWidget.ComponentCreationListEntry entry = this.list.getSelected();
         if(entry != null && this.parent instanceof MachineEditScreen editScreen) {
             PopupScreen componentCreationPopup = entry.builder.makePopup(editScreen, null, template -> {
                 editScreen.getBuilder().getComponents().add(template);
@@ -53,19 +53,16 @@ public class ComponentCreationPopup extends PopupScreen {
         super.init();
         Component title = Component.translatable("custommachinery.gui.creation.components.create.title");
         this.addRenderableWidget(new StringWidget(this.x, this.y + 5, this.xSize, this.font.lineHeight, title, Minecraft.getInstance().font));
-        this.list = this.addRenderableWidget(new ComponentCreationList(this.x + 3, this.y + 15, this.xSize - 10, this.ySize - 50));
+        this.list = this.addRenderableWidget(new ComponentCreationListWidget(this.x + 3, this.y + 15, this.xSize - 10, this.ySize - 50));
         this.addRenderableWidget(Button.builder(CONFIRM, b -> this.confirm()).bounds(this.x + 5, this.y + this.ySize - 30, 50, 20).build());
         this.addRenderableWidget(Button.builder(CANCEL, b -> this.cancel()).bounds(this.x + this.xSize - 55, this.y + this.ySize - 30, 50, 20).build());
     }
 
-    private static class ComponentCreationList extends ObjectSelectionList<ComponentCreationList.ComponentCreationListEntry> implements LayoutElement {
+    protected static class ComponentCreationListWidget extends ListWidget<ComponentCreationListEntry> {
 
-        public ComponentCreationList(int x, int y, int width, int height) {
-            super(Minecraft.getInstance(), width, height, y, y + height, 20);
-            this.setLeftPos(x);
-            this.setRenderBackground(false);
-            this.setRenderHeader(false, 0);
-            this.setRenderTopAndBottom(false);
+        public ComponentCreationListWidget(int x, int y, int width, int height) {
+            super(x, y, width, height, 20, Component.empty());
+            this.setRenderSelection();
 
             for(MachineComponentType<?> type : Registration.MACHINE_COMPONENT_TYPE_REGISTRY) {
                 IMachineComponentBuilder<?, ?> builder = MachineComponentBuilderRegistry.getBuilder(type);
@@ -73,65 +70,10 @@ public class ComponentCreationPopup extends PopupScreen {
                     this.addEntry(new ComponentCreationListEntry(builder));
             }
 
-            this.setSelected(this.getFirstElement());
+            this.setSelected(this.getEntries().isEmpty() ? null : this.getEntries().get(0));
         }
 
-        @Override
-        protected int getScrollbarPosition() {
-            return this.getRowRight();
-        }
-
-        @Override
-        public int getRowWidth() {
-            return this.width - 10;
-        }
-
-        @Override
-        protected void renderItem(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, int index, int left, int top, int width, int height) {
-            ComponentCreationListEntry entry = this.getEntry(index);
-            entry.renderBack(graphics, index, top, left, width, height, mouseX, mouseY, entry.isMouseOver(mouseX, mouseY), partialTick);
-            if(this.isSelectedItem(index))
-                this.renderSelection(graphics, top, width, height, FastColor.ARGB32.color(255, 0, 0, 0), FastColor.ARGB32.color(255, 198, 198, 198));
-            entry.render(graphics, index, top, left, width, height, mouseX, mouseY, entry.isMouseOver(mouseX, mouseY), partialTick);
-        }
-
-        @Override
-        public void setX(int x) {
-            this.setLeftPos(x);
-        }
-
-        @Override
-        public void setY(int y) {
-            this.y0 = y;
-            this.y1 = y + this.width;
-        }
-
-        @Override
-        public int getX() {
-            return this.x0;
-        }
-
-        @Override
-        public int getY() {
-            return this.y0;
-        }
-
-        @Override
-        public int getWidth() {
-            return this.width;
-        }
-
-        @Override
-        public int getHeight() {
-            return this.height;
-        }
-
-        @Override
-        public void visitWidgets(Consumer<AbstractWidget> consumer) {
-
-        }
-
-        private static class ComponentCreationListEntry extends Entry<ComponentCreationListEntry> {
+        protected static class ComponentCreationListEntry extends Entry {
 
             private final IMachineComponentBuilder<?, ?> builder;
 
@@ -140,13 +82,13 @@ public class ComponentCreationPopup extends PopupScreen {
             }
 
             @Override
-            public Component getNarration() {
-                return Component.empty();
+            public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+                graphics.drawString(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), x + 5, y + 5, 0, false);
             }
 
             @Override
-            public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovering, float partialTick) {
-                graphics.drawString(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), left + 5, top + 5, 0, false);
+            public List<? extends GuiEventListener> children() {
+                return Collections.emptyList();
             }
 
             @Override

@@ -65,16 +65,17 @@ public class MachineCreationScreen extends BaseScreen {
     @Override
     protected void init() {
         super.init();
-        this.machineList = this.addRenderableWidget(new MachineListWidget(this, this.mc, this.xSize - 20, this.ySize - 30, this.y + 5, this.y + this.ySize - 35, 30));
-        this.machineList.setLeftPos(this.x + 10);
-        this.machineList.reload();
-        GridLayout layout = new GridLayout(this.x + 10, this.y + this.ySize - 30).rowSpacing(5).columnSpacing(10);
+        GridLayout layout = new GridLayout(this.x, this.y);
+        layout.defaultCellSetting().padding(5);
         GridLayout.RowHelper row = layout.createRowHelper(4);
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
+        this.machineList = row.addChild(new MachineListWidget(this, 0, 0, this.xSize - 10, this.ySize - 40, 30), 4, center);
+        this.machineList.reload();
         this.create = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
         this.edit = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).bounds(0, 0, 50, 20).build(), center);
         this.open = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.open"), button -> this.open()).bounds(0, 0, 50, 20).build(), center);
         this.delete = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.delete"), button -> this.delete()).bounds(0, 0, 50, 20).build(), center);
+
         layout.arrangeElements();
         layout.visitWidgets(this::addRenderableWidget);
     }

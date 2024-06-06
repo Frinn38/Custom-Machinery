@@ -4,10 +4,15 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.util.LRU;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent.ArrowNavigation;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent.TabNavigation;
+import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
@@ -206,6 +211,31 @@ public abstract class BaseScreen extends Screen {
             if(popup.keyPressed(keyCode, scanCode, modifiers))
                 return true;
         }
+
+        FocusNavigationEvent event = switch (keyCode) {
+            case GLFW.GLFW_KEY_LEFT -> new ArrowNavigation(ScreenDirection.LEFT);
+            case GLFW.GLFW_KEY_RIGHT -> new ArrowNavigation(ScreenDirection.RIGHT);
+            case GLFW.GLFW_KEY_UP -> new ArrowNavigation(ScreenDirection.UP);
+            case GLFW.GLFW_KEY_DOWN -> new ArrowNavigation(ScreenDirection.DOWN);
+            case GLFW.GLFW_KEY_TAB -> new TabNavigation(!Screen.hasShiftDown());
+            default -> null;
+        };
+
+        if(event != null) {
+            ComponentPath path = this.popups.stream().findFirst().map(popup -> popup.nextFocusPath(event)).orElse(this.nextFocusPath(event));
+            if (path == null && event instanceof FocusNavigationEvent.TabNavigation) {
+                ComponentPath componentPath = this.getCurrentFocusPath();
+                if (componentPath != null)
+                    componentPath.applyFocus(false);
+                path = super.nextFocusPath(event);
+            }
+
+            if (path != null)
+                this.changeFocus(path);
+
+            return true;
+        }
+
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 

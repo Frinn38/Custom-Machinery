@@ -93,7 +93,7 @@ public abstract class PopupScreen extends BaseScreen {
             this.dragX += deltaX;
             this.dragY += deltaY;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
 
     @Override
