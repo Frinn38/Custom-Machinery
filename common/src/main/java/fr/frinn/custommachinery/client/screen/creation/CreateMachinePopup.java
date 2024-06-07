@@ -1,37 +1,49 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
+import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.InfoPopup;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ComponentEditBox;
+import fr.frinn.custommachinery.common.machine.MachineLocation.Loader;
 import fr.frinn.custommachinery.common.network.CAddMachinePacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.toasts.TutorialToast;
+import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Locale;
+
 public class CreateMachinePopup extends PopupScreen {
 
     private Button create;
-    private Button delete;
+    private Button cancel;
     private EditBox id;
-    private EditBox name;
+    private ComponentEditBox name;
+    private CycleButton<Loader> loader;
 
     protected CreateMachinePopup(BaseScreen parent) {
-        super(parent, 128, 96);
+        super(parent, 128, 121);
     }
 
     public void create() {
-        new CAddMachinePacket(this.id.getValue(), Component.literal(this.name.getValue())).sendToServer();
+        new CAddMachinePacket(this.id.getValue(), this.name.getComponent(), this.loader.getValue() == Loader.KUBEJS).sendToServer();
         this.parent.closePopup(this);
-        this.parent.openPopup(new InfoPopup(this.parent, 144, 96).text(Component.translatable("custommachinery.gui.creation.popup.create.success")));
+        if(this.loader.getValue() == Loader.DEFAULT)
+            this.parent.openPopup(new InfoPopup(this.parent, 144, 96).text(Component.translatable("custommachinery.gui.creation.popup.create.success.description")));
+        else if(this.loader.getValue() == Loader.KUBEJS)
+            Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.popup.create.success"), null, false), 50);
     }
 
     @Override
@@ -53,8 +65,13 @@ public class CreateMachinePopup extends PopupScreen {
         this.name = row.addChild(new ComponentEditBox(this.font, this.x + 10, this.y + 43, this.xSize - 20, 20, Component.literal("Machine name")), 2, center);
         this.name.setHint(Component.literal("Machine name"));
         this.name.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.create.name.tooltip")));
+        CycleButton.Builder<Loader> builder = CycleButton.builder(Loader::getTranslatedName).withValues(Loader.DEFAULT).withInitialValue(Loader.DEFAULT).displayOnlyValue();
+        if(Platform.isModLoaded("kubejs"))
+            builder.withValues(Loader.DEFAULT, Loader.KUBEJS);
+        builder.withTooltip(loader -> Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.create.loader." + loader.name().toLowerCase(Locale.ROOT))));
+        this.loader = row.addChild(builder.create(0, 0, this.xSize - 20, 20, Component.empty()), 2, center);
         this.create = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.create").withStyle(ChatFormatting.GREEN), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
-        this.delete = row.addChild(Button.builder(Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.DARK_RED), button -> this.parent.closePopup(this)).bounds(0, 0, 50, 20).build(), center);
+        this.cancel = row.addChild(Button.builder(Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.DARK_RED), button -> this.parent.closePopup(this)).bounds(0, 0, 50, 20).build(), center);
         layout.arrangeElements();
         layout.visitWidgets(this::addRenderableWidget);
     }

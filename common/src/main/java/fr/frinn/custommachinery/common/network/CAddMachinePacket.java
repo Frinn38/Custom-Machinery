@@ -6,6 +6,8 @@ import dev.architectury.networking.simple.MessageType;
 import dev.architectury.utils.Env;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.machine.MachineLocation;
+import fr.frinn.custommachinery.common.machine.MachineLocation.Loader;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -18,10 +20,12 @@ public class CAddMachinePacket extends BaseC2SMessage {
 
     private final String id;
     private final Component name;
+    private final boolean kubejs;
 
-    public CAddMachinePacket(String id, Component name) {
+    public CAddMachinePacket(String id, Component name, boolean kubejs) {
         this.id = id;
         this.name = name;
+        this.kubejs = kubejs;
     }
 
     @Override
@@ -33,10 +37,11 @@ public class CAddMachinePacket extends BaseC2SMessage {
     public void write(FriendlyByteBuf buf) {
         buf.writeUtf(this.id);
         buf.writeComponent(this.name);
+        buf.writeBoolean(this.kubejs);
     }
 
     public static CAddMachinePacket read(FriendlyByteBuf buf) {
-        return new CAddMachinePacket(buf.readUtf(), buf.readComponent());
+        return new CAddMachinePacket(buf.readUtf(), buf.readComponent(), buf.readBoolean());
     }
 
     @Override
@@ -46,8 +51,8 @@ public class CAddMachinePacket extends BaseC2SMessage {
             if(player != null && player.getServer() != null && Utils.canPlayerManageMachines(player))
                 context.queue(() -> {
                     CustomMachinery.LOGGER.info("Player: " + player.getDisplayName().getString() + " added new Machine: " + this.id);
-                    CustomMachine newMachine = new CustomMachineBuilder().setId(new ResourceLocation(CustomMachinery.MODID, this.id)).setName(this.name).build();
-                    FileUtils.writeNewMachineJson(player.getServer(), newMachine);
+                    CustomMachine newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(this.kubejs ? Loader.KUBEJS : Loader.DEFAULT, new ResourceLocation(CustomMachinery.MODID, this.id), "")).setName(this.name).build();
+                    FileUtils.writeNewMachineJson(player.getServer(), newMachine, this.kubejs);
                 });
         }
     }

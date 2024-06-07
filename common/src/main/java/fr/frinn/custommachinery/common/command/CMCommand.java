@@ -9,8 +9,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.InactiveProfiler;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.concurrent.CompletableFuture;
@@ -39,7 +41,7 @@ public class CMCommand {
                 .requires(cs -> cs.hasPermission(2))
                 .executes(ctx -> {
                     if(ctx.getSource().getEntity() instanceof ServerPlayer player)
-                        reloadMachines(player);
+                        reloadMachines(player.server, player);
                     return 0;
                 });
     }
@@ -54,8 +56,11 @@ public class CMCommand {
                 });
     }
 
-    public static void reloadMachines(ServerPlayer player) {
-        new CustomMachineJsonReloadListener().reload(CompletableFuture::completedFuture, player.getServer().getResourceManager(), InactiveProfiler.INSTANCE, InactiveProfiler.INSTANCE, player.getServer(), player.getServer())
-                .thenRun(() -> player.sendSystemMessage(Component.translatable("custommachinery.command.reload").withStyle(ChatFormatting.GRAY)));
+    public static void reloadMachines(MinecraftServer server, @Nullable ServerPlayer player) {
+        new CustomMachineJsonReloadListener().reload(CompletableFuture::completedFuture, server.getResourceManager(), InactiveProfiler.INSTANCE, InactiveProfiler.INSTANCE, server, server)
+                .thenRun(() -> {
+                    if(player != null)
+                        player.sendSystemMessage(Component.translatable("custommachinery.command.reload").withStyle(ChatFormatting.GRAY));
+                });
     }
 }

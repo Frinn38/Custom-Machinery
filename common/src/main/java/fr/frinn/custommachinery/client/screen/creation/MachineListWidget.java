@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MachineListWidget extends ListWidget<MachineEntry> {
@@ -27,7 +28,10 @@ public class MachineListWidget extends ListWidget<MachineEntry> {
 
     public void reload() {
         this.clear();
-        CustomMachinery.MACHINES.values().forEach(machine -> this.addEntry(new MachineEntry(machine)));
+        CustomMachinery.MACHINES.values()
+                .stream()
+                .sorted(Comparator.comparing(machine -> machine.getName().getString()))
+                .forEach(machine -> this.addEntry(new MachineEntry(machine)));
     }
 
     public static class MachineEntry extends Entry {

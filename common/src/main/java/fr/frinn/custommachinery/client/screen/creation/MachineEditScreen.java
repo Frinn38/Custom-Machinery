@@ -72,9 +72,9 @@ public class MachineEditScreen extends BaseScreen {
     @Override
     protected void init() {
         super.init();
-        this.save = this.addRenderableWidget(new ImageButton(this.x - 20, this.y, 20, 20, 0, 0, WIDGETS, button -> this.save()));
+        this.save = this.addRenderableWidget(new ImageButton(this.x - 28, this.y + 5, 20, 20, 0, 0, WIDGETS, button -> this.save()));
         this.save.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.save")));
-        this.close = this.addRenderableWidget(new ImageButton(this.x - 20, this.y + 23, 20, 20, 20, 0, WIDGETS, button -> this.cancel()));
+        this.close = this.addRenderableWidget(new ImageButton(this.x - 28, this.y + 30, 20, 20, 20, 0, WIDGETS, button -> this.cancel()));
         this.close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.close")));
         this.tabManager = new MachineTabManager(this::addRenderableWidget, this::removeWidget);
         this.bar = this.addRenderableWidget(new MachineEditTabNavigationBar(this.xSize, this.tabManager, List.of(new BaseInfoTab(this), new AppearanceTab(this), new ComponentTab(this), new GuiTab(this))));
@@ -84,8 +84,8 @@ public class MachineEditScreen extends BaseScreen {
 
     @Override
     public void repositionElements() {
-        this.save.setPosition(this.x - 20, this.y);
-        this.close.setPosition(this.x - 20, this.y + 23);
+        this.save.setPosition(this.x - 28, this.y + 5);
+        this.close.setPosition(this.x - 28, this.y + 30);
 
         if (this.bar == null)
             return;
@@ -109,6 +109,8 @@ public class MachineEditScreen extends BaseScreen {
     public void renderBackground(GuiGraphics graphics) {
         super.renderBackground(graphics);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
+
+        blankBackground(graphics, this.x - 33, this.y, 30, 55);
     }
 
     @Override
