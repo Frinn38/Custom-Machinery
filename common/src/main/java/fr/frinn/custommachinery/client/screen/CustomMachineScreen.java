@@ -95,11 +95,6 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         return this.tile;
     }
 
-    @Override
-    public CustomMachineScreen getScreen() {
-        return this;
-    }
-
     public Optional<AbstractGuiElementWidget<?>> getElementUnderMouse(double mouseX, double mouseY) {
         for(GuiEventListener widget : this.children()) {
             if(widget instanceof AbstractGuiElementWidget<?> elementWidget && elementWidget.isMouseOver(mouseX, mouseY)) {

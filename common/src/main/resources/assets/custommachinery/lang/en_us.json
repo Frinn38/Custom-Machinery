@@ -159,6 +159,16 @@
   "custommachinery.gui.creation.components.experience.slots": "Retrieve slots",
   "custommachinery.gui.creation.components.experience.slots.tooltip": "Slots that will give the contained xp to the player when an item is taken out\nEach slot id must be separated by a comma ','",
 
+  "custommachinery.gui.creation.gui.texture": "Texture",
+  "custommachinery.gui.creation.gui.priorityUp": "Move front",
+  "custommachinery.gui.creation.gui.priorityDown": "Move back",
+  "custommachinery.gui.creation.gui.priority": "Priority: %s",
+  "custommachinery.gui.creation.gui.delete.popup": "Are you sure you want to delete this gui element ?",
+  "custommachinery.gui.creation.gui.id": "ID",
+  "custommachinery.gui.creation.gui.id.description": "Set an id for this element",
+  "custommachinery.gui.creation.gui.id.button": "Change id",
+  "custommachinery.gui.creation.gui.id.button2": "Current: %s",
+
   "custommachinery.gui.popup.confirm": "Confirm",
   "custommachinery.gui.popup.cancel": "Cancel",
   "custommachinery.gui.popup.warning": "Warning !",

@@ -83,8 +83,8 @@ public abstract class AbstractGuiElement implements IGuiElement {
                      NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(Properties::width),
                      NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(Properties::height),
                      NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(Properties::priority),
-                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture").forGetter(properties -> Optional.ofNullable(properties.texture())),
-                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered").forGetter(properties -> Optional.ofNullable(properties.textureHovered())),
+                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture").forGetter(properties -> defaultTexture != null && defaultTexture.equals(properties.texture) ? Optional.empty() : Optional.ofNullable(properties.texture())),
+                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered").forGetter(properties -> defaultTextureHovered != null && defaultTextureHovered.equals(properties.textureHovered) ? Optional.empty() : Optional.ofNullable(properties.textureHovered())),
                      TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltips", defaultTooltips).forGetter(Properties::tooltips),
                      NamedCodec.STRING.optionalFieldOf("id", "").forGetter(Properties::id)
              ).apply(propertiesInstance, (x, y, width, height, priority, texture, textureHovered, tooltips, id) ->

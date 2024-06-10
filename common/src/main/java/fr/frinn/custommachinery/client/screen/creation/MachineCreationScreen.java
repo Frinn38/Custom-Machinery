@@ -36,7 +36,7 @@ public class MachineCreationScreen extends BaseScreen {
     public void edit() {
         MachineEntry entry = this.machineList.getSelected();
         if(entry != null)
-            Minecraft.getInstance().setScreen(new MachineEditScreen(this, 256, 192, new CustomMachineBuilder(entry.getMachine())));
+            Minecraft.getInstance().setScreen(new MachineEditScreen(this, 288, 224, new CustomMachineBuilder(entry.getMachine())));
     }
 
     public void open() {

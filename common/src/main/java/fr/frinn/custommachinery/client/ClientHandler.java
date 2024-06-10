@@ -52,6 +52,9 @@ import fr.frinn.custommachinery.client.screen.creation.component.builder.Experie
 import fr.frinn.custommachinery.client.screen.creation.component.builder.FluidComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.RedstoneComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementBuilderRegistry;
+import fr.frinn.custommachinery.client.screen.creation.gui.RegisterGuiElementBuilderEvent;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.SlotGuiElementBuilder;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
@@ -59,7 +62,6 @@ import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
@@ -84,6 +86,7 @@ public class ClientHandler {
         RegisterGuiElementWidgetSupplierEvent.EVENT.register(ClientHandler::registerGuiElementWidgets);
         RegisterAppearancePropertyBuilderEvent.EVENT.register(ClientHandler::registerAppearancePropertyBuilders);
         RegisterComponentBuilderEvent.EVENT.register(ClientHandler::registerMachineComponentBuilders);
+        RegisterGuiElementBuilderEvent.EVENT.register(ClientHandler::registerGuiElementBuilders);
         RegisterGuiElementJEIRendererEvent.EVENT.register(ClientHandler::registerGuiElementJEIRenderers);
         RegisterWidgetToJeiIngredientGetterEvent.EVENT.register(ClientHandler::registerWidgetToJeiIngredientGetters);
     }
@@ -106,6 +109,7 @@ public class ClientHandler {
         GuiElementWidgetSupplierRegistry.init();
         AppearancePropertyBuilderRegistry.init();
         MachineComponentBuilderRegistry.init();
+        GuiElementBuilderRegistry.init();
         if(Platform.isModLoaded("jei")) {
             GuiElementJEIRendererRegistry.init();
             WidgetToJeiIngredientRegistry.init();
@@ -173,6 +177,10 @@ public class ClientHandler {
         event.register(Registration.EXPERIENCE_MACHINE_COMPONENT.get(), new ExperienceComponentBuilder());
     }
 
+    private static void registerGuiElementBuilders(final RegisterGuiElementBuilderEvent event) {
+        event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementBuilder());
+    }
+
     private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
         if(level == null || pos == null)
             return 0;
@@ -212,15 +220,6 @@ public class ClientHandler {
         throw new IllegalStateException("Trying to open a Custom Machine container without clicking on a Custom Machine block");
     }
 
-    public static void drawSizedString(GuiGraphics graphics, Font font, String string, int x, int y, int size, float maxScale, int color) {
-        float stringSize = font.width(string);
-        float scale = Math.min(size / stringSize, maxScale);
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, 0);
-        graphics.drawString(font, string, (int)(x / scale), (int)(y / scale), color);
-        graphics.pose().popPose();
-    }
-
     public static void renderSlotHighlight(GuiGraphics graphics, int x, int y, int width, int height) {
         RenderSystem.disableDepthTest();
         RenderSystem.colorMask(true, true, true, false);
@@ -240,5 +239,13 @@ public class ClientHandler {
             case "translucent" -> RenderType.translucent();
             default -> throw new IllegalArgumentException("Invalid render type: " + renderType);
         };
+    }
+
+    public static int getLineHeight() {
+        return Minecraft.getInstance().font.lineHeight;
+    }
+
+    public static int textWidth(Component text) {
+        return Minecraft.getInstance().font.width(text);
     }
 }

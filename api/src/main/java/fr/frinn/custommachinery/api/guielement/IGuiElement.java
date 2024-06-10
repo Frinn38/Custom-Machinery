@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.api.guielement;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -11,15 +12,15 @@ import java.util.List;
 
 /**
  * A part of the Custom Machine data, used to display things on the machine gui and/or in jei.
- * All gui elements are parsed from the machine json gui property, then created using the Codec passed when registering the corresponding GuiElementType.
- * As gui elements are part of the machine data, the must exist on both sides, so no rendering or other client side only things are allowed here.
- * This class only hold data, the rendering is handled by the IGuiElementRenderer.
- * Each IGuiElement must have a GuiElementType registered to the forge registry.
+ * All gui elements are parsed from the machine json gui property, then created using the Codec passed when registering the corresponding {@link GuiElementType}.
+ * As gui elements are part of the machine data, they must exist on both sides, so no rendering or other client side only things are allowed here.
+ * This class only hold data, the rendering is handled by {@link fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget}.
+ * Each {@link IGuiElement} must have a {@link GuiElementType} registered to the forge registry.
  */
 public interface IGuiElement {
 
     /**
-     * A dispatch codec, used to create all IGuiElement from the machine json.
+     * A dispatch codec, used to create all {@link IGuiElement} from the machine json.
      */
     NamedCodec<IGuiElement> CODEC = RegistrarCodec.GUI_ELEMENT.dispatch(
             IGuiElement::getType,
@@ -28,7 +29,7 @@ public interface IGuiElement {
     );
 
     /**
-     * @return A registered GuiElementType corresponding to this IGuiElement.
+     * @return A registered {@link GuiElementType} corresponding to this {@link IGuiElement}.
      */
     GuiElementType<? extends IGuiElement> getType();
 
@@ -70,6 +71,12 @@ public interface IGuiElement {
      * @return The id of this element.
      */
     String getId();
+
+    /**
+     * Get a set of all properties such as position, size, textures, tooltips and id of the element.
+     * @return {@link Properties} of the element.
+     */
+    Properties getProperties();
 
     /**
      * Called server-side when player click on a gui element.

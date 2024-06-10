@@ -165,7 +165,10 @@ public abstract class BaseScreen extends Screen {
                 return released;
             }
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        this.setDragging(false);
+        if(this.getFocused() != null && this.getFocused().mouseReleased(mouseX, mouseY, button))
+            return true;
+        return this.getChildAt(mouseX, mouseY).filter(guiEventListener -> guiEventListener.mouseReleased(mouseX, mouseY, button)).isPresent();
     }
 
     @Override
@@ -207,10 +210,14 @@ public abstract class BaseScreen extends Screen {
             this.onClose();
             return true;
         }
+
         for(PopupScreen popup : this.popups) {
             if(popup.keyPressed(keyCode, scanCode, modifiers))
                 return true;
         }
+
+        if(this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers))
+            return true;
 
         FocusNavigationEvent event = switch (keyCode) {
             case GLFW.GLFW_KEY_LEFT -> new ArrowNavigation(ScreenDirection.LEFT);

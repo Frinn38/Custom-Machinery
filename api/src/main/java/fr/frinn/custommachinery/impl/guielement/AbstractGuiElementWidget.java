@@ -67,6 +67,10 @@ public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends Ab
         }
     }
 
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
     @Override
     protected ClientTooltipPositioner createTooltipPositioner() {
         return DefaultTooltipPositioner.INSTANCE;
