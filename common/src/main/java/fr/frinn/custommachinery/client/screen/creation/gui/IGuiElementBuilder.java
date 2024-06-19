@@ -19,22 +19,18 @@ public interface IGuiElementBuilder<T extends IGuiElement> {
     GuiElementType<T> type();
 
     /**
-     * @param properties Properties such as position, size and textures are defined by the gui.
+     * @param properties Properties such as position and size are defined by the gui.
      * @param from If present, the returned element must copy extra properties from this element.
      * @return A default gui element of this type.
      */
     T make(Properties properties, @Nullable T from);
 
     /**
-     * @return true if the gui element has extra customizable values, false otherwise.
-     */
-    boolean hasExtraConfig();
-
-    /**
-     * A popup that will be used to customize the gui element (outside the {@link Properties} values).
-     * This will be called only if {@link IGuiElementBuilder#hasExtraConfig()} return true.
+     * A popup that will be used to customize the gui element.
+     * @param properties Basic properties of the element, position and size are defined by the gui.
+     * @param from Will be present if this method is called to customize an existing element, or absent if this is a new element.
      * @param onFinish This callback must be called with the modified gui element once the popup is closed to save and apply the customization.
      * @return A {@link PopupScreen} to customize the gui element.
      */
-    PopupScreen makeConfigPopup(MachineEditScreen parent, Consumer<T> onFinish);
+    PopupScreen makeConfigPopup(MachineEditScreen parent, MutableProperties properties, @Nullable T from, Consumer<T> onFinish);
 }

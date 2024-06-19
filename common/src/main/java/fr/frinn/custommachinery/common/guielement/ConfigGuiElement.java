@@ -13,9 +13,9 @@ import java.util.List;
 
 public class ConfigGuiElement extends AbstractTexturedGuiElement {
 
-    private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_config.png");
-    private static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_config_hovered.png");
-    private static final List<Component> BASE_TOOLTIPS = Collections.singletonList(Component.translatable("custommachinery.gui.element.config.name"));
+    public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_config.png");
+    public static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_config_hovered.png");
+    public static final List<Component> BASE_TOOLTIPS = Collections.singletonList(Component.translatable("custommachinery.gui.element.config.name"));
 
     public static final NamedCodec<ConfigGuiElement> CODEC = NamedCodec.record(configGuiElement ->
             configGuiElement.group(

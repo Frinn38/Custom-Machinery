@@ -15,8 +15,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class ResetGuiElement extends AbstractTexturedGuiElement {
 
-    private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_reset.png");
-    private static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_reset_hovered.png");
+    public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_reset.png");
+    public static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_reset_hovered.png");
 
     public static final NamedCodec<ResetGuiElement> CODEC = NamedCodec.record(resetGuiElement ->
             resetGuiElement.group(

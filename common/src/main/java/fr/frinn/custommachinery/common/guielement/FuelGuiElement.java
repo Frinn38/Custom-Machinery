@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class FuelGuiElement extends AbstractTexturedGuiElement {
 
-    private static final ResourceLocation BASE_EMPTY_TEXURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_empty.png");
-    private static final ResourceLocation BASE_FILLED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_filled.png");
+    public static final ResourceLocation BASE_EMPTY_TEXURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_empty.png");
+    public static final ResourceLocation BASE_FILLED_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fuel_filled.png");
 
     public static final NamedCodec<FuelGuiElement> CODEC = NamedCodec.record(fuelGuiElement ->
             fuelGuiElement.group(

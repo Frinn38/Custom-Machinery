@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class FluidGuiElement extends AbstractTexturedGuiElement implements IComponentGuiElement<FluidMachineComponent> {
 
-    private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
+    public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
 
     public static final NamedCodec<FluidGuiElement> CODEC = NamedCodec.record(fluidGuiElement ->
             fluidGuiElement.group(

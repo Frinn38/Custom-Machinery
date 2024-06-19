@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
 import fr.frinn.custommachinery.PlatformHelper;
-import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
@@ -42,8 +41,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     private final IMachineScreen dummyScreen = new DummyScreen();
     private final List<IGuiElement> elements = new ArrayList<>();
     private final List<WidgetEditorWidget<?>> widgets = new ArrayList<>();
-    private final Button texture;
-    private final Button id;
+    private final Button config;
     private final Button priorityUp;
     private final Button priorityDown;
     private final Button delete;
@@ -55,61 +53,67 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         super(x, y, width, height, Component.empty());
         this.parent = parent;
         baseElements.stream().sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed()).forEach(this::addElement);
-        this.texture = Button.builder(Component.empty(), button -> {}).size(5, 5).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.texture"))).build();
-        this.id = Button.builder(Component.empty(), button -> this.parent.openPopup(new IdPopup(this.parent, this.getFocused() instanceof WidgetEditorWidget<?> widget ? widget.properties.getId() : "", this::setId, this.parent.getBuilder().getComponents().stream().map(IMachineComponentTemplate::getId).filter(s -> !s.isEmpty()).toList()))).size(5, 5).build();
+        this.config = Button.builder(Component.empty(), button -> {
+            if(this.getFocused() instanceof WidgetEditorWidget<?> widget)
+                this.config(widget);
+        }).size(5, 5).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.config"))).build();
         this.priorityUp = Button.builder(Component.empty(), button -> this.changePriority(1)).size(5, 5).build();
         this.priorityDown = Button.builder(Component.empty(), button -> this.changePriority(-1)).size(5, 5).build();
         this.delete = Button.builder(Component.empty(), button -> this.delete()).size(5, 5).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.delete"))).build();
     }
 
     public void addElement(IGuiElement element) {
-        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || element instanceof TextureGuiElement || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
+        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || (element instanceof TextureGuiElement texture && texture.getTexture().equals(TextureGuiElement.BASE_BACKGROUND)) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
             return;
 
         this.elements.add(element);
         this.widgets.add(this.getWidget(element));
     }
 
+    public void addCreatedElement(IGuiElement element) {
+        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || (element instanceof TextureGuiElement texture && texture.getTexture().equals(TextureGuiElement.BASE_BACKGROUND)) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
+            return;
+
+        this.elements.add(element);
+        WidgetEditorWidget<?> widget = this.getWidget(element);
+        widget.setPosition(this.getX() + (this.getWidth() + widget.getWidth()) / 2, this.getY() + (this.getHeight() + widget.getHeight()) / 2);
+        this.widgets.add(widget);
+        this.setFocused(widget);
+    }
+
     public void hideButtons() {
-        this.texture.visible = false;
-        this.id.visible = false;
+        this.config.visible = false;
         this.priorityUp.visible = false;
         this.priorityDown.visible = false;
         this.delete.visible = false;
     }
 
     public void showButtons(WidgetEditorWidget<?> widget) {
-        this.texture.setPosition(widget.getX() - 1, widget.getY() - 7);
-        this.texture.visible = true;
-        this.id.setPosition(widget.getX() + 5, widget.getY() - 7);
-        this.id.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.id.button").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.id.button2", widget.properties.getId()).withStyle(ChatFormatting.GRAY))));
-        this.id.visible = true;
-        this.priorityUp.setPosition(widget.getX() + 11, widget.getY() - 7);
-        this.priorityUp.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityUp").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
+        this.config.setPosition(widget.getX() - 1, widget.getY() - 7);
+        this.config.visible = true;
+        this.priorityUp.setPosition(widget.getX() + 5, widget.getY() - 7);
+        this.priorityUp.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityUp").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority.value", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
         this.priorityUp.visible = true;
-        this.priorityDown.setPosition(widget.getX() + 17, widget.getY() - 7);
-        this.priorityDown.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityDown").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
+        this.priorityDown.setPosition(widget.getX() + 11, widget.getY() - 7);
+        this.priorityDown.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityDown").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority.value", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
         this.priorityDown.visible = true;
-        this.delete.setPosition(widget.getX() + 23, widget.getY() - 7);
+        this.delete.setPosition(widget.getX() + 17, widget.getY() - 7);
         this.delete.visible = true;
     }
 
-    private void setId(String id) {
-        if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
-            widget.properties.setId(id);
-            widget.refreshWidget();
-        }
+    public <T extends IGuiElement> void config(WidgetEditorWidget<T> widget) {
+        this.parent.openPopup(widget.builder.makeConfigPopup(this.parent, widget.properties, widget.widget.getElement(), widget::refreshWidget));
     }
 
     private void changePriority(int delta) {
         if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
-            widget.properties.setPriority(delta);
-            widget.refreshWidget();
+            widget.properties.setPriority(widget.properties.getPriority() + delta);
+            widget.refreshWidget(null);
             List<WidgetEditorWidget<?>> sorted = this.widgets.stream().sorted(Comparator.comparingInt(w -> w.properties.getPriority())).toList();
             this.widgets.clear();
             this.widgets.addAll(sorted);
-            this.priorityUp.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityUp").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
-            this.priorityDown.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityDown").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
+            this.priorityUp.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityUp").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority.value", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
+            this.priorityDown.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.priorityDown").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.priority.value", widget.properties.getPriority()).withStyle(ChatFormatting.GRAY))));
             this.parent.setChanged();
         }
     }
@@ -142,8 +146,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         graphics.pose().pushPose();
         this.widgets.forEach(widget -> widget.render(graphics, mouseX, mouseY, partialTick));
         graphics.pose().popPose();
-        this.texture.render(graphics, mouseX, mouseY, partialTick);
-        this.id.render(graphics, mouseX, mouseY, partialTick);
+        this.config.render(graphics, mouseX, mouseY, partialTick);
         this.priorityUp.render(graphics, mouseX, mouseY, partialTick);
         this.priorityDown.render(graphics, mouseX, mouseY, partialTick);
         this.delete.render(graphics, mouseX, mouseY, partialTick);
@@ -210,9 +213,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(this.texture.mouseClicked(mouseX, mouseY, button))
-            return true;
-        else if(this.id.mouseClicked(mouseX, mouseY, button))
+        if(this.config.mouseClicked(mouseX, mouseY, button))
             return true;
         else if(this.priorityUp.mouseClicked(mouseX, mouseY, button))
             return true;
@@ -283,11 +284,13 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         @SuppressWarnings("unchecked")
-        public void refreshWidget() {
+        public void refreshWidget(@Nullable T from) {
             T element = this.widget.getElement();
-            T newElement = this.builder.make(this.properties.build(), element);
+            T newElement = from != null ? from : this.builder.make(this.properties.build(), element);
             this.widget = GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType<T>)element.getType()).get(newElement, GuiEditorWidget.this.dummyScreen);
             this.widget.setPosition(this.getX(), this.getY());
+            this.width = this.widget.getWidth();
+            this.height = this.widget.getHeight();
             GuiEditorWidget.this.parent.getBuilder().getGuiElements().remove(element);
             GuiEditorWidget.this.parent.getBuilder().getGuiElements().add(newElement);
         }
@@ -363,27 +366,27 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         public void setX(int x) {
             super.setX(x);
             this.properties.setX(x - GuiEditorWidget.this.getX());
-            this.refreshWidget();
+            this.refreshWidget(null);
         }
 
         @Override
         public void setY(int y) {
             super.setY(y);
             this.properties.setY(y - GuiEditorWidget.this.getY());
-            this.refreshWidget();
+            this.refreshWidget(null);
         }
 
         @Override
         public void setWidth(int width) {
             super.setWidth(width);
             this.properties.setWidth(width);
-            this.refreshWidget();
+            this.refreshWidget(null);
         }
 
         public void setHeight(int height) {
             this.height = height;
             this.properties.setHeight(height);
-            this.refreshWidget();
+            this.refreshWidget(null);
         }
 
         @Override

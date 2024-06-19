@@ -4,6 +4,7 @@ import dev.architectury.registry.registries.DeferredRegister;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
@@ -57,5 +58,15 @@ public class GuiElementType<T extends IGuiElement> {
      */
     public ResourceLocation getId() {
         return ICustomMachineryAPI.INSTANCE.guiElementRegistrar().getId(this);
+    }
+
+    /**
+     * Utility method to get the display name of a {@link GuiElementType}.
+     * The translation key for the {@link GuiElementType} will be : "namespace.machine.guielement.path".
+     */
+    public Component getTranslatedName() {
+        if(getId() == null)
+            throw new IllegalStateException("Trying to get the registry name of an unregistered GuiElementType");
+        return Component.translatable(getId().getNamespace() + ".machine.guielement." + getId().getPath());
     }
 }

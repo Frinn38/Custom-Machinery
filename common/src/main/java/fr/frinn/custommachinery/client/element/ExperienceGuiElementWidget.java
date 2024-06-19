@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.element;
 
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.common.component.ExperienceMachineComponent;
 import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ExperienceUtils;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<ExperienceGuiElement> {
   private static final Component TITLE = Component.translatable("custommachinery.gui.element.experience.name");
@@ -25,20 +27,20 @@ public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<Experie
   public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
     if(!this.getElement().getMode().isDisplayBar())
       super.renderWidget(graphics, mouseX, mouseY, partialTicks);
-    else
-      getScreen().getTile().getComponentManager()
-        .getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
-          .ifPresent(component -> {
-            String levels = "" + component.getLevels();
-            int xPos = this.getX() + this.width / 2 - Minecraft.getInstance().font.width(levels) / 2;
-            graphics.drawString(Minecraft.getInstance().font, levels, xPos, this.getY(), 0x80FF20, true);
-            graphics.fill(this.getX(), this.getY() + 9, this.getX() + this.width, this.getY() + 12, 0xFF000000);
-            int xpDiff = component.getXp() - ExperienceUtils.getXpFromLevel(component.getLevels());
-            if(xpDiff > 0) {
-              double percent = (double) xpDiff / ExperienceUtils.getXpNeededForNextLevel(component.getLevels());
-              graphics.fill(this.getX() + 1, this.getY() + 10, this.getX() + 1 + Math.max((int) Math.ceil(this.width * percent) - 2, 0), this.getY() + 11, 0xFF80FF20);
-            }
-          });
+    else {
+        Optional<ExperienceMachineComponent> component = getScreen().getTile().getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get());
+        int level = component.map(ExperienceMachineComponent::getLevels).orElse(0);
+        int xp = component.map(ExperienceMachineComponent::getXp).orElse(0);
+        String levels = "" + level;
+        int xPos = this.getX() + this.width / 2 - Minecraft.getInstance().font.width(levels) / 2;
+        graphics.drawString(Minecraft.getInstance().font, levels, xPos, this.getY(), 0x80FF20, true);
+        graphics.fill(this.getX(), this.getY() + 9, this.getX() + this.width, this.getY() + 12, 0xFF000000);
+        int xpDiff = xp - ExperienceUtils.getXpFromLevel(level);
+        if(xpDiff > 0) {
+            double percent = (double) xpDiff / ExperienceUtils.getXpNeededForNextLevel(level);
+            graphics.fill(this.getX() + 1, this.getY() + 10, this.getX() + 1 + Math.max((int) Math.ceil(this.width * percent) - 2, 0), this.getY() + 11, 0xFF80FF20);
+        }
+    }
   }
 
   @Override

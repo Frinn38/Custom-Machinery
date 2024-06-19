@@ -46,7 +46,10 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
     public double getRecipeProgressPercent() {
         if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getRecipeTotalTime() > 0)
             return machineProcessor.getRecipeProgressTime() / (double) machineProcessor.getRecipeTotalTime();
-        return 0;
+        else if(this.getScreen().getTile().getMachine().isDummy())
+            return (System.currentTimeMillis() % 2000) / 2000.0D;
+        else
+            return 0;
     }
 
     public static void rotate(PoseStack matrix, ProgressBarGuiElement.Orientation orientation, int posX, int posY, int width, int height) {

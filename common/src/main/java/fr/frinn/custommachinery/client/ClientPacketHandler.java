@@ -6,10 +6,12 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineCreationScreen;
+import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -91,5 +93,11 @@ public class ClientPacketHandler {
 
     public static void handleOpenCreationScreenPacket() {
         Minecraft.getInstance().setScreen(new MachineCreationScreen());
+    }
+
+    public static void handleOpenEditScreenPacket(ResourceLocation machineId) {
+        CustomMachine machine = CustomMachinery.MACHINES.get(machineId);
+        if(machine != null)
+            Minecraft.getInstance().setScreen(new MachineEditScreen(new MachineCreationScreen(), 288, 210, new CustomMachineBuilder(machine)));
     }
 }

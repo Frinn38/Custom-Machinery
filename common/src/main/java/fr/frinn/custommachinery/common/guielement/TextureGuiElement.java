@@ -1,12 +1,16 @@
 package fr.frinn.custommachinery.common.guielement;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
+import net.minecraft.resources.ResourceLocation;
 
 public class TextureGuiElement extends AbstractTexturedGuiElement {
+
+    public static final ResourceLocation BASE_BACKGROUND = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_background.png");
 
     public static final NamedCodec<TextureGuiElement> CODEC = NamedCodec.record(textureGuiElement ->
             textureGuiElement.group(

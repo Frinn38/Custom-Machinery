@@ -126,7 +126,7 @@ public abstract class BaseScreen extends Screen {
             graphics.pose().translate(0, 0, 165); //Items are rendered at z=150, tooltips z=400
             PopupScreen popup = iterator.next();
             if(hoveredPopup == popup)
-                popup.render(graphics, mouseX, mouseY, partialTicks);
+                popup.renderWithTooltip(graphics, mouseX, mouseY, partialTicks);
             else
                 popup.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
         }
@@ -273,7 +273,8 @@ public abstract class BaseScreen extends Screen {
 
     @Override
     public void setFocused(@Nullable GuiEventListener focused) {
-        super.setFocused(focused);
+        if(this.getFocused() != focused)
+            super.setFocused(focused);
         if(focused != null)
             this.popups.forEach(popup -> popup.setFocused(null));
     }

@@ -19,6 +19,7 @@ public class PacketManager {
     public static final MessageType UPDATE_MACHINE_APPEARANCE = MANAGER.registerS2C("update_machine_appearance", SUpdateMachineAppearancePacket::read);
     public static final MessageType UPDATE_MACHINE_GUI_ELEMENTS = MANAGER.registerS2C("update_machine_gui_elements", SUpdateMachineGuiElementsPacket::read);
     public static final MessageType OPEN_CREATION_SCREEN = MANAGER.registerS2C("open_creation_screen", SOpenCreationScreenPacket::read);
+    public static final MessageType OPEN_EDIT_SCREEN = MANAGER.registerS2C("open_edit_screen", SOpenEditScreenPacket::read);
 
     //Client to Server
     public static final MessageType ADD_MACHINE = MANAGER.registerC2S("add_machine", CAddMachinePacket::read);

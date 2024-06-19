@@ -54,7 +54,21 @@ import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemCom
 import fr.frinn.custommachinery.client.screen.creation.component.builder.RedstoneComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.gui.RegisterGuiElementBuilderEvent;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.BarGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.ButtonGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.ConfigGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.DumpGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.EnergyGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.ExperienceGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.FluidGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.FuelGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.PlayerInventoryGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.ProgressBarGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.ResetGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.SlotGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.StatusGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
@@ -179,6 +193,20 @@ public class ClientHandler {
 
     private static void registerGuiElementBuilders(final RegisterGuiElementBuilderEvent event) {
         event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementBuilder());
+        event.register(Registration.STATUS_GUI_ELEMENT.get(), new StatusGuiElementBuilder());
+        event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressBarGuiElementBuilder());
+        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementBuilder());
+        event.register(Registration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementBuilder());
+        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementBuilder());
+        event.register(Registration.PLAYER_INVENTORY_GUI_ELEMENT.get(), new PlayerInventoryGuiElementBuilder());
+        event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementBuilder());
+        event.register(Registration.CONFIG_GUI_ELEMENT.get(), new ConfigGuiElementBuilder());
+        event.register(Registration.BAR_GUI_ELEMENT.get(), new BarGuiElementBuilder());
+        event.register(Registration.BUTTON_GUI_ELEMENT.get(), new ButtonGuiElementBuilder());
+        event.register(Registration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementBuilder());
+        event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementBuilder());
+        event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementBuilder());
+        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementBuilder());
     }
 
     private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {

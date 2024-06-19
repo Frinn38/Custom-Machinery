@@ -74,8 +74,8 @@ public class MutableProperties {
         return this.priority;
     }
 
-    public void setPriority(int delta) {
-        this.priority += delta;
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public ResourceLocation getTexture() {

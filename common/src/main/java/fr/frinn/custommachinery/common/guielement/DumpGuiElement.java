@@ -17,14 +17,14 @@ import java.util.List;
 
 public class DumpGuiElement extends AbstractTexturedGuiElement {
 
-    private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_dump.png");
-    private static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_dump_hovered.png");
+    public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_dump.png");
+    public static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_dump_hovered.png");
 
     public static final NamedCodec<DumpGuiElement> CODEC = NamedCodec.record(dumpGuiElement ->
             dumpGuiElement.group(
                     makePropertiesCodec(BASE_TEXTURE, BASE_TEXTURE_HOVERED).forGetter(DumpGuiElement::getProperties),
                     RegistrarCodec.MACHINE_COMPONENT.listOf().optionalFieldOf("component", () -> Collections.singletonList(Registration.FLUID_MACHINE_COMPONENT.get())).forGetter(element -> element.components),
-                    NamedCodec.STRING.listOf().fieldOf("tanks").forGetter(element -> element.tanks)
+                    NamedCodec.STRING.listOf().optionalFieldOf("tanks", Collections.emptyList()).forGetter(element -> element.tanks)
             ).apply(dumpGuiElement, DumpGuiElement::new), "Dump gui element"
     );
 
@@ -39,6 +39,10 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
 
     public List<MachineComponentType<?>> getComponents() {
         return this.components;
+    }
+
+    public List<String> getTanks() {
+        return this.tanks;
     }
 
     @Override

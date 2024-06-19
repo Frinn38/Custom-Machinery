@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class PlayerInventoryGuiElement extends AbstractTexturedGuiElement {
 
-    private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_inventory.png");
+    public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_inventory.png");
 
     public static final NamedCodec<PlayerInventoryGuiElement> CODEC = NamedCodec.record(playerInventoryGuiElement ->
             playerInventoryGuiElement.group(

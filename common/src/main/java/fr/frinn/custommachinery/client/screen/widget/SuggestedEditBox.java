@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -34,13 +35,17 @@ public class SuggestedEditBox extends EditBox {
 
     private final List<String> possibleSuggestions = new ArrayList<>();
     private final int suggestionLineLimit;
+    private final int baseWidth;
     private SuggestionsList suggestionsList;
     private Suggestions suggestions;
     private List<Suggestion> sorted;
+    private int baseX;
+    private boolean anchorToBottom = false;
 
     public SuggestedEditBox(Font font, int x, int y, int width, int height, Component message, int suggestionLineLimit) {
         super(font, x, y, width, height, message);
         this.suggestionLineLimit = suggestionLineLimit;
+        this.baseWidth = width;
         this.setResponder(s -> {});
         this.updateSuggestions();
     }
@@ -74,13 +79,17 @@ public class SuggestedEditBox extends EditBox {
             }
             if(Minecraft.getInstance().screen instanceof BaseScreen baseScreen)
                 i = Mth.clamp(i, 0, baseScreen.xSize);
-            int k = this.getY() + this.height + this.suggestionLineLimit * 12;
-            this.suggestionsList = new SuggestionsList(this.getX() + 4, k, i, this.sortSuggestions(this.suggestions), narrateFirstSuggestion, this.suggestionLineLimit);
+            int k = this.getY() + (this.anchorToBottom ? 0 : this.height);
+            this.suggestionsList = new SuggestionsList(this.getX() + 4, k, i, this.sortSuggestions(this.suggestions), narrateFirstSuggestion, this.anchorToBottom, this.suggestionLineLimit);
         }
     }
 
     public void hideSuggestions() {
         this.suggestionsList = null;
+    }
+
+    public void setAnchorToBottom() {
+        this.anchorToBottom = true;
     }
 
     private List<Suggestion> sortSuggestions(Suggestions suggestions) {
@@ -96,7 +105,7 @@ public class SuggestedEditBox extends EditBox {
             }
             list2.add(suggestion);
         }
-        list.addAll(list2);
+        //list.addAll(list2);
         return list;
     }
 
@@ -124,15 +133,24 @@ public class SuggestedEditBox extends EditBox {
     @Override
     public void setFocused(boolean focused) {
         super.setFocused(focused);
-        if(!focused)
+        if(!focused) {
             this.hideSuggestions();
+            this.setX(this.baseX);
+            this.setWidth(this.baseWidth);
+        } else {
+            this.baseX = this.getX();
+            this.showSuggestions(false);
+            this.setX(this.suggestionsList.rect.getX());
+            this.setWidth(Minecraft.getInstance().getWindow().getScreenWidth() - this.getX());
+            this.moveCursorToStart();
+        }
     }
 
     @Override
     public void setX(int x) {
         super.setX(x);
         if(this.suggestionsList != null)
-            this.suggestionsList.rect.setX(x + 3);
+            this.suggestionsList.rect.setX(Math.min(x + 3, Minecraft.getInstance().getWindow().getGuiScaledWidth() - this.getWidth()));
     }
 
     @Override
@@ -192,7 +210,7 @@ public class SuggestedEditBox extends EditBox {
         private final List<Suggestion> suggestionList;
         private final int suggestionLineLimit;
         private final int lineStartOffset = 1;
-        private final boolean anchorToBottom = true;
+        private final boolean anchorToBottom;
         private final int fillColor = -805306368;
         private final Font font = Minecraft.getInstance().font;
         private int offset;
@@ -202,9 +220,10 @@ public class SuggestedEditBox extends EditBox {
         private int lastNarratedEntry;
         private boolean keepSuggestions;
 
-        SuggestionsList(int xPos, int yPos, int width, List<Suggestion> suggestionList, boolean narrateFirstSuggestion, int suggestionLineLimit) {
+        SuggestionsList(int xPos, int yPos, int width, List<Suggestion> suggestionList, boolean narrateFirstSuggestion, boolean anchorToBottom, int suggestionLineLimit) {
             this.suggestionLineLimit = suggestionLineLimit;
-            int i = xPos - 1;
+            this.anchorToBottom = anchorToBottom;
+            int i = Math.min(xPos + 3, Minecraft.getInstance().getWindow().getGuiScaledWidth() - width);
             int j = this.anchorToBottom ? yPos - 3 - Math.min(suggestionList.size(), this.suggestionLineLimit) * 12 : yPos;
             this.rect = new Rect2i(i, j, width + 1, Math.min(suggestionList.size(), this.suggestionLineLimit) * 12);
             this.originalContents = SuggestedEditBox.this.getValue();
@@ -282,28 +301,34 @@ public class SuggestedEditBox extends EditBox {
         }
 
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            if (keyCode == 265) {
-                this.cycle(-1);
-                this.tabCycles = false;
-                return true;
-            }
-            if (keyCode == 264) {
-                this.cycle(1);
-                this.tabCycles = false;
-                return true;
-            }
-            if (keyCode == 258) {
-                if (this.tabCycles) {
-                    this.cycle(Screen.hasShiftDown() ? -1 : 1);
+            return switch (keyCode) {
+                case GLFW.GLFW_KEY_UP -> {
+                    this.cycle(-1);
+                    this.tabCycles = false;
+                    yield true;
                 }
-                this.useSuggestion();
-                return true;
-            }
-            if (keyCode == 256) {
-                SuggestedEditBox.this.hideSuggestions();
-                return true;
-            }
-            return false;
+                case GLFW.GLFW_KEY_DOWN -> {
+                    this.cycle(1);
+                    this.tabCycles = false;
+                    yield true;
+                }
+                case GLFW.GLFW_KEY_TAB -> {
+                    if (this.tabCycles)
+                        this.cycle(Screen.hasShiftDown() ? -1 : 1);
+                    this.useSuggestion();
+                    yield true;
+                }
+                case GLFW.GLFW_KEY_ESCAPE -> {
+                    SuggestedEditBox.this.hideSuggestions();
+                    yield true;
+                }
+                case GLFW.GLFW_KEY_ENTER -> {
+                    this.useSuggestion();
+                    SuggestedEditBox.this.hideSuggestions();
+                    yield true;
+                }
+                default -> false;
+            };
         }
 
         public void cycle(int change) {
@@ -318,6 +343,8 @@ public class SuggestedEditBox extends EditBox {
         }
 
         public void select(int index) {
+            if(this.suggestionList.isEmpty())
+                return;
             this.current = index;
             if (this.current < 0) {
                 this.current += this.suggestionList.size();

@@ -21,11 +21,11 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         ResourceLocation texture;
-        if(getElement().isToogle() && getScreen().getTile().getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).map(component -> component.getData().getBoolean(getElement().getId())).orElse(false)) {
+        if(getElement().isToggle() && getScreen().getTile().getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).map(component -> component.getData().getBoolean(getElement().getId())).orElse(false)) {
             if(this.isHovered())
-                texture = this.getElement().getBaseTextureToogleHovered();
+                texture = this.getElement().getTextureToggleHovered();
             else
-                texture = this.getElement().getTextureToogle();
+                texture = this.getElement().getTextureToggle();
         } else {
             if(this.isHovered())
                 texture = this.getElement().getTextureHovered();
@@ -44,6 +44,6 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        new CButtonGuiElementPacket(getElement().getId(), getElement().isToogle()).sendToServer();
+        new CButtonGuiElementPacket(getElement().getId(), getElement().isToggle()).sendToServer();
     }
 }

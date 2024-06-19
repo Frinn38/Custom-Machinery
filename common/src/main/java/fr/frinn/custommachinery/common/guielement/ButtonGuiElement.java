@@ -15,33 +15,33 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
 
     public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_button.png");
     public static final ResourceLocation BASE_TEXTURE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_button_hovered.png");
-    public static final ResourceLocation BASE_TEXTURE_TOOGLE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_button_toogle.png");
-    public static final ResourceLocation BASE_TEXTURE_TOOGLE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_button_toogle_hovered.png");
+    public static final ResourceLocation BASE_TEXTURE_TOGGLE = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_button_toogle.png");
+    public static final ResourceLocation BASE_TEXTURE_TOGGLE_HOVERED = new ResourceLocation(CustomMachinery.MODID, "textures/gui/base_button_toogle_hovered.png");
 
     public static final NamedCodec<ButtonGuiElement> CODEC = NamedCodec.record(buttonGuiElementInstance ->
             buttonGuiElementInstance.group(
                     AbstractTexturedGuiElement.makePropertiesCodec(BASE_TEXTURE, BASE_TEXTURE_HOVERED).forGetter(ButtonGuiElement::getProperties),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toogle", BASE_TEXTURE_TOOGLE).forGetter(element -> element.textureToogle),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toogle_hovered", BASE_TEXTURE_TOOGLE_HOVERED).forGetter(element -> element.textureToogleHovered),
-                    NamedCodec.BOOL.optionalFieldOf("toogle", false).forGetter(element -> element.toogle),
+                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toggle", BASE_TEXTURE_TOGGLE).forGetter(element -> element.textureToggle),
+                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toggle_hovered", BASE_TEXTURE_TOGGLE_HOVERED).forGetter(element -> element.textureToggleHovered),
+                    NamedCodec.BOOL.optionalFieldOf("toggle", false).forGetter(element -> element.toggle),
                     TextComponentUtils.CODEC.optionalFieldOf("text", Component.literal("")).forGetter(element -> element.text),
                     DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("item", ItemStack.EMPTY).forGetter(element -> element.item),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("hold_time", 1).forGetter(element -> element.holdTime)
             ).apply(buttonGuiElementInstance, ButtonGuiElement::new), "Button gui element"
     );
 
-    private final ResourceLocation textureToogle;
-    private final ResourceLocation textureToogleHovered;
-    private final boolean toogle;
+    private final ResourceLocation textureToggle;
+    private final ResourceLocation textureToggleHovered;
+    private final boolean toggle;
     private final Component text;
     private final ItemStack item;
     private final int holdTime;
 
-    public ButtonGuiElement(Properties properties, ResourceLocation textureToogle, ResourceLocation textureToogleHovered, boolean toogle, Component text, ItemStack item, int holdTime) {
+    public ButtonGuiElement(Properties properties, ResourceLocation textureToggle, ResourceLocation textureToggleHovered, boolean toggle, Component text, ItemStack item, int holdTime) {
         super(properties);
-        this.textureToogle = textureToogle;
-        this.textureToogleHovered = textureToogleHovered;
-        this.toogle = toogle;
+        this.textureToggle = textureToggle;
+        this.textureToggleHovered = textureToggleHovered;
+        this.toggle = toggle;
         this.text = text;
         this.item = item;
         this.holdTime = holdTime;
@@ -52,16 +52,16 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
         return Registration.BUTTON_GUI_ELEMENT.get();
     }
 
-    public ResourceLocation getTextureToogle() {
-        return this.textureToogle;
+    public ResourceLocation getTextureToggle() {
+        return this.textureToggle;
     }
 
-    public ResourceLocation getBaseTextureToogleHovered() {
-        return this.textureToogleHovered;
+    public ResourceLocation getTextureToggleHovered() {
+        return this.textureToggleHovered;
     }
 
-    public boolean isToogle() {
-        return this.toogle;
+    public boolean isToggle() {
+        return this.toggle;
     }
 
     public Component getText() {
