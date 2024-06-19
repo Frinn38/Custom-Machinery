@@ -138,33 +138,33 @@ public class ClientHandler {
     }
 
     private static void registerGuiElementWidgets(final RegisterGuiElementWidgetSupplierEvent event) {
+        event.register(Registration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
+        event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
+        event.register(Registration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
+        event.register(Registration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
+        event.register(Registration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
         event.register(Registration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementWidget::new);
+        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
         event.register(Registration.FLUID_GUI_ELEMENT.get(), FluidGuiElementWidget::new);
+        event.register(Registration.FUEL_GUI_ELEMENT.get(), FuelGuiElementWidget::new);
         event.register(Registration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementWidget::new);
         event.register(Registration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementWidget::new);
+        event.register(Registration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
         event.register(Registration.SLOT_GUI_ELEMENT.get(), SlotGuiElementWidget::new);
         event.register(Registration.STATUS_GUI_ELEMENT.get(), StatusGuiElementWidget::new);
-        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
         event.register(Registration.TEXT_GUI_ELEMENT.get(), TextGuiElementWidget::new);
-        event.register(Registration.FUEL_GUI_ELEMENT.get(), FuelGuiElementWidget::new);
-        event.register(Registration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
-        event.register(Registration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
-        event.register(Registration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
-        event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
-        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
-        event.register(Registration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
-        event.register(Registration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
+        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
     }
 
     private static void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {
         event.register(Registration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementJeiRenderer());
+        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementJeiRenderer());
         event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementJeiRenderer());
         event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementJeiRenderer());
         event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressGuiElementJeiRenderer());
         event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementJeiRenderer());
         event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementJeiRenderer());
         event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementJeiRenderer());
-        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementJeiRenderer());
     }
 
     private static void registerWidgetToJeiIngredientGetters(final RegisterWidgetToJeiIngredientGetterEvent event) {
@@ -183,30 +183,30 @@ public class ClientHandler {
     }
 
     private static void registerMachineComponentBuilders(final RegisterComponentBuilderEvent event) {
-        event.register(Registration.ITEM_MACHINE_COMPONENT.get(), new ItemComponentBuilder());
-        event.register(Registration.FLUID_MACHINE_COMPONENT.get(), new FluidComponentBuilder());
-        event.register(Registration.ENERGY_MACHINE_COMPONENT.get(), new EnergyComponentBuilder());
         event.register(Registration.CHUNKLOAD_MACHINE_COMPONENT.get(), new ChunkloadComponentBuilder());
-        event.register(Registration.REDSTONE_MACHINE_COMPONENT.get(), new RedstoneComponentBuilder());
+        event.register(Registration.ENERGY_MACHINE_COMPONENT.get(), new EnergyComponentBuilder());
         event.register(Registration.EXPERIENCE_MACHINE_COMPONENT.get(), new ExperienceComponentBuilder());
+        event.register(Registration.FLUID_MACHINE_COMPONENT.get(), new FluidComponentBuilder());
+        event.register(Registration.ITEM_MACHINE_COMPONENT.get(), new ItemComponentBuilder());
+        event.register(Registration.REDSTONE_MACHINE_COMPONENT.get(), new RedstoneComponentBuilder());
     }
 
     private static void registerGuiElementBuilders(final RegisterGuiElementBuilderEvent event) {
-        event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementBuilder());
-        event.register(Registration.STATUS_GUI_ELEMENT.get(), new StatusGuiElementBuilder());
-        event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressBarGuiElementBuilder());
-        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementBuilder());
-        event.register(Registration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementBuilder());
-        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementBuilder());
-        event.register(Registration.PLAYER_INVENTORY_GUI_ELEMENT.get(), new PlayerInventoryGuiElementBuilder());
-        event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementBuilder());
-        event.register(Registration.CONFIG_GUI_ELEMENT.get(), new ConfigGuiElementBuilder());
         event.register(Registration.BAR_GUI_ELEMENT.get(), new BarGuiElementBuilder());
         event.register(Registration.BUTTON_GUI_ELEMENT.get(), new ButtonGuiElementBuilder());
+        event.register(Registration.CONFIG_GUI_ELEMENT.get(), new ConfigGuiElementBuilder());
+        event.register(Registration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementBuilder());
         event.register(Registration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementBuilder());
+        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementBuilder());
         event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementBuilder());
         event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementBuilder());
-        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementBuilder());
+        event.register(Registration.PLAYER_INVENTORY_GUI_ELEMENT.get(), new PlayerInventoryGuiElementBuilder());
+        event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressBarGuiElementBuilder());
+        event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementBuilder());
+        event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementBuilder());
+        event.register(Registration.STATUS_GUI_ELEMENT.get(), new StatusGuiElementBuilder());
+        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementBuilder());
+        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementBuilder());
     }
 
     private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
