@@ -60,9 +60,8 @@ public class SidedItemHandler implements IItemHandler {
         ItemMachineComponent component = this.handler.getComponents().get(slot);
         if((this.direction != null && !component.getConfig().getSideMode(this.direction).isOutput()) || component.getItemStack().isEmpty())
             return ItemStack.EMPTY;
-        ItemStack stack = component.getItemStack().copy();
-        stack.setCount(Math.min(component.getItemStack().getCount(), amount));
-        if(!simulate) {
+        ItemStack stack = component.extract(amount, true);
+        if(!stack.isEmpty() && !simulate) {
             component.extract(stack.getCount(), false);
             this.handler.getManager().markDirty();
         }

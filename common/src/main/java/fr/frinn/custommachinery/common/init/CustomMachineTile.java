@@ -134,6 +134,10 @@ public abstract class CustomMachineTile extends MachineTile implements ISyncable
             return;
         CompoundTag craftingManagerNBT = this.processor.serialize();
         CompoundTag componentManagerNBT = this.componentManager.serializeNBT();
+
+        //For invalidating caps on Forge
+        this.componentManager.getComponents().values().forEach(IMachineComponent::onRemoved);
+
         if(id == null)
             id = getId();
         this.id = id;

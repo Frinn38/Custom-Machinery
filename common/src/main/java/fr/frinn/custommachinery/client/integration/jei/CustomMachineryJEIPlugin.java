@@ -140,7 +140,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                     boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && progress.getDirection() != ProgressBarGuiElement.Orientation.RIGHT && progress.getDirection() != ProgressBarGuiElement.Orientation.LEFT;
                     int width = invertAxis ? progress.getHeight() : progress.getWidth();
                     int height = invertAxis ? progress.getWidth() : progress.getHeight();
-                    return createBasic(posX, posY, width, height, screen.getMachine().getId());
+                    return createBasic(posX, posY, width, height, screen.getMachine().getId(), progress.getTooltips().isEmpty());
                 }).toList();
             }
         });
@@ -197,7 +197,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         });
     }
 
-    private static IGuiClickableArea createBasic(int xPos, int yPos, int width, int height, ResourceLocation id) {
+    private static IGuiClickableArea createBasic(int xPos, int yPos, int width, int height, ResourceLocation id, boolean showTooltips) {
         Rect2i area = new Rect2i(xPos, yPos, width, height);
         ItemStack stack = CustomMachineItem.makeMachineItem(id);
         return new IGuiClickableArea() {
@@ -209,6 +209,11 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
             @Override
             public void onClick(IFocusFactory factory, IRecipesGui recipesGui) {
                 recipesGui.show(factory.createFocus(RecipeIngredientRole.CATALYST, VanillaTypes.ITEM_STACK, stack));
+            }
+
+            @Override
+            public boolean isTooltipEnabled() {
+                return showTooltips;
             }
         };
     }

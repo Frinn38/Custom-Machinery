@@ -273,8 +273,17 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
                 .orElse(super.getShape(state, level, pos, context));
     }
 
-    /** {@link IBlockWithWorldlyProperties methods} **/
+    @Override
+    public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+        BlockEntity tile = level.getBlockEntity(pos);
+        if(tile instanceof CustomMachineTile customMachineTile) {
+            CustomMachine machine = customMachineTile.getMachine();
+            return CustomMachineItem.makeMachineItem(machine.getId());
+        }
+        return super.getCloneItemStack(level, pos, state);
+    }
 
+    /** {@link IBlockWithWorldlyProperties methods} **/
 
     @Override
     public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {

@@ -95,7 +95,7 @@ public class CustomMachineContainer extends SyncableContainer {
                 }
             });
 
-        this.firstComponentSlotIndex = slotIndex.get();
+        this.firstComponentSlotIndex = slotIndex.get() + 1;
 
         this.tile.getGuiElements()
             .stream()
