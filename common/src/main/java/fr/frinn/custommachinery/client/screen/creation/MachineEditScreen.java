@@ -10,6 +10,8 @@ import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.CEditMachinePacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -37,6 +39,7 @@ public class MachineEditScreen extends BaseScreen {
 
     private ImageButton save;
     private ImageButton close;
+    private ImageButton wiki;
     private TabManager tabManager;
     private MachineEditTabNavigationBar bar;
 
@@ -69,6 +72,14 @@ public class MachineEditScreen extends BaseScreen {
         this.openPopup(popup);
     }
 
+    public void wiki() {
+        String[] s = SharedConstants.getCurrentVersion().getName().split("\\.");
+        String version = "1.19";
+        if(s.length >= 2)
+            version = "1." + s[1];
+        Util.getPlatform().openUri("https://frinn.gitbook.io/custom-machinery-" + version);
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -76,6 +87,8 @@ public class MachineEditScreen extends BaseScreen {
         this.save.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.save")));
         this.close = this.addRenderableWidget(new ImageButton(this.x - 28, this.y + 30, 20, 20, 20, 0, WIDGETS, button -> this.cancel()));
         this.close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.close")));
+        this.wiki = this.addRenderableWidget(new ImageButton(this.x - 28, this.y + 55, 20, 20, 40, 0, WIDGETS, button -> this.wiki()));
+        this.wiki.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.wiki")));
         this.tabManager = new MachineTabManager(this::addRenderableWidget, this::removeWidget);
         this.bar = this.addRenderableWidget(new MachineEditTabNavigationBar(this.xSize, this.tabManager, List.of(new BaseInfoTab(this), new AppearanceTab(this), new ComponentTab(this), new GuiTab(this))));
         this.bar.selectTab(0, false);
@@ -86,6 +99,7 @@ public class MachineEditScreen extends BaseScreen {
     public void repositionElements() {
         this.save.setPosition(this.x - 28, this.y + 5);
         this.close.setPosition(this.x - 28, this.y + 30);
+        this.wiki.setPosition(this.x - 28, this.y + 55);
 
         if (this.bar == null)
             return;
@@ -110,7 +124,7 @@ public class MachineEditScreen extends BaseScreen {
         super.renderBackground(graphics);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
 
-        blankBackground(graphics, this.x - 33, this.y, 30, 55);
+        blankBackground(graphics, this.x - 33, this.y, 30, 80);
     }
 
     @Override

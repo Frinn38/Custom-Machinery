@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.client.screen;
 
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
-import fr.frinn.custommachinery.common.guielement.SizeGuiElement;
+import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     private final CustomMachineTile tile;
     private final CustomMachine machine;
+    @Nullable
+    private final BackgroundGuiElement background;
 
     public CustomMachineScreen(CustomMachineContainer container, Inventory inv, Component name) {
         super(container, inv, name);
@@ -28,14 +31,15 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         this.machine = container.getTile().getMachine();
         this.imageWidth = 256;
         this.imageHeight = 192;
-        this.tile.getGuiElements().stream()
-                .filter(element -> element instanceof SizeGuiElement)
-                .map(element -> (SizeGuiElement)element)
+        this.background = this.tile.getGuiElements().stream()
+                .filter(element -> element instanceof BackgroundGuiElement)
+                .map(element -> (BackgroundGuiElement)element)
                 .findFirst()
-                .ifPresent(size -> {
-                    this.imageWidth = size.getWidth();
-                    this.imageHeight = size.getHeight();
-                });
+                .orElse(null);
+        if(this.background != null) {
+            this.imageWidth = this.background.getWidth();
+            this.imageHeight = this.background.getHeight();
+        }
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -52,6 +56,8 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         renderBackground(graphics);
+        if(this.background != null && this.background.getTexture() != null)
+            graphics.blit(this.background.getTexture(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
     }
 
     @Override

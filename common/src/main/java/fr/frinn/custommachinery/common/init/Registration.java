@@ -58,6 +58,7 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeSerialize
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeSerializer;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
+import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.guielement.BarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ButtonGuiElement;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
@@ -70,7 +71,6 @@ import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
 import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ResetGuiElement;
-import fr.frinn.custommachinery.common.guielement.SizeGuiElement;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement;
@@ -217,6 +217,7 @@ public class Registration {
         });
     }));
 
+    public static final RegistrySupplier<GuiElementType<BackgroundGuiElement>> BACKGROUND_GUI_ELEMENT = GUI_ELEMENTS.register("background", () -> GuiElementType.create(BackgroundGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<BarGuiElement>> BAR_GUI_ELEMENT = GUI_ELEMENTS.register("bar", () -> GuiElementType.create(BarGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ButtonGuiElement>> BUTTON_GUI_ELEMENT = GUI_ELEMENTS.register("button", () -> GuiElementType.create(ButtonGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ConfigGuiElement>> CONFIG_GUI_ELEMENT = GUI_ELEMENTS.register("config", () -> GuiElementType.create(ConfigGuiElement.CODEC));
@@ -229,7 +230,6 @@ public class Registration {
     public static final RegistrySupplier<GuiElementType<PlayerInventoryGuiElement>> PLAYER_INVENTORY_GUI_ELEMENT = GUI_ELEMENTS.register("player_inventory", () -> GuiElementType.create(PlayerInventoryGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ProgressBarGuiElement>> PROGRESS_GUI_ELEMENT = GUI_ELEMENTS.register("progress", () -> GuiElementType.create(ProgressBarGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<ResetGuiElement>> RESET_GUI_ELEMENT = GUI_ELEMENTS.register("reset", () -> GuiElementType.create(ResetGuiElement.CODEC));
-    public static final RegistrySupplier<GuiElementType<SizeGuiElement>> SIZE_GUI_ELEMENT = GUI_ELEMENTS.register("size", () -> GuiElementType.create(SizeGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<SlotGuiElement>> SLOT_GUI_ELEMENT = GUI_ELEMENTS.register("slot", () -> GuiElementType.create(SlotGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<StatusGuiElement>> STATUS_GUI_ELEMENT = GUI_ELEMENTS.register("status", () -> GuiElementType.create(StatusGuiElement.CODEC));
     public static final RegistrySupplier<GuiElementType<TextureGuiElement>> TEXTURE_GUI_ELEMENT = GUI_ELEMENTS.register("texture", () -> GuiElementType.create(TextureGuiElement.CODEC));

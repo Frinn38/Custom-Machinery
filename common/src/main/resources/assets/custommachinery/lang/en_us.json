@@ -108,6 +108,7 @@
   "custommachinery.gui.creation.save": "Save current changes",
   "custommachinery.gui.creation.save.toast": "Machine saved to file",
   "custommachinery.gui.creation.close": "Close without saving",
+  "custommachinery.gui.creation.wiki": "Open wiki",
 
   "custommachinery.gui.creation.popup.create": "Create new machine",
   "custommachinery.gui.creation.popup.create.id.tooltip": "The id of the machine, will be the name of the json file\nOnly [a-z0-9_.-] characters allowed",
@@ -160,6 +161,13 @@
   "custommachinery.gui.creation.components.experience.slots.tooltip": "Slots that will give the contained xp to the player when an item is taken out\nEach slot id must be separated by a comma ','",
 
   "custommachinery.gui.creation.gui.add": "Add new gui element",
+  "custommachinery.gui.creation.gui.background": "Edit background",
+  "custommachinery.gui.creation.gui.background.mode": "Mode",
+  "custommachinery.gui.creation.gui.background.default": "Default",
+  "custommachinery.gui.creation.gui.background.disabled": "No background",
+  "custommachinery.gui.creation.gui.background.custom": "Custom",
+  "custommachinery.gui.creation.gui.background.close": "Close",
+  "custommachinery.gui.creation.gui.background.texture": "Custom texture",
   "custommachinery.gui.creation.gui.texture": "Texture",
   "custommachinery.gui.creation.gui.texture_hovered": "Texture hovered",
   "custommachinery.gui.creation.gui.config": "Config",

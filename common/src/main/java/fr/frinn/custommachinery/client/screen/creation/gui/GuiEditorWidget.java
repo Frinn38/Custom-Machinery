@@ -8,7 +8,6 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
-import fr.frinn.custommachinery.common.guielement.TextureGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
@@ -63,7 +62,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     public void addElement(IGuiElement element) {
-        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || (element instanceof TextureGuiElement texture && texture.getTexture().equals(TextureGuiElement.BASE_BACKGROUND)) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
+        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
             return;
 
         this.elements.add(element);
@@ -71,7 +70,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     public void addCreatedElement(IGuiElement element) {
-        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || (element instanceof TextureGuiElement texture && texture.getTexture().equals(TextureGuiElement.BASE_BACKGROUND)) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
+        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
             return;
 
         this.elements.add(element);
