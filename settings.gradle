@@ -1,15 +1,15 @@
 pluginManagement {
     repositories {
-        maven { url "https://maven.fabricmc.net/" }
-        maven { url "https://maven.architectury.dev/" }
-        maven { url "https://maven.minecraftforge.net/" }
+        mavenLocal()
         gradlePluginPortal()
+        maven { url = 'https://maven.neoforged.net/releases' }
     }
 }
 
-include("api")
-include("common")
-include("fabric")
-include("forge")
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
 
-rootProject.name = "Custom-Machinery-1.20"
+include("api")
+
+rootProject.name = "Custom-Machinery-1.21"
