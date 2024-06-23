@@ -23,7 +23,6 @@ import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.forge.transfer.ForgeEnergyHandler;
 import fr.frinn.custommachinery.forge.transfer.ForgeFluidHandler;
-import fr.frinn.custommachinery.forge.transfer.ForgeItemHandler;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
@@ -118,8 +117,7 @@ public class CustomMachinery {
                 ItemHandler.BLOCK,
                 Registration.CUSTOM_MACHINE_TILE.get(),
                 (be, side) -> be.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                        .map(handler -> ((ItemComponentHandler)handler).getCommonHandler())
-                        .map(handler -> ((ForgeItemHandler)handler).getCapability(side))
+                        .map(handler -> ((ItemComponentHandler)handler).getItemHandlerForSide(side))
                         .orElse(null)
         );
         event.registerBlockEntity(

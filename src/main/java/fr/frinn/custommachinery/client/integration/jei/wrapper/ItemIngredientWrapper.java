@@ -7,42 +7,39 @@ import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Blocks;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     private final RequirementIOMode mode;
-    private final IIngredient<Item> item;
+    private final Ingredient item;
     private final int amount;
     private final double chance;
     private final boolean useDurability;
-    @Nullable
-    private final CompoundTag nbt;
     private final String slot;
     private final boolean showRequireSlot;
 
-    public ItemIngredientWrapper(RequirementIOMode mode, IIngredient<Item> item, int amount, double chance, boolean useDurability, @Nullable CompoundTag nbt, String slot, boolean showRequireSlot) {
+    public ItemIngredientWrapper(RequirementIOMode mode, Ingredient item, int amount, double chance, boolean useDurability, String slot, boolean showRequireSlot) {
         this.mode = mode;
         this.item = item;
         this.amount = amount;
         this.chance = chance;
         this.useDurability = useDurability;
-        this.nbt = nbt;
         this.slot = slot;
         this.showRequireSlot = showRequireSlot;
     }
@@ -52,7 +49,11 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         if(!(element instanceof SlotGuiElement slotElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
             return false;
 
-        List<ItemStack> ingredients = this.item.getAll().stream().map(item -> Utils.makeItemStack(item, this.useDurability ? 1 : this.amount, this.nbt)).toList();
+        List<ItemStack> ingredients = Arrays.stream(this.item.getItems()).map(item -> item.copyWithCount(this.amount)).collect(Collectors.toCollection(ArrayList::new));
+        if (ingredients.isEmpty()) {
+            ItemStack itemStack = new ItemStack(Blocks.BARRIER);
+            ingredients.add(itemStack);
+        }
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
         if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;

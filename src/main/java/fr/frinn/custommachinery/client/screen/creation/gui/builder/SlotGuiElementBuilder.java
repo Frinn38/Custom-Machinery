@@ -15,7 +15,6 @@ import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.GhostItem;
-import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
@@ -30,9 +29,9 @@ import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.function.Consumer;
 
 public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement> {
@@ -114,7 +113,8 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
         }
 
         public void setGhost(GhostItem ghost) {
-            this.items.setValue(BuiltInRegistries.ITEM.getKey(ghost.items().get(0).getAll().get(0)).toString());
+            if(ghost.ingredient().getItems().length != 0)
+                this.items.setValue(BuiltInRegistries.ITEM.getKey(ghost.ingredient().getItems()[0].getItem()).toString());
             this.items.hideSuggestions();
             if(ghost.alwaysRender() != this.alwaysVisible.selected())
                 this.alwaysVisible.onPress();
@@ -124,7 +124,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
 
         public GhostItem getGhost() {
             try {
-                return new GhostItem(Collections.singletonList(new ItemIngredient(BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.items.getValue())))), this.color, this.alwaysVisible.selected());
+                return new GhostItem(Ingredient.of(BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.items.getValue()))), this.color, this.alwaysVisible.selected());
             } catch (ResourceLocationException | NullPointerException e) {
                 return GhostItem.EMPTY;
             }

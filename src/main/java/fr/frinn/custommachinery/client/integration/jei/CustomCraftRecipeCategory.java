@@ -11,9 +11,9 @@ import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
-import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraf
                         .map(IMachineComponentTemplate::getId)
                         .orElse("");
 
-                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new ItemIngredient(recipe.getOutput().getItem()), recipe.getOutput().getCount(), 1.0, false, null, resultSlot, false));
+                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, Ingredient.of(recipe.getOutput()), recipe.getOutput().getCount(), 1.0, false, resultSlot, false));
                 return wrappers.build();
             }
         });

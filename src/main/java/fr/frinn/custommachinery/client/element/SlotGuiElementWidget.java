@@ -11,8 +11,10 @@ import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElement> {
@@ -28,9 +30,9 @@ public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElemen
         super.renderWidget(graphics, mouseX, mouseY, partialTicks);
 
         GhostItem ghost = this.getElement().getGhost();
-        if(ghost != GhostItem.EMPTY && !ghost.items().isEmpty() && (ghost.alwaysRender() || this.isSlotEmpty())) {
+        if(ghost != GhostItem.EMPTY && ghost.ingredient().getItems().length != 0 && (ghost.alwaysRender() || this.isSlotEmpty())) {
             timer.onDraw();
-            List<Item> items = ghost.items().stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
+            List<Item> items = Arrays.stream(ghost.ingredient().getItems()).map(ItemStack::getItem).toList();
             RenderSystem.setShaderColor(ghost.color().getRed() / 255f, ghost.color().getGreen() / 255f, ghost.color().getBlue() / 255f, ghost.color().getAlpha() / 255f);
             graphics.renderItem(timer.getOrDefault(items, Items.AIR).getDefaultInstance(), this.getX() + 1, this.getY() + 1);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);

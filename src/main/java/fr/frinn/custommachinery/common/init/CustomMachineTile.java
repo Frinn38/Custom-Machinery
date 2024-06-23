@@ -393,7 +393,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+        this.loadAdditional(tag, registries);
     }
 
     @NotNull

@@ -128,6 +128,6 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.nbt, this.tank));
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.tank));
     }
 }

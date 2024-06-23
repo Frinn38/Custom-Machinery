@@ -83,9 +83,9 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
         Iterator<ItemStack> iterator = toOutput.iterator();
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
-            if(component.getSpaceForItem("", stack.getItem(), null) < stack.getCount())
+            if(component.getSpaceForItem("", stack) < stack.getCount())
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", stack.getCount(), Component.translatable(stack.getDescriptionId())));
-            component.addToOutputs("", stack.getItem(), stack.getCount(), null);
+            component.addToOutputs("", stack, stack.getCount());
             iterator.remove();
         }
         return CraftingResult.success();

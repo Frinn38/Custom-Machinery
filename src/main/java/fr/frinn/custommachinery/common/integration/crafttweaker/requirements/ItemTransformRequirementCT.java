@@ -1,18 +1,13 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.requirements;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
-import com.blamejared.crafttweaker.api.data.IData;
-import com.blamejared.crafttweaker.api.data.MapData;
+import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.item.IItemStack;
-import com.blamejared.crafttweaker.api.tag.MCTag;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
-import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
-import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import org.openzen.zencode.java.ZenCodeType.Method;
@@ -28,30 +23,23 @@ import java.util.function.Function;
 public interface ItemTransformRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
-    default T transformItem(IItemStack stack, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<MapData, MapData> nbt) {
+    default T transformItem(IIngredient ingredient, @OptionalInt(1) int amount, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<IItemStack, IItemStack> nbt) {
         Item outputItem = output == null ? Items.AIR : output.getDefinition();
         int outputAmount = output == null ? 1 : output.amount();
-        return addRequirement(new ItemTransformRequirement(new ItemIngredient(stack.getDefinition()), stack.amount(), inputSlot, CTUtils.nbtFromStack(stack), outputItem, outputAmount, outputSlot, true, new NbtTransformer(nbt)));
+        return addRequirement(new ItemTransformRequirement(ingredient.asVanillaIngredient(), amount, inputSlot, outputItem, outputAmount, outputSlot, true, new NbtTransformer(nbt)));
     }
 
-    @Method
-    default T transformItemTag(MCTag tag, @OptionalInt(1) int inputAmount, @Optional IData data, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<MapData, MapData> nbt) {
-        Item outputItem = output == null ? Items.AIR : output.getDefinition();
-        int outputAmount = output == null ? 1 : output.amount();
-        return addRequirement(new ItemTransformRequirement(ItemTagIngredient.create(tag.getTagKey()), inputAmount, inputSlot, CTUtils.getNBT(data), outputItem, outputAmount, outputSlot, true, new NbtTransformer(nbt)));
-    }
+    class NbtTransformer implements Function<ItemStack, ItemStack> {
 
-    class NbtTransformer implements Function<CompoundTag, CompoundTag> {
+        private final Function<IItemStack, IItemStack> function;
 
-        private final Function<MapData, MapData> function;
-
-        public NbtTransformer(Function<MapData, MapData> function) {
+        public NbtTransformer(Function<IItemStack, IItemStack> function) {
             this.function = function;
         }
 
         @Override
-        public CompoundTag apply(@Nullable CompoundTag compoundTag) {
-            return this.function.apply(new MapData(compoundTag)).getInternal();
+        public ItemStack apply(@Nullable ItemStack stack) {
+            return this.function.apply(IItemStack.of(stack)).getInternal();
         }
     }
 }

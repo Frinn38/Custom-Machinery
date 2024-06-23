@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.ByteArrayTag;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
@@ -116,8 +117,11 @@ public class Utils {
         return digSpeed / hardness / canHarvest;
     }
 
-    public static ItemStack makeItemStack(Item item, int amount, @Nullable CompoundTag nbt) {
-        return new ItemStack(item, amount);
+    public static ItemStack makeItemStack(Item item, int amount, @Nullable DataComponentMap nbt) {
+        ItemStack stack = new ItemStack(item, amount);
+        if(nbt != null)
+            stack.applyComponents(nbt);
+        return stack;
     }
 
     public static int toInt(long l) {

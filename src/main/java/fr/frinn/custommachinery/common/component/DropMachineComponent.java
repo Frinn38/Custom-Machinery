@@ -4,16 +4,17 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,8 +29,8 @@ public class DropMachineComponent extends AbstractMachineComponent {
         return Registration.DROP_MACHINE_COMPONENT.get();
     }
 
-    public int getItemAmount(List<IIngredient<Item>> items, int radius, boolean whitelist) {
-        List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
+    public int getItemAmount(Ingredient ingredient, int radius, boolean whitelist) {
+        List<Item> filter = Arrays.stream(ingredient.getItems()).map(ItemStack::getItem).toList();
         BlockPos from = getManager().getTile().getBlockPos().offset(radius, radius, radius);
         BlockPos to = getManager().getTile().getBlockPos().offset(-radius, -radius, -radius);
         AABB box = new AABB(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
@@ -40,8 +41,8 @@ public class DropMachineComponent extends AbstractMachineComponent {
                 .sum();
     }
 
-    public void consumeItem(List<IIngredient<Item>> items, int amount, int radius, boolean whitelist) {
-        List<Item> filter = items.stream().flatMap(ingredient -> ingredient.getAll().stream()).toList();
+    public void consumeItem(Ingredient ingredient, int amount, int radius, boolean whitelist) {
+        List<Item> filter = Arrays.stream(ingredient.getItems()).map(ItemStack::getItem).toList();
         AtomicInteger toRemove = new AtomicInteger(amount);
         BlockPos from = getManager().getTile().getBlockPos().offset(radius, radius, radius);
         BlockPos to = getManager().getTile().getBlockPos().offset(-radius, -radius, -radius);

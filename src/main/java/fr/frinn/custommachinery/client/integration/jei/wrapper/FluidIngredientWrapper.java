@@ -13,7 +13,6 @@ import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -28,16 +27,14 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     private final long amount;
     private final double chance;
     private final boolean isPerTick;
-    private final CompoundTag nbt;
     private final String tank;
 
-    public FluidIngredientWrapper(RequirementIOMode mode, IIngredient<Fluid> fluid, long amount, double chance, boolean isPerTick, CompoundTag nbt, String tank) {
+    public FluidIngredientWrapper(RequirementIOMode mode, IIngredient<Fluid> fluid, long amount, double chance, boolean isPerTick, String tank) {
         this.mode = mode;
         this.fluid = fluid;
         this.amount = amount;
         this.chance = chance;
         this.isPerTick = isPerTick;
-        this.nbt = nbt;
         this.tank = tank;
     }
 

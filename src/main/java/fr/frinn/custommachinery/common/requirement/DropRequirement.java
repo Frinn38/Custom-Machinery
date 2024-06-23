@@ -13,40 +13,35 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.CraftingHelper;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Locale;
-import java.util.Optional;
 
+@SuppressWarnings("UnstableApiUsage")
 public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMachineComponent> implements ITickableRequirement<DropMachineComponent>, IDisplayInfoRequirement {
 
     public static final NamedCodec<DropRequirement> CODEC = NamedCodec.record(dropRequirementInstance ->
             dropRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
                     Action.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
-                    IIngredient.ITEM.listOf().optionalFieldOf("input", Collections.emptyList()).forGetter(requirement -> requirement.input),
+                    NamedCodec.of(CraftingHelper.makeIngredientCodec(true)).optionalFieldOf("input", Ingredient.EMPTY).forGetter(requirement -> requirement.input),
                     NamedCodec.BOOL.optionalFieldOf("whitelist", true).forGetter(requirement -> requirement.whitelist),
                     RegistrarCodec.ITEM.optionalFieldOf("output", Items.AIR).forGetter(requirement -> requirement.output),
-                    DefaultCodecs.COMPOUND_TAG.optionalFieldOf("nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("radius", 1).forGetter(requirement -> requirement.radius),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0).forGetter(AbstractDelayedChanceableRequirement::getChance),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("delay", 0.0).forGetter(IDelayedRequirement::getDelay)
-            ).apply(dropRequirementInstance, (mode, action, input, whitelist, output, nbt, amount, radius, chance, delay) -> {
-                    DropRequirement requirement = new DropRequirement(mode, action, input, whitelist, output, nbt.orElse(null), amount, radius);
+            ).apply(dropRequirementInstance, (mode, action, input, whitelist, output, amount, radius, chance, delay) -> {
+                    DropRequirement requirement = new DropRequirement(mode, action, input, whitelist, output, amount, radius);
                     requirement.setChance(chance);
                     requirement.setDelay(delay);
                     return requirement;
@@ -54,15 +49,13 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
     );
 
     private final Action action;
-    private final List<IIngredient<Item>> input;
+    private final Ingredient input;
     private final boolean whitelist;
     private final Item output;
-    @Nullable
-    private final CompoundTag nbt;
     private final int amount;
     private final int radius;
 
-    public DropRequirement(RequirementIOMode mode, Action action, List<IIngredient<Item>> input, boolean whitelist, Item output, @Nullable CompoundTag nbt, int amount, int radius) {
+    public DropRequirement(RequirementIOMode mode, Action action, Ingredient input, boolean whitelist, Item output, int amount, int radius) {
         super(mode);
         this.action = action;
         if((action == Action.CHECK || action == Action.CONSUME) && input.isEmpty())
@@ -72,7 +65,6 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
         if(action == Action.PRODUCE && output == Items.AIR)
             throw new IllegalArgumentException("Drop requirement in " + action + " mode MUST have an output item specified !");
         this.output = output;
-        this.nbt = nbt;
         this.amount = amount;
         this.radius = radius;
     }
@@ -106,10 +98,10 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
             }
             case PRODUCE -> {
-                ItemStack stack = Utils.makeItemStack(this.output, amount, this.nbt);
+                ItemStack stack = new ItemStack(this.output, this.amount);
                 if (component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.output", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
             }
             default -> {
                 return CraftingResult.pass();
@@ -133,10 +125,10 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
             }
             case PRODUCE -> {
-                ItemStack stack = Utils.makeItemStack(this.output, amount, this.nbt);
+                ItemStack stack = new ItemStack(this.output, amount);
                 if (component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.output", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
             }
             default -> {
                 return CraftingResult.pass();
@@ -178,7 +170,7 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.input", amount, found));
             }
             case PRODUCE -> {
-                ItemStack stack = Utils.makeItemStack(this.output, amount, this.nbt);
+                ItemStack stack = new ItemStack(this.output, amount);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.output", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
@@ -198,13 +190,13 @@ public class DropRequirement extends AbstractDelayedChanceableRequirement<DropMa
             case CHECK -> {
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.check", this.amount, this.radius));
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                this.input.forEach(ingredient -> info.addTooltip(Component.literal(ingredient.toString())));
+                Arrays.stream(this.input.getItems()).forEach(ingredient -> info.addTooltip(ingredient.getDisplayName()));
                 info.setItemIcon(Items.OAK_PRESSURE_PLATE);
             }
             case CONSUME -> {
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                this.input.forEach(ingredient -> info.addTooltip(Component.literal("- " + ingredient.toString())));
+                Arrays.stream(this.input.getItems()).forEach(ingredient -> info.addTooltip(ingredient.getDisplayName()));
                 info.setItemIcon(Items.HOPPER);
             }
             case PRODUCE -> {

@@ -1,47 +1,35 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
-import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
-import fr.frinn.custommachinery.common.util.ingredient.ItemIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.Map;
+import net.minecraft.world.item.crafting.Ingredient;
 
 public interface ItemRequirementJS extends RecipeJSBuilder {
 
     default RecipeJSBuilder requireItem(ItemStack stack) {
+        if(stack.isEmpty())
+            return error("Can't require empty item, if you want to require a tag use '.requireIngredient(tag)' instead");
         return this.requireItem(stack, "");
     }
 
     default RecipeJSBuilder requireItem(ItemStack stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new ItemIngredient(stack.getItem()), stack.getCount(), KubeJSIntegration.nbtFromStack(stack), slot));
+        if(stack.isEmpty())
+            return error("Can't require empty item, if you want to require a tag use '.requireIngredient(tag)' instead");
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, Ingredient.of(stack), stack.getCount(), slot));
     }
 
-    default RecipeJSBuilder requireItemTag(String tag) {
-        return this.requireItemTag(tag, 1);
+    default RecipeJSBuilder requireIngredient(Ingredient ingredient) {
+        return this.requireIngredient(ingredient, 1, "");
     }
 
-    default RecipeJSBuilder requireItemTag(String tag, int amount) {
-        return this.requireItemTag(tag, amount, null, "");
+    default RecipeJSBuilder requireIngredient(Ingredient ingredient, int amount) {
+        return this.requireIngredient(ingredient, amount, "");
     }
 
-    default RecipeJSBuilder requireItemTag(String tag, int amount, Object thing) {
-        if(thing instanceof String)
-            return this.requireItemTag(tag, amount, null, (String)thing);
-        else
-            return this.requireItemTag(tag, amount, MapJS.of(thing), "");
-    }
-
-    default RecipeJSBuilder requireItemTag(String tag, int amount, Map<?,?> nbt, String slot) {
-        try {
-            return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ItemTagIngredient.create(tag), amount, null, slot));
-        } catch (IllegalArgumentException e) {
-            return error(e.getMessage());
-        }
+    default RecipeJSBuilder requireIngredient(Ingredient ingredient, int amount, String slot) {
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, amount, slot));
     }
 
     default RecipeJSBuilder produceItem(ItemStack stack) {
@@ -49,6 +37,6 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder produceItem(ItemStack stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new ItemIngredient(stack.getItem()), stack.getCount(), KubeJSIntegration.nbtFromStack(stack), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, Ingredient.of(stack), stack.getCount(), slot));
     }
 }

@@ -12,51 +12,44 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.ItemTagIngredient;
-import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.CraftingHelper;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ItemRequirement extends AbstractChanceableRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    IIngredient.ITEM.fieldOf("item").forGetter(requirement -> requirement.item),
+                    NamedCodec.of(CraftingHelper.makeIngredientCodec(true)).fieldOf("item").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
-                    DefaultCodecs.COMPOUND_TAG.optionalFieldOf("nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
-            ).apply(itemRequirementInstance, (mode, item, amount, nbt, chance, slot) -> {
-                    ItemRequirement requirement = new ItemRequirement(mode, item, amount, nbt.orElse(null), slot);
+            ).apply(itemRequirementInstance, (mode, item, amount, chance, slot) -> {
+                    ItemRequirement requirement = new ItemRequirement(mode, item, amount, slot);
                     requirement.setChance(chance);
                     return requirement;
             }), "Item requirement"
     );
 
-    private final IIngredient<Item> item;
+    private final Ingredient ingredient;
     private final int amount;
-    @Nullable
-    private final CompoundTag nbt;
     private final String slot;
 
-    public ItemRequirement(RequirementIOMode mode, IIngredient<Item> item, int amount, @Nullable CompoundTag nbt, String slot) {
+    public ItemRequirement(RequirementIOMode mode, Ingredient ingredient, int amount, String slot) {
         super(mode);
-        if(mode == RequirementIOMode.OUTPUT && item instanceof ItemTagIngredient)
+        if(mode == RequirementIOMode.OUTPUT && ingredient.getItems().length > 1)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
-        this.item = item;
+        this.ingredient = ingredient;
         this.amount = amount;
-        this.nbt = nbt;
         this.slot = slot == null ? "" : slot;
     }
 
@@ -75,11 +68,11 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            return this.item.getAll().stream().mapToInt(item -> component.getItemAmount(this.slot, item, this.nbt)).sum() >= amount;
+            return Arrays.stream(this.ingredient.getItems()).mapToInt(item -> component.getItemAmount(this.slot, item)).sum() >= amount;
         } else {
-            if(this.item.getAll().get(0) != null)
-                return component.getSpaceForItem(this.slot, this.item.getAll().get(0), this.nbt) >= amount;
-            else throw new IllegalStateException("Can't use output item requirement with item tag");
+            if(this.ingredient.getItems().length > 0)
+                return component.getSpaceForItem(this.slot, this.ingredient.getItems()[0]) >= amount;
+            else throw new IllegalStateException("Can't use output empty item");
         }
     }
 
@@ -87,21 +80,21 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
     public CraftingResult processStart(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            int maxExtract = this.item.getAll().stream().mapToInt(item -> component.getItemAmount(this.slot, item, this.nbt)).sum();
+            int maxExtract = Arrays.stream(this.ingredient.getItems()).mapToInt(item -> component.getItemAmount(this.slot, item)).sum();
             if(maxExtract >= amount) {
                 int toExtract = amount;
-                for (Item item : this.item.getAll()) {
-                    int canExtract = component.getItemAmount(this.slot, item, this.nbt);
+                for (ItemStack item : this.ingredient.getItems()) {
+                    int canExtract = component.getItemAmount(this.slot, item);
                     if(canExtract > 0) {
                         canExtract = Math.min(canExtract, toExtract);
-                        component.removeFromInputs(this.slot, item, canExtract, this.nbt);
+                        component.removeFromInputs(this.slot, item, canExtract);
                         toExtract -= canExtract;
                         if(toExtract == 0)
                             return CraftingResult.success();
                     }
                 }
             }
-            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", this.item.toString(), amount, maxExtract));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", this.ingredient.toString(), amount, maxExtract));
         }
         return CraftingResult.pass();
     }
@@ -110,11 +103,11 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
     public CraftingResult processEnd(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.OUTPUT) {
-            if(this.item.getAll().get(0) != null) {
-                Item item = this.item.getAll().get(0);
-                int canInsert = component.getSpaceForItem(this.slot, item, this.nbt);
+            if(this.ingredient.getItems().length > 0) {
+                ItemStack item = this.ingredient.getItems()[0];
+                int canInsert = component.getSpaceForItem(this.slot, item);
                 if(canInsert >= amount) {
-                    component.addToOutputs(this.slot, item, amount, this.nbt);
+                    component.addToOutputs(this.slot, item, amount);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, Component.translatable(item.getDescriptionId())));
@@ -125,6 +118,6 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), false, this.nbt, this.slot, true));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.ingredient, this.amount, getChance(), false, this.slot, true));
     }
 }
