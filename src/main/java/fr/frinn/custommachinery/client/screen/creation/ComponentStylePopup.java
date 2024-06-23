@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ComponentStylePopup extends PopupScreen {
 
-    private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/config/exit_button.png"), CustomMachinery.rl("textures/gui/config/exit_button_hovered.png"));
+    private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
 
     private final ComponentEditBox editBox;
 
@@ -42,7 +42,7 @@ public class ComponentStylePopup extends PopupScreen {
             if(format == null)
                 continue;
             String name = format.getName();
-            WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/style/" + name + ".png"), CustomMachinery.rl("textures/gui/creation/style/" + name + "_hovered.png"));
+            WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("creation/style/" + name), CustomMachinery.rl("creation/style/" + name + "_selected"));
             ImageButton button = new ImageButton(0, 0, 10, 10, sprites, b -> this.editBox.setStyle(this.editBox.getStyle().applyFormat(format)));
             row.addChild(button);
             button.setTooltip(Tooltip.create(Component.translatable(format.getName())));
@@ -58,7 +58,7 @@ public class ComponentStylePopup extends PopupScreen {
         AtomicInteger index = new AtomicInteger(16);
         for(ChatFormatting format : List.of(ChatFormatting.BOLD, ChatFormatting.ITALIC, ChatFormatting.UNDERLINE, ChatFormatting.STRIKETHROUGH, ChatFormatting.OBFUSCATED)) {
             String name = format.getName();
-            WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/style/" + name + ".png"), CustomMachinery.rl("textures/gui/creation/style/" + name + "_hovered.png"));
+            WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("creation/style/" + name), CustomMachinery.rl("creation/style/" + name + "_selected"));
             ToggleImageButton button = new ToggleImageButton(0, 0, 10, 10, sprites, b -> this.editBox.invert(format));
             row.addChild(button);
             button.setTooltip(Tooltip.create(Component.translatable(format.getName())));

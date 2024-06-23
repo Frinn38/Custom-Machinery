@@ -27,7 +27,7 @@ import java.util.Map;
 
 public abstract class BaseScreen extends Screen {
 
-    private static final ResourceLocation BLANK_BACKGROUND = CustomMachinery.rl("textures/gui/background.png");
+    private static final ResourceLocation BLANK_BACKGROUND = CustomMachinery.rl("background");
 
     public final Minecraft mc = Minecraft.getInstance();
 
@@ -285,28 +285,7 @@ public abstract class BaseScreen extends Screen {
     }
 
     public static void blankBackground(GuiGraphics graphics, int x, int y, int width, int height) {
-        //Top left
-        graphics.blit(BLANK_BACKGROUND, x, y, 0, 0, 4, 4, 8, 8);
-        //Top middle
-        graphics.blit(BLANK_BACKGROUND, x + 4, y, width - 8, 4, 4, 0, 1, 4, 8, 8);
-        //Top right
-        graphics.blit(BLANK_BACKGROUND, x + width - 4, y, 4, 0, 4, 3, 8, 8);
-        //Middle left
-        graphics.blit(BLANK_BACKGROUND, x, y + 4, 4, height - 7, 0, 4, 4, 1, 8, 8);
-        //Middle
-        graphics.blit(BLANK_BACKGROUND, x + 4, y + 4, width - 7, height - 7, 4, 3, 1, 1, 8, 8);
-        //Middle right
-        graphics.blit(BLANK_BACKGROUND, x + width - 4, y + 3, 4, height - 7, 4, 3, 4, 1, 8, 8);
-        //Bottom left
-        graphics.blit(BLANK_BACKGROUND, x, y + height - 3, 0, 5, 4, 3, 8, 8);
-        //Bottom middle
-        graphics.blit(BLANK_BACKGROUND, x + 4, y + height - 4, width - 8, 4, 3, 4, 1, 4, 8, 8);
-        //Bottom right
-        graphics.blit(BLANK_BACKGROUND, x + width - 4, y + height - 4, 4, 4, 4, 4, 4, 4, 8, 8);
-    }
-
-    public static void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color, boolean shadow) {
-        graphics.drawString(font, text, x - font.width(text) / 2, y - font.lineHeight / 2, color, shadow);
+        graphics.blitSprite(BLANK_BACKGROUND, x, y, width, height);
     }
 
     public static void drawCenteredScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {

@@ -36,7 +36,7 @@ import java.util.function.Supplier;
 
 public class ModelSelectionPopup extends PopupScreen {
 
-    private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/config/exit_button.png"), CustomMachinery.rl("textures/gui/config/exit_button_hovered.png"));
+    private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
 
     private final Supplier<MachineModelLocation> supplier;
     private final Consumer<MachineModelLocation> consumer;

@@ -20,7 +20,7 @@ import java.util.function.Function;
 
 public class DisplayInfoTemplate {
 
-    private static final ResourceLocation DEFAULT_TEXTURE = ICustomMachineryAPI.INSTANCE.rl("textures/gui/creation/create_icon.png");
+    private static final ResourceLocation DEFAULT_TEXTURE = ICustomMachineryAPI.INSTANCE.rl("textures/gui/create_icon.png");
 
     public static final NamedCodec<Pair<Component, TooltipPredicate>> TOOLTIPS = NamedCodec.either(NamedCodec.pair(TextComponentUtils.CODEC.fieldOf("text"), TooltipPredicate.CODEC.fieldOf("predicate")), TextComponentUtils.CODEC)
             .xmap(either -> either.map(Function.identity(), component -> Pair.of(component, TooltipPredicate.ALWAYS)), Either::left, "Tooltips");

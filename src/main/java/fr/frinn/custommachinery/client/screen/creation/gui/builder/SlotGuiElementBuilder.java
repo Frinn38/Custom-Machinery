@@ -106,7 +106,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
                 if(format == null)
                     continue;
                 String name = format.getName();
-                WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/style/" + name + ".png"), CustomMachinery.rl("textures/gui/creation/style/" + name + "_hovered.png"));
+                WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("creation/style/" + name), CustomMachinery.rl("creation/style/" + name + "_selected"));
                 ImageButton button = new ImageButton(i % 8 * 10 - 1, (i < 8 ? 0 : 10) + 22, 10, 10, sprites, b -> this.color = format.getColor() != null ? Color.fromARGB(this.color.getAlpha() << 24 | format.getColor()) : Color.WHITE);
                 this.addWidget(button);
                 button.setTooltip(Tooltip.create(Component.translatable(format.getName()).withStyle(format)));

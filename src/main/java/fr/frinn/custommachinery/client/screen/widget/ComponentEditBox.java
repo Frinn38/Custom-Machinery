@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 public class ComponentEditBox extends EditBox {
 
-    public static final WidgetSprites BUTTON_TEXTURE = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/style/style_button.png"), CustomMachinery.rl("textures/gui/creation/style/style_button_hovered.png"));
+    public static final WidgetSprites BUTTON_TEXTURE = new WidgetSprites(CustomMachinery.rl("creation/style/style_button"), CustomMachinery.rl("creation/style/style_button_hovered"));
 
     private final ImageButton button;
     private Style style = Style.EMPTY;

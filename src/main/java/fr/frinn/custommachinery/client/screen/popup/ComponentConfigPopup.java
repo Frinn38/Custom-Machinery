@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 
 public class ComponentConfigPopup extends PopupScreen {
 
-    private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/config/exit_button.png"), CustomMachinery.rl("textures/gui/config/exit_button_hovered.png"));
+    private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
     private static final Component TITLE = Component.translatable("custommachinery.gui.config.component");
 
     private final SideConfig config;

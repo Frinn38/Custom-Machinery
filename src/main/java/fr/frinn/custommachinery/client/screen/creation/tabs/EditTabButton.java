@@ -22,8 +22,8 @@ public class EditTabButton extends TabButton {
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation texture = CustomMachinery.rl("textures/gui/creation/tab_button.png");
-        //graphics.blitSprite(texture, this.getX(), this.getY(), this.width, this.height, 4, 4, 4, 4, 28, 32, this.isSelected() ? 28 : 0, 0);
+        ResourceLocation sprite = CustomMachinery.rl("creation/tab_button" + (this.isSelected() ? "_selected" : ""));
+        graphics.blitSprite(sprite, this.getX(), this.getY(), this.width, this.height);
         Font font = Minecraft.getInstance().font;
         int color = this.active ? -1 : -6250336;
         BaseScreen.drawCenteredScaledString(graphics, font, this.getMessage(), this.getX() + this.width / 2, this.getY() + this.height / 2, 0.9f, color, true);

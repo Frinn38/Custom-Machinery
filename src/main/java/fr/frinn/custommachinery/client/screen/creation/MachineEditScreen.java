@@ -31,9 +31,9 @@ import java.util.List;
 
 public class MachineEditScreen extends BaseScreen {
 
-    public static final WidgetSprites SAVE_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/save_button.png"), CustomMachinery.rl("textures/gui/creation/save_button_hovered.png"));
-    public static final WidgetSprites CLOSE_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/close_button.png"), CustomMachinery.rl("textures/gui/creation/close_button_hovered.png"));
-    public static final WidgetSprites WIKI_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/wiki_button.png"), CustomMachinery.rl("textures/gui/creation/wiki_button_hovered.png"));
+    public static final WidgetSprites SAVE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/save_button"), CustomMachinery.rl("creation/save_button_hovered"));
+    public static final WidgetSprites CLOSE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/close_button"), CustomMachinery.rl("creation/close_button_hovered"));
+    public static final WidgetSprites WIKI_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/wiki_button"), CustomMachinery.rl("creation/wiki_button_hovered"));
 
     private final MachineCreationScreen parent;
     private final CustomMachineBuilder builder;

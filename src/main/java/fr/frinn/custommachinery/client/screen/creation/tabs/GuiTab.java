@@ -17,8 +17,8 @@ import net.minecraft.network.chat.Component;
 
 public class GuiTab extends MachineEditTab {
 
-    public static final WidgetSprites CREATE_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/create_button.png"), CustomMachinery.rl("textures/gui/creation/create_button_hovered.png"));
-    public static final WidgetSprites BACKGROUND_SPRITES = new WidgetSprites(CustomMachinery.rl("textures/gui/creation/background_button.png"), CustomMachinery.rl("textures/gui/creation/background_button_hovered.png"));
+    public static final WidgetSprites CREATE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/create_button"), CustomMachinery.rl("creation/create_button_hovered"));
+    public static final WidgetSprites BACKGROUND_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/background_button"), CustomMachinery.rl("creation/background_button_hovered"));
 
     private final GuiEditorWidget guiEditor;
     private AddGuiElementButton addButton;

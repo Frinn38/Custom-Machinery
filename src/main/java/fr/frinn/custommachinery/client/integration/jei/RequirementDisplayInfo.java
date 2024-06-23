@@ -17,7 +17,7 @@ import java.util.List;
 
 public class RequirementDisplayInfo implements IDisplayInfo {
 
-    private static final IDisplayInfoRenderer DEFAULT_RENDERER = new Texture(CustomMachinery.rl("textures/gui/creation/create_icon.png"), 10, 10, 0, 0);
+    private static final IDisplayInfoRenderer DEFAULT_RENDERER = new Texture(CustomMachinery.rl("textures/gui/create_icon.png"), 10, 10, 0, 0);
 
     private IDisplayInfoRenderer renderer = DEFAULT_RENDERER;
     private final List<Pair<Component, TooltipPredicate>> tooltips = new ArrayList<>();
