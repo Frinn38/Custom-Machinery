@@ -14,50 +14,52 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class FluidPerTickRequirement extends AbstractChanceableRequirement<FluidComponentHandler> implements ITickableRequirement<FluidComponentHandler>, IJEIIngredientRequirement<FluidStack> {
 
     public static final NamedCodec<FluidPerTickRequirement> CODEC = NamedCodec.record(fluidPerTickRequirementInstance ->
             fluidPerTickRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
-                    IIngredient.FLUID.fieldOf("fluid").forGetter(requirement -> requirement.fluid),
-                    NamedCodec.LONG.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    NamedCodec.of(FluidIngredient.CODEC_NON_EMPTY).fieldOf("fluid").forGetter(requirement -> requirement.fluid),
+                    NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("amount", 0).forGetter(requirement -> requirement.amount),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
-                    DefaultCodecs.COMPOUND_TAG.optionalFieldOf("nbt").forGetter(requirement -> Optional.ofNullable(requirement.nbt)),
                     NamedCodec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
-            ).apply(fluidPerTickRequirementInstance, (mode, fluid, amount, chance, nbt, tank) -> {
-                    FluidPerTickRequirement requirement = new FluidPerTickRequirement(mode, fluid, amount, nbt.orElse(null), tank);
+            ).apply(fluidPerTickRequirementInstance, (mode, fluid, amount, chance, tank) -> {
+                    FluidPerTickRequirement requirement = new FluidPerTickRequirement(mode, fluid, amount, tank);
                     requirement.setChance(chance);
                     return requirement;
             }), "Fluid per tick requirement"
     );
 
-    private final IIngredient<Fluid> fluid;
-    private final long amount;
-    @Nullable
-    private final CompoundTag nbt;
+    private final FluidIngredient fluid;
+    private final FluidStack output;
+    private final int amount;
     private final String tank;
 
-    public FluidPerTickRequirement(RequirementIOMode mode, IIngredient<Fluid> fluid, long amount, @Nullable CompoundTag nbt, String tank) {
+    public FluidPerTickRequirement(RequirementIOMode mode, FluidIngredient fluid, int amount, String tank) {
         super(mode);
-        if(mode == RequirementIOMode.OUTPUT && fluid instanceof FluidTagIngredient)
-            throw new IllegalArgumentException("You can't use a tag for an Output Fluid Per Tick Requirement");
+        if(fluid.hasNoFluids())
+            throw new IllegalArgumentException("Invalid fluid specified for fluid requirement");
+        if(mode == RequirementIOMode.OUTPUT) {
+            if(fluid.getStacks().length > 1)
+                throw new IllegalArgumentException("You must specify a single for an Output Fluid Requirement");
+            else
+                this.output = fluid.getStacks()[0];
+        } else
+            this.output = FluidStack.EMPTY;
         this.fluid = fluid;
-        this.amount = amount;
-        this.nbt = nbt;
+        if(amount == 0)
+            this.amount = fluid.getStacks()[0].getAmount();
+        else
+            this.amount = amount;
         this.tank = tank;
     }
 
@@ -73,14 +75,12 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public boolean test(FluidComponentHandler component, ICraftingContext context) {
-        long amount = context.getPerTickIntegerModifiedValue(this.amount, this, null);
-        if(getMode() == RequirementIOMode.INPUT)
-            return this.fluid.getAll().stream().mapToLong(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum() >= amount;
-        else {
-            if(this.fluid.getAll().get(0) != null)
-                return component.getSpaceForFluid(this.tank, this.fluid.getAll().get(0), this.nbt) >= amount;
-            throw new IllegalStateException("Can't use output fluid per tick requirement with fluid tag");
+        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        if(getMode() == RequirementIOMode.INPUT) {
+            return Arrays.stream(this.fluid.getStacks()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
         }
+        else
+            return component.getSpaceForFluid(this.tank, this.output) >= amount;
     }
 
     @Override
@@ -90,16 +90,16 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public CraftingResult processTick(FluidComponentHandler component, ICraftingContext context) {
-        long amount = context.getPerTickIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getPerTickIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            long maxDrain = this.fluid.getAll().stream().mapToLong(fluid -> component.getFluidAmount(this.tank, fluid, this.nbt)).sum();
+            int maxDrain = Arrays.stream(this.fluid.getStacks()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
             if(maxDrain >= amount) {
-                long toDrain = amount;
-                for (Fluid fluid : this.fluid.getAll()) {
-                    long canDrain = component.getFluidAmount(this.tank, fluid, this.nbt);
+                int toDrain = amount;
+                for (FluidStack fluid : this.fluid.getStacks()) {
+                    int canDrain = component.getFluidAmount(this.tank, fluid);
                     if(canDrain > 0) {
                         canDrain = Math.min(canDrain, toDrain);
-                        component.removeFromInputs(this.tank, new FluidStack(fluid, (int)canDrain));
+                        component.removeFromInputs(this.tank, fluid.copyWithAmount(canDrain));
                         toDrain -= canDrain;
                         if(toDrain == 0)
                             return CraftingResult.success();
@@ -108,16 +108,12 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
             }
             return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
         } else {
-            if(this.fluid.getAll().get(0) != null) {
-                Fluid fluid = this.fluid.getAll().get(0);
-                FluidStack stack = new FluidStack(fluid, (int)amount);
-                long canInsert = component.getSpaceForFluid(this.tank, fluid, this.nbt);
-                if(canInsert >= amount) {
-                    component.addToOutputs(this.tank, stack);
-                    return CraftingResult.success();
-                }
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.fluidpertick.error.output", amount, new FluidStack(fluid, (int)this.amount).getHoverName()));
-            } else throw new IllegalStateException("Can't use fluid per tick requirement with fluid tag");
+            int canFill =  component.getSpaceForFluid(this.tank, this.output);
+            if(canFill >= amount) {
+                component.addToOutputs(this.tank, this.output.copyWithAmount(amount));
+                return CraftingResult.success();
+            }
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.output", amount, this.output.copyWithAmount(canFill).getHoverName()));
         }
     }
 

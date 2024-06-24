@@ -1,14 +1,10 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
-import dev.latvian.mods.kubejs.util.MapJS;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.FluidRequirement;
-import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
-
-import java.util.Map;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 
 public interface FluidRequirementJS extends RecipeJSBuilder {
 
@@ -17,23 +13,16 @@ public interface FluidRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireFluid(FluidStack stack, String tank) {
-        return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), null, tank));
+        return this.requireFluidIngredient(FluidIngredient.of(stack), stack.getAmount(), tank);
     }
 
-    default RecipeJSBuilder requireFluidTag(String tag, int amount) {
-        return this.requireFluidTag(tag, amount, null, "");
+    default RecipeJSBuilder requireFluidIngredient(FluidIngredient ingredient, int amount) {
+        return this.requireFluidIngredient(ingredient, amount, "");
     }
 
-    default RecipeJSBuilder requireFluidTag(String tag, int amount, Object thing) {
-        if(thing instanceof String)
-            return this.requireFluidTag(tag, amount, null, (String)thing);
-        else
-            return this.requireFluidTag(tag, amount, MapJS.of(thing), "");
-    }
-
-    default RecipeJSBuilder requireFluidTag(String tag, int amount, Map<?,?> nbt, String tank) {
+    default RecipeJSBuilder requireFluidIngredient(FluidIngredient ingredient, int amount, String tank) {
         try {
-            return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag), amount, null, tank));
+            return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, ingredient, amount, tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }
@@ -44,6 +33,10 @@ public interface FluidRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder produceFluid(FluidStack stack, String tank) {
-        return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(stack.getFluid()), stack.getAmount(), null, tank));
+        try {
+            return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, FluidIngredient.of(stack), stack.getAmount(), tank));
+        } catch (IllegalArgumentException e) {
+            return error(e.getMessage());
+        }
     }
 }

@@ -67,7 +67,9 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-
+        getElementUnderMouse(mouseX, mouseY)
+                .filter(element -> !element.getTooltips().isEmpty())
+                .ifPresent(element -> graphics.renderTooltip(this.font, element.getTooltips().stream().flatMap(tooltip -> this.font.split(tooltip, 100).stream()).toList(), mouseX - this.leftPos, mouseY - this.topPos));
     }
 
     @Override

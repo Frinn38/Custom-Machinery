@@ -20,15 +20,15 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
         return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, Ingredient.of(stack), stack.getCount(), slot));
     }
 
-    default RecipeJSBuilder requireIngredient(Ingredient ingredient) {
-        return this.requireIngredient(ingredient, 1, "");
+    default RecipeJSBuilder requireItemIngredient(Ingredient ingredient) {
+        return this.requireItemIngredient(ingredient, 1, "");
     }
 
-    default RecipeJSBuilder requireIngredient(Ingredient ingredient, int amount) {
-        return this.requireIngredient(ingredient, amount, "");
+    default RecipeJSBuilder requireItemIngredient(Ingredient ingredient, int amount) {
+        return this.requireItemIngredient(ingredient, amount, "");
     }
 
-    default RecipeJSBuilder requireIngredient(Ingredient ingredient, int amount, String slot) {
+    default RecipeJSBuilder requireItemIngredient(Ingredient ingredient, int amount, String slot) {
         return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, amount, slot));
     }
 

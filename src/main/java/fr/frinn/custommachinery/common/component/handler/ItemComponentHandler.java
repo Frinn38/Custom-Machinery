@@ -200,7 +200,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             return true;
 
         //If the item present in the slot in not the same item, they won't stack
-        if(ItemStack.isSameItemSameComponents(component.getItemStack(), stack))
+        if(!ItemStack.isSameItemSameComponents(component.getItemStack(), stack))
             return false;
 
         //Check if the stack present in the slot can accept more items
@@ -249,9 +249,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public void addToOutputs(String slot, ItemStack stack, int amount) {
         AtomicInteger toAdd = new AtomicInteger(amount);
         this.outputs.stream().filter(component -> canPlaceOutput(component, slot, stack)).forEach(component -> {
-            int maxInsert = Math.min(component.insertItemBypassLimit(stack, true).getCount(), toAdd.get());
+            int maxInsert = toAdd.get() - component.insertItemBypassLimit(stack, true).getCount();
             toAdd.addAndGet(-maxInsert);
-            component.insertItemBypassLimit(stack, false);
+            component.insertItemBypassLimit(stack.copyWithCount(maxInsert), false);
         });
         getManager().markDirty();
     }

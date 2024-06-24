@@ -93,7 +93,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             if (player.getItemInHand(hand).is(Registration.CONFIGURATION_CARD_ITEM.get()))
                 return ConfigurationCardItem.pasteConfiguration(level, player, machine, player.getItemInHand(hand));
 
-            if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler)).orElse(false))
+            if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler.interactionFluidHandler)).orElse(false))
                 return ItemInteractionResult.SUCCESS;
 
             if(player instanceof ServerPlayer serverPlayer && !machine.getGuiElements().isEmpty())

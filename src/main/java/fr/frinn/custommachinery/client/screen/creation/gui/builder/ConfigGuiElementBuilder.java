@@ -37,6 +37,10 @@ public class ConfigGuiElementBuilder implements IGuiElementBuilder<ConfigGuiElem
 
         public ConfigGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable ConfigGuiElement from, Consumer<ConfigGuiElement> onFinish) {
             super(parent, properties, from, onFinish);
+            if(from != null)
+                this.properties.setTooltips(from.getTooltips());
+            else
+                this.properties.setTooltips(ConfigGuiElement.BASE_TOOLTIPS);
         }
 
         @Override

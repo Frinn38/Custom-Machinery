@@ -74,7 +74,7 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
                 .ifPresent(component -> {
                     FluidActionResult result = FluidActionResult.FAILURE;
                     //Try empty item in component
-                    if(component.getCapacity() - component.getFluid().getAmount() > 0 && !fluidHandlerItem.drain(testDrainAmount, FluidAction.SIMULATE).isEmpty())
+                    if(component.getMode().isInput() && component.getCapacity() - component.getFluid().getAmount() > 0 && !fluidHandlerItem.drain(testDrainAmount, FluidAction.SIMULATE).isEmpty())
                         result = FluidUtil.tryEmptyContainerAndStow(carried, component, new PlayerMainInvWrapper(player.getInventory()), Integer.MAX_VALUE, player, true);
                     //Try empty component in item
                     else if(!component.getFluid().isEmpty())

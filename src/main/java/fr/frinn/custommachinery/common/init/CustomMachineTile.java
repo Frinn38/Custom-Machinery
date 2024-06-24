@@ -144,7 +144,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         CompoundTag componentManagerNBT = this.componentManager.serializeNBT(this.getLevel().registryAccess());
 
         //For invalidating caps on Forge
-        this.componentManager.getComponents().values().forEach(IMachineComponent::onRemoved);
+        this.invalidateCapabilities();
 
         if(id == null)
             id = getId();

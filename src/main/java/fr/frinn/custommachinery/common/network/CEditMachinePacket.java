@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import fr.frinn.custommachinery.common.util.MachineList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,9 +16,9 @@ public record CEditMachinePacket(CustomMachine machine) implements CustomPacketP
 
     public static final Type<CEditMachinePacket> TYPE = new Type<>(CustomMachinery.rl("edit_machine"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, CEditMachinePacket> CODEC = new StreamCodec<>() {
+    public static final StreamCodec<FriendlyByteBuf, CEditMachinePacket> CODEC = new StreamCodec<>() {
         @Override
-        public CEditMachinePacket decode(RegistryFriendlyByteBuf buf) {
+        public CEditMachinePacket decode(FriendlyByteBuf buf) {
             MachineLocation location = MachineLocation.CODEC.fromNetwork(buf);
             CustomMachine machine = CustomMachine.CODEC.fromNetwork(buf);
             machine.setLocation(location);
@@ -26,7 +26,7 @@ public record CEditMachinePacket(CustomMachine machine) implements CustomPacketP
         }
 
         @Override
-        public void encode(RegistryFriendlyByteBuf buf, CEditMachinePacket packet) {
+        public void encode(FriendlyByteBuf buf, CEditMachinePacket packet) {
             MachineLocation.CODEC.toNetwork(packet.machine.getLocation(), buf);
             CustomMachine.CODEC.toNetwork(packet.machine, buf);
         }

@@ -321,7 +321,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             switch (this.getDragType(mouseX, mouseY)) {
                 case LEFT_RESIZE, RIGHT_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR));
                 case UP_RESIZE, DOWN_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR));
-                default -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_CURSOR));
+                default -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
             }
         }
 
@@ -391,6 +391,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         @Override
         public void onClick(double mouseX, double mouseY) {
             this.dragType = this.getDragType(mouseX, mouseY);
+            checkCursorShape((int)mouseX, (int)mouseY);
         }
 
         @Override
@@ -409,8 +410,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
         @Override
         public void onRelease(double mouseX, double mouseY) {
-            if(this.dragX == 0.0D && this.dragY == 0.0D)
+            if(this.dragX == 0.0D && this.dragY == 0.0D) {
+                this.dragType = DragType.DEFAULT;
                 return;
+            }
 
             switch (this.dragType) {
                 case DEFAULT -> {

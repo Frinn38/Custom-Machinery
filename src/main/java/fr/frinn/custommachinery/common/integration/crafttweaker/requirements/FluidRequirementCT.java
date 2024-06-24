@@ -1,19 +1,16 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.requirements;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
-import com.blamejared.crafttweaker.api.data.IData;
-import com.blamejared.crafttweaker.api.tag.MCTag;
+import com.blamejared.crafttweaker.api.fluid.CTFluidIngredient;
+import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
-import fr.frinn.custommachinery.common.integration.crafttweaker.CTUtils;
 import fr.frinn.custommachinery.common.requirement.FluidRequirement;
-import fr.frinn.custommachinery.common.util.ingredient.FluidIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.FluidTagIngredient;
-import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
-import org.openzen.zencode.java.ZenCodeType.Optional;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
 @ZenRegister
@@ -21,21 +18,21 @@ import org.openzen.zencode.java.ZenCodeType.OptionalString;
 public interface FluidRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
-    default T requireFluid(Fluid fluid, long amount, @Optional IData data, @OptionalString String tank) {
-        return addRequirement(new FluidRequirement(RequirementIOMode.INPUT, new FluidIngredient(fluid), amount, CTUtils.getNBT(data), tank));
+    default T requireFluid(IFluidStack fluid, @OptionalString String tank) {
+        return addRequirement(new FluidRequirement(RequirementIOMode.INPUT, FluidIngredient.of((FluidStack)fluid.getImmutableInternal()), (int)fluid.getAmount(), tank));
     }
 
     @Method
-    default T requireFluidTag(MCTag tag, long amount, @Optional IData data, @OptionalString String tank) {
+    default T requireFluid(CTFluidIngredient ingredient, int amount, @OptionalString String tank) {
         try {
-            return addRequirement(new FluidRequirement(RequirementIOMode.INPUT, FluidTagIngredient.create(tag.getTagKey()), amount, CTUtils.getNBT(data), tank));
+            return addRequirement(new FluidRequirement(RequirementIOMode.INPUT, FluidIngredient.of(ingredient.getMatchingStacks().stream().map(fluid -> (FluidStack)fluid.getImmutableInternal()).toArray(FluidStack[]::new)), amount, tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }
     }
 
     @Method
-    default T produceFluid(Fluid fluid, long amount, @Optional IData data, @OptionalString String tank) {
-        return addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, new FluidIngredient(fluid), amount, CTUtils.getNBT(data), tank));
+    default T produceFluid(IFluidStack fluid, @OptionalString String tank) {
+        return addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, FluidIngredient.of((FluidStack)fluid.getImmutableInternal()), (int)fluid.getAmount(), tank));
     }
 }

@@ -224,7 +224,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     /** Recipe Stuff **/
 
-    public long getRecipeRemainingSpace() {
+    public int getRecipeRemainingSpace() {
         if(!this.fluidStack.isEmpty())
             return this.capacity - this.fluidStack.getAmount();
         return this.capacity;

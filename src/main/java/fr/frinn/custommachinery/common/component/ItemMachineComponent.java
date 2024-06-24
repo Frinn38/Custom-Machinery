@@ -234,13 +234,15 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         //Check current stack size
         amount = Math.min(amount, this.stack.getCount());
 
+        ItemStack extracted = this.stack.copyWithCount(amount);
+
         if(!simulate) {
             this.stack.shrink(amount);
             getManager().markDirty();
             if(this.variant == UpgradeItemComponentVariant.INSTANCE)
                 getManager().getTile().getUpgradeManager().markDirty();
         }
-        return this.stack.copyWithCount(amount);
+        return extracted;
     }
 
     @Override

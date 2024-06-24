@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 
 public class GuiTab extends MachineEditTab {
@@ -42,6 +43,15 @@ public class GuiTab extends MachineEditTab {
     public void closed() {
         this.parent.removeWidget(this.addButton);
         this.parent.removeWidget(this.backgroundButton);
+    }
+
+    @Override
+    public void doLayout(ScreenRectangle rectangle) {
+        super.doLayout(rectangle);
+        if(this.addButton != null)
+            this.addButton.setPosition(this.parent.x - 28, this.parent.y + 85);
+        if(this.backgroundButton != null)
+            this.backgroundButton.setPosition(this.parent.x - 28, this.parent.y + 110);
     }
 
     private void create() {

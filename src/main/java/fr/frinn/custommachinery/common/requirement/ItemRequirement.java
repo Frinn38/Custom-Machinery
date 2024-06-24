@@ -107,7 +107,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
                 ItemStack item = this.ingredient.getItems()[0];
                 int canInsert = component.getSpaceForItem(this.slot, item);
                 if(canInsert >= amount) {
-                    component.addToOutputs(this.slot, item, amount);
+                    component.addToOutputs(this.slot, item.copy(), amount);
                     return CraftingResult.success();
                 }
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, Component.translatable(item.getDescriptionId())));

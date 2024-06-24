@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.transfer.InteractionFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.SidedFluidHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
@@ -20,7 +21,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -39,6 +39,7 @@ import java.util.function.Predicate;
 
 public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements ISerializableComponent, ISyncableStuff, ITickableComponent, IDumpComponent, IFluidHandler {
 
+    public final InteractionFluidHandler interactionFluidHandler = new InteractionFluidHandler(this);
     private final Map<Direction, SidedFluidHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IFluidHandler, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
 
@@ -154,14 +155,20 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private final List<FluidMachineComponent> inputs = new ArrayList<>();
     private final List<FluidMachineComponent> outputs = new ArrayList<>();
 
-    public long getFluidAmount(String tank, Fluid fluid, @Nullable CompoundTag nbt) {
+    public int getFluidAmount(String tank, FluidStack stack) {
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        return this.inputs.stream().filter(component -> component.getFluid().getFluid() == fluid).mapToLong(component -> component.getFluid().getAmount()).sum();
+        return this.inputs.stream()
+                .filter(component -> FluidStack.isSameFluidSameComponents(component.getFluid(), stack) && tankPredicate.test(component))
+                .mapToInt(component -> component.getFluid().getAmount())
+                .sum();
     }
 
-    public long getSpaceForFluid(String tank, Fluid fluid, @Nullable CompoundTag nbt) {
+    public int getSpaceForFluid(String tank, FluidStack stack) {
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        return this.outputs.stream().filter(component -> component.isFluidValid(0, new FluidStack(fluid, 1)) && tankPredicate.test(component)).mapToLong(FluidMachineComponent::getRecipeRemainingSpace).sum();
+        return this.outputs.stream()
+                .filter(component -> component.isFluidValid(0, stack) && tankPredicate.test(component))
+                .mapToInt(FluidMachineComponent::getRecipeRemainingSpace)
+                .sum();
     }
 
     public void removeFromInputs(String tank, FluidStack stack) {
