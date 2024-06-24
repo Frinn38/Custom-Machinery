@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.forge.client;
+package fr.frinn.custommachinery.client.model;
 
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;

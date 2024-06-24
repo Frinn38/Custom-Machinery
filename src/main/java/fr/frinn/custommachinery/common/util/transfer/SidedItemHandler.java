@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.forge.transfer;
+package fr.frinn.custommachinery.common.util.transfer;
 
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;

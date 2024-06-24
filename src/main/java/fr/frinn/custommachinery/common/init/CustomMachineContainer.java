@@ -172,12 +172,7 @@ public class CustomMachineContainer extends SyncableContainer {
             for (SlotItemComponent slotComponent : components) {
                 if(slotComponent.getComponent().isLocked())
                     continue;
-                int maxInput = slotComponent.getComponent().insert(stack.getItem(), stack.getCount(), null, true, true);
-                if(maxInput > 0) {
-                    int toInsert = Math.min(maxInput, stack.getCount());
-                    slotComponent.getComponent().insert(stack.getItem(), toInsert, null, false, true);
-                    stack.shrink(toInsert);
-                }
+                stack = slotComponent.getComponent().insertItemBypassLimit(stack, false);
                 if(stack.isEmpty())
                     break;
             }

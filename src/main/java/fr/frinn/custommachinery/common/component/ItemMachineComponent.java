@@ -18,22 +18,18 @@ import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemCompone
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
-import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,80 +89,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return this.isItemValid(0, stack);
     }
 
-    public int getRemainingSpace() {
-        if(!this.stack.isEmpty())
-            return this.capacity - this.stack.getCount();
-        return this.capacity;
-    }
-
     public ItemStack getItemStack() {
         return this.stack;
     }
 
     public int getCapacity() {
         return this.capacity;
-    }
-
-    public int insert(Item item, int amount, @Nullable DataComponentMap nbt, boolean simulate) {
-        return insert(item, amount, nbt, simulate, false);
-    }
-
-    public int insert(Item item, int amount, @Nullable DataComponentMap nbt, boolean simulate, boolean byPassLimit) {
-        if(amount <= 0 || item == Items.AIR || !isItemValid(Utils.makeItemStack(item, amount, nbt)))
-            return 0;
-
-        //Check the per-tick limit
-        if(!byPassLimit)
-            amount = Math.min(amount, this.maxInput);
-
-        //Check the inserted stack max size, in case a mod like AE2 try to insert a stack of non-stackable items
-        amount = Math.min(amount, Utils.makeItemStack(item, amount, nbt).getMaxStackSize());
-
-        //Check the current stack limit
-        if(!this.stack.isEmpty())
-            amount = Math.min(amount, this.stack.getMaxStackSize() - this.stack.getCount());
-
-        //Check the slot capacity
-        amount = Math.min(amount, this.capacity - this.stack.getCount());
-
-        if(this.stack.isEmpty()) {
-            if(!simulate) {
-                this.stack = Utils.makeItemStack(item, amount, nbt);
-                getManager().markDirty();
-                getManager().getTile().getUpgradeManager().markDirty();
-            }
-            return amount;
-        } else if(this.stack.getItem() == item){
-            amount = Math.min(getRemainingSpace(), amount);
-            if(!simulate) {
-                this.stack.grow(amount);
-                getManager().markDirty();
-                getManager().getTile().getUpgradeManager().markDirty();
-            }
-            return amount;
-        }
-        return 0;
-    }
-
-    public ItemStack extract(int amount, boolean simulate) {
-        return extract(amount, simulate, false);
-    }
-
-    public ItemStack extract(int amount, boolean simulate, boolean byPassLimit) {
-        if(amount <= 0 || this.stack.isEmpty() || !this.variant.canOutput(getManager()))
-            return ItemStack.EMPTY;
-
-        if(!byPassLimit)
-            amount = Math.min(amount, this.maxOutput);
-
-        amount = Math.min(amount, this.stack.getCount());
-        ItemStack removed = Utils.makeItemStack(this.stack.getItem(), amount, null);
-        if(!simulate) {
-            this.stack.shrink(amount);
-            getManager().markDirty();
-            getManager().getTile().getUpgradeManager().markDirty();
-        }
-        return removed;
     }
 
     public void setItemStack(ItemStack stack) {

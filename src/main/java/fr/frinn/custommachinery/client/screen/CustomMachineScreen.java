@@ -111,6 +111,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+
         return super.mouseClicked(mouseX, mouseY, button);
     }
 }

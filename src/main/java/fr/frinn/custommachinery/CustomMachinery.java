@@ -21,8 +21,6 @@ import fr.frinn.custommachinery.common.upgrade.Upgrades;
 import fr.frinn.custommachinery.common.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
-import fr.frinn.custommachinery.forge.transfer.ForgeEnergyHandler;
-import fr.frinn.custommachinery.forge.transfer.ForgeFluidHandler;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
@@ -124,15 +122,14 @@ public class CustomMachinery {
                 FluidHandler.BLOCK,
                 Registration.CUSTOM_MACHINE_TILE.get(),
                 (be, side) -> be.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
-                        .map(handler -> ((FluidComponentHandler)handler).getCommonFluidHandler())
-                        .map(handler -> ((ForgeFluidHandler)handler).getCapability(side))
+                        .map(handler -> ((FluidComponentHandler)handler).getFluidHandler(side))
                         .orElse(null)
         );
         event.registerBlockEntity(
                 EnergyStorage.BLOCK,
                 Registration.CUSTOM_MACHINE_TILE.get(),
                 (be, side) -> be.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
-                        .map(energy -> ((ForgeEnergyHandler)energy.getEnergyHandler()).getCapability(side))
+                        .map(energy -> energy.getEnergyStorage(side))
                         .orElse(null)
         );
     }

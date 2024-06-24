@@ -23,7 +23,7 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderWidget(graphics, mouseX, mouseY, partialTicks);
         this.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId())).ifPresent(component -> {
-            FluidRenderer.renderFluid(graphics.pose(), this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2, component.getFluidStack(), component.getCapacity());
+            FluidRenderer.renderFluid(graphics.pose(), this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2, component.getFluid(), component.getCapacity());
         });
         if(this.isHovered() && this.getElement().highlight())
             ClientHandler.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2);
@@ -38,10 +38,10 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
                 .flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId()))
                 .map(component -> {
                     Component tooltip;
-                    long amount = component.getFluidStack().getAmount();
+                    long amount = component.getFluid().getAmount();
                     long capacity = component.getCapacity();
-                    if(!component.getFluidStack().isEmpty() && amount > 0)
-                        tooltip = Component.empty().append(component.getFluidStack().getHoverName()).append(Component.translatable("custommachinery.gui.element.fluid.tooltip", Utils.format(amount), Utils.format(capacity)));
+                    if(!component.getFluid().isEmpty() && amount > 0)
+                        tooltip = Component.empty().append(component.getFluid().getHoverName()).append(Component.translatable("custommachinery.gui.element.fluid.tooltip", Utils.format(amount), Utils.format(capacity)));
                     else
                         tooltip = Component.translatable("custommachinery.gui.element.fluid.empty", 0, Utils.format(capacity));
                     return Collections.singletonList(tooltip);

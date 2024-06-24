@@ -22,27 +22,28 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent {
+public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IFluidHandler {
 
     private final String id;
-    private final long capacity;
-    private final long maxInput;
-    private final long maxOutput;
+    private final int capacity;
+    private final int maxInput;
+    private final int maxOutput;
     private final List<IIngredient<Fluid>> filter;
     private final boolean whitelist;
     private final SideConfig config;
     private final boolean unique;
 
     private FluidStack fluidStack = FluidStack.EMPTY;
+    private boolean bypassLimit = false;
 
-    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, long capacity, long maxInput, long maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean unique) {
+    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean unique) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -63,11 +64,24 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.id;
     }
 
-    public long getMaxInput() {
+    public FluidStack getFluid() {
+        return this.fluidStack;
+    }
+
+    public void setFluidStack(FluidStack fluidStack) {
+        this.fluidStack = fluidStack.copy();
+        getManager().markDirty();
+    }
+
+    public int getCapacity() {
+        return this.capacity;
+    }
+
+    public int getMaxInput() {
         return this.maxInput;
     }
 
-    public long getMaxOutput() {
+    public int getMaxOutput() {
         return this.maxOutput;
     }
 
@@ -104,32 +118,46 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     /** FLUID HANDLER STUFF **/
 
-    public FluidStack getFluidStack() {
-        return this.fluidStack.copy();
+    public int fillBypassLimit(FluidStack resource, FluidAction action) {
+        this.bypassLimit = true;
+        int filled = this.fill(resource, action);
+        this.bypassLimit = false;
+        return filled;
     }
 
-    public void setFluidStack(FluidStack fluidStack) {
-        this.fluidStack = fluidStack.copy();
-        getManager().markDirty();
+    public FluidStack drainBypassLimit(int amount, FluidAction action) {
+        this.bypassLimit = true;
+        FluidStack drained = this.drain(amount, action);
+        this.bypassLimit = false;
+        return drained;
     }
 
-    public long getCapacity() {
-        return this.capacity;
+    @Override
+    public int getTanks() {
+        return 1;
     }
 
-    public long getRemainingSpace() {
-        if(!this.fluidStack.isEmpty())
-            return Math.min(this.capacity - this.fluidStack.getAmount(), getMaxInput());
-        return Math.min(this.capacity, getMaxInput());
+    @Override
+    public FluidStack getFluidInTank(int tank) {
+        validateTankIndex(tank);
+        return this.getFluid();
     }
 
-    public boolean isFluidValid(@NotNull FluidStack stack) {
+    @Override
+    public int getTankCapacity(int tank) {
+        validateTankIndex(tank);
+        return this.getCapacity();
+    }
+
+    @Override
+    public boolean isFluidValid(int tank, FluidStack stack) {
+        validateTankIndex(tank);
         //Check unique
         if(this.unique && this.fluidStack.isEmpty() && this.getManager()
                 .getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .stream()
                 .flatMap(handler -> handler.getComponents().stream())
-                .anyMatch(component -> component != this && FluidStack.isSameFluidSameComponents(component.getFluidStack(), stack)))
+                .anyMatch(component -> component != this && FluidStack.isSameFluidSameComponents(component.getFluid(), stack)))
             return false;
 
         //Check filter
@@ -140,39 +168,58 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.fluidStack.isEmpty() || FluidStack.isSameFluidSameComponents(stack, this.fluidStack);
     }
 
-    public long insert(Fluid fluid, long amount, CompoundTag nbt, boolean simulate) {
-        if (amount <= 0)
+    @Override
+    public int fill(FluidStack resource, FluidAction action) {
+        if (resource.isEmpty() || !this.isFluidValid(0, resource))
             return 0;
 
+        int maxFill = resource.getAmount();
+
+        if(!this.bypassLimit)
+            maxFill = Math.min(maxFill, this.getMaxInput());
+
         if(this.fluidStack.isEmpty()) {
-            amount = Math.min(amount, getMaxInput());
-            if(!simulate) {
-                this.fluidStack = new FluidStack(fluid, (int)amount);
+            maxFill = Math.min(maxFill, this.getCapacity());
+            if(action.execute())
+                this.setFluidStack(resource.copyWithAmount(maxFill));
+        } else {
+            maxFill = Math.min(maxFill, this.getCapacity() - this.getFluid().getAmount());
+            if(action.execute()) {
+                this.fluidStack.grow(maxFill);
                 getManager().markDirty();
             }
         }
-        else {
-            amount = Math.min(Math.min(getRemainingSpace(), getMaxInput()), amount);
-            if(!simulate) {
-                this.fluidStack.grow((int)amount);
-                getManager().markDirty();
-            }
-        }
-        return amount;
+        return maxFill;
     }
 
-    public FluidStack extract(long amount, boolean simulate) {
-        if(amount <= 0 || this.fluidStack.isEmpty())
+    @Override
+    public FluidStack drain(int maxDrain, FluidAction action) {
+        if(maxDrain <= 0 || this.fluidStack.isEmpty())
             return FluidStack.EMPTY;
 
-        amount = Utils.clamp(amount, 0, Math.min(this.fluidStack.getAmount(), getMaxOutput()));
-        FluidStack removed = this.fluidStack.copy();
-        removed.setAmount((int)amount);
-        if(!simulate) {
-            this.fluidStack.shrink((int)amount);
+        if(!this.bypassLimit)
+            maxDrain = Math.min(maxDrain, this.getMaxOutput());
+
+        maxDrain = Math.min(maxDrain, this.fluidStack.getAmount());
+
+        FluidStack removed = this.fluidStack.copyWithAmount(maxDrain);
+        if(action.execute()) {
+            this.fluidStack.shrink(maxDrain);
             getManager().markDirty();
         }
         return removed;
+    }
+
+    @Override
+    public FluidStack drain(FluidStack resource, FluidAction action) {
+        if(resource.isEmpty() || this.fluidStack.isEmpty() || !FluidStack.isSameFluidSameComponents(resource, this.fluidStack))
+            return FluidStack.EMPTY;
+        return this.drain(resource.getAmount(), action);
+    }
+
+    protected void validateTankIndex(int tank) {
+        if(tank != 0)
+            throw new RuntimeException("Tank " + tank + " not in valid range - [0," + this.getTanks() + ")");
     }
 
     /** Recipe Stuff **/
@@ -207,9 +254,9 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     public record Template(
             String id,
-            long capacity,
-            long maxInput,
-            long maxOutput,
+            int capacity,
+            int maxInput,
+            int maxOutput,
             List<IIngredient<Fluid>> filter,
             boolean whitelist,
             ComponentIOMode mode,
@@ -220,9 +267,9 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         public static final NamedCodec<FluidMachineComponent.Template> CODEC = NamedCodec.record(fluidMachineComponentTemplate ->
                 fluidMachineComponentTemplate.group(
                         NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
-                        NamedCodec.LONG.fieldOf("capacity").forGetter(template -> template.capacity),
-                        NamedCodec.LONG.optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
-                        NamedCodec.LONG.optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
+                        NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
+                        NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                        NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                         IIngredient.FLUID.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
                         NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),

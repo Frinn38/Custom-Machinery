@@ -8,15 +8,16 @@ import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.forge.transfer.FluidTank;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
+import net.neoforged.neoforge.common.Tags.Items;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.wrapper.PlayerMainInvWrapper;
 
@@ -61,14 +62,25 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
     @Override
     public void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {
         ItemStack carried = container.getCarried();
-        IFluidHandlerItem handlerItem = carried.getCapability(FluidHandler.ITEM);
-        if(carried.isEmpty() || handlerItem == null)
+        IFluidHandlerItem fluidHandlerItem = carried.getCapability(FluidHandler.ITEM);
+
+        if(carried.isEmpty() || fluidHandlerItem == null)
             return;
+
+        int testDrainAmount = carried.is(Items.BUCKETS) ? 1000 : 1;
 
         tile.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(this.getId()))
                 .ifPresent(component -> {
-                    FluidActionResult result = FluidUtil.tryEmptyContainerAndStow(carried, new FluidTank(component), new PlayerMainInvWrapper(player.getInventory()), Integer.MAX_VALUE, player, true);
+                    FluidActionResult result = FluidActionResult.FAILURE;
+                    //Try empty item in component
+                    if(component.getCapacity() - component.getFluid().getAmount() > 0 && !fluidHandlerItem.drain(testDrainAmount, FluidAction.SIMULATE).isEmpty())
+                        result = FluidUtil.tryEmptyContainerAndStow(carried, component, new PlayerMainInvWrapper(player.getInventory()), Integer.MAX_VALUE, player, true);
+                    //Try empty component in item
+                    else if(!component.getFluid().isEmpty())
+                        result = FluidUtil.tryFillContainerAndStow(carried, component, new PlayerMainInvWrapper(player.getInventory()), Integer.MAX_VALUE, player, true);
+
+                    //In both case if success the carried item must be shrunk if player is not in creative mode
                     ItemStack stack = result.getResult();
                     if(result.isSuccess() && !player.isCreative()) {
                         if(carried.getCount() > 1) {

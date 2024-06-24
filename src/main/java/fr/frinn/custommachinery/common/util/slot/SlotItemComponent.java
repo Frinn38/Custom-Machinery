@@ -50,7 +50,7 @@ public class SlotItemComponent extends Slot {
 
     @Override
     public ItemStack remove(int amount) {
-        return this.component.extract(amount, false, true);
+        return this.component.extractItemBypassLimit(amount, false);
     }
 
     @Override

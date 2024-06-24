@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.TaskDelayer;
-import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -129,46 +129,49 @@ public class MachineJS {
     /** FLUID STUFF **/
 
     public FluidStack getFluidStored(String tank) {
-        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).map(FluidMachineComponent::getFluidStack).orElse(net.neoforged.neoforge.fluids.FluidStack.EMPTY);
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).map(FluidMachineComponent::getFluid).orElse(FluidStack.EMPTY);
     }
 
     public void setFluidStored(String tank, FluidStack stack) {
         this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).ifPresent(x -> x.setFluidStack(stack));
     }
 
-    public long getFluidCapacity(String tank) {
+    public int getFluidCapacity(String tank) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
                 .map(FluidMachineComponent::getCapacity)
-                .orElse(0L);
+                .orElse(0);
     }
 
-    //Return amount of fluid that was NOT added.
+    //Return amount of fluid that was added.
     public int addFluid(FluidStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .map(handler -> (FluidComponentHandler)handler)
-                .map(handler -> (int)handler.fill(stack, simulate))
-                .orElse(stack.getAmount());
+                .map(handler -> handler.fill(stack, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE))
+                .orElse(0);
     }
 
     //Return amount of fluid that was NOT added.
-    public long addFluidToTank(String tank, FluidStack stack, boolean simulate) {
+    public int addFluidToTank(String tank, FluidStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(component -> (int)component.insert(stack.getFluid(), stack.getAmount(), null, simulate))
+                .map(component -> component.fillBypassLimit(stack, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE))
                 .orElse(stack.getAmount());
     }
 
     //Return fluid that was successfully removed.
     public FluidStack removeFluid(FluidStack stack, boolean simulate) {
-        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> (FluidComponentHandler)handler).map(handler -> handler.drain(stack, simulate)).orElse(FluidStack.EMPTY);
+        return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+                .map(handler -> (FluidComponentHandler)handler)
+                .map(handler -> handler.drain(stack, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE))
+                .orElse(FluidStack.EMPTY);
     }
 
     //Return fluid that was successfully removed.
-    public FluidStack removeFluidFromTank(String tank, long amount, boolean simulate) {
+    public FluidStack removeFluidFromTank(String tank, int amount, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(component -> component.extract(amount, simulate))
+                .map(component -> component.drainBypassLimit(amount, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE))
                 .orElse(FluidStack.EMPTY);
     }
 
@@ -200,10 +203,7 @@ public class MachineJS {
     public ItemStack addItemToSlot(String slot, ItemStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> {
-                    int inserted = component.insert(stack.getItem(), stack.getCount(), null, simulate, true);
-                    return Utils.makeItemStack(stack.getItem(), stack.getCount() - inserted, null);
-                })
+                .map(component -> component.insertItemBypassLimit(stack, simulate))
                 .orElse(stack);
     }
 
@@ -211,7 +211,7 @@ public class MachineJS {
     public ItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> component.extract(toRemove, simulate, true))
+                .map(component -> component.extractItemBypassLimit(toRemove, simulate))
                 .orElse(ItemStack.EMPTY);
     }
 

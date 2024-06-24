@@ -1,9 +1,9 @@
-package fr.frinn.custommachinery.forge.client;
+package fr.frinn.custommachinery.client.model;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.forge.client.CustomMachineModelLoader.CustomMachineModelGeometry;
+import fr.frinn.custommachinery.client.model.CustomMachineModelLoader.CustomMachineModelGeometry;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;

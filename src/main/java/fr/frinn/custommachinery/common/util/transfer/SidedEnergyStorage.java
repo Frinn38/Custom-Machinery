@@ -1,30 +1,28 @@
-package fr.frinn.custommachinery.forge.transfer;
+package fr.frinn.custommachinery.common.util.transfer;
 
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
+import net.minecraft.core.Direction;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-
-import java.util.function.Supplier;
 
 public class SidedEnergyStorage implements IEnergyStorage {
 
-    private final Supplier<SideMode> mode;
+    private final Direction side;
     private final EnergyMachineComponent component;
 
-    public SidedEnergyStorage(Supplier<SideMode> mode, EnergyMachineComponent component) {
-        this.mode = mode;
+    public SidedEnergyStorage(Direction side, EnergyMachineComponent component) {
+        this.side = side;
         this.component = component;
     }
 
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
-        return this.mode.get().isInput() ? Utils.toInt(this.component.receiveEnergy(maxReceive, simulate)) : 0;
+        return this.component.getConfig().getSideMode(this.side).isInput() ? this.component.receiveEnergy(maxReceive, simulate) : 0;
     }
 
     @Override
     public int extractEnergy(int maxExtract, boolean simulate) {
-        return this.mode.get().isOutput() ? Utils.toInt(this.component.extractEnergy(maxExtract, simulate)) : 0;
+        return this.component.getConfig().getSideMode(this.side).isOutput() ? this.component.extractEnergy(maxExtract, simulate) : 0;
     }
 
     @Override
@@ -39,11 +37,11 @@ public class SidedEnergyStorage implements IEnergyStorage {
 
     @Override
     public boolean canExtract() {
-        return this.mode.get().isOutput();
+        return this.component.getConfig().getSideMode(this.side).isOutput();
     }
 
     @Override
     public boolean canReceive() {
-        return this.mode.get().isInput();
+        return this.component.getConfig().getSideMode(this.side).isInput();
     }
 }

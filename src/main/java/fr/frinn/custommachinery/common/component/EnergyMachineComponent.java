@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.component;
 
+import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
@@ -16,27 +17,36 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.transfer.ICommonEnergyHandler;
-import fr.frinn.custommachinery.forge.transfer.ForgeEnergyHandler;
+import fr.frinn.custommachinery.common.util.transfer.SidedEnergyStorage;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import fr.frinn.custommachinery.impl.component.config.SideMode;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent {
+public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent, IEnergyStorage {
 
     private long energy;
     private final long capacity;
     private final long maxInput;
     private final long maxOutput;
-    private final ForgeEnergyHandler handler;
     private final SideConfig config;
+    private final Map<Direction, SidedEnergyStorage> sidedStorages = Maps.newEnumMap(Direction.class);
+    private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
 
     public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long maxOutput, SideConfig.Template configTemplate) {
         super(manager, ComponentIOMode.BOTH);
@@ -44,9 +54,10 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         this.capacity = capacity;
         this.maxInput = maxInput;
         this.maxOutput = maxOutput;
-        this.handler = new ForgeEnergyHandler(this);
         this.config = configTemplate.build(this);
-        this.config.setCallback(this.handler::configChanged);
+        this.config.setCallback(this::configChanged);
+        for(Direction side : Direction.values())
+            this.sidedStorages.put(side, new SidedEnergyStorage(side, this));
     }
 
     public long getMaxInput() {
@@ -75,34 +86,18 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         getManager().markDirty();
     }
 
-    public long receiveEnergy(long maxReceive, boolean simulate) {
-        if (this.getMaxInput() <= 0)
-            return 0;
-
-        long energyReceived = Math.min(this.getCapacity() - this.getEnergy(), Math.min(this.getMaxInput(), maxReceive));
-        if (!simulate && energyReceived > 0) {
-            this.setEnergy(this.getEnergy() + energyReceived);
-            this.getManager().markDirty();
-        }
-
-        return energyReceived;
+    public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
+        if(oldMode.isNone() != newMode.isNone())
+            this.getManager().getTile().invalidateCapabilities();
     }
 
-    public long extractEnergy(long maxExtract, boolean simulate) {
-        if (this.getMaxOutput() <= 0)
-            return 0;
-
-        long energyExtracted = Math.min(this.getEnergy(), Math.min(this.getMaxOutput(), maxExtract));
-        if (!simulate && energyExtracted > 0) {
-            this.setEnergy(this.getEnergy() - energyExtracted);
-            this.getManager().markDirty();
-        }
-
-        return energyExtracted;
-    }
-
-    public ICommonEnergyHandler getEnergyHandler() {
-        return this.handler;
+    @Nullable
+    public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
+        if(side == null)
+            return this;
+        if(!this.config.getSideMode(side).isNone())
+            return this.sidedStorages.get(side);
+        return null;
     }
 
     @Override
@@ -122,12 +117,42 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public void serverTick() {
-        this.handler.tick();
+        for(Direction side : Direction.values()) {
+            if(this.getConfig().getSideMode(side) == SideMode.NONE)
+                continue;
+
+            IEnergyStorage neighbour;
+
+            if(this.neighbourStorages.get(side) == null) {
+                this.neighbourStorages.put(side, BlockCapabilityCache.create(EnergyStorage.BLOCK, (ServerLevel)this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
+                if(this.neighbourStorages.get(side) != null)
+                    neighbour = this.neighbourStorages.get(side).getCapability();
+                else
+                    continue;
+            }
+            else
+                neighbour = this.neighbourStorages.get(side).getCapability();
+
+            if(neighbour == null)
+                continue;
+
+            if(this.getConfig().isAutoInput() && this.getConfig().getSideMode(side).isInput() && this.getEnergy() < this.getCapacity())
+                move(neighbour, this.sidedStorages.get(side), Integer.MAX_VALUE);
+
+            if(this.getConfig().isAutoOutput() && this.getConfig().getSideMode(side).isOutput() && this.getEnergy() > 0)
+                move(this.sidedStorages.get(side), neighbour, Integer.MAX_VALUE);
+        }
     }
 
-    @Override
-    public void onRemoved() {
-        this.handler.invalidate();
+    private void move(IEnergyStorage from, IEnergyStorage to, int maxAmount) {
+        int maxExtracted = from.extractEnergy(maxAmount, true);
+        if(maxExtracted > 0) {
+            int maxInserted = to.receiveEnergy(maxExtracted, true);
+            if(maxInserted > 0) {
+                from.extractEnergy(maxInserted, false);
+                to.receiveEnergy(maxExtracted, false);
+            }
+        }
     }
 
     @Override
@@ -178,6 +203,56 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
             getManager().markDirty();
         }
         return energyExtracted;
+    }
+
+    /** IEnergyStorage Stuff **/
+
+    @Override
+    public int receiveEnergy(int toReceive, boolean simulate) {
+        if (this.getMaxInput() <= 0)
+            return 0;
+
+        int energyReceived = (int)Math.min(this.getCapacity() - this.getEnergy(), Math.min(this.getMaxInput(), toReceive));
+        if (!simulate && energyReceived > 0) {
+            this.setEnergy(this.getEnergy() + energyReceived);
+            this.getManager().markDirty();
+        }
+
+        return energyReceived;
+    }
+
+    @Override
+    public int extractEnergy(int toExtract, boolean simulate) {
+        if (this.getMaxOutput() <= 0)
+            return 0;
+
+        long energyExtracted = Math.min(this.getEnergy(), Math.min(this.getMaxOutput(), toExtract));
+        if (!simulate && energyExtracted > 0) {
+            this.setEnergy(this.getEnergy() - energyExtracted);
+            this.getManager().markDirty();
+        }
+
+        return (int)energyExtracted;
+    }
+
+    @Override
+    public int getEnergyStored() {
+        return (int)this.getEnergy();
+    }
+
+    @Override
+    public int getMaxEnergyStored() {
+        return (int)this.getCapacity();
+    }
+
+    @Override
+    public boolean canExtract() {
+        return this.getEnergy() > 0 && this.getMaxOutput() > 0;
+    }
+
+    @Override
+    public boolean canReceive() {
+        return this.getCapacity() - this.getEnergy() > 0 && this.getMaxInput() > 0;
     }
 
     public record Template(

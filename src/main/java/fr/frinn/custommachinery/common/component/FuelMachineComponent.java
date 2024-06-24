@@ -116,7 +116,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
         ).ifPresent(component -> {
             int fuel = component.getItemStack().getBurnTime(RecipeType.SMELTING);
             this.addFuel(fuel);
-            component.extract(1, false);
+            component.extractItemBypassLimit(1, false);
         });
     }
 }

@@ -23,7 +23,7 @@ public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement> 
         if (component == null)
             return null;
         IIngredientManager manager = helpers.getIngredientManager();
-        ITypedIngredient<FluidStack> ingredient = manager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(component.getFluidStack().getFluid(), component.getFluidStack().getAmount())).orElse(null);
+        ITypedIngredient<FluidStack> ingredient = manager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(component.getFluid().getFluid(), component.getFluid().getAmount())).orElse(null);
         if (ingredient == null)
             return null;
         return new IClickableIngredient<>() {

@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.forge.transfer.SidedItemHandler;
+import fr.frinn.custommachinery.common.util.transfer.SidedItemHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideMode;
@@ -61,18 +61,18 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             this.sidedHandlers.put(direction, new SidedItemHandler(direction, this));
     }
 
+    @Nullable
     public IItemHandler getItemHandlerForSide(@Nullable Direction side) {
         if(side == null)
             return this;
-        return this.sidedHandlers.get(side);
+        if(this.getComponents().stream().anyMatch(component -> !component.getConfig().getSideMode(side).isNone()))
+            return this.sidedHandlers.get(side);
+        return null;
     }
 
     public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
-        if(oldMode.isNone() != newMode.isNone()) {
+        if(oldMode.isNone() != newMode.isNone())
             this.getManager().getTile().invalidateCapabilities();
-            if(oldMode.isNone())
-                this.getManager().getLevel().updateNeighborsAt(this.getManager().getTile().getBlockPos(), this.getManager().getTile().getBlockState().getBlock());
-        }
     }
 
     @Override

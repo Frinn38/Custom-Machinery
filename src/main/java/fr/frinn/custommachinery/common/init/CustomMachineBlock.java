@@ -50,6 +50,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,7 +93,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             if (player.getItemInHand(hand).is(Registration.CONFIGURATION_CARD_ITEM.get()))
                 return ConfigurationCardItem.pasteConfiguration(level, player, machine, player.getItemInHand(hand));
 
-            if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> fluidHandler.getCommonFluidHandler().interactWithFluidHandler(player, hand)).orElse(false))
+            if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler)).orElse(false))
                 return ItemInteractionResult.SUCCESS;
 
             if(player instanceof ServerPlayer serverPlayer && !machine.getGuiElements().isEmpty())

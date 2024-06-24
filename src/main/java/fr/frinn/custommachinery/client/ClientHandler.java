@@ -30,6 +30,7 @@ import fr.frinn.custommachinery.client.integration.jei.element.ProgressGuiElemen
 import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.model.CustomMachineModelLoader;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
@@ -65,7 +66,6 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiEle
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.config.CMConfig;
-import fr.frinn.custommachinery.forge.client.CustomMachineModelLoader;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
@@ -295,7 +295,11 @@ public class ClientHandler {
     public static void renderSlotHighlight(GuiGraphics graphics, int x, int y, int width, int height) {
         RenderSystem.disableDepthTest();
         RenderSystem.colorMask(true, true, true, false);
+        graphics.pose().pushPose();
+        //Translate to z=110 because fluid texture render at z=100 (See FluidRenderer)
+        graphics.pose().translate(0, 0, 110);
         graphics.fill(x, y, x + width, y + height, -2130706433);
+        graphics.pose().popPose();
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.enableDepthTest();
     }

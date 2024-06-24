@@ -8,10 +8,14 @@ import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.forge.transfer.ForgeFluidHelper;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,13 +48,13 @@ public class FluidItemComponentVariant extends ItemComponentVariant implements I
 
     @Override
     public boolean canAccept(IMachineComponentManager manager, ItemStack stack) {
-        return ForgeFluidHelper.isFluidHandler(stack);
+        return stack.getCapability(FluidHandler.ITEM) != null;
     }
 
     @Override
     public void tick(ItemMachineComponent component) {
         ItemStack stack = component.getItemStack();
-        if(!ForgeFluidHelper.isFluidHandler(stack))
+        if(stack.getCapability(FluidHandler.ITEM) == null)
             return;
 
         List<FluidMachineComponent> tanks = new ArrayList<>();
@@ -62,9 +66,73 @@ public class FluidItemComponentVariant extends ItemComponentVariant implements I
             }
         }
         if(component.getMode().isInput()) {
-            ForgeFluidHelper.fillTanksFromStack(tanks, component);
+            fillTanksFromStack(tanks, component);
         } else if(component.getMode().isOutput()) {
-            ForgeFluidHelper.fillStackFromTanks(component, tanks);
+            fillStackFromTanks(component, tanks);
         }
+    }
+
+    public static void fillTanksFromStack(List<FluidMachineComponent> tanks, ItemMachineComponent slot) {
+        ItemStack stack = slot.getItemStack();
+        if(stack.isEmpty())
+            return;
+
+        IFluidHandlerItem handlerItem =  stack.getCapability(FluidHandler.ITEM);
+        if(handlerItem == null)
+            return;
+
+        for(FluidMachineComponent component : tanks) {
+            FluidStack maxExtract;
+            if(component.getFluid().isEmpty())
+                maxExtract = handlerItem.drain(Integer.MAX_VALUE, FluidAction.SIMULATE);
+            else
+                maxExtract = handlerItem.drain(new FluidStack(component.getFluid().getFluid(), Integer.MAX_VALUE), FluidAction.SIMULATE);
+
+            if(maxExtract.isEmpty())
+                continue;
+
+            long maxInsert = component.fillBypassLimit(maxExtract, FluidAction.SIMULATE);
+
+            if(maxInsert <= 0)
+                continue;
+
+            FluidStack extracted = handlerItem.drain(new FluidStack(maxExtract.getFluid(), Utils.toInt(maxInsert)), FluidAction.EXECUTE);
+
+            if(extracted.getAmount() > 0)
+                component.fillBypassLimit(extracted, FluidAction.EXECUTE);
+        }
+        slot.setItemStack(handlerItem.getContainer());
+    }
+
+    public static void fillStackFromTanks(ItemMachineComponent slot, List<FluidMachineComponent> tanks) {
+        ItemStack stack = slot.getItemStack();
+        if(stack.isEmpty())
+            return;
+
+        IFluidHandlerItem handlerItem = stack.getCapability(FluidHandler.ITEM);
+        if(handlerItem == null)
+            return;
+
+        for(FluidMachineComponent component : tanks) {
+            for(int i = 0; i < handlerItem.getTanks(); i++) {
+                if(handlerItem.getFluidInTank(i).isEmpty() || FluidStack.isSameFluidSameComponents(handlerItem.getFluidInTank(i), component.getFluid())) {
+                    FluidStack maxExtract = component.drainBypassLimit(Integer.MAX_VALUE, FluidAction.SIMULATE);
+
+                    if(maxExtract.isEmpty())
+                        continue;
+
+                    int maxInsert = handlerItem.fill(maxExtract, FluidAction.SIMULATE);
+
+                    if(maxInsert <= 0)
+                        continue;
+
+                    FluidStack extracted = component.drainBypassLimit(maxInsert, FluidAction.EXECUTE);
+
+                    if(extracted.getAmount() > 0)
+                        handlerItem.fill(extracted, FluidAction.EXECUTE);
+                }
+            }
+        }
+        slot.setItemStack(handlerItem.getContainer());
     }
 }

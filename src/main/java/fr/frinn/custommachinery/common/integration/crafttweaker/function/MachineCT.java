@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.integration.crafttweaker.function;
 
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
-import com.blamejared.crafttweaker.api.data.IData;
 import com.blamejared.crafttweaker.api.data.MapData;
+import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
@@ -12,19 +12,16 @@ import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.TaskDelayer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import org.jetbrains.annotations.Nullable;
 import org.openzen.zencode.java.ZenCodeType.Getter;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
-import org.openzen.zencode.java.ZenCodeType.Optional;
 import org.openzen.zencode.java.ZenCodeType.Setter;
 
 import java.util.UUID;
@@ -150,59 +147,59 @@ public class MachineCT {
     public FluidStack getFluidStored(String tank) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(FluidMachineComponent::getFluidStack)
+                .map(FluidMachineComponent::getFluid)
                 .orElse(FluidStack.EMPTY);
     }
 
     @Method
-    public void setFluidStored(String tank, Fluid fluid, int amount, @Optional IData data) {
+    public void setFluidStored(String tank, IFluidStack stack) {
         this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .ifPresent(x -> x.setFluidStack(new FluidStack(fluid, amount)));
+                .ifPresent(x -> x.setFluidStack(stack.getImmutableInternal()));
     }
 
     @Method
-    public long getFluidCapacity(String tank) {
+    public int getFluidCapacity(String tank) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
                 .map(FluidMachineComponent::getCapacity)
-                .orElse(0L);
+                .orElse(0);
     }
 
-    //Return amount of fluid that was NOT added.
+    //Return amount of fluid that was added.
     @Method
-    public long addFluid(Fluid fluid, int amount, boolean simulate) {
+    public int addFluid(IFluidStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .map(handler -> (FluidComponentHandler)handler)
-                .map(handler -> (int)handler.fill(new FluidStack(fluid, amount), simulate))
-                .orElse(amount);
+                .map(handler -> handler.fill(stack.getInternal(), simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE))
+                .orElse(0);
     }
 
-    //Return amount of fluid that was NOT added.
+    //Return amount of fluid that was added.
     @Method
-    public long addFluidToTank(String tank, Fluid fluid, long amount, boolean simulate, @Optional IData data) {
+    public int addFluidToTank(String tank, IFluidStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(component -> component.insert(fluid, amount, data == null ? null : (CompoundTag) data.getInternal(), simulate))
-                .orElse(amount);
+                .map(component -> component.fillBypassLimit(stack.getInternal(), simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE))
+                .orElse(0);
     }
 
     //Return fluid that was successfully removed.
     @Method
-    public FluidStack removeFluid(Fluid fluid, int amount, boolean simulate, @Optional IData data) {
+    public IFluidStack removeFluid(IFluidStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .map(handler -> (FluidComponentHandler)handler)
-                .map(handler -> handler.drain(new FluidStack(fluid, amount), simulate))
-                .orElse(FluidStack.EMPTY);
+                .map(handler -> IFluidStack.of(handler.drain(stack.getInternal(), simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE)))
+                .orElse(IFluidStack.empty());
     }
 
     //Return fluid that was successfully removed.
     @Method
-    public FluidStack removeFluidFromTank(String tank, int amount, boolean simulate) {
+    public IFluidStack removeFluidFromTank(String tank, int amount, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
-                .map(component -> component.extract(amount, simulate))
-                .orElse(FluidStack.EMPTY);
+                .map(component -> IFluidStack.of(component.drainBypassLimit(amount, simulate ? FluidAction.SIMULATE : FluidAction.EXECUTE)))
+                .orElse(IFluidStack.empty());
     }
 
     /** ITEM STUFF **/
@@ -237,10 +234,7 @@ public class MachineCT {
     public IItemStack addItemToSlot(String slot, IItemStack stackCT, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> {
-                    int inserted = component.insert(stackCT.getDefinition(), stackCT.amount(), null, simulate, true);
-                    return IItemStack.of(new ItemStack(stackCT.getDefinition(), stackCT.amount() - inserted));
-                })
+                .map(component -> IItemStack.of(component.insertItemBypassLimit(stackCT.getInternal(), simulate)))
                 .orElse(stackCT);
     }
 
@@ -249,7 +243,7 @@ public class MachineCT {
     public IItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .map(component -> IItemStack.of(component.extract(toRemove, simulate, true)))
+                .map(component -> IItemStack.of(component.extractItemBypassLimit(toRemove, simulate)))
                 .orElse(IItemStack.empty());
     }
 

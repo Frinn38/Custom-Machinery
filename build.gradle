@@ -157,8 +157,11 @@ dependencies {
     // Jade
     localRuntime compileOnly("curse.maven:jade-324717:${jade_version}")
 
-    //The one probe
+    // The one probe
     localRuntime compileOnly("mcjty.theoneprobe:theoneprobe:${top_version}") {transitive = false}
+
+    // Mekanism
+    localRuntime("mekanism:Mekanism:${mekanism_version}")
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -180,12 +183,6 @@ tasks.withType(ProcessResources).configureEach {
 
     filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties
-    }
-}
-
-afterEvaluate {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xmaxerrs" << "1000"
     }
 }
 
