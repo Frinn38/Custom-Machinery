@@ -14,7 +14,6 @@ import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -25,11 +24,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.neoforged.neoforge.client.ChunkRenderTypeSet;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -58,16 +61,37 @@ public class ModelSelectionPopup extends PopupScreen {
     public void refreshBoxSuggestions() {
         this.box.clearSuggestions();
 
+        List<String> possibleSuggestions = new ArrayList<>();
+
         if(this.blocks.selected())
-            this.box.addSuggestions(BuiltInRegistries.BLOCK.keySet().stream().map(ResourceLocation::toString).toList());
+            possibleSuggestions.addAll(BuiltInRegistries.BLOCK.keySet().stream().map(ResourceLocation::toString).toList());
 
         if(this.items.selected())
-            this.box.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
+            possibleSuggestions.addAll(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
 
         if(this.models.selected())
-            this.box.addSuggestions(ClientHandler.getAllModels().keySet().stream().map(ModelResourceLocation::toString).toList());
+            possibleSuggestions.addAll(ClientHandler.getAllModels().keySet().stream().map(ModelResourceLocation::toString).toList());
 
-        this.selectionList.setList(this.box.getSuggestions().stream().limit(100).map(s -> MachineModelLocation.of(s.getText())).toList());
+        this.box.addSuggestions(possibleSuggestions);
+        this.sortList(possibleSuggestions);
+    }
+
+    public void sortList(List<String> possibleSuggestions) {
+        String input = this.box.getValue();
+        List<MachineModelLocation> suggestions = possibleSuggestions.stream().sorted(Comparator.comparingInt(s -> {
+            if(s.equals(input))
+                return -1000;
+            else if(s.startsWith(input))
+                return -100;
+            else if(s.contains(input))
+                return -10;
+            int matchingChars = 0;
+            for(char c : input.toCharArray())
+                if(s.contains("" + c))
+                    matchingChars++;
+            return -matchingChars;
+        })).limit(100).map(MachineModelLocation::of).toList();
+        this.selectionList.setList(suggestions);
     }
 
     @Override
@@ -91,14 +115,14 @@ public class ModelSelectionPopup extends PopupScreen {
         //List
         this.selectionList = this.addRenderableWidget(new ModelSelectionList(this.x + 5, this.y + 90, this.xSize - 10, this.ySize - 95));
         this.selectionList.setResponder(this.consumer);
-        this.box.setResponder(value -> this.selectionList.setList(this.box.getSuggestions().stream().limit(100).map(s -> MachineModelLocation.of(s.getText())).toList()));
+        this.box.setResponder(value -> this.sortList(this.box.getPossibleSuggestions()));
         this.refreshBoxSuggestions();
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        renderModel(graphics, this.x + this.xSize / 2F - 8, this.y + 20, this.supplier.get(), 32F);
         super.render(graphics, mouseX, mouseY, partialTicks);
+        renderModel(graphics, this.x + this.xSize / 2F - 8, this.y + 20, this.supplier.get(), 32F);
     }
 
     public static void renderModel(GuiGraphics graphics, float x, float y, MachineModelLocation loc, float scale) {
@@ -112,19 +136,20 @@ public class ModelSelectionPopup extends PopupScreen {
         else if(loc.getLoc() != null)
             model = ClientHandler.getAllModels().getOrDefault(ModelResourceLocation.standalone(loc.getLoc()), model);
 
-        RenderType renderType = RenderType.translucent();
+        ChunkRenderTypeSet renderTypes = ChunkRenderTypeSet.all();
 
         graphics.pose().pushPose();
         graphics.pose().translate(x, y, 50);
         graphics.pose().scale(scale, scale, scale);
-        model.getTransforms().getTransform(ItemDisplayContext.GUI).apply(false, graphics.pose());
+        model.applyTransform(ItemDisplayContext.GUI, graphics.pose(), false);
         if(loc.getState() != null) {
             graphics.pose().mulPose(new Quaternionf().fromAxisAngleDeg(0, 1, 0, 90));
-            ItemBlockRenderTypes.getRenderType(loc.getState(), true);
+            renderTypes = model.getRenderTypes(loc.getState(), RandomSource.create(42L), ModelData.EMPTY);
             Lighting.setupFor3DItems();
         }
-        graphics.pose().translate(-0.5F, -0.5F, -0.5F);
-        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(graphics.pose().last(), graphics.bufferSource().getBuffer(renderType), null, model, 1, 1, 1, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
+        graphics.pose().translate(-0.5F, -0.5F, -0.5);
+        for(RenderType renderType : renderTypes)
+            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(graphics.pose().last(), graphics.bufferSource().getBuffer(renderType), loc.getState(), model, 1, 1, 1, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
         if(loc.getState() != null)
             Lighting.setupForFlatItems();
         graphics.pose().popPose();

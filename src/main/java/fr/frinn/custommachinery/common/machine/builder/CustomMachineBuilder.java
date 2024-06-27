@@ -54,7 +54,7 @@ public class CustomMachineBuilder {
     public CustomMachineBuilder(CustomMachine machine) {
         this.name = machine.getName();
         this.defaultAppearance = new MachineAppearanceBuilder(machine.getAppearanceManager().getDefaultProperties(), null);
-        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder(machine.getAppearance(status), status)));
+        this.appearance = Arrays.stream(MachineStatus.values()).collect(Collectors.toMap(Function.identity(), status -> new MachineAppearanceBuilder(machine.getAppearanceManager().getStatusProperties(status), status)));
         this.tooltips = new ArrayList<>(machine.getTooltips());
         this.guiElements = new ArrayList<>(machine.getGuiElements());
         this.jeiElements = new ArrayList<>(machine.getJeiElements());

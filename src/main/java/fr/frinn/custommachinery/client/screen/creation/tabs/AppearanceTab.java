@@ -20,7 +20,7 @@ public class AppearanceTab extends MachineEditTab {
                 .withValues(parent.getBuilder().getAppearanceBuilders())
                 .displayOnlyValue()
                 .create(0, 0, 100, 20, Component.literal("Machine status"), (button, value) -> this.initList()), row.newCellSettings().alignHorizontallyCenter().alignVerticallyTop());
-        this.appearanceList = row.addChild(new AppearanceListWidget(parent.x, parent.y + 50, parent.xSize - 10, parent.ySize - 40, 30, this.builderButton::getValue, this.parent));
+        this.appearanceList = row.addChild(new AppearanceListWidget(parent.x, parent.y + 50, parent.xSize - 20, parent.ySize - 40, 30, this.builderButton::getValue, this.parent));
     }
 
     public void initList() {

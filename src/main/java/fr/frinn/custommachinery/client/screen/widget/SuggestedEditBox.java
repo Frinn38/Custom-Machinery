@@ -22,7 +22,6 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -60,8 +59,8 @@ public class SuggestedEditBox extends EditBox {
         this.updateSuggestions();
     }
 
-    public List<Suggestion> getSuggestions() {
-        return this.sorted != null ? this.sorted : Collections.emptyList();
+    public List<String> getPossibleSuggestions() {
+        return this.possibleSuggestions;
     }
 
     public void updateSuggestions() {

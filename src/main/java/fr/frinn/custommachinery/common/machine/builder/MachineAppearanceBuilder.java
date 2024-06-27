@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.machine.builder;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,20 +27,21 @@ public class MachineAppearanceBuilder {
 
     public MachineAppearanceBuilder(@Nullable MachineStatus status) {
         this.status = status;
-        ImmutableMap.Builder<MachineAppearanceProperty<?>, Object> builder = ImmutableMap.builder();
+        Map<MachineAppearanceProperty<?>, Object> map = new HashMap<>();
         for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY)
-            builder.put(property, property.getDefaultValue());
-        this.properties = builder.build();
-    }
-
-    public MachineAppearanceBuilder(MachineAppearance appearance, @Nullable MachineStatus status) {
-        this.status = status;
-        this.properties = Maps.newHashMap(appearance.getProperties());
+            map.put(property, property.getDefaultValue());
+        this.properties = map;
     }
 
     public MachineAppearanceBuilder(Map<MachineAppearanceProperty<?>, Object> properties, @Nullable MachineStatus status) {
         this.status = status;
-        this.properties = Maps.newHashMap(properties);
+        Map<MachineAppearanceProperty<?>, Object> map = new HashMap<>();
+        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY)
+            if(!properties.containsKey(property) || properties.get(property) == null)
+                map.put(property, property.getDefaultValue());
+            else
+                map.put(property, properties.get(property));
+        this.properties = map;
     }
 
     @Nullable
@@ -51,7 +52,7 @@ public class MachineAppearanceBuilder {
     @SuppressWarnings("unchecked")
     public <T> T getProperty(MachineAppearanceProperty<T> property) {
         if(!this.properties.containsKey(property))
-            throw new IllegalStateException("Can't get Machine Appearance property for: " + property.getId() + ", this property may not be registered");
+            return property.getDefaultValue();
         return (T)this.properties.get(property);
     }
 
