@@ -34,7 +34,7 @@ public class BaseInfoTab extends MachineEditTab {
             this.parent.setChanged();
             this.parent.getBuilder().setName(name);
         });
-        row.addChild(nameEdit);
+        row.addChild(nameEdit, row.newCellSettings().alignHorizontallyRight());
 
         //Processor (3rd row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.processor"), font), row.newCellSettings().alignVerticallyMiddle());

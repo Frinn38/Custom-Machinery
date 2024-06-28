@@ -1,13 +1,17 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
+import fr.frinn.custommachinery.client.screen.creation.tabs.GuiTab;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
+import fr.frinn.custommachinery.client.screen.widget.IntegerEditBox;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
+import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
@@ -22,6 +26,8 @@ public class BackgroundEditorPopup extends PopupScreen {
 
     private CycleButton<Mode> mode;
     private SuggestedEditBox texture;
+    private IntegerEditBox width;
+    private IntegerEditBox height;
 
     public BackgroundEditorPopup(MachineEditScreen parent) {
         super(parent, 256, 128);
@@ -39,9 +45,15 @@ public class BackgroundEditorPopup extends PopupScreen {
         GridLayout layout = new GridLayout(this.x + 5, this.y + 5).spacing(5);
         RowHelper row = layout.createRowHelper(2);
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
+
+        //Title
         row.addChild(new StringWidget(this.xSize - 10, this.font.lineHeight, Component.translatable("custommachinery.gui.creation.gui.background"), this.font), 2, center);
+
+        //Mode
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.mode"), this.font));
         this.mode = row.addChild(CycleButton.builder(Mode::title).displayOnlyValue().withValues(Mode.values()).withInitialValue(mode).create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.mode"), (button, value) -> this.texture.setEditable(value == Mode.CUSTOM)));
+
+        //Texture
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.texture"), this.font));
         this.texture = row.addChild(new SuggestedEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.texture"), 5));
         this.texture.setMaxLength(Integer.MAX_VALUE);
@@ -51,6 +63,28 @@ public class BackgroundEditorPopup extends PopupScreen {
         }
         this.texture.addSuggestions(Minecraft.getInstance().getResourceManager().listResources("textures", id -> true).keySet().stream().map(ResourceLocation::toString).toList());
         this.texture.setEditable(mode == Mode.CUSTOM);
+
+        //Width
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.width"), this.font));
+        this.width = row.addChild(new IntegerEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.width")));
+        this.width.bounds(-1, 256);
+        this.width.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background.width.tooltip")));
+        if(this.background != null)
+            this.width.setValue("" + this.background.getWidth());
+        else
+            this.width.setValue("256");
+
+        //Height
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.height"), this.font));
+        this.height = row.addChild(new IntegerEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.height")));
+        this.height.bounds(-1, 192);
+        this.height.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background.height.tooltip")));
+        if(this.background != null)
+            this.height.setValue("" + this.background.getHeight());
+        else
+            this.height.setValue("192");
+
+        //Close
         row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.gui.background.close"), button -> this.close()).size(50, 20).build(), 2, center);
 
         layout.arrangeElements();
@@ -70,6 +104,11 @@ public class BackgroundEditorPopup extends PopupScreen {
         if(this.mode.getValue() == Mode.NO_BACKGROUND) {
             if(this.background != null)
                 editScreen.getBuilder().getGuiElements().remove(this.background);
+            if(editScreen.getTabManager().getCurrentTab() instanceof GuiTab tab) {
+                int width = this.width.getIntValue() > 0 ? this.width.getIntValue() : 256;
+                int height = this.height.getIntValue() > 0 ? this.height.getIntValue() : 192;
+                tab.setSize(width, height);
+            }
             return;
         }
 
@@ -81,9 +120,15 @@ public class BackgroundEditorPopup extends PopupScreen {
 
         if(this.background != null) {
             editScreen.getBuilder().getGuiElements().remove(this.background);
-            editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, this.background.getWidth(), this.background.getHeight()));
+            editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, this.width.getIntValue(), this.height.getIntValue()));
         } else
-            editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, -1, -1));
+            editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, this.width.getIntValue(), this.height.getIntValue()));
+
+        if(editScreen.getTabManager().getCurrentTab() instanceof GuiTab tab) {
+            int width = this.width.getIntValue() > 0 ? this.width.getIntValue() : TextureSizeHelper.getTextureWidth(texture);
+            int height = this.height.getIntValue() > 0 ? this.height.getIntValue() : TextureSizeHelper.getTextureHeight(texture);
+            tab.setSize(width, height);
+        }
     }
 
     public enum Mode {

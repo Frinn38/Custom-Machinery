@@ -83,6 +83,10 @@ public class MachineEditScreen extends BaseScreen {
         Util.getPlatform().openUri("https://frinn.gitbook.io/custom-machinery-" + version);
     }
 
+    public TabManager getTabManager() {
+        return this.tabManager;
+    }
+
     @Override
     protected void init() {
         super.init();

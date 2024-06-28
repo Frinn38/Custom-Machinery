@@ -59,6 +59,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         this.priorityUp = Button.builder(Component.empty(), button -> this.changePriority(1)).size(5, 5).build();
         this.priorityDown = Button.builder(Component.empty(), button -> this.changePriority(-1)).size(5, 5).build();
         this.delete = Button.builder(Component.empty(), button -> this.delete()).size(5, 5).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.delete"))).build();
+        this.hideButtons();
     }
 
     public void addElement(IGuiElement element) {
@@ -160,12 +161,20 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     public void setX(int x) {
         super.setX(x);
         this.widgets.forEach(widget -> widget.setX(x + widget.widget.getElement().getX()));
+        if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
+            this.hideButtons();
+            this.showButtons(widget);
+        }
     }
 
     @Override
     public void setY(int y) {
         super.setY(y);
         this.widgets.forEach(widget -> widget.setY(y + widget.widget.getElement().getY()));
+        if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
+            this.hideButtons();
+            this.showButtons(widget);
+        }
     }
 
     @Override
@@ -319,8 +328,8 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             if(this.dragType != DragType.DEFAULT)
                 return;
             switch (this.getDragType(mouseX, mouseY)) {
-                case LEFT_RESIZE, RIGHT_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR));
-                case UP_RESIZE, DOWN_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR));
+                case LEFT_RESIZE, RIGHT_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_EW_CURSOR));
+                case UP_RESIZE, DOWN_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NS_CURSOR));
                 default -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
             }
         }
@@ -438,7 +447,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             this.dragType = DragType.DEFAULT;
             this.dragX = 0.0D;
             this.dragY = 0.0D;
-            GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_CURSOR));
+            GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
         }
 
         @Override

@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.gui.BackgroundEditorPopup;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementCreationPopup;
+import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -29,7 +30,16 @@ public class GuiTab extends MachineEditTab {
         super(Component.translatable("custommachinery.gui.creation.tab.gui"), parent);
         RowHelper row = this.layout.createRowHelper(1);
         row.addChild(new StringWidget(parent.width, 0, Component.empty(), Minecraft.getInstance().font));
-        this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, 256, 192, parent.getBuilder().getGuiElements()), row.newCellSettings().alignHorizontallyCenter());
+        BackgroundGuiElement background = parent.getBuilder().getGuiElements().stream().filter(element -> element instanceof BackgroundGuiElement).map(element -> (BackgroundGuiElement)element).findFirst().orElse(null);
+        if(background != null)
+            this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, background.getWidth(), background.getHeight(), parent.getBuilder().getGuiElements()), row.newCellSettings().alignHorizontallyCenter());
+        else
+            this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, 256, 192, parent.getBuilder().getGuiElements()), row.newCellSettings().alignHorizontallyCenter());
+    }
+
+    public void setSize(int width, int height) {
+        this.guiEditor.setSize(width, height);
+        this.layout.arrangeElements();
     }
 
     @Override
