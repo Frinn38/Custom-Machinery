@@ -1,11 +1,15 @@
 package fr.frinn.custommachinery.common.util;
 
-import dev.architectury.event.events.common.TickEvent;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
@@ -16,15 +20,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+@EventBusSubscriber(modid = CustomMachinery.MODID, bus = Bus.GAME)
 public class MachineList {
 
     private static final List<WeakReference<MachineTile>> LOADED_MACHINES = Collections.synchronizedList(new ArrayList<>());
 
     private static boolean needRefresh = false;
-
-    static {
-        TickEvent.ServerLevelTick.SERVER_POST.register(MachineList::serverTick);
-    }
 
     public static void addMachine(MachineTile tile) {
         if(tile.getLevel() != null && !tile.getLevel().isClientSide())
@@ -64,8 +65,9 @@ public class MachineList {
         return loadedMachines;
     }
 
-    private static void serverTick(final MinecraftServer server) {
-        if(needRefresh) {
+    @SubscribeEvent
+    public static void serverTick(final ServerTickEvent.Post event) {
+        if(needRefresh && event.hasTime()) {
             needRefresh = false;
             refreshAllMachines();
         }

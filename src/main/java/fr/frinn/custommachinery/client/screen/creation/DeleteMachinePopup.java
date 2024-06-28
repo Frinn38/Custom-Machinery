@@ -36,9 +36,6 @@ public class DeleteMachinePopup extends ConfirmPopup {
     @Override
     public void confirm() {
         PacketDistributor.sendToServer(new CRemoveMachinePacket(this.machine.getId()));
-        CustomMachinery.MACHINES.remove(this.machine.getId());
-        if(this.parent instanceof MachineCreationScreen creationScreen)
-            creationScreen.reloadList();
         super.confirm();
     }
 }

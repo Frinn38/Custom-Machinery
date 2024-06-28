@@ -95,7 +95,7 @@ public class ButtonGuiElementBuilder implements IGuiElementBuilder<ButtonGuiElem
             this.toggle = row.addChild(Checkbox.builder(Component.translatable("custommachinery.gui.creation.gui.button.toggle"), this.font).selected(this.baseElement != null && this.baseElement.isToggle()).build());
             this.toggle.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.button.toggle.tooltip")));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.button.text"), this.font));
-            this.text = row.addChild(new ComponentEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.button.text")));
+            this.text = row.addChild(new ComponentEditBox(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.button.text")));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.button.item"), this.font));
             this.item = row.addChild(new SuggestedEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.button.item"), 5));
             this.item.setFilter(s -> ResourceLocation.tryParse(s) != null);

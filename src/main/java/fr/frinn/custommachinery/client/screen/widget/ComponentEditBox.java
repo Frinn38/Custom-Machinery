@@ -17,17 +17,19 @@ import net.minecraft.util.FormattedCharSequence;
 
 import java.util.function.Consumer;
 
-public class ComponentEditBox extends EditBox {
+public class ComponentEditBox extends GroupWidget {
 
     public static final WidgetSprites BUTTON_TEXTURE = new WidgetSprites(CustomMachinery.rl("creation/style/style_button"), CustomMachinery.rl("creation/style/style_button_hovered"));
 
+    private final EditBox editBox;
     private final ImageButton button;
     private Style style = Style.EMPTY;
 
-    public ComponentEditBox(Font font, int x, int y, int width, int height, Component message) {
-        super(font, x, y, width - 20, height, message);
-        this.button = new ImageButton(x + width + 2, y, 20, 20, BUTTON_TEXTURE, button -> this.button());
-        this.setFormatter((value, pos) -> FormattedCharSequence.forward(value, this.style));
+    public ComponentEditBox(int x, int y, int width, int height, Component message) {
+        super(x, y, width, height, message);
+        this.editBox = this.addWidget(new EditBox(Minecraft.getInstance().font, x, y, width - 20, height, message));
+        this.editBox.setFormatter((value, pos) -> FormattedCharSequence.forward(value, this.style));
+        this.button = this.addWidget(new ImageButton(x + width - 20, y, 20, 20, BUTTON_TEXTURE, button -> this.button()));
     }
 
     private void button() {
@@ -36,16 +38,24 @@ public class ComponentEditBox extends EditBox {
     }
 
     public Component getComponent() {
-        return Component.translatable(this.getValue()).setStyle(this.style);
+        return Component.translatable(this.editBox.getValue()).setStyle(this.style);
+    }
+
+    public String getValue() {
+        return this.editBox.getValue();
     }
 
     public void setComponent(Component component) {
         this.setStyle(component.getStyle());
-        this.setValue(component.getString());
+        this.editBox.setValue(component.getString());
     }
 
     public void setComponentResponder(Consumer<MutableComponent> responder) {
-        super.setResponder(s -> responder.accept(Component.translatable(s).setStyle(this.style)));
+        this.editBox.setResponder(s -> responder.accept(Component.translatable(s).setStyle(this.style)));
+    }
+
+    public void setHint(Component hint) {
+        this.editBox.setHint(hint);
     }
 
     public Style getStyle() {
@@ -54,7 +64,7 @@ public class ComponentEditBox extends EditBox {
 
     public void setStyle(Style style) {
         this.style = style;
-        this.setValue(this.getValue());
+        this.editBox.setValue(this.editBox.getValue());
     }
 
     public void invert(ChatFormatting format) {
@@ -69,32 +79,7 @@ public class ComponentEditBox extends EditBox {
     }
 
     @Override
-    public void setX(int x) {
-        super.setX(x);
-        this.button.setX(x + this.width + 2);
-    }
-
-    @Override
-    public void setY(int y) {
-        super.setY(y);
-        this.button.setY(y);
-    }
-
-    @Override
-    public int getWidth() {
-        return super.getWidth() + 20;
-    }
-
-    @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.button.render(graphics, mouseX, mouseY, partialTick);
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(this.button.mouseClicked(mouseX, mouseY, button))
-            return true;
-        return super.mouseClicked(mouseX, mouseY, button);
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return this.editBox.keyPressed(keyCode, scanCode, modifiers);
     }
 }

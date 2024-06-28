@@ -2,7 +2,6 @@ package fr.frinn.custommachinery;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import dev.architectury.event.EventResult;
 import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
@@ -163,16 +162,14 @@ public class CustomMachinery {
         event.getDispatcher().register(CMCommand.register("cm"));
     }
 
-    private EventResult boxRendererLeftClick(final PlayerInteractEvent.LeftClickBlock event) {
+    private void boxRendererLeftClick(final PlayerInteractEvent.LeftClickBlock event) {
         if(event.getEntity() instanceof ServerPlayer player && player.getItemInHand(event.getHand()).getItem() instanceof BoxCreatorItem)
             BoxCreatorItem.setSelectedBlock(true, player.getItemInHand(event.getHand()), event.getPos());
-        return EventResult.pass();
     }
 
-    private EventResult onReloadStart(final CommandEvent event) {
+    private void onReloadStart(final CommandEvent event) {
         if(event.getParseResults().getReader().getString().equals("reload") && event.getParseResults().getContext().getSource().hasPermission(2))
             CMLogger.reset();
-        return EventResult.pass();
     }
 
     public static ResourceLocation rl(String path) {

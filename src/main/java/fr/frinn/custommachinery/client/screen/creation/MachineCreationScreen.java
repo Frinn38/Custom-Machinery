@@ -30,7 +30,7 @@ public class MachineCreationScreen extends BaseScreen {
     }
 
     public void create() {
-        this.openPopup(new CreateMachinePopup(this));
+        this.openPopup(new CreateMachinePopup(this), "Creation popup");
     }
 
     public void edit() {

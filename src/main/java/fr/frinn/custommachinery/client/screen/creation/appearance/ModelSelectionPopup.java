@@ -143,7 +143,8 @@ public class ModelSelectionPopup extends PopupScreen {
         graphics.pose().scale(scale, scale, scale);
         model.applyTransform(ItemDisplayContext.GUI, graphics.pose(), false);
         if(loc.getState() != null) {
-            graphics.pose().mulPose(new Quaternionf().fromAxisAngleDeg(0, 1, 0, 90));
+            graphics.pose().mulPose(new Quaternionf().fromAxisAngleDeg(0, 1, 0, 270));
+            graphics.pose().mulPose(new Quaternionf().fromAxisAngleDeg(1, 0, 0, 180));
             renderTypes = model.getRenderTypes(loc.getState(), RandomSource.create(42L), ModelData.EMPTY);
             Lighting.setupFor3DItems();
         }

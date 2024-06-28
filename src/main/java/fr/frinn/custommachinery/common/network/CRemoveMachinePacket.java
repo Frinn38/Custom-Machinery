@@ -9,6 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record CRemoveMachinePacket(ResourceLocation id) implements CustomPacketPayload {
@@ -32,8 +33,10 @@ public record CRemoveMachinePacket(ResourceLocation id) implements CustomPacketP
             if(machine != null)
                 context.enqueueWork(() -> {
                     CustomMachinery.LOGGER.info("Player: {} removed machine: {}", player.getName().getString(), packet.id);
-                    CustomMachinery.MACHINES.remove(packet.id);
-                    FileUtils.deleteMachineJson(player.getServer(), machine.getLocation());
+                    if(FileUtils.deleteMachineJson(player.getServer(), machine.getLocation())) {
+                        CustomMachinery.MACHINES.remove(packet.id);
+                        PacketDistributor.sendToAllPlayers(new SUpdateMachinesPacket(CustomMachinery.MACHINES));
+                    }
                 });
         }
     }

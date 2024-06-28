@@ -63,7 +63,7 @@ public class CreateMachinePopup extends PopupScreen {
         });
         this.id.setHint(Component.literal("machine_id"));
         this.id.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.create.id.tooltip")));
-        this.name = row.addChild(new ComponentEditBox(this.font, this.x + 10, this.y + 43, this.xSize - 20, 20, Component.literal("Machine name")), 2, center);
+        this.name = row.addChild(new ComponentEditBox(this.x + 10, this.y + 43, this.xSize - 20, 20, Component.literal("Machine name")), 2, center);
         this.name.setHint(Component.literal("Machine name"));
         this.name.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.create.name.tooltip")));
         CycleButton.Builder<Loader> builder = CycleButton.builder(Loader::getTranslatedName).withValues(Loader.DEFAULT).withInitialValue(Loader.DEFAULT).displayOnlyValue();

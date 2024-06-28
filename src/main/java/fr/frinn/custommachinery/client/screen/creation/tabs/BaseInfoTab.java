@@ -27,7 +27,7 @@ public class BaseInfoTab extends MachineEditTab {
 
         //Name (2nd row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.name"), font), row.newCellSettings().alignVerticallyMiddle());
-        ComponentEditBox nameEdit = new ComponentEditBox(Minecraft.getInstance().font, 0, 0, 100, 20, Component.literal("name"));
+        ComponentEditBox nameEdit = new ComponentEditBox(0, 0, 100, 20, Component.literal("name"));
         nameEdit.setHint(Component.literal("name"));
         nameEdit.setComponent(this.parent.getBuilder().getName());
         nameEdit.setComponentResponder(name -> {

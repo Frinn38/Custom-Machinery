@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.common.upgrade;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.architectury.platform.Platform;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
@@ -13,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Items;
+import net.neoforged.fml.ModList;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
         else
             logger.info("No machine upgrade json found.");
 
-        if(Platform.isModLoaded("kubejs")) {
+        if(ModList.get().isLoaded("kubejs")) {
             logger.info("Collecting machine upgrades with kubeJS.");
             List<MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
             if(!kubejsUpgrades.isEmpty())

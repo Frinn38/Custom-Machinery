@@ -59,7 +59,7 @@ public class TextGuiElementBuilder implements IGuiElementBuilder<TextGuiElement>
         @Override
         public void addWidgets(RowHelper row) {
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.text.text"), this.font));
-            this.text = row.addChild(new ComponentEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.text.text")));
+            this.text = row.addChild(new ComponentEditBox(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.text.text")));
             if(this.baseElement != null)
                 this.text.setComponent(this.baseElement.getText());
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.text.alignment"), this.font));

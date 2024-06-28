@@ -4,8 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.architectury.platform.Platform;
-import dev.architectury.utils.GameInstance;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
@@ -19,6 +17,8 @@ import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import oshi.util.tuples.Triplet;
 
 import java.io.IOException;
@@ -134,7 +134,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         ICustomMachineryAPI.INSTANCE.logger().info("Finished creating {} custom machines.", CustomMachinery.MACHINES.keySet().size());
 
         //Refresh existing loaded machines
-        if(GameInstance.getServer() != null)
+        if(ServerLifecycleHooks.getCurrentServer() != null)
             MachineList.setNeedRefresh();
     }
 
@@ -145,7 +145,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
             String packName = res.sourcePackId();
             if(packName.equals(MAIN_PACKNAME))
                 return MachineLocation.fromDefault(id, packName);
-            else if(packName.contains("KubeJS") && Platform.isModLoaded("kubejs"))
+            else if(packName.contains("KubeJS") && ModList.get().isLoaded("kubejs"))
                 return KubeJSIntegration.getMachineLocation(res, packName, id);
             else {
                 try(PackResources pack = res.source()) {

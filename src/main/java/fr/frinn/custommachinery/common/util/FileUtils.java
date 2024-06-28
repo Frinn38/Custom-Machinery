@@ -92,18 +92,19 @@ public class FileUtils {
         }
     }
 
-    public static void deleteMachineJson(MinecraftServer server, MachineLocation location) {
+    public static boolean deleteMachineJson(MinecraftServer server, MachineLocation location) {
         File machineJson = location.getFile(server);
         if(machineJson == null) {
             CustomMachinery.LOGGER.error("Error while deleting machine: {}\nCan't delete machine loaded with {}", location.getId(), location.getLoader().toString());
-            return;
+            return false;
         } else if(!machineJson.exists() || machineJson.isDirectory()) {
             CustomMachinery.LOGGER.error("Error while deleting machine: {}\nFile '{}' doesn't exist", location.getId(), machineJson.getAbsolutePath());
-            return;
+            return false;
         } else if(!machineJson.delete()) {
             CustomMachinery.LOGGER.error("Error while deleting machine: {}\nFile '{}' can't be deleted", location.getId(), machineJson.getAbsolutePath());
-            return;
+            return false;
         }
         CustomMachinery.LOGGER.info("Successfully deleted machine: {} at location '{}'", location.getId(), machineJson.getAbsolutePath());
+        return true;
     }
 }

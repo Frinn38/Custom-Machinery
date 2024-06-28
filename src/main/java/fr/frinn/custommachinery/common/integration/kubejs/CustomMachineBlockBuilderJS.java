@@ -48,7 +48,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     }
 
     @Override
-    public RegistryInfo getRegistryType() {
+    public RegistryInfo<Block> getRegistryType() {
         return RegistryInfo.BLOCK;
     }
 
@@ -81,6 +81,6 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public void generateAssetJsons(AssetJsonGenerator generator) {
-        generator.blockState(this.id, stateGenerator -> stateGenerator.variant("", "custommachinery:block/custom_machine_block"));
+        generator.blockState(this.id, stateGenerator -> stateGenerator.simpleVariant("", "custommachinery:block/custom_machine_block"));
     }
 }
