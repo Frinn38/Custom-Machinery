@@ -5,31 +5,18 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 public interface ItemRequirementJS extends RecipeJSBuilder {
 
-    default RecipeJSBuilder requireItem(ItemStack stack) {
-        if(stack.isEmpty())
-            return error("Can't require empty item, if you want to require a tag use '.requireIngredient(tag)' instead");
-        return this.requireItem(stack, "");
+    default RecipeJSBuilder requireItem(SizedIngredient ingredient) {
+        return this.requireItem(ingredient, "");
     }
 
-    default RecipeJSBuilder requireItem(ItemStack stack, String slot) {
-        if(stack.isEmpty())
-            return error("Can't require empty item, if you want to require a tag use '.requireIngredient(tag)' instead");
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, Ingredient.of(stack), stack.getCount(), slot));
-    }
-
-    default RecipeJSBuilder requireItemIngredient(Ingredient ingredient) {
-        return this.requireItemIngredient(ingredient, 1, "");
-    }
-
-    default RecipeJSBuilder requireItemIngredient(Ingredient ingredient, int amount) {
-        return this.requireItemIngredient(ingredient, amount, "");
-    }
-
-    default RecipeJSBuilder requireItemIngredient(Ingredient ingredient, int amount, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, amount, slot));
+    default RecipeJSBuilder requireItem(SizedIngredient ingredient, String slot) {
+        if(ingredient.getItems().length == 0)
+            return this.error("Invalid empty ingredient in item input requirement");
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, slot));
     }
 
     default RecipeJSBuilder produceItem(ItemStack stack) {
@@ -37,6 +24,8 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder produceItem(ItemStack stack, String slot) {
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, Ingredient.of(stack), stack.getCount(), slot));
+        if(stack.isEmpty())
+            return this.error("Invalid empty item in item output requirement");
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(stack), stack.getCount()), slot));
     }
 }

@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.CraftingHelper;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -125,8 +126,8 @@ public class ItemTransformRequirement extends AbstractChanceableRequirement<Item
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
         return Lists.newArrayList(
-                new ItemIngredientWrapper(RequirementIOMode.INPUT, this.input, this.inputAmount, getChance(), false, this.inputSlot, true),
-                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == Items.AIR ? this.input : Ingredient.of(this.output), this.outputAmount, getChance(), false, this.outputSlot, true)
+                new ItemIngredientWrapper(RequirementIOMode.INPUT, new SizedIngredient(this.input, this.inputAmount), getChance(), false, this.inputSlot, true),
+                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == Items.AIR ? new SizedIngredient(this.input, this.inputAmount) : new SizedIngredient(Ingredient.of(this.output), this.outputAmount), getChance(), false, this.outputSlot, true)
         );
     }
 }

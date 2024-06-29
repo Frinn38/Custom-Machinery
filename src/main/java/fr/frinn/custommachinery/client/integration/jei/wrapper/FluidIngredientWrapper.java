@@ -8,13 +8,12 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,16 +22,14 @@ import java.util.Optional;
 public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack> {
 
     private final RequirementIOMode mode;
-    private final FluidIngredient fluid;
-    private final int amount;
+    private final SizedFluidIngredient ingredient;
     private final double chance;
     private final boolean isPerTick;
     private final String tank;
 
-    public FluidIngredientWrapper(RequirementIOMode mode, FluidIngredient fluid, int amount, double chance, boolean isPerTick, String tank) {
+    public FluidIngredientWrapper(RequirementIOMode mode, SizedFluidIngredient ingredient, double chance, boolean isPerTick, String tank) {
         this.mode = mode;
-        this.fluid = fluid;
-        this.amount = amount;
+        this.ingredient = ingredient;
         this.chance = chance;
         this.isPerTick = isPerTick;
         this.tank = tank;
@@ -43,11 +40,11 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
         if(!(element instanceof FluidGuiElement fluidElement) || element.getType() != Registration.FLUID_GUI_ELEMENT.get())
             return false;
 
-        List<FluidStack> ingredients = Arrays.stream(this.fluid.getStacks()).map(fluid -> fluid.copyWithAmount(this.amount)).toList();
+        List<FluidStack> ingredients = Arrays.stream(this.ingredient.getFluids()).map(fluid -> fluid.copyWithAmount(this.ingredient.amount())).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
         if(fluidElement.getComponentId().equals(this.tank) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
-            IRecipeSlotBuilder slot = builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
-                    .setFluidRenderer(this.amount, false, element.getWidth() - 2, element.getHeight() - 2)
+            builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
+                    .setFluidRenderer(this.ingredient.amount(), false, element.getWidth() - 2, element.getHeight() - 2)
                     .addIngredients(NeoForgeTypes.FLUID_STACK, ingredients)
                     .addTooltipCallback((view, tooltips) -> {
                         if(this.isPerTick)

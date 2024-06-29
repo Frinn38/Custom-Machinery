@@ -13,7 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,17 +26,15 @@ import java.util.stream.Collectors;
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     private final RequirementIOMode mode;
-    private final Ingredient item;
-    private final int amount;
+    private final SizedIngredient ingredient;
     private final double chance;
     private final boolean useDurability;
     private final String slot;
     private final boolean showRequireSlot;
 
-    public ItemIngredientWrapper(RequirementIOMode mode, Ingredient item, int amount, double chance, boolean useDurability, String slot, boolean showRequireSlot) {
+    public ItemIngredientWrapper(RequirementIOMode mode, SizedIngredient ingredient, double chance, boolean useDurability, String slot, boolean showRequireSlot) {
         this.mode = mode;
-        this.item = item;
-        this.amount = amount;
+        this.ingredient = ingredient;
         this.chance = chance;
         this.useDurability = useDurability;
         this.slot = slot;
@@ -48,7 +46,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         if(!(element instanceof SlotGuiElement slotElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
             return false;
 
-        List<ItemStack> ingredients = Arrays.stream(this.item.getItems()).map(item -> item.copyWithCount(this.amount)).collect(Collectors.toCollection(ArrayList::new));
+        List<ItemStack> ingredients = Arrays.stream(this.ingredient.ingredient().getItems()).map(item -> item.copyWithCount(this.ingredient.count())).collect(Collectors.toCollection(ArrayList::new));
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
         if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
@@ -57,9 +55,9 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addTooltipCallback((view, tooltips) -> {
                         if(this.useDurability && this.mode == RequirementIOMode.INPUT)
-                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.consume", this.amount));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.consume", this.ingredient.count()));
                         else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)
-                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.repair", this.amount));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.repair", this.ingredient.count()));
 
                         if(this.chance == 0)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));

@@ -4,25 +4,19 @@ import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.FluidRequirement;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 public interface FluidRequirementJS extends RecipeJSBuilder {
 
-    default RecipeJSBuilder requireFluid(FluidStack stack) {
-        return this.requireFluid(stack, "");
+    default RecipeJSBuilder requireFluid(SizedFluidIngredient ingredient) {
+        return this.requireFluid(ingredient, "");
     }
 
-    default RecipeJSBuilder requireFluid(FluidStack stack, String tank) {
-        return this.requireFluidIngredient(FluidIngredient.of(stack), stack.getAmount(), tank);
-    }
-
-    default RecipeJSBuilder requireFluidIngredient(FluidIngredient ingredient, int amount) {
-        return this.requireFluidIngredient(ingredient, amount, "");
-    }
-
-    default RecipeJSBuilder requireFluidIngredient(FluidIngredient ingredient, int amount, String tank) {
+    default RecipeJSBuilder requireFluid(SizedFluidIngredient ingredient, String tank) {
+        if(ingredient.ingredient().hasNoFluids())
+            return this.error("Invalid empty fluid ingredient in fluid input requirement");
         try {
-            return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, ingredient, amount, tank));
+            return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, ingredient, tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }
@@ -33,8 +27,10 @@ public interface FluidRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder produceFluid(FluidStack stack, String tank) {
+        if(stack.isEmpty())
+            return this.error("Invalid empty fluid in fluid output requirement");
         try {
-            return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, FluidIngredient.of(stack), stack.getAmount(), tank));
+            return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(stack), tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }

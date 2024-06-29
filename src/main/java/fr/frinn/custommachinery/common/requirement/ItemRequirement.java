@@ -16,40 +16,35 @@ import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.crafting.CraftingHelper;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ItemRequirement extends AbstractChanceableRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    NamedCodec.of(CraftingHelper.makeIngredientCodec(true)).fieldOf("item").forGetter(requirement -> requirement.ingredient),
-                    NamedCodec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
+                    NamedCodec.of(SizedIngredient.FLAT_CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
-            ).apply(itemRequirementInstance, (mode, item, amount, chance, slot) -> {
-                    ItemRequirement requirement = new ItemRequirement(mode, item, amount, slot);
+            ).apply(itemRequirementInstance, (mode, item, chance, slot) -> {
+                    ItemRequirement requirement = new ItemRequirement(mode, item, slot);
                     requirement.setChance(chance);
                     return requirement;
             }), "Item requirement"
     );
 
-    private final Ingredient ingredient;
-    private final int amount;
+    private final SizedIngredient ingredient;
     private final String slot;
 
-    public ItemRequirement(RequirementIOMode mode, Ingredient ingredient, int amount, String slot) {
+    public ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot) {
         super(mode);
         if(mode == RequirementIOMode.OUTPUT && ingredient.getItems().length > 1)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.ingredient = ingredient;
-        this.amount = amount;
         this.slot = slot == null ? "" : slot;
     }
 
@@ -66,7 +61,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             return Arrays.stream(this.ingredient.getItems()).mapToInt(item -> component.getItemAmount(this.slot, item)).sum() >= amount;
         } else {
@@ -78,7 +73,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public CraftingResult processStart(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
             int maxExtract = Arrays.stream(this.ingredient.getItems()).mapToInt(item -> component.getItemAmount(this.slot, item)).sum();
             if(maxExtract >= amount) {
@@ -101,7 +96,7 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public CraftingResult processEnd(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
         if(getMode() == RequirementIOMode.OUTPUT) {
             if(this.ingredient.getItems().length > 0) {
                 ItemStack item = this.ingredient.getItems()[0];
@@ -118,6 +113,6 @@ public class ItemRequirement extends AbstractChanceableRequirement<ItemComponent
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.ingredient, this.amount, getChance(), false, this.slot, true));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.ingredient, getChance(), false, this.slot, true));
     }
 }

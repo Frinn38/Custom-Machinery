@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraf
                         .map(IMachineComponentTemplate::getId)
                         .orElse("");
 
-                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, Ingredient.of(recipe.getOutput()), recipe.getOutput().getCount(), 1.0, false, resultSlot, false));
+                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(recipe.getOutput()), recipe.getOutput().getCount()), 1.0, false, resultSlot, false));
                 return wrappers.build();
             }
         });

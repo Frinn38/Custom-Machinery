@@ -17,7 +17,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,38 +28,32 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
     public static final NamedCodec<FluidPerTickRequirement> CODEC = NamedCodec.record(fluidPerTickRequirementInstance ->
             fluidPerTickRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
-                    NamedCodec.of(FluidIngredient.CODEC_NON_EMPTY).fieldOf("fluid").forGetter(requirement -> requirement.fluid),
-                    NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("amount", 0).forGetter(requirement -> requirement.amount),
+                    NamedCodec.of(SizedFluidIngredient.FLAT_CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     NamedCodec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
-            ).apply(fluidPerTickRequirementInstance, (mode, fluid, amount, chance, tank) -> {
-                    FluidPerTickRequirement requirement = new FluidPerTickRequirement(mode, fluid, amount, tank);
+            ).apply(fluidPerTickRequirementInstance, (mode, fluid, chance, tank) -> {
+                    FluidPerTickRequirement requirement = new FluidPerTickRequirement(mode, fluid, tank);
                     requirement.setChance(chance);
                     return requirement;
             }), "Fluid per tick requirement"
     );
 
-    private final FluidIngredient fluid;
+    private final SizedFluidIngredient ingredient;
     private final FluidStack output;
-    private final int amount;
     private final String tank;
 
-    public FluidPerTickRequirement(RequirementIOMode mode, FluidIngredient fluid, int amount, String tank) {
+    public FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, String tank) {
         super(mode);
-        if(fluid.hasNoFluids())
+        if(ingredient.ingredient().hasNoFluids())
             throw new IllegalArgumentException("Invalid fluid specified for fluid requirement");
         if(mode == RequirementIOMode.OUTPUT) {
-            if(fluid.getStacks().length > 1)
+            if(ingredient.getFluids().length > 1)
                 throw new IllegalArgumentException("You must specify a single for an Output Fluid Requirement");
             else
-                this.output = fluid.getStacks()[0];
+                this.output = ingredient.getFluids()[0];
         } else
             this.output = FluidStack.EMPTY;
-        this.fluid = fluid;
-        if(amount == 0)
-            this.amount = fluid.getStacks()[0].getAmount();
-        else
-            this.amount = amount;
+        this.ingredient = ingredient;
         this.tank = tank;
     }
 
@@ -75,9 +69,9 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public boolean test(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            return Arrays.stream(this.fluid.getStacks()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
+            return Arrays.stream(this.ingredient.getFluids()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
         }
         else
             return component.getSpaceForFluid(this.tank, this.output) >= amount;
@@ -90,12 +84,12 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public CraftingResult processTick(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getPerTickIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getPerTickIntegerModifiedValue(this.ingredient.amount(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            int maxDrain = Arrays.stream(this.fluid.getStacks()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
+            int maxDrain = Arrays.stream(this.ingredient.getFluids()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
             if(maxDrain >= amount) {
                 int toDrain = amount;
-                for (FluidStack fluid : this.fluid.getStacks()) {
+                for (FluidStack fluid : this.ingredient.getFluids()) {
                     int canDrain = component.getFluidAmount(this.tank, fluid);
                     if(canDrain > 0) {
                         canDrain = Math.min(canDrain, toDrain);
@@ -106,7 +100,7 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
                     }
                 }
             }
-            return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.ingredient.toString(), amount, maxDrain));
         } else {
             int canFill =  component.getSpaceForFluid(this.tank, this.output);
             if(canFill >= amount) {
@@ -124,6 +118,6 @@ public class FluidPerTickRequirement extends AbstractChanceableRequirement<Fluid
 
     @Override
     public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), true, this.tank));
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.ingredient, getChance(), true, this.tank));
     }
 }

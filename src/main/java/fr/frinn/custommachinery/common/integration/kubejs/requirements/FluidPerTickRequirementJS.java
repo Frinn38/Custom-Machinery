@@ -4,25 +4,19 @@ import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.FluidPerTickRequirement;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
 
-    default RecipeJSBuilder requireFluidPerTick(FluidStack stack) {
-        return this.requireFluidPerTick(stack, "");
+    default RecipeJSBuilder requireFluidPerTick(SizedFluidIngredient ingredient) {
+        return this.requireFluidPerTick(ingredient, "");
     }
 
-    default RecipeJSBuilder requireFluidPerTick(FluidStack stack, String tank) {
-        return this.requireFluidIngredientPerTick(FluidIngredient.of(stack), stack.getAmount(), tank);
-    }
-
-    default RecipeJSBuilder requireFluidIngredientPerTick(FluidIngredient ingredient, int amount) {
-        return this.requireFluidIngredientPerTick(ingredient, amount, "");
-    }
-
-    default RecipeJSBuilder requireFluidIngredientPerTick(FluidIngredient ingredient, int amount, String tank) {
+    default RecipeJSBuilder requireFluidPerTick(SizedFluidIngredient ingredient, String tank) {
+        if(ingredient.ingredient().hasNoFluids())
+            return this.error("Invalid empty fluid ingredient in fluid input requirement");
         try {
-            return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, ingredient, amount, tank));
+            return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, ingredient, tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }
@@ -33,8 +27,10 @@ public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder produceFluidPerTick(FluidStack stack, String tank) {
+        if(stack.isEmpty())
+            return this.error("Invalid empty fluid in fluid output requirement");
         try {
-            return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, FluidIngredient.of(stack), stack.getAmount(), tank));
+            return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(stack), tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }

@@ -16,7 +16,7 @@ import fr.frinn.custommachinery.impl.requirement.AbstractChanceableRequirement;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,38 +27,32 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
     public static final NamedCodec<FluidRequirement> CODEC = NamedCodec.record(fluidRequirementInstance ->
             fluidRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(AbstractRequirement::getMode),
-                    NamedCodec.of(FluidIngredient.CODEC_NON_EMPTY).fieldOf("fluid").forGetter(requirement -> requirement.fluid),
-                    NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("amount", 0).forGetter(requirement -> requirement.amount),
+                    NamedCodec.of(SizedFluidIngredient.FLAT_CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0D).forGetter(AbstractChanceableRequirement::getChance),
                     NamedCodec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
-            ).apply(fluidRequirementInstance, (mode, fluid, amount, chance, tank) -> {
-                    FluidRequirement requirement = new FluidRequirement(mode, fluid, amount, tank);
+            ).apply(fluidRequirementInstance, (mode, fluid, chance, tank) -> {
+                    FluidRequirement requirement = new FluidRequirement(mode, fluid, tank);
                     requirement.setChance(chance);
                     return requirement;
             }), "Fluid requirement"
     );
 
-    private final FluidIngredient fluid;
+    private final SizedFluidIngredient ingredient;
     private final FluidStack output;
-    private final int amount;
     private final String tank;
 
-    public FluidRequirement(RequirementIOMode mode, FluidIngredient fluid, int amount, String tank) {
+    public FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, String tank) {
         super(mode);
-        if(fluid.hasNoFluids())
+        if(ingredient.ingredient().hasNoFluids())
             throw new IllegalArgumentException("Invalid fluid specified for fluid requirement");
         if(mode == RequirementIOMode.OUTPUT) {
-            if(fluid.getStacks().length > 1)
+            if(ingredient.getFluids().length > 1)
                 throw new IllegalArgumentException("You must specify a single for an Output Fluid Requirement");
             else
-                this.output = fluid.getStacks()[0];
+                this.output = ingredient.getFluids()[0];
         } else
             this.output = FluidStack.EMPTY;
-        this.fluid = fluid;
-        if(amount == 0)
-            this.amount = fluid.getStacks()[0].getAmount();
-        else
-            this.amount = amount;
+        this.ingredient = ingredient;
         this.tank = tank;
     }
 
@@ -74,9 +68,9 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public boolean test(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            return Arrays.stream(this.fluid.getStacks()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
+            return Arrays.stream(this.ingredient.getFluids()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
         }
         else
             return component.getSpaceForFluid(this.tank, this.output) >= amount;
@@ -84,12 +78,12 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public CraftingResult processStart(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            int maxDrain = Arrays.stream(this.fluid.getStacks()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
+            int maxDrain = Arrays.stream(this.ingredient.getFluids()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
             if(maxDrain >= amount) {
                 int toDrain = amount;
-                for (FluidStack fluid : this.fluid.getStacks()) {
+                for (FluidStack fluid : this.ingredient.getFluids()) {
                     int canDrain = component.getFluidAmount(this.tank, fluid);
                     if(canDrain > 0) {
                         canDrain = Math.min(canDrain, toDrain);
@@ -100,14 +94,14 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
                     }
                 }
             }
-            return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.fluid, amount, maxDrain));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.ingredient.toString(), amount, maxDrain));
         }
         return CraftingResult.pass();
     }
 
     @Override
     public CraftingResult processEnd(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
         if(getMode() == RequirementIOMode.OUTPUT) {
             int canFill =  component.getSpaceForFluid(this.tank, this.output);
             if(canFill >= amount) {
@@ -121,6 +115,6 @@ public class FluidRequirement extends AbstractChanceableRequirement<FluidCompone
 
     @Override
     public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.fluid, this.amount, getChance(), false, this.tank));
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.ingredient, getChance(), false, this.tank));
     }
 }

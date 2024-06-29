@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.CraftingHelper;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -121,6 +122,6 @@ public class DurabilityRequirement extends AbstractChanceableRequirement<ItemCom
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.item, this.amount, getChance(), true, this.slot, true));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), new SizedIngredient(this.item, this.amount), getChance(), true, this.slot, true));
     }
 }

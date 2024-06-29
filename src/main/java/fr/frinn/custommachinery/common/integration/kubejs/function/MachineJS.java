@@ -151,7 +151,7 @@ public class MachineJS {
                 .orElse(0);
     }
 
-    //Return amount of fluid that was NOT added.
+    //Return amount of fluid that was added.
     public int addFluidToTank(String tank, FluidStack stack, boolean simulate) {
         return this.internal.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(tank))
