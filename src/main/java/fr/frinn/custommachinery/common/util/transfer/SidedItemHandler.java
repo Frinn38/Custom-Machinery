@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.util.transfer;
 
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;

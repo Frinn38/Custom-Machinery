@@ -7,9 +7,9 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
+import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
@@ -28,7 +28,7 @@ public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraf
                 ImmutableList.Builder<IJEIIngredientWrapper<?>> wrappers = ImmutableList.builder();
                 recipe.getJEIIngredientRequirements().forEach(requirement -> wrappers.addAll(requirement.getJEIIngredientWrappers(recipe)));
                 String resultSlot = machine.getComponentTemplates().stream()
-                        .filter(template -> template instanceof ItemMachineComponent.Template slotTemplate && slotTemplate.getVariant() == ResultItemComponentVariant.INSTANCE)
+                        .filter(template -> template instanceof ItemMachineComponent.Template slotTemplate && slotTemplate.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get())
                         .findFirst()
                         .map(IMachineComponentTemplate::getId)
                         .orElse("");

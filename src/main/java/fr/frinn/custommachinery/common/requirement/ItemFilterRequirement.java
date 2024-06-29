@@ -12,7 +12,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemFilterIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
@@ -54,7 +53,7 @@ public class ItemFilterRequirement extends AbstractRequirement<ItemComponentHand
     @Override
     public boolean test(ItemComponentHandler handler, ICraftingContext context) {
         return handler.getComponents().stream()
-                .filter(component -> component.getVariant() == FilterItemComponentVariant.INSTANCE)
+                .filter(component -> component.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get())
                 .anyMatch(component -> this.ingredient.test(component.getItemStack()));
     }
 

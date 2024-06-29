@@ -8,7 +8,6 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -103,7 +102,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
             return true;
         return getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
                     handler.getComponents().stream()
-                        .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && component.getItemStack().getBurnTime(RecipeType.SMELTING) > 0)
+                        .filter(component -> component.getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get() && component.getItemStack().getBurnTime(RecipeType.SMELTING) > 0)
                         .findFirst()
                 ).isPresent();
     }
@@ -111,7 +110,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     private void tryBurnItem() {
         getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
                 handler.getComponents().stream()
-                        .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && !component.getItemStack().isEmpty())
+                        .filter(component -> component.getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get() && !component.getItemStack().isEmpty())
                         .findFirst()
         ).ifPresent(component -> {
             int fuel = component.getItemStack().getBurnTime(RecipeType.SMELTING);

@@ -4,8 +4,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.constants.VanillaTypes;
@@ -35,7 +34,7 @@ public class ItemFilterIngredientWrapper implements IJEIIngredientWrapper<ItemSt
 
         List<ItemStack> ingredients = Arrays.stream(this.ingredient.getItems()).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getVariant() == FilterItemComponentVariant.INSTANCE && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
+        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get() && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
             int slotY = element.getY() + (element.getHeight() - 16) / 2;
             builder.addSlot(RecipeIngredientRole.INPUT, slotX - xOffset, slotY - yOffset)

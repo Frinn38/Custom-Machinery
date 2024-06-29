@@ -4,8 +4,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.client.integration.jei.CustomMachineryJEIPlugin;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import mezz.jei.api.constants.VanillaTypes;
@@ -32,7 +31,7 @@ public class FuelItemIngredientWrapper implements IJEIIngredientWrapper<ItemStac
             return false;
 
         return helper.getComponentForElement(slotElement).map(t -> {
-            if(t instanceof ItemMachineComponent.Template template && template.getVariant() == FuelItemComponentVariant.INSTANCE) {
+            if(t instanceof ItemMachineComponent.Template template && template.getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get()) {
                 List<ItemStack> ingredients = CustomMachineryJEIPlugin.FUEL_INGREDIENTS.stream().filter(stack -> template.canAccept(stack, true, helper.getDummyManager())).toList();
                 builder.addSlot(RecipeIngredientRole.INPUT, element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)

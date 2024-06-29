@@ -5,7 +5,6 @@ import com.google.common.collect.HashBiMap;
 import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.component.variant.ComponentVariantRegistry;
 import fr.frinn.custommachinery.common.init.BoxCreatorItem;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -30,7 +29,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
 import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
@@ -85,10 +83,8 @@ public class CustomMachinery {
         Registration.DATAS.register(MOD_BUS);
         Registration.PROCESSORS.register(MOD_BUS);
 
-        MOD_BUS.addListener(this::setup);
         MOD_BUS.addListener(this::sendIMCMessages);
         MOD_BUS.addListener(this::registerCapabilities);
-        MOD_BUS.addListener(Registration::registerComponentVariants);
 
         final IEventBus GAME_BUS = NeoForge.EVENT_BUS;
 
@@ -98,10 +94,6 @@ public class CustomMachinery {
         GAME_BUS.addListener(this::registerCommands);
         GAME_BUS.addListener(this::boxRendererLeftClick);
         GAME_BUS.addListener(this::onReloadStart);
-    }
-
-    private void setup(final FMLCommonSetupEvent event) {
-        ComponentVariantRegistry.init();
     }
 
     private void sendIMCMessages(final InterModEnqueueEvent event) {

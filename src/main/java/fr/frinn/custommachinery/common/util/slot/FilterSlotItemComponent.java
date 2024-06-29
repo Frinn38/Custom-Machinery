@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.util.slot;
 
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.network.CSetFilterSlotItemPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

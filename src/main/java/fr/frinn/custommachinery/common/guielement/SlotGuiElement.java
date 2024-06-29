@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;

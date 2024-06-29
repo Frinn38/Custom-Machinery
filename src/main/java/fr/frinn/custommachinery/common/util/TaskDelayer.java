@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.util;
 
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
-import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;

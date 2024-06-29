@@ -6,11 +6,9 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.component.variant.ITickableComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.SidedItemHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
@@ -41,7 +39,6 @@ import java.util.function.Predicate;
 
 public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ISerializableComponent, ITickableComponent, ISyncableStuff, IDumpComponent, IItemHandlerModifiable {
 
-    private final List<ItemMachineComponent> tickableVariants;
     private final Map<Direction, SidedItemHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IItemHandler, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
 
@@ -49,14 +46,11 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         super(manager, components);
         components.forEach(component -> {
             component.getConfig().setCallback(this::configChanged);
-            if(component.getVariant() != FilterItemComponentVariant.INSTANCE) {
-                if(component.getMode().isInput())
-                    this.inputs.add(component);
-                if(component.getMode().isOutput())
-                    this.outputs.add(component);
-            }
+            if(component.getMode().isInput())
+                this.inputs.add(component);
+            if(component.getMode().isOutput())
+                this.outputs.add(component);
         });
-        this.tickableVariants = components.stream().filter(component -> component.getVariant() instanceof ITickableComponentVariant).toList();
         for(Direction direction : Direction.values())
             this.sidedHandlers.put(direction, new SidedItemHandler(direction, this));
     }
@@ -111,9 +105,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void serverTick() {
+        super.serverTick();
         for(Direction side : Direction.values()) {
             if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == SideMode.NONE))
                 continue;
@@ -141,7 +135,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                     moveStacks(component, neighbour, Integer.MAX_VALUE);
             });
         }
-        this.tickableVariants.forEach(component -> ((ITickableComponentVariant<ItemMachineComponent>)component.getVariant()).tick(component));
     }
 
     @Override
@@ -192,7 +185,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             return false;
 
         //Check component filter and variant
-        if(!component.isItemValid(stack))
+        if(!component.isItemValid(0, stack))
             return false;
 
         //If the slot is empty, any item can go inside

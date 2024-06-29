@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.core.BlockPos;
@@ -40,7 +39,7 @@ public record CSetFilterSlotItemPacket(ItemStack stack, BlockPos pos, String slo
                             .getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                             .flatMap(handler -> handler.getComponentForID(packet.slotId))
                             .ifPresent(component -> {
-                                if(component.getVariant() == FilterItemComponentVariant.INSTANCE)
+                                if(component.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get())
                                     component.setItemStack(packet.stack);
                             });
                 }

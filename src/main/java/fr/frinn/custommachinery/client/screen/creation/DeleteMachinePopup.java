@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;

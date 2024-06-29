@@ -1,5 +1,6 @@
-package fr.frinn.custommachinery.common.component;
+package fr.frinn.custommachinery.common.component.item;
 
+import com.mojang.datafixers.util.Function9;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
@@ -7,21 +8,16 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
-import fr.frinn.custommachinery.api.component.IVariableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
-import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
-import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.component.variant.ItemComponentVariant;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -36,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, IVariableComponent<ItemComponentVariant>, ISideConfigComponent, IItemHandlerModifiable {
+public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IItemHandlerModifiable {
 
     private final String id;
     private final int capacity;
@@ -45,12 +41,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     private final List<IIngredient<Item>> filter;
     private final boolean whitelist;
     private ItemStack stack = ItemStack.EMPTY;
-    private final ItemComponentVariant variant;
     private final SideConfig config;
     private boolean locked;
     private boolean bypassLimit = false;
 
-    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, ItemComponentVariant variant, SideConfig.Template configTemplate, boolean locked) {
+    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean locked) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -58,11 +53,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         this.maxOutput = maxOutput;
         this.filter = filter;
         this.whitelist = whitelist;
-        this.variant = variant;
-        if(this.variant == FilterItemComponentVariant.INSTANCE)
-            this.config = SideConfig.Template.DEFAULT_ALL_NONE_DISABLED.build(this);
-        else
-            this.config = configTemplate.build(this);
+        this.config = configTemplate.build(this);
         this.locked = locked;
     }
 
@@ -80,15 +71,6 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return this.config;
     }
 
-    @Override
-    public ItemComponentVariant getVariant() {
-        return this.variant;
-    }
-
-    public boolean isItemValid(ItemStack stack) {
-        return this.isItemValid(0, stack);
-    }
-
     public ItemStack getItemStack() {
         return this.stack;
     }
@@ -101,6 +83,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         this.stack = stack;
         getManager().markDirty();
         getManager().getTile().getUpgradeManager().markDirty();
+    }
+
+    public boolean canOutput() {
+        return true;
+    }
+
+    public boolean shouldDrop() {
+        return true;
     }
 
     public ItemStack insertItemBypassLimit(ItemStack stack, boolean simulate) {
@@ -118,11 +108,15 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     public boolean isLocked() {
-        return this.locked || this.variant == FilterItemComponentVariant.INSTANCE;
+        return this.locked;
     }
 
     public void setLocked(boolean locked) {
         this.locked = locked;
+    }
+
+    public SlotItemComponent makeSlot(int index, int x, int y) {
+        return new SlotItemComponent(this, index, x, y);
     }
 
     @Override
@@ -172,7 +166,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         if(slot != 0)
             throw new IllegalArgumentException("Can't get capacity for slot " + slot + ", ItemMachineComponent only has slot 0");
 
-        if(stack.isEmpty() || !isItemValid(stack) || (!this.stack.isEmpty() && !ItemStack.isSameItemSameComponents(this.stack, stack)))
+        if(stack.isEmpty() || !isItemValid(0, stack) || (!this.stack.isEmpty() && !ItemStack.isSameItemSameComponents(this.stack, stack)))
             return stack;
 
         int amountToInsert = stack.getCount();
@@ -200,15 +194,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
             if(!simulate) {
                 this.stack = stack.copyWithCount(amountToInsert);
                 getManager().markDirty();
-                if(this.variant == UpgradeItemComponentVariant.INSTANCE)
-                    getManager().getTile().getUpgradeManager().markDirty();
             }
         } else {//If this slot is not empty simply grow the contained stack
             if(!simulate) {
                 this.stack.grow(amountToInsert);
                 getManager().markDirty();
-                if(this.variant == UpgradeItemComponentVariant.INSTANCE)
-                    getManager().getTile().getUpgradeManager().markDirty();
             }
         }
 
@@ -224,7 +214,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         if(slot != 0)
             throw new IllegalArgumentException("Can't get capacity for slot " + slot + ", ItemMachineComponent only has slot 0");
 
-        if(amount <= 0 || this.stack.isEmpty() || !this.variant.canOutput(getManager()))
+        if(amount <= 0 || this.stack.isEmpty() || !this.canOutput())
             return ItemStack.EMPTY;
 
         //Check output limit
@@ -239,8 +229,6 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         if(!simulate) {
             this.stack.shrink(amount);
             getManager().markDirty();
-            if(this.variant == UpgradeItemComponentVariant.INSTANCE)
-                getManager().getTile().getUpgradeManager().markDirty();
         }
         return extracted;
     }
@@ -254,41 +242,53 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getItem())) == this.whitelist && this.variant.canAccept(getManager(), stack);
+        return this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getItem())) == this.whitelist;
     }
 
 
-    public record Template(String id,
-                           ComponentIOMode mode,
-                           int capacity,
-                           int maxInput,
-                           int maxOutput,
-                           List<IIngredient<Item>> filter,
-                           boolean whitelist,
-                           ItemComponentVariant variant,
-                           SideConfig.Template config,
-                           boolean locked
-    ) implements IMachineComponentTemplate<ItemMachineComponent> {
+    public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
 
-        public static final NamedCodec<ItemMachineComponent.Template> CODEC = NamedCodec.record(itemMachineComponentTemplate ->
-                itemMachineComponentTemplate.group(
-                        NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
-                        ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                        NamedCodec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
-                        NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
-                        IIngredient.ITEM.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
-                        NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
-                        IComponentVariant.codec(Registration.ITEM_MACHINE_COMPONENT).orElse(DefaultItemComponentVariant.INSTANCE).forGetter(template -> template.variant),
-                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
-                        NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked)
-                ).apply(itemMachineComponentTemplate, (id, mode, capacity, maxInput, maxOutput, filter, whitelist, variant, config, locked) ->
-                        new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, (ItemComponentVariant) variant, config.orElse(mode.getBaseConfig()), locked)
-                ), "Item machine component"
-        );
+        public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Item machine component");
 
-        public ItemComponentVariant getVariant() {
-            return this.variant;
+        public static <T extends Template> NamedCodec<T> defaultCodec(Function9<String, ComponentIOMode, Integer, Optional<Integer>, Optional<Integer>, List<IIngredient<Item>>, Boolean, Optional<SideConfig.Template>, Boolean, T> constructor, String name) {
+            return NamedCodec.record(instance ->
+                    instance.group(
+                            NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
+                            ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
+                            NamedCodec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
+                            NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                            NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
+                            IIngredient.ITEM.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
+                            NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
+                            SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
+                            NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked)
+                    ).apply(instance, constructor), name);
+        }
+
+        public final String id;
+        public final ComponentIOMode mode;
+        public final int capacity;
+        public final int maxInput;
+        public final int maxOutput;
+        public final List<IIngredient<Item>> filter;
+        public final boolean whitelist;
+        public final SideConfig.Template config;
+        public final boolean locked;
+
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, List<IIngredient<Item>> filter, boolean whitelist, Optional<SideConfig.Template> config, boolean locked) {
+            this.id = id;
+            this.mode = mode;
+            this.capacity = capacity;
+            this.maxInput = maxInput.orElse(capacity);
+            this.maxOutput = maxOutput.orElse(capacity);
+            this.filter = filter;
+            this.whitelist = whitelist;
+            this.config = config.orElse(mode.getBaseConfig());
+            this.locked = locked;
+        }
+
+        public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
+            return true;
         }
 
         @Override
@@ -306,11 +306,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
             if(this.mode != ComponentIOMode.BOTH && isInput != this.mode.isInput())
                 return false;
             if(ingredient instanceof ItemStack stack)
-                return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.canAccept(manager, stack);
+                return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.isItemValid(manager, stack);
             else if(ingredient instanceof List<?> list) {
                 return list.stream().allMatch(object -> {
                     if(object instanceof ItemStack stack)
-                        return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.variant.canAccept(manager, stack);
+                        return this.filter.stream().flatMap(i -> i.getAll().stream()).anyMatch(i -> i == stack.getItem()) == this.whitelist && this.isItemValid(manager, stack);
                     return false;
                 });
             }
@@ -319,7 +319,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         @Override
         public ItemMachineComponent build(IMachineComponentManager manager) {
-            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.variant, this.config, this.locked);
+            return new ItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config, this.locked);
         }
     }
 }

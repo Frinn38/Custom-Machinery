@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.Blocks;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,10 +49,6 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
             return false;
 
         List<ItemStack> ingredients = Arrays.stream(this.item.getItems()).map(item -> item.copyWithCount(this.amount)).collect(Collectors.toCollection(ArrayList::new));
-        if (ingredients.isEmpty()) {
-            ItemStack itemStack = new ItemStack(Blocks.BARRIER);
-            ingredients.add(itemStack);
-        }
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
         if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;

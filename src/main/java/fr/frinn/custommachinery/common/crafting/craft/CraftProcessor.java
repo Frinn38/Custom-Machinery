@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -122,7 +121,7 @@ public class CraftProcessor implements IProcessor {
         this.currentRecipe = recipe;
         this.currentContext = new CraftingContext(this, this.tile.getUpgradeManager(), recipe.value());
         this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getVariant() == ResultItemComponentVariant.INSTANCE).findFirst())
+                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
                 .ifPresent(component -> component.setItemStack(recipe.value().getOutput().copy()));
     }
 
@@ -142,7 +141,7 @@ public class CraftProcessor implements IProcessor {
         this.currentRecipe = null;
         this.currentContext = null;
         this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getVariant() == ResultItemComponentVariant.INSTANCE).findFirst())
+                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
                 .ifPresent(component -> component.setItemStack(ItemStack.EMPTY));
     }
 

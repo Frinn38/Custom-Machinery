@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.core.HolderLookup;
@@ -52,6 +53,8 @@ public class MachineComponentManager implements IMachineComponentManager {
             IMachineComponent component = template.build(this);
             if(component.getType().isSingle())
                 components.put(component.getType(), component);
+            else if(component instanceof ItemMachineComponent)
+                handlers.computeIfAbsent(Registration.ITEM_MACHINE_COMPONENT.get(), type -> new ArrayList<>()).add(component);
             else
                 handlers.computeIfAbsent(component.getType(), type -> new ArrayList<>()).add(component);
         });

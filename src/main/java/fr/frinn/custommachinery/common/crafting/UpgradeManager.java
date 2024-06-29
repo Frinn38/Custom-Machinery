@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
-import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.UpgradedCustomMachine;
@@ -36,7 +35,7 @@ public class UpgradeManager implements IMachineUpgradeManager {
         this.activeModifiers.addAll(tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .stream()
                 .flatMap(handler -> handler.getComponents().stream())
-                .filter(slot -> slot.getVariant() == UpgradeItemComponentVariant.INSTANCE && !slot.getItemStack().isEmpty())
+                .filter(slot -> slot.getType() == Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get() && !slot.getItemStack().isEmpty())
                 .flatMap(slot -> CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(slot.getItemStack().getItem(), this.tile.getMachine().getId())
                         .stream()
                         .flatMap(upgrade -> upgrade.getModifiers().stream().map(modifier -> Pair.of((IRecipeModifier)modifier, Math.min(slot.getItemStack().getCount(), upgrade.getMaxAmount()))))

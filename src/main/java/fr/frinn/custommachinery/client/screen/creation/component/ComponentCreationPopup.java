@@ -27,7 +27,7 @@ public class ComponentCreationPopup extends PopupScreen {
     private ComponentCreationListWidget list;
 
     public ComponentCreationPopup(MachineEditScreen parent, Runnable onChange) {
-        super(parent, 116, 144);
+        super(parent, 144, 164);
         this.onChange = onChange;
     }
 

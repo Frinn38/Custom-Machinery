@@ -3,16 +3,10 @@ package fr.frinn.custommachinery.common.init;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
-import fr.frinn.custommachinery.common.component.variant.item.FilterItemComponentVariant;
-import fr.frinn.custommachinery.common.component.variant.item.FuelItemComponentVariant;
-import fr.frinn.custommachinery.common.component.variant.item.ResultItemComponentVariant;
-import fr.frinn.custommachinery.common.component.variant.item.UpgradeItemComponentVariant;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.ResultSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import net.minecraft.network.FriendlyByteBuf;
@@ -27,6 +21,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
+import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -108,15 +104,9 @@ public class CustomMachineContainer extends SyncableContainer {
                     int height = element.getHeight();
                     int slotX = x + (width - 16) / 2;
                     int slotY = y + (height - 16) / 2;
-                    SlotItemComponent slotComponent;
-                    if(component.getVariant() == ResultItemComponentVariant.INSTANCE)
-                        slotComponent = new ResultSlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
-                    else if(component.getVariant() == FilterItemComponentVariant.INSTANCE)
-                        slotComponent = new FilterSlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
-                    else
-                        slotComponent = new SlotItemComponent(component, slotIndex.getAndIncrement(), slotX, slotY);
+                    SlotItemComponent slotComponent = component.makeSlot(slotIndex.getAndIncrement(), slotX, slotY);
                     this.addSlot(slotComponent);
-                    if(component.getVariant() != DefaultItemComponentVariant.INSTANCE || component.getMode().isInput())
+                    if(component.getType() != Registration.ITEM_MACHINE_COMPONENT.get() || component.getMode().isInput())
                         this.inputSlotComponents.add(slotComponent);
                 })
             );
@@ -164,9 +154,13 @@ public class CustomMachineContainer extends SyncableContainer {
             ItemStack stack = clickedSlot.getItem().copy();
             List<SlotItemComponent> components;
             if(!CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(stack.getItem(), this.tile.getId()).isEmpty())
-                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getVariant() == UpgradeItemComponentVariant.INSTANCE ? -1 : 1)).toList();
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
             else if(stack.getBurnTime(RecipeType.SMELTING) > 0)
-                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getVariant() == FuelItemComponentVariant.INSTANCE ? -1 : 1)).toList();
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
+            else if(stack.getCapability(EnergyStorage.ITEM) != null)
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_ENERGY_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
+            else if(stack.getCapability(FluidHandler.ITEM) != null)
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_FLUID_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
             else
                 components = this.inputSlotComponents;
             for (SlotItemComponent slotComponent : components) {

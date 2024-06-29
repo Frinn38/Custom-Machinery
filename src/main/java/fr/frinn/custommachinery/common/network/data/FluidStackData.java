@@ -12,12 +12,12 @@ public class FluidStackData extends Data<FluidStack> {
     }
 
     public FluidStackData(short id, RegistryFriendlyByteBuf buffer) {
-        this(id, buffer.readJsonWithCodec(FluidStack.OPTIONAL_CODEC));
+        this(id, FluidStack.OPTIONAL_STREAM_CODEC.decode(buffer));
     }
 
     @Override
     public void writeData(RegistryFriendlyByteBuf buffer) {
         super.writeData(buffer);
-        buffer.writeJsonWithCodec(FluidStack.OPTIONAL_CODEC, getValue());
+        FluidStack.OPTIONAL_STREAM_CODEC.encode(buffer, this.getValue());
     }
 }

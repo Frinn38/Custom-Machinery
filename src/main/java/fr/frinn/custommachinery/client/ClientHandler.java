@@ -45,6 +45,12 @@ import fr.frinn.custommachinery.client.screen.creation.component.builder.EnergyC
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ExperienceComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.FluidComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemEnergyComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemFilterComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemFluidComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemFuelComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemResultComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.component.builder.ItemUpgradeComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.RedstoneComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.gui.RegisterGuiElementBuilderEvent;
@@ -193,6 +199,12 @@ public class ClientHandler {
         event.register(Registration.EXPERIENCE_MACHINE_COMPONENT.get(), new ExperienceComponentBuilder());
         event.register(Registration.FLUID_MACHINE_COMPONENT.get(), new FluidComponentBuilder());
         event.register(Registration.ITEM_MACHINE_COMPONENT.get(), new ItemComponentBuilder());
+        event.register(Registration.ITEM_FLUID_MACHINE_COMPONENT.get(), new ItemFluidComponentBuilder());
+        event.register(Registration.ITEM_FILTER_MACHINE_COMPONENT.get(), new ItemFilterComponentBuilder());
+        event.register(Registration.ITEM_ENERGY_MACHINE_COMPONENT.get(), new ItemEnergyComponentBuilder());
+        event.register(Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get(), new ItemUpgradeComponentBuilder());
+        event.register(Registration.ITEM_RESULT_MACHINE_COMPONENT.get(), new ItemResultComponentBuilder());
+        event.register(Registration.ITEM_FUEL_MACHINE_COMPONENT.get(), new ItemFuelComponentBuilder());
         event.register(Registration.REDSTONE_MACHINE_COMPONENT.get(), new RedstoneComponentBuilder());
     }
 

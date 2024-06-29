@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.util.MachineBlockState;
@@ -141,7 +142,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         if(player.getAbilities().instabuild && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CustomMachineTile machine)
             machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                     .map(handler -> handler.getComponents().stream()
-                            .filter(component -> component.getVariant().shouldDrop(machine.getComponentManager()))
+                            .filter(ItemMachineComponent::shouldDrop)
                             .map(component -> component.getItemStack().copy())
                             .filter(stack -> !stack.isEmpty())
                             .toList()
@@ -156,7 +157,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         if(builder.getParameter(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
             machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                     .ifPresent(handler -> handler.getComponents().stream()
-                            .filter(component -> component.getVariant().shouldDrop(machine.getComponentManager()))
+                            .filter(ItemMachineComponent::shouldDrop)
                             .map(component -> component.getItemStack().copy())
                             .filter(stack -> stack != ItemStack.EMPTY)
                             .forEach(drops::add)

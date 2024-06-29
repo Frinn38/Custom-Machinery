@@ -1,9 +1,6 @@
 package fr.frinn.custommachinery.api;
 
-import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.component.variant.IComponentVariant;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
@@ -14,7 +11,6 @@ import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -94,10 +90,4 @@ public interface ICustomMachineryAPI {
      * Instead, use {@code DeferredRegister.create(modid, CraftingProcessorType.REGISTRY_KEY);}
      */
     Registry<ProcessorType<?>> processorRegistrar();
-
-    /**
-     * @return A codec for the specified {@link MachineComponentType} and id, or null if this variant is not registered.
-     */
-    @Nullable
-    <C extends IMachineComponent> NamedCodec<IComponentVariant> getVariantCodec(MachineComponentType<C> type, ResourceLocation id);
 }

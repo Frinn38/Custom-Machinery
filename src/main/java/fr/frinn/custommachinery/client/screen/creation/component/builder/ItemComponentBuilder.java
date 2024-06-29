@@ -9,9 +9,8 @@ import fr.frinn.custommachinery.client.screen.creation.component.ComponentBuilde
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent;
-import fr.frinn.custommachinery.common.component.ItemMachineComponent.Template;
-import fr.frinn.custommachinery.common.component.variant.item.DefaultItemComponentVariant;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent.Template;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -25,6 +24,7 @@ import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachineComponent, Template> {
@@ -44,17 +44,17 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
         graphics.renderFakeItem(Items.DIAMOND.getDefaultInstance(), x, y + height / 2 - 8);
         graphics.drawString(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
         graphics.drawString(Minecraft.getInstance().font, "id: \"" + template.getId() + "\"", x + 25, y + 15, FastColor.ARGB32.color(255, 128, 0, 0), false);
-        graphics.drawString(Minecraft.getInstance().font, "mode: " + template.mode(), x + 25, y + 25, FastColor.ARGB32.color(255, 0, 0, 128), false);
+        graphics.drawString(Minecraft.getInstance().font, "mode: " + template.mode, x + 25, y + 25, FastColor.ARGB32.color(255, 0, 0, 128), false);
     }
 
     public static class ItemComponentBuilderPopup extends ComponentBuilderPopup<Template> {
 
-        private EditBox id;
-        private CycleButton<ComponentIOMode> mode;
-        private IntegerSlider capacity;
-        private IntegerSlider maxInput;
-        private IntegerSlider maxOutput;
-        private Checkbox locked;
+        protected EditBox id;
+        protected CycleButton<ComponentIOMode> mode;
+        protected IntegerSlider capacity;
+        protected IntegerSlider maxInput;
+        protected IntegerSlider maxOutput;
+        protected Checkbox locked;
 
         public ItemComponentBuilderPopup(BaseScreen parent, @Nullable ItemMachineComponent.Template template, Consumer<ItemMachineComponent.Template> onFinish) {
             super(parent, template, onFinish, Component.translatable("custommachinery.gui.creation.components.item.title"));
@@ -62,7 +62,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
         @Override
         public ItemMachineComponent.Template makeTemplate() {
-            return new ItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), this.maxInput.intValue(), this.maxOutput.intValue(), Collections.emptyList(), false, DefaultItemComponentVariant.INSTANCE, this.mode.getValue().getBaseConfig(), this.locked.selected());
+            return new ItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), Collections.emptyList(), false, Optional.of(this.mode.getValue().getBaseConfig()), this.locked.selected());
         }
 
         @Override
@@ -76,24 +76,25 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
             //Mode
             this.mode = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.mode"), CycleButton.builder(ComponentIOMode::toComponent).displayOnlyValue().withValues(ComponentIOMode.values()).withInitialValue(ComponentIOMode.BOTH).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.mode")));
-            this.baseTemplate().ifPresent(template -> this.mode.setValue(template.mode()));
+            this.baseTemplate().ifPresent(template -> this.mode.setValue(template.mode));
 
             //Capacity
             this.capacity = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.capacity"), IntegerSlider.builder().bounds(0, 64).defaultValue(64).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.capacity")));
-            this.baseTemplate().ifPresent(template -> this.capacity.setValue(template.capacity()));
+            this.baseTemplate().ifPresent(template -> this.capacity.setValue(template.capacity));
 
             //Max input
             this.maxInput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxInput"), IntegerSlider.builder().bounds(0, 64).defaultValue(64).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxInput")));
-            this.baseTemplate().ifPresent(template -> this.maxInput.setValue(template.maxInput()));
+            this.baseTemplate().ifPresent(template -> this.maxInput.setValue(template.maxInput));
 
             //Max output
             this.maxOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxOutput"), IntegerSlider.builder().bounds(0, 64).defaultValue(64).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxOutput")));
-            this.baseTemplate().ifPresent(template -> this.maxOutput.setValue(template.maxOutput()));
+            this.baseTemplate().ifPresent(template -> this.maxOutput.setValue(template.maxOutput));
 
             //Locked
             this.locked = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.item.locked"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.item.locked"), this.font).selected(false).build());
-            if(this.baseTemplate().map(ItemMachineComponent.Template::locked).orElse(false) != this.locked.selected())
+            if(this.baseTemplate().map(template -> template.locked).orElse(false) != this.locked.selected())
                 this.locked.onPress();
+            this.locked.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.item.locked.tooltip")));
         }
     }
 }
