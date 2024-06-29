@@ -23,7 +23,7 @@ public interface ItemRequirementCT<T> extends RecipeCTBuilder<T> {
     }
 
     @Method
-    default T requireItemTag(IIngredient ingredient, @OptionalInt(1) int amount, @OptionalString String slot) {
+    default T requireItemIngredient(IIngredient ingredient, @OptionalInt(1) int amount, @OptionalString String slot) {
         try {
             return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient.asVanillaIngredient(), amount, slot));
         } catch (IllegalArgumentException e) {

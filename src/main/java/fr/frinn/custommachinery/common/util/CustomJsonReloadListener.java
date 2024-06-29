@@ -41,7 +41,7 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
             ResourceLocation id = ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), path.substring(i, path.length() - PATH_SUFFIX_LENGTH));
 
             try(Reader reader = entry.getValue().openAsReader()) {
-                JsonElement jsonElement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
+                JsonElement jsonElement = GsonHelper.fromNullableJson(GSON, reader, JsonElement.class, false);
                 if(jsonElement != null) {
                     JsonElement replaced = map.put(id, jsonElement);
                     if(replaced != null)
