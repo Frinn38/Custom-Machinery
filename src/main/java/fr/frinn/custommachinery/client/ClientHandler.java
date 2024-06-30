@@ -35,9 +35,9 @@ import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ColorAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ModelAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder;
-import fr.frinn.custommachinery.client.screen.creation.appearance.builder.TextAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.MachineComponentBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.component.RegisterComponentBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ChunkloadComponentBuilder;
@@ -187,7 +187,7 @@ public class ClientHandler {
         //event.register(Registration.AMBIENT_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Ambient sound"), Registration.AMBIENT_SOUND_PROPERTY.get(), s -> SoundEvent.createFixedRangeEvent(new ResourceLocation(s), 15), SoundEvent::toString));
         //event.register(Registration.INTERACTION_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Interaction sound"), Registration.INTERACTION_SOUND_PROPERTY.get(), s -> new CMSoundType(new PartialBlockState(BuiltInRegistries.BLOCK.get(new ResourceLocation(s)))), CMSoundType::toString));
         event.register(Registration.LIGHT_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.literal("Light"), Registration.LIGHT_PROPERTY.get(), 0, 15));
-        event.register(Registration.COLOR_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Color"), Registration.COLOR_PROPERTY.get(), Integer::valueOf, Object::toString));
+        event.register(Registration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());
         event.register(Registration.HARDNESS_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.literal("Hardness"), Registration.HARDNESS_PROPERTY.get(), -1F, 100F));
         event.register(Registration.RESISTANCE_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.literal("Resistance"), Registration.RESISTANCE_PROPERTY.get(), 0F, 2000F));
     }

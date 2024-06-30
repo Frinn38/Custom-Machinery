@@ -453,7 +453,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         @Override
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
             int move = Screen.hasShiftDown() ? 5 : Screen.hasControlDown() ? 10 : 1;
-            return switch (keyCode) {
+            boolean moved =  switch (keyCode) {
                 case GLFW.GLFW_KEY_LEFT -> {
                     this.setX(Math.max(this.getX() - move, GuiEditorWidget.this.getX()));
                     yield true;
@@ -476,6 +476,9 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 }
                 default -> false;
             };
+            if(moved)
+                GuiEditorWidget.this.showButtons(this);
+            return moved;
         }
     }
 

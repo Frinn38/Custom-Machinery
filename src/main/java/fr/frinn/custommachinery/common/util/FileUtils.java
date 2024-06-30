@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -36,7 +37,8 @@ public class FileUtils {
         if(result.result().isPresent()) {
             JsonElement json = result.result().get();
             String root = server.getServerDirectory().toFile().getAbsolutePath();
-            root = root.substring(0, root.length() - 2);
+            if(!FMLLoader.isProduction())
+                root = root.substring(0, root.length() - 2);
             if(kubejs)
                 root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + machine.getId().getNamespace() + File.separator + "machines";
             File file = new File(root, machine.getId().getPath() + ".json");

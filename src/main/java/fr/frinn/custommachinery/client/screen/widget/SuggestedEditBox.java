@@ -139,8 +139,10 @@ public class SuggestedEditBox extends EditBox {
         } else {
             this.baseX = this.getX();
             this.showSuggestions(false);
-            this.setX(this.suggestionsList.rect.getX());
-            this.setWidth(Minecraft.getInstance().getWindow().getScreenWidth() - this.getX());
+            if(this.suggestionsList != null) {
+                this.setX(this.suggestionsList.rect.getX());
+                this.setWidth(Minecraft.getInstance().getWindow().getScreenWidth() - this.getX());
+            }
             this.moveCursorToStart(false);
         }
     }

@@ -40,6 +40,14 @@ public class TextAppearancePropertyBuilder<T> implements IAppearancePropertyBuil
     public AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<T> supplier, Consumer<T> consumer) {
         EditBox box = new EditBox(Minecraft.getInstance().font, x, y, width, height, this.title);
         box.setValue(this.toString.apply(supplier.get()));
+        box.setFilter(s -> {
+            try {
+                this.parser.apply(s);
+                return true;
+            } catch (Throwable e) {
+                return false;
+            }
+        });
         box.setResponder(s -> consumer.accept(this.parser.apply(s)));
         return box;
     }
