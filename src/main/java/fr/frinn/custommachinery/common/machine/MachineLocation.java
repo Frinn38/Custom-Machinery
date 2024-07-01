@@ -48,6 +48,8 @@ public class MachineLocation {
     }
 
     public static MachineLocation fromDatapack(ResourceLocation id, String packName) {
+        if(packName.startsWith("file"))
+            packName = packName.substring(5);
         return new MachineLocation(id, Loader.DATAPACK, packName);
     }
 
@@ -81,7 +83,7 @@ public class MachineLocation {
         String kubejsPath = server.getFile("kubejs" + File.separator + pathFromData).toFile().getPath();
         kubejsPath = kubejsPath.substring(2);
         return switch(this.loader) {
-            case DATAPACK -> server.getWorldPath(LevelResource.DATAPACK_DIR).resolveSibling(pathFromData).toFile();
+            case DATAPACK -> server.getWorldPath(LevelResource.DATAPACK_DIR).resolve(this.packName + File.separator + pathFromData).normalize().toFile();
             case KUBEJS -> new File(kubejsPath);
             default -> null;
         };
