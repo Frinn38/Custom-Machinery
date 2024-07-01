@@ -35,7 +35,7 @@ public class DefaultCodecs {
 
     public static final NamedCodec<Direction> DIRECTION = NamedCodec.enumCodec(Direction.class);
 
-    public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, NamedCodec.of(ItemStack.CODEC)).xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
+    public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, NamedCodec.of(ItemStack.OPTIONAL_CODEC)).xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
 
     public static final NamedCodec<Ingredient> INGREDIENT = NamedCodec.of(Ingredient.CODEC, "Ingredient");
 

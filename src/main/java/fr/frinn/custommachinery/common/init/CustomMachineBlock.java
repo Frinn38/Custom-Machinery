@@ -253,7 +253,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                 });
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Optional.ofNullable(level.getBlockEntity(pos))
