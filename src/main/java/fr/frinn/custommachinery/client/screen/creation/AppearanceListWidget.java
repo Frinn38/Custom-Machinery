@@ -50,9 +50,9 @@ public class AppearanceListWidget extends ListWidget<AppearanceEntry> {
         }
 
         private <T> AbstractWidget createWidget(IAppearancePropertyBuilder<T> builder) {
-            return builder.makeWidget(AppearanceListWidget.this.parent, 0, 0, 160, 20, () -> AppearanceListWidget.this.builder.get().getProperty(builder.getType()), property -> {
-                if(!Objects.equals(property, AppearanceListWidget.this.builder.get().getProperty(builder.getType()))) {
-                    AppearanceListWidget.this.builder.get().setProperty(builder.getType(), property);
+            return builder.makeWidget(AppearanceListWidget.this.parent, 0, 0, 160, 20, () -> AppearanceListWidget.this.builder.get().getProperty(builder.type()), property -> {
+                if(!Objects.equals(property, AppearanceListWidget.this.builder.get().getProperty(builder.type()))) {
+                    AppearanceListWidget.this.builder.get().setProperty(builder.type(), property);
                     AppearanceListWidget.this.parent.setChanged();
                 }
             });
@@ -62,8 +62,6 @@ public class AppearanceListWidget extends ListWidget<AppearanceEntry> {
         public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
             graphics.drawString(Minecraft.getInstance().font, this.builder.title(), x, y + this.widget.getHeight() / 2 - 2, 0, false);
             this.widget.setPosition(x + width - this.widget.getWidth() - 10, y);
-            if(this.widget.getTooltip() != null)
-                graphics.renderTooltip(Minecraft.getInstance().font, this.widget.getTooltip().toCharSequence(Minecraft.getInstance()), mouseX, mouseY);
         }
 
         @Override

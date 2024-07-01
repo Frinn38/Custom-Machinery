@@ -5,8 +5,10 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.IAppearancePropertyBuilder;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -17,12 +19,15 @@ public class NumberAppearancePropertyBuilder<T extends Number> implements IAppea
     private final MachineAppearanceProperty<T> type;
     private final T min;
     private final T max;
+    @Nullable
+    private final Component tooltip;
 
-    public NumberAppearancePropertyBuilder(Component title, MachineAppearanceProperty<T> type, T min, T max) {
+    public NumberAppearancePropertyBuilder(Component title, MachineAppearanceProperty<T> type, T min, T max, @Nullable Component tooltip) {
         this.title = title;
         this.type = type;
         this.min = min;
         this.max = max;
+        this.tooltip = tooltip;
     }
 
     @Override
@@ -31,14 +36,14 @@ public class NumberAppearancePropertyBuilder<T extends Number> implements IAppea
     }
 
     @Override
-    public MachineAppearanceProperty<T> getType() {
+    public MachineAppearanceProperty<T> type() {
         return this.type;
     }
 
     @Override
     public AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<T> supplier, Consumer<T> consumer) {
         double value = Mth.map(supplier.get().doubleValue(), min.doubleValue(), max.doubleValue(), 0, 1);
-        return new AbstractSliderButton(x, y, width, height, Component.empty().append(title).append(": " + (int)(supplier.get().doubleValue())), value) {
+        AbstractSliderButton button = new AbstractSliderButton(x, y, width, height, Component.empty().append(title).append(": " + (int)(supplier.get().doubleValue())), value) {
             private double value() {
                 return Mth.map(this.value, 0, 1, min.doubleValue(), max.doubleValue());
             }
@@ -54,5 +59,8 @@ public class NumberAppearancePropertyBuilder<T extends Number> implements IAppea
                 consumer.accept((T)(Object) value());
             }
         };
+        if(this.tooltip != null)
+            button.setTooltip(Tooltip.create(this.tooltip));
+        return button;
     }
 }

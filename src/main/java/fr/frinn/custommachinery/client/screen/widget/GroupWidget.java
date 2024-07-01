@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
@@ -38,8 +37,9 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.children.forEach(children -> {
             children.render(graphics, mouseX, mouseY, partialTick);
+            this.setTooltip(null);
             if(children.isHovered() && children.getTooltip() != null)
-                graphics.renderTooltip(Minecraft.getInstance().font, children.getTooltip().toCharSequence(Minecraft.getInstance()), mouseX, mouseY);
+                this.setTooltip(children.getTooltip());
         });
     }
 

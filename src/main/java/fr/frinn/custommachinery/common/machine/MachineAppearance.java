@@ -23,6 +23,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -67,7 +68,7 @@ public class MachineAppearance implements IMachineAppearance {
         @Override
         public <T> RecordBuilder<T> encode(Map<MachineAppearanceProperty<?>, Object> input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
             for(Map.Entry<MachineAppearanceProperty<?>, Object> entry : input.entrySet()) {
-                if(entry.getValue() != entry.getKey().getDefaultValue() && entry.getKey().getId() != null)
+                if(!Objects.equals(entry.getValue() ,entry.getKey().getDefaultValue()) && entry.getKey().getId() != null)
                     prefix.add(entry.getKey().getId().toString(), ((NamedCodec<Object>)entry.getKey().getCodec()).encodeStart(ops, entry.getValue()));
             }
             return prefix;

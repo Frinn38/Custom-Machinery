@@ -12,7 +12,7 @@ public interface IAppearancePropertyBuilder<T> {
 
     Component title();
 
-    MachineAppearanceProperty<T> getType();
+    MachineAppearanceProperty<T> type();
 
     AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<T> supplier, Consumer<T> consumer);
 }

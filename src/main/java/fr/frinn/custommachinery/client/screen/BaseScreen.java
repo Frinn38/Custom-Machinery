@@ -7,14 +7,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent.ArrowNavigation;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent.TabNavigation;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -132,14 +130,6 @@ public abstract class BaseScreen extends Screen {
         }
 
         graphics.pose().popPose();
-
-        if(hoveredPopup != null) {
-            Tooltip tooltip = hoveredPopup.getTooltip(mouseX, mouseY);
-            if(tooltip != null)
-                this.setTooltipForNextRenderPass(tooltip, DefaultTooltipPositioner.INSTANCE, true);
-            else
-                this.deferredTooltipRendering = null;
-        }
     }
 
     @Override

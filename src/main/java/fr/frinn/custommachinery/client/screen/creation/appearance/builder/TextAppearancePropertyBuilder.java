@@ -32,7 +32,7 @@ public class TextAppearancePropertyBuilder<T> implements IAppearancePropertyBuil
     }
 
     @Override
-    public MachineAppearanceProperty<T> getType() {
+    public MachineAppearanceProperty<T> type() {
         return this.type;
     }
 

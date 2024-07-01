@@ -380,6 +380,9 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
 
         @Override
         public void setFocused(@Nullable GuiEventListener focused) {
+            if(this.focused == focused)
+                return;
+
             if (this.focused != null)
                 this.focused.setFocused(false);
 

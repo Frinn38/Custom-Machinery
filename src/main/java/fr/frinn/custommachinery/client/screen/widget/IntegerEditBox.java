@@ -4,6 +4,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class IntegerEditBox extends EditBox {
@@ -29,6 +30,18 @@ public class IntegerEditBox extends EditBox {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    public void setIntValue(int value) {
+        this.setValue("" + value);
+    }
+
+    public void setIntResponder(Consumer<Integer> responder) {
+        this.setResponder(s -> {
+            try {
+                responder.accept(Integer.parseInt(s));
+            } catch (NumberFormatException ignored) {}
+        });
     }
 
     @Override
