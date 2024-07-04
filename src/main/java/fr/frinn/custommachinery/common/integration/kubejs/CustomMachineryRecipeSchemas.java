@@ -5,7 +5,6 @@ import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.BooleanComponent;
 import dev.latvian.mods.kubejs.recipe.component.ComponentRole;
 import dev.latvian.mods.kubejs.recipe.component.ItemStackComponent;
-import dev.latvian.mods.kubejs.recipe.component.ListRecipeComponent;
 import dev.latvian.mods.kubejs.recipe.component.NumberComponent;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
 import dev.latvian.mods.kubejs.recipe.component.TimeComponent;
@@ -49,7 +48,7 @@ public interface CustomMachineryRecipeSchemas {
         }
     };
 
-    ListRecipeComponent<IRequirement<?>> REQUIREMENT_LIST = REQUIREMENT_COMPONENT.asList();
+    RecipeComponent<List<IRequirement<?>>> REQUIREMENT_LIST = REQUIREMENT_COMPONENT.asList();
 
     RecipeComponent<MachineAppearance> CUSTOM_APPEARANCE = new RecipeComponent<>() {
         @Override
