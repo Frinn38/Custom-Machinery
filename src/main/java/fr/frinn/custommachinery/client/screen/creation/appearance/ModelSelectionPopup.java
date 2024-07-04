@@ -26,6 +26,7 @@ import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
@@ -126,6 +127,14 @@ public class ModelSelectionPopup extends PopupScreen {
     }
 
     public static void renderModel(GuiGraphics graphics, float x, float y, MachineModelLocation loc, float scale) {
+        if(loc.getItem() != null && loc.getItem() != Items.AIR) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(x - 8, y - 8, -60);
+            graphics.renderFakeItem(loc.getItem().getDefaultInstance(), 0, 0);
+            graphics.pose().popPose();
+            return;
+        }
+
         BakedModel model = Minecraft.getInstance().getModelManager().getMissingModel();
         if(loc.getState() != null)
             model = Minecraft.getInstance().getBlockRenderer().getBlockModel(loc.getState());

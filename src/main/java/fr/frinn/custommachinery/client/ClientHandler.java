@@ -37,7 +37,8 @@ import fr.frinn.custommachinery.client.screen.creation.appearance.AppearanceProp
 import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ColorAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ModelAppearancePropertyBuilder;
-import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.FloatAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.IntegerAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.MachineComponentBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.component.RegisterComponentBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ChunkloadComponentBuilder;
@@ -80,7 +81,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -116,9 +116,6 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
-        ItemBlockRenderTypes.setRenderLayer(Registration.CUSTOM_MACHINE_BLOCK.get(), getRenderType(Registration.CUSTOM_MACHINE_BLOCK.get().renderType));
-        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> ItemBlockRenderTypes.setRenderLayer(block, getRenderType(block.renderType)));
-
         GuiElementWidgetSupplierRegistry.init();
         AppearancePropertyBuilderRegistry.init();
         MachineComponentBuilderRegistry.init();
@@ -186,10 +183,10 @@ public class ClientHandler {
         event.register(Registration.ITEM_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.item"), Registration.ITEM_MODEL_PROPERTY.get()));
         //event.register(Registration.AMBIENT_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Ambient sound"), Registration.AMBIENT_SOUND_PROPERTY.get(), s -> SoundEvent.createFixedRangeEvent(new ResourceLocation(s), 15), SoundEvent::toString));
         //event.register(Registration.INTERACTION_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Interaction sound"), Registration.INTERACTION_SOUND_PROPERTY.get(), s -> new CMSoundType(new PartialBlockState(BuiltInRegistries.BLOCK.get(new ResourceLocation(s)))), CMSoundType::toString));
-        event.register(Registration.LIGHT_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.translatable("custommachinery.gui.creation.appearance.light"), Registration.LIGHT_PROPERTY.get(), 0, 15, Component.translatable("custommachinery.gui.creation.appearance.light.tooltip")));
+        event.register(Registration.LIGHT_PROPERTY.get(), new IntegerAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.light"), Registration.LIGHT_PROPERTY.get(), 0, 15, Component.translatable("custommachinery.gui.creation.appearance.light.tooltip")));
         event.register(Registration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());
-        event.register(Registration.HARDNESS_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.translatable("custommachinery.gui.creation.appearance.hardness"), Registration.HARDNESS_PROPERTY.get(), -1F, 100F, Component.translatable("custommachinery.gui.creation.appearance.hardness.tooltip")));
-        event.register(Registration.RESISTANCE_PROPERTY.get(), new NumberAppearancePropertyBuilder<>(Component.translatable("custommachinery.gui.creation.appearance.resistance"), Registration.RESISTANCE_PROPERTY.get(), 0F, 2000F, Component.translatable("custommachinery.gui.creation.appearance.resistance.tooltip")));
+        event.register(Registration.HARDNESS_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.hardness"), Registration.HARDNESS_PROPERTY.get(), -1F, 100F, Component.translatable("custommachinery.gui.creation.appearance.hardness.tooltip")));
+        event.register(Registration.RESISTANCE_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.resistance"), Registration.RESISTANCE_PROPERTY.get(), 0F, 2000F, Component.translatable("custommachinery.gui.creation.appearance.resistance.tooltip")));
     }
 
     @SubscribeEvent

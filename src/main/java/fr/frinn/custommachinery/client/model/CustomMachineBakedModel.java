@@ -9,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -20,7 +19,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
@@ -70,7 +68,6 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public TextureAtlasSprite getParticleIcon() {
         return this.getParticleIcon(ModelData.EMPTY);
@@ -156,12 +153,6 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return getMachineModel(data).getParticleIcon(data);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public ItemTransforms getTransforms() {
-        return Minecraft.getInstance().getBlockRenderer().getBlockModel(Blocks.STONE.defaultBlockState()).getTransforms();
-    }
-
     private BakedModel getMachineModel(@NotNull ModelData data) {
         MachineAppearance appearance = data.get(APPEARANCE);
         MachineStatus status = data.get(STATUS);
@@ -196,11 +187,10 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     public BakedModel getMachineItemModel(@Nullable IMachineAppearance appearance) {
         BakedModel missing = Minecraft.getInstance().getModelManager().getMissingModel();
         BakedModel model = missing;
-
         if(appearance != null) {
             IMachineModelLocation itemModelLocation = appearance.getItemModel();
-            if(itemModelLocation.getState() != null && itemModelLocation.getState().getBlock().asItem() != Items.AIR)
-                model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(itemModelLocation.getState().getBlock().asItem());
+            if(itemModelLocation.getItem() != null && itemModelLocation.getItem() != Items.AIR)
+                model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(itemModelLocation.getItem());
             else if(itemModelLocation.getLoc() != null) {
                 Item item = BuiltInRegistries.ITEM.get(itemModelLocation.getLoc());
                 if(itemModelLocation.getProperties() != null)

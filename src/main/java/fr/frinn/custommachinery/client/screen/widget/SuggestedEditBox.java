@@ -37,8 +37,6 @@ public class SuggestedEditBox extends EditBox {
     private final int baseWidth;
     private SuggestionsList suggestionsList;
     private Suggestions suggestions;
-    private List<Suggestion> sorted;
-    private int baseX;
     private boolean anchorToBottom = false;
 
     public SuggestedEditBox(Font font, int x, int y, int width, int height, Component message, int suggestionLineLimit) {
@@ -67,7 +65,7 @@ public class SuggestedEditBox extends EditBox {
         SuggestionsBuilder builder = new SuggestionsBuilder(this.getValue(), 0);
         this.possibleSuggestions.forEach(builder::suggest);
         this.suggestions = builder.build();
-        this.sorted = this.sortSuggestions(this.suggestions);
+        List<Suggestion> sorted = this.sortSuggestions(this.suggestions);
     }
 
     public void showSuggestions(boolean narrateFirstSuggestion) {
@@ -134,15 +132,11 @@ public class SuggestedEditBox extends EditBox {
         super.setFocused(focused);
         if(!focused) {
             this.hideSuggestions();
-            this.setX(this.baseX);
             this.setWidth(this.baseWidth);
         } else {
-            this.baseX = this.getX();
             this.showSuggestions(false);
-            if(this.suggestionsList != null) {
-                this.setX(this.suggestionsList.rect.getX());
+            if(this.suggestionsList != null)
                 this.setWidth(Minecraft.getInstance().getWindow().getScreenWidth() - this.getX());
-            }
             this.moveCursorToStart(false);
         }
     }
@@ -233,7 +227,7 @@ public class SuggestedEditBox extends EditBox {
             this.select(0);
         }
 
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        public void render(GuiGraphics graphics, int mouseX, int mouseY) {
             Message message;
             boolean bl4;
             int i = Math.min(this.suggestionList.size(), this.suggestionLineLimit);
@@ -247,35 +241,35 @@ public class SuggestedEditBox extends EditBox {
             }
             if (bl3) {
                 int k;
-                guiGraphics.fill(this.rect.getX(), this.rect.getY() - 1, this.rect.getX() + this.rect.getWidth(), this.rect.getY(), this.fillColor);
-                guiGraphics.fill(this.rect.getX(), this.rect.getY() + this.rect.getHeight(), this.rect.getX() + this.rect.getWidth(), this.rect.getY() + this.rect.getHeight() + 1, this.fillColor);
+                graphics.fill(this.rect.getX(), this.rect.getY() - 1, this.rect.getX() + this.rect.getWidth(), this.rect.getY(), this.fillColor);
+                graphics.fill(this.rect.getX(), this.rect.getY() + this.rect.getHeight(), this.rect.getX() + this.rect.getWidth(), this.rect.getY() + this.rect.getHeight() + 1, this.fillColor);
                 if (bl) {
                     for (k = 0; k < this.rect.getWidth(); ++k) {
                         if (k % 2 != 0) continue;
-                        guiGraphics.fill(this.rect.getX() + k, this.rect.getY() - 1, this.rect.getX() + k + 1, this.rect.getY(), -1);
+                        graphics.fill(this.rect.getX() + k, this.rect.getY() - 1, this.rect.getX() + k + 1, this.rect.getY(), -1);
                     }
                 }
                 if (bl2) {
                     for (k = 0; k < this.rect.getWidth(); ++k) {
                         if (k % 2 != 0) continue;
-                        guiGraphics.fill(this.rect.getX() + k, this.rect.getY() + this.rect.getHeight(), this.rect.getX() + k + 1, this.rect.getY() + this.rect.getHeight() + 1, -1);
+                        graphics.fill(this.rect.getX() + k, this.rect.getY() + this.rect.getHeight(), this.rect.getX() + k + 1, this.rect.getY() + this.rect.getHeight() + 1, -1);
                     }
                 }
             }
             boolean bl52 = false;
             for (int l = 0; l < i; ++l) {
                 Suggestion suggestion = this.suggestionList.get(l + this.offset);
-                guiGraphics.fill(this.rect.getX(), this.rect.getY() + 12 * l, this.rect.getX() + this.rect.getWidth(), this.rect.getY() + 12 * l + 12, this.fillColor);
+                graphics.fill(this.rect.getX(), this.rect.getY() + 12 * l, this.rect.getX() + this.rect.getWidth(), this.rect.getY() + 12 * l + 12, this.fillColor);
                 if (mouseX > this.rect.getX() && mouseX < this.rect.getX() + this.rect.getWidth() && mouseY > this.rect.getY() + 12 * l && mouseY < this.rect.getY() + 12 * l + 12) {
                     if (bl4) {
                         this.select(l + this.offset);
                     }
                     bl52 = true;
                 }
-                guiGraphics.drawString(this.font, suggestion.getText(), this.rect.getX() + 1, this.rect.getY() + 2 + 12 * l, l + this.offset == this.current ? -256 : -5592406);
+                graphics.drawString(this.font, suggestion.getText(), this.rect.getX() + 1, this.rect.getY() + 2 + 12 * l, l + this.offset == this.current ? -256 : -5592406);
             }
             if (bl52 && (message = this.suggestionList.get(this.current).getTooltip()) != null) {
-                guiGraphics.renderTooltip(this.font, ComponentUtils.fromMessage(message), mouseX, mouseY);
+                graphics.renderTooltip(this.font, ComponentUtils.fromMessage(message), mouseX, mouseY);
             }
         }
 
@@ -361,6 +355,8 @@ public class SuggestedEditBox extends EditBox {
         }
 
         public void useSuggestion() {
+            if(this.suggestionList == null || this.suggestionList.isEmpty())
+                return;
             Suggestion suggestion = this.suggestionList.get(this.current);
             this.keepSuggestions = true;
             SuggestedEditBox.this.setValue(suggestion.apply(this.originalContents));

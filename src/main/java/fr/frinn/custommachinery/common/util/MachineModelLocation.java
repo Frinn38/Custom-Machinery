@@ -33,19 +33,23 @@ public class MachineModelLocation implements IMachineModelLocation {
     private final String properties;
 
     public static MachineModelLocation of(String loc) {
-        if(loc.contains("#"))
-            return new MachineModelLocation(loc, null, null, ResourceLocation.parse(loc.substring(0, loc.indexOf("#"))), loc.substring(loc.indexOf("#") + 1));
-
+        BlockState state = null;
         try {
-            return new MachineModelLocation(loc, BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(loc), false).blockState(), null, null, null);
+            state = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(loc), false).blockState();
         } catch (CommandSyntaxException ignored) {}
+        ResourceLocation id;
+        String properties = null;
+        if(loc.contains("#")) {
+            id = ResourceLocation.parse(loc.substring(0, loc.indexOf("#")));
+            properties = loc.substring(loc.indexOf("#") + 1);
+        } else
+            id = ResourceLocation.parse(loc);
 
-        ResourceLocation resourceLocation = ResourceLocation.parse(loc);
+        Item item = null;
+        if(BuiltInRegistries.ITEM.containsKey(id))
+            item = BuiltInRegistries.ITEM.get(id);
 
-        if(BuiltInRegistries.ITEM.containsKey(resourceLocation))
-            return new MachineModelLocation(loc, null, BuiltInRegistries.ITEM.get(resourceLocation), null, null);
-
-        return new MachineModelLocation(loc, null, null, ResourceLocation.parse(loc), null);
+        return new MachineModelLocation(loc, state, item, id, properties);
     }
 
     private MachineModelLocation(String loc, @Nullable BlockState state, @Nullable Item item, @Nullable ResourceLocation id, @Nullable String properties) {

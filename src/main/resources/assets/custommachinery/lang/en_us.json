@@ -49,6 +49,7 @@
   "custommachinery.craftingstatus.running": "Running",
   "custommachinery.craftingstatus.errored": "Errored",
   "custommachinery.craftingstatus.paused": "Paused",
+  "custommachinery.craftingstatus.default": "Default",
 
   "custommachinery.damagesource.kill": "%s was killed by a %s",
 
@@ -128,6 +129,9 @@
   "custommachinery.gui.creation.appearance.status.running": "Properties applied only when the machine is running",
   "custommachinery.gui.creation.appearance.status.errored": "Properties applied only when the machine is errored",
   "custommachinery.gui.creation.appearance.status.paused": "Properties applied only when the machine is paused",
+  "custommachinery.gui.creation.appearance.reset.title": "Reset properties",
+  "custommachinery.gui.creation.appearance.reset.tooltip": "Reset all properties for this appearance",
+  "custommachinery.gui.creation.appearance.reset.text": "All properties for appearance %s will be reset to default values",
   "custommachinery.gui.creation.appearance.block": "Block",
   "custommachinery.gui.creation.appearance.block.tooltip": "Open block appearance configuration",
   "custommachinery.gui.creation.appearance.color": "Color",

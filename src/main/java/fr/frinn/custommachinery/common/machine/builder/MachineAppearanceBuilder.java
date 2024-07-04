@@ -19,10 +19,7 @@ public class MachineAppearanceBuilder {
 
     public MachineAppearanceBuilder(@Nullable MachineStatus status) {
         this.status = status;
-        Map<MachineAppearanceProperty<?>, Object> map = new HashMap<>();
-        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY)
-            map.put(property, property.getDefaultValue());
-        this.properties = map;
+        this.properties = new HashMap<>(MachineAppearance.defaultProperties());
     }
 
     public MachineAppearanceBuilder(Map<MachineAppearanceProperty<?>, Object> properties, @Nullable MachineStatus status) {
@@ -50,6 +47,11 @@ public class MachineAppearanceBuilder {
 
     public <T> void setProperty(MachineAppearanceProperty<T> property, T value) {
         this.properties.put(property, value);
+    }
+
+    public void reset() {
+        this.properties.clear();
+        this.properties.putAll(MachineAppearance.defaultProperties());
     }
 
     public MachineAppearance build() {

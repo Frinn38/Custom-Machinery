@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class NumberAppearancePropertyBuilder<T extends Number> implements IAppearancePropertyBuilder<T> {
+public abstract class NumberAppearancePropertyBuilder<T extends Number> implements IAppearancePropertyBuilder<T> {
 
     private final Component title;
     private final MachineAppearanceProperty<T> type;
@@ -29,6 +29,8 @@ public class NumberAppearancePropertyBuilder<T extends Number> implements IAppea
         this.max = max;
         this.tooltip = tooltip;
     }
+
+    public abstract T fromDouble(double value);
 
     @Override
     public Component title() {
@@ -53,14 +55,37 @@ public class NumberAppearancePropertyBuilder<T extends Number> implements IAppea
                 this.setMessage(Component.empty().append(title).append(": " + (int)value()));
             }
 
-            @SuppressWarnings("unchecked")
             @Override
             protected void applyValue() {
-                consumer.accept((T)(Object) value());
+                consumer.accept(fromDouble(value()));
             }
         };
         if(this.tooltip != null)
             button.setTooltip(Tooltip.create(this.tooltip));
         return button;
+    }
+
+    public static class IntegerAppearancePropertyBuilder extends NumberAppearancePropertyBuilder<Integer> {
+
+        public IntegerAppearancePropertyBuilder(Component title, MachineAppearanceProperty<Integer> type, Integer min, Integer max, @Nullable Component tooltip) {
+            super(title, type, min, max, tooltip);
+        }
+
+        @Override
+        public Integer fromDouble(double value) {
+            return (int)value;
+        }
+    }
+
+    public static class FloatAppearancePropertyBuilder extends NumberAppearancePropertyBuilder<Float> {
+
+        public FloatAppearancePropertyBuilder(Component title, MachineAppearanceProperty<Float> type, Float min, Float max, @Nullable Component tooltip) {
+            super(title, type, min, max, tooltip);
+        }
+
+        @Override
+        public Float fromDouble(double value) {
+            return (float)value;
+        }
     }
 }
