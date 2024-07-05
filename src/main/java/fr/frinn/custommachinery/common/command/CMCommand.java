@@ -25,12 +25,14 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 
 public class CMCommand {
 
-    public static final SuggestionProvider<CommandSourceStack> ALL_MACHINES = SuggestionProviders.register(CustomMachinery.rl("all_machines"), (commandContext, suggestionsBuilder) -> suggestCMResource(CustomMachinery.MACHINES.keySet(), suggestionsBuilder));
+    public static final SuggestionProvider<CommandSourceStack> ALL_MACHINES = SuggestionProviders.register(CustomMachinery.rl("all_machines"), (commandContext, suggestionsBuilder) -> suggestCMResource(editableMachines(), suggestionsBuilder));
 
     public static LiteralArgumentBuilder<CommandSourceStack> register(String name) {
         return Commands.literal(name)
@@ -104,5 +106,9 @@ public class CMCommand {
             builder.suggest(object.toString());
         }
         return builder.buildFuture();
+    }
+
+    private static List<ResourceLocation> editableMachines() {
+        return CustomMachinery.MACHINES.entrySet().stream().filter(entry -> entry.getValue().getLocation().canEdit()).map(Entry::getKey).toList();
     }
 }
