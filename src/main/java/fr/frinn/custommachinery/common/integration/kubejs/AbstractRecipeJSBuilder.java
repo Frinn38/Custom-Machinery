@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
-import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
@@ -40,7 +40,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         super.afterLoaded();
         ResourceLocation machine = getValue(CustomMachineryRecipeSchemas.MACHINE_ID);
         if(machine == null)
-            throw new RecipeExceptionJS("Invalid machine id: " + getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
+            throw new KubeRuntimeException("Invalid machine id: " + getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
 
         if(this.newRecipe) {
             int uniqueID = IDS.computeIfAbsent(this.typeID, id -> new HashMap<>()).computeIfAbsent(machine, m -> 0);
@@ -140,7 +140,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
 
     @Override
     public RecipeJSBuilder error(String error, Object... args) {
-        throw new RecipeExceptionJS(MessageFormatter.arrayFormat(error, args).getMessage());
+        throw new KubeRuntimeException(MessageFormatter.arrayFormat(error, args).getMessage());
     }
 
     protected <E> List<E> addToList(RecipeKey<List<E>> key, E element) {

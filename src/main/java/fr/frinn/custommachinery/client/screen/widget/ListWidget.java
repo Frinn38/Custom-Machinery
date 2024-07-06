@@ -205,6 +205,7 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
             GuiEventListener focused = this.getFocused();
             if(focused != entry && focused instanceof ContainerEventHandler container)
                 container.setFocused(null);
+            entry.mouseClicked(mouseX, mouseY, button);
             this.setFocused(entry);
             this.setDragging(true);
             return true;

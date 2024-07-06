@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
-import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
+import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -86,7 +86,7 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
     public CustomMachineRecipeBuilderJS gui(JsonObject... elements) {
         for(JsonObject json : elements) {
             IGuiElement.CODEC.read(JsonOps.INSTANCE, json).resultOrPartial(s -> {
-                throw new RecipeExceptionJS("Error when parsing recipe custom gui element\n" + json + "\n" + s);
+                throw new KubeRuntimeException("Error when parsing recipe custom gui element\n" + json + "\n" + s);
             }).ifPresent(element -> setValue(CustomMachineryRecipeSchemas.GUI, addToList(CustomMachineryRecipeSchemas.GUI, element)));
         }
         return this;

@@ -5,8 +5,10 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.IAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.widget.SoundEditBox;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.function.Consumer;
@@ -26,6 +28,16 @@ public class AmbientSoundAppearancePropertyBuilder implements IAppearancePropert
 
     @Override
     public AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<SoundEvent> supplier, Consumer<SoundEvent> consumer) {
-        return new SoundEditBox(x, y, width, height, title(), supplier, consumer);
+        SoundEditBox editBox = new SoundEditBox(x, y, width, height, title());
+        if(!supplier.get().getLocation().getPath().isEmpty())
+            editBox.setValue(supplier.get().getLocation().toString());
+        editBox.setResponder(s -> {
+            ResourceLocation soundLoc = ResourceLocation.tryParse(s);
+            if(s.isEmpty())
+                consumer.accept(SoundEvent.createVariableRangeEvent(ResourceLocation.withDefaultNamespace("")));
+            else if(soundLoc != null && Minecraft.getInstance().getSoundManager().getAvailableSounds().contains(soundLoc))
+                consumer.accept(SoundEvent.createVariableRangeEvent(soundLoc));
+        });
+        return editBox;
     }
 }

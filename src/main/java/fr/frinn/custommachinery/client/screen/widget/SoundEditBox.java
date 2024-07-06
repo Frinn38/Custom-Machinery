@@ -23,40 +23,57 @@ public class SoundEditBox extends GroupWidget {
     @Nullable
     private SoundInstance currentSound = null;
 
-    public SoundEditBox(int x, int y, int width, int height, Component message, Supplier<SoundEvent> supplier, Consumer<SoundEvent> consumer) {
+    public SoundEditBox(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message);
         this.editBox = this.addWidget(new SuggestedEditBox(this.font, x, y, width - 20, height, message, 5));
         this.editBox.setAnchorToBottom();
         this.editBox.setMaxLength(Integer.MAX_VALUE);
-        if(!supplier.get().getLocation().getPath().isEmpty())
-            this.editBox.setValue(supplier.get().getLocation().toString());
         this.editBox.addSuggestions(this.mc.getSoundManager().getAvailableSounds().stream().map(ResourceLocation::toString).toList());
-        this.editBox.setResponder(s -> {
-            ResourceLocation soundLoc = ResourceLocation.tryParse(s);
-            if(s.isEmpty())
-                consumer.accept(SoundEvent.createVariableRangeEvent(ResourceLocation.withDefaultNamespace("")));
-            else if(soundLoc == null || !this.mc.getSoundManager().getAvailableSounds().contains(soundLoc))
-                this.currentSound = null;
-            else {
-                SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(ResourceLocation.parse(this.editBox.getValue()));
-                this.currentSound = SimpleSoundInstance.forUI(soundEvent, 1F);
-                consumer.accept(soundEvent);
-            }
-        });
         WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("creation/play_button"), CustomMachinery.rl("creation/play_button_disabled"), CustomMachinery.rl("creation/play_button_hovered"));
         this.playButton = this.addWidget(new ImageButton(x + width - 20, y, 20, 20, sprites, button -> {
             if(this.currentSound != null) {
-                if(Minecraft.getInstance().getSoundManager().isActive(this.currentSound))
+                if(Minecraft.getInstance().getSoundManager().isActive(this.currentSound)) {
                     Minecraft.getInstance().getSoundManager().stop(this.currentSound);
+                    this.currentSound = null;
+                }
                 else
                     Minecraft.getInstance().getSoundManager().play(this.currentSound);
             }
-        }));
+        }) {
+            @Override
+            public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+                if(this.active && this.visible) {
+                    if (this.isValidClickButton(pButton) && this.clicked(pMouseX, pMouseY)) {
+                        this.onClick(pMouseX, pMouseY, pButton);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
         this.playButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.appearance.ambient_sound.play")));
+    }
+
+    public void setValue(String value) {
+        this.editBox.setValue(value);
+        this.editBox.hideSuggestions();
+    }
+
+    public String getValue() {
+        return this.editBox.getValue();
+    }
+
+    public void setResponder(Consumer<String> responder) {
+        this.editBox.setResponder(responder);
     }
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        ResourceLocation soundLoc = ResourceLocation.tryParse(this.editBox.getValue());
+        if(soundLoc != null && Minecraft.getInstance().getSoundManager().getAvailableSounds().contains(soundLoc))
+            this.currentSound = SimpleSoundInstance.forUI(SoundEvent.createVariableRangeEvent(soundLoc), 1f);
+        else
+            this.currentSound = null;
         this.playButton.active = this.currentSound != null;
         super.renderWidget(graphics, mouseX, mouseY, partialTick);
     }
