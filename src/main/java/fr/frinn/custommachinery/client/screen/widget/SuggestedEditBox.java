@@ -34,7 +34,6 @@ public class SuggestedEditBox extends EditBox {
 
     private final List<String> possibleSuggestions = new ArrayList<>();
     private final int suggestionLineLimit;
-    private final int baseWidth;
     private SuggestionsList suggestionsList;
     private Suggestions suggestions;
     private boolean anchorToBottom = false;
@@ -42,7 +41,6 @@ public class SuggestedEditBox extends EditBox {
     public SuggestedEditBox(Font font, int x, int y, int width, int height, Component message, int suggestionLineLimit) {
         super(font, x, y, width, height, message);
         this.suggestionLineLimit = suggestionLineLimit;
-        this.baseWidth = width;
         this.setResponder(s -> {});
         this.updateSuggestions();
     }
@@ -132,11 +130,8 @@ public class SuggestedEditBox extends EditBox {
         super.setFocused(focused);
         if(!focused) {
             this.hideSuggestions();
-            this.setWidth(this.baseWidth);
         } else {
             this.showSuggestions(false);
-            if(this.suggestionsList != null)
-                this.setWidth(Minecraft.getInstance().getWindow().getScreenWidth() - this.getX());
             this.moveCursorToStart(false);
         }
     }
@@ -228,6 +223,8 @@ public class SuggestedEditBox extends EditBox {
         }
 
         public void render(GuiGraphics graphics, int mouseX, int mouseY) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(0, 0, 0);
             Message message;
             boolean bl4;
             int i = Math.min(this.suggestionList.size(), this.suggestionLineLimit);
@@ -271,6 +268,7 @@ public class SuggestedEditBox extends EditBox {
             if (bl52 && (message = this.suggestionList.get(this.current).getTooltip()) != null) {
                 graphics.renderTooltip(this.font, ComponentUtils.fromMessage(message), mouseX, mouseY);
             }
+            graphics.pose().popPose();
         }
 
         public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {

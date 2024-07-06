@@ -73,10 +73,5 @@ public class MachineComponentListWidget extends ListWidget<MachineComponentEntry
         public List<? extends GuiEventListener> children() {
             return Collections.emptyList();
         }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            return true;
-        }
     }
 }

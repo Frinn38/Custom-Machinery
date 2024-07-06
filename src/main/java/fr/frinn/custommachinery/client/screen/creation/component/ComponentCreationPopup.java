@@ -90,11 +90,6 @@ public class ComponentCreationPopup extends PopupScreen {
             public List<? extends GuiEventListener> children() {
                 return Collections.emptyList();
             }
-
-            @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                return true;
-            }
         }
     }
 }

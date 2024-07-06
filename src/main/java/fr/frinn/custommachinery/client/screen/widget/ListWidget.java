@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class ListWidget<E extends Entry> extends AbstractWidget implements ContainerEventHandler {
 
@@ -197,16 +196,18 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         if(!this.isMouseOver(mouseX, mouseY))
             return false;
 
+        //Needed in case the focused element is bigger than the entry it's in like SuggestedEditBox
+        if(this.getFocused() != null && this.getFocused().mouseClicked(mouseX, mouseY, button))
+            return true;
+
         E entry = this.getEntryAtPosition(mouseX, mouseY);
         if(entry != null) {
-            if(entry.mouseClicked(mouseX, mouseY, button)) {
-                GuiEventListener focused = this.getFocused();
-                if(focused != entry && focused instanceof ContainerEventHandler container)
-                    container.setFocused(null);
-                this.setFocused(entry);
-                this.setDragging(true);
-                return true;
-            }
+            GuiEventListener focused = this.getFocused();
+            if(focused != entry && focused instanceof ContainerEventHandler container)
+                container.setFocused(null);
+            this.setFocused(entry);
+            this.setDragging(true);
+            return true;
         }
         return this.scrolling;
     }
@@ -244,6 +245,8 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if(this.getFocused() != null && this.getFocused().mouseScrolled(mouseX, mouseY, scrollX, scrollY))
+            return true;
         this.setScrollAmount(this.getScrollAmount() - scrollY * (double)this.itemHeight / 2.0);
         return true;
     }
@@ -255,69 +258,39 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
             return null;
 
         if(event instanceof ArrowNavigation arrowNavigation) {
-            ComponentPath componentPath;
-            E entry = this.selected;
-
-            if (arrowNavigation.direction().getAxis() == ScreenAxis.HORIZONTAL && entry != null)
-                return ComponentPath.path(this, entry.nextFocusPath(event));
-
-            int i = -1;
-            ScreenDirection screenDirection = arrowNavigation.direction();
-            if (entry != null)
-                i = entry.children().indexOf(entry.getFocused());
-
-            if (i == -1) {
-                switch (screenDirection) {
-                    case LEFT: {
-                        i = Integer.MAX_VALUE;
-                        screenDirection = ScreenDirection.DOWN;
-                        break;
-                    }
-                    case RIGHT: {
-                        i = 0;
-                        screenDirection = ScreenDirection.DOWN;
-                        break;
-                    }
-                    default: {
-                        i = 0;
-                    }
+            if (arrowNavigation.direction().getAxis() == ScreenAxis.HORIZONTAL)
+                if (this.selected != null)
+                    return ComponentPath.path(this, this.selected.nextFocusPath(event));
+                else
+                    return null;
+            else {
+                if (arrowNavigation.direction() == ScreenDirection.DOWN) {
+                    if (this.selected != null) {
+                        if (this.entries.indexOf(this.selected) == this.entries.size() - 1)
+                            return null;
+                        else
+                            return this.entryPath(this.entries.get(this.entries.indexOf(this.selected) + 1), arrowNavigation);
+                    } else
+                        return this.entryPath(this.entries.getFirst(), arrowNavigation);
+                } else if (arrowNavigation.direction() == ScreenDirection.UP) {
+                    if (this.selected != null) {
+                        if (this.entries.indexOf(this.selected) == 0)
+                            return null;
+                        else
+                            return this.entryPath(this.entries.get(this.entries.indexOf(this.selected) - 1), arrowNavigation);
+                    } else
+                        return this.entryPath(this.entries.getLast(), arrowNavigation);
                 }
             }
-            E entry2 = entry;
-            do {
-                if ((entry2 = this.nextEntry(screenDirection, arg -> !arg.children().isEmpty(), entry2)) != null) continue;
-                return null;
-            } while ((componentPath = entry2.focusPathAtIndex(arrowNavigation, i)) == null);
-            return ComponentPath.path(this, componentPath);
         }
         return super.nextFocusPath(event);
     }
 
-    @Nullable
-    protected E nextEntry(ScreenDirection direction, Predicate<E> predicate, @Nullable E selected) {
-        byte b0 = switch (direction) {
-            case RIGHT, LEFT -> 0;
-            case UP -> -1;
-            case DOWN -> 1;
-        };
-
-        if (!this.children().isEmpty() && (int) b0 != 0) {
-            int j;
-            if (selected == null) {
-                j = (int) b0 > 0 ? 0 : this.children().size() - 1;
-            } else {
-                j = this.children().indexOf(selected) + (int) b0;
-            }
-
-            for(int k = j; k >= 0 && k < this.entries.size(); k += b0) {
-                E e = this.children().get(k);
-                if (predicate.test(e)) {
-                    return e;
-                }
-            }
-        }
-
-        return null;
+    private ComponentPath entryPath(E entry, ArrowNavigation event) {
+        ComponentPath entryPath = entry.focusPathAtIndex(event, event.direction() == ScreenDirection.UP ? Integer.MAX_VALUE : 0);
+        if(entryPath == null)
+            return ComponentPath.path(entry, this);
+        return ComponentPath.path(this, entryPath);
     }
 
     @Override
@@ -361,6 +334,11 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         }
 
         protected abstract void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
+
+        @Override
+        public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+            return this.getFocused() != null && this.getFocused().mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
 
         @Override
         public boolean isDragging() {

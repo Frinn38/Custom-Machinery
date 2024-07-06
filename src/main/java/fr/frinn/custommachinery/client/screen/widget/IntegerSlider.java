@@ -1,8 +1,10 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 
@@ -32,7 +34,7 @@ public class IntegerSlider extends AbstractSliderButton {
     }
 
     public void setValue(int value) {
-        this.value = Mth.map(value, this.min, this.max, 0.0D, 1.0D);
+        this.value = Mth.clamp(Mth.map(value, this.min, this.max, 0.0D, 1.0D), 0, 1);
         this.applyValue();
         this.updateMessage();
     }
@@ -48,6 +50,18 @@ public class IntegerSlider extends AbstractSliderButton {
     @Override
     protected void applyValue() {
         this.responder.accept(this.intValue());
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        int value = this.intValue();
+        boolean pressed = super.keyPressed(keyCode, scanCode, modifiers);
+        int modifier = Screen.hasShiftDown() ? this.max / 10 : Screen.hasControlDown() ? this.max / 20 : 1;
+        switch(keyCode) {
+            case GLFW.GLFW_KEY_RIGHT -> this.setValue(value + modifier);
+            case GLFW.GLFW_KEY_LEFT -> this.setValue(value - modifier);
+        }
+        return pressed;
     }
 
     public static class Builder {

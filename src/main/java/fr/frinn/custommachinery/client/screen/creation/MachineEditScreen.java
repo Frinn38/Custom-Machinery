@@ -72,7 +72,7 @@ public class MachineEditScreen extends BaseScreen {
         ConfirmPopup popup = new ConfirmPopup(this, 128, 96, () -> Minecraft.getInstance().setScreen(new MachineCreationScreen()));
         popup.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
         popup.text(Component.translatable("custommachinery.gui.creation.popup.quit"));
-        this.openPopup(popup);
+        this.openPopup(popup, "close without editing");
     }
 
     public void wiki() {

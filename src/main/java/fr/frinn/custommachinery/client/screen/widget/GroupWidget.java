@@ -1,10 +1,15 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent.ArrowNavigation;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +19,8 @@ import java.util.List;
 public class GroupWidget extends AbstractWidget implements ContainerEventHandler {
 
     public final List<AbstractWidget> children = new ArrayList<>();
+    public final Minecraft mc = Minecraft.getInstance();
+    public final Font font = mc.font;
 
     @Nullable
     private GuiEventListener focused;
@@ -164,5 +171,36 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
         if(!focused)
             this.setFocused(null);
 
+    }
+
+    @Nullable
+    @Override
+    public ComponentPath nextFocusPath(FocusNavigationEvent event) {
+        if(event instanceof ArrowNavigation arrowNavigation) {
+            GuiEventListener focused = this.getFocused();
+            return switch(arrowNavigation.direction()) {
+                case LEFT, UP -> {
+                    if(focused == null)
+                        yield ComponentPath.path(this, this.children.getLast().nextFocusPath(event));
+                    else {
+                        if(this.children.indexOf(focused) == 0)
+                            yield null;
+                        else
+                            yield ComponentPath.path(this, this.children.get(this.children.indexOf(focused) - 1).nextFocusPath(event));
+                    }
+                }
+                case RIGHT, DOWN -> {
+                    if(focused == null)
+                        yield ComponentPath.path(this, this.children.getFirst().nextFocusPath(event));
+                    else {
+                        if(this.children.indexOf(focused) == this.children.size() - 1)
+                            yield null;
+                        else
+                            yield ComponentPath.path(this, this.children.get(this.children.indexOf(focused) + 1).nextFocusPath(event));
+                    }
+                }
+            };
+        }
+        return super.nextFocusPath(event);
     }
 }

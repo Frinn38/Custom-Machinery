@@ -58,7 +58,7 @@ public class ComponentStylePopup extends PopupScreen {
         AtomicInteger index = new AtomicInteger(16);
         for(ChatFormatting format : List.of(ChatFormatting.BOLD, ChatFormatting.ITALIC, ChatFormatting.UNDERLINE, ChatFormatting.STRIKETHROUGH, ChatFormatting.OBFUSCATED)) {
             String name = format.getName();
-            WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("creation/style/" + name), CustomMachinery.rl("creation/style/" + name + "_selected"));
+            WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("creation/style/" + name + "_selected"), CustomMachinery.rl("creation/style/" + name), CustomMachinery.rl("creation/style/" + name + "_selected"), CustomMachinery.rl("creation/style/" + name + "_selected"));
             ToggleImageButton button = new ToggleImageButton(0, 0, 10, 10, sprites, b -> this.editBox.invert(format));
             row.addChild(button);
             button.setTooltip(Tooltip.create(Component.translatable(format.getName())));

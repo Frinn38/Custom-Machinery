@@ -197,6 +197,8 @@ public abstract class BaseScreen extends Screen {
                 this.closePopup(toClose);
                 return true;
             }
+            if(this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers))
+                return true;
             this.onClose();
             return true;
         }

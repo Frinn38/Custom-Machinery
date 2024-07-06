@@ -35,6 +35,7 @@ import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.AmbientSoundAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ColorAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ModelAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.FloatAppearancePropertyBuilder;
@@ -181,7 +182,7 @@ public class ClientHandler {
     public static void registerAppearancePropertyBuilders(final RegisterAppearancePropertyBuilderEvent event) {
         event.register(Registration.BLOCK_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.block"), Registration.BLOCK_MODEL_PROPERTY.get()));
         event.register(Registration.ITEM_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.item"), Registration.ITEM_MODEL_PROPERTY.get()));
-        //event.register(Registration.AMBIENT_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Ambient sound"), Registration.AMBIENT_SOUND_PROPERTY.get(), s -> SoundEvent.createFixedRangeEvent(new ResourceLocation(s), 15), SoundEvent::toString));
+        event.register(Registration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSoundAppearancePropertyBuilder());
         //event.register(Registration.INTERACTION_SOUND_PROPERTY.get(), new TextAppearancePropertyBuilder<>(Component.literal("Interaction sound"), Registration.INTERACTION_SOUND_PROPERTY.get(), s -> new CMSoundType(new PartialBlockState(BuiltInRegistries.BLOCK.get(new ResourceLocation(s)))), CMSoundType::toString));
         event.register(Registration.LIGHT_PROPERTY.get(), new IntegerAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.light"), Registration.LIGHT_PROPERTY.get(), 0, 15, Component.translatable("custommachinery.gui.creation.appearance.light.tooltip")));
         event.register(Registration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());

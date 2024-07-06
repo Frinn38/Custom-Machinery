@@ -1,15 +1,11 @@
 package fr.frinn.custommachinery.impl.codec;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -27,9 +23,6 @@ public class DefaultCodecs {
 
     public static final NamedCodec<ResourceLocation> RESOURCE_LOCATION = NamedCodec.STRING.comapFlatMap(DefaultCodecs::decodeResourceLocation, ResourceLocation::toString, "Resource location");
     public static final NamedCodec<Character> CHARACTER = NamedCodec.STRING.comapFlatMap(DefaultCodecs::decodeCharacter, Object::toString, "Character");
-    public static final NamedCodec<CompoundTag> NBT_FROM_STRING = NamedCodec.STRING.comapFlatMap(DefaultCodecs::decodeNbtFromString, CompoundTag::toString, "NBT from String");
-    public static final NamedCodec<CompoundTag> NBT_FROM_JSON = NamedCodec.of(CompoundTag.CODEC, "NBT from JSON");
-    public static final NamedCodec<CompoundTag> COMPOUND_TAG = NamedCodec.either(NBT_FROM_STRING, NBT_FROM_JSON, "Compound nbt").xmap(either -> either.map(Function.identity(), Function.identity()), Either::left, "Compound nbt");
 
     public static final NamedCodec<SoundEvent> SOUND_EVENT = RESOURCE_LOCATION.xmap(SoundEvent::createVariableRangeEvent, SoundEvent::getLocation, "Sound event");
 
@@ -65,14 +58,5 @@ public class DefaultCodecs {
         if(encoded.length() != 1)
             return DataResult.error(() -> "Invalid character : \"" + encoded + "\" must be a single character !");
         return DataResult.success(encoded.charAt(0));
-    }
-
-    private static DataResult<CompoundTag> decodeNbtFromString(String encoded) {
-        TagParser parser = new TagParser(new StringReader(encoded));
-        try {
-            return DataResult.success(parser.readStruct());
-        } catch (CommandSyntaxException e) {
-            return DataResult.error(e::getMessage);
-        }
     }
 }
