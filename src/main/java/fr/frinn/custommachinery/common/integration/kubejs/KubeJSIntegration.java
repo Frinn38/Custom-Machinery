@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import dev.latvian.mods.kubejs.script.ScriptType;
-import dev.latvian.mods.kubejs.script.data.VirtualKubeJSDataPack;
-import dev.latvian.mods.kubejs.server.GeneratedServerResourcePack;
+import dev.latvian.mods.kubejs.script.data.KubeFileResourcePack;
+import dev.latvian.mods.kubejs.script.data.VirtualDataPack;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import net.minecraft.resources.ResourceLocation;
@@ -16,9 +16,9 @@ public class KubeJSIntegration {
 
     public static MachineLocation getMachineLocation(Resource resource, String packName, ResourceLocation id) {
         try(PackResources pack = resource.source()) {
-            if(pack instanceof GeneratedServerResourcePack)
+            if(pack instanceof KubeFileResourcePack)
                 return MachineLocation.fromKubeJS(id, packName);
-            else if(pack instanceof VirtualKubeJSDataPack)
+            else if(pack instanceof VirtualDataPack)
                 return MachineLocation.fromKubeJSScript(id, packName);
             return MachineLocation.fromDefault(id, packName);
         }

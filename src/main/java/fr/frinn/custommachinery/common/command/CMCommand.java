@@ -78,8 +78,15 @@ public class CMCommand {
                 .then(Commands.argument("machine", ResourceLocationArgument.id())
                         .suggests(ALL_MACHINES)
                         .executes(ctx -> {
-                            if(ctx.getSource().getEntity() instanceof ServerPlayer player)
-                                PacketDistributor.sendToPlayer(player, new SOpenEditScreenPacket(ResourceLocationArgument.getId(ctx, "machine")));
+                            if(ctx.getSource().getEntity() instanceof ServerPlayer player) {
+                                ResourceLocation machine = ResourceLocationArgument.getId(ctx, "machine");
+                                if(!CustomMachinery.MACHINES.containsKey(machine) || CustomMachinery.MACHINES.get(machine).isDummy())
+                                    player.sendSystemMessage(Component.translatable("custommachinery.command.edit.missing", machine.toString()).withStyle(ChatFormatting.GRAY));
+                                else if(!CustomMachinery.MACHINES.get(machine).getLocation().canEdit())
+                                    player.sendSystemMessage(Component.translatable("custommachinery.command.edit.cant", machine.toString()).withStyle(ChatFormatting.GRAY));
+                                else
+                                    PacketDistributor.sendToPlayer(player, new SOpenEditScreenPacket(machine));
+                            }
                             return 0;
                         }));
     }

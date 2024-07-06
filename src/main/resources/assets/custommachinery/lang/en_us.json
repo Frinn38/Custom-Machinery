@@ -7,6 +7,8 @@
   "itemGroup.custommachinery.group": "Custom Machinery",
 
   "custommachinery.command.reload": "Successfully reloaded custom machines !",
+  "custommachinery.command.edit.missing": "Can't edit machine %s as it doesn't exist !",
+  "custommachinery.command.edit.cant": "Machine %s can't be edited as it's not loaded from a json file !",
 
   "custommachinery.box_creator.first_block": "First Block : %s",
   "custommachinery.box_creator.second_block": "Second Block : %s",
