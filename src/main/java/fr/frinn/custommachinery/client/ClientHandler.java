@@ -36,6 +36,7 @@ import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.AmbientSoundAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.BooleanAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ColorAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ModelAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.FloatAppearancePropertyBuilder;
@@ -187,6 +188,7 @@ public class ClientHandler {
         event.register(Registration.LIGHT_PROPERTY.get(), new IntegerAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.light"), Registration.LIGHT_PROPERTY.get(), 0, 15, Component.translatable("custommachinery.gui.creation.appearance.light.tooltip")));
         event.register(Registration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());
         event.register(Registration.HARDNESS_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.hardness"), Registration.HARDNESS_PROPERTY.get(), -1F, 100F, Component.translatable("custommachinery.gui.creation.appearance.hardness.tooltip")));
+        event.register(Registration.REQUIRES_TOOL.get(), new BooleanAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.requires_tool"), Registration.REQUIRES_TOOL.get(), Component.translatable("custommachinery.gui.creation.appearance.requires_tool.tooltip")));
         event.register(Registration.RESISTANCE_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.resistance"), Registration.RESISTANCE_PROPERTY.get(), 0F, 2000F, Component.translatable("custommachinery.gui.creation.appearance.resistance.tooltip")));
     }
 
