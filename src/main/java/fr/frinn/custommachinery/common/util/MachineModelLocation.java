@@ -3,9 +3,11 @@ package fr.frinn.custommachinery.common.util;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public class MachineModelLocation implements IMachineModelLocation {
+
+    public static final MachineModelLocation DEFAULT = MachineModelLocation.of(CustomMachinery.rl("default/custom_machine_default").toString());
 
     public static final NamedCodec<MachineModelLocation> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         try {

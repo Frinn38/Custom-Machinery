@@ -353,7 +353,7 @@ public class SuggestedEditBox extends EditBox {
         }
 
         public void useSuggestion() {
-            if(this.suggestionList == null || this.suggestionList.isEmpty())
+            if(this.suggestionList == null || this.suggestionList.isEmpty() || this.current > this.suggestionList.size() + 1)
                 return;
             Suggestion suggestion = this.suggestionList.get(this.current);
             this.keepSuggestions = true;

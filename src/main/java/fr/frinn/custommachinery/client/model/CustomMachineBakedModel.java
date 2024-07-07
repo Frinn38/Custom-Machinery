@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -191,7 +192,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
             IMachineModelLocation itemModelLocation = appearance.getItemModel();
             if(itemModelLocation.getItem() != null && itemModelLocation.getItem() != Items.AIR)
                 model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(itemModelLocation.getItem());
-            else if(itemModelLocation.getLoc() != null) {
+            else if(itemModelLocation.getLoc() != null && !itemModelLocation.getLoc().equals(MachineModelLocation.DEFAULT.getLoc())) {
                 Item item = BuiltInRegistries.ITEM.get(itemModelLocation.getLoc());
                 if(itemModelLocation.getProperties() != null)
                     model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(itemModelLocation.getLoc(), itemModelLocation.getProperties()));
