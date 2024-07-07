@@ -42,6 +42,7 @@ import fr.frinn.custommachinery.client.screen.creation.appearance.builder.Intera
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ModelAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.FloatAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.IntegerAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ToolTypeAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.MachineComponentBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.component.RegisterComponentBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ChunkloadComponentBuilder;
@@ -191,6 +192,7 @@ public class ClientHandler {
         event.register(Registration.HARDNESS_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.hardness"), Registration.HARDNESS_PROPERTY.get(), -1F, 100F, Component.translatable("custommachinery.gui.creation.appearance.hardness.tooltip")));
         event.register(Registration.REQUIRES_TOOL.get(), new BooleanAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.requires_tool"), Registration.REQUIRES_TOOL.get(), Component.translatable("custommachinery.gui.creation.appearance.requires_tool.tooltip")));
         event.register(Registration.RESISTANCE_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.resistance"), Registration.RESISTANCE_PROPERTY.get(), 0F, 2000F, Component.translatable("custommachinery.gui.creation.appearance.resistance.tooltip")));
+        event.register(Registration.TOOL_TYPE_PROPERTY.get(), new ToolTypeAppearancePropertyBuilder());
     }
 
     @SubscribeEvent

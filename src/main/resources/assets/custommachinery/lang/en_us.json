@@ -150,6 +150,7 @@
   "custommachinery.gui.creation.appearance.requires_tool.tooltip": "If set the machine will drop only when broken with the correct tool",
   "custommachinery.gui.creation.appearance.resistance": "Resistance",
   "custommachinery.gui.creation.appearance.resistance.tooltip": "Higher values increase explosion resistance",
+  "custommachinery.gui.creation.appearance.tool_type": "Tool type",
 
   "custommachinery.gui.creation.components.delete.title": "Delete component",
   "custommachinery.gui.creation.components.delete.info": "Are you sure you want to delete this machine component ?",
