@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
@@ -108,33 +109,18 @@ public class Utils {
         }
     }
 
-    public static float getMachineBreakSpeed(MachineAppearance appearance, BlockGetter world, BlockPos pos, Player player) {
+    public static float getMachineBreakSpeed(MachineAppearance appearance, BlockGetter level, BlockPos pos, Player player) {
         float hardness = appearance.getHardness();
         if(hardness <= 0)
             return 0.0F;
-        float digSpeed = player.getDestroySpeed(MachineBlockState.CACHE.getUnchecked(appearance));
-        float canHarvest = player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance)) ? 30 : 100;
+        float digSpeed = player.getDigSpeed(MachineBlockState.CACHE.getUnchecked(appearance), pos);
+        float canHarvest = EventHooks.doPlayerHarvestCheck(player, MachineBlockState.CACHE.getUnchecked(appearance), level, pos) ? 30 : 100;
         return digSpeed / hardness / canHarvest;
-    }
-
-    public static ItemStack makeItemStack(Item item, int amount, @Nullable DataComponentMap nbt) {
-        ItemStack stack = new ItemStack(item, amount);
-        if(nbt != null)
-            stack.applyComponents(nbt);
-        return stack;
     }
 
     public static int toInt(long l) {
         try {
             return Math.toIntExact(l);
-        } catch (ArithmeticException e) {
-            return Integer.MAX_VALUE;
-        }
-    }
-
-    public static int toInt(float l) {
-        try {
-            return Math.round(l);
         } catch (ArithmeticException e) {
             return Integer.MAX_VALUE;
         }
@@ -156,12 +142,6 @@ public class Utils {
 
     public static String format(double number) {
         return NUMBER_FORMAT.format(number);
-    }
-
-    public static <T> T[] addToArray(T[] array, T toAdd) {
-        T[] newArray = Arrays.copyOf(array, array.length + 1);
-        newArray[array.length] = toAdd;
-        return newArray;
     }
 
     public static MutableComponent getBlockName(IIngredient<PartialBlockState> ingredient) {

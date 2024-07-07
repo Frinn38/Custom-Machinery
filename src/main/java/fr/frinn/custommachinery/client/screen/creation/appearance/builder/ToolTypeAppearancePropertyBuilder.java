@@ -23,6 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +51,11 @@ public class ToolTypeAppearancePropertyBuilder implements IAppearancePropertyBui
 
         public ToolTypeAppearancePropertyBuilderWidget(int x, int y, int width, int height, Component message, Supplier<List<TagKey<Block>>> supplier, Consumer<List<TagKey<Block>>> consumer) {
             super(x, y, width, height, message);
-            Map<TagKey<Block>, TagKey<Item>> map = Map.of(BlockTags.MINEABLE_WITH_AXE, ItemTags.AXES, BlockTags.MINEABLE_WITH_HOE, ItemTags.HOES, BlockTags.MINEABLE_WITH_PICKAXE, ItemTags.PICKAXES, BlockTags.MINEABLE_WITH_SHOVEL, ItemTags.SHOVELS);
+            Map<TagKey<Block>, TagKey<Item>> map = new LinkedHashMap<>();
+            map.put(BlockTags.MINEABLE_WITH_AXE, ItemTags.AXES);
+            map.put(BlockTags.MINEABLE_WITH_HOE, ItemTags.HOES);
+            map.put(BlockTags.MINEABLE_WITH_PICKAXE, ItemTags.PICKAXES);
+            map.put(BlockTags.MINEABLE_WITH_SHOVEL, ItemTags.SHOVELS);
             AtomicInteger index = new AtomicInteger();
             List<TagKey<Block>> blocks = new ArrayList<>(supplier.get());
             map.forEach((block, item) -> {

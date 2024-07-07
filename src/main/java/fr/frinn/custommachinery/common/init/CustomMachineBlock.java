@@ -241,16 +241,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                 .map(tile -> (CustomMachineTile)tile)
                 .map(CustomMachineTile::getAppearance)
                 .map(appearance -> Utils.getMachineBreakSpeed(appearance, level, pos, player))
-                .orElseGet(() -> {
-                    //Don't call super.getDestroyProgress here as it will trigger BlockBehaviourWorldlyBlockMixin#handleWorldlyBreakableCondition
-                    //which crash the game because it returns a value in a non-cancellable Mixin
-                    float f = state.getDestroySpeed(level, pos);
-                    if (f == -1.0f) {
-                        return 0.0f;
-                    }
-                    int i = player.hasCorrectToolForDrops(state) ? 30 : 100;
-                    return player.getDestroySpeed(state) / f / (float)i;
-                });
+                .orElse(super.getDestroyProgress(state, player, level, pos));
     }
 
     @Override
@@ -261,7 +252,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                 .orElse(super.getCollisionShape(state, level, pos, context));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Optional.ofNullable(level.getBlockEntity(pos))

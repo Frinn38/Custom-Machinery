@@ -6,6 +6,8 @@ import com.google.common.cache.LoadingCache;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +30,12 @@ public class MachineBlockState extends BlockState {
 
     @Override
     public boolean is(TagKey<Block> tag) {
-        return this.appearance.getMiningLevel() == tag || this.appearance.getTool().contains(tag);
+        return BuiltInRegistries.BLOCK.getTag(this.appearance.getMiningLevel()).map(named -> named.stream().allMatch(holder -> holder.is(tag))).orElse(false) || this.appearance.getTool().contains(tag);
+    }
+
+    @Override
+    public boolean is(HolderSet<Block> holder) {
+        return holder.unwrapKey().map(this::is).orElse(false);
     }
 
     @Override

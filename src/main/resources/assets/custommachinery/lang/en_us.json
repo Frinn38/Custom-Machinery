@@ -146,6 +146,7 @@
   "custommachinery.gui.creation.appearance.item.tooltip": "Open item appearance configuration",
   "custommachinery.gui.creation.appearance.light": "Light",
   "custommachinery.gui.creation.appearance.light.tooltip": "Light emitted by the machine",
+  "custommachinery.gui.creation.appearance.mining_level": "Mining level",
   "custommachinery.gui.creation.appearance.requires_tool": "Requires tool",
   "custommachinery.gui.creation.appearance.requires_tool.tooltip": "If set the machine will drop only when broken with the correct tool",
   "custommachinery.gui.creation.appearance.resistance": "Resistance",
