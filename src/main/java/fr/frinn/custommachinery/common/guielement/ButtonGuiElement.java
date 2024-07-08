@@ -3,12 +3,16 @@ package fr.frinn.custommachinery.common.guielement;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
+import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.TaskDelayer;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
 public class ButtonGuiElement extends AbstractTexturedGuiElement {
@@ -74,5 +78,27 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
 
     public int getHoldTime() {
         return this.holdTime;
+    }
+
+    @Override
+    public void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {
+        if(this.holdTime <= 0)
+            return;
+        tile.getComponentManager()
+                .getComponent(Registration.DATA_MACHINE_COMPONENT.get())
+                .ifPresent(component -> {
+                    if(this.toggle)
+                        component.getData().putBoolean(this.getId(), !component.getData().getBoolean(this.getId()));
+                    else {
+                        component.getData().putBoolean(this.getId(), true);
+                        component.getManager().markDirty();
+                        tile.getProcessor().setSearchImmediately();
+                        tile.getProcessor().setMachineInventoryChanged();
+                        TaskDelayer.enqueue(this.holdTime, () -> {
+                            component.getData().putBoolean(this.getId(), false);
+                            component.getManager().markDirty();
+                        });
+                    }
+                });
     }
 }

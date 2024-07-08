@@ -21,6 +21,10 @@ public interface IProcessor {
 
     void setMachineInventoryChanged();
 
+    default void setSearchImmediately() {
+
+    }
+
     CompoundTag serialize();
 
     void deserialize(CompoundTag nbt);

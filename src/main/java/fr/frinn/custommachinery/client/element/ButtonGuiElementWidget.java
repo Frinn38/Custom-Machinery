@@ -45,6 +45,6 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        PacketDistributor.sendToServer(new CButtonGuiElementPacket(getElement().getId(), getElement().isToggle()));
+        //PacketDistributor.sendToServer(new CButtonGuiElementPacket(getElement().getId(), getElement().isToggle()));
     }
 }

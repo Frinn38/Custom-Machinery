@@ -52,6 +52,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     private int recipeTotalTime = 0;
     private CraftingContext context;
     private boolean initialized = false;
+    private boolean searchImmediately = false;
 
     private List<ITickableRequirement<IMachineComponent>> tickableRequirements;
     private List<IDelayedRequirement<IMachineComponent>> delayedRequirements;
@@ -72,8 +73,10 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         if(!this.initialized)
             this.init();
 
-        if(this.currentRecipe == null)
-            this.searchForRecipe(false);
+        if(this.currentRecipe == null) {
+            this.searchForRecipe(this.searchImmediately);
+            this.searchImmediately = false;
+        }
 
         if(this.currentRecipe != null) {
             if(this.phase == PHASE.STARTING)
@@ -352,6 +355,11 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     @Override
     public void setMachineInventoryChanged() {
         this.recipeFinder.setInventoryChanged(true);
+    }
+
+    @Override
+    public void setSearchImmediately() {
+        this.searchImmediately = true;
     }
 
     public enum PHASE {
