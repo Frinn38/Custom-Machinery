@@ -72,7 +72,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
             if(machine.getOwnerName() != null)
                 info.text(CompoundText.create().label(Component.translatable("custommachinery.machine.info.owner", machine.getOwnerName())));
             MachineAppearance appearance = machine.getAppearance();
-            showHarvestInfo(info, appearance, player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance)));
+            showHarvestInfo(info, appearance, player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance), world, data.getPos()));
             showCraftingManagerInfo(machine, info);
         }
     }

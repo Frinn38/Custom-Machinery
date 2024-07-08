@@ -53,7 +53,7 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
                 double recipeProgressTime = nbt.getDouble("recipeProgressTime");
                 double recipeTotalTime = nbt.getDouble("recipeTotalTime");
                 float progress = (float) (recipeProgressTime / recipeTotalTime);
-                Component component = Component.literal((int)recipeProgressTime + " / " + (int)recipeTotalTime);
+                Component component = Component.literal((int)recipeProgressTime + " / " + (int)recipeTotalTime).withStyle(ChatFormatting.WHITE);
                 IElementHelper helper = IElementHelper.get();
                 tooltip.add(helper.progress(progress, component, helper.progressStyle(), BoxStyle.getNestedBox(), true));
             }
