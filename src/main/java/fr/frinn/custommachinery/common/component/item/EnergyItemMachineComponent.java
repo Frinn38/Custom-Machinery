@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -20,8 +21,8 @@ import java.util.Optional;
 
 public class EnergyItemMachineComponent extends ItemMachineComponent implements ITickableComponent {
 
-    public EnergyItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean locked) {
-        super(manager, mode, id, capacity, maxInput, maxOutput, filter, whitelist, configTemplate, locked);
+    public EnergyItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, SideConfig.Template configTemplate, boolean locked) {
+        super(manager, mode, id, capacity, maxInput, maxOutput, filter, configTemplate, locked);
     }
 
     @Override
@@ -108,8 +109,8 @@ public class EnergyItemMachineComponent extends ItemMachineComponent implements 
 
         public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Energy item machine component");
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, List<IIngredient<Item>> filter, boolean whitelist, Optional<SideConfig.Template> config, boolean locked) {
-            super(id, mode, capacity, maxInput, maxOutput, filter, whitelist, config, locked);
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<SideConfig.Template> config, boolean locked) {
+            super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
         }
 
         @Override
@@ -124,7 +125,7 @@ public class EnergyItemMachineComponent extends ItemMachineComponent implements 
 
         @Override
         public ItemMachineComponent build(IMachineComponentManager manager) {
-            return new EnergyItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config, this.locked);
+            return new EnergyItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.config, this.locked);
         }
     }
 }

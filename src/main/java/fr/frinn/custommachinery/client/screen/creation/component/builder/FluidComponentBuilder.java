@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.screen.creation.component.builder;
 
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentBuilderPopup;
@@ -59,7 +60,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
 
         @Override
         public Template makeTemplate() {
-            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), Collections.emptyList(), false, this.mode.getValue(), this.mode.getValue().getBaseConfig(), this.unique.selected());
+            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), this.baseTemplate().map(Template::filter).orElse(Filter.empty()), this.mode.getValue(), this.mode.getValue().getBaseConfig(), this.unique.selected());
         }
 
         @Override

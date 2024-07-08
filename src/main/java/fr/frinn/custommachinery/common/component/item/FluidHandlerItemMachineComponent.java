@@ -5,11 +5,15 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
@@ -26,8 +30,8 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
 
     private final List<String> tanks;
 
-    public FluidHandlerItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean locked, List<String> tanks) {
-        super(manager, mode, id, capacity, maxInput, maxOutput, filter, whitelist, configTemplate, locked);
+    public FluidHandlerItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, SideConfig.Template configTemplate, boolean locked, List<String> tanks) {
+        super(manager, mode, id, capacity, maxInput, maxOutput, filter, configTemplate, locked);
         this.tanks = tanks;
     }
 
@@ -135,8 +139,7 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
                         NamedCodec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
                         NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
                         NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
-                        IIngredient.ITEM.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
-                        NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
+                        Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.ITEM)).forGetter(template -> template.filter),
                         SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked),
                         NamedCodec.STRING.listOf().optionalFieldOf("tanks", Collections.emptyList()).forGetter(template -> template.tanks)
@@ -144,8 +147,8 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
 
         public final List<String> tanks;
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, List<IIngredient<Item>> filter, boolean whitelist, Optional<SideConfig.Template> config, boolean locked, List<String> tanks) {
-            super(id, mode, capacity, maxInput, maxOutput, filter, whitelist, config, locked);
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<SideConfig.Template> config, boolean locked, List<String> tanks) {
+            super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
             this.tanks = tanks;
         }
 
@@ -161,7 +164,7 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
 
         @Override
         public FluidHandlerItemMachineComponent build(IMachineComponentManager manager) {
-            return new FluidHandlerItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config, this.locked, this.tanks);
+            return new FluidHandlerItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.config, this.locked, this.tanks);
         }
     }
 }

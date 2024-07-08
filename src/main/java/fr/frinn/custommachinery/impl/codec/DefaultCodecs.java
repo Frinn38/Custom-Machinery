@@ -1,11 +1,20 @@
 package fr.frinn.custommachinery.impl.codec;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Holder.Reference;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.resources.HolderSetCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -16,6 +25,11 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.AABB;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
@@ -44,6 +58,28 @@ public class DefaultCodecs {
 
     public static <T> NamedCodec<TagKey<T>> tagKey(ResourceKey<Registry<T>> registry) {
         return RESOURCE_LOCATION.xmap(rl -> TagKey.create(registry, rl), TagKey::location, "Tag: " + registry.location());
+    }
+
+    public static <T> NamedCodec<Either<TagKey<T>, Holder<T>>> registryValueOrTag(Registry<T> registry) {
+        return NamedCodec.STRING.comapFlatMap(s -> {
+            if(s.startsWith("#")) {
+                try {
+                    TagKey<T> key = TagKey.create(registry.key(), ResourceLocation.parse(s.substring(1)));
+                    if(CustomMachineJsonReloadListener.context != null && CustomMachineJsonReloadListener.context.getTag(key).isEmpty())
+                        return DataResult.error(() -> "Invalid tag: " + s);
+                    return DataResult.success(Either.<TagKey<T>, Holder<T>>left(key));
+                } catch (ResourceLocationException e) {
+                    return DataResult.error(e::getMessage);
+                }
+            } else {
+                try {
+                    Optional<Reference<T>> ref = registry.getHolder(ResourceLocation.parse(s));
+                    return ref.map(reference -> DataResult.success(Either.<TagKey<T>, Holder<T>>right(reference))).orElse(DataResult.error(() -> "Invalid item: " + s));
+                } catch (ResourceLocationException e) {
+                    return DataResult.error(e::getMessage);
+                }
+            }
+        }, either -> either.map(key -> "#" + key.location(), holder -> holder.getKey().location().toString()), "Value or Tag: " + registry.key().location());
     }
 
     private static DataResult<ResourceLocation> decodeResourceLocation(String encoded) {

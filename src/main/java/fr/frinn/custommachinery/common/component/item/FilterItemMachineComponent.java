@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
@@ -16,8 +17,8 @@ import java.util.Optional;
 
 public class FilterItemMachineComponent extends ItemMachineComponent {
 
-    public FilterItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, SideConfig.Template config, boolean locked) {
-        super(manager, ComponentIOMode.NONE, id, capacity, maxInput, maxOutput, filter, whitelist, SideConfig.Template.DEFAULT_ALL_NONE_DISABLED, locked);
+    public FilterItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, SideConfig.Template config, boolean locked) {
+        super(manager, ComponentIOMode.NONE, id, capacity, maxInput, maxOutput, filter, SideConfig.Template.DEFAULT_ALL_NONE_DISABLED, locked);
     }
 
     @Override
@@ -44,8 +45,8 @@ public class FilterItemMachineComponent extends ItemMachineComponent {
 
         public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Filter item machine component");
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, List<IIngredient<Item>> filter, boolean whitelist, Optional<SideConfig.Template> config, boolean locked) {
-            super(id, mode, capacity, maxInput, maxOutput, filter, whitelist, config, locked);
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<SideConfig.Template> config, boolean locked) {
+            super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
         }
 
         @Override
@@ -55,7 +56,7 @@ public class FilterItemMachineComponent extends ItemMachineComponent {
 
         @Override
         public ItemMachineComponent build(IMachineComponentManager manager) {
-            return new FilterItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config, this.locked);
+            return new FilterItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.config, this.locked);
         }
     }
 }

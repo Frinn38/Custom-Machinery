@@ -10,14 +10,17 @@ import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.material.Fluid;
@@ -35,22 +38,20 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private final int capacity;
     private final int maxInput;
     private final int maxOutput;
-    private final List<IIngredient<Fluid>> filter;
-    private final boolean whitelist;
+    private final Filter<Fluid> filter;
     private final SideConfig config;
     private final boolean unique;
 
     private FluidStack fluidStack = FluidStack.EMPTY;
     private boolean bypassLimit = false;
 
-    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Fluid>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean unique) {
+    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Fluid> filter, SideConfig.Template configTemplate, boolean unique) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
         this.maxInput = maxInput;
         this.maxOutput = maxOutput;
         this.filter = filter;
-        this.whitelist = whitelist;
         this.config = configTemplate.build(this);
         this.unique = unique;
     }
@@ -161,7 +162,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             return false;
 
         //Check filter
-        if(this.filter.stream().anyMatch(ingredient -> ingredient.test(stack.getFluid())) != this.whitelist)
+        if(!this.filter.test(stack.getFluid()))
             return false;
 
         //Check if same fluid
@@ -257,8 +258,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             int capacity,
             int maxInput,
             int maxOutput,
-            List<IIngredient<Fluid>> filter,
-            boolean whitelist,
+            Filter<Fluid> filter,
             ComponentIOMode mode,
             SideConfig.Template config,
             boolean unique
@@ -270,13 +270,12 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                         NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
                         NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
                         NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
-                        IIngredient.FLUID.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(template -> template.filter),
-                        NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(template -> template.whitelist),
+                        Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.FLUID)).orElse(Filter.empty()).forGetter(template -> template.filter),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("unique", false).forGetter(template -> template.unique)
-                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, whitelist, mode, config, unique) ->
-                        new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, whitelist, mode, config.orElse(mode.getBaseConfig()), unique)
+                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, mode, config, unique) ->
+                        new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, mode, config.orElse(mode.getBaseConfig()), unique)
                 ), "Fluid machine component"
         );
 
@@ -295,11 +294,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             if(this.mode != ComponentIOMode.BOTH && isInput != this.mode.isInput())
                 return false;
             if(ingredient instanceof FluidStack stack) {
-                return this.filter.stream().flatMap(f -> f.getAll().stream()).anyMatch(f -> f == stack.getFluid()) == this.whitelist;
+                return this.filter.test(stack.getFluid());
             } else if(ingredient instanceof List<?> list) {
                 return list.stream().allMatch(object -> {
                     if(object instanceof FluidStack stack)
-                        return this.filter.stream().flatMap(f -> f.getAll().stream()).anyMatch(f -> f == stack.getFluid()) == this.whitelist;
+                        return this.filter.test(stack.getFluid());
                     return false;
                 });
             }
@@ -308,7 +307,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         @Override
         public FluidMachineComponent build(IMachineComponentManager manager) {
-            return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config, this.unique);
+            return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.config, this.unique);
         }
     }
 }

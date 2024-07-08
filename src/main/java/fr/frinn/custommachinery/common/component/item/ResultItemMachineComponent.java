@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.common.util.slot.ResultSlotItemComponent;
@@ -17,8 +18,8 @@ import java.util.Optional;
 
 public class ResultItemMachineComponent extends ItemMachineComponent {
 
-    public ResultItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, List<IIngredient<Item>> filter, boolean whitelist, SideConfig.Template configTemplate, boolean locked) {
-        super(manager, mode, id, capacity, maxInput, maxOutput, filter, whitelist, configTemplate, locked);
+    public ResultItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, SideConfig.Template configTemplate, boolean locked) {
+        super(manager, mode, id, capacity, maxInput, maxOutput, filter, configTemplate, locked);
     }
 
     @Override
@@ -50,8 +51,8 @@ public class ResultItemMachineComponent extends ItemMachineComponent {
 
         public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Result item component");
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, List<IIngredient<Item>> filter, boolean whitelist, Optional<SideConfig.Template> config, boolean locked) {
-            super(id, mode, capacity, maxInput, maxOutput, filter, whitelist, config, locked);
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<SideConfig.Template> config, boolean locked) {
+            super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
         }
 
         @Override
@@ -66,7 +67,7 @@ public class ResultItemMachineComponent extends ItemMachineComponent {
 
         @Override
         public ItemMachineComponent build(IMachineComponentManager manager) {
-            return new ResultItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.whitelist, this.config, this.locked);
+            return new ResultItemMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.config, this.locked);
         }
     }
 }

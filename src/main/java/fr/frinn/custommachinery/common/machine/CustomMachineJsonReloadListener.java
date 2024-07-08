@@ -18,6 +18,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.conditions.ICondition.IContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import oshi.util.tuples.Triplet;
 
@@ -31,6 +32,8 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
     private static final String MAIN_PACKNAME = "main";
 
+    public static IContext context;
+
     public CustomMachineJsonReloadListener() {
         super("machines");
     }
@@ -40,6 +43,8 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         ICustomMachineryAPI.INSTANCE.logger().info("Reading Custom Machinery Machines...");
 
         CustomMachinery.MACHINES.clear();
+
+        context = this.getContext();
 
         //Keep upgraded machines here until all other machines finished loading
         //List<Triplet<ParentID, ID, MachineJson>>
@@ -87,12 +92,8 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                 machine.setLocation(location);
                 CustomMachinery.MACHINES.put(id, machine);
                 ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
-                return;
-            } else if(result.error().isPresent()) {
+            } else if(result.error().isPresent())
                 ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing machine json: {}, skipping...\n{}", id, result.error().get().message());
-                return;
-            }
-            throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
 
         //Process upgraded machines
@@ -130,6 +131,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
             }
         }
 
+        context = null;
 
         ICustomMachineryAPI.INSTANCE.logger().info("Finished creating {} custom machines.", CustomMachinery.MACHINES.keySet().size());
 
