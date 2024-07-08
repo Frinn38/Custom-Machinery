@@ -29,12 +29,12 @@ public class PacketManager {
 
         // Client to Server
         registrar.playToServer(CAddMachinePacket.TYPE, CAddMachinePacket.CODEC, CAddMachinePacket::handle);
-        registrar.playToServer(CButtonGuiElementPacket.TYPE, CButtonGuiElementPacket.CODEC, CButtonGuiElementPacket::handle);
         registrar.playToServer(CChangeSideModePacket.TYPE, CChangeSideModePacket.CODEC, CChangeSideModePacket::handle);
         registrar.playToServer(CEditMachinePacket.TYPE, CEditMachinePacket.CODEC, CEditMachinePacket::handle);
         registrar.playToServer(CGuiElementClickPacket.TYPE, CGuiElementClickPacket.CODEC, CGuiElementClickPacket::handle);
         registrar.playToServer(CPlaceStructurePacket.TYPE, CPlaceStructurePacket.CODEC, CPlaceStructurePacket::handle);
         registrar.playToServer(CRemoveMachinePacket.TYPE, CRemoveMachinePacket.CODEC, CRemoveMachinePacket::handle);
         registrar.playToServer(CSetFilterSlotItemPacket.TYPE, CSetFilterSlotItemPacket.CODEC, CSetFilterSlotItemPacket::handle);
+        registrar.playToServer(CTransferRecipePacket.TYPE, CTransferRecipePacket.CODEC, CTransferRecipePacket::handle);
     }
 }

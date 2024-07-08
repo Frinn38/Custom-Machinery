@@ -8,7 +8,9 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class CMRecipeTypes {
 
@@ -42,5 +44,10 @@ public class CMRecipeTypes {
         RecipeType<T> type = RecipeType.create(id.getNamespace(), id.getPath(), recipeClass);
         TYPES.computeIfAbsent(recipeClass, c -> new  HashMap<>()).put(id, type);
         return type;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<RecipeType<IMachineRecipe>> all() {
+        return TYPES.values().stream().flatMap(map -> map.values().stream()).map(type -> (RecipeType<IMachineRecipe>)type).toList();
     }
 }

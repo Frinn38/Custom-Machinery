@@ -25,6 +25,7 @@ import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
 import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -219,6 +220,17 @@ public class CustomMachineContainer extends SyncableContainer {
         if(element < 0 || element >= this.tile.getGuiElements().size())
             throw new IllegalArgumentException("Invalid gui element ID: " + element);
         this.tile.getGuiElements().get(element).handleClick(button, this.tile, this, this.getPlayer());
+    }
+
+    public List<SlotItemComponent> inputSlots() {
+        return this.inputSlotComponents;
+    }
+
+    public List<Slot> inventorySlots() {
+        if(this.hasPlayerInventory)
+            return this.slots.subList(0, this.firstComponentSlotIndex - 1);
+        else
+            return Collections.emptyList();
     }
 
     @Override
