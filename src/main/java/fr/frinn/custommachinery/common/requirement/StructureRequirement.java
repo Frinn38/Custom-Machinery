@@ -116,6 +116,9 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
 
     @Override
     public CraftingResult processTick(StructureMachineComponent component, ICraftingContext context) {
+        if(this.action == Action.PLACE_BREAK || this.action == Action.PLACE_DESTROY)
+            return CraftingResult.pass();
+
         if(this.action != Action.CHECK && getDelay() < context.getRemainingTime() / context.getRecipe().getRecipeTime())
             return CraftingResult.pass();
 
