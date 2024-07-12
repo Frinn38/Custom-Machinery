@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -21,6 +21,11 @@ public interface ICraftingContext {
      * @return The {@link IMachineRecipe} currently processed by the machine.
      */
     IMachineRecipe getRecipe();
+
+    /**
+     * @return The id of the {@link IMachineRecipe} currently processed by the machine.
+     */
+    ResourceLocation getRecipeId();
 
     /**
      * This time is usually in ticks, but may vary depending on what is returned by {@link ICraftingContext#getModifiedSpeed} return.
@@ -62,7 +67,6 @@ public interface ICraftingContext {
     long getIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
 
     /**
-     * Used to apply all currently active machine upgrades to an {@link ITickableRequirement} value.
      * Use this method only for requirements that will be executed every tick of the crafting process.
      * @param value The value to modify (example an amount of item, energy etc...).
      * @param requirement The requirement the value depends, because machine upgrades can target a specific {@link RequirementType}.

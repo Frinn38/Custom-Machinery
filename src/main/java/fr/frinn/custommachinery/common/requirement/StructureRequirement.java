@@ -4,11 +4,11 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
-import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.ClientHandler;
@@ -21,7 +21,6 @@ import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import fr.frinn.custommachinery.impl.requirement.AbstractDelayedChanceableRequirement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -32,45 +31,43 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class StructureRequirement extends AbstractDelayedChanceableRequirement<StructureMachineComponent> implements ITickableRequirement<StructureMachineComponent>, IDisplayInfoRequirement {
+public record StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys, Action action, BlockStructure structure) implements IRequirement<StructureMachineComponent> {
 
     public static final NamedCodec<StructureRequirement> CODEC = NamedCodec.record(structureRequirementInstance ->
             structureRequirementInstance.group(
                     NamedCodec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
                     NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>").fieldOf("keys").forGetter(requirement -> requirement.keys),
-                    NamedCodec.enumCodec(Action.class).optionalFieldOf("action", Action.CHECK).forGetter(requirement -> requirement.action),
-                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("chance", 1.0).forGetter(AbstractDelayedChanceableRequirement::getChance),
-                    NamedCodec.doubleRange(0.0, 1.0).optionalFieldOf("delay", 0.0).forGetter(IDelayedRequirement::getDelay)
-            ).apply(structureRequirementInstance, (pattern, keys, action, chance, delay) -> {
-                    StructureRequirement requirement = new StructureRequirement(pattern, keys, action);
-                    requirement.setChance(chance);
-                    requirement.setDelay(delay);
-                    return requirement;
-            }), "Structure requirement"
+                    NamedCodec.enumCodec(Action.class).optionalFieldOf("action", Action.CHECK).forGetter(requirement -> requirement.action)
+            ).apply(structureRequirementInstance, StructureRequirement::new), "Structure requirement"
     );
 
-    private final List<List<String>> pattern;
-    private final Map<Character, IIngredient<PartialBlockState>> keys;
-    private final Action action;
-    private final BlockStructure structure;
-
     public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys, Action action) {
-        super(RequirementIOMode.INPUT);
-        this.pattern = pattern;
-        this.keys = keys;
-        this.action = action;
+        this(pattern, keys, action, makeStructure(pattern, keys));
+    }
+
+    private static BlockStructure makeStructure(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys) {
         BlockStructure.Builder builder = BlockStructure.Builder.start();
         //TODO: iterate list in inverse order in 1.18 to make the pattern from top to bottom instead of from bottom to top (current)
         for(List<String> levels : pattern)
             builder.aisle(levels.toArray(new String[0]));
         for(Map.Entry<Character, IIngredient<PartialBlockState>> key : keys.entrySet())
             builder.where(key.getKey(), key.getValue());
-        this.structure = builder.build();
+        return builder.build();
     }
 
     @Override
     public RequirementType<StructureRequirement> getType() {
         return Registration.STRUCTURE_REQUIREMENT.get();
+    }
+
+    @Override
+    public MachineComponentType<StructureMachineComponent> getComponentType() {
+        return Registration.STRUCTURE_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementIOMode getMode() {
+        return RequirementIOMode.INPUT;
     }
 
     @Override
@@ -82,10 +79,14 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
     }
 
     @Override
-    public CraftingResult processStart(StructureMachineComponent component, ICraftingContext context) {
-        if(this.getDelay() != 0.0D)
-            return CraftingResult.pass();
+    public void gatherRequirements(IRequirementList<StructureMachineComponent> list) {
+        if(this.action == Action.CHECK)
+            list.worldCondition(this::check);
+        else
+            list.processDelayed(1.0D, this::process);
+    }
 
+    public CraftingResult process(StructureMachineComponent component, ICraftingContext context) {
         switch(this.action) {
             case BREAK -> component.destroyStructure(this.structure, true);
             case DESTROY -> component.destroyStructure(this.structure, false);
@@ -95,54 +96,14 @@ public class StructureRequirement extends AbstractDelayedChanceableRequirement<S
         return CraftingResult.success();
     }
 
-    @Override
-    public CraftingResult processEnd(StructureMachineComponent component, ICraftingContext context) {
-        if(this.getDelay() != 1.0D)
-            return CraftingResult.pass();
-
-        switch(this.action) {
-            case BREAK -> component.destroyStructure(this.structure, true);
-            case DESTROY -> component.destroyStructure(this.structure, false);
-            case PLACE_BREAK -> component.placeStructure(this.structure, true);
-            case PLACE_DESTROY -> component.placeStructure(this.structure, false);
-        }
-        return CraftingResult.success();
-    }
-
-    @Override
-    public MachineComponentType<StructureMachineComponent> getComponentType() {
-        return Registration.STRUCTURE_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public CraftingResult processTick(StructureMachineComponent component, ICraftingContext context) {
-        if(this.action == Action.PLACE_BREAK || this.action == Action.PLACE_DESTROY)
-            return CraftingResult.pass();
-
-        if(this.action != Action.CHECK && getDelay() < context.getRemainingTime() / context.getRecipe().getRecipeTime())
-            return CraftingResult.pass();
-
+    public CraftingResult check(StructureMachineComponent component, ICraftingContext context) {
         if(component.checkStructure(this.structure))
             return CraftingResult.success();
         else return CraftingResult.error(Component.translatable("custommachinery.requirements.structure.error"));
     }
 
     @Override
-    public CraftingResult execute(StructureMachineComponent component, ICraftingContext context) {
-        if(getDelay() != 0.0D && getDelay() != 1.0D && this.action != Action.CHECK) {
-            switch(this.action) {
-                case BREAK -> component.destroyStructure(this.structure, true);
-                case DESTROY -> component.destroyStructure(this.structure, false);
-                case PLACE_BREAK -> component.placeStructure(this.structure, true);
-                case PLACE_DESTROY -> component.placeStructure(this.structure, false);
-            }
-            return CraftingResult.success();
-        }
-        return CraftingResult.pass();
-    }
-
-    @Override
-    public void getDisplayInfo(IDisplayInfo info) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.info"));
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.click"));
         this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {

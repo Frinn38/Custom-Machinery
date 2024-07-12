@@ -5,8 +5,11 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
+import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.LootTableIngredientWrapper;
@@ -14,7 +17,6 @@ import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -30,7 +32,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class LootTableRequirement extends AbstractRequirement<ItemComponentHandler> implements IJEIIngredientRequirement<ItemStack> {
+public class LootTableRequirement implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<LootTableRequirement> CODEC = NamedCodec.record(lootTableRequirementInstance ->
             lootTableRequirementInstance.group(
@@ -44,7 +46,6 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
     private List<ItemStack> toOutput = Collections.emptyList();
 
     public LootTableRequirement(ResourceLocation lootTable, float luck) {
-        super(RequirementIOMode.OUTPUT);
         this.lootTable = lootTable;
         this.luck = luck;
         LootTableHelper.addTable(lootTable);
@@ -55,19 +56,29 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
         return Registration.LOOT_TABLE_REQUIREMENT.get();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
+    public MachineComponentType getComponentType() {
+        return Registration.ITEM_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementIOMode getMode() {
+        return RequirementIOMode.OUTPUT;
+    }
+
     @Override
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         return true;
     }
 
     @Override
-    public CraftingResult processStart(ItemComponentHandler component, ICraftingContext context) {
-        return CraftingResult.pass();
+    public void gatherRequirements(IRequirementList<ItemComponentHandler> list) {
+        list.processOnEnd(this::processOutputs);
     }
 
-    @Override
-    public CraftingResult processEnd(ItemComponentHandler component, ICraftingContext context) {
-        if(getMode() == RequirementIOMode.INPUT || context.getMachineTile().getLevel() == null || context.getMachineTile().getLevel().getServer() == null)
+    private CraftingResult processOutputs(ItemComponentHandler component, ICraftingContext context) {
+        if(context.getMachineTile().getLevel() == null || context.getMachineTile().getLevel().getServer() == null)
             return CraftingResult.pass();
 
         if(toOutput.isEmpty()) {
@@ -91,14 +102,8 @@ public class LootTableRequirement extends AbstractRequirement<ItemComponentHandl
         return CraftingResult.success();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public MachineComponentType getComponentType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
+    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
         return Collections.singletonList(new LootTableIngredientWrapper(this.lootTable));
     }
 }

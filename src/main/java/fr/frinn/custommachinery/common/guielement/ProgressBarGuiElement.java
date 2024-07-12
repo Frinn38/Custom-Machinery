@@ -20,7 +20,8 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_filled", BASE_FILLED_TEXTURE).forGetter(ProgressBarGuiElement::getFilledTexture),
                     NamedCodec.enumCodec(Orientation.class).optionalFieldOf("direction", Orientation.RIGHT).forGetter(ProgressBarGuiElement::getDirection),
                     NamedCodec.FLOAT.optionalFieldOf("start", 0.0F).forGetter(element -> element.start),
-                    NamedCodec.FLOAT.optionalFieldOf("end", 1.0F).forGetter(element -> element.end)
+                    NamedCodec.FLOAT.optionalFieldOf("end", 1.0F).forGetter(element -> element.end),
+                    NamedCodec.INT.optionalFieldOf("core", 1).forGetter(element -> element.core)
             ).apply(progressGuiElement, ProgressBarGuiElement::new), "Progress bar gui element"
     );
 
@@ -29,14 +30,16 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
     private final Orientation orientation;
     private final float start;
     private final float end;
+    private final int core;
 
-    public ProgressBarGuiElement(Properties properties, ResourceLocation emptyTexture, ResourceLocation filledTexture, Orientation orientation, float start, float end) {
+    public ProgressBarGuiElement(Properties properties, ResourceLocation emptyTexture, ResourceLocation filledTexture, Orientation orientation, float start, float end, int core) {
         super(properties, emptyTexture);
         this.emptyTexture = emptyTexture;
         this.filledTexture = filledTexture;
         this.orientation = orientation;
         this.start = start;
         this.end = end;
+        this.core = core;
     }
 
     @Override
@@ -62,6 +65,10 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
 
     public float getEnd() {
         return this.end;
+    }
+
+    public int getCore() {
+        return this.core;
     }
 
     public enum Orientation {

@@ -14,7 +14,7 @@ import dev.latvian.mods.kubejs.util.TickDuration;
 import dev.latvian.mods.rhino.type.TypeInfo;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -36,19 +36,19 @@ public interface CustomMachineryRecipeSchemas {
         }
     };
 
-    RecipeComponent<IRequirement<?>> REQUIREMENT_COMPONENT = new RecipeComponent<>() {
+    RecipeComponent<RecipeRequirement<?, ?>> REQUIREMENT_COMPONENT = new RecipeComponent<>() {
         @Override
-        public Codec<IRequirement<?>> codec() {
-            return IRequirement.CODEC.codec();
+        public Codec<RecipeRequirement<?, ?>> codec() {
+            return RecipeRequirement.CODEC.codec();
         }
 
         @Override
         public TypeInfo typeInfo() {
-            return TypeInfo.of(IRequirement.class);
+            return TypeInfo.of(RecipeRequirement.class);
         }
     };
 
-    RecipeComponent<List<IRequirement<?>>> REQUIREMENT_LIST = REQUIREMENT_COMPONENT.asList();
+    RecipeComponent<List<RecipeRequirement<?, ?>>> REQUIREMENT_LIST = REQUIREMENT_COMPONENT.asList();
 
     RecipeComponent<MachineAppearance> CUSTOM_APPEARANCE = new RecipeComponent<>() {
         @Override
@@ -78,8 +78,8 @@ public interface CustomMachineryRecipeSchemas {
     RecipeKey<TickDuration> TIME = TimeComponent.TICKS.key("time", ComponentRole.OTHER);
     RecipeKey<ItemStack> OUTPUT = ItemStackComponent.ITEM_STACK.key("output", ComponentRole.OUTPUT);
 
-    RecipeKey<List<IRequirement<?>>> REQUIREMENTS = REQUIREMENT_LIST.key("requirements", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
-    RecipeKey<List<IRequirement<?>>> JEI_REQUIREMENTS = REQUIREMENT_LIST.key("jei", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
+    RecipeKey<List<RecipeRequirement<?, ?>>> REQUIREMENTS = REQUIREMENT_LIST.key("requirements", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
+    RecipeKey<List<RecipeRequirement<?, ?>>> JEI_REQUIREMENTS = REQUIREMENT_LIST.key("jei", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
 
     RecipeKey<Integer> PRIORITY = NumberComponent.INT.key("priority", ComponentRole.OTHER).optional(0).alwaysWrite().exclude();
     RecipeKey<Integer> JEI_PRIORITY = NumberComponent.INT.key("jeiPriority", ComponentRole.OTHER).optional(0).alwaysWrite().exclude();

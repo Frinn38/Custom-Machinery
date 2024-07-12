@@ -16,15 +16,17 @@ public class MachineRecipeFinder {
 
     private final MachineTile tile;
     private final int baseCooldown;
+    private final CraftingContext.Mutable mutableCraftingContext;
     private List<RecipeChecker<CustomMachineRecipe>> recipes;
     private List<RecipeChecker<CustomMachineRecipe>> okToCheck;
     private boolean inventoryChanged = true;
 
     private int recipeCheckCooldown;
 
-    public MachineRecipeFinder(MachineTile tile, int baseCooldown) {
+    public MachineRecipeFinder(MachineTile tile, int baseCooldown, CraftingContext.Mutable mutableCraftingContext) {
         this.tile = tile;
         this.baseCooldown = baseCooldown;
+        this.mutableCraftingContext = mutableCraftingContext;
     }
 
     public void init() {
@@ -41,7 +43,7 @@ public class MachineRecipeFinder {
         this.recipeCheckCooldown = tile.getLevel().random.nextInt(this.baseCooldown);
     }
 
-    public Optional<RecipeHolder<CustomMachineRecipe>> findRecipe(CraftingContext.Mutable context, boolean immediately) {
+    public Optional<RecipeHolder<CustomMachineRecipe>> findRecipe(boolean immediately) {
         if(tile.getLevel() == null)
             return Optional.empty();
 
@@ -56,7 +58,7 @@ public class MachineRecipeFinder {
                 RecipeChecker<CustomMachineRecipe> checker = iterator.next();
                 if(!this.inventoryChanged && checker.isInventoryRequirementsOnly())
                     continue;
-                if(checker.check(this.tile, context.setRecipe(checker.getRecipe().value()), this.inventoryChanged)) {
+                if(checker.check(this.tile, this.mutableCraftingContext.setRecipe(checker.getRecipe().value(), checker.getRecipe().id()), this.inventoryChanged)) {
                     setInventoryChanged(false);
                     return Optional.of(checker.getRecipe());
                 }

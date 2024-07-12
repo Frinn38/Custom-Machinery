@@ -27,7 +27,7 @@ public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraf
             @Override
             public List<IJEIIngredientWrapper<?>> load(CustomCraftRecipe recipe) {
                 ImmutableList.Builder<IJEIIngredientWrapper<?>> wrappers = ImmutableList.builder();
-                recipe.getJEIIngredientRequirements().forEach(requirement -> wrappers.addAll(requirement.getJEIIngredientWrappers(recipe)));
+                recipe.getDisplayInfoRequirements().forEach(requirement -> wrappers.addAll(requirement.getJeiIngredientWrappers(recipe)));
                 String resultSlot = machine.getComponentTemplates().stream()
                         .filter(template -> template instanceof ItemMachineComponent.Template slotTemplate && slotTemplate.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get())
                         .findFirst()

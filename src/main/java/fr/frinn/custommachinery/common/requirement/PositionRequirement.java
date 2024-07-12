@@ -2,22 +2,22 @@ package fr.frinn.custommachinery.common.requirement;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
-public class PositionRequirement extends AbstractRequirement<PositionMachineComponent> implements IDisplayInfoRequirement {
+public record PositionRequirement(IntRange x, IntRange y, IntRange z) implements IRequirement<PositionMachineComponent> {
 
     public static final NamedCodec<PositionRequirement> CODEC = NamedCodec.record(positionRequirementInstance ->
         positionRequirementInstance.group(
@@ -27,20 +27,19 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
         ).apply(positionRequirementInstance, PositionRequirement::new), "Position requirement"
     );
 
-    private final IntRange x;
-    private final IntRange y;
-    private final IntRange z;
-
-    public PositionRequirement(IntRange x, IntRange y, IntRange z) {
-        super(RequirementIOMode.INPUT);
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
     @Override
     public RequirementType<PositionRequirement> getType() {
         return Registration.POSITION_REQUIREMENT.get();
+    }
+
+    @Override
+    public MachineComponentType<PositionMachineComponent> getComponentType() {
+        return Registration.POSITION_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementIOMode getMode() {
+        return RequirementIOMode.INPUT;
     }
 
     @Override
@@ -50,22 +49,12 @@ public class PositionRequirement extends AbstractRequirement<PositionMachineComp
     }
 
     @Override
-    public CraftingResult processStart(PositionMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
+    public void gatherRequirements(IRequirementList<PositionMachineComponent> list) {
+        //The machine won't move so not checking per tick, only at the beginning.
     }
 
     @Override
-    public CraftingResult processEnd(PositionMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
-    }
-
-    @Override
-    public MachineComponentType<PositionMachineComponent> getComponentType() {
-        return Registration.POSITION_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public void getDisplayInfo(IDisplayInfo info) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
         info.addTooltip(Component.translatable("custommachinery.requirements.position.info.pos").withStyle(ChatFormatting.AQUA));
         info.addTooltip(Component.literal("X: ").append(Component.literal(this.x.toFormattedString())));
         info.addTooltip(Component.literal("Y: ").append(Component.literal(this.y.toFormattedString())));

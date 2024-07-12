@@ -6,6 +6,7 @@ import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.requirement.BlockRequirement.Action;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
@@ -26,7 +27,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator) {
-        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
     }
 
     default RecipeJSBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -34,7 +35,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
     }
 
     default RecipeJSBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -42,7 +43,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), new String[]{}, true);
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -58,7 +59,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -74,7 +75,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -90,7 +91,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -106,7 +107,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String[] filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     default RecipeJSBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -114,7 +115,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     default RecipeJSBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -122,7 +123,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     default RecipeJSBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -130,7 +131,7 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
     default RecipeJSBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -138,10 +139,10 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS.toString(), filter, whitelist);
     }
 
-    default RecipeJSBuilder blockRequirement(RequirementIOMode mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
+    default RecipeJSBuilder blockRequirement(RequirementIOMode mode, Action action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
         PartialBlockState state;
         if(block.isEmpty())
             state = PartialBlockState.AIR;

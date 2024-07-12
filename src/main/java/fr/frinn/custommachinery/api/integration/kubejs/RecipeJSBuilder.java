@@ -7,4 +7,6 @@ public interface RecipeJSBuilder {
     RecipeJSBuilder addRequirement(IRequirement<?> requirement);
 
     RecipeJSBuilder error(String error, Object... args);
+
+    RecipeJSBuilder delay(double delay);
 }

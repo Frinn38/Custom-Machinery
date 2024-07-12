@@ -7,9 +7,8 @@ import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
-import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
-import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -28,7 +27,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
 
     private final ResourceLocation typeID;
-    private IRequirement<?> lastRequirement;
+    private RecipeRequirement<?, ?> lastRequirement;
     private boolean jei = false;
 
     public AbstractRecipeJSBuilder(ResourceLocation typeID) {
@@ -59,9 +58,9 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
 
         T builder = makeBuilder();
 
-        for (IRequirement<?> requirement : getValue(CustomMachineryRecipeSchemas.REQUIREMENTS))
+        for (RecipeRequirement<?, ?> requirement : getValue(CustomMachineryRecipeSchemas.REQUIREMENTS))
             builder.withRequirement(requirement);
-        for (IRequirement<?> requirement : getValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS))
+        for (RecipeRequirement<?, ?> requirement : getValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS))
             builder.withJeiRequirement(requirement);
 
         builder.withPriority(getValue(CustomMachineryRecipeSchemas.PRIORITY));
@@ -95,10 +94,10 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     }
 
     public AbstractRecipeJSBuilder<T> chance(double chance) {
-        if(this.lastRequirement != null && this.lastRequirement instanceof IChanceableRequirement)
-            ((IChanceableRequirement<?>)this.lastRequirement).setChance(chance);
+        if(this.lastRequirement != null)
+            this.lastRequirement.setChance(chance);
         else
-            ScriptType.SERVER.console.warn("Can't set chance for requirement: " + this.lastRequirement);
+            ScriptType.SERVER.console.warn("Can't set chance before adding requirements");
         return this;
     }
 
@@ -108,7 +107,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         try {
             DisplayInfoTemplate template = new DisplayInfoTemplate();
             consumer.accept(template);
-            this.lastRequirement.setDisplayInfoTemplate(template);
+            this.lastRequirement.info = template;
         } catch (Exception e) {
             this.error("Error when adding custom display info on requirement {}\n{}", this.lastRequirement, e);
         }
@@ -121,8 +120,8 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     }
 
     public AbstractRecipeJSBuilder<T> delay(double delay) {
-        if (this.lastRequirement != null && this.lastRequirement instanceof IDelayedRequirement<?>)
-            ((IDelayedRequirement<?>) this.lastRequirement).setDelay(delay);
+        if(this.lastRequirement != null)
+            this.lastRequirement.setDelay(delay);
         else
             ScriptType.SERVER.console.warn("Can't set delay for requirement: " + this.lastRequirement);
         return this;
@@ -130,11 +129,11 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
 
     @Override
     public AbstractRecipeJSBuilder<T> addRequirement(IRequirement<?> requirement) {
-        this.lastRequirement = requirement;
+        this.lastRequirement = new RecipeRequirement<>(requirement);
         if(!this.jei)
-            setValue(CustomMachineryRecipeSchemas.REQUIREMENTS, addToList(CustomMachineryRecipeSchemas.REQUIREMENTS, requirement));
+            setValue(CustomMachineryRecipeSchemas.REQUIREMENTS, addToList(CustomMachineryRecipeSchemas.REQUIREMENTS, this.lastRequirement));
         else
-            setValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS, addToList(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS, requirement));
+            setValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS, addToList(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS, this.lastRequirement));
         return this;
     }
 

@@ -1,22 +1,14 @@
 package fr.frinn.custommachinery.common.crafting;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.Nullable;
 
-public class DummyProcessor implements IProcessor {
-
-    private final MachineTile tile;
-
-    public DummyProcessor(MachineTile tile) {
-        this.tile = tile;
-    }
+public record DummyProcessor(MachineTile tile) implements IProcessor {
 
     @Override
     public void tick() {
@@ -29,24 +21,13 @@ public class DummyProcessor implements IProcessor {
     }
 
     @Override
-    public MachineTile getTile() {
+    public MachineTile tile() {
         return null;
-    }
-
-    @Override
-    public double getRecipeProgressTime() {
-        return 0;
     }
 
     @Override
     public void setMachineInventoryChanged() {
 
-    }
-
-    @Nullable
-    @Override
-    public ICraftingContext getCurrentContext() {
-        return null;
     }
 
     @Override

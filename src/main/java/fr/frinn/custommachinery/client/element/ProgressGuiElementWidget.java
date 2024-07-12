@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.element;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessorCore;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.gui.GuiGraphics;
@@ -44,8 +45,12 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
     }
 
     public double getRecipeProgressPercent() {
-        if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getRecipeTotalTime() > 0)
-            return machineProcessor.getRecipeProgressTime() / (double) machineProcessor.getRecipeTotalTime();
+        if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getCores().size() > this.getElement().getCore()) {
+            MachineProcessorCore core = machineProcessor.getCores().get(this.getElement().getCore());
+            if(core.getCurrentRecipe() == null)
+                return 0;
+            return core.getRecipeProgressTime() / (double) core.getCurrentRecipe().value().getRecipeTime();
+        }
         else if(this.getScreen().getTile().getMachine().isDummy())
             return (System.currentTimeMillis() % 2000) / 2000.0D;
         else

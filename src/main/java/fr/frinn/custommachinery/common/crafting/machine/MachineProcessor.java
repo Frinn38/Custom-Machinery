@@ -1,72 +1,43 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
+import com.google.common.collect.ImmutableList;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.IMachineComponent;
-import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
-import fr.frinn.custommachinery.api.crafting.CraftingResult;
-import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.api.network.ISyncable;
-import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
-import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
-import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
-import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
-public class MachineProcessor implements IProcessor, ISyncableStuff {
+public class MachineProcessor implements IProcessor {
 
     private final MachineTile tile;
-    private final Random rand = Utils.RAND;
-    private final List<IRequirement<?>> processedRequirements;
-    //Use only for recipe searching, not recipe processing
-    private final CraftingContext.Mutable mutableCraftingContext;
-    private final int amount;
-    private RecipeHolder<CustomMachineRecipe> currentRecipe;
-    //Recipe that was processed when the machine was unloaded, and we need to resume
-    private ResourceLocation futureRecipeID;
-    private double recipeProgressTime = 0;
-    private int recipeTotalTime = 0;
-    private CraftingContext context;
     private boolean initialized = false;
-    private boolean searchImmediately = false;
 
-    private List<ITickableRequirement<IMachineComponent>> tickableRequirements;
-    private List<IDelayedRequirement<IMachineComponent>> delayedRequirements;
-
-    private PHASE phase = PHASE.STARTING;
-    private final MachineRecipeFinder recipeFinder;
+    private final List<MachineProcessorCore> cores;
 
     public MachineProcessor(MachineTile tile, int amount, int recipeCheckCooldown) {
         this.tile = tile;
-        this.amount = amount;
-        this.mutableCraftingContext = new CraftingContext.Mutable(this, tile.getUpgradeManager());
-        this.processedRequirements = new ArrayList<>();
-        this.recipeFinder = new MachineRecipeFinder(tile, recipeCheckCooldown);
+        //Use only for recipe searching, not recipe processing
+        CraftingContext.Mutable mutableCraftingContext = new CraftingContext.Mutable(tile, tile.getUpgradeManager());
+        ImmutableList.Builder<MachineProcessorCore> cores = ImmutableList.builder();
+        for(int i = 0; i < amount; i++)
+            cores.add(new MachineProcessorCore(this, tile, recipeCheckCooldown, mutableCraftingContext));
+        this.cores = cores.build();
+    }
+
+    public List<MachineProcessorCore> getCores() {
+        return this.cores;
     }
 
     @Override
@@ -74,249 +45,48 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         if(!this.initialized)
             this.init();
 
-        if(this.currentRecipe == null) {
-            this.searchForRecipe(this.searchImmediately);
-            this.searchImmediately = false;
-        }
-
-        if(this.currentRecipe != null) {
-            if(this.phase == PHASE.STARTING)
-                this.startProcess();
-
-            if(this.phase == PHASE.CRAFTING_TICKABLE)
-                this.processTickable();
-
-            if(this.phase == PHASE.CRAFTING_DELAYED)
-                this.processDelayed();
-
-            if(this.phase == PHASE.ENDING)
-                this.endProcess();
-        }
-        else {
-            this.tile.setStatus(MachineStatus.IDLE);
-            this.tile.setCustomAppearance(null);
-            this.tile.setCustomGuiElements(null);
-        }
+        this.cores.forEach(MachineProcessorCore::tick);
     }
 
-    @SuppressWarnings("unchecked")
     private void init() {
         this.initialized = true;
-        this.recipeFinder.init();
-        if(this.futureRecipeID != null && this.tile.getLevel() != null) {
-            this.tile.getLevel().getRecipeManager()
-                    .byKey(this.futureRecipeID)
-                    .filter(holder -> holder.value() instanceof CustomMachineRecipe)
-                    .map(holder -> (RecipeHolder<CustomMachineRecipe>)holder)
-                    .ifPresent(this::setOldRecipe);
-            this.futureRecipeID = null;
-        }
-    }
-
-    private void searchForRecipe(boolean immediately) {
-        this.recipeFinder.findRecipe(this.mutableCraftingContext, immediately).ifPresent(this::setRecipe);
-    }
-
-    private void startProcess() {
-        for (IRequirement<?> requirement : this.currentRecipe.value().getRequirements()) {
-            if (!this.processedRequirements.contains(requirement)) {
-                IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), requirement.getType()));
-                if (requirement instanceof IChanceableRequirement && ((IChanceableRequirement<IMachineComponent>) requirement).shouldSkip(component, this.rand, this.context)) {
-                    this.processedRequirements.add(requirement);
-                    continue;
-                }
-                CraftingResult result = ((IRequirement<IMachineComponent>)requirement).processStart(component, this.context);
-                if (!result.isSuccess()) {
-                    if(this.currentRecipe.value().shouldResetOnError()) {
-                        reset();
-                        return;
-                    } else {
-                        this.setErrored(result.getMessage());
-                        break;
-                    }
-                } else this.processedRequirements.add(requirement);
-            }
-        }
-
-        if (this.processedRequirements.size() == this.currentRecipe.value().getRequirements().size()) {
-            this.setRunning();
-            this.phase = PHASE.CRAFTING_TICKABLE;
-            this.processedRequirements.clear();
-        }
-    }
-
-    private void processTickable() {
-        for (ITickableRequirement<IMachineComponent> tickableRequirement : this.tickableRequirements) {
-            if (!this.processedRequirements.contains(tickableRequirement)) {
-                IMachineComponent component = this.tile.getComponentManager().getComponent(tickableRequirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), tickableRequirement.getType()));
-                if (tickableRequirement instanceof IChanceableRequirement && ((IChanceableRequirement<IMachineComponent>) tickableRequirement).shouldSkip(component, this.rand, this.context)) {
-                    this.processedRequirements.add(tickableRequirement);
-                    continue;
-                }
-                CraftingResult result = tickableRequirement.processTick(component, this.context);
-                if (!result.isSuccess()) {
-                    if(this.currentRecipe.value().shouldResetOnError()) {
-                        reset();
-                        return;
-                    } else {
-                        this.setErrored(result.getMessage());
-                        break;
-                    }
-                } else this.processedRequirements.add(tickableRequirement);
-            }
-        }
-
-        if (this.processedRequirements.size() == this.tickableRequirements.size()) {
-            this.recipeProgressTime += this.context.getModifiedSpeed();
-            this.setRunning();
-            this.processedRequirements.clear();
-        }
-        this.phase = PHASE.CRAFTING_DELAYED;
-    }
-
-    private void processDelayed() {
-        for(Iterator<IDelayedRequirement<IMachineComponent>> iterator = this.delayedRequirements.iterator(); iterator.hasNext(); ) {
-            IDelayedRequirement<IMachineComponent> delayedRequirement = iterator.next();
-            if(this.recipeProgressTime / this.recipeTotalTime >= delayedRequirement.getDelay()) {
-                IMachineComponent component = this.tile.getComponentManager().getComponent(delayedRequirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), delayedRequirement.getType()));
-                CraftingResult result = delayedRequirement.execute(component, this.context);
-                if(!result.isSuccess()) {
-                    if(this.currentRecipe.value().shouldResetOnError()) {
-                        reset();
-                        return;
-                    } else {
-                        this.setErrored(result.getMessage());
-                        break;
-                    }
-                } else iterator.remove();
-            }
-        }
-
-        if(this.delayedRequirements.stream().allMatch(delayedRequirement -> this.recipeProgressTime / this.recipeTotalTime < delayedRequirement.getDelay()))
-            if (this.recipeProgressTime >= this.recipeTotalTime)
-                this.phase = PHASE.ENDING;
-            else this.phase = PHASE.CRAFTING_TICKABLE;
-    }
-
-    private void endProcess() {
-        for(IRequirement<?> requirement : this.currentRecipe.value().getRequirements()) {
-            if(!this.processedRequirements.contains(requirement)) {
-                IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(this.currentRecipe, this.tile.getMachine(), requirement.getType()));
-                if(requirement instanceof IChanceableRequirement && ((IChanceableRequirement) requirement).shouldSkip(component, this.rand, this.context)) {
-                    this.processedRequirements.add(requirement);
-                    continue;
-                }
-                CraftingResult result = ((IRequirement)requirement).processEnd(component, this.context);
-                if(!result.isSuccess()) {
-                    if(this.currentRecipe.value().shouldResetOnError()) {
-                        reset();
-                        return;
-                    } else {
-                        this.setErrored(result.getMessage());
-                        break;
-                    }
-                }
-                else this.processedRequirements.add(requirement);
-            }
-        }
-
-        if(this.processedRequirements.size() == this.currentRecipe.value().getRequirements().size()) {
-            this.currentRecipe = null;
-            this.recipeProgressTime = 0;
-            this.context = null;
-            this.processedRequirements.clear();
-
-            this.recipeFinder.setInventoryChanged(true);
-            this.searchForRecipe(true);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void setRecipe(RecipeHolder<CustomMachineRecipe> recipe) {
-        this.currentRecipe = recipe;
-        this.context = new CraftingContext(this, this.tile.getUpgradeManager(), recipe.value());
-        this.tickableRequirements = this.currentRecipe.value().getRequirements()
-                .stream()
-                .filter(requirement -> requirement instanceof ITickableRequirement)
-                .map(requirement -> (ITickableRequirement<IMachineComponent>)requirement)
-                .toList();
-        this.delayedRequirements = this.currentRecipe.value().getRequirements()
-                .stream()
-                .filter(requirement -> requirement instanceof IDelayedRequirement)
-                .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
-                .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
-                .collect(Collectors.toCollection(ArrayList::new));
-        this.recipeTotalTime = this.currentRecipe.value().getRecipeTime();
-        this.phase = PHASE.STARTING;
-        this.setRunning();
-    }
-
-    //Set the recipe the machine was processing before being unloaded. Save the current progress time and phase.
-    private void setOldRecipe(RecipeHolder<CustomMachineRecipe> recipe) {
-        this.currentRecipe = recipe;
-        this.context = new CraftingContext(this, this.tile.getUpgradeManager(), recipe.value());
-        this.tickableRequirements = this.currentRecipe.value().getRequirements()
-                .stream()
-                .filter(requirement -> requirement instanceof ITickableRequirement)
-                .map(requirement -> (ITickableRequirement<IMachineComponent>)requirement)
-                .toList();
-        this.delayedRequirements = this.currentRecipe.value().getRequirements()
-                .stream()
-                .filter(requirement -> requirement instanceof IDelayedRequirement)
-                .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
-                .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
-                .collect(Collectors.toCollection(ArrayList::new));
-        this.recipeTotalTime = this.currentRecipe.value().getRecipeTime();
-        this.setRunning();
+        this.cores.forEach(MachineProcessorCore::init);
     }
 
     public void setRunning() {
         this.tile.setStatus(MachineStatus.RUNNING);
 
-        MachineAppearance customAppearance = this.currentRecipe.value().getCustomAppearance(this.tile.getMachine().getAppearance(this.getTile().getStatus()));
-        if(customAppearance != null)
-            this.tile.setCustomAppearance(customAppearance);
+        if(this.cores.size() == 1) {
+            RecipeHolder<CustomMachineRecipe> currentRecipe = this.cores.getFirst().getCurrentRecipe();
+            MachineAppearance customAppearance = currentRecipe.value().getCustomAppearance(this.tile.getMachine().getAppearance(this.tile().getStatus()));
+            if(customAppearance != null)
+                this.tile.setCustomAppearance(customAppearance);
 
-        List<IGuiElement> customGuiElements = this.currentRecipe.value().getCustomGuiElements(this.tile.getMachine().getGuiElements());
-        if(customGuiElements != null && !customGuiElements.isEmpty())
-            this.tile.setCustomGuiElements(customGuiElements);
+            List<IGuiElement> customGuiElements = currentRecipe.value().getCustomGuiElements(this.tile.getMachine().getGuiElements());
+            if(customGuiElements != null && !customGuiElements.isEmpty())
+                this.tile.setCustomGuiElements(customGuiElements);
+        }
     }
 
-    public void setErrored(Component message) {
-        this.tile.setStatus(MachineStatus.ERRORED, message);
-        this.tile.setCustomAppearance(null);
-        this.tile.setCustomGuiElements(null);
+    public void setError(Component message) {
+        if(this.cores.stream().allMatch(core -> core.getError() != null || core.getCurrentRecipe() == null))
+            this.tile.setStatus(MachineStatus.ERRORED, message);
+        if(this.cores.size() == 1) {
+            this.tile.setCustomAppearance(null);
+            this.tile.setCustomGuiElements(null);
+        }
     }
 
     @Override
     public void reset() {
-        this.currentRecipe = null;
-        this.futureRecipeID = null;
+        this.cores.forEach(MachineProcessorCore::reset);
         this.tile.setStatus(MachineStatus.IDLE);
-        this.recipeProgressTime = 0;
-        this.recipeTotalTime = 0;
-        this.processedRequirements.clear();
-        this.context = null;
         this.tile.setCustomAppearance(null);
         this.tile.setCustomGuiElements(null);
     }
 
-    public MachineTile getTile() {
+    public MachineTile tile() {
         return this.tile;
-    };
-
-    public double getRecipeProgressTime() {
-        return this.recipeProgressTime;
-    }
-
-    public int getRecipeTotalTime() {
-        return this.recipeTotalTime;
-    }
-
-    @Nullable
-    @Override
-    public ICraftingContext getCurrentContext() {
-        return this.context;
     }
 
     @Override
@@ -328,10 +98,9 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     public CompoundTag serialize() {
         CompoundTag nbt = new CompoundTag();
         nbt.putString("type", getType().getId().toString());
-        if(this.currentRecipe != null)
-            nbt.putString("recipe", this.currentRecipe.id().toString());
-        nbt.putString("phase", this.phase.toString());
-        nbt.putDouble("recipeProgressTime", this.recipeProgressTime);
+        ListTag cores = new ListTag();
+        this.cores.forEach(core -> cores.add(core.serialize()));
+        nbt.put("cores", cores);
         return nbt;
     }
 
@@ -339,41 +108,23 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     public void deserialize(CompoundTag nbt) {
         if(nbt.contains("type", Tag.TAG_STRING) && !nbt.getString("type").equals(getType().getId().toString()))
             return;
-        if(nbt.contains("recipe", Tag.TAG_STRING))
-            this.futureRecipeID = ResourceLocation.parse(nbt.getString("recipe"));
-        if(nbt.contains("phase", Tag.TAG_STRING))
-            this.phase = PHASE.value(nbt.getString("phase"));
-        if(nbt.contains("recipeProgressTime", Tag.TAG_DOUBLE))
-            this.recipeProgressTime = nbt.getDouble("recipeProgressTime");
-    }
-
-    @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
-        container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
+        if(nbt.contains("cores", Tag.TAG_LIST)) {
+            ListTag cores = nbt.getList("cores", Tag.TAG_COMPOUND);
+            if(this.cores.size() == cores.size()) {
+                for(int i = 0; i < this.cores.size(); i++)
+                    this.cores.get(i).deserialize(cores.getCompound(i));
+            }
+        }
     }
 
     @Override
     public void setMachineInventoryChanged() {
-        this.recipeFinder.setInventoryChanged(true);
+        this.cores.forEach(MachineProcessorCore::setMachineInventoryChanged);
     }
 
     @Override
     public void setSearchImmediately() {
-        this.searchImmediately = true;
-    }
-
-    public enum PHASE {
-        STARTING,
-        CRAFTING_TICKABLE,
-        CRAFTING_DELAYED,
-        ENDING;
-
-        public static final NamedCodec<PHASE> CODEC = NamedCodec.enumCodec(PHASE.class);
-
-        public static PHASE value(String string) {
-            return valueOf(string.toUpperCase(Locale.ENGLISH));
-        }
+        this.cores.forEach(MachineProcessorCore::setSearchImmediately);
     }
 
     public static class Template implements IProcessorTemplate<MachineProcessor> {

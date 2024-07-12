@@ -1,23 +1,23 @@
 package fr.frinn.custommachinery.common.crafting.craft;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.IMachineComponent;
-import fr.frinn.custommachinery.api.crafting.ComponentNotFoundException;
-import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.impl.crafting.RequirementList;
+import fr.frinn.custommachinery.impl.crafting.RequirementList.RequirementWithFunction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class CraftProcessor implements IProcessor {
@@ -36,14 +36,8 @@ public class CraftProcessor implements IProcessor {
 
     public CraftProcessor(MachineTile tile) {
         this.tile = tile;
-        this.mutableCraftingContext = new CraftingContext.Mutable(this, tile.getUpgradeManager());
+        this.mutableCraftingContext = new CraftingContext.Mutable(tile, tile.getUpgradeManager());
         this.recipeFinder = new CraftRecipeFinder(tile, 20);
-    }
-
-    @Nullable
-    @Override
-    public ICraftingContext getCurrentContext() {
-        return this.currentContext;
     }
 
     @Override
@@ -52,13 +46,8 @@ public class CraftProcessor implements IProcessor {
     }
 
     @Override
-    public MachineTile getTile() {
+    public MachineTile tile() {
         return this.tile;
-    }
-
-    @Override
-    public double getRecipeProgressTime() {
-        return 0;
     }
 
     @Override
@@ -109,17 +98,14 @@ public class CraftProcessor implements IProcessor {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean checkRecipe(RecipeHolder<CustomCraftRecipe> recipe, CraftingContext context) {
-        return recipe.value().getRequirements().stream().allMatch(requirement -> {
-            IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(recipe, this.tile.getMachine(), requirement.getType()));
-            return ((IRequirement)requirement).test(component, context);
-        });
+        return recipe.value().getRequirements().stream()
+                .allMatch(requirement -> requirement.test(this.tile.getComponentManager(), context).isSuccess());
     }
 
     private void setCurrentRecipe(RecipeHolder<CustomCraftRecipe> recipe) {
         this.currentRecipe = recipe;
-        this.currentContext = new CraftingContext(this, this.tile.getUpgradeManager(), recipe.value());
+        this.currentContext = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> 0.0);
         this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
                 .ifPresent(component -> component.setItemStack(recipe.value().getOutput().copy()));
@@ -127,12 +113,15 @@ public class CraftProcessor implements IProcessor {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void processRecipe(RecipeHolder<CustomCraftRecipe> recipe, CraftingContext context) {
-        for(IRequirement<?> requirement : recipe.value().getRequirements()) {
-            IMachineComponent component = this.tile.getComponentManager().getComponent(requirement.getComponentType()).orElseThrow(() -> new ComponentNotFoundException(recipe, this.tile.getMachine(), requirement.getType()));
-            if (requirement instanceof IChanceableRequirement chanceable && chanceable.shouldSkip(component, this.rand, context))
+        for(RecipeRequirement<?, ?> requirement : recipe.value().getRequirements()) {
+            if (requirement.shouldSkip(this.tile.getComponentManager(), this.rand, context))
                 continue;
-            ((IRequirement)requirement).processStart(component, context);
-            ((IRequirement)requirement).processEnd(component, context);
+            RequirementList list = new RequirementList();
+            requirement.requirement().gatherRequirements(list);
+            ((Map<Double, List< RequirementWithFunction>>)list.getProcessRequirements()).values()
+                    .stream()
+                    .flatMap(List::stream)
+                    .forEach(r -> r.process(this.tile.getComponentManager(), context));
         }
     }
 

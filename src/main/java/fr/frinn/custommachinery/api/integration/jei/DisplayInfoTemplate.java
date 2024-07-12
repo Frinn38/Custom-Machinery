@@ -37,15 +37,17 @@ public class DisplayInfoTemplate {
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("atlas").forGetter(template -> Optional.ofNullable(template.atlas)),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("sprite").forGetter(template -> Optional.ofNullable(template.sprite))
             ).apply(displayInfoTemplateInstance, (tooltips, stack, icon, width, height, u, v, atlas, sprite) -> {
-                        DisplayInfoTemplate template = new DisplayInfoTemplate();
-                        tooltips.forEach(template::tooltip);
-                        stack.ifPresent(template::item);
-                        template.texture(icon, width, height, u, v);
-                        atlas.ifPresent(a -> sprite.ifPresent(s -> template.sprite(a, s)));
-                        return template;
-                    }
+                    DisplayInfoTemplate template = new DisplayInfoTemplate();
+                    tooltips.forEach(template::tooltip);
+                    stack.ifPresent(template::item);
+                    template.texture(icon, width, height, u, v);
+                    atlas.ifPresent(a -> sprite.ifPresent(s -> template.sprite(a, s)));
+                    return template;
+                }
             ), "Display info template"
     );
+
+    public static final DisplayInfoTemplate EMPTY = new DisplayInfoTemplate();
 
     private final List<Pair<Component, TooltipPredicate>> tooltips = new ArrayList<>();
     @Nullable

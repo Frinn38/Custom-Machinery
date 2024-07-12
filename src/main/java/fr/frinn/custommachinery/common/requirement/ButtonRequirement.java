@@ -2,15 +2,15 @@ package fr.frinn.custommachinery.common.requirement;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IRequirementList;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 
-public class ButtonRequirement extends AbstractRequirement<DataMachineComponent> {
+public record ButtonRequirement(String id, boolean inverse) implements IRequirement<DataMachineComponent> {
 
     public static final NamedCodec<ButtonRequirement> CODEC = NamedCodec.record(buttonRequirementInstance ->
             buttonRequirementInstance.group(
@@ -18,15 +18,6 @@ public class ButtonRequirement extends AbstractRequirement<DataMachineComponent>
                     NamedCodec.BOOL.optionalFieldOf("inverse", false).forGetter(requirement -> requirement.inverse)
             ).apply(buttonRequirementInstance, ButtonRequirement::new), "Button requirement"
     );
-
-    private final String id;
-    private final boolean inverse;
-
-    public ButtonRequirement(String id, boolean inverse) {
-        super(RequirementIOMode.INPUT);
-        this.id = id;
-        this.inverse = inverse;
-    }
 
     @Override
     public RequirementType<ButtonRequirement> getType() {
@@ -39,17 +30,17 @@ public class ButtonRequirement extends AbstractRequirement<DataMachineComponent>
     }
 
     @Override
+    public RequirementIOMode getMode() {
+        return RequirementIOMode.INPUT;
+    }
+
+    @Override
     public boolean test(DataMachineComponent component, ICraftingContext context) {
         return component.getData().getBoolean(this.id) == !this.inverse;
     }
 
     @Override
-    public CraftingResult processStart(DataMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
-    }
-
-    @Override
-    public CraftingResult processEnd(DataMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
+    public void gatherRequirements(IRequirementList<DataMachineComponent> list) {
+        //Only check if the recipe can start, no need for further checks
     }
 }

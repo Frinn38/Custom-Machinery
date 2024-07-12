@@ -2,25 +2,26 @@ package fr.frinn.custommachinery.common.requirement;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IRequirementList;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 
-public class SpeedRequirement extends AbstractRequirement<AbstractMachineComponent> {
+public class SpeedRequirement implements IRequirement<AbstractMachineComponent> {
 
     public static final NamedCodec<SpeedRequirement> CODEC = NamedCodec.unit(SpeedRequirement::new, "Speed requirement");
-
-    public SpeedRequirement() {
-        super(RequirementIOMode.INPUT);
-    }
 
     @Override
     public RequirementType<SpeedRequirement> getType() {
         return Registration.SPEED_REQUIREMENT.get();
+    }
+
+    @Override
+    public RequirementIOMode getMode() {
+        return RequirementIOMode.INPUT;
     }
 
     @Override
@@ -29,13 +30,8 @@ public class SpeedRequirement extends AbstractRequirement<AbstractMachineCompone
     }
 
     @Override
-    public CraftingResult processStart(AbstractMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
-    }
+    public void gatherRequirements(IRequirementList<AbstractMachineComponent> list) {
 
-    @Override
-    public CraftingResult processEnd(AbstractMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
     }
 
     @Override

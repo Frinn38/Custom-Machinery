@@ -7,6 +7,7 @@ import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
+import fr.frinn.custommachinery.common.requirement.FunctionRequirement;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import fr.frinn.custommachinery.common.util.MachineList;
 import net.minecraft.ResourceLocationException;
@@ -138,6 +139,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         //Refresh existing loaded machines
         if(ServerLifecycleHooks.getCurrentServer() != null)
             MachineList.setNeedRefresh();
+        FunctionRequirement.errors.clear();
     }
 
     private MachineLocation getMachineLocation(ResourceManager resourceManager, ResourceLocation id) {

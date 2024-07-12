@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.theoneprobe;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
@@ -85,10 +84,13 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
             case PAUSED -> status.withStyle(ChatFormatting.GOLD);
         }
         info.mcText(status);
-        if(tile.getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getCurrentContext() != null) {
-            info.progress((int)machineProcessor.getRecipeProgressTime(), machineProcessor.getRecipeTotalTime(), info.defaultProgressStyle().suffix("/" + machineProcessor.getRecipeTotalTime()));
-            if(tile.getStatus() == MachineStatus.ERRORED)
-                info.text(tile.getMessage());
+        if(tile.getProcessor() instanceof MachineProcessor machineProcessor) {
+            machineProcessor.getCores().forEach(core -> {
+                if(core.getCurrentRecipe() != null)
+                    info.progress((int)core.getRecipeProgressTime(), core.getCurrentRecipe().value().getRecipeTime(), info.defaultProgressStyle().suffix("/" + core.getCurrentRecipe().value().getRecipeTime()));
+                if(core.getError() != null)
+                    info.text(core.getError());
+            });
         }
     }
     private static final ResourceLocation ICONS = ResourceLocation.fromNamespaceAndPath("theoneprobe", "textures/gui/icons.png");

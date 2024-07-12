@@ -1,12 +1,12 @@
 package fr.frinn.custommachinery.api.crafting;
 
-import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 
 public interface IRecipeBuilder<T extends IMachineRecipe> {
 
-    IRecipeBuilder<T> withRequirement(IRequirement<?> requirement);
+    IRecipeBuilder<T> withRequirement(RecipeRequirement<?, ?> requirement);
 
-    IRecipeBuilder<T> withJeiRequirement(IRequirement<?> requirement);
+    IRecipeBuilder<T> withJeiRequirement(RecipeRequirement<?, ?> requirement);
 
     IRecipeBuilder<T> withPriority(int priority);
 

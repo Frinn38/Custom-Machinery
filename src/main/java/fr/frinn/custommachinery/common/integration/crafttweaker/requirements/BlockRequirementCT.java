@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
+import fr.frinn.custommachinery.common.requirement.BlockRequirement.Action;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
@@ -31,60 +32,60 @@ public interface BlockRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T requireBlock(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @OptionalString(">=") String comparator) {
-        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, Action.CHECK, "", startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
     }
 
     @Method
     default T placeBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
+        return withBlockRequirement(RequirementIOMode.INPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
     }
 
     @Method
     default T placeBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, "==", new String[]{}, false);
     }
 
     @Method
     default T breakAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     default T breakAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     default T destroyAndPlaceBlockOnStart(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     default T destroyAndPlaceBlockOnEnd(String block, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount, @Optional String[] filter, @OptionalBoolean boolean whitelist) {
-        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     default T destroyBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, Action.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     default T destroyBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, Action.DESTROY, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     default T breakBlockOnStart(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(RequirementIOMode.INPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.INPUT, Action.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
     @Method
     default T breakBlockOnEnd(String[] filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, @OptionalInt(1) int amount) {
-        return withBlockRequirement(RequirementIOMode.OUTPUT, BlockRequirement.ACTION.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
+        return withBlockRequirement(RequirementIOMode.OUTPUT, Action.BREAK, "", startX, startY, startZ, endX, endY, endZ, amount, "==", filter, whitelist);
     }
 
-    private T withBlockRequirement(RequirementIOMode mode, BlockRequirement.ACTION action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
+    private T withBlockRequirement(RequirementIOMode mode, Action action, String block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, String comparator, String[] stringFilter, boolean whitelist) {
         PartialBlockState state;
         if(block.isEmpty())
             state = PartialBlockState.AIR;

@@ -55,7 +55,7 @@ public class CraftRecipeFinder {
                 RecipeChecker<CustomCraftRecipe> checker = iterator.next();
                 if(!this.inventoryChanged && checker.isInventoryRequirementsOnly())
                     continue;
-                if(checker.check(this.tile, context.setRecipe(checker.getRecipe().value()), this.inventoryChanged)) {
+                if(checker.check(this.tile, context.setRecipe(checker.getRecipe().value(), checker.getRecipe().id()), this.inventoryChanged)) {
                     setInventoryChanged(false);
                     return Optional.of(checker.getRecipe());
                 }

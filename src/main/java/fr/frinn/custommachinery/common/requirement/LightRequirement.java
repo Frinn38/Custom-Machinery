@@ -4,19 +4,19 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
-import fr.frinn.custommachinery.api.integration.jei.IDisplayInfoRequirement;
-import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
-public class LightRequirement extends AbstractRequirement<LightMachineComponent> implements ITickableRequirement<LightMachineComponent>, IDisplayInfoRequirement {
+public record LightRequirement(IntRange light, boolean sky) implements IRequirement<LightMachineComponent> {
 
     public static final NamedCodec<LightRequirement> CODEC = NamedCodec.record(lightRequirementInstance ->
             lightRequirementInstance.group(
@@ -25,18 +25,19 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
             ).apply(lightRequirementInstance, LightRequirement::new), "Light requirement"
     );
 
-    private final IntRange light;
-    private final boolean sky;
-
-    public LightRequirement(IntRange light, boolean sky) {
-        super(RequirementIOMode.INPUT);
-        this.light = light;
-        this.sky = sky;
+    @Override
+    public RequirementType<LightRequirement> getType() {
+        return Registration.LIGHT_REQUIREMENT.get();
     }
 
     @Override
-    public RequirementType<?> getType() {
-        return Registration.LIGHT_REQUIREMENT.get();
+    public MachineComponentType<LightMachineComponent> getComponentType() {
+        return Registration.LIGHT_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementIOMode getMode() {
+        return RequirementIOMode.INPUT;
     }
 
     @Override
@@ -47,7 +48,11 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
     }
 
     @Override
-    public CraftingResult processStart(LightMachineComponent component, ICraftingContext context) {
+    public void gatherRequirements(IRequirementList<LightMachineComponent> list) {
+        list.worldCondition(this::check);
+    }
+
+    private CraftingResult check(LightMachineComponent component, ICraftingContext context) {
         if(this.test(component, context))
             return CraftingResult.success();
         if(this.sky)
@@ -57,27 +62,7 @@ public class LightRequirement extends AbstractRequirement<LightMachineComponent>
     }
 
     @Override
-    public CraftingResult processEnd(LightMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
-    }
-
-    @Override
-    public MachineComponentType<LightMachineComponent> getComponentType() {
-        return Registration.LIGHT_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public CraftingResult processTick(LightMachineComponent component, ICraftingContext context) {
-        if(this.test(component, context))
-            return CraftingResult.success();
-        if(this.sky)
-            return CraftingResult.error(Component.translatable("custommachinery.requirements.light.sky.error", this.light.toFormattedString(), component.getSkyLight()));
-        else
-            return CraftingResult.error(Component.translatable("custommachinery.requirements.light.block.error", this.light.toFormattedString(), component.getBlockLight()));
-    }
-
-    @Override
-    public void getDisplayInfo(IDisplayInfo info) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
         if(this.sky)
             info.addTooltip(Component.translatable("custommachinery.requirements.light.sky.info", this.light.toFormattedString()));
         else

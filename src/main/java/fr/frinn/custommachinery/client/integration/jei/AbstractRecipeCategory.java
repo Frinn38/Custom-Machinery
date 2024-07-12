@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -46,7 +46,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     protected final RecipeType<T> recipeType;
     protected final IGuiHelper guiHelper;
     protected final RecipeHelper recipeHelper;
-    protected final LoadingCache<IRequirement<?>, RequirementDisplayInfo> infoCache;
+    protected final LoadingCache<RecipeRequirement<?, ?>, RequirementDisplayInfo> infoCache;
     protected LoadingCache<T, List<IJEIIngredientWrapper<?>>> wrapperCache;
     protected int offsetX;
     protected int offsetY;
@@ -62,11 +62,10 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         this.recipeHelper = new RecipeHelper(machine, helpers);
         this.infoCache = CacheBuilder.newBuilder().build(new CacheLoader<>() {
             @Override
-            public RequirementDisplayInfo load(IRequirement<?> requirement) {
+            public RequirementDisplayInfo load(RecipeRequirement<?, ?> requirement) {
                 RequirementDisplayInfo info = new RequirementDisplayInfo();
                 requirement.getDisplayInfo(info);
-
-                DisplayInfoTemplate template = requirement.getDisplayInfoTemplate();
+                DisplayInfoTemplate template = requirement.info;
                 if(template != null) {
                     if(!template.getTooltips().isEmpty())
                         info.getTooltips().clear();
@@ -79,7 +78,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
             @Override
             public List<IJEIIngredientWrapper<?>> load(T recipe) {
                 ImmutableList.Builder<IJEIIngredientWrapper<?>> wrappers = ImmutableList.builder();
-                recipe.getJEIIngredientRequirements().forEach(requirement -> wrappers.addAll(requirement.getJEIIngredientWrappers(recipe)));
+                recipe.getDisplayInfoRequirements().forEach(requirement -> wrappers.addAll(requirement.getJeiIngredientWrappers(recipe)));
                 return wrappers.build();
             }
         });

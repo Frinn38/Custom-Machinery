@@ -3,50 +3,55 @@ package fr.frinn.custommachinery.common.crafting;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
-import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CraftingContext implements ICraftingContext {
 
-    private final IProcessor manager;
+    private final MachineTile tile;
     private final IMachineUpgradeManager upgrades;
-    private final IMachineRecipe recipe;
-    private final List<Pair<IRecipeModifier, Integer>> fixedModifiers;
+    private final RecipeHolder<? extends IMachineRecipe> recipe;
+    private final Supplier<Double> progressTimeGetter;
     private double baseSpeed = 1.0D;
 
-    public CraftingContext(IProcessor manager, IMachineUpgradeManager upgrades, IMachineRecipe recipe) {
-        this.manager = manager;
+    public CraftingContext(MachineTile tile, IMachineUpgradeManager upgrades, RecipeHolder<? extends IMachineRecipe> recipe, Supplier<Double> progressTimeGetter) {
+        this.tile = tile;
         this.upgrades = upgrades;
         this.recipe = recipe;
-        this.fixedModifiers = Collections.unmodifiableList(upgrades.getAllModifiers());
+        this.progressTimeGetter = progressTimeGetter;
     }
 
     @Override
     public MachineTile getMachineTile() {
-        return this.manager.getTile();
+        return this.tile;
     }
 
     @Override
     public IMachineRecipe getRecipe() {
-        return this.recipe;
+        return this.recipe.value();
+    }
+
+    @Override
+    public ResourceLocation getRecipeId() {
+        return this.recipe.id();
     }
 
     @Override
     public double getRemainingTime() {
         if(getRecipe() == null)
             return 0;
-        return getRecipe().getRecipeTime() - this.manager.getRecipeProgressTime();
+        return getRecipe().getRecipeTime() - this.progressTimeGetter.get();
     }
 
     @Override
@@ -93,7 +98,7 @@ public class CraftingContext implements ICraftingContext {
 
     private double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, @Nullable RequirementIOMode mode) {
         double modified = value;
-        List<Pair<IRecipeModifier, Integer>> modifiers = type instanceof ITickableRequirement<?> ? this.upgrades.getAllModifiers() : this.fixedModifiers;
+        List<Pair<IRecipeModifier, Integer>> modifiers = this.upgrades.getAllModifiers();
         for(Pair<IRecipeModifier, Integer> pair : modifiers) {
             if(pair.getFirst().shouldApply(type, mode, target))
                 modified = pair.getFirst().apply(modified, pair.getSecond());
@@ -104,19 +109,26 @@ public class CraftingContext implements ICraftingContext {
     public static class Mutable extends CraftingContext {
 
         private IMachineRecipe recipe;
+        private ResourceLocation recipeId;
 
-        public Mutable(IProcessor manager, IMachineUpgradeManager upgrades) {
-            super(manager, upgrades, null);
+        public Mutable(MachineTile tile, IMachineUpgradeManager upgrades) {
+            super(tile, upgrades, null, () -> 0.0);
         }
 
-        public Mutable setRecipe(IMachineRecipe recipe) {
+        public Mutable setRecipe(IMachineRecipe recipe, ResourceLocation recipeId) {
             this.recipe = recipe;
+            this.recipeId = recipeId;
             return this;
         }
 
         @Override
         public IMachineRecipe getRecipe() {
             return this.recipe;
+        }
+
+        @Override
+        public ResourceLocation getRecipeId() {
+            return this.recipeId;
         }
     }
 }

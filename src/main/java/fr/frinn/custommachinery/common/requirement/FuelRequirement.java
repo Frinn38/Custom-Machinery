@@ -5,22 +5,23 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
+import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
-import fr.frinn.custommachinery.api.requirement.ITickableRequirement;
+import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.FuelItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.FuelMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.requirement.AbstractRequirement;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Collections;
 import java.util.List;
 
-public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> implements ITickableRequirement<FuelMachineComponent>, IJEIIngredientRequirement<ItemStack> {
+public record FuelRequirement(int amount) implements IRequirement<FuelMachineComponent>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<FuelRequirement> CODEC = NamedCodec.record(fuelRequirementInstance ->
             fuelRequirementInstance.group(
@@ -28,20 +29,19 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
             ).apply(fuelRequirementInstance, FuelRequirement::new), "Fuel requirement"
     );
 
-    private final int amount;
-
-    public FuelRequirement(int amount) {
-        super(RequirementIOMode.INPUT);
-        this.amount = amount;
-    }
-
-    public int getAmount() {
-        return this.amount;
-    }
-
     @Override
     public RequirementType<FuelRequirement> getType() {
         return Registration.FUEL_REQUIREMENT.get();
+    }
+
+    @Override
+    public MachineComponentType<FuelMachineComponent> getComponentType() {
+        return Registration.FUEL_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public RequirementIOMode getMode() {
+        return RequirementIOMode.INPUT;
     }
 
     @Override
@@ -51,12 +51,11 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
     }
 
     @Override
-    public CraftingResult processStart(FuelMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
+    public void gatherRequirements(IRequirementList<FuelMachineComponent> list) {
+        list.processEachTick(this::processTick);
     }
 
-    @Override
-    public CraftingResult processTick(FuelMachineComponent component, ICraftingContext context) {
+    private CraftingResult processTick(FuelMachineComponent component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(component.burn(amount))
             return CraftingResult.success();
@@ -64,17 +63,7 @@ public class FuelRequirement extends AbstractRequirement<FuelMachineComponent> i
     }
 
     @Override
-    public CraftingResult processEnd(FuelMachineComponent component, ICraftingContext context) {
-        return CraftingResult.pass();
-    }
-
-    @Override
-    public MachineComponentType<FuelMachineComponent> getComponentType() {
-        return Registration.FUEL_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe) {
+    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
         return Collections.singletonList(new FuelItemIngredientWrapper(this.amount));
     }
 }

@@ -6,9 +6,8 @@ import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.blamejared.crafttweaker.api.item.IItemStack;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.requirement.IChanceableRequirement;
-import fr.frinn.custommachinery.api.requirement.IDelayedRequirement;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BiomeRequirementCT;
@@ -65,7 +64,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
 
     public static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private final CustomCraftRecipeBuilder builder;
-    private IRequirement<?> lastRequirement;
+    private RecipeRequirement<?, ?> lastRequirement;
     private boolean jei = false;
 
     public CustomCraftRecipeCTBuilder(CustomCraftRecipeBuilder builder) {
@@ -106,11 +105,11 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
 
     @Override
     public CustomCraftRecipeCTBuilder addRequirement(IRequirement<?> requirement) {
-        this.lastRequirement = requirement;
+        this.lastRequirement = new RecipeRequirement<>(requirement);
         if(!this.jei)
-            this.builder.withRequirement(requirement);
+            this.builder.withRequirement(this.lastRequirement);
         else
-            this.builder.withJeiRequirement(requirement);
+            this.builder.withJeiRequirement(this.lastRequirement);
         return this;
     }
 
@@ -124,10 +123,10 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
 
     @Method
     public CustomCraftRecipeCTBuilder chance(double chance) {
-        if(this.lastRequirement != null && this.lastRequirement instanceof IChanceableRequirement)
-            ((IChanceableRequirement<?>)this.lastRequirement).setChance(chance);
+        if(this.lastRequirement != null)
+            this.lastRequirement.setChance(chance);
         else
-            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't set chance for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't set chance before adding requirements");
         return this;
     }
 
@@ -143,10 +142,10 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
 
     @Method
     public CustomCraftRecipeCTBuilder delay(double delay) {
-        if(this.lastRequirement != null && this.lastRequirement instanceof IDelayedRequirement<?>)
-            ((IDelayedRequirement<?>)this.lastRequirement).setDelay(delay);
+        if(this.lastRequirement != null)
+            this.lastRequirement.setDelay(delay);
         else
-            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't put delay for requirement: " + this.lastRequirement);
+            CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't set delay before adding requirements");
         return this;
     }
 
@@ -176,7 +175,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         if(this.lastRequirement != null) {
             DisplayInfoTemplateCT template = new DisplayInfoTemplateCT();
             consumer.accept(template);
-            this.lastRequirement.setDisplayInfoTemplate(template);
+            this.lastRequirement.info = template;
         }
         else
             CraftTweakerAPI.getLogger(CustomMachinery.MODID).error("Can't put info for null requirement");

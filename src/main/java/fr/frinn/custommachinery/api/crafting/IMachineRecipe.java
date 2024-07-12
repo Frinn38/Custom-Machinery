@@ -1,11 +1,9 @@
 package fr.frinn.custommachinery.api.crafting;
 
-import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public interface IMachineRecipe {
 
@@ -22,30 +20,22 @@ public interface IMachineRecipe {
     /**
      * @return An Immutable list of all requirements of this recipe.
      */
-    List<IRequirement<?>> getRequirements();
+    List<RecipeRequirement<?, ?>> getRequirements();
 
     /**
      * @return An Immutable list of all jei requirements of this recipe.
      */
-    List<IRequirement<?>> getJeiRequirements();
+    List<RecipeRequirement<?, ?>> getJeiRequirements();
 
     /**
      * @return An Immutable list of all display info requirements of this recipe.
      */
-    default List<IRequirement<?>> getDisplayInfoRequirements() {
+    default List<RecipeRequirement<?, ?>> getDisplayInfoRequirements() {
         if(this.getJeiRequirements().isEmpty())
             return this.getRequirements();
         return this.getJeiRequirements();
     }
 
-    /**
-     * @return An Immutable list of all jei ingredient requirements of this recipe.
-     */
-    default List<IJEIIngredientRequirement<?>> getJEIIngredientRequirements() {
-        if(this.getJeiRequirements().isEmpty())
-            return this.getRequirements().stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement<?>)requirement).collect(Collectors.toList());
-        return this.getJeiRequirements().stream().filter(requirement -> requirement instanceof IJEIIngredientRequirement).map(requirement -> (IJEIIngredientRequirement<?>)requirement).collect(Collectors.toList());
-    }
     /**
      * Recipes with higher priorities will be tested first.
      * @return The priority of this recipe, default : 0.

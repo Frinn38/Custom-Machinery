@@ -29,7 +29,7 @@ public class FuelGuiElementJeiRenderer implements IJEIElementRenderer<FuelGuiEle
 
     @Override
     public List<Component> getJEITooltips(FuelGuiElement element, IMachineRecipe recipe) {
-        int amount = recipe.getRequirements().stream().filter(requirement -> requirement instanceof FuelRequirement).findFirst().map(requirement -> ((FuelRequirement)requirement).getAmount()).orElse(0);
+        int amount = recipe.getRequirements().stream().filter(requirement -> requirement.requirement() instanceof FuelRequirement).findFirst().map(requirement -> ((FuelRequirement)requirement.requirement()).amount()).orElse(0);
         if(amount > 0)
             return Lists.newArrayList(Component.translatable("custommachinery.jei.ingredient.fuel.amount", amount));
         return Collections.emptyList();

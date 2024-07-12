@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.impl.crafting;
 
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import java.util.List;
 public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements IRecipeBuilder<T> {
 
     private final ResourceLocation machine;
-    private List<IRequirement<?>> requirements = new ArrayList<>();
-    private List<IRequirement<?>> jeiRequirements = new ArrayList<>();
+    private List<RecipeRequirement<?, ?>> requirements = new ArrayList<>();
+    private List<RecipeRequirement<?, ?>> jeiRequirements = new ArrayList<>();
     private int priority = 0;
     private int jeiPriority = 0;
     private boolean hidden = false;
@@ -35,22 +35,22 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
     }
 
     @Override
-    public AbstractRecipeBuilder<T> withRequirement(IRequirement<?> requirement) {
+    public AbstractRecipeBuilder<T> withRequirement(RecipeRequirement<?, ?> requirement) {
         this.requirements.add(requirement);
         return this;
     }
 
-    public List<IRequirement<?>> getRequirements() {
+    public List<RecipeRequirement<?, ?>> getRequirements() {
         return this.requirements;
     }
 
     @Override
-    public AbstractRecipeBuilder<T> withJeiRequirement(IRequirement<?> requirement) {
+    public AbstractRecipeBuilder<T> withJeiRequirement(RecipeRequirement<?, ?> requirement) {
         this.jeiRequirements.add(requirement);
         return this;
     }
 
-    public List<IRequirement<?>> getJeiRequirements() {
+    public List<RecipeRequirement<?, ?>> getJeiRequirements() {
         return this.jeiRequirements;
     }
 

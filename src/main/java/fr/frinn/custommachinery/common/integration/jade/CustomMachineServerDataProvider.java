@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import snownee.jade.api.BlockAccessor;
@@ -24,10 +25,19 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
             if(machine.getOwnerName() != null)
                 tag.putString("owner", TextComponentUtils.toJsonString(machine.getOwnerName()));
             tag.putByte("status", (byte)machine.getStatus().ordinal());
-            if(processor instanceof MachineProcessor machineProcessor && processor.getCurrentContext() != null) {
-                tag.putDouble("recipeProgressTime", machineProcessor.getRecipeProgressTime());
-                tag.putDouble("recipeTotalTime", machineProcessor.getRecipeTotalTime());
-                tag.putString("errorMessage", Component.Serializer.toJson(machine.getMessage(), machine.getLevel().registryAccess()));
+            if(processor instanceof MachineProcessor machineProcessor) {
+                ListTag cores = new ListTag();
+                machineProcessor.getCores().forEach(core -> {
+                    CompoundTag coreNbt = new CompoundTag();
+
+                    if(core.getCurrentRecipe() != null) {
+                        coreNbt.putDouble("recipeProgressTime", core.getRecipeProgressTime());
+                        coreNbt.putInt("recipeTotalTime", core.getCurrentRecipe().value().getRecipeTime());
+                    }
+                    if(core.getError() != null)
+                        coreNbt.putString("errorMessage", Component.Serializer.toJson(core.getError(), machine.getLevel().registryAccess()));
+                });
+                nbt.put("cores", cores);
             }
             nbt.put(CustomMachinery.MODID, tag);
         }

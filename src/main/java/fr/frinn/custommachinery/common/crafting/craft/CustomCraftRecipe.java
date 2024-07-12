@@ -6,6 +6,7 @@ import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.core.HolderLookup.Provider;
@@ -29,13 +30,13 @@ public class CustomCraftRecipe implements Recipe<RecipeInput>, IMachineRecipe {
 
     private final ResourceLocation machine;
     private final ItemStack output;
-    private final List<IRequirement<?>> requirements;
-    private final List<IRequirement<?>> jeiRequirements;
+    private final List<RecipeRequirement<?, ?>> requirements;
+    private final List<RecipeRequirement<?, ?>> jeiRequirements;
     private final int priority;
     private final int jeiPriority;
     private final boolean hidden;
 
-    public CustomCraftRecipe(ResourceLocation machine, ItemStack output, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean hidden) {
+    public CustomCraftRecipe(ResourceLocation machine, ItemStack output, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean hidden) {
         this.machine = machine;
         this.output = output;
         this.requirements = validateRequirements(requirements);
@@ -54,11 +55,11 @@ public class CustomCraftRecipe implements Recipe<RecipeInput>, IMachineRecipe {
         return this.output;
     }
 
-    private List<IRequirement<?>> validateRequirements(List<IRequirement<?>> requirements) {
+    private List<RecipeRequirement<?, ?>> validateRequirements(List<RecipeRequirement<?, ?>> requirements) {
         return requirements.stream().filter(requirement -> {
-            if(!FORBIDDEN_REQUIREMENTS.contains(requirement.getType()))
+            if(!FORBIDDEN_REQUIREMENTS.contains(requirement.requirement().getType()))
                 return true;
-            ICustomMachineryAPI.INSTANCE.logger().error("Invalid requirement: {} in craft recipe", IRequirement.CODEC.encodeStart(JsonOps.INSTANCE, requirement).result().map(JsonElement::toString).orElse(requirement.getType().toString()));
+            ICustomMachineryAPI.INSTANCE.logger().error("Invalid requirement: {} in craft recipe", IRequirement.CODEC.encodeStart(JsonOps.INSTANCE, requirement.requirement()).result().map(JsonElement::toString).orElse(requirement.requirement().getType().toString()));
             return false;
         }).toList();
     }
@@ -69,12 +70,12 @@ public class CustomCraftRecipe implements Recipe<RecipeInput>, IMachineRecipe {
     }
 
     @Override
-    public List<IRequirement<?>> getRequirements() {
+    public List<RecipeRequirement<?, ?>> getRequirements() {
         return this.requirements;
     }
 
     @Override
-    public List<IRequirement<?>> getJeiRequirements() {
+    public List<RecipeRequirement<?, ?>> getJeiRequirements() {
         return this.jeiRequirements;
     }
 

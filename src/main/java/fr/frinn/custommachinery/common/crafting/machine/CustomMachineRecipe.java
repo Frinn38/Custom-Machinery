@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
-import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.Comparators;
@@ -26,8 +26,8 @@ public class CustomMachineRecipe implements Recipe<RecipeInput>, IMachineRecipe 
 
     private final ResourceLocation machine;
     private final int time;
-    private final List<IRequirement<?>> requirements;
-    private final List<IRequirement<?>> jeiRequirements;
+    private final List<RecipeRequirement<?, ?>> requirements;
+    private final List<RecipeRequirement<?, ?>> jeiRequirements;
     private final int priority;
     private final int jeiPriority;
     private final boolean resetOnError;
@@ -40,7 +40,7 @@ public class CustomMachineRecipe implements Recipe<RecipeInput>, IMachineRecipe 
     @Nullable
     private List<IGuiElement> customGuiElements;
 
-    public CustomMachineRecipe(ResourceLocation machine, int time, List<IRequirement<?>> requirements, List<IRequirement<?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance, List<IGuiElement> guiElements) {
+    public CustomMachineRecipe(ResourceLocation machine, int time, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance, List<IGuiElement> guiElements) {
         this.machine = machine;
         this.time = time;
         this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).toList();
@@ -64,12 +64,12 @@ public class CustomMachineRecipe implements Recipe<RecipeInput>, IMachineRecipe 
     }
 
     @Override
-    public List<IRequirement<?>> getRequirements() {
+    public List<RecipeRequirement<?, ?>> getRequirements() {
         return this.requirements;
     }
 
     @Override
-    public List<IRequirement<?>> getJeiRequirements() {
+    public List<RecipeRequirement<?, ?>> getJeiRequirements() {
         return this.jeiRequirements;
     }
 

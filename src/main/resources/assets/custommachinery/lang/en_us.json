@@ -225,6 +225,7 @@
   "custommachinery.gui.creation.gui.progress.orientation": "Orientation",
   "custommachinery.gui.creation.gui.progress.start": "Start",
   "custommachinery.gui.creation.gui.progress.end": "End",
+  "custommachinery.gui.creation.gui.progress.core": "Core",
   "custommachinery.gui.creation.gui.text.default": "Some text",
   "custommachinery.gui.creation.gui.text.text": "Text",
   "custommachinery.gui.creation.gui.text.alignment": "Alignment",
