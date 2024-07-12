@@ -5,12 +5,9 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
-import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor.Template;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
@@ -112,11 +109,8 @@ public class CustomMachineBuilder {
         return this.processor;
     }
 
-    public void setProcessor(ProcessorType<?> type) {
-        if(type == Registration.MACHINE_PROCESSOR.get())
-            this.processor = Template.DEFAULT;
-        else
-            this.processor = CraftProcessor.Template.DEFAULT;
+    public void setProcessor(IProcessorTemplate<?> template) {
+        this.processor = template;
     }
 
     public CustomMachineBuilder setId(ResourceLocation id) {

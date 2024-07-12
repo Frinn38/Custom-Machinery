@@ -79,7 +79,7 @@ public class ProgressBarGuiElementBuilder implements IGuiElementBuilder<Progress
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.end"), this.font));
             row.addChild(DoubleSlider.builder().bounds(0, 2).defaultValue(this.end).displayOnlyValue().setResponder(value -> this.end = value.floatValue()).create(0, 0, 100, 20, Component.empty()));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.core"), this.font));
-            row.addChild(IntegerSlider.builder().bounds(0, 16).defaultValue(this.core).displayOnlyValue().setResponder(value -> this.core = value).create(0, 0, 100, 20, Component.empty()));
+            row.addChild(IntegerSlider.builder().bounds(1, 16).defaultValue(this.core).displayOnlyValue().setResponder(value -> this.core = value - 1).create(0, 0, 100, 20, Component.empty()));
         }
     }
 }

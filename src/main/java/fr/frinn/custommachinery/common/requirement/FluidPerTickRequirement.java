@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -96,7 +97,7 @@ public record FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredie
                 }
             }
         }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", this.ingredient.toString(), amount, maxDrain));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", Utils.fluidIngredientName(this.ingredient), amount, maxDrain));
     }
 
     private CraftingResult processOutputs(FluidComponentHandler component, ICraftingContext context) {
@@ -106,7 +107,7 @@ public record FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredie
             component.addToOutputs(this.tank, this.output().copyWithAmount(amount));
             return CraftingResult.success();
         }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.output", amount, this.output().copyWithAmount(canFill).getHoverName()));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.output", amount, this.output().getHoverName()));
     }
 
     @Override

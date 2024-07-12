@@ -116,6 +116,10 @@
   "custommachinery.gui.creation.base_info.id": "Machine id : ",
   "custommachinery.gui.creation.base_info.name": "Machine name : ",
   "custommachinery.gui.creation.base_info.processor": "Machine processor : ",
+  "custommachinery.gui.creation.base_info.cores": "Cores : ",
+  "custommachinery.gui.creation.base_info.cores.tooltip": "The amount of recipes than can be processed simultaneously by the machine",
+  "custommachinery.gui.creation.base_info.cooldown": "Cooldown : ",
+  "custommachinery.gui.creation.base_info.cooldown.tooltip": "The time (in ticks) between 2 recipe checks when the machine is idle",
 
   "custommachinery.gui.creation.appearance.status.default": "Properties applied for every machine status",
   "custommachinery.gui.creation.appearance.status.idle": "Properties applied only when the machine is idle",

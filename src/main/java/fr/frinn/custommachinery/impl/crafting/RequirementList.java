@@ -28,12 +28,12 @@ public class RequirementList<C extends IMachineComponent> implements IRequiremen
 
     @Override
     public void processOnStart(RequirementFunction<C> function) {
-        this.processRequirements.computeIfAbsent(1.0D, delay -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
+        this.processRequirements.computeIfAbsent(0.0D, delay -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
     }
 
     @Override
     public void processOnEnd(RequirementFunction<C> function) {
-        this.processRequirements.computeIfAbsent(0.0D, delay -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
+        this.processRequirements.computeIfAbsent(1.0D, delay -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
     }
 
     @Override

@@ -15,6 +15,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -93,7 +94,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
                 }
             }
         }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", this.ingredient.toString(), amount, maxExtract));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
     }
 
     private CraftingResult processOutputs(ItemComponentHandler component, ICraftingContext context) {
@@ -105,7 +106,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
                 component.addToOutputs(this.slot, item.copy(), amount);
                 return CraftingResult.success();
             }
-            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, Component.translatable(item.getDescriptionId())));
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, item.getHoverName()));
         } else throw new IllegalStateException("Can't use output item requirement with item tag");
     }
 

@@ -46,6 +46,12 @@ public class MachineProcessor implements IProcessor {
             this.init();
 
         this.cores.forEach(MachineProcessorCore::tick);
+
+        if(this.tile.getStatus() == MachineStatus.RUNNING && this.cores.stream().allMatch(core -> core.getCurrentRecipe() == null)) {
+            this.tile.setStatus(MachineStatus.IDLE);
+            this.tile.setCustomAppearance(null);
+            this.tile.setCustomGuiElements(null);
+        }
     }
 
     private void init() {
@@ -127,7 +133,7 @@ public class MachineProcessor implements IProcessor {
         this.cores.forEach(MachineProcessorCore::setSearchImmediately);
     }
 
-    public static class Template implements IProcessorTemplate<MachineProcessor> {
+    public record Template(int amount, int recipeCheckCooldown) implements IProcessorTemplate<MachineProcessor> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
@@ -137,14 +143,6 @@ public class MachineProcessor implements IProcessor {
         );
 
         public static final Template DEFAULT = new Template(1, 20);
-
-        private final int amount;
-        private final int recipeCheckCooldown;
-
-        private Template(int amount, int cooldown) {
-            this.amount = amount;
-            this.recipeCheckCooldown = cooldown;
-        }
 
         @Override
         public ProcessorType<MachineProcessor> getType() {

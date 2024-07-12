@@ -8,11 +8,8 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -85,12 +82,12 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
             if(maxExtract.isEmpty())
                 continue;
 
-            long maxInsert = component.fillBypassLimit(maxExtract, FluidAction.SIMULATE);
+            int maxInsert = component.fillBypassLimit(maxExtract, FluidAction.SIMULATE);
 
             if(maxInsert <= 0)
                 continue;
 
-            FluidStack extracted = handlerItem.drain(new FluidStack(maxExtract.getFluid(), Utils.toInt(maxInsert)), FluidAction.EXECUTE);
+            FluidStack extracted = handlerItem.drain(new FluidStack(maxExtract.getFluid(), maxInsert), FluidAction.EXECUTE);
 
             if(extracted.getAmount() > 0)
                 component.fillBypassLimit(extracted, FluidAction.EXECUTE);

@@ -40,7 +40,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     private double recipeProgressTime = 0;
     private int recipeTotalTime = 0;
     private boolean searchImmediately = false;
-    private Phase phase;
+    private Phase phase = Phase.CONDITIONS;
     private boolean machineInventoryChanged = true;
     @Nullable
     private Component error = null;
@@ -178,10 +178,9 @@ public class MachineProcessorCore implements ISyncableStuff {
         this.recipeProgressTime += this.context.getModifiedSpeed();
         if(this.recipeProgressTime >= this.recipeTotalTime) {
             this.currentRecipe = null;
-            this.recipeProgressTime = 0;
+            this.recipeProgressTime = 0.0D;
             this.context = null;
-            this.setMachineInventoryChanged();
-            this.recipeFinder.findRecipe(true).ifPresent(this::setRecipe);
+            this.setSearchImmediately();
         }
     }
 

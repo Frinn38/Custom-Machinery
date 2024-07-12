@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
-import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.slot.ResultSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import net.minecraft.network.FriendlyByteBuf;
@@ -124,12 +123,12 @@ public class CustomMachineContainer extends SyncableContainer {
                 component -> {
                     if (component.canRetrieveFromSlots()) {
                         if (component.slotsFromCanRetrieve().isEmpty()) {
-                            player.giveExperiencePoints(Utils.toInt(component.getXp()));
+                            player.giveExperiencePoints(component.getXp());
                             component.extractXp(component.getXp(), false);
                         } else {
                             component.slotsFromCanRetrieve().forEach(id -> {
                                 if (id.equals(slot.getComponent().getId())) {
-                                    player.giveExperiencePoints(Utils.toInt(component.getXp()));
+                                    player.giveExperiencePoints(component.getXp());
                                     component.extractXp(component.getXp(), false);
                                 }
                             });
