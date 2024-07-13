@@ -28,7 +28,7 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toggle", BASE_TEXTURE_TOGGLE).forGetter(element -> element.textureToggle),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toggle_hovered", BASE_TEXTURE_TOGGLE_HOVERED).forGetter(element -> element.textureToggleHovered),
                     NamedCodec.BOOL.optionalFieldOf("toggle", false).forGetter(element -> element.toggle),
-                    TextComponentUtils.CODEC.optionalFieldOf("text", Component.literal("")).forGetter(element -> element.text),
+                    TextComponentUtils.CODEC.optionalFieldOf("text", Component.empty()).forGetter(element -> element.text.getString().isEmpty() ? Component.empty() : element.text),
                     DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("item", ItemStack.EMPTY).forGetter(element -> element.item),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("hold_time", 1).forGetter(element -> element.holdTime)
             ).apply(buttonGuiElementInstance, ButtonGuiElement::new), "Button gui element"

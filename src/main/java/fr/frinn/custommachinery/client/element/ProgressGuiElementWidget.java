@@ -47,9 +47,9 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
     public double getRecipeProgressPercent() {
         if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor machineProcessor && machineProcessor.getCores().size() > this.getElement().getCore()) {
             MachineProcessorCore core = machineProcessor.getCores().get(this.getElement().getCore());
-            if(core.getCurrentRecipe() == null)
+            if(core.getRecipeTotalTime() == 0)
                 return 0;
-            return core.getRecipeProgressTime() / (double) core.getCurrentRecipe().value().getRecipeTime();
+            return core.getRecipeProgressTime() / core.getRecipeTotalTime();
         }
         else if(this.getScreen().getTile().getMachine().isDummy())
             return (System.currentTimeMillis() % 2000) / 2000.0D;

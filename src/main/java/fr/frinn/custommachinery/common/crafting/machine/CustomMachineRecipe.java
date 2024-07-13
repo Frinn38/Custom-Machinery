@@ -35,12 +35,15 @@ public class CustomMachineRecipe implements Recipe<RecipeInput>, IMachineRecipe 
     @Nullable
     private final MachineAppearance appearance;
     private final List<IGuiElement> guiElements;
+    private final List<Integer> allowedCores;
+    private final boolean singleCore;
+
     @Nullable
     private MachineAppearance customAppearance;
     @Nullable
     private List<IGuiElement> customGuiElements;
 
-    public CustomMachineRecipe(ResourceLocation machine, int time, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance, List<IGuiElement> guiElements) {
+    public CustomMachineRecipe(ResourceLocation machine, int time, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance, List<IGuiElement> guiElements, List<Integer> allowedCores, boolean singleCore) {
         this.machine = machine;
         this.time = time;
         this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).toList();
@@ -51,6 +54,8 @@ public class CustomMachineRecipe implements Recipe<RecipeInput>, IMachineRecipe 
         this.hidden = hidden;
         this.appearance = appearance;
         this.guiElements = guiElements;
+        this.allowedCores = allowedCores;
+        this.singleCore = singleCore;
     }
 
     @Override
@@ -145,6 +150,14 @@ public class CustomMachineRecipe implements Recipe<RecipeInput>, IMachineRecipe 
         });
         this.customGuiElements = List.copyOf(elements);
         return elements;
+    }
+
+    public List<Integer> getAllowedCores() {
+        return this.allowedCores;
+    }
+
+    public boolean isSingleCore() {
+        return this.singleCore;
     }
 
     /** Vanilla Recipe Implementation **/

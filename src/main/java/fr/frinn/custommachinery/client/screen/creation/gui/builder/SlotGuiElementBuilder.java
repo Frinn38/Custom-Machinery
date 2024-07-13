@@ -91,7 +91,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
         private final SuggestedEditBox items;
         private final Checkbox alwaysVisible;
         private final IntegerSlider transparency;
-        private Color color = Color.WHITE;
+        private Color color = Color.TRANSPARENT_WHITE;
 
         public GhostItemWidget() {
             super(0, 0, 100, 60, Component.empty());

@@ -21,7 +21,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
                     NamedCodec.enumCodec(Orientation.class).optionalFieldOf("direction", Orientation.RIGHT).forGetter(ProgressBarGuiElement::getDirection),
                     NamedCodec.FLOAT.optionalFieldOf("start", 0.0F).forGetter(element -> element.start),
                     NamedCodec.FLOAT.optionalFieldOf("end", 1.0F).forGetter(element -> element.end),
-                    NamedCodec.INT.optionalFieldOf("core", 1).forGetter(element -> element.core)
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("core", 1).forGetter(element -> element.core)
             ).apply(progressGuiElement, ProgressBarGuiElement::new), "Progress bar gui element"
     );
 
@@ -68,7 +68,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
     }
 
     public int getCore() {
-        return this.core;
+        return this.core - 1;
     }
 
     public enum Orientation {

@@ -8,6 +8,8 @@ import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.api.network.ISyncable;
+import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
@@ -18,8 +20,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-public class MachineProcessor implements IProcessor {
+public class MachineProcessor implements IProcessor, ISyncableStuff {
 
     private final MachineTile tile;
     private boolean initialized = false;
@@ -32,7 +35,7 @@ public class MachineProcessor implements IProcessor {
         CraftingContext.Mutable mutableCraftingContext = new CraftingContext.Mutable(tile, tile.getUpgradeManager());
         ImmutableList.Builder<MachineProcessorCore> cores = ImmutableList.builder();
         for(int i = 0; i < amount; i++)
-            cores.add(new MachineProcessorCore(this, tile, recipeCheckCooldown, mutableCraftingContext));
+            cores.add(new MachineProcessorCore(this, tile, recipeCheckCooldown, mutableCraftingContext, i + 1));
         this.cores = cores.build();
     }
 
@@ -64,6 +67,8 @@ public class MachineProcessor implements IProcessor {
 
         if(this.cores.size() == 1) {
             RecipeHolder<CustomMachineRecipe> currentRecipe = this.cores.getFirst().getCurrentRecipe();
+            if(currentRecipe == null)
+                return;
             MachineAppearance customAppearance = currentRecipe.value().getCustomAppearance(this.tile.getMachine().getAppearance(this.tile().getStatus()));
             if(customAppearance != null)
                 this.tile.setCustomAppearance(customAppearance);
@@ -121,6 +126,11 @@ public class MachineProcessor implements IProcessor {
                     this.cores.get(i).deserialize(cores.getCompound(i));
             }
         }
+    }
+
+    @Override
+    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        this.cores.forEach(core -> core.getStuffToSync(container));
     }
 
     @Override

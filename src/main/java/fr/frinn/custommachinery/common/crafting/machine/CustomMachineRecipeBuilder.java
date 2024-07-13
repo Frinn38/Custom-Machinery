@@ -28,8 +28,10 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
                     NamedCodec.BOOL.optionalFieldOf("error", true).forGetter(builder -> !builder.resetOnError),
                     NamedCodec.BOOL.optionalFieldOf("hidden", false).forGetter(AbstractRecipeBuilder::isHidden),
                     MachineAppearance.CODEC.optionalFieldOf("appearance").forGetter(builder -> Optional.ofNullable(builder.appearance).map(MachineAppearance::getProperties)),
-                    IGuiElement.CODEC.listOf().optionalFieldOf("gui", Collections.emptyList()).forGetter(builder -> builder.guiElements)
-            ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority, error, hidden, appearance, guiElements) -> {
+                    IGuiElement.CODEC.listOf().optionalFieldOf("gui", Collections.emptyList()).forGetter(builder -> builder.guiElements),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).listOf().optionalFieldOf("cores", Collections.emptyList()).forGetter(builder -> builder.allowedCores),
+                    NamedCodec.BOOL.optionalFieldOf("single_core", false).forGetter(builder -> builder.singleCore)
+            ).apply(recipeBuilderInstance, (machine, time, requirements, jeiRequirements, priority, jeiPriority, error, hidden, appearance, guiElements, allowedCores, singleCore) -> {
                     CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(machine, time);
                     requirements.forEach(builder::withRequirement);
                     jeiRequirements.forEach(builder::withJeiRequirement);
@@ -41,6 +43,9 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
                         builder.hide();
                     appearance.ifPresent(map -> builder.withAppearance(new MachineAppearance(map)));
                     guiElements.forEach(builder::withGuiElement);
+                    allowedCores.forEach(builder::withAllowedCore);
+                    if(singleCore)
+                        builder.setSingleCore();
                     return builder;
             }), "Machine recipe builder"
     );
@@ -50,6 +55,8 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
     @Nullable
     private MachineAppearance appearance = null;
     private List<IGuiElement> guiElements = new ArrayList<>();
+    private List<Integer> allowedCores = new ArrayList<>();
+    private boolean singleCore = false;
 
     public CustomMachineRecipeBuilder(ResourceLocation machine, int time) {
         super(machine);
@@ -62,6 +69,8 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
         this.resetOnError = recipe.shouldResetOnError();
         this.appearance = recipe.getAppearance();
         this.guiElements = recipe.getGuiElements();
+        this.allowedCores = recipe.getAllowedCores();
+        this.singleCore = recipe.isSingleCore();
     }
 
     public CustomMachineRecipeBuilder setResetOnError() {
@@ -79,9 +88,19 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
         return this;
     }
 
+    public CustomMachineRecipeBuilder withAllowedCore(int core) {
+        this.allowedCores.add(core);
+        return this;
+    }
+
+    public CustomMachineRecipeBuilder setSingleCore() {
+        this.singleCore = true;
+        return this;
+    }
+
     @Override
     public CustomMachineRecipe build() {
-        return new CustomMachineRecipe(this.getMachine(), this.time, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority(), this.resetOnError, this.isHidden(), this.appearance, this.guiElements);
+        return new CustomMachineRecipe(this.getMachine(), this.time, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority(), this.resetOnError, this.isHidden(), this.appearance, this.guiElements, this.allowedCores, this.singleCore);
     }
 
     @Override

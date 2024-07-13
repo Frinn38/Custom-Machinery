@@ -36,6 +36,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.Structure
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
@@ -61,6 +62,11 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
             builder.withAppearance(getValue(CustomMachineryRecipeSchemas.APPEARANCE));
 
         getValue(CustomMachineryRecipeSchemas.GUI).forEach(builder::withGuiElement);
+
+        getValue(CustomMachineryRecipeSchemas.ALLOWED_CORES).forEach(builder::withAllowedCore);
+
+        if(getValue(CustomMachineryRecipeSchemas.SINGLE_CORE))
+            builder.setSingleCore();
 
         return builder;
     }
@@ -89,6 +95,18 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
                 throw new KubeRuntimeException("Error when parsing recipe custom gui element\n" + json + "\n" + s);
             }).ifPresent(element -> setValue(CustomMachineryRecipeSchemas.GUI, addToList(CustomMachineryRecipeSchemas.GUI, element)));
         }
+        return this;
+    }
+
+    /** CORES **/
+
+    public CustomMachineRecipeBuilderJS cores(Integer[] cores) {
+        setValue(CustomMachineryRecipeSchemas.ALLOWED_CORES, Arrays.stream(cores).toList());
+        return this;
+    }
+
+    public CustomMachineRecipeBuilderJS singleCore() {
+        setValue(CustomMachineryRecipeSchemas.SINGLE_CORE, true);
         return this;
     }
 }

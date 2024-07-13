@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.client.element;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -33,9 +32,9 @@ public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElemen
         if(ghost != GhostItem.EMPTY && ghost.ingredient().getItems().length != 0 && (ghost.alwaysRender() || this.isSlotEmpty())) {
             timer.onDraw();
             List<Item> items = Arrays.stream(ghost.ingredient().getItems()).map(ItemStack::getItem).toList();
-            RenderSystem.setShaderColor(ghost.color().getRed() / 255f, ghost.color().getGreen() / 255f, ghost.color().getBlue() / 255f, ghost.color().getAlpha() / 255f);
-            graphics.renderItem(timer.getOrDefault(items, Items.AIR).getDefaultInstance(), this.getX() + 1, this.getY() + 1);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            graphics.setColor(ghost.color().getRed() / 255f, ghost.color().getGreen() / 255f, ghost.color().getBlue() / 255f, ghost.color().getAlpha() / 255f);
+            graphics.renderFakeItem(timer.getOrDefault(items, Items.AIR).getDefaultInstance(), this.getX() + 1, this.getY() + 1);
+            graphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
 

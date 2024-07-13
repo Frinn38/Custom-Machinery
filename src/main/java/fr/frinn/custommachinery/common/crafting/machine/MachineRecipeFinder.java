@@ -15,18 +15,22 @@ import java.util.Optional;
 public class MachineRecipeFinder {
 
     private final MachineTile tile;
+    private final MachineProcessor processor;
     private final int baseCooldown;
     private final CraftingContext.Mutable mutableCraftingContext;
+    private final int core;
     private List<RecipeChecker<CustomMachineRecipe>> recipes;
     private List<RecipeChecker<CustomMachineRecipe>> okToCheck;
     private boolean inventoryChanged = true;
 
     private int recipeCheckCooldown;
 
-    public MachineRecipeFinder(MachineTile tile, int baseCooldown, CraftingContext.Mutable mutableCraftingContext) {
+    public MachineRecipeFinder(MachineTile tile, MachineProcessor processor, int baseCooldown, CraftingContext.Mutable mutableCraftingContext, int core) {
         this.tile = tile;
+        this.processor = processor;
         this.baseCooldown = baseCooldown;
         this.mutableCraftingContext = mutableCraftingContext;
+        this.core = core;
     }
 
     public void init() {
@@ -59,6 +63,9 @@ public class MachineRecipeFinder {
                 if(!this.inventoryChanged && checker.isInventoryRequirementsOnly())
                     continue;
                 if(checker.check(this.tile, this.mutableCraftingContext.setRecipe(checker.getRecipe().value(), checker.getRecipe().id()), this.inventoryChanged)) {
+                    //Check if the recipe can be run on this core
+                    if((!checker.getRecipe().value().getAllowedCores().isEmpty() && !checker.getRecipe().value().getAllowedCores().contains(this.core)) || (checker.getRecipe().value().isSingleCore() && this.processor.getCores().stream().anyMatch(core -> core.getCurrentRecipe() != null && core.getCurrentRecipe().id().equals(checker.getRecipe().id()))))
+                        continue;
                     setInventoryChanged(false);
                     return Optional.of(checker.getRecipe());
                 }
