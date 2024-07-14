@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessorCore;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -26,10 +27,16 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
 
         if(this.getElement().getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && this.getElement().getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)) {
             graphics.pose().pushPose();
-            rotate(graphics.pose(), this.getElement().getDirection(), this.getX(), this.getY(), this.width, this.height);
+            int width = this.width;
+            int height = this.height;
+            if(this.getElement().getDirection() == Orientation.TOP || this.getElement().getDirection() == Orientation.BOTTOM) {
+                width = this.height;
+                height = this.width;
+            }
+            rotate(graphics.pose(), this.getElement().getDirection(), this.getX(), this.getY(), width, height);
 
-            graphics.blit(this.getElement().getEmptyTexture(), 0, 0, 0, 0, this.width, this.height, this.width, this.height);
-            graphics.blit(this.getElement().getFilledTexture(), 0, 0, 0, 0, filledWidth, this.height, this.width, this.height);
+            graphics.blit(this.getElement().getEmptyTexture(), 0, 0, 0, 0, width, height, width, height);
+            graphics.blit(this.getElement().getFilledTexture(), 0, 0, 0, 0, filledWidth, height, width, height);
 
             graphics.pose().popPose();
         } else {
