@@ -2,12 +2,8 @@ package fr.frinn.custommachinery.client.screen.popup;
 
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 
 public abstract class PopupScreen extends BaseScreen {
 
@@ -33,15 +29,6 @@ public abstract class PopupScreen extends BaseScreen {
             if(c instanceof LayoutElement widget)
                 widget.setPosition(widget.getX() + movedX, widget.getY() + movedY);
         });
-    }
-
-    @Nullable
-    public Tooltip getTooltip(int mouseX, int mouseY) {
-        for(GuiEventListener listener : this.children()) {
-            if(listener.isMouseOver(mouseX, mouseY) && listener instanceof AbstractWidget widget)
-                return widget.getTooltip();
-        }
-        return null;
     }
 
     @Override

@@ -23,14 +23,6 @@ public class ComponentPropertyListWidget extends ListWidget<ComponentPropertyEnt
         return widget;
     }
 
-    @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderWidget(graphics, mouseX, mouseY, partialTicks);
-        this.children().stream().map(entry -> entry.widget)
-                .filter(widget -> widget.getTooltip() != null && widget.isMouseOver(mouseX, mouseY))
-                .forEach(widget -> graphics.renderTooltip(Minecraft.getInstance().font, widget.getTooltip().toCharSequence(Minecraft.getInstance()), mouseX, mouseY));
-    }
-
     public static class ComponentPropertyEntry extends Entry {
 
         private final Component title;
