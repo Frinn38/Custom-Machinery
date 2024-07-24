@@ -117,6 +117,7 @@ public class CraftProcessor implements IProcessor {
             if (requirement.shouldSkip(this.tile.getComponentManager(), this.rand, context))
                 continue;
             RequirementList list = new RequirementList();
+            list.setCurrentRequirement(requirement);
             requirement.requirement().gatherRequirements(list);
             ((Map<Double, List< RequirementWithFunction>>)list.getProcessRequirements()).values()
                     .stream()
