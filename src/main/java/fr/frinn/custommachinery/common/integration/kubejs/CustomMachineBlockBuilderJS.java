@@ -6,10 +6,10 @@ import dev.latvian.mods.kubejs.generator.KubeAssetGenerator;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
 import dev.latvian.mods.kubejs.registry.AdditionalObjectRegistry;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
-import dev.latvian.mods.kubejs.registry.RegistryInfo;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -48,11 +48,6 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     }
 
     @Override
-    public RegistryInfo<Block> getRegistryType() {
-        return RegistryInfo.BLOCK;
-    }
-
-    @Override
     public Block createObject() {
         CustomMachineBlock block = new CustomMachineBlock(this.renderType, this.occlusion);
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
@@ -61,14 +56,14 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public void createAdditionalObjects(AdditionalObjectRegistry registry) {
-        registry.add(RegistryInfo.ITEM, new ItemBuilder(this.id) {
+        registry.add(Registries.ITEM, new ItemBuilder(this.id) {
             @Override
             public Item createObject() {
                 return new CustomMachineItem(CustomMachineBlockBuilderJS.this.get(), new Item.Properties(), CustomMachineBlockBuilderJS.this.machineID);
             }
 
             @Override
-            public void generateAssetJsons(KubeAssetGenerator generator) {
+            public void generateAssets(KubeAssetGenerator generator) {
                 JsonObject json = new JsonObject();
                 json.add("parent", new JsonPrimitive("custommachinery:block/custom_machine_block"));
                 JsonObject defaultJson = new JsonObject();
@@ -80,7 +75,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     }
 
     @Override
-    public void generateAssetJsons(KubeAssetGenerator generator) {
+    public void generateAssets(KubeAssetGenerator generator) {
         generator.blockState(this.id, stateGenerator -> stateGenerator.simpleVariant("", "custommachinery:block/custom_machine_block"));
     }
 }

@@ -78,8 +78,8 @@ public interface CustomMachineryRecipeSchemas {
     RecipeKey<TickDuration> TIME = TimeComponent.TICKS.key("time", ComponentRole.OTHER);
     RecipeKey<ItemStack> OUTPUT = ItemStackComponent.ITEM_STACK.key("output", ComponentRole.OUTPUT);
 
-    RecipeKey<List<RecipeRequirement<?, ?>>> REQUIREMENTS = REQUIREMENT_LIST.key("requirements", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
-    RecipeKey<List<RecipeRequirement<?, ?>>> JEI_REQUIREMENTS = REQUIREMENT_LIST.key("jei", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
+    RecipeKey<List<RecipeRequirement<?, ?>>> REQUIREMENTS = REQUIREMENT_LIST.key("requirements", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().allowEmpty().exclude();
+    RecipeKey<List<RecipeRequirement<?, ?>>> JEI_REQUIREMENTS = REQUIREMENT_LIST.key("jei", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().allowEmpty().exclude();
 
     RecipeKey<Integer> PRIORITY = NumberComponent.INT.key("priority", ComponentRole.OTHER).optional(0).alwaysWrite().exclude();
     RecipeKey<Integer> JEI_PRIORITY = NumberComponent.INT.key("jeiPriority", ComponentRole.OTHER).optional(0).alwaysWrite().exclude();
@@ -87,8 +87,8 @@ public interface CustomMachineryRecipeSchemas {
     RecipeKey<Boolean> ERROR = BooleanComponent.BOOLEAN.key("error", ComponentRole.OTHER).optional(false).alwaysWrite().exclude();
     RecipeKey<Boolean> HIDDEN = BooleanComponent.BOOLEAN.key("hidden", ComponentRole.OTHER).optional(false).alwaysWrite().exclude();
     RecipeKey<MachineAppearance> APPEARANCE = CUSTOM_APPEARANCE.key("appearance", ComponentRole.OTHER).optional((MachineAppearance) null).alwaysWrite().exclude();
-    RecipeKey<List<IGuiElement>> GUI = CUSTOM_GUI_ELEMENTS.asList().key("gui", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
-    RecipeKey<List<Integer>> ALLOWED_CORES = NumberComponent.intRange(1, Integer.MAX_VALUE).asList().key("cores", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().exclude();
+    RecipeKey<List<IGuiElement>> GUI = CUSTOM_GUI_ELEMENTS.asList().key("gui", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().allowEmpty().exclude();
+    RecipeKey<List<Integer>> ALLOWED_CORES = NumberComponent.intRange(1, Integer.MAX_VALUE).asList().key("cores", ComponentRole.OTHER).optional(Collections.emptyList()).alwaysWrite().allowEmpty().exclude();
     RecipeKey<Boolean> SINGLE_CORE = BooleanComponent.BOOLEAN.key("single_core", ComponentRole.OTHER).optional(false).alwaysWrite().exclude();
 
     RecipeSchema CUSTOM_MACHINE = new RecipeSchema(MACHINE_ID, TIME, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, ERROR, HIDDEN, APPEARANCE, GUI, ALLOWED_CORES, SINGLE_CORE).factory(new KubeRecipeFactory(CustomMachinery.rl("custom_machine"), TypeInfo.of(CustomMachineRecipeBuilderJS.class), CustomMachineRecipeBuilderJS::new));
