@@ -230,7 +230,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         else if(this.delete.mouseClicked(mouseX, mouseY, button))
             return true;
 
-        for (GuiEventListener guiEventListener : this.children()) {
+        for (GuiEventListener guiEventListener : this.widgets.reversed()) {
             if (!guiEventListener.mouseClicked(mouseX, mouseY, button)) continue;
             this.setFocused(guiEventListener);
             if (button == 0)
