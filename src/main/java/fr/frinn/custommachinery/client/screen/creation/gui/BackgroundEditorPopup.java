@@ -45,16 +45,17 @@ public class BackgroundEditorPopup extends PopupScreen {
         GridLayout layout = new GridLayout(this.x + 5, this.y + 5).spacing(5);
         RowHelper row = layout.createRowHelper(2);
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
+        LayoutSettings middle = row.newCellSettings().alignVerticallyMiddle();
 
         //Title
         row.addChild(new StringWidget(this.xSize - 10, this.font.lineHeight, Component.translatable("custommachinery.gui.creation.gui.background"), this.font), 2, center);
 
         //Mode
-        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.mode"), this.font));
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.mode"), this.font), middle);
         this.mode = row.addChild(CycleButton.builder(Mode::title).displayOnlyValue().withValues(Mode.values()).withInitialValue(mode).create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.mode"), (button, value) -> this.texture.setEditable(value == Mode.CUSTOM)));
 
         //Texture
-        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.texture"), this.font));
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.texture"), this.font), middle);
         this.texture = row.addChild(new SuggestedEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.texture"), 5));
         this.texture.setMaxLength(Integer.MAX_VALUE);
         if(this.background != null) {
@@ -65,7 +66,7 @@ public class BackgroundEditorPopup extends PopupScreen {
         this.texture.setEditable(mode == Mode.CUSTOM);
 
         //Width
-        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.width"), this.font));
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.width"), this.font), middle);
         this.width = row.addChild(new IntegerEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.width")));
         this.width.bounds(-1, 256);
         this.width.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background.width.tooltip")));
@@ -75,7 +76,7 @@ public class BackgroundEditorPopup extends PopupScreen {
             this.width.setValue("256");
 
         //Height
-        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.height"), this.font));
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.height"), this.font), middle);
         this.height = row.addChild(new IntegerEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.height")));
         this.height.bounds(-1, 192);
         this.height.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background.height.tooltip")));

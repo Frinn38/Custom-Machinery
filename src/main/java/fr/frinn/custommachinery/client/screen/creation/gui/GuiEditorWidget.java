@@ -47,6 +47,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     private boolean dragging;
     private GuiEventListener focused;
+    private static GridSettings gridSettings = new GridSettings(false, 10, 10, 0.5F);
 
     public GuiEditorWidget(MachineEditScreen parent, int x, int y, int width, int height, List<IGuiElement> baseElements) {
         super(x, y, width, height, Component.empty());
@@ -105,6 +106,14 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         this.parent.openPopup(widget.builder.makeConfigPopup(this.parent, widget.properties, widget.widget.getElement(), widget::refreshWidget));
     }
 
+    public GridSettings getGridSettings() {
+        return gridSettings;
+    }
+
+    public void setGridSettings(GridSettings settings) {
+        gridSettings = settings;
+    }
+
     private void changePriority(int delta) {
         if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
             widget.properties.setPriority(widget.properties.getPriority() + delta);
@@ -141,11 +150,23 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        //Black border
         graphics.fill(this.getX() - 2, this.getY() - 2, this.getX() + this.getWidth() + 2, this.getY() + this.getHeight() + 2, FastColor.ARGB32.color(255, 0, 0, 0));
         graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), FastColor.ARGB32.color(255, 198, 198, 198));
-        graphics.pose().pushPose();
+
+        //Grid
+        if(this.gridSettings != null && this.gridSettings.enabled()) {
+            for(int x = this.getX() + this.gridSettings.xSpacing(); x < this.getX() + this.getWidth(); x += this.gridSettings.xSpacing())
+                graphics.fill(x, this.getY(), x + 1, this.getY() + this.getHeight(), FastColor.ARGB32.color((int)(255 * this.gridSettings.opacity()), 85, 85, 85));
+
+            for(int y = this.getY() + this.gridSettings.ySpacing(); y < this.getY() + this.getHeight(); y += this.gridSettings.ySpacing())
+                graphics.fill(this.getX(), y, this.getX() + this.getWidth(), y + 1, FastColor.ARGB32.color((int)(255 * this.gridSettings.opacity()), 85, 85, 85));
+        }
+
+        //Elements
         this.widgets.forEach(widget -> widget.render(graphics, mouseX, mouseY, partialTick));
-        graphics.pose().popPose();
+
+        //Buttons
         this.config.render(graphics, mouseX, mouseY, partialTick);
         this.priorityUp.render(graphics, mouseX, mouseY, partialTick);
         this.priorityDown.render(graphics, mouseX, mouseY, partialTick);
@@ -524,4 +545,6 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         LEFT_RESIZE,
         RIGHT_RESIZE
     }
+
+    public record GridSettings(boolean enabled, int xSpacing, int ySpacing, float opacity) {}
 }

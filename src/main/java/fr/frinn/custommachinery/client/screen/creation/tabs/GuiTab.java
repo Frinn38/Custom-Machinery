@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.gui.BackgroundEditorPopup;
+import fr.frinn.custommachinery.client.screen.creation.gui.GridEditorPopup;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementCreationPopup;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
@@ -21,14 +22,17 @@ public class GuiTab extends MachineEditTab {
 
     public static final WidgetSprites CREATE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/create_button"), CustomMachinery.rl("creation/create_button_hovered"));
     public static final WidgetSprites BACKGROUND_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/background_button"), CustomMachinery.rl("creation/background_button_hovered"));
+    public static final WidgetSprites GRID_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/grid_button"), CustomMachinery.rl("creation/grid_button_hovered"));
 
     private final GuiEditorWidget guiEditor;
     private AddGuiElementButton addButton;
     private ImageButton backgroundButton;
+    private ImageButton gridButton;
 
     public GuiTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.gui"), parent);
         RowHelper row = this.layout.createRowHelper(1);
+        row.defaultCellSetting().paddingTop(2);
         row.addChild(new StringWidget(parent.width, 0, Component.empty(), Minecraft.getInstance().font));
         BackgroundGuiElement background = parent.getBuilder().getGuiElements().stream().filter(element -> element instanceof BackgroundGuiElement).map(element -> (BackgroundGuiElement)element).findFirst().orElse(null);
         if(background != null)
@@ -47,12 +51,15 @@ public class GuiTab extends MachineEditTab {
         this.addButton = this.parent.addRenderableWidget(new AddGuiElementButton(this.parent.x - 28, this.parent.y + 85, button -> this.create()));
         this.backgroundButton = this.parent.addRenderableWidget(new ImageButton(this.parent.x - 28, this.parent.y + 110, 20, 20, BACKGROUND_SPRITES, button -> this.background()));
         this.backgroundButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background")));
+        this.gridButton = this.parent.addRenderableWidget(new ImageButton(this.parent.x - 28, this.parent.y + 135, 20, 20, GRID_SPRITES, button -> this.grid()));
+        this.gridButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.grid")));
     }
 
     @Override
     public void closed() {
         this.parent.removeWidget(this.addButton);
         this.parent.removeWidget(this.backgroundButton);
+        this.parent.removeWidget(this.gridButton);
     }
 
     @Override
@@ -62,6 +69,8 @@ public class GuiTab extends MachineEditTab {
             this.addButton.setPosition(this.parent.x - 28, this.parent.y + 85);
         if(this.backgroundButton != null)
             this.backgroundButton.setPosition(this.parent.x - 28, this.parent.y + 110);
+        if(this.gridButton != null)
+            this.gridButton.setPosition(this.parent.x - 28, this.parent.y + 135);
     }
 
     private void create() {
@@ -69,7 +78,11 @@ public class GuiTab extends MachineEditTab {
     }
 
     private void background() {
-        this.parent.openPopup(new BackgroundEditorPopup(this.parent));
+        this.parent.openPopup(new BackgroundEditorPopup(this.parent), "background");
+    }
+
+    private void grid() {
+        this.parent.openPopup(new GridEditorPopup(this.parent, this.guiEditor), "grid");
     }
 
     public static class AddGuiElementButton extends ImageButton {
@@ -81,7 +94,7 @@ public class GuiTab extends MachineEditTab {
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            BaseScreen.blankBackground(graphics, this.getX() - 5, this.getY() - 5, this.getWidth() + 10, this.getHeight() + 35);
+            BaseScreen.blankBackground(graphics, this.getX() - 5, this.getY() - 5, this.getWidth() + 10, this.getHeight() + 60);
             super.renderWidget(graphics, mouseX, mouseY, partialTick);
         }
     }
