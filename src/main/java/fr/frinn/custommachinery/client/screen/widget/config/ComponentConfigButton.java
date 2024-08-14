@@ -7,9 +7,9 @@ import net.minecraft.util.FastColor;
 
 import java.util.function.Supplier;
 
-public class ComponentConfigButtonWidget extends Button {
+public class ComponentConfigButton extends Button {
 
-    public ComponentConfigButtonWidget(int x, int y, int width, int height, Component message, OnPress onPress) {
+    public ComponentConfigButton(int x, int y, int width, int height, Component message, OnPress onPress) {
         super(x, y, width, height, message, onPress, Supplier::get);
     }
 

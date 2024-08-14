@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.screen.popup.ComponentConfigPopup;
 import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
-import fr.frinn.custommachinery.client.screen.widget.config.ComponentConfigButtonWidget;
+import fr.frinn.custommachinery.client.screen.widget.config.ComponentConfigButton;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -57,7 +57,7 @@ public class MachineConfigScreen extends BaseScreen {
         //Highlight elements in blue
         this.getConfigurableElements().forEach(element -> {
             ComponentConfigPopup popup = new ComponentConfigPopup(this, this.getComponentFromElement(element).getConfig());
-            this.addRenderableWidget(new ComponentConfigButtonWidget(
+            this.addRenderableWidget(new ComponentConfigButton(
                     this.x + element.getX(),
                     this.y + element.getY(),
                     element.getWidth(),

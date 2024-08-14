@@ -8,20 +8,25 @@ import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-public class SideModeButtonWidget extends AbstractWidget {
+public class SideModeButton extends ImageButton {
 
-    private static final ResourceLocation TEXTURE = CustomMachinery.rl("textures/gui/config/side_mode.png");
+    private static final WidgetSprites SPRITES = new WidgetSprites(CustomMachinery.rl("config/side_mode_button"), CustomMachinery.rl("config/side_mode_button_hovered"));
 
     private final SideConfig config;
     private final RelativeSide side;
 
-    public SideModeButtonWidget(int x, int y, SideConfig config, RelativeSide side) {
-        super(x, y, 14, 14, side.getTranslationName());
+    public SideModeButton(int x, int y, SideConfig config, RelativeSide side) {
+        super(x, y, 14, 14, SPRITES, button -> {}, side.getTranslationName());
         this.config = config;
         this.side = side;
     }
@@ -33,16 +38,17 @@ public class SideModeButtonWidget extends AbstractWidget {
         float g = FastColor.ARGB32.green(color) / 255.0F;
         float b = FastColor.ARGB32.blue(color) / 255.0F;
         RenderSystem.setShaderColor(r, g, b, 1);
-        if(this.isMouseOver(mouseX, mouseY))
-            graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 14, this.width, this.height, this.width, 28);
-        else
-            graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, 28);
+        super.renderWidget(graphics, mouseX, mouseY, partialTick);
         RenderSystem.setShaderColor(1, 1, 1, 1);
+        this.updateTooltips();
     }
 
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        this.defaultButtonNarrationText(narrationElementOutput);
+    private void updateTooltips() {
+        MutableComponent tooltip = Component.empty();
+        tooltip.append(this.side.getTranslationName());
+        tooltip.append("\n");
+        tooltip.append(this.config.getSideMode(this.side).title());
+        this.setTooltip(Tooltip.create(tooltip));
     }
 
     @Override

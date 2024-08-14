@@ -29,6 +29,7 @@ public class PacketManager {
 
         // Client to Server
         registrar.playToServer(CAddMachinePacket.TYPE, CAddMachinePacket.CODEC, CAddMachinePacket::handle);
+        registrar.playToServer(CAllSidesNonePacket.TYPE, CAllSidesNonePacket.CODEC, CAllSidesNonePacket::handle);
         registrar.playToServer(CChangeSideModePacket.TYPE, CChangeSideModePacket.CODEC, CChangeSideModePacket::handle);
         registrar.playToServer(CEditMachinePacket.TYPE, CEditMachinePacket.CODEC, CEditMachinePacket::handle);
         registrar.playToServer(CGuiElementClickPacket.TYPE, CGuiElementClickPacket.CODEC, CGuiElementClickPacket::handle);

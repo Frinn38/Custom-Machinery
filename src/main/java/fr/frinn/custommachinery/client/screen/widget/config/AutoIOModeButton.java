@@ -8,8 +8,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -17,19 +21,19 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutoIOModeButtonWidget extends AbstractWidget {
+public class AutoIOModeButton extends ImageButton {
 
-    private static final ResourceLocation TEXTURE = CustomMachinery.rl("textures/gui/config/auto_io_mode.png");
-    private static final Component INPUT = Component.translatable("custommachinery.gui.config.auto_input");
-    private static final Component OUTPUT = Component.translatable("custommachinery.gui.config.auto_output");
-    private static final Component ENABLED = Component.translatable("custommachinery.gui.config.enabled").withStyle(ChatFormatting.GREEN);
-    private static final Component DISABLED = Component.translatable("custommachinery.gui.config.disabled").withStyle(ChatFormatting.RED);
+    private static final WidgetSprites SPRITES = new WidgetSprites(CustomMachinery.rl("config/auto_io_button"), CustomMachinery.rl("config/auto_io_button_hovered"));
+    private static final MutableComponent INPUT = Component.translatable("custommachinery.gui.config.auto_input");
+    private static final MutableComponent OUTPUT = Component.translatable("custommachinery.gui.config.auto_output");
+    private static final MutableComponent ENABLED = Component.translatable("custommachinery.gui.config.enabled").withStyle(ChatFormatting.GREEN);
+    private static final MutableComponent DISABLED = Component.translatable("custommachinery.gui.config.disabled").withStyle(ChatFormatting.RED);
 
     private final SideConfig config;
     private final boolean input;
 
-    public AutoIOModeButtonWidget(int x, int y, SideConfig config, boolean input) {
-        super(x, y, 28, 14, input ? INPUT : OUTPUT);
+    public AutoIOModeButton(int x, int y, SideConfig config, boolean input) {
+        super(x, y, 28, 14, SPRITES, button -> {}, input ? INPUT : OUTPUT);
         this.config = config;
         this.input = input;
     }
@@ -45,26 +49,19 @@ public class AutoIOModeButtonWidget extends AbstractWidget {
         float g = FastColor.ARGB32.green(color) / 255.0F;
         float b = FastColor.ARGB32.blue(color) / 255.0F;
         RenderSystem.setShaderColor(r, g, b, 1);
-        if(this.isHovered())
-            graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 14, this.width, this.height, this.width, 28);
-        else
-            graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, 28);
+        super.renderWidget(graphics, mouseX, mouseY, partialTick);
         RenderSystem.setShaderColor(1, 1, 1, 1);
+        this.updateTooltip();
     }
 
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        this.defaultButtonNarrationText(narrationElementOutput);
-    }
-
-    public List<Component> getTooltips() {
-        List<Component> tooltips = new ArrayList<>();
-        tooltips.add(this.input ? INPUT : OUTPUT);
+    private void updateTooltip() {
+        MutableComponent tooltip = (this.input ? INPUT : OUTPUT).copy();
+        tooltip.append("\n");
         if((this.input && this.config.isAutoInput()) || (!this.input && this.config.isAutoOutput()))
-            tooltips.add(ENABLED);
+            tooltip.append(ENABLED);
         else
-            tooltips.add(DISABLED);
-        return tooltips;
+            tooltip.append(DISABLED);
+        this.setTooltip(Tooltip.create(tooltip));
     }
 
     @Override

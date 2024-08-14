@@ -82,6 +82,7 @@
   "custommachinery.gui.config.auto_output": "Auto Output",
   "custommachinery.gui.config.enabled": "Enabled",
   "custommachinery.gui.config.disabled": "Disabled",
+  "custommachinery.gui.config.all_none": "Set all sides to none",
 
   "custommachinery.gui.creation.create": "Create",
   "custommachinery.gui.creation.edit": "Edit",

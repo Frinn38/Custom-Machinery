@@ -47,7 +47,15 @@ public abstract class PopupScreen extends BaseScreen {
             this.dragX -= changedX;
             this.dragY -= changedY;
         }
+        boolean parentHasTooltip = this.parent.deferredTooltipRendering != null;
         super.render(graphics, mouseX, mouseY, partialTicks);
+        //If parent didn't have tooltip before rendering this popup, but now have it that means the tooltips were added by this popup.
+        //So we move them to this popup tooltips
+        if(!parentHasTooltip && this.parent.deferredTooltipRendering != null) {
+            if(this.deferredTooltipRendering == null)
+                this.deferredTooltipRendering = this.parent.deferredTooltipRendering;
+            this.parent.deferredTooltipRendering = null;
+        }
     }
 
     @Override
