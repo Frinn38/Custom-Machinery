@@ -131,6 +131,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
             this.setChanged();
             if(this.getLevel() instanceof ServerLevel level) {
                 BlockPos pos = this.getBlockPos();
+                level.updateNeighborsAt(pos, this.getBlockState().getBlock());
                 PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(pos), new SUpdateMachineStatusPacket(pos, this.status));
             }
         }

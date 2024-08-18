@@ -101,6 +101,13 @@ public class MachineProcessorCore implements ISyncableStuff {
 
             if(this.phase == Phase.PROCESS_TICK)
                 this.processTickRequirements();
+
+            if(this.recipeProgressTime >= this.recipeTotalTime) {
+                this.currentRecipe = null;
+                this.recipeProgressTime = 0.0D;
+                this.context = null;
+                this.recipeFinder.findRecipe(true).ifPresent(this::setRecipe);
+            }
         }
     }
 
@@ -180,12 +187,6 @@ public class MachineProcessorCore implements ISyncableStuff {
         this.setRunning();
         this.phase = Phase.CONDITIONS;
         this.recipeProgressTime += this.context.getModifiedSpeed();
-        if(this.recipeProgressTime >= this.recipeTotalTime) {
-            this.currentRecipe = null;
-            this.recipeProgressTime = 0.0D;
-            this.context = null;
-            this.setSearchImmediately();
-        }
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

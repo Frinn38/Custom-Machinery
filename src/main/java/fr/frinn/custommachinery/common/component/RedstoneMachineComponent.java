@@ -69,10 +69,6 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
                 this.powerToPause;
     }
 
-    public int getPowerToPause() {
-        return this.powerToPause;
-    }
-
     public int getPowerOutput() {
         return switch (this.getManager().getTile().getStatus()) {
             case IDLE -> this.idlePowerOutput;
