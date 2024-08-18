@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
@@ -20,8 +19,12 @@ import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.inputs.IJeiInputHandler;
+import mezz.jei.api.gui.inputs.IJeiUserInput;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -29,11 +32,11 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -200,7 +203,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public List<Component> getTooltipStrings(T recipe, IRecipeSlotsView view, double mouseX, double mouseY) {
+    public void getTooltip(ITooltipBuilder builder, T recipe, IRecipeSlotsView view, double mouseX, double mouseY) {
         //First, check if any gui element is hovered and if so return its tooltips.
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         if(recipe instanceof CustomMachineRecipe machineRecipe && !machineRecipe.getGuiElements().isEmpty())
@@ -210,8 +213,10 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 IJEIElementRenderer<IGuiElement> renderer = GuiElementJEIRendererRegistry.getJEIRenderer(element.getType());
                 int x = element.getX() - this.offsetX;
                 int y = element.getY() - this.offsetY;
-                if(renderer.isHoveredInJei(element, x, y, (int)mouseX, (int)mouseY))
-                    return renderer.getJEITooltips(element, recipe);
+                if(renderer.isHoveredInJei(element, x, y, (int)mouseX, (int)mouseY)) {
+                    builder.addAll(renderer.getJEITooltips(element, recipe));
+                    return;
+                }
             }
         }
 
@@ -226,31 +231,39 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 row++;
             }
 
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
-                return info.getTooltips().stream().filter(pair -> pair.getSecond().shouldDisplay(Minecraft.getInstance().player, Minecraft.getInstance().options.advancedItemTooltips)).map(Pair::getFirst).toList();
+            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null) {
+                info.getTooltips().stream().filter(pair -> pair.getSecond().shouldDisplay(Minecraft.getInstance().player, Minecraft.getInstance().options.advancedItemTooltips)).map(Pair::getFirst).forEach(builder::add);
+                return;
+            }
         }
-
-        //If the mouse hover nothing from cm, return no tooltips.
-        return Collections.emptyList();
     }
 
     @Override
-    public boolean handleInput(T recipe, double mouseX, double mouseY, InputConstants.Key mouseButton) {
-        if(mouseButton.getValue() != 0 && mouseButton.getValue() != 1 && mouseButton.getValue() != 2)
-            return false;
-
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, T recipe, IFocusGroup focuses) {
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
-        return recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).anyMatch(info -> {
+        recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).forEach(info -> {
             int x = index.get() * (ICON_SIZE + 2) - 2;
             int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
             if(index.incrementAndGet() >= this.maxIconPerRow) {
                 index.set(0);
                 row.incrementAndGet();
             }
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null)
-                return info.handleClick(this.machine, recipe, mouseButton.getValue());
-            return false;
+            builder.addInputHandler(new IJeiInputHandler() {
+                @Override
+                public ScreenRectangle getArea() {
+                    return new ScreenRectangle(x, y, x + ICON_SIZE, y + ICON_SIZE);
+                }
+
+                @Override
+                public boolean handleInput(double mouseX, double mouseY, IJeiUserInput input) {
+                    if(Minecraft.getInstance().screen == null)
+                        return false;
+                    if(input.isSimulate())
+                        return true;
+                    return info.handleClick(AbstractRecipeCategory.this.machine, recipe, input.getKey().getValue());
+                }
+            });
         });
     }
 }

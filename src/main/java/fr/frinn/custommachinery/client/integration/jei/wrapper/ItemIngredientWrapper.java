@@ -54,7 +54,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
             builder.addSlot(roleFromMode(this.mode), slotX - xOffset, slotY - yOffset)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .setSlotName(slotElement.getComponentId())
-                    .addTooltipCallback((view, tooltips) -> {
+                    .addRichTooltipCallback((view, tooltips) -> {
                         if(this.useDurability && this.mode == RequirementIOMode.INPUT)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.consume", this.ingredient.count()));
                         else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)

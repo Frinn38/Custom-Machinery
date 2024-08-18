@@ -46,7 +46,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
             builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                     .setFluidRenderer(this.ingredient.amount(), false, element.getWidth() - 2, element.getHeight() - 2)
                     .addIngredients(NeoForgeTypes.FLUID_STACK, ingredients)
-                    .addTooltipCallback((view, tooltips) -> {
+                    .addRichTooltipCallback((view, tooltips) -> {
                         if(this.isPerTick)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.fluid.pertick"));
 

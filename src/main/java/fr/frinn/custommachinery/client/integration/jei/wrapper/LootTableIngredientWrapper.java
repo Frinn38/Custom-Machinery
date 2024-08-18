@@ -42,7 +42,7 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
         if(template.map(t -> t.canAccept(ingredients, false, helper.getDummyManager())).orElse(false)) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, element.getX() - xOffset, element.getY() - yOffset)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
-                    .addTooltipCallback((view, tooltips) -> {
+                    .addRichTooltipCallback((view, tooltips) -> {
                         double chance = view.getDisplayedIngredient(VanillaTypes.ITEM_STACK).map(table::get).orElse(1.0D);
                         if(chance != 1){
                             double percentage = chance * 100;

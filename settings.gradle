@@ -13,4 +13,4 @@ plugins {
 
 include("api")
 
-rootProject.name = "Custom-Machinery-1.21"
+rootProject.name = "Custom-Machinery-1.21.1"

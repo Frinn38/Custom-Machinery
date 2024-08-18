@@ -116,6 +116,7 @@ repositories {
         url = "https://maven.saps.dev/releases"
         content {
             includeGroup "dev.latvian.mods"
+            includeGroup "dev.latvian.apps"
         }
     }
     maven {
@@ -255,7 +256,7 @@ unifiedPublishing {
         if(rootProject.file("CHANGELOG.md").exists()) {
             changelog = rootProject.file("CHANGELOG.md").text
         }
-        gameVersions = ["${minecraft_version}"]
+        gameVersions = ["${minecraft_version}", "1.21"]
         gameLoaders = ["neoforge"]
         mainPublication jar
 

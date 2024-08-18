@@ -36,7 +36,7 @@ public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<Experi
     builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
       .setCustomRenderer(CustomIngredientTypes.EXPERIENCE, new ExperienceJEIIngredientRenderer(experienceElement))
       .addIngredient(CustomIngredientTypes.EXPERIENCE, this.experience)
-      .addTooltipCallback((recipeSlotView, tooltip) -> {
+      .addRichTooltipCallback((recipeSlotView, tooltip) -> {
         Component component;
         String amount = Utils.format(this.experience.getXp());
         if (this.experience.isPoints()) {
@@ -66,7 +66,7 @@ public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<Experi
               component = Component.translatable("custommachinery.jei.ingredient.xp.output", amount, "Level(s)");
           }
         }
-        tooltip.set(0, component);
+        tooltip.add(component);
       });
     return true;
   }

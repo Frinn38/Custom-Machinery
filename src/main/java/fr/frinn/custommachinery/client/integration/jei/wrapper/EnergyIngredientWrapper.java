@@ -33,7 +33,7 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
         builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                 .setCustomRenderer(CustomIngredientTypes.ENERGY, new EnergyJEIIngredientRenderer(energyElement))
                 .addIngredient(CustomIngredientTypes.ENERGY, this.energy)
-                .addTooltipCallback((recipeSlotView, tooltip) -> {
+                .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                     Component component;
                     String amount = Utils.format(this.energy.getAmount());
                     Component unit = Component.translatable("unit.energy.forge");
@@ -49,7 +49,7 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
                         else
                             component = Component.translatable("custommachinery.jei.ingredient.energy.output", amount, unit);
                     }
-                    tooltip.set(0, component);
+                    tooltip.add(component);
                 });
         return true;
     }
