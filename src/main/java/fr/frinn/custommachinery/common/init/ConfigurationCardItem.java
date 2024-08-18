@@ -60,10 +60,10 @@ public class ConfigurationCardItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        if (!level.isClientSide && player.isCrouching()) {
+        if (!level.isClientSide && player.isCrouching() && stack.has(Registration.CONFIGURATION_CARD_DATA)) {
             stack.remove(Registration.CONFIGURATION_CARD_DATA);
 
-            player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.cleared").withStyle(ChatFormatting.GREEN));
+            player.displayClientMessage(Component.translatable("custommachinery.configuration_card.cleared").withStyle(ChatFormatting.GREEN), true);
 
             return InteractionResultHolder.success(stack);
         }
@@ -86,12 +86,14 @@ public class ConfigurationCardItem extends Item {
 
     private InteractionResult copyConfiguration(Level level, Player player, CustomMachineTile machine, ItemStack stack) {
         if (!level.isClientSide && player.isCrouching()) {
-            setMachineId(stack, machine.getId());
+            ConfigurationCardData data = new ConfigurationCardData(machine.getId(), new HashMap<>());
 
             for (ISideConfigComponent component : machine.getComponentManager().getConfigComponents())
-                serializeSideConfig(stack, component);
+                data.configs().put(component.getId(), component.getConfig().serialize());
 
-            player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.copied").withStyle(ChatFormatting.GREEN));
+            stack.set(Registration.CONFIGURATION_CARD_DATA, data);
+
+            player.displayClientMessage(Component.translatable("custommachinery.configuration_card.copied", machine.getMachine().getName()).withStyle(ChatFormatting.GREEN), true);
         }
 
         return InteractionResult.sidedSuccess(level.isClientSide);
@@ -102,14 +104,14 @@ public class ConfigurationCardItem extends Item {
             Optional<ResourceLocation> machineId = getMachineId(stack);
 
             if (!machineId.map(id -> id.equals(machine.getId())).orElse(false)) {
-                player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.different_machine").withStyle(ChatFormatting.RED));
+                player.displayClientMessage(Component.translatable("custommachinery.configuration_card.different_machine").withStyle(ChatFormatting.RED), true);
                 return ItemInteractionResult.FAIL;
             }
 
             for (ISideConfigComponent component : machine.getComponentManager().getConfigComponents())
                 deserializeSideConfig(stack, component);
 
-            player.sendSystemMessage(Component.translatable("custommachinery.configuration_card.pasted").withStyle(ChatFormatting.GREEN));
+            player.displayClientMessage(Component.translatable("custommachinery.configuration_card.pasted", machine.getMachine().getName()).withStyle(ChatFormatting.GREEN), true);
         }
 
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
@@ -119,21 +121,10 @@ public class ConfigurationCardItem extends Item {
         return Optional.ofNullable(stack.get(Registration.CONFIGURATION_CARD_DATA)).map(ConfigurationCardData::machineId);
     }
 
-    private static void setMachineId(ItemStack stack, ResourceLocation id) {
-        stack.update(Registration.CONFIGURATION_CARD_DATA, ConfigurationCardData.EMPTY, data -> new ConfigurationCardData(id, data.configs()));
-    }
-
     private static void deserializeSideConfig(ItemStack stack, ISideConfigComponent component) {
         ConfigurationCardData data = stack.get(Registration.CONFIGURATION_CARD_DATA);
         if(data != null && data.configs().containsKey(component.getId()))
             component.getConfig().deserialize(data.configs().get(component.getId()));
-    }
-
-    private static void serializeSideConfig(ItemStack stack, ISideConfigComponent component) {
-        stack.update(Registration.CONFIGURATION_CARD_DATA, ConfigurationCardData.EMPTY, data -> {
-            data.configs().put(component.getId(), component.getConfig().serialize());
-            return data;
-        });
     }
 
     public record ConfigurationCardData(ResourceLocation machineId, Map<String, CompoundTag> configs) {
@@ -144,6 +135,5 @@ public class ConfigurationCardItem extends Item {
                 ).apply(instance, ConfigurationCardData::new)
         );
         public static final StreamCodec<ByteBuf, ConfigurationCardData> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
-        public static final ConfigurationCardData EMPTY = new ConfigurationCardData(CustomMachine.DUMMY_ID, new HashMap<>());
     }
 }

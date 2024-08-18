@@ -29,8 +29,8 @@
   "custommachinery.configuration_card.paste": "Right click the machine block to paste configuration",
   "custommachinery.configuration_card.reset": "Right click in the air while crouching to reset",
   "custommachinery.configuration_card.configured": "Configured to: %s",
-  "custommachinery.configuration_card.copied": "Configuration copied successfully",
-  "custommachinery.configuration_card.pasted": "Configuration pasted successfully",
+  "custommachinery.configuration_card.copied": "Copied config from %s",
+  "custommachinery.configuration_card.pasted": "Pasted config to %s",
   "custommachinery.configuration_card.cleared": "Configuration cleared",
   "custommachinery.configuration_card.different_machine": "This card is configured to a different machine",
 
