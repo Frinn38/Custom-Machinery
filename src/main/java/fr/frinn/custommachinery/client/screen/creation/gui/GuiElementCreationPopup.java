@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementCreationPopup.GuiElementCreationListWidget.GuiElementCreationListEntry;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
+import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -41,6 +42,9 @@ public class GuiElementCreationPopup extends PopupScreen {
             PopupScreen componentCreationPopup = entry.builder.makeConfigPopup(editScreen, new MutableProperties(), null, element -> {
                 editScreen.getBuilder().getGuiElements().add(element);
                 editScreen.setChanged();
+                //If this is the first added element then add default background
+                if(editScreen.getBuilder().getGuiElements().size() == 1)
+                    editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(BackgroundGuiElement.BASE_BACKGROUND, -1, -1));
                 this.onChange.accept(element);
             });
             editScreen.closePopup(this);
