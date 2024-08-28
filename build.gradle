@@ -90,13 +90,6 @@ configurations {
 
 repositories {
     maven {
-        name = "Jared's maven"
-        url = "https://maven.blamejared.com/"
-        content {
-            includeGroup "mezz.jei"
-        }
-    }
-    maven {
         name = "Shedaniel's maven"
         url = "https://maven.shedaniel.me/"
         content {
@@ -109,6 +102,7 @@ repositories {
         content {
             includeGroup "com.blamejared.crafttweaker"
             includeGroup "org.openzen.zencode"
+            includeGroup "mezz.jei"
         }
     }
     maven {

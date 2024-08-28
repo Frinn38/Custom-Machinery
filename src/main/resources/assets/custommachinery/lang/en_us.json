@@ -265,7 +265,7 @@
 
   "custommachinery.jei.ingredient.chance": "Chance: %s%%",
   "custommachinery.jei.ingredient.chance.0": "Not consumed",
-  "custommachinery.jei.ingredient.energy": "Energy: %s %s",
+  "custommachinery.jei.ingredient.energy": "Energy: %s",
   "custommachinery.jei.ingredient.energy.input": "Consume %s %s",
   "custommachinery.jei.ingredient.energy.output": "Produce %s %s",
   "custommachinery.jei.ingredient.energy.pertick": "Energy: %s %s per tick",
