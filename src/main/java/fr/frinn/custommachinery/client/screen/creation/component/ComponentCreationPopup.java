@@ -15,7 +15,9 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class ComponentCreationPopup extends PopupScreen {
 
@@ -64,7 +66,7 @@ public class ComponentCreationPopup extends PopupScreen {
             super(x, y, width, height, 20, Component.empty());
             this.setRenderSelection();
 
-            for(MachineComponentType<?> type : Registration.MACHINE_COMPONENT_TYPE_REGISTRY) {
+            for(MachineComponentType<?> type : Registration.MACHINE_COMPONENT_TYPE_REGISTRY.entrySet().stream().sorted(Comparator.comparing(entry -> entry.getKey().location())).map(Map.Entry::getValue).toList()) {
                 IMachineComponentBuilder<?, ?> builder = MachineComponentBuilderRegistry.getBuilder(type);
                 if(builder != null)
                     this.addEntry(new ComponentCreationListEntry(builder));
