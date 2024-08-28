@@ -60,6 +60,8 @@ public class CMRecipeTransferHandler implements IRecipeTransferHandler<CustomMac
     public IRecipeTransferError transferRecipe(CustomMachineContainer container, IMachineRecipe recipe, IRecipeSlotsView slots, Player player, boolean maxTransfer, boolean doTransfer) {
         //List of required items
         List<IRecipeSlotView> inputItemSlots = slots.getSlotViews(RecipeIngredientRole.INPUT).stream().filter(view -> view.getItemStacks().findAny().isPresent()).toList();
+        if(inputItemSlots.isEmpty())
+            return this.transferHelper.createInternalError();
 
         List<SlotItemComponent> inputSlots = container.inputSlots();
         List<Slot> inventorySlots = container.inventorySlots();
