@@ -155,9 +155,9 @@ public class SuggestedEditBox extends EditBox {
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if(this.suggestionsList != null) {
-            boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
             graphics.pose().pushPose();
-            graphics.pose().translate(0, 0, 200);
+            graphics.pose().translate(0, 0, 110);
+            boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
             if(scissor)
                 GlStateManager._disableScissorTest();
             this.suggestionsList.render(graphics, mouseX, mouseY);
@@ -224,7 +224,6 @@ public class SuggestedEditBox extends EditBox {
 
         public void render(GuiGraphics graphics, int mouseX, int mouseY) {
             graphics.pose().pushPose();
-            graphics.pose().translate(0, 0, 0);
             Message message;
             boolean bl4;
             int i = Math.min(this.suggestionList.size(), this.suggestionLineLimit);

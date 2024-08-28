@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.gui.builder;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
@@ -16,6 +17,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.FakeItemRenderer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
@@ -96,6 +98,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
         public GhostItemWidget() {
             super(0, 0, 100, 60, Component.empty());
             this.items = this.addWidget(new SuggestedEditBox(Minecraft.getInstance().font, 0, 0, 100, 20, Component.empty(), 5));
+            this.items.setMaxLength(Integer.MAX_VALUE);
             this.items.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
             this.alwaysVisible = this.addWidget(Checkbox.builder(Component.empty(), Minecraft.getInstance().font).pos(80, 22).selected(false).build());
             this.alwaysVisible.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.slot.ghost.alwaysVisible")));
@@ -134,12 +137,11 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
             graphics.blit(SlotGuiElement.BASE_TEXTURE, this.getX() - 20, this.getY(), 18, 18, 0, 0, 18, 18, 18, 18);
             try {
-                graphics.setColor(this.color.getRed() / 255f, this.color.getGreen() / 255f, this.color.getBlue() / 255f, this.color.getAlpha() / 255f);
-                graphics.renderItem(BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.items.getValue())).getDefaultInstance(), this.getX() - 19, this.getY() + 1);
-                graphics.setColor(1f, 1f, 1f, 1f);
+                FakeItemRenderer.render(graphics, BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.items.getValue())).getDefaultInstance(), this.getX() - 19, this.getY() + 1, this.color.getARGB());
             } catch (ResourceLocationException | NullPointerException ignored) {
-                System.out.println("NULL");
+
             }
+            RenderSystem.enableDepthTest();
             super.renderWidget(graphics, mouseX, mouseY, partialTick);
         }
     }

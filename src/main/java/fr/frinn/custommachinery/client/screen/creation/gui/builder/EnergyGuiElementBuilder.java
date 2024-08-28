@@ -47,6 +47,10 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
 
         public EnergyGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable EnergyGuiElement from, Consumer<EnergyGuiElement> onFinish) {
             super(parent, properties, from, onFinish);
+            if(from != null) {
+                this.textureEmpty = from.getEmptyTexture();
+                this.textureFilled = from.getFilledTexture();
+            }
         }
 
         @Override

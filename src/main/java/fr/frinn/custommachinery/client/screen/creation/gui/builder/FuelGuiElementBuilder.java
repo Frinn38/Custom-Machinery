@@ -44,6 +44,10 @@ public class FuelGuiElementBuilder implements IGuiElementBuilder<FuelGuiElement>
 
         public FuelGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable FuelGuiElement from, Consumer<FuelGuiElement> onFinish) {
             super(parent, properties, from, onFinish);
+            if(from != null) {
+                this.textureEmpty = from.getEmptyTexture();
+                this.textureFilled = from.getFilledTexture();
+            }
         }
 
         @Override

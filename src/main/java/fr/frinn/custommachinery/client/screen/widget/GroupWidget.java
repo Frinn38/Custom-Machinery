@@ -42,12 +42,7 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
 
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.children.forEach(children -> {
-            children.render(graphics, mouseX, mouseY, partialTick);
-            this.setTooltip(null);
-            if(children.isHovered() && children.getTooltip() != null)
-                this.setTooltip(children.getTooltip());
-        });
+        this.children.forEach(children -> children.render(graphics, mouseX, mouseY, partialTick));
     }
 
     @Override
