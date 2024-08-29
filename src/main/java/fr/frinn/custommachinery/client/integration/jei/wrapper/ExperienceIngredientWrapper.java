@@ -38,10 +38,10 @@ public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<Experi
       .addIngredient(CustomIngredientTypes.EXPERIENCE, this.experience)
       .addRichTooltipCallback((recipeSlotView, tooltip) -> {
         Component component;
-        String amount = Utils.format(this.experience.getXp());
+        String amount = Utils.format(this.experience.xp());
         if (this.experience.isPoints()) {
           if (this.experience.isPerTick()) {
-            String totalExperience = Utils.format(this.experience.getXp() * this.recipeTime);
+            String totalExperience = Utils.format(this.experience.xp() * this.recipeTime);
             if (this.mode == RequirementIOMode.INPUT)
               component = Component.translatable("custommachinery.jei.ingredient.xp.pertick.input", totalExperience, "XP", amount, "XP");
             else

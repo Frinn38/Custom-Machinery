@@ -19,17 +19,17 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
 
     @Override
     public String getDisplayName(Energy energy) {
-        return Component.translatable("custommachinery.jei.ingredient.energy", energy.getAmount()).getString();
+        return Component.translatable("custommachinery.jei.ingredient.energy", energy.amount()).getString();
     }
 
     @Override
     public String getUniqueId(Energy energy, UidContext context) {
-        return "" + energy.getAmount() + energy.getChance() + energy.isPerTick();
+        return "" + energy.amount() + energy.chance() + energy.isPerTick();
     }
 
     @Override
     public Energy copyIngredient(Energy energy) {
-        return new Energy(energy.getAmount(), energy.getChance(), energy.isPerTick());
+        return new Energy(energy.amount(), energy.chance(), energy.isPerTick());
     }
 
     @Override

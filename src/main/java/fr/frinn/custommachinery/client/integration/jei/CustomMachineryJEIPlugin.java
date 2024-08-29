@@ -17,6 +17,8 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
+import fr.frinn.custommachinery.impl.integration.jei.Energy;
+import fr.frinn.custommachinery.impl.integration.jei.Experience;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -25,6 +27,8 @@ import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.recipe.IFocusFactory;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
@@ -65,7 +69,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
-        registration.registerSubtypeInterpreter(Registration.CUSTOM_MACHINE_ITEM.get(), (item, context) -> Optional.ofNullable(item.get(Registration.MACHINE_DATA.get())).map(ResourceLocation::toString).orElse("dummy"));
+        registration.registerSubtypeInterpreter(Registration.CUSTOM_MACHINE_ITEM.get(), MACHINE_ITEM_INTERPRETER);
     }
 
     @Override
@@ -114,8 +118,8 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
     @Override
     public void registerIngredients(IModIngredientRegistration registry) {
-        registry.register(CustomIngredientTypes.ENERGY, new ArrayList<>(), new EnergyIngredientHelper(), new DummyIngredientRenderer<>());
-        registry.register(CustomIngredientTypes.EXPERIENCE, new ArrayList<>(), new ExperienceIngredientHelper(), new DummyIngredientRenderer<>());
+        registry.register(CustomIngredientTypes.ENERGY, new ArrayList<>(), new EnergyIngredientHelper(), new DummyIngredientRenderer<>(), Energy.CODEC);
+        registry.register(CustomIngredientTypes.EXPERIENCE, new ArrayList<>(), new ExperienceIngredientHelper(), new DummyIngredientRenderer<>(), Experience.CODEC);
     }
 
     @Override
@@ -229,4 +233,17 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
             }
         };
     }
+
+    public static final ISubtypeInterpreter<ItemStack> MACHINE_ITEM_INTERPRETER = new ISubtypeInterpreter<>() {
+        @Override
+        public Object getSubtypeData(ItemStack ingredient, UidContext context) {
+            return Optional.ofNullable(ingredient.get(Registration.MACHINE_DATA.get())).map(ResourceLocation::toString).orElse("dummy");
+        }
+
+        //Safe to remove
+        @Override
+        public String getLegacyStringSubtypeInfo(ItemStack ingredient, UidContext context) {
+            return Optional.ofNullable(ingredient.get(Registration.MACHINE_DATA.get())).map(ResourceLocation::toString).orElse("dummy");
+        }
+    };
 }

@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry.IngredientGetter;
 import mezz.jei.api.helpers.IJeiHelpers;
+import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.runtime.IClickableIngredient;
@@ -14,11 +15,11 @@ import net.minecraft.client.renderer.Rect2i;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
-public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement> {
+public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement, FluidStack> {
 
     @Override
     @Nullable
-    public <T> IClickableIngredient<T> getIngredient(AbstractGuiElementWidget<FluidGuiElement> widget, double mouseX, double mouseY, IJeiHelpers helpers) {
+    public IClickableIngredient<FluidStack> getIngredient(AbstractGuiElementWidget<FluidGuiElement> widget, double mouseX, double mouseY, IJeiHelpers helpers) {
         FluidMachineComponent component = widget.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(widget.getElement().getComponentId())).orElse(null);
         if (component == null)
             return null;
@@ -27,9 +28,21 @@ public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement> 
         if (ingredient == null)
             return null;
         return new IClickableIngredient<>() {
+            //Safe to remove
+            @SuppressWarnings("removal")
             @Override
-            public ITypedIngredient<T> getTypedIngredient() {
-                return (ITypedIngredient<T>) ingredient;
+            public ITypedIngredient<FluidStack> getTypedIngredient() {
+                return ingredient;
+            }
+
+            @Override
+            public IIngredientType<FluidStack> getIngredientType() {
+                return NeoForgeTypes.FLUID_STACK;
+            }
+
+            @Override
+            public FluidStack getIngredient() {
+                return ingredient.getIngredient();
             }
 
             @Override

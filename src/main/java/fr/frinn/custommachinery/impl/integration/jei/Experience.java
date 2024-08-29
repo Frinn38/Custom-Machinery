@@ -1,79 +1,31 @@
 package fr.frinn.custommachinery.impl.integration.jei;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 
-public class Experience {
-  private int xp;
-  private final int capacity;
-  private final double chance;
-  private final boolean isPerTick;
-  private final Form type;
-  private int experienceLevel = 0;
+import java.util.Locale;
 
-  public Experience(int xp, int capacity, double chance, boolean isPerTick, Form type) {
-    this.xp = xp;
-    this.capacity = capacity;
-    this.chance = chance;
-    this.isPerTick = isPerTick;
-    this.type = type;
-  }
+public record Experience(int xp, int capacity, double chance, boolean isPerTick, Form type) {
 
-  public Experience(int xp, int capacity, Form type) {
-    this(xp, capacity, 1D, false, type);
-  }
-
-  public Experience(int xp, Form type) {
-    this(xp, xp, 1D, false, type);
-  }
+  public static final Codec<Experience> CODEC = RecordCodecBuilder.create(experienceInstance ->
+          experienceInstance.group(
+                  Codec.INT.fieldOf("xp").forGetter(Experience::xp),
+                  Codec.INT.fieldOf("capacity").forGetter(Experience::capacity),
+                  Codec.DOUBLE.fieldOf("chance").forGetter(Experience::chance),
+                  Codec.BOOL.fieldOf("perTick").forGetter(Experience::isPerTick),
+                  StringRepresentable.fromEnum(Form::values).fieldOf("form").forGetter(Experience::type)
+          ).apply(experienceInstance, Experience::new)
+  );
 
   public Experience(int xp, double chance, boolean isPerTick, Form type) {
     this(xp, xp, chance, isPerTick, type);
   }
 
-  public Experience(int xp, int capacity, double chance, Form type) {
-    this(xp, capacity, chance, false, type);
-  }
-
-  public Experience(int xp, double chance, Form type) {
-    this(xp, xp, chance, false, type);
-  }
-
-  public Experience(int xp, int capacity, boolean isPerTick, Form type) {
-    this(xp, capacity, 1D, isPerTick, type);
-  }
-
-  public Experience(int xp, boolean isPerTick, Form type) {
-    this(xp, xp, 1D, isPerTick, type);
-  }
-
-  public int getXp() {
-    return xp;
-  }
-
   public int getLevels() {
-    return experienceLevel;
-  }
-
-  public void setXp(int xp) {
-    this.xp = xp;
-    experienceLevel = getFromExperiencePoints(this.xp);
-  }
-
-  public void addXp(int xp) {
-    this.xp += xp;
-    experienceLevel = getFromExperiencePoints(this.xp);
-  }
-
-  public int getCapacity() {
-    return capacity;
-  }
-
-  public double getChance() {
-    return chance;
-  }
-
-  public boolean isPerTick() {
-    return isPerTick;
+      int experienceLevel = 0;
+      return experienceLevel;
   }
 
   public boolean isLevels() {
@@ -82,10 +34,6 @@ public class Experience {
 
   public boolean isPoints() {
     return type == Form.POINT;
-  }
-
-  public Form getForm() {
-    return type;
   }
 
   private int getXpNeededForNextLevel(int experienceLevel) {
@@ -120,7 +68,7 @@ public class Experience {
     return experienceLevel;
   }
 
-  public enum Form {
+  public enum Form implements StringRepresentable {
     LEVEL, POINT;
 
     public boolean isLevel() {
@@ -129,6 +77,11 @@ public class Experience {
 
     public boolean isPoint() {
       return this == POINT;
+    }
+
+    @Override
+    public String getSerializedName() {
+      return this.name().toLowerCase(Locale.ROOT);
     }
   }
 }

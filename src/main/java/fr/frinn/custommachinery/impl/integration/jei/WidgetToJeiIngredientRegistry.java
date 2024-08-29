@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class WidgetToJeiIngredientRegistry {
 
-    private static Map<GuiElementType<?>, IngredientGetter<?>> registry;
+    private static Map<GuiElementType<?>, IngredientGetter<?, ?>> registry;
 
     public static void init() {
         RegisterWidgetToJeiIngredientGetterEvent event = new RegisterWidgetToJeiIngredientGetterEvent();
@@ -29,8 +29,8 @@ public class WidgetToJeiIngredientRegistry {
         return getter.getIngredient(widget, mouseX, mouseY, helpers);
     }
 
-    public interface IngredientGetter<E extends IGuiElement> {
+    public interface IngredientGetter<E extends IGuiElement, T> {
         @Nullable
-        <T> IClickableIngredient<T> getIngredient(AbstractGuiElementWidget<E> widget, double mouseX, double mouseY, IJeiHelpers helpers);
+        IClickableIngredient<T> getIngredient(AbstractGuiElementWidget<E> widget, double mouseX, double mouseY, IJeiHelpers helpers);
     }
 }

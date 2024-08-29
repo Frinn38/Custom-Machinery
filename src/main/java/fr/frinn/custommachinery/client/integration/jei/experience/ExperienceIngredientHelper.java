@@ -19,17 +19,18 @@ public class ExperienceIngredientHelper implements IIngredientHelper<Experience>
 
   @Override
   public String getDisplayName(Experience xp) {
-    return Component.translatable("custommachinery.jei.ingredient.xp", xp.getXp()).getString();
+    return Component.translatable("custommachinery.jei.ingredient.xp", xp.xp()).getString();
   }
 
+  @SuppressWarnings("removal")
   @Override
   public String getUniqueId(Experience xp, UidContext context) {
-    return "" + xp.getXp() + xp.getChance() + xp.isPerTick() + xp.getForm();
+    return "" + xp.xp() + xp.chance() + xp.isPerTick() + xp.type();
   }
 
   @Override
   public Experience copyIngredient(Experience xp) {
-    return new Experience(xp.getXp(), xp.getChance(), xp.isPerTick(), xp.getForm());
+    return new Experience(xp.xp(), xp.chance(), xp.isPerTick(), xp.type());
   }
 
   @Override

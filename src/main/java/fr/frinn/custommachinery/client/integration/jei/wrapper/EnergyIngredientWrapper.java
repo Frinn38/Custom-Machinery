@@ -35,10 +35,10 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
                 .addIngredient(CustomIngredientTypes.ENERGY, this.energy)
                 .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                     Component component;
-                    String amount = Utils.format(this.energy.getAmount());
+                    String amount = Utils.format(this.energy.amount());
                     Component unit = Component.translatable("unit.energy.forge");
                     if(this.energy.isPerTick()) {
-                        String totalEnergy = Utils.format(this.energy.getAmount() * this.recipeTime);
+                        String totalEnergy = Utils.format(this.energy.amount() * this.recipeTime);
                         if(this.mode == RequirementIOMode.INPUT)
                             component = Component.translatable("custommachinery.jei.ingredient.energy.pertick.input", totalEnergy, unit, amount, unit);
                         else
