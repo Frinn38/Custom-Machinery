@@ -36,7 +36,7 @@ public class CraftProcessor implements IProcessor {
 
     public CraftProcessor(MachineTile tile) {
         this.tile = tile;
-        this.mutableCraftingContext = new CraftingContext.Mutable(tile, tile.getUpgradeManager());
+        this.mutableCraftingContext = new CraftingContext.Mutable(tile, tile.getUpgradeManager(), 0);
         this.recipeFinder = new CraftRecipeFinder(tile, 20);
     }
 
@@ -105,7 +105,7 @@ public class CraftProcessor implements IProcessor {
 
     private void setCurrentRecipe(RecipeHolder<CustomCraftRecipe> recipe) {
         this.currentRecipe = recipe;
-        this.currentContext = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> 0.0);
+        this.currentContext = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> 0.0, 0);
         this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
                 .ifPresent(component -> component.setItemStack(recipe.value().getOutput().copy()));

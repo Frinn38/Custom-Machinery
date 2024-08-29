@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.nbt.CompoundTag;
@@ -31,11 +30,9 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
     public MachineProcessor(MachineTile tile, int amount, int recipeCheckCooldown) {
         this.tile = tile;
-        //Use only for recipe searching, not recipe processing
-        CraftingContext.Mutable mutableCraftingContext = new CraftingContext.Mutable(tile, tile.getUpgradeManager());
         ImmutableList.Builder<MachineProcessorCore> cores = ImmutableList.builder();
         for(int i = 0; i < amount; i++)
-            cores.add(new MachineProcessorCore(this, tile, recipeCheckCooldown, mutableCraftingContext, i + 1));
+            cores.add(new MachineProcessorCore(this, tile, recipeCheckCooldown, i + 1));
         this.cores = cores.build();
     }
 

@@ -133,6 +133,13 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    //Needed for KubeJS
+    maven {
+        url 'https://jitpack.io'
+        content {
+            includeGroup "com.github.rtyley"
+        }
+    }
 }
 
 dependencies {

@@ -48,10 +48,10 @@ public class MachineProcessorCore implements ISyncableStuff {
     private RequirementList<?> requirementList;
     private final List<RequirementWithFunction> currentProcessRequirements = new ArrayList<>();
 
-    public MachineProcessorCore(MachineProcessor processor, MachineTile tile, int baseCooldown, Mutable mutableCraftingContext, int core) {
+    public MachineProcessorCore(MachineProcessor processor, MachineTile tile, int baseCooldown, int core) {
         this.processor = processor;
         this.tile = tile;
-        this.recipeFinder = new MachineRecipeFinder(tile, processor, baseCooldown, mutableCraftingContext, core);
+        this.recipeFinder = new MachineRecipeFinder(tile, processor, baseCooldown, new Mutable(tile, tile.getUpgradeManager(), core - 1), core);
     }
 
     @Nullable
@@ -192,7 +192,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void setRecipe(@NotNull RecipeHolder<CustomMachineRecipe> recipe) {
         this.currentRecipe = recipe;
-        this.context = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> this.recipeProgressTime);
+        this.context = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> this.recipeProgressTime, this.processor.getCores().indexOf(this));
         this.recipeTotalTime = this.currentRecipe.value().getRecipeTime();
         this.requirementList = new RequirementList<>();
         this.currentRecipe.value().getRequirements().forEach(requirement -> {

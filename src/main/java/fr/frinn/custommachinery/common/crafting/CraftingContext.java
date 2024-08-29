@@ -23,18 +23,25 @@ public class CraftingContext implements ICraftingContext {
     private final IMachineUpgradeManager upgrades;
     private final RecipeHolder<? extends IMachineRecipe> recipe;
     private final Supplier<Double> progressTimeGetter;
+    private final int core;
     private double baseSpeed = 1.0D;
 
-    public CraftingContext(MachineTile tile, IMachineUpgradeManager upgrades, RecipeHolder<? extends IMachineRecipe> recipe, Supplier<Double> progressTimeGetter) {
+    public CraftingContext(MachineTile tile, IMachineUpgradeManager upgrades, RecipeHolder<? extends IMachineRecipe> recipe, Supplier<Double> progressTimeGetter, int core) {
         this.tile = tile;
         this.upgrades = upgrades;
         this.recipe = recipe;
         this.progressTimeGetter = progressTimeGetter;
+        this.core = core;
     }
 
     @Override
     public MachineTile getMachineTile() {
         return this.tile;
+    }
+
+    @Override
+    public int getCurrentCore() {
+        return this.core;
     }
 
     @Override
@@ -111,8 +118,8 @@ public class CraftingContext implements ICraftingContext {
         private IMachineRecipe recipe;
         private ResourceLocation recipeId;
 
-        public Mutable(MachineTile tile, IMachineUpgradeManager upgrades) {
-            super(tile, upgrades, null, () -> 0.0);
+        public Mutable(MachineTile tile, IMachineUpgradeManager upgrades, int core) {
+            super(tile, upgrades, null, () -> 0.0, core);
         }
 
         public Mutable setRecipe(IMachineRecipe recipe, ResourceLocation recipeId) {

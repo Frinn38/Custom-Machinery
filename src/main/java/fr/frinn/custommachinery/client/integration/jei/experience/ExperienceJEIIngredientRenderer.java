@@ -4,18 +4,17 @@ import fr.frinn.custommachinery.api.integration.jei.JEIIngredientRenderer;
 import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.ExperienceUtils;
-import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.impl.integration.jei.Experience;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.ingredients.IIngredientType;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ExperienceJEIIngredientRenderer extends JEIIngredientRenderer<Experience, ExperienceGuiElement> {
@@ -61,25 +60,15 @@ public class ExperienceJEIIngredientRenderer extends JEIIngredientRenderer<Exper
     }
   }
 
+  //Safe to remove
+  @SuppressWarnings("removal")
   @Override
-  public List<Component> getTooltip(Experience ingredient, TooltipFlag iTooltipFlag) {
-    List<Component> tooltips = new ArrayList<>();
-    String amount = Utils.format(ingredient.getXp());
-    if (ingredient.isPoints()) {
-      if(ingredient.isPerTick())
-        tooltips.add(Component.translatable("custommachinery.jei.ingredient.xp.point.pertick", amount));
-      else
-        tooltips.add(Component.translatable("custommachinery.jei.ingredient.xp.point", amount));
-    } else if (ingredient.isLevels()) {
-      if(ingredient.isPerTick())
-        tooltips.add(Component.translatable("custommachinery.jei.ingredient.xp.level.pertick", amount));
-      else
-        tooltips.add(Component.translatable("custommachinery.jei.ingredient.xp.level", amount));
-    }
-    if(ingredient.getChance() == 0)
-      tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
-    if(ingredient.getChance() < 1.0D && ingredient.getChance() > 0)
-      tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", (int)(ingredient.getChance() * 100)));
-    return tooltips;
+  public List<Component> getTooltip(Experience ingredient, TooltipFlag flag) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public void getTooltip(ITooltipBuilder builder, Experience ingredient, TooltipFlag flag) {
+
   }
 }

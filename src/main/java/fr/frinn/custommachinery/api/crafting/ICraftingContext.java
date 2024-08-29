@@ -18,6 +18,11 @@ public interface ICraftingContext {
     MachineTile getMachineTile();
 
     /**
+     * @return The int ID of the {@link fr.frinn.custommachinery.common.crafting.machine.MachineProcessorCore} processing the recipe.
+     */
+    int getCurrentCore();
+
+    /**
      * @return The {@link IMachineRecipe} currently processed by the machine.
      */
     IMachineRecipe getRecipe();
