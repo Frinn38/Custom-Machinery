@@ -44,6 +44,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     private boolean machineInventoryChanged = true;
     @Nullable
     private Component error = null;
+    private boolean isLastRecipeTick = false;
 
     private RequirementList<?> requirementList;
     private final List<RequirementWithFunction> currentProcessRequirements = new ArrayList<>();
@@ -103,10 +104,14 @@ public class MachineProcessorCore implements ISyncableStuff {
                 this.processTickRequirements();
 
             if(this.recipeProgressTime >= this.recipeTotalTime) {
-                this.currentRecipe = null;
-                this.recipeProgressTime = 0.0D;
-                this.context = null;
-                this.recipeFinder.findRecipe(true).ifPresent(this::setRecipe);
+                if(this.isLastRecipeTick) {
+                    this.isLastRecipeTick = false;
+                    this.currentRecipe = null;
+                    this.recipeProgressTime = 0.0D;
+                    this.context = null;
+                    this.recipeFinder.findRecipe(true).ifPresent(this::setRecipe);
+                } else
+                    this.isLastRecipeTick = true;
             }
         }
     }
@@ -138,7 +143,9 @@ public class MachineProcessorCore implements ISyncableStuff {
     private void processRequirements() {
         if(this.currentProcessRequirements.isEmpty()) {
             this.requirementList.getProcessRequirements().entrySet().removeIf(entry -> {
-                if(entry.getKey() <= this.recipeProgressTime) {
+                //if the recipe is at last tick process all remaining requirements
+                //Else process only requirements that have a delay lower than the current progress
+                if(entry.getKey() <= this.recipeProgressTime / this.recipeTotalTime || this.isLastRecipeTick) {
                     this.currentProcessRequirements.addAll(entry.getValue());
                     return true;
                 }
