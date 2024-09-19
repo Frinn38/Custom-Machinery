@@ -13,7 +13,7 @@ public class CustomMachineDamageSource extends DamageSource {
     private final String machineName;
 
     public CustomMachineDamageSource(MachineTile machine) {
-        super(machine.getLevel().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(ResourceKey.create(Registries.DAMAGE_TYPE, CustomMachinery.rl("machine_damage"))));
+        super(machine.getLevel().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(ResourceKey.create(Registries.DAMAGE_TYPE, CustomMachinery.rl("custom_machine_damage"))));
         this.machineName = machine.getMachine().getName().getString();
     }
 
