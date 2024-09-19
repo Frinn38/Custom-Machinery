@@ -23,6 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +46,13 @@ public class DefaultCodecs {
     public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, NamedCodec.of(ItemStack.OPTIONAL_CODEC), "ItemStack").xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
 
     public static final NamedCodec<Ingredient> INGREDIENT = NamedCodec.of(Ingredient.CODEC, "Ingredient");
+
+    public static final NamedCodec<SizedIngredient> SIZED_INGREDIENT_WITH_NBT = NamedCodec.record(sizedIngredientInstance ->
+            sizedIngredientInstance.group(
+                    ITEM_OR_STACK.listOf().fieldOf("item").forGetter(ingredient -> Arrays.asList(ingredient.getItems())),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", 1).forGetter(SizedIngredient::count)
+            ).apply(sizedIngredientInstance, (items, count) -> new SizedIngredient(Ingredient.of(items.stream()), count)), "Sized ingredient with nbt"
+    );
 
     public static final NamedCodec<AABB> BOX = NamedCodec.DOUBLE_STREAM.comapFlatMap(stream -> {
         double[] arr = stream.toArray();

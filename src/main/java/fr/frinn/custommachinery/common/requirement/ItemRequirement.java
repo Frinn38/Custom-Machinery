@@ -16,6 +16,7 @@ import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWra
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -29,7 +30,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
     public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(ItemRequirement::getMode),
-                    NamedCodec.of(SizedIngredient.FLAT_CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
+                    DefaultCodecs.SIZED_INGREDIENT_WITH_NBT.fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
             ).apply(itemRequirementInstance, ItemRequirement::new), "Item requirement"
     );
