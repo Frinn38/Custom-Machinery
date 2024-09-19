@@ -40,7 +40,9 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
         List<ItemStack> ingredients = Lists.newArrayList(table.keySet());
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
         if(template.map(t -> t.canAccept(ingredients, false, helper.getDummyManager())).orElse(false)) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, element.getX() - xOffset, element.getY() - yOffset)
+            int slotX = element.getX() + (element.getWidth() - 16) / 2;
+            int slotY = element.getY() + (element.getHeight() - 16) / 2;
+            builder.addSlot(RecipeIngredientRole.OUTPUT, slotX - xOffset, slotY - yOffset)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addRichTooltipCallback((view, tooltips) -> {
                         double chance = view.getDisplayedIngredient(VanillaTypes.ITEM_STACK).map(table::get).orElse(1.0D);
