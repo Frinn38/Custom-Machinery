@@ -2,25 +2,25 @@ package fr.frinn.custommachinery.common.network.data;
 
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SideConfigData extends Data<SideConfig> {
+public class IOSideConfigData extends Data<IOSideConfig> {
 
-    public SideConfigData(Short id, SideConfig value) {
-        super(Registration.SIDE_CONFIG_DATA.get(), id, value);
+    public IOSideConfigData(Short id, IOSideConfig value) {
+        super(Registration.IO_SIDE_CONFIG_DATA.get(), id, value);
     }
 
-    public static SideConfigData readData(short id, RegistryFriendlyByteBuf buffer) {
-        Map<RelativeSide, SideMode> map = new HashMap<>();
+    public static IOSideConfigData readData(short id, RegistryFriendlyByteBuf buffer) {
+        Map<RelativeSide, IOSideMode> map = new HashMap<>();
         for(RelativeSide side : RelativeSide.values())
-            map.put(side, SideMode.values()[buffer.readByte()]);
-        return new SideConfigData(id, new SideConfig(null, map, buffer.readBoolean(), buffer.readBoolean(), true));
+            map.put(side, IOSideMode.values()[buffer.readByte()]);
+        return new IOSideConfigData(id, new IOSideConfig(null, map, buffer.readBoolean(), buffer.readBoolean(), true));
     }
 
     @Override

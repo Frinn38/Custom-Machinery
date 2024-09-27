@@ -4,36 +4,42 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.network.CChangeSideModePacket;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class SideModeButton extends ImageButton {
 
     private static final WidgetSprites SPRITES = new WidgetSprites(CustomMachinery.rl("config/side_mode_button"), CustomMachinery.rl("config/side_mode_button_hovered"));
 
-    private final SideConfig config;
+    private final Supplier<SideMode> modeGetter;
     private final RelativeSide side;
+    private final OnPress leftClick;
+    private final OnPress rightClick;
 
-    public SideModeButton(int x, int y, SideConfig config, RelativeSide side) {
+    public SideModeButton(int x, int y, Supplier<SideMode> modeGetter, RelativeSide side, OnPress leftClick, OnPress rightClick) {
         super(x, y, 14, 14, SPRITES, button -> {}, side.getTranslationName());
-        this.config = config;
+        this.modeGetter = modeGetter;
         this.side = side;
+        this.leftClick = leftClick;
+        this.rightClick = rightClick;
     }
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        int color = this.config.getSideMode(this.side).color();
+        int color = this.modeGetter.get().color();
         float r = FastColor.ARGB32.red(color) / 255.0F;
         float g = FastColor.ARGB32.green(color) / 255.0F;
         float b = FastColor.ARGB32.blue(color) / 255.0F;
@@ -47,7 +53,7 @@ public class SideModeButton extends ImageButton {
         MutableComponent tooltip = Component.empty();
         tooltip.append(this.side.getTranslationName());
         tooltip.append("\n");
-        tooltip.append(this.config.getSideMode(this.side).title());
+        tooltip.append(this.modeGetter.get().title());
         this.setTooltip(Tooltip.create(tooltip));
     }
 
@@ -57,13 +63,9 @@ public class SideModeButton extends ImageButton {
             return false;
         playDownSound(Minecraft.getInstance().getSoundManager());
         if (button == 0)
-            PacketDistributor.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId(), (byte) this.side.ordinal(), true));
+            this.leftClick.onPress(this);
         else
-            PacketDistributor.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId(), (byte) this.side.ordinal(), false));
+            this.rightClick.onPress(this);
         return true;
-    }
-
-    private String getComponentId() {
-        return this.config.getComponent().getType().getId().toString() + ":" + this.config.getComponent().getId();
     }
 }

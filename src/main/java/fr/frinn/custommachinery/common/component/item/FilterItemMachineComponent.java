@@ -6,19 +6,17 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.world.item.Item;
 
-import java.util.List;
 import java.util.Optional;
 
 public class FilterItemMachineComponent extends ItemMachineComponent {
 
-    public FilterItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, SideConfig.Template config, boolean locked) {
-        super(manager, ComponentIOMode.NONE, id, capacity, maxInput, maxOutput, filter, SideConfig.Template.DEFAULT_ALL_NONE_DISABLED, locked);
+    public FilterItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template config, boolean locked) {
+        super(manager, ComponentIOMode.NONE, id, capacity, maxInput, maxOutput, filter, IOSideConfig.Template.DEFAULT_ALL_NONE_DISABLED, locked);
     }
 
     @Override
@@ -45,7 +43,7 @@ public class FilterItemMachineComponent extends ItemMachineComponent {
 
         public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Filter item machine component");
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<SideConfig.Template> config, boolean locked) {
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<IOSideConfig.Template> config, boolean locked) {
             super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
         }
 

@@ -442,6 +442,8 @@
   "custommachinery.side.output": "Output",
   "custommachinery.side.both": "Input/Output",
   "custommachinery.side.none": "None",
+  "custommachinery.side.enabled": "Enabled",
+  "custommachinery.side.disabled": "Disabled",
 
   "custommachinery.upgrade.tooltip": "(Shift) Custom Machine Upgrade",
 

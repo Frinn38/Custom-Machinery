@@ -15,13 +15,13 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
-import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
+import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.SidedEnergyStorage;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -44,11 +44,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     private final long capacity;
     private final long maxInput;
     private final long maxOutput;
-    private final SideConfig config;
+    private final IOSideConfig config;
     private final Map<Direction, SidedEnergyStorage> sidedStorages = Maps.newEnumMap(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
 
-    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long maxOutput, SideConfig.Template configTemplate) {
+    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long maxOutput, IOSideConfig.Template configTemplate) {
         super(manager, ComponentIOMode.BOTH);
         this.energy = 0;
         this.capacity = capacity;
@@ -86,7 +86,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         getManager().markDirty();
     }
 
-    public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
+    public void configChanged(RelativeSide side, IOSideMode oldMode, IOSideMode newMode) {
         if(oldMode.isNone() != newMode.isNone())
             this.getManager().getTile().invalidateCapabilities();
     }
@@ -101,7 +101,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     @Override
-    public SideConfig getConfig() {
+    public IOSideConfig getConfig() {
         return this.config;
     }
 
@@ -118,7 +118,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void serverTick() {
         for(Direction side : Direction.values()) {
-            if(this.getConfig().getSideMode(side) == SideMode.NONE)
+            if(this.getConfig().getSideMode(side) == IOSideMode.NONE)
                 continue;
 
             IEnergyStorage neighbour;
@@ -172,7 +172,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(LongSyncable.create(() -> this.energy, energy -> this.energy = energy));
-        container.accept(SideConfigSyncable.create(this::getConfig, this.config::set));
+        container.accept(IOSideConfigSyncable.create(this::getConfig, this.config::set));
     }
 
     @Override
@@ -259,7 +259,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
             long capacity,
             long maxInput,
             long maxOutput,
-            SideConfig.Template config
+            IOSideConfig.Template config
     ) implements IMachineComponentTemplate<EnergyMachineComponent> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
@@ -267,7 +267,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
                         NamedCodec.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
                         NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
                         NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
-                        SideConfig.Template.CODEC.optionalFieldOf("config", SideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
+                        IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
                 ).apply(templateInstance, (capacity, maxInput, maxOutput, config) ->
                         new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), config)
                 ), "Energy machine component"

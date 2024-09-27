@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.common.util.transfer.InteractionFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.SidedFluidHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
+import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -56,7 +56,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
             this.sidedHandlers.put(side, new SidedFluidHandler(side, this));
     }
 
-    public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
+    public void configChanged(RelativeSide side, IOSideMode oldMode, IOSideMode newMode) {
         if(oldMode.isNone() != newMode.isNone())
             this.getManager().getTile().invalidateCapabilities();
     }
@@ -84,7 +84,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public void serverTick() {
         //I/O between the machine and neighbour blocks.
         for(Direction side : Direction.values()) {
-            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == SideMode.NONE))
+            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE))
                 continue;
 
             IFluidHandler neighbour;

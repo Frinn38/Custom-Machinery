@@ -1,34 +1,27 @@
 package fr.frinn.custommachinery.impl.component.config;
 
-import com.google.common.collect.Maps;
-import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
-import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SideConfig {
+public abstract class SideConfig<M extends SideMode> {
 
-    private final Map<RelativeSide, SideMode> sides = new HashMap<>();
+    final Map<RelativeSide, M> sides = new HashMap<>();
     private final ISideConfigComponent component;
 
-    private boolean autoInput;
-    private boolean autoOutput;
     private final boolean enabled;
-    private TriConsumer<RelativeSide, SideMode, SideMode> callback;
+    private TriConsumer<RelativeSide, M, M> callback;
 
-    public SideConfig(ISideConfigComponent component, Map<RelativeSide, SideMode> defaultConfig, boolean autoInput, boolean autoOutput, boolean enabled) {
+    public SideConfig(ISideConfigComponent component, Map<RelativeSide, M> defaultConfig, boolean enabled) {
         this.component = component;
         this.sides.putAll(defaultConfig);
-        this.autoInput = autoInput;
-        this.autoOutput = autoOutput;
         this.enabled = enabled;
     }
 
@@ -40,108 +33,50 @@ public class SideConfig {
         return this.component;
     }
 
-    public SideMode getSideMode(RelativeSide side) {
+    public M getSideMode(RelativeSide side) {
         return this.sides.get(side);
     }
 
-    public SideMode getSideMode(Direction direction) {
+    public M getSideMode(Direction direction) {
         return getSideMode(RelativeSide.fromDirections(facing(), direction));
     }
 
-    public void setSideMode(RelativeSide side, SideMode mode) {
-        SideMode oldMode = this.sides.put(side, mode);
+    public void setSideMode(RelativeSide side, M mode) {
+        M oldMode = this.sides.put(side, mode);
         if(this.callback != null && !getComponent().getManager().getLevel().isClientSide())
             this.callback.accept(side, oldMode, mode);
-    }
-
-    public boolean isAutoInput() {
-        return this.autoInput;
-    }
-
-    public boolean isAutoOutput() {
-        return this.autoOutput;
     }
 
     public boolean isEnabled() {
         return this.enabled;
     }
 
-    public void setAutoInput(boolean autoInput) {
-        this.autoInput = autoInput;
-    }
-
-    public void setAutoOutput(boolean autoOutput) {
-        this.autoOutput = autoOutput;
-    }
-
-    public void set(SideConfig config) {
+    public void set(SideConfig<M> config) {
         for(RelativeSide side : RelativeSide.values())
             setSideMode(side, config.getSideMode(side));
-        setAutoInput(config.isAutoInput());
-        setAutoOutput(config.isAutoOutput());
     }
 
-    public void setCallback(TriConsumer<RelativeSide, SideMode, SideMode> callback) {
+    public void setCallback(TriConsumer<RelativeSide, M, M> callback) {
         this.callback = callback;
     }
 
-    public SideConfig copy() {
-        return new SideConfig(this.component, this.sides, this.autoInput, this.autoOutput, this.enabled);
+    public abstract void setNext(RelativeSide side);
+
+    public abstract void setPrevious(RelativeSide side);
+
+    public abstract SideConfig<M> copy();
+
+    public abstract CompoundTag serialize();
+
+    public abstract void deserialize(CompoundTag nbt);
+
+    public interface SideMode {
+        Component title();
+        int color();
     }
 
-    public CompoundTag serialize() {
-        CompoundTag nbt = new CompoundTag();
-        this.sides.forEach((side, mode) -> nbt.put(side.name(), ByteTag.valueOf((byte)mode.ordinal())));
-        nbt.putBoolean("input", this.autoInput);
-        nbt.putBoolean("output", this.autoOutput);
-        return nbt;
-    }
-
-    public void deserialize(CompoundTag nbt) {
-        for(RelativeSide side : RelativeSide.values())
-            if(nbt.get(side.name()) instanceof ByteTag byteTag)
-                this.sides.put(side, SideMode.values()[byteTag.getAsInt()]);
-        this.autoInput = nbt.getBoolean("input");
-        this.autoOutput = nbt.getBoolean("output");
-    }
-
-    public static class Template {
-
-        public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
-            templateInstance.group(
-                    EnumMapCodec.of(RelativeSide.class, SideMode.CODEC, SideMode.BOTH).forGetter(template -> template.sides),
-                    NamedCodec.BOOL.optionalFieldOf("input", false).forGetter(template -> template.autoInput),
-                    NamedCodec.BOOL.optionalFieldOf("output", false).forGetter(template -> template.autoOutput),
-                    NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(template -> template.enabled)
-            ).apply(templateInstance, Template::new), "Side Config Template");
-
-        public static final Template DEFAULT_ALL_BOTH = makeDefault(SideMode.BOTH, true);
-        public static final Template DEFAULT_ALL_INPUT = makeDefault(SideMode.INPUT, true);
-        public static final Template DEFAULT_ALL_OUTPUT = makeDefault(SideMode.OUTPUT, true);
-        public static final Template DEFAULT_ALL_NONE = makeDefault(SideMode.NONE, true);
-        public static final Template DEFAULT_ALL_NONE_DISABLED = makeDefault(SideMode.NONE, false);
-
-        private static Template makeDefault(SideMode defaultMode, boolean enabled) {
-            EnumMap<RelativeSide, SideMode> map = Maps.newEnumMap(RelativeSide.class);
-            for(RelativeSide side : RelativeSide.values())
-                map.put(side, defaultMode);
-            return new Template(map, false, false, enabled);
-        }
-
-        private final Map<RelativeSide, SideMode> sides;
-        private final boolean autoInput;
-        private final boolean autoOutput;
-        private final boolean enabled;
-
-        private Template(Map<RelativeSide, SideMode> sides, boolean autoInput, boolean autoOutput, boolean enabled) {
-            this.sides = sides;
-            this.autoInput = autoInput;
-            this.autoOutput = autoOutput;
-            this.enabled = enabled;
-        }
-
-        public <T extends ISideConfigComponent> SideConfig build(T component) {
-            return new SideConfig(component, this.sides, this.autoInput, this.autoOutput, this.enabled);
-        }
+    public interface Template<M extends SideMode> {
+        Map<RelativeSide, M> sides();
+        boolean enabled();
     }
 }

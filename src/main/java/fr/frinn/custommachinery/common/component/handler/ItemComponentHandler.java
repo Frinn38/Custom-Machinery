@@ -13,7 +13,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.SidedItemHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
+import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -64,7 +64,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         return null;
     }
 
-    public void configChanged(RelativeSide side, SideMode oldMode, SideMode newMode) {
+    public void configChanged(RelativeSide side, IOSideMode oldMode, IOSideMode newMode) {
         if(oldMode.isNone() != newMode.isNone())
             this.getManager().getTile().invalidateCapabilities();
     }
@@ -109,7 +109,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public void serverTick() {
         super.serverTick();
         for(Direction side : Direction.values()) {
-            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == SideMode.NONE))
+            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE))
                 continue;
 
             IItemHandler neighbour;

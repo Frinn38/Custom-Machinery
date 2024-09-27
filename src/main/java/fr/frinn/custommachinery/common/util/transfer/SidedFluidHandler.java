@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.util.transfer;
 
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
+import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import net.minecraft.core.Direction;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -21,7 +21,7 @@ public class SidedFluidHandler implements IFluidHandler {
         this.handler = handler;
     }
 
-    public List<FluidMachineComponent> getComponentsForMode(Predicate<SideMode> filter) {
+    public List<FluidMachineComponent> getComponentsForMode(Predicate<IOSideMode> filter) {
         return this.handler.getComponents().stream().filter(component -> filter.test(component.getConfig().getSideMode(this.side))).toList();
     }
 
@@ -48,7 +48,7 @@ public class SidedFluidHandler implements IFluidHandler {
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         FluidStack toFill = resource.copy();
-        for(FluidMachineComponent component : this.getComponentsForMode(SideMode::isInput)) {
+        for(FluidMachineComponent component : this.getComponentsForMode(IOSideMode::isInput)) {
             toFill.shrink(component.fill(toFill, action));
             if(toFill.isEmpty())
                 break;
@@ -60,7 +60,7 @@ public class SidedFluidHandler implements IFluidHandler {
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         int toDrain = 0;
-        for(FluidMachineComponent component : this.getComponentsForMode(SideMode::isOutput)) {
+        for(FluidMachineComponent component : this.getComponentsForMode(IOSideMode::isOutput)) {
             toDrain += component.drain(resource.copyWithAmount(resource.getAmount() - toDrain), action).getAmount();
             if(toDrain == resource.getAmount())
                 break;
@@ -70,7 +70,7 @@ public class SidedFluidHandler implements IFluidHandler {
 
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
-        for(FluidMachineComponent component : this.getComponentsForMode(SideMode::isOutput)) {
+        for(FluidMachineComponent component : this.getComponentsForMode(IOSideMode::isOutput)) {
             FluidStack drained = component.drain(maxDrain, action);
             if(!drained.isEmpty())
                 return drained;

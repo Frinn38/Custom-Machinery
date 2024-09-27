@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.component.item;
 
 import com.mojang.datafixers.util.Function8;
-import com.mojang.datafixers.util.Function9;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
@@ -15,15 +14,12 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
-import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.component.config.SideConfig.Template;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -33,7 +29,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -46,11 +41,11 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     private final int maxOutput;
     private final Filter<Item> filter;
     private ItemStack stack = ItemStack.EMPTY;
-    private final SideConfig config;
+    private final IOSideConfig config;
     private boolean locked;
     private boolean bypassLimit = false;
 
-    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, SideConfig.Template configTemplate, boolean locked) {
+    public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template configTemplate, boolean locked) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -71,7 +66,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public SideConfig getConfig() {
+    public IOSideConfig getConfig() {
         return this.config;
     }
 
@@ -141,7 +136,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(ItemStackSyncable.create(() -> this.stack, stack -> this.stack = stack));
-        container.accept(SideConfigSyncable.create(this::getConfig, this.config::set));
+        container.accept(IOSideConfigSyncable.create(this::getConfig, this.config::set));
     }
 
     @Override
@@ -254,7 +249,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Item machine component");
 
-        public static <T extends Template> NamedCodec<T> defaultCodec(Function8<String, ComponentIOMode, Integer, Optional<Integer>, Optional<Integer>, Filter<Item>, Optional<SideConfig.Template>, Boolean, T> constructor, String name) {
+        public static <T extends Template> NamedCodec<T> defaultCodec(Function8<String, ComponentIOMode, Integer, Optional<Integer>, Optional<Integer>, Filter<Item>, Optional<IOSideConfig.Template>, Boolean, T> constructor, String name) {
             return NamedCodec.record(instance ->
                     instance.group(
                             NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
@@ -263,7 +258,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                             NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
                             NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                             Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.ITEM)).orElse(Filter.empty()).forGetter(template -> template.filter),
-                            SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
+                            IOSideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                             NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked)
                     ).apply(instance, constructor), name);
         }
@@ -274,10 +269,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         public final int maxInput;
         public final int maxOutput;
         public final Filter<Item> filter;
-        public final SideConfig.Template config;
+        public final IOSideConfig.Template config;
         public final boolean locked;
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<SideConfig.Template> config, boolean locked) {
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<IOSideConfig.Template> config, boolean locked) {
             this.id = id;
             this.mode = mode;
             this.capacity = capacity;

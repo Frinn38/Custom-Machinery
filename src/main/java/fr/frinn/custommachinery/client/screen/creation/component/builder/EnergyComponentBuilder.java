@@ -4,12 +4,13 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentBuilderPopup;
+import fr.frinn.custommachinery.client.screen.creation.component.ComponentConfigBuilderWidget;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent.Template;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -42,6 +43,7 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
         private EditBox capacity;
         private EditBox maxInput;
         private EditBox maxOutput;
+        private IOSideConfig.Template config;
 
         public EnergyComponentBuilderPopup(BaseScreen parent, @Nullable Template template, Consumer<Template> onFinish) {
             super(parent, template, onFinish, Component.translatable("custommachinery.gui.creation.components.energy.title"));
@@ -49,7 +51,7 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
 
         @Override
         public Template makeTemplate() {
-            return new Template(this.parseLong(this.capacity.getValue()), this.parseLong(this.maxInput.getValue()), this.parseLong(this.maxOutput.getValue()), SideConfig.Template.DEFAULT_ALL_INPUT);
+            return new Template(this.parseLong(this.capacity.getValue()), this.parseLong(this.maxInput.getValue()), this.parseLong(this.maxOutput.getValue()), this.config);
         }
 
         @Override
@@ -70,6 +72,10 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
             this.maxOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxOutput"), new EditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxOutput")));
             this.maxOutput.setFilter(this::checkLong);
             this.baseTemplate().ifPresentOrElse(template -> this.maxOutput.setValue("" + template.maxOutput()), () -> this.maxOutput.setValue("10000"));
+
+            //Config
+            this.baseTemplate().ifPresentOrElse(template -> this.config = template.config(), () -> this.config = IOSideConfig.Template.DEFAULT_ALL_INPUT);
+            this.propertyList.add(Component.translatable("custommachinery.gui.config.component"), ComponentConfigBuilderWidget.make(0, 0, 180, 20, Component.translatable("custommachinery.gui.config.component"), this.parent, () -> this.config, template -> this.config = template));
         }
     }
 }

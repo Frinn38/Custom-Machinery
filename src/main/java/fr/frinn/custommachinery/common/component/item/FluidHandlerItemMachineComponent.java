@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
 
     private final List<String> tanks;
 
-    public FluidHandlerItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, SideConfig.Template configTemplate, boolean locked, List<String> tanks) {
+    public FluidHandlerItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template configTemplate, boolean locked, List<String> tanks) {
         super(manager, mode, id, capacity, maxInput, maxOutput, filter, configTemplate, locked);
         this.tanks = tanks;
     }
@@ -137,14 +137,14 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
                         NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
                         NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                         Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.ITEM)).forGetter(template -> template.filter),
-                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
+                        IOSideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked),
                         NamedCodec.STRING.listOf().optionalFieldOf("tanks", Collections.emptyList()).forGetter(template -> template.tanks)
                 ).apply(instance, Template::new), "Fluid handler item machine component");
 
         public final List<String> tanks;
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<SideConfig.Template> config, boolean locked, List<String> tanks) {
+        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<IOSideConfig.Template> config, boolean locked, List<String> tanks) {
             super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
             this.tanks = tanks;
         }

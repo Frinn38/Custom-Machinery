@@ -4,8 +4,11 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.component.config.SideMode;
+import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
+import fr.frinn.custommachinery.impl.component.config.ToggleSideMode;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -38,9 +41,12 @@ public record CAllSidesNonePacket(int containerId, String componentId) implement
                 if(player.containerMenu.containerId == packet.containerId && player.containerMenu instanceof CustomMachineContainer container) {
                     Optional<ISideConfigComponent> component = container.getTile().getComponentManager().getConfigComponentById(packet.componentId());
                     if(component.isPresent()) {
-                        SideConfig config = component.get().getConfig();
+                        SideConfig<?> config = component.get().getConfig();
                         for(RelativeSide side : RelativeSide.values())
-                            config.setSideMode(side, SideMode.NONE);
+                            if(config instanceof IOSideConfig ioSideConfig)
+                                ioSideConfig.setSideMode(side, IOSideMode.NONE);
+                            else if(config instanceof ToggleSideConfig toggleSideConfig)
+                                toggleSideConfig.setSideMode(side, ToggleSideMode.DISABLED);
                     }
                 }
             });

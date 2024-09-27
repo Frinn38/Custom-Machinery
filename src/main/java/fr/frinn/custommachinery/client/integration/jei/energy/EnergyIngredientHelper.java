@@ -22,8 +22,15 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
         return Component.translatable("custommachinery.jei.ingredient.energy", energy.amount()).getString();
     }
 
+    //Safe to remove
+    @SuppressWarnings("removal")
     @Override
     public String getUniqueId(Energy energy, UidContext context) {
+        return "" + energy.amount() + energy.chance() + energy.isPerTick();
+    }
+
+    @Override
+    public Object getUid(Energy energy, UidContext context) {
         return "" + energy.amount() + energy.chance() + energy.isPerTick();
     }
 

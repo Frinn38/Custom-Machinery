@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.impl.component.config.SideConfig;
 
 public interface ISideConfigComponent extends IMachineComponent {
 
-    SideConfig getConfig();
+    SideConfig<?> getConfig();
 
     String getId();
 }

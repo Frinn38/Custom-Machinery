@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -44,17 +45,18 @@ public record CChangeSideModePacket(int containerId, String id, byte side, boole
                 if(player.containerMenu.containerId == packet.containerId && player.containerMenu instanceof CustomMachineContainer container) {
                     Optional<ISideConfigComponent> component = container.getTile().getComponentManager().getConfigComponentById(packet.id);
                     if(component.isPresent()) {
-                        SideConfig config = component.get().getConfig();
-                        switch (packet.side) {
-                            case 6 -> config.setAutoInput(!config.isAutoInput());
-                            case 7 -> config.setAutoOutput(!config.isAutoOutput());
-                            default -> {
-                                RelativeSide side = RelativeSide.values()[packet.side];
-                                if(packet.next)
-                                    config.setSideMode(side, config.getSideMode(side).next());
-                                else
-                                    config.setSideMode(side, config.getSideMode(side).previous());
+                        SideConfig<?> config = component.get().getConfig();
+                        if(config instanceof IOSideConfig ioSideConfig && (packet.side == 6 || packet.side == 7)) {
+                            switch (packet.side) {
+                                case 6 -> ioSideConfig.setAutoInput(!ioSideConfig.isAutoInput());
+                                case 7 -> ioSideConfig.setAutoOutput(!ioSideConfig.isAutoOutput());
                             }
+                        } else {
+                            RelativeSide side = RelativeSide.values()[packet.side];
+                            if(packet.next)
+                                config.setNext(side);
+                            else
+                                config.setPrevious(side);
                         }
                     }
                 }

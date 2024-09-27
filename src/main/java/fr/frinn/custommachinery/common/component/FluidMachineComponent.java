@@ -13,12 +13,11 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
-import fr.frinn.custommachinery.common.network.syncable.SideConfigSyncable;
+import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +26,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -39,13 +37,13 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private final int maxInput;
     private final int maxOutput;
     private final Filter<Fluid> filter;
-    private final SideConfig config;
+    private final IOSideConfig config;
     private final boolean unique;
 
     private FluidStack fluidStack = FluidStack.EMPTY;
     private boolean bypassLimit = false;
 
-    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Fluid> filter, SideConfig.Template configTemplate, boolean unique) {
+    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Fluid> filter, IOSideConfig.Template configTemplate, boolean unique) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
@@ -87,7 +85,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     @Override
-    public SideConfig getConfig() {
+    public IOSideConfig getConfig() {
         return this.config;
     }
 
@@ -109,7 +107,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(FluidStackSyncable.create(() -> this.fluidStack, fluidStack -> this.fluidStack = fluidStack));
-        container.accept(SideConfigSyncable.create(this::getConfig, this.config::set));
+        container.accept(IOSideConfigSyncable.create(this::getConfig, this.config::set));
     }
 
     @Override
@@ -260,7 +258,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             int maxOutput,
             Filter<Fluid> filter,
             ComponentIOMode mode,
-            SideConfig.Template config,
+            IOSideConfig.Template config,
             boolean unique
     ) implements IMachineComponentTemplate<FluidMachineComponent> {
 
@@ -272,7 +270,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                         NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                         Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.FLUID)).orElse(Filter.empty()).forGetter(template -> template.filter),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                        SideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
+                        IOSideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("unique", false).forGetter(template -> template.unique)
                 ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, mode, config, unique) ->
                         new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, mode, config.orElse(mode.getBaseConfig()), unique)

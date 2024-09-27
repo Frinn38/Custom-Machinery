@@ -6,11 +6,13 @@ import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentBuilderPopup;
+import fr.frinn.custommachinery.client.screen.creation.component.ComponentConfigBuilderWidget;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent.Template;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Checkbox;
@@ -53,6 +55,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
         private EditBox maxInput;
         private EditBox maxOutput;
         private Checkbox unique;
+        private IOSideConfig.Template config;
 
         public FluidComponentBuilderPopup(BaseScreen parent, @Nullable Template template, Consumer<Template> onFinish) {
             super(parent, template, onFinish, Component.translatable("custommachinery.gui.creation.components.fluid.title"));
@@ -95,6 +98,10 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
             this.unique = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), this.font).selected(false).build());
             if(this.baseTemplate().map(FluidMachineComponent.Template::unique).orElse(false) != this.unique.selected())
                 this.unique.onPress();
+
+            //Config
+            this.baseTemplate().ifPresentOrElse(template -> this.config = template.config(), () -> this.config = IOSideConfig.Template.DEFAULT_ALL_INPUT);
+            this.propertyList.add(Component.translatable("custommachinery.gui.config.component"), ComponentConfigBuilderWidget.make(0, 0, 180, 20, Component.translatable("custommachinery.gui.config.component"), this.parent, () -> this.config, template -> this.config = template));
         }
     }
 }
