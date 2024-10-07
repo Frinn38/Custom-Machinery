@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
@@ -23,6 +24,7 @@ public abstract class ComponentBuilderPopup<T extends IMachineComponentTemplate<
     private final Component title;
 
     public ComponentPropertyListWidget propertyList;
+    public Button confirm;
 
     public ComponentBuilderPopup(BaseScreen parent, @Nullable T template, Consumer<T> onFinish, Component title) {
         super(parent, 256, 196);
@@ -46,6 +48,10 @@ public abstract class ComponentBuilderPopup<T extends IMachineComponentTemplate<
         return Optional.ofNullable(this.baseTemplate);
     }
 
+    public Component canCreate() {
+        return Component.empty();
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -57,8 +63,22 @@ public abstract class ComponentBuilderPopup<T extends IMachineComponentTemplate<
         this.propertyList = this.addRenderableWidget(new ComponentPropertyListWidget(this.x + 5, this.y + 15, this.xSize - 10, this.ySize - 50, 30));
 
         //Bottom row - confirm/cancel buttons
-        this.addRenderableWidget(Button.builder(CONFIRM, b -> this.confirm()).bounds(this.x + this.xSize / 3 - 25, this.y + this.ySize - 30, 50, 20).build());
+        this.confirm = this.addRenderableWidget(Button.builder(CONFIRM, b -> this.confirm()).bounds(this.x + this.xSize / 3 - 25, this.y + this.ySize - 30, 50, 20).build());
         this.addRenderableWidget(Button.builder(CANCEL, b -> this.cancel()).bounds(this.x + this.xSize / 3 * 2 - 25, this.y + this.ySize - 30, 50, 20).build());
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(graphics, mouseX, mouseY, partialTicks);
+
+        Component canCreate = this.canCreate();
+        if(canCreate.getString().isEmpty())
+            this.confirm.active = true;
+        else {
+            this.confirm.active = false;
+            if(this.confirm.isHovered())
+                graphics.renderTooltip(this.font, canCreate, mouseX, mouseY);
+        }
     }
 
     public boolean checkLong(String s) {

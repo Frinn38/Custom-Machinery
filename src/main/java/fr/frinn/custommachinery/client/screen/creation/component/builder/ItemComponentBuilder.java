@@ -26,7 +26,6 @@ import net.minecraft.util.FastColor;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -67,6 +66,16 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
         @Override
         public ItemMachineComponent.Template makeTemplate() {
             return new ItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), this.baseTemplate().map(template -> template.filter).orElse(Filter.empty()), Optional.of(this.mode.getValue().getBaseConfig()), this.locked.selected());
+        }
+
+        @Override
+        public Component canCreate() {
+            if(this.id.getValue().isEmpty())
+                return Component.translatable("custommachinery.gui.creation.gui.id.missing");
+            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == Registration.ITEM_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
+                return Component.translatable("custommachinery.gui.creation.gui.id.duplicate", this.id.getValue());
+            else
+                return Component.empty();
         }
 
         @Override

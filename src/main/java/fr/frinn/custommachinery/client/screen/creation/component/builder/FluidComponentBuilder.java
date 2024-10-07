@@ -24,7 +24,6 @@ import net.minecraft.util.FastColor;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.function.Consumer;
 
 public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMachineComponent, Template> {
@@ -64,6 +63,16 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
         @Override
         public Template makeTemplate() {
             return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), this.baseTemplate().map(Template::filter).orElse(Filter.empty()), this.mode.getValue(), this.mode.getValue().getBaseConfig(), this.unique.selected());
+        }
+
+        @Override
+        public Component canCreate() {
+            if(this.id.getValue().isEmpty())
+                return Component.translatable("custommachinery.gui.creation.gui.id.missing");
+            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == Registration.ITEM_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
+                return Component.translatable("custommachinery.gui.creation.gui.id.duplicate", this.id.getValue());
+            else
+                return Component.empty();
         }
 
         @Override
