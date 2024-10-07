@@ -69,7 +69,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
         public Component canCreate() {
             if(this.id.getValue().isEmpty())
                 return Component.translatable("custommachinery.gui.creation.gui.id.missing");
-            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == Registration.ITEM_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
+            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == Registration.FLUID_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
                 return Component.translatable("custommachinery.gui.creation.gui.id.duplicate", this.id.getValue());
             else
                 return Component.empty();
