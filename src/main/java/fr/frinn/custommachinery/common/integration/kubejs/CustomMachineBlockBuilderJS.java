@@ -6,6 +6,7 @@ import dev.latvian.mods.kubejs.generator.KubeAssetGenerator;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
 import dev.latvian.mods.kubejs.registry.AdditionalObjectRegistry;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
+import dev.latvian.mods.kubejs.util.ID;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
@@ -69,13 +70,13 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
                 JsonObject defaultJson = new JsonObject();
                 defaultJson.add("", new JsonPrimitive("custommachinery:default/custom_machine_default"));
                 json.add("defaults", defaultJson);
-                generator.json(KubeAssetGenerator.asItemModelLocation(this.id), json);
+                generator.json(this.id.withPath(ID.ITEM_MODEL), json);
             }
         });
     }
 
     @Override
     public void generateAssets(KubeAssetGenerator generator) {
-        generator.blockState(this.id, stateGenerator -> stateGenerator.simpleVariant("", "custommachinery:block/custom_machine_block"));
+        generator.blockState(this.id, stateGenerator -> stateGenerator.simpleVariant("", CustomMachinery.rl("block/custom_machine_block")));
     }
 }

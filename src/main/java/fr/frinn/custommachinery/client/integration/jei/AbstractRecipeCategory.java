@@ -138,8 +138,13 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public IDrawable getBackground() {
-        return this.guiHelper.createBlankDrawable(this.width, this.height);
+    public int getWidth() {
+        return this.width;
+    }
+
+    @Override
+    public int getHeight() {
+        return this.height;
     }
 
     @Override
@@ -172,6 +177,9 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
 
     @Override
     public void draw(T recipe, IRecipeSlotsView slotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+        //Draw background
+        this.guiHelper.createBlankDrawable(this.width, this.height).draw(graphics);
+
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         if(recipe instanceof CustomMachineRecipe machineRecipe && !machineRecipe.getGuiElements().isEmpty())
