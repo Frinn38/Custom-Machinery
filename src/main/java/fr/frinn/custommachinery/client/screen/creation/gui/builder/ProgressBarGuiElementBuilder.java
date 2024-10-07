@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
@@ -46,6 +47,7 @@ public class ProgressBarGuiElementBuilder implements IGuiElementBuilder<Progress
 
         private ResourceLocation emptyTexture = ProgressBarGuiElement.BASE_EMPTY_TEXTURE;
         private ResourceLocation filledTexture = ProgressBarGuiElement.BASE_FILLED_TEXTURE;
+        private Orientation baseOrientation;
         private CycleButton<Orientation> orientation;
         private float start = 0.0F;
         private float end = 1.0F;
@@ -72,14 +74,27 @@ public class ProgressBarGuiElementBuilder implements IGuiElementBuilder<Progress
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.empty"), texture -> this.emptyTexture = texture, this.emptyTexture);
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.filled"), texture -> this.filledTexture = texture, this.filledTexture);
             this.addPriority(row);
+            this.baseOrientation = this.baseElement == null ? Orientation.RIGHT : this.baseElement.getDirection();
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.orientation"), this.font));
-            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.toString())).withValues(Orientation.values()).withInitialValue(this.baseElement == null ? Orientation.RIGHT : this.baseElement.getDirection()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.progress.orientation")));
+            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.toString())).withValues(Orientation.values()).withInitialValue(this.baseOrientation).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.progress.orientation"), this::changeOrientation));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.start"), this.font));
             row.addChild(DoubleSlider.builder().bounds(-1, 1).defaultValue(this.start).displayOnlyValue().setResponder(value -> this.start = value.floatValue()).create(0, 0, 100, 20, Component.empty()));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.end"), this.font));
             row.addChild(DoubleSlider.builder().bounds(0, 2).defaultValue(this.end).displayOnlyValue().setResponder(value -> this.end = value.floatValue()).create(0, 0, 100, 20, Component.empty()));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.core"), this.font));
             row.addChild(IntegerSlider.builder().bounds(1, 16).defaultValue(this.core).displayOnlyValue().setResponder(value -> this.core = value).create(0, 0, 100, 20, Component.empty()));
+        }
+
+        private void changeOrientation(CycleButton<Orientation> button, Orientation orientation) {
+            if(this.emptyTexture.equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && this.filledTexture.equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)) {
+                if((this.baseOrientation == Orientation.RIGHT || this.baseOrientation == Orientation.LEFT) && (orientation == Orientation.TOP || orientation == Orientation.BOTTOM)) {
+                    this.properties.setWidth(TextureSizeHelper.getTextureHeight(this.emptyTexture));
+                    this.properties.setHeight(TextureSizeHelper.getTextureWidth(this.emptyTexture));
+                } else if((this.baseOrientation == Orientation.TOP || this.baseOrientation == Orientation.BOTTOM) && (orientation == Orientation.RIGHT || orientation == Orientation.LEFT)) {
+                    this.properties.setWidth(TextureSizeHelper.getTextureWidth(this.emptyTexture));
+                    this.properties.setHeight(TextureSizeHelper.getTextureHeight(this.emptyTexture));
+                }
+            }
         }
     }
 }

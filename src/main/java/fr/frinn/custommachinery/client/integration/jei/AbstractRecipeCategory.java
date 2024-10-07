@@ -45,7 +45,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
 
     protected static final int ICON_SIZE = 10;
 
-    protected final CustomMachine machine;
+    protected CustomMachine machine;
     protected final RecipeType<T> recipeType;
     protected final IGuiHelper guiHelper;
     protected final RecipeHelper recipeHelper;
@@ -120,6 +120,11 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 .orElse(1);
         int rows = Math.toIntExact(maxDisplayRequirement) / this.maxIconPerRow + 1;
         this.height = this.rowY + (ICON_SIZE + 2) * rows;
+    }
+
+    public void updateMachine(CustomMachine machine) {
+        this.machine = machine;
+        this.setupRecipeDimensions();
     }
 
     @Override

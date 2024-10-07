@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
@@ -51,6 +52,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,6 +63,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
     public static final ResourceLocation PLUGIN_ID = ResourceLocation.fromNamespaceAndPath(CustomMachinery.MODID, "jei_plugin");
     public static final List<ItemStack> FUEL_INGREDIENTS = Lists.newArrayList();
+    public static final Map<ResourceLocation, AbstractRecipeCategory<?>> CATEGORIES = new HashMap<>();
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -74,11 +77,18 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registry) {
+        CATEGORIES.clear();
         CustomMachinery.MACHINES.forEach((id, machine) -> {
+            AbstractRecipeCategory<?> category = null;
             if(machine.getProcessorTemplate().getType() == Registration.MACHINE_PROCESSOR.get())
-                registry.addRecipeCategories(new CustomMachineRecipeCategory(machine, CMRecipeTypes.create(id, CustomMachineRecipe.class), registry.getJeiHelpers()));
+                category = new CustomMachineRecipeCategory(machine, CMRecipeTypes.create(id, CustomMachineRecipe.class), registry.getJeiHelpers());
             else if(machine.getProcessorTemplate().getType() == Registration.CRAFT_PROCESSOR.get())
-                registry.addRecipeCategories(new CustomCraftRecipeCategory(machine, CMRecipeTypes.create(id, CustomCraftRecipe.class), registry.getJeiHelpers()));
+                category = new CustomCraftRecipeCategory(machine, CMRecipeTypes.create(id, CustomCraftRecipe.class), registry.getJeiHelpers());
+
+            if(category != null) {
+                registry.addRecipeCategories(category);
+                CATEGORIES.put(machine.getId(), category);
+            }
         });
     }
 
@@ -141,15 +151,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
             @Override
             public Collection<IGuiClickableArea> getGuiClickableAreas(CustomMachineScreen screen, double mouseX, double mouseY) {
                 List<IGuiElement> elements = screen.getTile().getGuiElements();
-                return elements.stream().filter(element -> element instanceof ProgressBarGuiElement).map(element -> {
-                    ProgressBarGuiElement progress = (ProgressBarGuiElement)element;
-                    int posX = progress.getX();
-                    int posY = progress.getY();
-                    boolean invertAxis = progress.getEmptyTexture().equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && progress.getFilledTexture().equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE) && progress.getDirection() != ProgressBarGuiElement.Orientation.RIGHT && progress.getDirection() != ProgressBarGuiElement.Orientation.LEFT;
-                    int width = invertAxis ? progress.getHeight() : progress.getWidth();
-                    int height = invertAxis ? progress.getWidth() : progress.getHeight();
-                    return createBasic(posX, posY, width, height, screen.getMachine().getId(), progress.getTooltips().isEmpty());
-                }).toList();
+                return elements.stream().filter(element -> element instanceof ProgressBarGuiElement).map(element -> createBasic(element.getX(), element.getY(), element.getWidth(), element.getHeight(), screen.getMachine().getId(), element.getTooltips().isEmpty())).toList();
             }
         });
         registration.addGhostIngredientHandler(CustomMachineScreen.class, new IGhostIngredientHandler<>() {
@@ -246,4 +248,12 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
             return Optional.ofNullable(ingredient.get(Registration.MACHINE_DATA.get())).map(ResourceLocation::toString).orElse("dummy");
         }
     };
+
+    public static void reloadMachines(Map<ResourceLocation, CustomMachine> machines) {
+        machines.forEach((id, machine) -> {
+            AbstractRecipeCategory<?> category = CATEGORIES.get(id);
+            if(category != null)
+                category.updateMachine(machine);
+        });
+    }
 }

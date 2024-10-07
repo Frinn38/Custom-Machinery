@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.IData;
+import fr.frinn.custommachinery.client.integration.jei.CustomMachineryJEIPlugin;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineCreationScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
@@ -20,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -64,6 +66,8 @@ public class ClientPacketHandler {
         Registration.CUSTOM_MACHINE_TAB.get().buildContents(params);
         if(Minecraft.getInstance().screen instanceof MachineCreationScreen creationScreen)
             creationScreen.reloadList();
+        if(ModList.get().isLoaded("jei"))
+            CustomMachineryJEIPlugin.reloadMachines(machines);
     }
 
     public static void handleUpdateMachineAppearancePacket(BlockPos pos, @Nullable MachineAppearance appearance) {

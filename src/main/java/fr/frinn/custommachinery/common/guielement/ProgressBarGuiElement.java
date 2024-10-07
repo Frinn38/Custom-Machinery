@@ -55,7 +55,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
         if(this.getProperties().width() >= 0)
             return this.getProperties().width();
         else if(FMLLoader.getDist() == Dist.CLIENT)
-            if(this.getTexture() == BASE_EMPTY_TEXTURE)
+            if(this.getTexture().equals(BASE_EMPTY_TEXTURE))
                 return switch (this.orientation) {
                     case TOP, BOTTOM -> TextureSizeHelper.getTextureHeight(this.getTexture());
                     case LEFT, RIGHT -> TextureSizeHelper.getTextureWidth(this.getTexture());
@@ -71,7 +71,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
         if(this.getProperties().height() >= 0)
             return this.getProperties().height();
         else if(FMLLoader.getDist() == Dist.CLIENT)
-            if(this.getTexture() == BASE_EMPTY_TEXTURE)
+            if(this.getTexture().equals(BASE_EMPTY_TEXTURE))
                 return switch (this.orientation) {
                     case TOP, BOTTOM -> TextureSizeHelper.getTextureWidth(this.getTexture());
                     case LEFT, RIGHT -> TextureSizeHelper.getTextureHeight(this.getTexture());
