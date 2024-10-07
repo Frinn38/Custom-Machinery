@@ -60,6 +60,10 @@ public class MachineEditScreen extends BaseScreen {
         this.changed = true;
     }
 
+    public boolean isChanged() {
+        return this.changed;
+    }
+
     public void save() {
         this.changed = false;
         PacketDistributor.sendToServer(new CEditMachinePacket(this.builder.build()));

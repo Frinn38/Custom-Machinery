@@ -3,14 +3,21 @@ package fr.frinn.custommachinery.client;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.render.BoxCreatorRenderer;
 import fr.frinn.custommachinery.client.render.StructureCreatorRenderer;
+import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.util.FileUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+
+import java.nio.file.Path;
 
 @EventBusSubscriber(modid = CustomMachinery.MODID, bus = Bus.GAME, value = Dist.CLIENT)
 public class ClientEvents {
@@ -32,5 +39,13 @@ public class ClientEvents {
             BoxCreatorRenderer.renderSelectedBlocks(event.getPoseStack());
             StructureCreatorRenderer.renderSelectedBlocks(event.getPoseStack());
         }
+    }
+
+    //If for some reason the game is stopped (crash, alt+F4...) and the machine editor is currently opened
+    //save the current editing machine to a temp file and ask for restoring it the next time the gui is opened
+    @SubscribeEvent
+    public static void playerLoggedOut(final ClientPlayerNetworkEvent.LoggingOut event) {
+        if(event.getPlayer() != null && Minecraft.getInstance().screen instanceof MachineEditScreen screen && screen.isChanged())
+            FileUtils.writeTempMachineJson(Minecraft.getInstance().gameDirectory, screen.getBuilder());
     }
 }

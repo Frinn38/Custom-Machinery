@@ -9,7 +9,10 @@ import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
+import net.minecraft.Util;
+import net.minecraft.Util.OS;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
@@ -19,6 +22,12 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
 
 public class FileUtils {
 
@@ -108,5 +117,28 @@ public class FileUtils {
         }
         CustomMachinery.LOGGER.info("Successfully deleted machine: {} at location '{}'", location.getId(), machineJson.getAbsolutePath());
         return true;
+    }
+
+    public static void writeTempMachineJson(File gameDirectory, CustomMachineBuilder builder) {
+        String id = builder.getLocation().getId().toString().replace(":", "_").replace("/", "_");
+        File temp = Path.of(gameDirectory.toURI()).resolve(".temp custommachinery " + id + " " + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Calendar.getInstance().getTime()) + ".json").toFile();
+        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(temp))) {
+            if(temp.exists() || temp.createNewFile()) {
+                if (Util.getPlatform() == OS.WINDOWS)
+                    Files.setAttribute(temp.toPath(), "dos:hidden", true);
+                DataResult<JsonElement> result = CustomMachine.CODEC.encodeStart(MachineJsonOps.INSTANCE, builder.build());
+                if (result.error().isPresent()) {
+                    CustomMachinery.LOGGER.error("Can't write temp machine json: {}\n{}", builder.getLocation().getId().getPath(), result.error().get().message());
+                    return;
+                }
+                if (result.result().isPresent()) {
+                    JsonElement json = result.result().get();
+                    GSON.toJson(json, writer);
+                    CustomMachinery.LOGGER.info("Writing temp machine: {} at location '{}'", builder.getLocation().getId(), temp.getAbsolutePath());
+                }
+            }
+        } catch (IOException e) {
+            CustomMachinery.LOGGER.error("Error while writing temp machine to file: {}\n{}\n{}", temp.getAbsolutePath(), e.getMessage(), ExceptionUtils.getStackTrace(e));
+        }
     }
 }
