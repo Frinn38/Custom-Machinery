@@ -80,17 +80,6 @@ public class CustomMachineItem extends BlockItem {
     }
 
     @Override
-    public void onCraftedBy(ItemStack stack, Level worldIn, Player playerIn) {
-        if(stack.getTag() == null || !stack.getTag().contains(MACHINE_TAG_KEY, Tag.TAG_STRING)) {
-            CompoundTag nbt = new CompoundTag();
-            nbt.putString(MACHINE_TAG_KEY, CustomMachine.DUMMY.getId().toString());
-            stack.setTag(nbt);
-        }
-        super.onCraftedBy(stack, worldIn, playerIn);
-    }
-
-
-    @Override
     public Component getName(ItemStack stack) {
         return getMachine(stack).map(CustomMachine::getName).orElse(super.getName(stack));
     }
