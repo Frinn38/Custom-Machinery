@@ -62,7 +62,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
 
         @Override
         public Template makeTemplate() {
-            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), this.baseTemplate().map(Template::filter).orElse(Filter.empty()), this.mode.getValue(), this.mode.getValue().getBaseConfig(), this.unique.selected());
+            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), this.baseTemplate().map(Template::filter).orElse(Filter.empty()), this.mode.getValue(), this.config, this.unique.selected());
         }
 
         @Override
