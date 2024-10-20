@@ -91,14 +91,14 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
                         component.getData().putBoolean(this.getId(), !component.getData().getBoolean(this.getId()));
                     else {
                         component.getData().putBoolean(this.getId(), true);
-                        component.getManager().markDirty();
-                        tile.getProcessor().setSearchImmediately();
-                        tile.getProcessor().setMachineInventoryChanged();
                         TaskDelayer.enqueue(this.holdTime, () -> {
                             component.getData().putBoolean(this.getId(), false);
                             component.getManager().markDirty();
                         });
                     }
+                    component.getManager().markDirty();
+                    tile.getProcessor().setSearchImmediately();
+                    tile.getProcessor().setMachineInventoryChanged();
                 });
     }
 }
