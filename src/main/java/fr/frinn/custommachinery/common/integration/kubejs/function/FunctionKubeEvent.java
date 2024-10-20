@@ -1,19 +1,29 @@
 package fr.frinn.custommachinery.common.integration.kubejs.function;
 
+import dev.latvian.mods.kubejs.event.KubeEvent;
 import dev.latvian.mods.kubejs.level.BlockContainerJS;
+import dev.latvian.mods.rhino.Context;
+import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import net.minecraft.network.chat.Component;
 
-public class Context {
+public class FunctionKubeEvent implements KubeEvent {
 
     private final ICraftingContext internal;
     private final MachineJS machine;
 
-    public Context(ICraftingContext internal) {
+    public FunctionKubeEvent(ICraftingContext internal) {
         this.internal = internal;
         this.machine = new MachineJS((CustomMachineTile) getTile());
+    }
+
+    public FunctionKubeEvent getContext() {
+        return this;
+    }
+
+    public FunctionKubeEvent getCtx() {
+        return this;
     }
 
     public double getRemainingTime() {
@@ -44,11 +54,8 @@ public class Context {
         return new BlockContainerJS(getTile().getLevel(), getTile().getBlockPos());
     }
 
-    public Result success() {
-        return Result.success();
-    }
-
-    public Result error(Component error) {
-        return Result.error(error);
+    @Override
+    public Object defaultExitValue(Context cx) {
+        return CraftingResult.pass();
     }
 }

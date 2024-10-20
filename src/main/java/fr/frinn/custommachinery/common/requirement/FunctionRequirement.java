@@ -10,16 +10,21 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.FunctionMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import net.minecraft.network.chat.Component;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
-public record FunctionRequirement(Phase phase, Function<ICraftingContext, CraftingResult> function, Consumer<Throwable> logger) implements IRequirement<FunctionMachineComponent> {
+public record FunctionRequirement(Phase phase, String id) implements IRequirement<FunctionMachineComponent> {
 
-    public static final NamedCodec<FunctionRequirement> CODEC = NamedCodec.unit(new FunctionRequirement(Phase.START, ctx -> CraftingResult.pass(), error -> {}));
+    public static final NamedCodec<FunctionRequirement> CODEC = NamedCodec.record(functionRequirementInstance ->
+            functionRequirementInstance.group(
+                    NamedCodec.enumCodec(Phase.class).fieldOf("phase").forGetter(FunctionRequirement::phase),
+                    NamedCodec.STRING.fieldOf("id").forGetter(FunctionRequirement::id)
+            ).apply(functionRequirementInstance, FunctionRequirement::new), "Function requirement"
+    );
     public static final List<FunctionRequirement> errors = new ArrayList<>();
 
     @Override
@@ -56,10 +61,14 @@ public record FunctionRequirement(Phase phase, Function<ICraftingContext, Crafti
             return CraftingResult.error(Component.translatable("custommachinery.requirements.function.error"));
 
         try {
-            return this.function.apply(context);
+            if(ModList.get().isLoaded("kubejs"))
+                return KubeJSIntegration.sendFunctionRequirementEvent(this.id, context);
+            else
+                throw new IllegalStateException("Trying to process function requirement for id: " + this.id + " without KubeJS installed !");
         } catch (Throwable error) {
             errors.add(this);
-            this.logger.accept(error);
+            if(ModList.get().isLoaded("kubejs"))
+                KubeJSIntegration.logError(error);
             return CraftingResult.error(Component.translatable("custommachinery.requirements.function.error"));
         }
     }

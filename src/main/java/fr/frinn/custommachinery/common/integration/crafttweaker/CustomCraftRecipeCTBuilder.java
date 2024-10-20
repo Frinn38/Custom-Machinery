@@ -26,7 +26,6 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Exp
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidPerTickRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FuelRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FunctionRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemFilterRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemTransformRequirementCT;
@@ -58,9 +57,9 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         FuelRequirementCT<CustomCraftRecipeCTBuilder>, CommandRequirementCT<CustomCraftRecipeCTBuilder>, EffectRequirementCT<CustomCraftRecipeCTBuilder>,
         WeatherRequirementCT<CustomCraftRecipeCTBuilder>, RedstoneRequirementCT<CustomCraftRecipeCTBuilder>, EntityRequirementCT<CustomCraftRecipeCTBuilder>,
         LightRequirementCT<CustomCraftRecipeCTBuilder>, BlockRequirementCT<CustomCraftRecipeCTBuilder>, StructureRequirementCT<CustomCraftRecipeCTBuilder>,
-        LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, FunctionRequirementCT<CustomCraftRecipeCTBuilder>,
-        ButtonRequirementCT<CustomCraftRecipeCTBuilder>, SkyRequirementCT<CustomCraftRecipeCTBuilder>, ItemFilterRequirementCT<CustomCraftRecipeCTBuilder>,
-        ExperienceRequirementCT<CustomCraftRecipeCTBuilder>, ExperiencePerTickRequirementCT<CustomCraftRecipeCTBuilder> {
+        LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, ButtonRequirementCT<CustomCraftRecipeCTBuilder>,
+        SkyRequirementCT<CustomCraftRecipeCTBuilder>, ItemFilterRequirementCT<CustomCraftRecipeCTBuilder>, ExperienceRequirementCT<CustomCraftRecipeCTBuilder>,
+        ExperiencePerTickRequirementCT<CustomCraftRecipeCTBuilder> {
 
     public static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private final CustomCraftRecipeBuilder builder;

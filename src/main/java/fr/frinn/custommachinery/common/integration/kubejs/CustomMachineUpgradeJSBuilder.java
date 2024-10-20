@@ -156,7 +156,7 @@ public class CustomMachineUpgradeJSBuilder {
         }
     }
 
-    public static class UpgradeEvent implements KubeEvent {
+    public static class UpgradeKubeEvent implements KubeEvent {
 
         private final List<CustomMachineUpgradeJSBuilder> builders = new ArrayList<>();
 

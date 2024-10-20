@@ -28,7 +28,6 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Exp
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidPerTickRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FluidRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FuelRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.FunctionRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemFilterRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ItemTransformRequirementCT;
@@ -61,9 +60,9 @@ public class CustomMachineRecipeCTBuilder implements EnergyRequirementCT<CustomM
         FuelRequirementCT<CustomMachineRecipeCTBuilder>, CommandRequirementCT<CustomMachineRecipeCTBuilder>, EffectRequirementCT<CustomMachineRecipeCTBuilder>,
         WeatherRequirementCT<CustomMachineRecipeCTBuilder>, RedstoneRequirementCT<CustomMachineRecipeCTBuilder>, EntityRequirementCT<CustomMachineRecipeCTBuilder>,
         LightRequirementCT<CustomMachineRecipeCTBuilder>, BlockRequirementCT<CustomMachineRecipeCTBuilder>, StructureRequirementCT<CustomMachineRecipeCTBuilder>,
-        LootTableRequirementCT<CustomMachineRecipeCTBuilder>, DropRequirementCT<CustomMachineRecipeCTBuilder>, FunctionRequirementCT<CustomMachineRecipeCTBuilder>,
-        ButtonRequirementCT<CustomMachineRecipeCTBuilder>, SkyRequirementCT<CustomMachineRecipeCTBuilder>, ItemFilterRequirementCT<CustomMachineRecipeCTBuilder>,
-        ExperienceRequirementCT<CustomMachineRecipeCTBuilder>, ExperiencePerTickRequirementCT<CustomMachineRecipeCTBuilder>, ChunkloadRequirementCT<CustomMachineRecipeCTBuilder> {
+        LootTableRequirementCT<CustomMachineRecipeCTBuilder>, DropRequirementCT<CustomMachineRecipeCTBuilder>, ButtonRequirementCT<CustomMachineRecipeCTBuilder>,
+        SkyRequirementCT<CustomMachineRecipeCTBuilder>, ItemFilterRequirementCT<CustomMachineRecipeCTBuilder>, ExperienceRequirementCT<CustomMachineRecipeCTBuilder>,
+        ExperiencePerTickRequirementCT<CustomMachineRecipeCTBuilder>, ChunkloadRequirementCT<CustomMachineRecipeCTBuilder> {
 
     public static final Map<ResourceLocation, Integer> IDS = new HashMap<>();
     private final CustomMachineRecipeBuilder builder;
