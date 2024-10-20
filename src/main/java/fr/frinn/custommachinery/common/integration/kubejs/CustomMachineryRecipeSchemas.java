@@ -92,5 +92,5 @@ public interface CustomMachineryRecipeSchemas {
     RecipeKey<Boolean> SINGLE_CORE = BooleanComponent.BOOLEAN.key("single_core", ComponentRole.OTHER).optional(false).alwaysWrite().exclude();
 
     RecipeSchema CUSTOM_MACHINE = new RecipeSchema(MACHINE_ID, TIME, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, ERROR, HIDDEN, APPEARANCE, GUI, ALLOWED_CORES, SINGLE_CORE).factory(new KubeRecipeFactory(CustomMachinery.rl("custom_machine"), TypeInfo.of(CustomMachineRecipeBuilderJS.class), CustomMachineRecipeBuilderJS::new));
-    RecipeSchema CUSTOM_CRAFT = new RecipeSchema(MACHINE_ID, OUTPUT, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, HIDDEN).factory(new KubeRecipeFactory(CustomMachinery.rl("custom_craft"), TypeInfo.of(CustomCraftRecipeJSBuilder.class), CustomCraftRecipeJSBuilder::new));
+    RecipeSchema CUSTOM_CRAFT = new RecipeSchema(MACHINE_ID, OUTPUT, REQUIREMENTS, JEI_REQUIREMENTS, PRIORITY, JEI_PRIORITY, HIDDEN).factory(new KubeRecipeFactory(CustomMachinery.rl("custom_craft"), TypeInfo.of(CustomCraftRecipeBuilderJS.class), CustomCraftRecipeBuilderJS::new));
 }

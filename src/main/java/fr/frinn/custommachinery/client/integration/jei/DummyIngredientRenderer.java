@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.integration.jei;
 
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -16,8 +17,15 @@ public class DummyIngredientRenderer<T> implements IIngredientRenderer<T> {
 
     }
 
+    //Safe to remove
+    @SuppressWarnings("removal")
     @Override
     public List<Component> getTooltip(T t, TooltipFlag iTooltipFlag) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public void getTooltip(ITooltipBuilder tooltip, T ingredient, TooltipFlag tooltipFlag) {
+
     }
 }

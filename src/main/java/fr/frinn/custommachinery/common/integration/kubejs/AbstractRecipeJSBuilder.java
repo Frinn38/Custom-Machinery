@@ -1,9 +1,12 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.script.ScriptType;
+import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
@@ -11,35 +14,32 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends Recipe<?>>> extends KubeRecipe implements RecipeJSBuilder {
+public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends Recipe<?>>> extends KubeRecipe implements RecipeJSBuilder {
 
     public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
 
     private final ResourceLocation typeID;
+    private final NamedCodec<B> codec;
     private RecipeRequirement<?, ?> lastRequirement;
     private boolean jei = false;
 
-    public AbstractRecipeJSBuilder(ResourceLocation typeID) {
+    public AbstractRecipeJSBuilder(ResourceLocation typeID, NamedCodec<B> codec) {
         this.typeID = typeID;
+        this.codec = codec;
     }
 
     @Override
     public void afterLoaded() {
         super.afterLoaded();
         ResourceLocation machine = getValue(CustomMachineryRecipeSchemas.MACHINE_ID);
-        if(machine == null)
-            throw new KubeRuntimeException("Invalid machine id: " + getValue(CustomMachineryRecipeSchemas.MACHINE_ID));
 
         if(this.newRecipe) {
             int uniqueID = IDS.computeIfAbsent(this.typeID, id -> new HashMap<>()).computeIfAbsent(machine, m -> 0);
@@ -49,14 +49,11 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     }
 
     @Override
-    public @Nullable RecipeHolder<?> createRecipe() {
-        if(this.removed)
-            return null;
-
+    public KubeRecipe serializeChanges() {
         if(!this.newRecipe)
-            return super.createRecipe();
+            return super.serializeChanges();
 
-        T builder = makeBuilder();
+        B builder = makeBuilder();
 
         for (RecipeRequirement<?, ?> requirement : getValue(CustomMachineryRecipeSchemas.REQUIREMENTS))
             builder.withRequirement(requirement);
@@ -69,23 +66,21 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         if(getValue(CustomMachineryRecipeSchemas.HIDDEN))
             builder.hide();
 
-        ResourceLocation id = getOrCreateId();
-        return new RecipeHolder<>(id, builder.build());
+        this.id = getOrCreateId();
+        this.json = (JsonObject) this.codec.encodeStart(JsonOps.INSTANCE, builder).result().orElse(null);
+        if(this.json != null)
+            this.json.addProperty("type", this.typeID.toString());
+        return this;
     }
 
-    @Override
-    public String getFromToString() {
-        return Objects.requireNonNull(createRecipe()).toString();
-    }
+    public abstract B makeBuilder();
 
-    public abstract T makeBuilder();
-
-    public AbstractRecipeJSBuilder<T> jei() {
+    public AbstractRecipeJSBuilder<B> jei() {
         this.jei = true;
         return this;
     }
 
-    public AbstractRecipeJSBuilder<T> priority(int priority) {
+    public AbstractRecipeJSBuilder<B> priority(int priority) {
         if(!this.jei)
             setValue(CustomMachineryRecipeSchemas.PRIORITY, priority);
         else
@@ -93,7 +88,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         return this;
     }
 
-    public AbstractRecipeJSBuilder<T> chance(double chance) {
+    public AbstractRecipeJSBuilder<B> chance(double chance) {
         if(this.lastRequirement != null)
             this.lastRequirement.setChance(chance);
         else
@@ -101,7 +96,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         return this;
     }
 
-    public AbstractRecipeJSBuilder<T> info(Consumer<DisplayInfoTemplate> consumer) {
+    public AbstractRecipeJSBuilder<B> info(Consumer<DisplayInfoTemplate> consumer) {
         if(this.lastRequirement == null)
             this.error("Can't add info on a null requirement !");
         try {
@@ -114,12 +109,12 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
         return this;
     }
 
-    public AbstractRecipeJSBuilder<T> hide() {
+    public AbstractRecipeJSBuilder<B> hide() {
         setValue(CustomMachineryRecipeSchemas.HIDDEN, true);
         return this;
     }
 
-    public AbstractRecipeJSBuilder<T> delay(double delay) {
+    public AbstractRecipeJSBuilder<B> delay(double delay) {
         if(this.lastRequirement != null)
             this.lastRequirement.setDelay(delay);
         else
@@ -128,7 +123,7 @@ public abstract class AbstractRecipeJSBuilder<T extends IRecipeBuilder<? extends
     }
 
     @Override
-    public AbstractRecipeJSBuilder<T> addRequirement(IRequirement<?> requirement) {
+    public AbstractRecipeJSBuilder<B> addRequirement(IRequirement<?> requirement) {
         this.lastRequirement = new RecipeRequirement<>(requirement);
         if(!this.jei)
             setValue(CustomMachineryRecipeSchemas.REQUIREMENTS, addToList(CustomMachineryRecipeSchemas.REQUIREMENTS, this.lastRequirement));

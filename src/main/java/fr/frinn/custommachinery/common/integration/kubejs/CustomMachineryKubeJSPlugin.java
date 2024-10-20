@@ -7,6 +7,7 @@ import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchemaRegistry;
 import dev.latvian.mods.kubejs.registry.BuilderTypeRegistry;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
+import dev.latvian.mods.kubejs.script.ScriptManager;
 import dev.latvian.mods.kubejs.script.TypeWrapperRegistry;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
@@ -39,7 +40,7 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
     }
 
     @Override
-    public void clearCaches() {
+    public void beforeScriptsLoaded(ScriptManager manager) {
         AbstractRecipeJSBuilder.IDS.clear();
     }
 

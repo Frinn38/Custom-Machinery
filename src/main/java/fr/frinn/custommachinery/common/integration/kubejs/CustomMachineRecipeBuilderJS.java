@@ -49,7 +49,7 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         ChunkloadRequirementJS, WorkingCoreRequirementJS {
 
     public CustomMachineRecipeBuilderJS() {
-        super(Registration.CUSTOM_MACHINE_RECIPE.getId());
+        super(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineRecipeBuilder.CODEC);
     }
 
     @Override
