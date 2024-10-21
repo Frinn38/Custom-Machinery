@@ -27,6 +27,10 @@ public class CMConfig implements ConfigData {
     @Comment("Configure what logs will be printed in the custommachinery.log file.\nOnly logs with level higher or equal than selected will be printed.\nFATAL > ERROR > WARN > INFO > DEBUG > ALL")
     public LoggingLevel debugLevel = LoggingLevel.INFO;
 
+    @Category("Logs")
+    @Comment("Displays a warning if there are files in legacy data folders, such as 'machines' instead of 'machine'")
+    public boolean logLegacyFolderFiles = true;
+
     //RENDER
     @Category("Rendering")
     @Comment("The time in milliseconds the block requirement\nworking box will be rendered around the machines\nwhen clicking on the icon in the jei recipe.")

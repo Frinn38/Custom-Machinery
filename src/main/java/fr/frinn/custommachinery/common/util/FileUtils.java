@@ -25,9 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Calendar;
-import java.util.Date;
 
 public class FileUtils {
 
@@ -49,7 +47,7 @@ public class FileUtils {
             if(!FMLLoader.isProduction())
                 root = root.substring(0, root.length() - 2);
             if(kubejs)
-                root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + machine.getId().getNamespace() + File.separator + "machines";
+                root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + machine.getId().getNamespace() + File.separator + "machine";
             File file = new File(root, machine.getId().getPath() + ".json");
             File directory = file.getParentFile();
             if(!directory.exists() && !directory.mkdirs()) {

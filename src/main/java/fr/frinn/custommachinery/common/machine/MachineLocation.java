@@ -79,7 +79,7 @@ public class MachineLocation {
 
     @Nullable
     public File getFile(MinecraftServer server) {
-        String pathFromData = "data" + File.separator + this.id.getNamespace() + File.separator + "machines" + File.separator + this.id.getPath() + ".json";
+        String pathFromData = "data" + File.separator + this.id.getNamespace() + File.separator + "machine" + File.separator + this.id.getPath() + ".json";
         String kubejsPath = server.getFile("kubejs" + File.separator + pathFromData).toFile().getPath();
         kubejsPath = kubejsPath.substring(2);
         return switch(this.loader) {

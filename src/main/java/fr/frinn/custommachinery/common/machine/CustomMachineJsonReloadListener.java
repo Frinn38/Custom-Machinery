@@ -36,7 +36,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
     public static IContext context;
 
     public CustomMachineJsonReloadListener() {
-        super("machines");
+        super("machine", "machines");
     }
 
     @Override
@@ -143,7 +143,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
     }
 
     private MachineLocation getMachineLocation(ResourceManager resourceManager, ResourceLocation id) {
-        ResourceLocation path = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "machines/" + id.getPath() + ".json");
+        ResourceLocation path = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "machine/" + id.getPath() + ".json");
         try {
             Resource res = resourceManager.getResourceOrThrow(path);
             String packName = res.sourcePackId();

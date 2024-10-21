@@ -25,7 +25,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
     private static final String MAIN_PACKNAME = "main";
 
     public UpgradesCustomReloadListener() {
-        super("upgrades");
+        super("upgrade", "upgrades");
     }
 
     @Override
