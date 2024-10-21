@@ -78,7 +78,7 @@ public class GuiTab extends MachineEditTab {
     }
 
     private void background() {
-        this.parent.openPopup(new BackgroundEditorPopup(this.parent), "background");
+        this.parent.openPopup(new BackgroundEditorPopup(this.parent, this.guiEditor), "background");
     }
 
     private void grid() {

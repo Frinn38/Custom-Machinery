@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
@@ -23,15 +24,17 @@ public class BackgroundEditorPopup extends PopupScreen {
 
     @Nullable
     private final BackgroundGuiElement background;
+    private final GuiEditorWidget editor;
 
     private CycleButton<Mode> mode;
     private SuggestedEditBox texture;
     private IntegerEditBox width;
     private IntegerEditBox height;
 
-    public BackgroundEditorPopup(MachineEditScreen parent) {
+    public BackgroundEditorPopup(MachineEditScreen parent, GuiEditorWidget editor) {
         super(parent, 256, 128);
         this.background = parent.getBuilder().getGuiElements().stream().filter(element -> element instanceof BackgroundGuiElement).map(element -> (BackgroundGuiElement)element).findFirst().orElse(null);
+        this.editor = editor;
     }
 
     @Override
@@ -84,6 +87,10 @@ public class BackgroundEditorPopup extends PopupScreen {
             this.height.setValue("" + this.background.getHeight());
         else
             this.height.setValue("192");
+
+        //Show background
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.show"), this.font), middle);
+        Checkbox show = row.addChild(Checkbox.builder(Component.translatable("custommachinery.gui.creation.gui.background.show"), this.font).selected(this.editor.shouldShowBackground()).onValueChange(((checkbox, value) -> this.editor.setShowBackground(value))).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background.show.tooltip"))).build());
 
         //Close
         row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.gui.background.close"), button -> this.close()).size(50, 20).build(), 2, center);

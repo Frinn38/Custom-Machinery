@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
+import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
@@ -48,6 +49,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     private boolean dragging;
     private GuiEventListener focused;
     private static GridSettings gridSettings = new GridSettings(false, 10, 10, 0.5F);
+    private static boolean showBackground = true;
 
     public GuiEditorWidget(MachineEditScreen parent, int x, int y, int width, int height, List<IGuiElement> baseElements) {
         super(x, y, width, height, Component.empty());
@@ -114,6 +116,14 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         gridSettings = settings;
     }
 
+    public boolean shouldShowBackground() {
+        return showBackground;
+    }
+
+    public void setShowBackground(boolean show) {
+        showBackground = show;
+    }
+
     private void changePriority(int delta) {
         if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
             widget.properties.setPriority(widget.properties.getPriority() + delta);
@@ -152,15 +162,22 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         //Black border
         graphics.fill(this.getX() - 2, this.getY() - 2, this.getX() + this.getWidth() + 2, this.getY() + this.getHeight() + 2, FastColor.ARGB32.color(255, 0, 0, 0));
-        graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), FastColor.ARGB32.color(255, 198, 198, 198));
+        graphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, FastColor.ARGB32.color(255, 198, 198, 198));
+
+        //Background
+        if(this.shouldShowBackground()) {
+            BackgroundGuiElement background = this.parent.getBuilder().getGuiElements().stream().filter(element -> element instanceof BackgroundGuiElement).map(element -> (BackgroundGuiElement)element).findFirst().orElse(null);
+            if(background != null && background.getTexture() != null)
+                graphics.blit(background.getTexture(), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+        }
 
         //Grid
-        if(this.gridSettings != null && this.gridSettings.enabled()) {
-            for(int x = this.getX() + this.gridSettings.xSpacing(); x < this.getX() + this.getWidth(); x += this.gridSettings.xSpacing())
-                graphics.fill(x, this.getY(), x + 1, this.getY() + this.getHeight(), FastColor.ARGB32.color((int)(255 * this.gridSettings.opacity()), 85, 85, 85));
+        if(this.getGridSettings() != null && this.getGridSettings().enabled()) {
+            for(int x = this.getX() + this.getGridSettings().xSpacing(); x < this.getX() + this.getWidth(); x += this.getGridSettings().xSpacing())
+                graphics.fill(x, this.getY(), x + 1, this.getY() + this.getHeight(), FastColor.ARGB32.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
 
-            for(int y = this.getY() + this.gridSettings.ySpacing(); y < this.getY() + this.getHeight(); y += this.gridSettings.ySpacing())
-                graphics.fill(this.getX(), y, this.getX() + this.getWidth(), y + 1, FastColor.ARGB32.color((int)(255 * this.gridSettings.opacity()), 85, 85, 85));
+            for(int y = this.getY() + this.getGridSettings().ySpacing(); y < this.getY() + this.getHeight(); y += this.getGridSettings().ySpacing())
+                graphics.fill(this.getX(), y, this.getX() + this.getWidth(), y + 1, FastColor.ARGB32.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
         }
 
         //Elements
@@ -419,7 +436,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY) {
+        public void onClick(double mouseX, double mouseY, int button) {
             this.dragType = this.getDragType(mouseX, mouseY);
             checkCursorShape((int)mouseX, (int)mouseY);
         }
