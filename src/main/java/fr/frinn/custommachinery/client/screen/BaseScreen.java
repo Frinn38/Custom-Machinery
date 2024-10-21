@@ -164,12 +164,10 @@ public abstract class BaseScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         for(PopupScreen popup : this.popups) {
-            if(popup.isMouseOver(mouseX, mouseY)) {
-                boolean dragged = popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-                if(this.freezePopupsTicks <= 0)
-                    this.popups.moveUp(popup);
-                return dragged;
-            }
+            boolean dragged = popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            if(this.freezePopupsTicks <= 0)
+                this.popups.moveUp(popup);
+            return dragged;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
