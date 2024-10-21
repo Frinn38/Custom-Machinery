@@ -55,6 +55,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     protected int offsetY;
     protected int width;
     protected int height;
+    protected boolean hasInfoRow;
     protected int rowY;
     protected int maxIconPerRow;
 
@@ -114,11 +115,12 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         long maxDisplayRequirement = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .map(RecipeHolder::value)
-                .filter(recipe -> recipe.getMachineId().equals(this.machine.getId()))
+                .filter(recipe -> recipe.getMachineId().equals(this.machine.getId()) && recipe.showInJei())
                 .mapToLong(recipe -> recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).count())
                 .max()
-                .orElse(1);
-        int rows = Math.toIntExact(maxDisplayRequirement) / this.maxIconPerRow + 1;
+                .orElse(0);
+        this.hasInfoRow = maxDisplayRequirement != 0;
+        int rows = this.hasInfoRow ? Math.toIntExact(maxDisplayRequirement) / this.maxIconPerRow + 1 : 0;
         this.height = this.rowY + (ICON_SIZE + 2) * rows;
     }
 
@@ -195,6 +197,10 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                     graphics.pose().popPose();
                 });
 
+        //If no recipes have display infos stop here
+        if(!this.hasInfoRow)
+            return;
+
         //Render the line between the gui elements and the requirements icons
         graphics.fill(-3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
 
@@ -232,6 +238,10 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 }
             }
         }
+
+        //If no recipes have display infos stop here
+        if(!this.hasInfoRow)
+            return;
 
         //Then do the same with display info requirements.
         int index = 0;
