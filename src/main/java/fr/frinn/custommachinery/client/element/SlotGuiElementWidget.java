@@ -1,9 +1,9 @@
 package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
@@ -19,7 +19,7 @@ import java.util.List;
 
 public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElement> {
 
-    private static final CycleTimer timer = new CycleTimer(() -> CMConfig.get().itemSlotCycleTime);
+    private static final CycleTimer timer = new CycleTimer(CMConfig.CONFIG.itemSlotCycleTime);
 
     public SlotGuiElementWidget(SlotGuiElement element, IMachineScreen screen) {
         super(element, screen, Component.literal("Slot"));

@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -50,11 +50,11 @@ public class CustomMachineRenderer implements BlockEntityRenderer<CustomMachineT
     }
 
     public static void addRenderBox(ResourceLocation machine, AABB box) {
-        boxToRender.put(machine, new BoxRenderer(CMConfig.get().boxRenderTime, box));
+        boxToRender.put(machine, new BoxRenderer(CMConfig.CONFIG.boxRenderTime.get(), box));
     }
 
     public static void addRenderBlock(ResourceLocation machine, Function<Direction, Map<BlockPos, IIngredient<PartialBlockState>>> blocks) {
-        blocksToRender.put(machine, new StructureRenderer(CMConfig.get().structureRenderTime, blocks));
+        blocksToRender.put(machine, new StructureRenderer(CMConfig.CONFIG.structureRenderTime.get(), blocks));
     }
 }
 

@@ -90,13 +90,6 @@ configurations {
 
 repositories {
     maven {
-        name = "Shedaniel's maven"
-        url = "https://maven.shedaniel.me/"
-        content {
-            includeGroup "me.shedaniel.cloth"
-        }
-    }
-    maven {
         name = "BlameJared Maven"
         url = "https://maven.blamejared.com"
         content {
@@ -144,9 +137,6 @@ repositories {
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
-
-    // Cloth config
-    api("me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}")
 
     // JEI
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
@@ -268,7 +258,6 @@ unifiedPublishing {
                 id = "457017"
                 gameVersions.addAll "Java 21"
                 relations {
-                    depends "cloth-config"
                     optional "kubejs"
                     optional "crafttweaker"
                     optional "jei"
@@ -284,7 +273,6 @@ unifiedPublishing {
                 token = MODRINTH_TOKEN
                 id = "OrB5XFtI"
                 relations {
-                    depends "cloth-config"
                     optional "kubejs"
                     optional "crafttweaker"
                     optional "jei"

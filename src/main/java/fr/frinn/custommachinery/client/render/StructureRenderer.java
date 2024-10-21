@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.RenderTypes;
-import fr.frinn.custommachinery.common.integration.config.CMConfig;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
@@ -20,6 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class StructureRenderer {
         this.time = time;
         this.start = System.currentTimeMillis();
         this.blocksGetter = blocksGetter;
-        this.timer = new CycleTimer(() -> CMConfig.get().blockTagCycleTime);
+        this.timer = new CycleTimer(CMConfig.CONFIG.blockTagCycleTime);
     }
 
     public void render(PoseStack matrix, MultiBufferSource buffer, Direction direction, Level world, BlockPos machinePos) {
@@ -78,12 +79,10 @@ public class StructureRenderer {
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(CustomMachinery.rl("block/nope")));
         matrix.translate(-0.0005, -0.0005, -0.0005);
         matrix.scale(1.001F, 1.001F, 1.001F);
-        int[] light = new int[4];
-        Arrays.fill(light, LightTexture.pack(15, 15));
         Arrays.stream(Direction.values())
-                .flatMap(direction -> model.getQuads(null, direction, RandomSource.create(42L)).stream())
+                .flatMap(direction -> model.getQuads(null, direction, RandomSource.create(42L), ModelData.EMPTY, null).stream())
                 .forEach(quad -> builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
-        model.getQuads(null, null, RandomSource.create(42L))
+        model.getQuads(null, null, RandomSource.create(42L), ModelData.EMPTY, null)
                 .forEach(quad -> builder.putBulkData(matrix.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
     }
 

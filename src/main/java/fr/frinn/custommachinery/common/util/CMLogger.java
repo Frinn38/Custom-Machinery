@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.integration.config.CMConfig;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,7 +67,7 @@ public class CMLogger {
                 .withPolicy(policy)
                 //.withStrategy(strategy)
                 .setName(NAME)
-                .withImmediateFlush(true)
+                .setImmediateFlush(true)
                 .setIgnoreExceptions(false)
                 .setConfiguration(config)
                 .setLayout(logPattern)
@@ -78,7 +78,7 @@ public class CMLogger {
         config.addAppender(cmAppender);
 
         LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, NAME, "true", new AppenderRef[0], null, config, null);
-        loggerConfig.addAppender(cmAppender, CMConfig.get().debugLevel.getLevel(), null);
+        loggerConfig.addAppender(cmAppender, CMConfig.CONFIG.debugLevel.get().getLevel(), null);
 
         Appender debug = config.getAppender("DebugFile");
         if(debug != null)

@@ -7,6 +7,7 @@ import com.mojang.serialization.DataResult.Error;
 import com.mojang.serialization.DynamicOps;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.common.config.CMConfig;
 
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class EnhancedEitherCodec<F, S> implements NamedCodec<Either<F, S>> {
         if (firstRead.result().isPresent())
             return firstRead;
         String firstError = firstRead.error().map(Error::message).orElse("");
-        if(ICustomMachineryAPI.INSTANCE.config().logFirstEitherError())
+        if(CMConfig.CONFIG.logFirstEitherError.get())
             ICustomMachineryAPI.INSTANCE.logger().warn("Can't deserialize {} with {}, trying with {} now.\n{}", this, this.first.name(), this.second.name(), firstError);
         return second.decode(ops, input).mapError(s -> String.format(this.error, this, this.first.name(), this.second.name(), firstError, s)).map(vo -> vo.mapFirst(Either::right));
     }

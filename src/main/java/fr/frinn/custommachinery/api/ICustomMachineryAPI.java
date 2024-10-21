@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.api.utils.ICMConfig;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -42,12 +41,6 @@ public interface ICustomMachineryAPI {
      * @return The Custom Machinery logger.
      */
     Logger logger();
-
-    /**
-     * Use this to access some CM config options.
-     * @return The CM config.
-     */
-    ICMConfig config();
 
     /**
      * @return The registrar for machine component types.

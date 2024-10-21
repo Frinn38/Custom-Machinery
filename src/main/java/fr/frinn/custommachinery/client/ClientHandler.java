@@ -75,18 +75,16 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.SlotGuiElemen
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.StatusGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
-import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
@@ -98,29 +96,47 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.ModelEvent.BakingCompleted;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-@EventBusSubscriber(modid = CustomMachinery.MODID, bus = Bus.MOD, value = Dist.CLIENT)
+@Mod(value = CustomMachinery.MODID, dist = Dist.CLIENT)
 public class ClientHandler {
 
     private static Map<ModelResourceLocation, BakedModel> models;
 
-    @SubscribeEvent
-    public static void clientSetup(final FMLClientSetupEvent event) {
+    public ClientHandler(final ModContainer CONTAINER, final IEventBus MOD_BUS) {
+        CONTAINER.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+
+        MOD_BUS.addListener(this::clientSetup);
+        MOD_BUS.addListener(this::registerMenuScreens);
+        MOD_BUS.addListener(this::registerBlockEntityRenderers);
+        MOD_BUS.addListener(this::registerGuiElementWidgets);
+        MOD_BUS.addListener(this::registerGuiElementJEIRenderers);
+        MOD_BUS.addListener(this::registerWidgetToJeiIngredientGetters);
+        MOD_BUS.addListener(this::registerAppearancePropertyBuilders);
+        MOD_BUS.addListener(this::registerMachineComponentBuilders);
+        MOD_BUS.addListener(this::registerGuiElementBuilders);
+        MOD_BUS.addListener(this::registerBlockColors);
+        MOD_BUS.addListener(this::registerItemColors);
+        MOD_BUS.addListener(this::registerModelLoader);
+        MOD_BUS.addListener(this::registerAdditionalModels);
+        MOD_BUS.addListener(this::onBackingCompleted);
+    }
+
+    private void clientSetup(final FMLClientSetupEvent event) {
         GuiElementWidgetSupplierRegistry.init();
         AppearancePropertyBuilderRegistry.init();
         MachineComponentBuilderRegistry.init();
@@ -130,23 +146,17 @@ public class ClientHandler {
             GuiElementJEIRendererRegistry.init();
             WidgetToJeiIngredientRegistry.init();
         }
-
-        if(ModList.get().isLoaded("cloth_config"))
-            ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class, () -> (client, parent) -> AutoConfig.getConfigScreen(CMConfig.class, parent).get());
     }
 
-    @SubscribeEvent
-    public static void registerMenuScreens(final RegisterMenuScreensEvent event) {
+    private void registerMenuScreens(final RegisterMenuScreensEvent event) {
         event.register(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
     }
 
-    @SubscribeEvent
-    public static void registerBlockEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+    private void registerBlockEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
     }
 
-    @SubscribeEvent
-    public static void registerGuiElementWidgets(final RegisterGuiElementWidgetSupplierEvent event) {
+    private void registerGuiElementWidgets(final RegisterGuiElementWidgetSupplierEvent event) {
         event.register(Registration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
         event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
         event.register(Registration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
@@ -165,8 +175,7 @@ public class ClientHandler {
         event.register(Registration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
     }
 
-    @SubscribeEvent
-    public static void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {
+    private void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {
         event.register(Registration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementJeiRenderer());
         event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementJeiRenderer());
         event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementJeiRenderer());
@@ -177,13 +186,11 @@ public class ClientHandler {
         event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementJeiRenderer());
     }
 
-    @SubscribeEvent
-    public static void registerWidgetToJeiIngredientGetters(final RegisterWidgetToJeiIngredientGetterEvent event) {
+    private void registerWidgetToJeiIngredientGetters(final RegisterWidgetToJeiIngredientGetterEvent event) {
         event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidIngredientGetter());
     }
 
-    @SubscribeEvent
-    public static void registerAppearancePropertyBuilders(final RegisterAppearancePropertyBuilderEvent event) {
+    private void registerAppearancePropertyBuilders(final RegisterAppearancePropertyBuilderEvent event) {
         event.register(Registration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSoundAppearancePropertyBuilder());
         event.register(Registration.BLOCK_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.block"), Registration.BLOCK_MODEL_PROPERTY.get()));
         event.register(Registration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());
@@ -197,8 +204,7 @@ public class ClientHandler {
         event.register(Registration.TOOL_TYPE_PROPERTY.get(), new ToolTypeAppearancePropertyBuilder());
     }
 
-    @SubscribeEvent
-    public static void registerMachineComponentBuilders(final RegisterComponentBuilderEvent event) {
+    private void registerMachineComponentBuilders(final RegisterComponentBuilderEvent event) {
         event.register(Registration.CHUNKLOAD_MACHINE_COMPONENT.get(), new ChunkloadComponentBuilder());
         event.register(Registration.ENERGY_MACHINE_COMPONENT.get(), new EnergyComponentBuilder());
         event.register(Registration.EXPERIENCE_MACHINE_COMPONENT.get(), new ExperienceComponentBuilder());
@@ -213,8 +219,7 @@ public class ClientHandler {
         event.register(Registration.REDSTONE_MACHINE_COMPONENT.get(), new RedstoneComponentBuilder());
     }
 
-    @SubscribeEvent
-    public static void registerGuiElementBuilders(final RegisterGuiElementBuilderEvent event) {
+    private void registerGuiElementBuilders(final RegisterGuiElementBuilderEvent event) {
         event.register(Registration.BAR_GUI_ELEMENT.get(), new BarGuiElementBuilder());
         event.register(Registration.BUTTON_GUI_ELEMENT.get(), new ButtonGuiElementBuilder());
         event.register(Registration.CONFIG_GUI_ELEMENT.get(), new ConfigGuiElementBuilder());
@@ -232,28 +237,24 @@ public class ClientHandler {
         event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementBuilder());
     }
 
-    @SubscribeEvent
-    public static void registerBlockColors(final RegisterColorHandlersEvent.Block event) {
+    private void registerBlockColors(final RegisterColorHandlersEvent.Block event) {
         event.register(ClientHandler::blockColor, Registration.CUSTOM_MACHINE_BLOCK.get());
         CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> event.register(ClientHandler::blockColor, block));
     }
 
-    @SubscribeEvent
-    public static void registerItemColors(final RegisterColorHandlersEvent.Item event) {
+    private void registerItemColors(final RegisterColorHandlersEvent.Item event) {
         event.register(ClientHandler::itemColor, Registration.CUSTOM_MACHINE_ITEM::get);
         CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> event.register(ClientHandler::itemColor, block));
     }
 
-    @SubscribeEvent
-    public static void registerModelLoader(final ModelEvent.RegisterGeometryLoaders event) {
+    private void registerModelLoader(final ModelEvent.RegisterGeometryLoaders event) {
         event.register(CustomMachinery.rl("custom_machine"), CustomMachineModelLoader.INSTANCE);
     }
 
-    @SubscribeEvent
-    public static void registerAdditionalModels(final ModelEvent.RegisterAdditional event) {
+    private void registerAdditionalModels(final ModelEvent.RegisterAdditional event) {
         event.register(ModelResourceLocation.standalone(CustomMachinery.rl("block/nope")));
         event.register(ModelResourceLocation.standalone(CustomMachinery.rl("default/custom_machine_default")));
-        for(String folder : CMConfig.get().modelFolders) {
+        for(String folder : CMConfig.CONFIG.modelFolders.get()) {
             Minecraft.getInstance().getResourceManager().listResources("models/" + folder, s -> s.getPath().endsWith(".json")).forEach((rl, resource) -> {
                 ResourceLocation modelRL = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
                 event.register(ModelResourceLocation.standalone(modelRL));
@@ -261,8 +262,7 @@ public class ClientHandler {
         }
     }
 
-    @SubscribeEvent
-    public static void onBackingCompleted(final BakingCompleted event) {
+    private void onBackingCompleted(final BakingCompleted event) {
         models = event.getModels();
     }
 
@@ -323,15 +323,6 @@ public class ClientHandler {
 
     public static boolean isShiftKeyDown() {
         return Screen.hasShiftDown();
-    }
-
-    public static RenderType getRenderType(String renderType) {
-        return switch(renderType) {
-            case "solid" -> RenderType.solid();
-            case "cutout" -> RenderType.cutout();
-            case "translucent" -> RenderType.translucent();
-            default -> throw new IllegalArgumentException("Invalid render type: " + renderType);
-        };
     }
 
     public static int getLineHeight() {

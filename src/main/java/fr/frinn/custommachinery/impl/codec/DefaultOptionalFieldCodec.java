@@ -6,6 +6,7 @@ import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.common.config.CMConfig;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -46,7 +47,7 @@ public class DefaultOptionalFieldCodec<A> extends NamedMapCodec<A> {
             }
         }
         if (value == null) {
-            if(ICustomMachineryAPI.INSTANCE.config().logMissingOptional())
+            if(CMConfig.CONFIG.logMissingOptional.get())
                 ICustomMachineryAPI.INSTANCE.logger().debug("Missing optional property: \"{}\" of type: {}, using default value: {}", fieldName, name, defaultValue.get());
             return DataResult.success(defaultValue.get());
         }

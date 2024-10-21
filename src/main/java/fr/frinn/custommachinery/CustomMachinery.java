@@ -5,10 +5,10 @@ import com.google.common.collect.HashBiMap;
 import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.BoxCreatorItem;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
@@ -19,16 +19,16 @@ import fr.frinn.custommachinery.common.upgrade.Upgrades;
 import fr.frinn.custommachinery.common.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.ConfigHolder;
-import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig.Type;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
 import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
@@ -59,14 +59,8 @@ public class CustomMachinery {
     public static final BiMap<ResourceLocation, CustomMachineBlock> CUSTOM_BLOCK_MACHINES = HashBiMap.create();
     public static final Upgrades UPGRADES = new Upgrades();
 
-    public CustomMachinery(final IEventBus MOD_BUS) {
-        ConfigHolder<CMConfig> config = AutoConfig.register(CMConfig.class, Toml4jConfigSerializer::new);
-        config.registerSaveListener((holder, cmConfig) -> {
-            CMLogger.setDebugLevel(cmConfig.debugLevel.getLevel());
-            return InteractionResult.SUCCESS;
-        });
-
-        CMLogger.init();
+    public CustomMachinery(final ModContainer CONTAINER, final IEventBus MOD_BUS) {
+        CONTAINER.registerConfig(Type.COMMON, CMConfig.CONFIG_SPEC);
 
         Registration.BLOCKS.register(MOD_BUS);
         Registration.DATA_COMPONENTS.register(MOD_BUS);
@@ -83,8 +77,10 @@ public class CustomMachinery {
         Registration.DATAS.register(MOD_BUS);
         Registration.PROCESSORS.register(MOD_BUS);
 
+        MOD_BUS.addListener(this::commonSetup);
         MOD_BUS.addListener(this::sendIMCMessages);
         MOD_BUS.addListener(this::registerCapabilities);
+        MOD_BUS.addListener(this::reloadConfig);
 
         final IEventBus GAME_BUS = NeoForge.EVENT_BUS;
 
@@ -94,6 +90,10 @@ public class CustomMachinery {
         GAME_BUS.addListener(this::registerCommands);
         GAME_BUS.addListener(this::boxRendererLeftClick);
         GAME_BUS.addListener(this::onReloadStart);
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        CMLogger.init();
     }
 
     private void sendIMCMessages(final InterModEnqueueEvent event) {
@@ -123,6 +123,11 @@ public class CustomMachinery {
                         .map(energy -> energy.getEnergyStorage(side))
                         .orElse(null)
         );
+    }
+
+    private void reloadConfig(final ModConfigEvent.Reloading event) {
+        if(event.getConfig().getSpec() == CMConfig.CONFIG_SPEC)
+            CMLogger.setDebugLevel(CMConfig.CONFIG.debugLevel.get().getLevel());
     }
 
     private void serverStarting(final ServerStartingEvent event) {
