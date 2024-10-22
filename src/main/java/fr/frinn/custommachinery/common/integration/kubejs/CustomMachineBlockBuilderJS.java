@@ -21,25 +21,16 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     public static final List<String> VALID_RENDER_TYPES = List.of("solid", "cutout", "translucent");
     private ResourceLocation machineID;
-    private String renderType;
     private boolean occlusion;
 
     public CustomMachineBlockBuilderJS(ResourceLocation i) {
         super(i);
         this.machineID = id;
-        this.renderType = "translucent";
         this.occlusion = false;
     }
 
     public CustomMachineBlockBuilderJS machine(ResourceLocation machineID) {
         this.machineID = machineID;
-        return this;
-    }
-
-    public CustomMachineBlockBuilderJS renderType(String renderType) {
-        if(!VALID_RENDER_TYPES.contains(renderType))
-            throw new IllegalArgumentException("Render type: '" + renderType + "' is not supported, must be one of " + VALID_RENDER_TYPES);
-        this.renderType = renderType;
         return this;
     }
 
@@ -50,7 +41,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public Block createObject() {
-        CustomMachineBlock block = new CustomMachineBlock(this.renderType, this.occlusion);
+        CustomMachineBlock block = new CustomMachineBlock(this.occlusion);
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
         return block;
     }

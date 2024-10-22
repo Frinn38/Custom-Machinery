@@ -165,6 +165,11 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
+    public boolean shouldKeepInventory() {
+        return getProperty(Registration.KEEP_INVENTORY_PROPERTY.get());
+    }
+
+    @Override
     public MachineAppearance copy() {
         return new MachineAppearance(ImmutableMap.copyOf(this.properties));
     }

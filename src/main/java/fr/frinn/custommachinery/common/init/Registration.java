@@ -73,22 +73,22 @@ import fr.frinn.custommachinery.common.network.data.BooleanData;
 import fr.frinn.custommachinery.common.network.data.DoubleData;
 import fr.frinn.custommachinery.common.network.data.FloatData;
 import fr.frinn.custommachinery.common.network.data.FluidStackData;
+import fr.frinn.custommachinery.common.network.data.IOSideConfigData;
 import fr.frinn.custommachinery.common.network.data.IntegerData;
 import fr.frinn.custommachinery.common.network.data.ItemStackData;
 import fr.frinn.custommachinery.common.network.data.LongData;
 import fr.frinn.custommachinery.common.network.data.NbtData;
-import fr.frinn.custommachinery.common.network.data.IOSideConfigData;
 import fr.frinn.custommachinery.common.network.data.StringData;
 import fr.frinn.custommachinery.common.network.data.ToggleSideConfigData;
 import fr.frinn.custommachinery.common.network.syncable.BooleanSyncable;
 import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.syncable.FloatSyncable;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
+import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.network.syncable.NbtSyncable;
-import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.network.syncable.ToggleSideConfigSyncable;
 import fr.frinn.custommachinery.common.requirement.BiomeRequirement;
@@ -193,7 +193,7 @@ public class Registration {
     public static final Registry<DataType<?, ?>>                                    DATA_REGISTRY                   = DATAS.makeRegistry(builder -> {});
     public static final Registry<ProcessorType<?>>                                  PROCESSOR_REGISTRY              = PROCESSORS.makeRegistry(builder -> {});
 
-    public static final DeferredBlock<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", CustomMachineBlock::new);
+    public static final DeferredBlock<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", () -> new CustomMachineBlock(false));
 
     public static final Supplier<DataComponentType<Pair<BlockPos, BlockPos>>> BOX_CREATOR_DATA = DATA_COMPONENTS.register("box_creator", () -> DataComponentType.<Pair<BlockPos, BlockPos>>builder()
             .persistent(Codec.pair(BlockPos.CODEC, BlockPos.CODEC))
@@ -213,6 +213,11 @@ public class Registration {
     public static final Supplier<DataComponentType<ConfigurationCardData>> CONFIGURATION_CARD_DATA = DATA_COMPONENTS.register("configuration_card", () -> DataComponentType.<ConfigurationCardData>builder()
             .persistent(ConfigurationCardData.CODEC)
             .networkSynchronized(ConfigurationCardData.STREAM_CODEC)
+            .build()
+    );
+    public static final Supplier<DataComponentType<CompoundTag>> MACHINE_INVENTORY_DATA = DATA_COMPONENTS.register("machine_inventory", () -> DataComponentType.<CompoundTag>builder()
+            .persistent(CompoundTag.CODEC)
+            .networkSynchronized(ByteBufCodecs.COMPOUND_TAG)
             .build()
     );
 
@@ -330,6 +335,7 @@ public class Registration {
     public static final Supplier<MachineAppearanceProperty<Float>>                HARDNESS_PROPERTY          = APPEARANCE_PROPERTIES.register("hardness", () -> MachineAppearanceProperty.create(NamedCodec.floatRange(-1.0F, Float.MAX_VALUE), 3.5F));
     public static final Supplier<MachineAppearanceProperty<CMSoundType>>          INTERACTION_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("interaction_sound", () -> MachineAppearanceProperty.create(CMSoundType.CODEC, CMSoundType.DEFAULT));
     public static final Supplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY        = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.DEFAULT));
+    public static final Supplier<MachineAppearanceProperty<Boolean>>              KEEP_INVENTORY_PROPERTY    = APPEARANCE_PROPERTIES.register("keep_inventory", () -> MachineAppearanceProperty.create(NamedCodec.BOOL, false));
     public static final Supplier<MachineAppearanceProperty<Integer>>              LIGHT_PROPERTY             = APPEARANCE_PROPERTIES.register("light", () -> MachineAppearanceProperty.create(NamedCodec.intRange(0, 15), 0));
     public static final Supplier<MachineAppearanceProperty<TagKey<Block>>>        MINING_LEVEL_PROPERTY      = APPEARANCE_PROPERTIES.register("mining_level", () -> MachineAppearanceProperty.create(DefaultCodecs.tagKey(Registries.BLOCK), BlockTags.NEEDS_IRON_TOOL));
     public static final Supplier<MachineAppearanceProperty<Boolean>>              REQUIRES_TOOL              = APPEARANCE_PROPERTIES.register("requires_tool", () -> MachineAppearanceProperty.create(NamedCodec.BOOL, true));

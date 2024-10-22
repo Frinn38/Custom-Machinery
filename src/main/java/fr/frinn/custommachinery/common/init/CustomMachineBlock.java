@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.util.MachineBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +21,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -49,6 +51,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -63,8 +66,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
 
     private static final StateArgumentPredicate<EntityType<?>> spawnPredicate = ((state, level, pos, type) -> state.isFaceSturdy(level, pos, Direction.UP) && state.getBlock() instanceof CustomMachineBlock machineBlock && machineBlock.getLightEmission(state, level, pos) < 14);
 
-    public final String renderType;
-
     public static Properties makeProperties(boolean occlusion) {
         if(occlusion)
             return Properties.ofFullCopy(Blocks.STONE).requiresCorrectToolForDrops().strength(3.5F).dynamicShape().isValidSpawn(spawnPredicate);
@@ -72,13 +73,8 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             return Properties.ofFullCopy(Blocks.STONE).requiresCorrectToolForDrops().strength(3.5F).noOcclusion().dynamicShape().isValidSpawn(spawnPredicate);
     }
 
-    public CustomMachineBlock(String renderType, boolean occlusion) {
+    public CustomMachineBlock(boolean occlusion) {
         super(makeProperties(occlusion));
-        this.renderType = renderType;
-    }
-
-    public CustomMachineBlock() {
-        this("translucent", false);
     }
 
     @SuppressWarnings("deprecation")
@@ -114,6 +110,12 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                 machineTile.setId(machine.getId());
                 if(placer != null)
                     machineTile.setOwner(placer);
+                CompoundTag inventory = stack.get(Registration.MACHINE_INVENTORY_DATA);
+                if(inventory != null) {
+                    CompoundTag components = new CompoundTag();
+                    components.put("componentManager", inventory);
+                    machineTile.loadAdditional(components, level.registryAccess());
+                }
                 if(level instanceof ServerLevel serverLevel && placer != null && placer.getItemInHand(InteractionHand.OFF_HAND) == stack)
                     level.getServer().tell(new TickTask(1, () -> PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pos), new SRefreshCustomMachineTilePacket(pos, machine.getId()))));
             }
@@ -121,7 +123,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     }
 
     //When placed by anything else than an entity
-    @SuppressWarnings("deprecation")
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         ResourceLocation id = CustomMachinery.CUSTOM_BLOCK_MACHINES.inverse().get(this);
@@ -136,10 +137,23 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             super.playerDestroy(level, player, pos, state, blockEntity, tool);
     }
 
-    //Drop the content of the machine if the player is in creative mode, as the playerDestroy method won't be called then.
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if(player.getAbilities().instabuild && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CustomMachineTile machine)
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
+        List<ItemStack> drops = super.getDrops(state, builder);
+        if(builder.getParameter(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
+            ItemStack machineItem = CustomMachineItem.makeMachineItem(machine.getId());
+            if(machine.getAppearance().shouldKeepInventory())
+                machineItem.set(Registration.MACHINE_INVENTORY_DATA, machine.getComponentManager().serializeNBT(builder.getLevel().registryAccess()));
+            drops.add(machineItem);
+        }
+        return drops;
+    }
+
+    //Drop the machine's inventory when broken
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if(!state.is(newState.getBlock()) && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CustomMachineTile machine && !machine.getAppearance().shouldKeepInventory()) {
+            //Drop items
             machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                     .map(handler -> handler.getComponents().stream()
                             .filter(ItemMachineComponent::shouldDrop)
@@ -147,24 +161,13 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                             .filter(stack -> !stack.isEmpty())
                             .toList()
                     ).orElse(Collections.emptyList())
-                    .forEach(stack -> Block.popResource(serverLevel, pos, stack));
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
-    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
-        List<ItemStack> drops = super.getDrops(state, builder);
-        if(builder.getParameter(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
-            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                    .ifPresent(handler -> handler.getComponents().stream()
-                            .filter(ItemMachineComponent::shouldDrop)
-                            .map(component -> component.getItemStack().copy())
-                            .filter(stack -> stack != ItemStack.EMPTY)
-                            .forEach(drops::add)
-                    );
-            drops.add(CustomMachineItem.makeMachineItem(machine.getId()));
+                    .forEach(stack -> Block.popResource(level, pos, stack));
+            //Drop xp
+            machine.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
+                    .filter(component -> component.getXp() > 0)
+                    .ifPresent(component -> ExperienceOrb.award(serverLevel, Vec3.atCenterOf(pos), component.getXp()));
         }
-        return drops;
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override

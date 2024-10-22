@@ -94,6 +94,11 @@ public interface IMachineAppearance {
     Function<Direction, VoxelShape> getCollisionShape();
 
     /**
+     * @return true if the machine should keep its inventory when broken, false if the inventory should be dropped/voided.
+     */
+    boolean shouldKeepInventory();
+
+    /**
      * @return An exact copy of this IMachineAppearance, this must create a new instance and copy all the properties from the copied IMachineAppearance.
      * Used to access the IMachineAppearance properties from the render thread, via the MachineTile IModelData.
      */
