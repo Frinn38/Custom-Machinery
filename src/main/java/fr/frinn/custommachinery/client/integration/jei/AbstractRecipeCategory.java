@@ -25,6 +25,7 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.gui.inputs.IJeiInputHandler;
 import mezz.jei.api.gui.inputs.IJeiUserInput;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
+import mezz.jei.api.gui.widgets.IRecipeWidget;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -32,6 +33,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -197,33 +199,14 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                     graphics.pose().popPose();
                 });
 
-        //If no recipes have display infos stop here
-        if(!this.hasInfoRow)
-            return;
-
         //Render the line between the gui elements and the requirements icons
-        graphics.fill(-3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
-
-        //Render the requirements that don't have a gui element such as command, position, weather etc... with a little icon and a tooltip
-        AtomicInteger index = new AtomicInteger();
-        AtomicInteger row = new AtomicInteger(0);
-        recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).forEach(info -> {
-            int x = index.get() * (ICON_SIZE + 2) - 2;
-            int y = this.rowY + 2 + (ICON_SIZE + 2) * row.get();
-            if(index.incrementAndGet() >= this.maxIconPerRow) {
-                index.set(0);
-                row.incrementAndGet();
-            }
-            graphics.pose().pushPose();
-            graphics.pose().translate(x, y, 0.0D);
-            info.renderIcon(graphics, ICON_SIZE);
-            graphics.pose().popPose();
-        });
+        if(this.hasInfoRow)
+            graphics.fill(-3, this.rowY, this.width + 3, this.rowY + 1, 0x30000000);
     }
 
     @Override
     public void getTooltip(ITooltipBuilder builder, T recipe, IRecipeSlotsView view, double mouseX, double mouseY) {
-        //First, check if any gui element is hovered and if so return its tooltips.
+        //Check if any gui element is hovered and if so return its tooltips.
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         if(recipe instanceof CustomMachineRecipe machineRecipe && !machineRecipe.getGuiElements().isEmpty())
             elements = machineRecipe.getCustomGuiElements(elements);
@@ -238,31 +221,14 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 }
             }
         }
-
-        //If no recipes have display infos stop here
-        if(!this.hasInfoRow)
-            return;
-
-        //Then do the same with display info requirements.
-        int index = 0;
-        int row = 0;
-        for(RequirementDisplayInfo info : recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).toList()) {
-            int x = index * (ICON_SIZE + 2) - 2;
-            int y = this.rowY + 2 + (ICON_SIZE + 2) * row;
-            if(index++ >= this.maxIconPerRow) {
-                index = 0;
-                row++;
-            }
-
-            if(mouseX >= x && mouseX <= x + ICON_SIZE && mouseY >= y && mouseY <= y + ICON_SIZE && Minecraft.getInstance().screen != null) {
-                info.getTooltips().stream().filter(pair -> pair.getSecond().shouldDisplay(Minecraft.getInstance().player, Minecraft.getInstance().options.advancedItemTooltips)).map(Pair::getFirst).forEach(builder::add);
-                return;
-            }
-        }
     }
 
     @Override
     public void createRecipeExtras(IRecipeExtrasBuilder builder, T recipe, IFocusGroup focuses) {
+        //If no recipes have display infos stop here
+        if(!this.hasInfoRow)
+            return;
+
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
         recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).forEach(info -> {
@@ -272,21 +238,58 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 index.set(0);
                 row.incrementAndGet();
             }
-            builder.addInputHandler(new IJeiInputHandler() {
-                @Override
-                public ScreenRectangle getArea() {
-                    return new ScreenRectangle(x, y, x + ICON_SIZE, y + ICON_SIZE);
-                }
-
-                @Override
-                public boolean handleInput(double mouseX, double mouseY, IJeiUserInput input) {
-                    if(Minecraft.getInstance().screen == null)
-                        return false;
-                    if(input.isSimulate())
-                        return true;
-                    return info.handleClick(AbstractRecipeCategory.this.machine, recipe, input.getKey().getValue());
-                }
-            });
+            DisplayInfoWidget widget = new DisplayInfoWidget(x, y, info, recipe);
+            builder.addWidget(widget);
+            builder.addInputHandler(widget);
         });
+    }
+
+    public class DisplayInfoWidget implements IRecipeWidget, IJeiInputHandler {
+
+        private final ScreenPosition pos;
+        private final ScreenRectangle area;
+        private final RequirementDisplayInfo info;
+        private final T recipe;
+
+        public DisplayInfoWidget(int x, int y, RequirementDisplayInfo info, T recipe) {
+            this.pos = new ScreenPosition(x, y);
+            this.area = new ScreenRectangle(x, y, ICON_SIZE, ICON_SIZE);
+            this.info = info;
+            this.recipe = recipe;
+        }
+
+        @Override
+        public ScreenPosition getPosition() {
+            return this.pos;
+        }
+
+        @Override
+        public void drawWidget(GuiGraphics graphics, double mouseX, double mouseY) {
+            this.info.renderIcon(graphics, ICON_SIZE);
+        }
+
+        @Override
+        public void getTooltip(ITooltipBuilder builder, double mouseX, double mouseY) {
+            if(mouseX > ICON_SIZE || mouseY > ICON_SIZE || mouseX < -1 || mouseY < 0)
+                return;
+            this.info.getTooltips().stream()
+                    .filter(pair -> pair.getSecond().shouldDisplay(Minecraft.getInstance().player, Minecraft.getInstance().options.advancedItemTooltips))
+                    .map(Pair::getFirst)
+                    .forEach(builder::add);
+        }
+
+        @Override
+        public ScreenRectangle getArea() {
+            return this.area;
+        }
+
+        @Override
+        public boolean handleInput(double mouseX, double mouseY, IJeiUserInput input) {
+            if (Minecraft.getInstance().screen == null)
+                return false;
+            if (input.isSimulate())
+                return true;
+            return this.info.handleClick(AbstractRecipeCategory.this.machine, this.recipe, input.getKey().getValue());
+        }
     }
 }
