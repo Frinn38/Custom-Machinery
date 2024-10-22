@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
+import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
@@ -13,11 +14,14 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
+import fr.frinn.custommachinery.impl.component.config.IOSideMode;
+import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.core.Direction;
 
 import java.util.stream.Stream;
 
-public class RedstoneMachineComponent extends AbstractMachineComponent implements ITickableComponent {
+public class RedstoneMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISideConfigComponent {
 
     private final int powerToPause;
     private final int craftingPowerOutput;
@@ -26,10 +30,11 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     private final int pausedPowerOutput;
     private final MachineComponentType<?> comparatorInputType;
     private final String comparatorInputID;
+    private final IOSideConfig config;
     private int checkRedstoneCooldown = Utils.RAND.nextInt(20);
     private boolean paused = false;
 
-    public RedstoneMachineComponent(IMachineComponentManager manager, int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, int pausedPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID) {
+    public RedstoneMachineComponent(IMachineComponentManager manager, int powerToPause, int craftingPowerOutput, int idlePowerOutput, int erroredPowerOutput, int pausedPowerOutput, MachineComponentType<?> comparatorInputType, String comparatorInputID, IOSideConfig.Template config) {
         super(manager, ComponentIOMode.BOTH);
         this.powerToPause = powerToPause;
         this.craftingPowerOutput = craftingPowerOutput;
@@ -38,10 +43,11 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         this.pausedPowerOutput = pausedPowerOutput;
         this.comparatorInputType = comparatorInputType;
         this.comparatorInputID = comparatorInputID;
+        this.config = config.build(this);
     }
 
     public RedstoneMachineComponent(IMachineComponentManager manager) {
-        this(manager, 999, 0, 0, 0, 0, Registration.ENERGY_MACHINE_COMPONENT.get(), "");
+        this(manager, 999, 0, 0, 0, 0, Registration.ENERGY_MACHINE_COMPONENT.get(), "", IOSideConfig.Template.DEFAULT_ALL_BOTH);
     }
 
     @Override
@@ -64,12 +70,27 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         }
     }
 
-    private boolean shouldPauseMachine() {
-        return Stream.of(Direction.values()).mapToInt(direction -> getManager().getLevel().getSignal(getManager().getTile().getBlockPos(), direction)).max().orElse(0) >=
-                this.powerToPause;
+    @Override
+    public SideConfig<IOSideMode> getConfig() {
+        return this.config;
     }
 
-    public int getPowerOutput() {
+    @Override
+    public String getId() {
+        return "Redstone";
+    }
+
+    private boolean shouldPauseMachine() {
+        return Stream.of(Direction.values())
+                .filter(side -> this.config.getSideMode(side).isInput())
+                .mapToInt(direction -> getManager().getLevel().getDirectSignal(getManager().getTile().getBlockPos().relative(direction), direction))
+                .max()
+                .orElse(0) >= this.powerToPause;
+    }
+
+    public int getPowerOutput(Direction side) {
+        if(!this.config.getSideMode(side).isOutput())
+            return 0;
         return switch (this.getManager().getTile().getStatus()) {
             case IDLE -> this.idlePowerOutput;
             case ERRORED -> this.erroredPowerOutput;
@@ -89,7 +110,11 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getMachinePower() {
-        return Stream.of(Direction.values()).mapToInt(direction -> this.getManager().getLevel().getSignal(this.getManager().getTile().getBlockPos(), direction)).max().orElse(0);
+        return Stream.of(Direction.values())
+                .filter(side -> this.config.getSideMode(side).isInput())
+                .mapToInt(direction -> getManager().getLevel().getDirectSignal(getManager().getTile().getBlockPos().relative(direction), direction))
+                .max()
+                .orElse(0);
     }
 
     public record Template(
@@ -99,7 +124,8 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
             int erroredPowerOutput,
             int pausedPowerOutput,
             MachineComponentType<?> comparatorInputType,
-            String comparatorInputId
+            String comparatorInputId,
+            IOSideConfig.Template config
     ) implements IMachineComponentTemplate<RedstoneMachineComponent> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
@@ -110,7 +136,8 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
                         NamedCodec.INT.optionalFieldOf("erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
                         NamedCodec.INT.optionalFieldOf("pausedpoweroutput", 0).forGetter(template -> template.pausedPowerOutput),
                         RegistrarCodec.MACHINE_COMPONENT.optionalFieldOf("comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
-                        NamedCodec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputId)
+                        NamedCodec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputId),
+                        IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_BOTH).forGetter(template -> template.config)
                 ).apply(templateInstance, Template::new), "Redstone machine component"
         );
 
@@ -131,7 +158,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
         @Override
         public RedstoneMachineComponent build(IMachineComponentManager manager) {
-            return new RedstoneMachineComponent(manager, this.powerToPause, this.craftingPowerOutput, this.idlePowerOutput, this.erroredPowerOutput, this.pausedPowerOutput, this.comparatorInputType, this.comparatorInputId);
+            return new RedstoneMachineComponent(manager, this.powerToPause, this.craftingPowerOutput, this.idlePowerOutput, this.erroredPowerOutput, this.pausedPowerOutput, this.comparatorInputType, this.comparatorInputId, this.config);
         }
     }
 }

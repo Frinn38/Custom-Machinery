@@ -5,12 +5,14 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentBuilderPopup;
+import fr.frinn.custommachinery.client.screen.creation.component.ComponentConfigBuilderWidget;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent.Template;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.CycleButton;
@@ -41,13 +43,14 @@ public class RedstoneComponentBuilder implements IMachineComponentBuilder<Redsto
 
     public static class RedstoneComponentBuilderPopup extends ComponentBuilderPopup<Template> {
 
-        IntegerSlider powerToPause;
-        IntegerSlider craftingPowerOutput;
-        IntegerSlider idlePowerOutput;
-        IntegerSlider erroredPowerOutput;
-        IntegerSlider pausedPowerOutput;
-        CycleButton<MachineComponentType<?>> comparatorInputType;
-        EditBox comparatorInputId;
+        private IntegerSlider powerToPause;
+        private IntegerSlider craftingPowerOutput;
+        private IntegerSlider idlePowerOutput;
+        private IntegerSlider erroredPowerOutput;
+        private IntegerSlider pausedPowerOutput;
+        private CycleButton<MachineComponentType<?>> comparatorInputType;
+        private EditBox comparatorInputId;
+        private IOSideConfig.Template config;
 
         public RedstoneComponentBuilderPopup(BaseScreen parent, @Nullable Template template, Consumer<Template> onFinish) {
             super(parent, template, onFinish, Component.translatable("custommachinery.gui.creation.components.redstone.title"));
@@ -55,7 +58,7 @@ public class RedstoneComponentBuilder implements IMachineComponentBuilder<Redsto
 
         @Override
         public Template makeTemplate() {
-            return new Template(this.powerToPause.intValue(), this.craftingPowerOutput.intValue(), this.idlePowerOutput.intValue(), this.erroredPowerOutput.intValue(), this.pausedPowerOutput.intValue(), this.comparatorInputType.getValue(), this.comparatorInputId.getValue());
+            return new Template(this.powerToPause.intValue(), this.craftingPowerOutput.intValue(), this.idlePowerOutput.intValue(), this.erroredPowerOutput.intValue(), this.pausedPowerOutput.intValue(), this.comparatorInputType.getValue(), this.comparatorInputId.getValue(), this.config);
         }
 
         @Override
@@ -89,6 +92,10 @@ public class RedstoneComponentBuilder implements IMachineComponentBuilder<Redsto
             //ComparatorInputId
             this.comparatorInputId = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.redstone.comparatorInputId"), new EditBox(this.font, 0, 0, 150, 20, Component.translatable("custommachinery.gui.creation.components.redstone.comparatorInputType")));
             this.baseTemplate().ifPresent(template -> this.comparatorInputId.setValue(template.comparatorInputId()));
+
+            //Config
+            this.baseTemplate().ifPresentOrElse(template -> this.config = template.config(), () -> this.config = IOSideConfig.Template.DEFAULT_ALL_INPUT);
+            this.propertyList.add(Component.translatable("custommachinery.gui.config.component"), ComponentConfigBuilderWidget.make(0, 0, 180, 20, Component.translatable("custommachinery.gui.config.component"), this.parent, () -> this.config, template -> this.config = template));
         }
     }
 }

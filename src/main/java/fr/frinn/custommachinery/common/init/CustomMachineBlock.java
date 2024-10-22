@@ -213,8 +213,8 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     @Override
     public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         BlockEntity tile = level.getBlockEntity(pos);
-        if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getComparatorInput).orElse(0);
+        if(tile instanceof CustomMachineTile machine)
+            return machine.getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getComparatorInput).orElse(0);
         return 0;
     }
 
@@ -222,8 +222,8 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     @Override
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
-        if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
+        if(tile instanceof CustomMachineTile machine)
+            return machine.getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(component -> component.getPowerOutput(side.getOpposite())).orElse(0);
         return 0;
     }
 
@@ -231,8 +231,8 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     @Override
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
-        if(tile instanceof CustomMachineTile)
-            return ((CustomMachineTile)tile).getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getPowerOutput).orElse(0);
+        if(tile instanceof CustomMachineTile machine)
+            return machine.getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(component -> component.getPowerOutput(side.getOpposite())).orElse(0);
         return 0;
     }
 
