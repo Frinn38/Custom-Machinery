@@ -76,6 +76,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.StatusGuiElem
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
 import fr.frinn.custommachinery.common.config.CMConfig;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
@@ -90,6 +91,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
@@ -332,5 +334,18 @@ public class ClientHandler {
 
     public static int textWidth(Component text) {
         return Minecraft.getInstance().font.width(text);
+    }
+
+    public static void renderOrientedProgressTextures(GuiGraphics graphics, ResourceLocation emptyTexture, ResourceLocation filledTexture, int x, int y, int width, int height, double percent, Orientation orientation) {
+        int filledWidth = (int)(width * Mth.clamp(percent, 0.0D, 1.0D));
+        int filledHeight = (int)(height * Mth.clamp(percent, 0.0D, 1.0D));
+
+        graphics.blit(emptyTexture, x, y, 0, 0, width, height, width, height);
+        switch (orientation) {
+            case RIGHT -> graphics.blit(filledTexture, x, y, 0, 0, filledWidth, height, width, height);
+            case LEFT -> graphics.blit(filledTexture, x + width - filledWidth, y, width - filledWidth, 0, filledWidth, height, width, height);
+            case BOTTOM -> graphics.blit(filledTexture, x, y, 0, 0, width, filledHeight, width, height);
+            case TOP -> graphics.blit(filledTexture, x, y + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
+        }
     }
 }

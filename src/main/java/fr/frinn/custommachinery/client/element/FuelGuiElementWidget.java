@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
-import fr.frinn.custommachinery.common.component.FuelMachineComponent;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
@@ -20,13 +20,14 @@ public class FuelGuiElementWidget extends AbstractGuiElementWidget<FuelGuiElemen
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        graphics.blit(this.getElement().getEmptyTexture(), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
-        int fuel = this.getScreen().getTile().getComponentManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).map(FuelMachineComponent::getFuel).orElse(0);
-        int maxFuel = this.getScreen().getTile().getComponentManager().getComponent(Registration.FUEL_MACHINE_COMPONENT.get()).map(FuelMachineComponent::getMaxFuel).orElse(0);
-        if(fuel != 0 && maxFuel != 0) {
-            double filledPercent = (double)fuel / (double)maxFuel;
-            graphics.blit(this.getElement().getFilledTexture(), this.getX(), this.getY() + (int)(height *  (1 - filledPercent)), 0, (int)(height * (1 - filledPercent)), width, (int)(height * filledPercent), width, height);
-        }
+        double percent = this.getScreen().getTile()
+                .getComponentManager()
+                .getComponent(Registration.FUEL_MACHINE_COMPONENT.get())
+                .map(component -> component.getMaxFuel() == 0 ? 0.0D : component.getFuel() / (double)component.getMaxFuel())
+                .orElse(0.0D);
+        if(percent == 0 && this.getScreen().getMachine().isDummy())
+            percent = 1 - (System.currentTimeMillis() % 2000) / 2000.0D;
+        ClientHandler.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getX(), this.getY(), this.width, this.height, percent, this.getElement().getOrientation());
     }
 
     @Override

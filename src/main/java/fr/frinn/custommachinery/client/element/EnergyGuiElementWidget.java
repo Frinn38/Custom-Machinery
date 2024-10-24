@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -20,12 +21,12 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderWidget(graphics, mouseX, mouseY, partialTicks);
-        this.getScreen().getTile().getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get()).ifPresent(energy -> {
-            double fillPercent = energy.getFillPercent();
-            int eneryHeight = (int)(fillPercent * (double)(this.height));
-            graphics.blit(this.getElement().getFilledTexture(), this.getX(), this.getY() + this.height - eneryHeight, 0, this.height - eneryHeight, this.width, eneryHeight, this.width, this.height);
-        });
+        double percent = this.getScreen().getTile()
+                        .getComponentManager()
+                        .getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
+                        .map(EnergyMachineComponent::getFillPercent)
+                        .orElse(0.0D);
+        ClientHandler.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getX(), this.getY(), this.width, this.height, percent, this.getElement().getOrientation());
         if(this.isHovered() && this.getElement().highlight())
             ClientHandler.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2);
     }

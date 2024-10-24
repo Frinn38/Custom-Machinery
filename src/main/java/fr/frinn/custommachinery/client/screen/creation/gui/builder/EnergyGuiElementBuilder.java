@@ -8,9 +8,11 @@ import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
@@ -29,9 +31,9 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
     @Override
     public EnergyGuiElement make(Properties properties, @Nullable EnergyGuiElement from) {
         if(from != null)
-            return new EnergyGuiElement(properties, from.getEmptyTexture(), from.getFilledTexture(), from.highlight());
+            return new EnergyGuiElement(properties, from.getEmptyTexture(), from.getFilledTexture(), from.getOrientation(), from.highlight());
         else
-            return new EnergyGuiElement(properties, EnergyGuiElement.BASE_ENERGY_STORAGE_EMPTY_TEXTURE, EnergyGuiElement.BASE_ENERGY_STORAGE_FILLED_TEXTURE, true);
+            return new EnergyGuiElement(properties, EnergyGuiElement.BASE_ENERGY_STORAGE_EMPTY_TEXTURE, EnergyGuiElement.BASE_ENERGY_STORAGE_FILLED_TEXTURE, Orientation.TOP, true);
     }
 
     @Override
@@ -43,6 +45,7 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
 
         private ResourceLocation textureEmpty = EnergyGuiElement.BASE_ENERGY_STORAGE_EMPTY_TEXTURE;
         private ResourceLocation textureFilled = EnergyGuiElement.BASE_ENERGY_STORAGE_FILLED_TEXTURE;
+        private CycleButton<Orientation> orientation;
         private Checkbox highlight;
 
         public EnergyGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable EnergyGuiElement from, Consumer<EnergyGuiElement> onFinish) {
@@ -55,7 +58,7 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
 
         @Override
         public EnergyGuiElement makeElement() {
-            return new EnergyGuiElement(this.properties.build(), this.textureEmpty, this.textureFilled, this.highlight.selected());
+            return new EnergyGuiElement(this.properties.build(), this.textureEmpty, this.textureFilled, this.orientation.getValue(), this.highlight.selected());
         }
 
         @Override
@@ -63,6 +66,8 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.empty"), texture -> this.textureEmpty = texture, this.textureEmpty);
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.filled"), texture -> this.textureFilled = texture, this.textureFilled);
             this.addPriority(row);
+            row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.bar.orientation"), this.font));
+            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.name())).withValues(Orientation.values()).withInitialValue(this.baseElement != null ? this.baseElement.getOrientation() : Orientation.TOP).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font));
             this.highlight = row.addChild(Checkbox.builder(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font).selected(this.baseElement == null || this.baseElement.highlight()).build());
         }

@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
@@ -22,6 +23,7 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
                     makePropertiesCodec().forGetter(AbstractGuiElement::getProperties),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_empty", BASE_ENERGY_STORAGE_EMPTY_TEXTURE).forGetter(EnergyGuiElement::getEmptyTexture),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_filled", BASE_ENERGY_STORAGE_FILLED_TEXTURE).forGetter(EnergyGuiElement::getFilledTexture),
+                    NamedCodec.enumCodec(Orientation.class).optionalFieldOf("orientation", Orientation.TOP).aliases("direction").forGetter(EnergyGuiElement::getOrientation),
                     NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(EnergyGuiElement::highlight)
             ).apply(energyGuiElement, EnergyGuiElement::new),
             "Energy gui element"
@@ -29,12 +31,14 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
 
     private final ResourceLocation emptyTexture;
     private final ResourceLocation filledTexture;
+    private final Orientation orientation;
     private final boolean highlight;
 
-    public EnergyGuiElement(Properties properties, ResourceLocation emptyTexture, ResourceLocation filledTexture, boolean highlight) {
+    public EnergyGuiElement(Properties properties, ResourceLocation emptyTexture, ResourceLocation filledTexture, Orientation orientation, boolean highlight) {
         super(properties, emptyTexture);
         this.emptyTexture = emptyTexture;
         this.filledTexture = filledTexture;
+        this.orientation = orientation;
         this.highlight = highlight;
     }
 
@@ -44,6 +48,10 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
 
     public ResourceLocation getFilledTexture() {
         return this.filledTexture;
+    }
+
+    public Orientation getOrientation() {
+        return this.orientation;
     }
 
     public boolean highlight() {

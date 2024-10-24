@@ -21,7 +21,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
                     makePropertiesCodec().forGetter(ProgressBarGuiElement::getProperties),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_empty", BASE_EMPTY_TEXTURE).forGetter(ProgressBarGuiElement::getEmptyTexture),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_filled", BASE_FILLED_TEXTURE).forGetter(ProgressBarGuiElement::getFilledTexture),
-                    NamedCodec.enumCodec(Orientation.class).optionalFieldOf("direction", Orientation.RIGHT).forGetter(ProgressBarGuiElement::getDirection),
+                    NamedCodec.enumCodec(Orientation.class).optionalFieldOf("orientation", Orientation.RIGHT).aliases("direction").forGetter(ProgressBarGuiElement::getDirection),
                     NamedCodec.FLOAT.optionalFieldOf("start", 0.0F).forGetter(element -> element.start),
                     NamedCodec.FLOAT.optionalFieldOf("end", 1.0F).forGetter(element -> element.end),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("core", 1).forGetter(element -> element.core)
@@ -110,6 +110,6 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
         RIGHT,
         LEFT,
         TOP,
-        BOTTOM;
+        BOTTOM
     }
 }

@@ -20,7 +20,7 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
                     NamedCodec.INT.optionalFieldOf("min", 0).forGetter(BarGuiElement::getMin),
                     NamedCodec.INT.optionalFieldOf("max", 1000).forGetter(BarGuiElement::getMax),
                     NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(BarGuiElement::isHighlight),
-                    NamedCodec.enumCodec(Orientation.class).optionalFieldOf("orientation", Orientation.TOP).forGetter(BarGuiElement::getOrientation),
+                    NamedCodec.enumCodec(Orientation.class).optionalFieldOf("orientation", Orientation.TOP).aliases("direction").forGetter(BarGuiElement::getOrientation),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_empty", BASE_EMPTY_TEXTURE).forGetter(BarGuiElement::getEmptyTexture),
                     DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_filled", BASE_FILLED_TEXTURE).forGetter(BarGuiElement::getFilledTexture)
             ).apply(barGuiElementInstance, BarGuiElement::new), "Bar gui element"
