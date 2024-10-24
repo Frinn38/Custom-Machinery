@@ -153,11 +153,17 @@ public class MachineComponentManager implements IMachineComponentManager {
     }
 
     public void serverTick() {
-        getTickableComponents().forEach(ITickableComponent::serverTick);
+        getTickableComponents().forEach(component -> {
+            if(!this.tile.isRemoved())
+                component.serverTick();
+        });
     }
 
     public void clientTick() {
-        getTickableComponents().forEach(ITickableComponent::clientTick);
+        getTickableComponents().forEach(component -> {
+            if(!this.tile.isRemoved())
+                component.clientTick();
+        });
     }
 
     public void markDirty() {
