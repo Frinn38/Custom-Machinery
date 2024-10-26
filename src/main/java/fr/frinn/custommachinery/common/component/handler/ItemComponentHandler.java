@@ -12,10 +12,11 @@ import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.SidedItemHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
-import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
+import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -163,7 +165,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     public int getDurabilityAmount(String slot, ItemStack stack) {
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.inputs.stream().filter(component -> ItemStack.isSameItemSameComponents(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component))
+        return this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component))
                 .mapToInt(component -> component.getItemStack().getMaxDamage() - component.getItemStack().getDamageValue())
                 .sum();
     }
@@ -202,7 +204,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     public int getSpaceForDurability(String slot, ItemStack stack) {
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.inputs.stream().filter(component -> ItemStack.isSameItemSameComponents(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component))
+        return this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component))
                 .mapToInt(component -> component.getItemStack().getDamageValue())
                 .sum();
     }
@@ -221,7 +223,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public void removeDurability(String slot, ItemStack input, int amount, boolean canBreak) {
         AtomicInteger toRemove = new AtomicInteger(amount);
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        this.inputs.stream().filter(component -> ItemStack.isSameItemSameComponents(component.getItemStack(), input) && component.getItemStack().isDamageableItem() && slotPredicate.test(component)).forEach(component -> {
+        this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), input) && component.getItemStack().isDamageableItem() && slotPredicate.test(component)).forEach(component -> {
             int maxRemove = Math.min(component.getItemStack().getMaxDamage() - component.getItemStack().getDamageValue(), toRemove.get());
             ItemStack stack = component.getItemStack();
             maxRemove = stack.getItem().damageItem(stack, maxRemove, null, s -> {});
@@ -252,12 +254,16 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public void repairItem(String slot, ItemStack stack, int amount) {
         AtomicInteger toRepair = new AtomicInteger(amount);
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        this.inputs.stream().filter(component -> ItemStack.isSameItemSameComponents(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component)).forEach(component -> {
+        this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component)).forEach(component -> {
             int maxRepair = Math.min(component.getItemStack().getDamageValue(), toRepair.get());
             toRepair.addAndGet(-maxRepair);
             component.getItemStack().setDamageValue(component.getItemStack().getDamageValue() - maxRepair);
         });
         getManager().markDirty();
+    }
+
+    private static boolean isSameItem(ItemStack toTest, ItemStack ingredient) {
+        return ingredient.getComponents().stream().allMatch(component -> component.type() == DataComponents.DAMAGE || (toTest.has(component.type()) && Objects.equals(toTest.get(component.type()), component.value())));
     }
 
     /** IItemHandler stuff **/
