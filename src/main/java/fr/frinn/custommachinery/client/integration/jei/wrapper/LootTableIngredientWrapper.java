@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,10 @@ public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemSta
             builder.addSlot(RecipeIngredientRole.OUTPUT, slotX - xOffset, slotY - yOffset)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addRichTooltipCallback((view, tooltips) -> {
-                        double chance = view.getDisplayedIngredient(VanillaTypes.ITEM_STACK).map(table::get).orElse(1.0D);
+                        double chance = view.getDisplayedIngredient()
+                                .flatMap(ingredient -> table.entrySet().stream().filter(entry -> ItemStack.isSameItemSameComponents(entry.getKey(), ingredient.getItemStack().get())).findFirst())
+                                .map(Entry::getValue)
+                                .orElse(1.0D);
                         if(chance != 1){
                             double percentage = chance * 100;
                             if(percentage < 0.01F)
