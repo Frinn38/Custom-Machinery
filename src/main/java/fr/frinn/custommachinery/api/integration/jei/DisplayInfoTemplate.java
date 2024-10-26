@@ -80,6 +80,14 @@ public class DisplayInfoTemplate {
         return this;
     }
 
+    public DisplayInfoTemplate texture(ResourceLocation icon) {
+        return this.texture(icon, 16, 16);
+    }
+
+    public DisplayInfoTemplate texture(ResourceLocation icon, int width, int height) {
+        return this.texture(icon, width, height, 0, 0);
+    }
+
     public DisplayInfoTemplate texture(ResourceLocation icon, int width, int height, int u, int v) {
         this.icon = icon;
         this.width = width;
