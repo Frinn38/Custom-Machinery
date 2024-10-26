@@ -8,6 +8,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
+import net.neoforged.fml.loading.FMLLoader;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -80,11 +81,14 @@ public class MachineLocation {
     @Nullable
     public File getFile(MinecraftServer server) {
         String pathFromData = "data" + File.separator + this.id.getNamespace() + File.separator + "machine" + File.separator + this.id.getPath() + ".json";
-        String kubejsPath = server.getFile("kubejs" + File.separator + pathFromData).toFile().getPath();
-        kubejsPath = kubejsPath.substring(2);
+        String root = server.getServerDirectory().toFile().getAbsolutePath();
+        if(!FMLLoader.isProduction())
+            root = root.substring(0, root.length() - 2);
+        root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + this.getId().getNamespace() + File.separator + "machine";
+        File kubeJS = new File(root, this.getId().getPath() + ".json");
         return switch(this.loader) {
             case DATAPACK -> server.getWorldPath(LevelResource.DATAPACK_DIR).resolve(this.packName + File.separator + pathFromData).normalize().toFile();
-            case KUBEJS -> new File(kubejsPath);
+            case KUBEJS -> kubeJS;
             default -> null;
         };
     }
