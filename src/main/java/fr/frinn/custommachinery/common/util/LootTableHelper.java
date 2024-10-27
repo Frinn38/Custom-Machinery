@@ -1,8 +1,10 @@
 package fr.frinn.custommachinery.common.util;
 
-import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -17,6 +19,10 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer
 import net.minecraft.world.level.storage.loot.entries.NestedLootTable;
 import net.minecraft.world.level.storage.loot.entries.TagEntry;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -31,7 +37,7 @@ import java.util.function.Consumer;
 public class LootTableHelper {
 
     private static final List<ResourceLocation> tables = new ArrayList<>();
-    private static Map<ResourceLocation, List<Pair<ItemStack, Double>>> lootsMap = new HashMap<>();
+    private static Map<ResourceLocation, List<LootData>> lootsMap = new HashMap<>();
 
     public static void addTable(ResourceLocation table) {
         if(!tables.contains(table))
@@ -43,13 +49,13 @@ public class LootTableHelper {
         LootParams params = new LootParams.Builder(server.overworld()).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
         LootContext context = new LootContext.Builder(params).create(Optional.empty());
         for (ResourceLocation table : tables) {
-            List<Pair<ItemStack, Double>> loots = getLoots(table, server, context);
+            List<LootData> loots = getLoots(table, server, context);
             lootsMap.put(table, loots);
         }
     }
 
-    private static List<Pair<ItemStack, Double>> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
-        List<Pair<ItemStack, Double>> loots = new ArrayList<>();
+    private static List<LootData> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
+        List<LootData> loots = new ArrayList<>();
         LootTable lootTable = server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, table));
         BiFunction<ItemStack, LootContext, ItemStack> globalFunction = lootTable.compositeFunction;
         List<LootPool> pools = getPoolsFromLootTable(lootTable);
@@ -60,10 +66,12 @@ public class LootTableHelper {
         for(LootPool pool : pools) {
             List<LootPoolEntryContainer> entries = pool.entries;
             float total = entries.stream().filter(entry -> entry instanceof LootPoolSingletonContainer).mapToInt(entry -> ((LootPoolSingletonContainer)entry).weight).sum();
+            String rolls = getBaseRolls(pool.getRolls(), context);
+            String bonusRolls = getBonusRolls(pool.getBonusRolls(), context);
             entries.stream().filter(entry -> entry instanceof LootItem)
                     .map(entry -> (LootItem)entry)
                     .forEach(entry -> {
-                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total)));
+                        Consumer<ItemStack> consumer = stack -> loots.add(new LootData(stack, entry.weight / total, rolls, bonusRolls));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
                         entry.createItemStack(consumer, context);
                     });
@@ -71,7 +79,7 @@ public class LootTableHelper {
             entries.stream().filter(entry -> entry instanceof TagEntry)
                     .map(entry -> (TagEntry)entry)
                     .forEach(entry -> {
-                        Consumer<ItemStack> consumer = stack -> loots.add(Pair.of(stack, (double) (entry.weight / total / (entry.expand ? TagUtil.getItems(entry.tag).count() : 1))));
+                        Consumer<ItemStack> consumer = stack -> loots.add(new LootData(stack, entry.weight / total / (entry.expand ? TagUtil.getItems(entry.tag).count() : 1), rolls, bonusRolls));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
                         entry.createItemStack(consumer, context);
                     });
@@ -90,15 +98,33 @@ public class LootTableHelper {
         return LootItemFunction.decorate(globalFunction, consumer, context);
     }
 
-    public static Map<ResourceLocation, List<Pair<ItemStack, Double>>> getLoots() {
+    private static String getBaseRolls(NumberProvider rolls, LootContext context) {
+        return switch (rolls) {
+            case ConstantValue value -> Math.round(value.value()) + " Rolls";
+            case UniformGenerator uniform -> "[" + uniform.min().getInt(context) + "," + uniform.max().getInt(context) + "] Rolls (uniform)";
+            case BinomialDistributionGenerator binomial -> "[0," + binomial.n().getInt(context) + "] Rolls (binomial)";
+            case null, default -> "";
+        };
+    }
+
+    private static String getBonusRolls(NumberProvider rolls, LootContext context) {
+        return switch (rolls) {
+            case ConstantValue value -> value.value() != 0.0f ? Math.round(value.value() * context.getLuck()) + " Rolls" : "";
+            case UniformGenerator uniform -> "[" + uniform.min().getInt(context) * context.getLuck() + "," + uniform.max().getInt(context) * context.getLuck() + "] Rolls (uniform)";
+            case BinomialDistributionGenerator binomial -> "[0," + binomial.n().getInt(context) * context.getLuck() + "] Rolls (binomial)";
+            case null, default -> "";
+        };
+    }
+
+    public static Map<ResourceLocation, List<LootData>> getLoots() {
         return lootsMap;
     }
 
-    public static void receiveLoots(Map<ResourceLocation, List<Pair<ItemStack, Double>>> newLoots) {
+    public static void receiveLoots(Map<ResourceLocation, List<LootData>> newLoots) {
         lootsMap = newLoots;
     }
 
-    public static List<Pair<ItemStack, Double>> getLootsForTable(ResourceLocation table) {
+    public static List<LootData> getLootsForTable(ResourceLocation table) {
         return lootsMap.getOrDefault(table, Collections.emptyList());
     }
 
@@ -114,5 +140,19 @@ public class LootTableHelper {
             }
         }
         throw new RuntimeException("NOPE");
+    }
+
+    public record LootData(ItemStack stack, double chance, String rolls, String bonusRolls) {
+        public static StreamCodec<RegistryFriendlyByteBuf, LootData> STREAM_CODEC = StreamCodec.composite(
+                ItemStack.STREAM_CODEC,
+                LootData::stack,
+                ByteBufCodecs.DOUBLE,
+                LootData::chance,
+                ByteBufCodecs.STRING_UTF8,
+                LootData::rolls,
+                ByteBufCodecs.STRING_UTF8,
+                LootData::bonusRolls,
+                LootData::new
+        );
     }
 }
