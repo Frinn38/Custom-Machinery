@@ -53,16 +53,16 @@ public class MachineRecipeFinder {
 
         if(immediately || this.recipeCheckCooldown-- <= 0) {
             this.recipeCheckCooldown = this.baseCooldown;
-            if(this.inventoryChanged) {
+            if(this.inventoryChanged || immediately) {
                 this.okToCheck.clear();
                 this.okToCheck.addAll(this.recipes);
             }
             Iterator<RecipeChecker<CustomMachineRecipe>> iterator = this.okToCheck.iterator();
             while (iterator.hasNext()) {
                 RecipeChecker<CustomMachineRecipe> checker = iterator.next();
-                if(!this.inventoryChanged && checker.isInventoryRequirementsOnly())
+                if(!this.inventoryChanged && checker.isInventoryRequirementsOnly() && !immediately)
                     continue;
-                if(checker.check(this.tile, this.mutableCraftingContext.setRecipe(checker.getRecipe().value(), checker.getRecipe().id()), this.inventoryChanged)) {
+                if(checker.check(this.tile, this.mutableCraftingContext.setRecipe(checker.getRecipe().value(), checker.getRecipe().id()), this.inventoryChanged || immediately)) {
                     //Check if the recipe can be run on this core
                     if((!checker.getRecipe().value().getAllowedCores().isEmpty() && !checker.getRecipe().value().getAllowedCores().contains(this.core)) || (checker.getRecipe().value().isSingleCore() && this.processor.getCores().stream().anyMatch(core -> core.getCurrentRecipe() != null && core.getCurrentRecipe().id().equals(checker.getRecipe().id()))))
                         continue;
