@@ -26,7 +26,7 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
     public static final EventGroup CM_EVENTS = EventGroup.of("CustomMachineryEvents");
     public static final EventHandler UPGRADES = CM_EVENTS.server("upgrades", () -> UpgradeKubeEvent.class);
-    public static final TargetedEventHandler<String> FUNCTIONS = CM_EVENTS.server("function", () -> FunctionKubeEvent.class).hasResult(TypeInfo.of(Component.class)).requiredTarget(EventTargetType.STRING);
+    public static final TargetedEventHandler<String> FUNCTIONS = CM_EVENTS.server("recipeFunction", () -> FunctionKubeEvent.class).hasResult(TypeInfo.of(Component.class)).requiredTarget(EventTargetType.STRING);
 
     @Override
     public void registerBuilderTypes(BuilderTypeRegistry registry) {
