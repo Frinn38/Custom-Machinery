@@ -115,8 +115,7 @@ public class MachineEditScreen extends BaseScreen {
         if (this.bar == null)
             return;
 
-        this.bar.bounds(this.x + 5, this.y - 20, this.xSize - 10, 20);
-        this.bar.arrangeElements();
+        this.bar.setRectangle(this.xSize - 10, 20, this.x + 5, this.y - 20);
         this.tabManager.setTabArea(new ScreenRectangle(this.x, this.y, this.xSize, this.ySize));
     }
 

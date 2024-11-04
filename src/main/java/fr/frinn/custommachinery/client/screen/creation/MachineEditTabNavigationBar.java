@@ -6,9 +6,8 @@ import fr.frinn.custommachinery.client.screen.creation.tabs.MachineEditTab;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.TabButton;
-import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.components.tabs.TabManager;
@@ -17,7 +16,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -27,7 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class MachineEditTabNavigationBar extends AbstractContainerEventHandler implements Renderable, GuiEventListener, NarratableEntry {
+public class MachineEditTabNavigationBar extends AbstractWidget implements ContainerEventHandler {
 
     private static final int NO_TAB = -1;
     private static final int MAX_WIDTH = 400;
@@ -36,15 +34,16 @@ public class MachineEditTabNavigationBar extends AbstractContainerEventHandler i
     private static final Component USAGE_NARRATION = Component.translatable("narration.tab_navigation.usage");
     private final GridLayout layout;
 
-    private int x;
-    private int y;
-    private int width;
-    private int height;
     private final TabManager tabManager;
     private final ImmutableList<MachineEditTab> tabs;
     private final ImmutableList<TabButton> tabButtons;
 
+    @Nullable
+    private GuiEventListener focused;
+    private boolean isDragging;
+
     public MachineEditTabNavigationBar(int width, TabManager tabManager, Iterable<MachineEditTab> tabs) {
+        super(0, 0, width, HEIGHT, Component.empty());
         this.width = width;
         this.tabManager = tabManager;
         this.tabs = ImmutableList.copyOf(tabs);
@@ -60,9 +59,26 @@ public class MachineEditTabNavigationBar extends AbstractContainerEventHandler i
     }
 
     public void setFocused(@Nullable GuiEventListener focused) {
-        super.setFocused(focused);
+        if (this.focused != null) {
+            this.focused.setFocused(false);
+        }
+
+        if (focused != null) {
+            focused.setFocused(true);
+        }
+
+        this.focused = focused;
         if (focused instanceof TabButton tabButton)
             this.tabManager.setCurrentTab(tabButton.tab(), true);
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY, int button) {
+        for (GuiEventListener guieventlistener : this.children()) {
+            if (guieventlistener.mouseClicked(mouseX, mouseY, button)) {
+                this.setFocused(guieventlistener);
+            }
+        }
     }
 
     public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
@@ -82,12 +98,28 @@ public class MachineEditTabNavigationBar extends AbstractContainerEventHandler i
     }
 
     @Override
+    public void setDragging(boolean dragging) {
+        this.isDragging = dragging;
+    }
+
+    @Override
+    public boolean isDragging() {
+        return this.isDragging;
+    }
+
+    @Nullable
+    @Override
+    public GuiEventListener getFocused() {
+        return this.focused;
+    }
+
+    @Override
     public NarratableEntry.NarrationPriority narrationPriority() {
         return this.tabButtons.stream().map(AbstractWidget::narrationPriority).max(Comparator.naturalOrder()).orElse(NarrationPriority.NONE);
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {
+    public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
         Optional<TabButton> optional = this.tabButtons.stream().filter(AbstractWidget::isHovered).findFirst().or(() -> Optional.ofNullable(this.currentTabButton()));
         optional.ifPresent((tabButton) -> {
             this.narrateListElementPosition(narrationElementOutput.nest(), tabButton);
@@ -108,32 +140,33 @@ public class MachineEditTabNavigationBar extends AbstractContainerEventHandler i
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         for (TabButton tabButton : this.tabButtons)
             tabButton.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
-    public void bounds(int x, int y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    @Override
+    public void setX(int x) {
+        super.setX(x);
+        this.arrangeElements();
     }
 
-    public ScreenRectangle getRectangle() {
-        return this.layout.getRectangle();
+    @Override
+    public void setY(int y) {
+        super.setY(y);
+        this.arrangeElements();
     }
 
     public void arrangeElements() {
-        int i = Math.min(400, this.width);
+        int i = Math.min(MAX_WIDTH, this.width);
         int j = Mth.roundToward(i / this.tabs.size(), 2);
 
         for (TabButton tabButton : this.tabButtons)
             tabButton.setWidth(j);
 
         this.layout.arrangeElements();
-        this.layout.setX(this.x);
-        this.layout.setY(this.y);
+        this.layout.setX(this.getX());
+        this.layout.setY(this.getY());
     }
 
     public void selectTab(int index, boolean playClickSound) {

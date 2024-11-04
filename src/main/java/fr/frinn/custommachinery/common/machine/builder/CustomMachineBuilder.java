@@ -13,10 +13,10 @@ import fr.frinn.custommachinery.common.machine.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -75,12 +75,10 @@ public class CustomMachineBuilder {
         return this;
     }
 
-    public MachineAppearanceBuilder getAppearance(MachineStatus status) {
+    public MachineAppearanceBuilder getAppearance(@Nullable MachineStatus status) {
+        if(status == null)
+            return this.defaultAppearance;
         return this.appearance.get(status);
-    }
-
-    public Collection<MachineAppearanceBuilder> getAppearanceBuilders() {
-        return ImmutableList.<MachineAppearanceBuilder>builder().add(this.defaultAppearance).addAll(this.appearance.values()).build();
     }
 
     public CustomMachineBuilder withGuiElement(IGuiElement element) {
