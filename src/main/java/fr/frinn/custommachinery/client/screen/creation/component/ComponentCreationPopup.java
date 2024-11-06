@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.client.screen.creation.component.ComponentCreati
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -55,21 +56,25 @@ public class ComponentCreationPopup extends PopupScreen {
         super.init();
         Component title = Component.translatable("custommachinery.gui.creation.components.create.title");
         this.addRenderableWidget(new StringWidget(this.x, this.y + 5, this.xSize, this.font.lineHeight, title, Minecraft.getInstance().font));
-        this.list = this.addRenderableWidget(new ComponentCreationListWidget(this.x + 3, this.y + 15, this.xSize - 10, this.ySize - 50));
+        this.list = this.addRenderableWidget(new ComponentCreationListWidget(((MachineEditScreen)this.parent).getBuilder(), this.x + 3, this.y + 15, this.xSize - 10, this.ySize - 50));
         this.addRenderableWidget(Button.builder(CONFIRM, b -> this.confirm()).bounds(this.x + 5, this.y + this.ySize - 30, 50, 20).build());
         this.addRenderableWidget(Button.builder(CANCEL, b -> this.cancel()).bounds(this.x + this.xSize - 55, this.y + this.ySize - 30, 50, 20).build());
     }
 
     protected static class ComponentCreationListWidget extends ListWidget<ComponentCreationListEntry> {
 
-        public ComponentCreationListWidget(int x, int y, int width, int height) {
+        public ComponentCreationListWidget(CustomMachineBuilder builder, int x, int y, int width, int height) {
             super(x, y, width, height, 20, Component.empty());
             this.setRenderSelection();
 
-            for(MachineComponentType<?> type : Registration.MACHINE_COMPONENT_TYPE_REGISTRY.entrySet().stream().sorted(Comparator.comparing(entry -> entry.getKey().location())).map(Map.Entry::getValue).toList()) {
-                IMachineComponentBuilder<?, ?> builder = MachineComponentBuilderRegistry.getBuilder(type);
-                if(builder != null)
-                    this.addEntry(new ComponentCreationListEntry(builder));
+            for(MachineComponentType<?> type : Registration.MACHINE_COMPONENT_TYPE_REGISTRY.entrySet().stream()
+                    .filter(entry -> !entry.getValue().isSingle() || builder.getComponents().stream().noneMatch(template -> template.getType() == entry.getValue()))
+                    .sorted(Comparator.comparing(entry -> entry.getKey().location()))
+                    .map(Map.Entry::getValue)
+                    .toList()) {
+                IMachineComponentBuilder<?, ?> componentBuilder = MachineComponentBuilderRegistry.getBuilder(type);
+                if(componentBuilder != null)
+                    this.addEntry(new ComponentCreationListEntry(componentBuilder));
             }
 
             this.setSelected(this.getEntries().isEmpty() ? null : this.getEntries().get(0));
