@@ -108,6 +108,7 @@
   "custommachinery.gui.creation.popup.create.loader.kubejs": "The machine json file will be created in the KubeJS data folder",
 
   "custommachinery.gui.creation.popup.quit": "You're about to quit without saving your changes",
+  "custommachinery.gui.creation.popup.close": "Close",
 
   "custommachinery.gui.creation.tab.base_info": "Base Info",
   "custommachinery.gui.creation.tab.appearance": "Appearance",

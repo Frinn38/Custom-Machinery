@@ -12,6 +12,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.LightTexture;
@@ -100,7 +101,8 @@ public class ModelSelectionPopup extends PopupScreen {
         super.init();
 
         //Exit
-        this.addRenderableWidget(new ImageButton(this.x + 5, this.y + 5, 9, 9, EXIT_SPRITES, button -> this.parent.closePopup(this)));
+        ImageButton exit = this.addRenderableWidget(new ImageButton(this.x + 5, this.y + 5, 9, 9, EXIT_SPRITES, button -> this.parent.closePopup(this)));
+        exit.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.close")));
 
         //Buttons
         this.blocks = this.addRenderableWidget(Checkbox.builder(Component.literal("Blocks"), this.font).pos(this.x + 5, this.y + 45).selected(this.isBlock).onValueChange((checkbox, value) -> ModelSelectionPopup.this.refreshBoxSuggestions()).build());
@@ -123,13 +125,16 @@ public class ModelSelectionPopup extends PopupScreen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 100);
         renderModel(graphics, this.x + this.xSize / 2F - 8, this.y + 20, this.supplier.get(), 32F);
+        graphics.pose().popPose();
     }
 
     public static void renderModel(GuiGraphics graphics, float x, float y, MachineModelLocation loc, float scale) {
         if(loc.getItem() != null && loc.getItem() != Items.AIR) {
             graphics.pose().pushPose();
-            graphics.pose().translate(x - 8, y - 8, -60);
+            graphics.pose().translate(x - 8, y - 8, -200);
             graphics.renderFakeItem(loc.getItem().getDefaultInstance(), 0, 0);
             graphics.pose().popPose();
             return;
@@ -148,7 +153,7 @@ public class ModelSelectionPopup extends PopupScreen {
         ChunkRenderTypeSet renderTypes = ChunkRenderTypeSet.all();
 
         graphics.pose().pushPose();
-        graphics.pose().translate(x, y, 50);
+        graphics.pose().translate(x, y, 0);
         graphics.pose().scale(scale, scale, scale);
         model.applyTransform(ItemDisplayContext.GUI, graphics.pose(), false);
         if(loc.getState() != null) {
@@ -240,12 +245,14 @@ public class ModelSelectionPopup extends PopupScreen {
                 int x = (i % this.maxColumns) * 20;
                 int y = i / this.maxColumns * 20 - (int)this.getScrollAmount();
                 graphics.pose().pushPose();
-                graphics.pose().translate(x, y, 100);
+                graphics.pose().translate(x, y, 0);
 
                 MachineModelLocation loc = this.list.get(i);
 
                 if(this.selected == loc)
                     graphics.fill(0, 0, 20, 20, FastColor.ARGB32.color(255, 255, 0, 0));
+
+                graphics.pose().translate(0, 0, 100);
 
                 renderModel(graphics, 10, 10, loc, 16F);
 
