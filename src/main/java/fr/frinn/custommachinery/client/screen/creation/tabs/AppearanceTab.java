@@ -45,7 +45,7 @@ public class AppearanceTab extends MachineEditTab {
         this.bar = row.addChild(new MachineEditTabNavigationBar(parent.xSize, this.tabManager, tabs), row.newCellSettings().alignVerticallyTop().alignHorizontallyCenter().paddingTop(5));
         this.bar.setRectangle(parent.xSize - 10, 20, 0, 0);
 
-        row.addChild(new SeparationWidget(parent.xSize, 5, CustomMachinery.rl("textures/gui/base_background.png"), parent.xSize, 192), row.newCellSettings().paddingBottom(parent.ySize - 30).alignVerticallyTop());
+        row.addChild(new SeparationWidget(parent.xSize, 5), row.newCellSettings().paddingBottom(parent.ySize - 30).alignVerticallyTop());
     }
 
     @Override
@@ -98,19 +98,15 @@ public class AppearanceTab extends MachineEditTab {
     private class SeparationWidget extends AbstractWidget {
 
         private final ResourceLocation texture;
-        private final int textureWidth;
-        private final int textureHeight;
 
-        public SeparationWidget(int width, int height, ResourceLocation texture, int textureWidth, int textureHeight) {
+        public SeparationWidget(int width, int height) {
             super(0, 0, width, height, Component.empty());
-            this.texture = texture;
-            this.textureWidth = textureWidth;
-            this.textureHeight = textureHeight;
+            this.texture = CustomMachinery.rl("creation/separation");
         }
 
         @Override
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.blit(this.texture, this.getX(), this.getY(), -1, 0, 0, this.getWidth(), this.getHeight(), this.textureWidth, this.textureHeight);
+            graphics.blitSprite(this.texture, this.getX(), this.getY(), -1, this.getWidth(), this.getHeight());
         }
 
         @Override

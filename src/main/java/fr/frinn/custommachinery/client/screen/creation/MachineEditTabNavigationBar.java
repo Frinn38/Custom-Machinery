@@ -75,9 +75,8 @@ public class MachineEditTabNavigationBar extends AbstractWidget implements Conta
     @Override
     public void onClick(double mouseX, double mouseY, int button) {
         for (GuiEventListener guieventlistener : this.children()) {
-            if (guieventlistener.mouseClicked(mouseX, mouseY, button)) {
+            if (guieventlistener.mouseClicked(mouseX, mouseY, button))
                 this.setFocused(guieventlistener);
-            }
         }
     }
 
