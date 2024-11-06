@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.tabs;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.gui.BackgroundEditorPopup;
 import fr.frinn.custommachinery.client.screen.creation.gui.GridEditorPopup;
@@ -9,14 +8,15 @@ import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementCreationPopup;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
+
+import java.util.List;
 
 public class GuiTab extends MachineEditTab {
 
@@ -25,9 +25,6 @@ public class GuiTab extends MachineEditTab {
     public static final WidgetSprites GRID_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/grid_button"), CustomMachinery.rl("creation/grid_button_hovered"));
 
     private final GuiEditorWidget guiEditor;
-    private AddGuiElementButton addButton;
-    private ImageButton backgroundButton;
-    private ImageButton gridButton;
 
     public GuiTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.gui"), parent);
@@ -47,30 +44,17 @@ public class GuiTab extends MachineEditTab {
     }
 
     @Override
-    public void opened() {
-        this.addButton = this.parent.addRenderableWidget(new AddGuiElementButton(this.parent.x - 28, this.parent.y + 85, button -> this.create()));
-        this.backgroundButton = this.parent.addRenderableWidget(new ImageButton(this.parent.x - 28, this.parent.y + 110, 20, 20, BACKGROUND_SPRITES, button -> this.background()));
-        this.backgroundButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background")));
-        this.gridButton = this.parent.addRenderableWidget(new ImageButton(this.parent.x - 28, this.parent.y + 135, 20, 20, GRID_SPRITES, button -> this.grid()));
-        this.gridButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.grid")));
-    }
+    public List<AbstractWidget> getToolButtons() {
+        ImageButton addButton = new ImageButton(0, 0, 20, 20, CREATE_SPRITES, button -> this.create());
+        addButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.add")));
 
-    @Override
-    public void closed() {
-        this.parent.removeWidget(this.addButton);
-        this.parent.removeWidget(this.backgroundButton);
-        this.parent.removeWidget(this.gridButton);
-    }
+        ImageButton backgroundButton = new ImageButton(0, 0, 20, 20, BACKGROUND_SPRITES, button -> this.background());
+        backgroundButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.background")));
 
-    @Override
-    public void doLayout(ScreenRectangle rectangle) {
-        super.doLayout(rectangle);
-        if(this.addButton != null)
-            this.addButton.setPosition(this.parent.x - 28, this.parent.y + 85);
-        if(this.backgroundButton != null)
-            this.backgroundButton.setPosition(this.parent.x - 28, this.parent.y + 110);
-        if(this.gridButton != null)
-            this.gridButton.setPosition(this.parent.x - 28, this.parent.y + 135);
+        ImageButton gridButton = new ImageButton(0, 0, 20, 20, GRID_SPRITES, button -> this.grid());
+        gridButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.grid")));
+
+        return List.of(addButton, backgroundButton, gridButton);
     }
 
     private void create() {
@@ -83,19 +67,5 @@ public class GuiTab extends MachineEditTab {
 
     private void grid() {
         this.parent.openPopup(new GridEditorPopup(this.parent, this.guiEditor), "grid");
-    }
-
-    public static class AddGuiElementButton extends ImageButton {
-
-        public AddGuiElementButton(int x, int y, OnPress onPress) {
-            super(x, y, 20, 20, CREATE_SPRITES, onPress);
-            this.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.add")));
-        }
-
-        @Override
-        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            BaseScreen.blankBackground(graphics, this.getX() - 5, this.getY() - 5, this.getWidth() + 10, this.getHeight() + 60);
-            super.renderWidget(graphics, mouseX, mouseY, partialTick);
-        }
     }
 }

@@ -10,6 +10,9 @@ import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.tabs.TabManager;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -24,6 +27,8 @@ import java.util.List;
 
 public class AppearanceTab extends MachineEditTab {
 
+    public static final WidgetSprites RESET_SPRITE = new WidgetSprites(CustomMachinery.rl("creation/reset_button"), CustomMachinery.rl("creation/reset_button_hovered"));
+
     private final TabManager tabManager;
     private final MachineEditTabNavigationBar bar;
 
@@ -32,13 +37,8 @@ public class AppearanceTab extends MachineEditTab {
         RowHelper row = this.layout.createRowHelper(1);
         row.defaultCellSetting().paddingHorizontal(0);
 
-        //RESET
-        //WidgetSprites resetSprites = new WidgetSprites(CustomMachinery.rl("creation/reset_button"), CustomMachinery.rl("creation/reset_button_hovered"));
-        //ImageButton resetButton = row.addChild(new ImageButton(0, 0, 20, 20, resetSprites, button -> this.resetAppearance()));
-        //resetButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.appearance.reset.tooltip")));
-
         //TABS
-        this.tabManager = new MachineTabManager(parent::addRenderableWidget, parent::removeWidget);
+        this.tabManager = new MachineTabManager(parent);
         List<MachineEditTab> tabs = new ArrayList<>();
         tabs.add(new SpecificAppearanceTab(Component.translatable("custommachinery.craftingstatus.default"), parent, null));
         Arrays.stream(MachineStatus.values()).forEach(status -> tabs.add(new SpecificAppearanceTab(Component.translatable("custommachinery.craftingstatus." + status.getSerializedName()), parent, status)));
@@ -67,6 +67,13 @@ public class AppearanceTab extends MachineEditTab {
     public void doLayout(ScreenRectangle rectangle) {
         super.doLayout(rectangle);
         this.tabManager.setTabArea(new ScreenRectangle(this.parent.x + 5, this.parent.y + 30, this.parent.xSize - 10, this.parent.ySize - 35));
+    }
+
+    @Override
+    public List<AbstractWidget> getToolButtons() {
+        ImageButton reset = new ImageButton(20, 20, RESET_SPRITE, button -> this.resetAppearance(), Component.empty());
+        reset.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.appearance.reset.tooltip")));
+        return List.of(reset);
     }
 
     public void resetAppearance() {

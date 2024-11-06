@@ -100,7 +100,7 @@ public class MachineEditScreen extends BaseScreen {
         this.close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.close")));
         this.wiki = this.addRenderableWidget(new ImageButton(this.x - 28, this.y + 55, 20, 20, WIKI_SPRITES, button -> this.wiki()));
         this.wiki.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.wiki")));
-        this.tabManager = new MachineTabManager(this::addRenderableWidget, this::removeWidget);
+        this.tabManager = new MachineTabManager(this);
         this.bar = this.addRenderableWidget(new MachineEditTabNavigationBar(this.xSize, this.tabManager, List.of(new BaseInfoTab(this), new AppearanceTab(this), new ComponentTab(this), new GuiTab(this))));
         this.bar.selectTab(0, false);
         this.repositionElements();
