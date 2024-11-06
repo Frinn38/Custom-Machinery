@@ -116,6 +116,8 @@
   "custommachinery.gui.creation.tab.gui": "Gui",
 
   "custommachinery.gui.creation.base_info.id": "Machine id : ",
+  "custommachinery.gui.creation.base_info.id.tooltip": "Click to copy id",
+  "custommachinery.gui.creation.base_info.id.copied": "Copied to clipboard",
   "custommachinery.gui.creation.base_info.name": "Machine name : ",
   "custommachinery.gui.creation.base_info.processor": "Machine processor : ",
   "custommachinery.gui.creation.base_info.cores": "Cores : ",

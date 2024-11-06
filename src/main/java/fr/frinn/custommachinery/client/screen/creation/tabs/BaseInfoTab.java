@@ -14,6 +14,8 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.toasts.TutorialToast;
+import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
@@ -43,7 +45,8 @@ public class BaseInfoTab extends MachineEditTab {
         LayoutSettings right = row.newCellSettings().alignHorizontallyRight();
 
         //Id (1rst row)
-        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.id").append(Component.literal(this.parent.getBuilder().getLocation().getId().toString())), Minecraft.getInstance().font), 2, row.newCellSettings().alignHorizontallyCenter());
+        row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.id"), Minecraft.getInstance().font), middle);
+        row.addChild(new MachineIdWidget(Component.literal(this.parent.getBuilder().getLocation().getId().toString()), Minecraft.getInstance().font));
 
         //Name (2nd row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.name"), font), middle);
@@ -99,5 +102,20 @@ public class BaseInfoTab extends MachineEditTab {
         }).displayOnlyValue().create(0, 0, 100, 20, Component.empty()), right);
         cooldown.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.base_info.cooldown.tooltip")));
         this.processorWidgets.add(cooldown);
+    }
+
+    private static class MachineIdWidget extends StringWidget {
+
+        public MachineIdWidget(Component message, Font font) {
+            super(message, font);
+            this.active = true;
+            this.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.base_info.id.tooltip")));
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY, int button) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(this.getMessage().getString());
+            Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.base_info.id.copied"), null, false), 50);
+        }
     }
 }
