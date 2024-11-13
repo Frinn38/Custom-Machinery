@@ -1,10 +1,12 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.DataResult;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
+import dev.latvian.mods.kubejs.script.ConsoleJS;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
@@ -67,7 +69,14 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
             builder.hide();
 
         this.id = getOrCreateId();
-        this.json = (JsonObject) this.codec.encodeStart(JsonOps.INSTANCE, builder).result().orElse(null);
+        DataResult<JsonElement> result = this.codec.encodeStart(this.type.event.registries.json(), builder);
+        if(result.result().isPresent())
+            this.json = (JsonObject) result.result().get();
+        else if(result.error().isPresent()) {
+            ConsoleJS.SERVER.error("Error in Custom Machine recipe: " + this.id + "\n" + result.error().get().message());
+            this.json = new JsonObject();
+        }
+
         if(this.json != null)
             this.json.addProperty("type", this.typeID.toString());
         return this;
