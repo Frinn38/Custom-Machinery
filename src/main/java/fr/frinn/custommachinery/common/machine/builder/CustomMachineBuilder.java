@@ -118,6 +118,15 @@ public class CustomMachineBuilder {
         return this;
     }
 
+    public List<Component> getTooltips() {
+        return this.tooltips;
+    }
+
+    public void setTooltips(List<Component> tooltips) {
+        this.tooltips.clear();
+        this.tooltips.addAll(tooltips);
+    }
+
     public CustomMachine build() {
         Component name = this.name == null ? Component.literal("New Machine") : this.name;
         MachineAppearanceManager appearance = new MachineAppearanceManager(this.defaultAppearance.build().getProperties(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());

@@ -114,6 +114,7 @@
   "custommachinery.gui.creation.tab.appearance": "Appearance",
   "custommachinery.gui.creation.tab.components": "Components",
   "custommachinery.gui.creation.tab.gui": "Gui",
+  "custommachinery.gui.creation.tab.tooltips": "Tooltips",
 
   "custommachinery.gui.creation.base_info.id": "Machine id : ",
   "custommachinery.gui.creation.base_info.id.tooltip": "Click to copy id",
@@ -263,6 +264,9 @@
   "custommachinery.gui.creation.gui.button.hold_time.tooltip": "Time (in ticks) that the button will stay pressed when clicked",
   "custommachinery.gui.creation.gui.experience.display_mode": "Display mode",
   "custommachinery.gui.creation.gui.experience.mode": "Mode",
+
+  "custommachinery.gui.creation.tooltips.title": "Enter tooltips here:",
+  "custommachinery.gui.creation.tooltips.result": "See result:",
 
   "custommachinery.gui.popup.confirm": "Confirm",
   "custommachinery.gui.popup.cancel": "Cancel",

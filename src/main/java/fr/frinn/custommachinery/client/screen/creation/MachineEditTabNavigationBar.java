@@ -42,7 +42,7 @@ public class MachineEditTabNavigationBar extends AbstractWidget implements Conta
     private GuiEventListener focused;
     private boolean isDragging;
 
-    public MachineEditTabNavigationBar(int width, TabManager tabManager, Iterable<MachineEditTab> tabs) {
+    public MachineEditTabNavigationBar(int width, TabManager tabManager, Iterable<MachineEditTab> tabs, boolean inverted) {
         super(0, 0, width, HEIGHT, Component.empty());
         this.width = width;
         this.tabManager = tabManager;
@@ -53,7 +53,7 @@ public class MachineEditTabNavigationBar extends AbstractWidget implements Conta
         int i = 0;
 
         for (MachineEditTab tab : tabs)
-            builder.add(this.layout.addChild(new EditTabButton(tabManager, tab, 0, 24), 0, i++));
+            builder.add(this.layout.addChild(new EditTabButton(tabManager, tab, 0, 24, inverted), 0, i++));
 
         this.tabButtons = builder.build();
     }

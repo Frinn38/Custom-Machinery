@@ -80,7 +80,7 @@ public class TextComponentUtils {
         return TEXT_COMPONENT_CODEC;
     }
 
-    private static String getString(Component component) {
+    public static String getString(Component component) {
         ComponentContents contents = component.getContents();
         if(contents instanceof LiteralContents literal)
             return literal.text();

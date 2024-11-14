@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.screen.creation.tabs.TooltipsTab.EditorTooltipFlag;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -14,6 +15,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.TooltipFlag.Default;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class CustomMachineItem extends BlockItem {
+
+    public static final TooltipFlag NO_TOOLTIP = new Default(true, true);
 
     @Nullable
     private final ResourceLocation machineID;
@@ -59,7 +63,10 @@ public class CustomMachineItem extends BlockItem {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        getMachine(stack).map(CustomMachine::getTooltips).ifPresent(tooltip::addAll);
+        if(flag instanceof EditorTooltipFlag(List<Component> tooltips))
+            tooltip.addAll(tooltips);
+        else
+            getMachine(stack).map(CustomMachine::getTooltips).ifPresent(tooltip::addAll);
     }
 
     @Override

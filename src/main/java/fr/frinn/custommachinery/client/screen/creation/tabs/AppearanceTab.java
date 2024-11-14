@@ -42,7 +42,7 @@ public class AppearanceTab extends MachineEditTab {
         List<MachineEditTab> tabs = new ArrayList<>();
         tabs.add(new SpecificAppearanceTab(Component.translatable("custommachinery.craftingstatus.default"), parent, null));
         Arrays.stream(MachineStatus.values()).forEach(status -> tabs.add(new SpecificAppearanceTab(Component.translatable("custommachinery.craftingstatus." + status.getSerializedName()), parent, status)));
-        this.bar = row.addChild(new MachineEditTabNavigationBar(parent.xSize, this.tabManager, tabs), row.newCellSettings().alignVerticallyTop().alignHorizontallyCenter().paddingTop(5));
+        this.bar = row.addChild(new MachineEditTabNavigationBar(parent.xSize, this.tabManager, tabs, false), row.newCellSettings().alignVerticallyTop().alignHorizontallyCenter().paddingTop(5));
         this.bar.setRectangle(parent.xSize - 10, 20, 0, 0);
 
         row.addChild(new SeparationWidget(parent.xSize, 5), row.newCellSettings().paddingBottom(parent.ySize - 30).alignVerticallyTop());
