@@ -64,6 +64,7 @@ import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ResetGuiElement;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
+import fr.frinn.custommachinery.common.guielement.SplitButtonGuiElement;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextureGuiElement;
@@ -265,6 +266,7 @@ public class Registration {
     public static final Supplier<GuiElementType<ProgressBarGuiElement>>     PROGRESS_GUI_ELEMENT         = GUI_ELEMENTS.register("progress", () -> GuiElementType.create(ProgressBarGuiElement.CODEC));
     public static final Supplier<GuiElementType<ResetGuiElement>>           RESET_GUI_ELEMENT            = GUI_ELEMENTS.register("reset", () -> GuiElementType.create(ResetGuiElement.CODEC));
     public static final Supplier<GuiElementType<SlotGuiElement>>            SLOT_GUI_ELEMENT             = GUI_ELEMENTS.register("slot", () -> GuiElementType.create(SlotGuiElement.CODEC));
+    public static final Supplier<GuiElementType<SplitButtonGuiElement>>     SPLIT_GUI_ELEMENT            = GUI_ELEMENTS.register("split", () -> GuiElementType.create(SplitButtonGuiElement.CODEC));
     public static final Supplier<GuiElementType<StatusGuiElement>>          STATUS_GUI_ELEMENT           = GUI_ELEMENTS.register("status", () -> GuiElementType.create(StatusGuiElement.CODEC));
     public static final Supplier<GuiElementType<TextureGuiElement>>         TEXTURE_GUI_ELEMENT          = GUI_ELEMENTS.register("texture", () -> GuiElementType.create(TextureGuiElement.CODEC));
     public static final Supplier<GuiElementType<TextGuiElement>>            TEXT_GUI_ELEMENT             = GUI_ELEMENTS.register("text", () -> GuiElementType.create(TextGuiElement.CODEC));

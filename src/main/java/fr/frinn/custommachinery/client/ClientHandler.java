@@ -18,6 +18,7 @@ import fr.frinn.custommachinery.client.element.PlayerInventoryGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ProgressGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ResetGuiElementWidget;
 import fr.frinn.custommachinery.client.element.SlotGuiElementWidget;
+import fr.frinn.custommachinery.client.element.SplitButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.element.StatusGuiElementWidget;
 import fr.frinn.custommachinery.client.element.TextGuiElementWidget;
 import fr.frinn.custommachinery.client.element.TextureGuiElementWidget;
@@ -72,6 +73,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.PlayerInvento
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.ProgressBarGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.ResetGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.SlotGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.creation.gui.builder.SplitButtonGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.StatusGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
@@ -172,6 +174,7 @@ public class ClientHandler {
         event.register(Registration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementWidget::new);
         event.register(Registration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
         event.register(Registration.SLOT_GUI_ELEMENT.get(), SlotGuiElementWidget::new);
+        event.register(Registration.SPLIT_GUI_ELEMENT.get(), SplitButtonGuiElementWidget::new);
         event.register(Registration.STATUS_GUI_ELEMENT.get(), StatusGuiElementWidget::new);
         event.register(Registration.TEXT_GUI_ELEMENT.get(), TextGuiElementWidget::new);
         event.register(Registration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
@@ -235,6 +238,7 @@ public class ClientHandler {
         event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressBarGuiElementBuilder());
         event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementBuilder());
         event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementBuilder());
+        event.register(Registration.SPLIT_GUI_ELEMENT.get(), new SplitButtonGuiElementBuilder());
         event.register(Registration.STATUS_GUI_ELEMENT.get(), new StatusGuiElementBuilder());
         event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementBuilder());
         event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementBuilder());

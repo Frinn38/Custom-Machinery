@@ -264,6 +264,8 @@
   "custommachinery.gui.creation.gui.button.hold_time.tooltip": "Time (in ticks) that the button will stay pressed when clicked",
   "custommachinery.gui.creation.gui.experience.display_mode": "Display mode",
   "custommachinery.gui.creation.gui.experience.mode": "Mode",
+  "custommachinery.gui.creation.gui.split.slots": "Slots",
+  "custommachinery.gui.creation.gui.split.slots.tooltip": "A list of slot ids, separated by a comma",
 
   "custommachinery.gui.creation.tooltips.title": "Enter tooltips here:",
   "custommachinery.gui.creation.tooltips.result": "See result:",
@@ -337,6 +339,7 @@
   "custommachinery.machine.guielement.progress": "Progress bar",
   "custommachinery.machine.guielement.reset": "Reset",
   "custommachinery.machine.guielement.slot": "Slot",
+  "custommachinery.machine.guielement.split": "Split button",
   "custommachinery.machine.guielement.status": "Status",
   "custommachinery.machine.guielement.text": "Text",
   "custommachinery.machine.guielement.texture": "Texture",

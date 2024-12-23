@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.component.handler;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.component.IDumpComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -9,6 +10,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
+import fr.frinn.custommachinery.common.guielement.SplitButtonGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.SidedItemHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
@@ -19,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -28,21 +31,30 @@ import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ISerializableComponent, ITickableComponent, ISyncableStuff, IDumpComponent, IItemHandlerModifiable {
 
     private final Map<Direction, SidedItemHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IItemHandler, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
+
+    private final Map<String, List<String>> slotSplitters = new HashMap<>();
 
     public ItemComponentHandler(IMachineComponentManager manager, List<ItemMachineComponent> components) {
         super(manager, components);
@@ -91,17 +103,31 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             components.add(componentNBT);
         });
         nbt.put("items", components);
+        ListTag splitters = new ListTag();
+        this.slotSplitters.forEach((id, slots) -> splitters.add(StringTag.valueOf(id)));
+        nbt.put("splitters", splitters);
     }
 
     @Override
     public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
         if(nbt.contains("items", Tag.TAG_LIST)) {
             ListTag components = nbt.getList("items", Tag.TAG_COMPOUND);
-            components.forEach(inbt -> {
-                if (inbt instanceof CompoundTag componentNBT) {
+            components.forEach(tag -> {
+                if (tag instanceof CompoundTag componentNBT) {
                     if(componentNBT.contains("slotID", Tag.TAG_STRING)) {
                         this.getComponents().stream().filter(component -> component.getId().equals(componentNBT.getString("slotID"))).findFirst().ifPresent(component -> component.deserialize(componentNBT, registries));
                     }
+                }
+            });
+        }
+        if(nbt.contains("splitters", Tag.TAG_LIST)) {
+            ListTag splitters = nbt.getList("splitters", Tag.TAG_STRING);
+            splitters.forEach(tag -> {
+                if(tag instanceof StringTag stringTag) {
+                    this.getManager().getTile().getMachine().getGuiElements().stream()
+                            .filter(element -> element instanceof SplitButtonGuiElement && element.getId().equals(stringTag.getAsString()))
+                            .findFirst()
+                            .ifPresent(element -> this.slotSplitters.put(stringTag.getAsString(), ((SplitButtonGuiElement)element).getSlots()));
                 }
             });
         }
@@ -109,7 +135,75 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     @Override
     public void serverTick() {
+        //Tick each component
         super.serverTick();
+
+        //Sort slots
+        Set<String> sortedSlots = new HashSet<>();
+        this.slotSplitters.forEach((id, slots) -> {
+            //All slots are already sorted so shortcut
+            if(sortedSlots.containsAll(slots))
+                return;
+
+            //Use only slot not already sorted
+            List<String> toSort = slots.stream().filter(slot -> !sortedSlots.contains(slot)).collect(Collectors.toList());
+            sortedSlots.addAll(toSort);
+            
+            //Get a list of items that are in the slots to sort
+            //Triple<Item, Amount, Slots>
+            List<Triple<ItemStack, Integer, List<String>>> itemsToSort = new ArrayList<>();
+            toSort.forEach(slot -> this.getComponentForID(slot).filter(component -> !component.getItemStack().isEmpty()).ifPresent((component -> {
+                Triple<ItemStack, Integer, List<String>> alreadyPresent = itemsToSort.stream().filter(triple -> ItemStack.isSameItemSameComponents(triple.getLeft(), component.getItemStack())).findFirst().orElse(null);
+                if(alreadyPresent == null) {
+                    itemsToSort.add(Triple.of(component.getItemStack().copy(), component.getItemStack().getCount(), Collections.singletonList(slot)));
+                } else {
+                    itemsToSort.remove(alreadyPresent);
+                    itemsToSort.add(Triple.of(alreadyPresent.getLeft(), alreadyPresent.getMiddle() + component.getItemStack().getCount(), ImmutableList.<String>builder().addAll(alreadyPresent.getRight()).add(slot).build()));
+                }
+            })));
+
+            //Sort each item
+            Iterator<Triple<ItemStack, Integer, List<String>>> iterator = itemsToSort.iterator();
+            while(iterator.hasNext()) {
+                //If every slot to sort already contains items then sort nothing.
+                if(itemsToSort.size() == toSort.size())
+                    return;
+
+                //Current item to sort
+                Triple<ItemStack, Integer, List<String>> sorting = iterator.next();
+
+                //If slot only contains 1 item don't touch it
+                if(sorting.getMiddle() == 1) {
+                    toSort.removeAll(sorting.getRight());
+                    iterator.remove();
+                    return;
+                }
+
+                //Gather all slots where this item can go (empty slots + current slot)
+                List<String> availableSlots = new ArrayList<>(sorting.getRight());
+                toSort.stream().filter(slot -> this.getComponentForID(slot).map(component -> component.getItemStack().isEmpty()).orElse(false)).forEach(availableSlots::add);
+
+                //Amount of items to put in each slots
+                int count = sorting.getMiddle() / availableSlots.size();
+                //Remaining items
+                AtomicInteger remaining = new AtomicInteger(sorting.getMiddle() % availableSlots.size());
+
+                //Place items in slots
+                availableSlots.forEach(slot -> this.getComponentForID(slot).ifPresent(component -> {
+                    //If there is remaining add 1 extra item and remove it from remaining count
+                    if(remaining.getAndAdd(-1) > 0)
+                        component.setItemStack(sorting.getLeft().copyWithCount(count + 1));
+                    else
+                        component.setItemStack(sorting.getLeft().copyWithCount(count));
+                }));
+
+                //Remove used slots from toSort list
+                toSort.removeAll(availableSlots);
+                iterator.remove();
+            }
+        });
+
+        //Sided auto-I/O
         for(Direction side : Direction.values()) {
             if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE))
                 continue;
@@ -149,6 +243,20 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         this.getComponents().stream()
                 .filter(component -> ids.contains(component.getId()))
                 .forEach(component -> component.setItemStack(ItemStack.EMPTY));
+    }
+
+    /** SPLITTER STUFF **/
+
+    public void addSplitter(String id, List<String> slots) {
+        this.slotSplitters.put(id, slots);
+    }
+
+    public void removeSplitter(String id) {
+        this.slotSplitters.remove(id);
+    }
+
+    public Set<String> getSplitters() {
+        return this.slotSplitters.keySet();
     }
 
     /** RECIPE STUFF **/
