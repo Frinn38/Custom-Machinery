@@ -7,7 +7,6 @@ import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementBuilderPopu
 import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import fr.frinn.custommachinery.common.guielement.ButtonGuiElement;
 import fr.frinn.custommachinery.common.guielement.SplitButtonGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
@@ -37,7 +36,7 @@ public class SplitButtonGuiElementBuilder implements IGuiElementBuilder<SplitBut
         if(from != null)
             return new SplitButtonGuiElement(properties, from.getTextureToggle(), from.getTextureToggleHovered(), from.getSlots());
         else
-            return new SplitButtonGuiElement(properties, ButtonGuiElement.BASE_TEXTURE_TOGGLE, ButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED, Collections.emptyList());
+            return new SplitButtonGuiElement(properties, SplitButtonGuiElement.BASE_TEXTURE_TOGGLE, SplitButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED, Collections.emptyList());
     }
 
     @Override
@@ -47,8 +46,8 @@ public class SplitButtonGuiElementBuilder implements IGuiElementBuilder<SplitBut
 
     public static class SplitButtonGuiElementBuilderPopup extends GuiElementBuilderPopup<SplitButtonGuiElement> {
 
-        private ResourceLocation textureToggle = ButtonGuiElement.BASE_TEXTURE_TOGGLE;
-        private ResourceLocation textureToggleHovered = ButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED;
+        private ResourceLocation textureToggle = SplitButtonGuiElement.BASE_TEXTURE_TOGGLE;
+        private ResourceLocation textureToggleHovered = SplitButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED;
         private EditBox slots;
 
         public SplitButtonGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable SplitButtonGuiElement from, Consumer<SplitButtonGuiElement> onFinish) {
@@ -74,8 +73,8 @@ public class SplitButtonGuiElementBuilder implements IGuiElementBuilder<SplitBut
 
         @Override
         public void addWidgets(RowHelper row) {
-            this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.texture"), this.properties::setTexture, this.baseElement != null ? this.baseElement.getTexture() : ButtonGuiElement.BASE_TEXTURE);
-            this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.texture_hovered"), this.properties::setTextureHovered, this.baseElement != null ? this.baseElement.getTextureHovered() : ButtonGuiElement.BASE_TEXTURE_HOVERED);
+            this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.texture"), this.properties::setTexture, this.baseElement != null ? this.baseElement.getTexture() : SplitButtonGuiElement.BASE_TEXTURE);
+            this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.texture_hovered"), this.properties::setTextureHovered, this.baseElement != null ? this.baseElement.getTextureHovered() : SplitButtonGuiElement.BASE_TEXTURE_HOVERED);
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.button.texture_toggle"), texture -> this.textureToggle = texture, this.textureToggle);
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.button.texture_toggle_hovered"), texture -> this.textureToggleHovered = texture, this.textureToggleHovered);
             this.addId(row);
