@@ -100,7 +100,7 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
                 }
             }
         }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.input", this.item, amount, maxRemove));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.input", amount, maxRemove));
     }
 
     public CraftingResult processOutputs(ItemComponentHandler component, ICraftingContext context) {
@@ -119,7 +119,7 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
                 }
             }
         }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.output", this.item, amount, maxRepair));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.output", amount, maxRepair));
     }
 
     @Override
