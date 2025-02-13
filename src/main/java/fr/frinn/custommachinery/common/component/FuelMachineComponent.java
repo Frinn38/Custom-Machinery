@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.function.Consumer;
@@ -115,7 +116,11 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
         ).ifPresent(component -> {
             int fuel = component.getItemStack().getBurnTime(RecipeType.SMELTING);
             this.addFuel(fuel);
-            component.extractItemBypassLimit(1, false);
+            ItemStack stack = component.getItemStack();
+            if(stack.hasCraftingRemainingItem())
+                component.setItemStack(stack.getCraftingRemainingItem());
+            else
+                component.extractItemBypassLimit(1, false);
         });
     }
 }
