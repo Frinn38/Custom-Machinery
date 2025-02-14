@@ -127,7 +127,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         ResourceLocation id = CustomMachinery.CUSTOM_BLOCK_MACHINES.inverse().get(this);
         if(id != null && level.getBlockEntity(pos) instanceof CustomMachineTile machineTile)
-            machineTile.setId(id);
+            machineTile.refreshMachine(id);
     }
 
     //Drop the machine block, but only if the player has correct tool or if requires-tool is disabled.
