@@ -59,7 +59,7 @@ public abstract class RecipeModifier implements IRecipeModifier {
         this.chance = chance;
         this.max = max;
         this.min = min;
-        this.tooltip = tooltip != null && tooltip != Component.empty() ? tooltip : getDefaultTooltip();
+        this.tooltip = tooltip != null && !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
     }
 
     @Override
