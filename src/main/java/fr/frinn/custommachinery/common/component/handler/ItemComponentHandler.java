@@ -371,6 +371,8 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     private static boolean isSameItem(ItemStack toTest, ItemStack ingredient) {
+        if(toTest.getItem() != ingredient.getItem())
+            return false;
         return ingredient.getComponents().stream().allMatch(component -> component.type() == DataComponents.DAMAGE || (toTest.has(component.type()) && Objects.equals(toTest.get(component.type()), component.value())));
     }
 
