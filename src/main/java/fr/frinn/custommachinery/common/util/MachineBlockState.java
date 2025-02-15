@@ -30,11 +30,15 @@ public class MachineBlockState extends BlockState {
 
     @Override
     public boolean is(TagKey<Block> tag) {
-        return BuiltInRegistries.BLOCK.getTag(this.appearance.getMiningLevel()).map(named -> named.stream().allMatch(holder -> holder.is(tag))).orElse(false) || this.appearance.getTool().contains(tag);
+        if(this.appearance.getMiningLevel() == tag || this.appearance.getTool().contains(tag))
+            return true;
+        return BuiltInRegistries.BLOCK.getTag(this.appearance.getMiningLevel()).map(named -> named.stream().allMatch(block -> block.is(tag))).orElse(false);
     }
 
     @Override
     public boolean is(HolderSet<Block> holder) {
+        if(holder.contains(this.getBlockHolder()))
+            return true;
         return holder.unwrapKey().map(this::is).orElse(false);
     }
 

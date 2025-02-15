@@ -314,8 +314,8 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(blockEntity -> blockEntity instanceof CustomMachineTile)
                 .map(blockEntity -> (CustomMachineTile)blockEntity)
-                .map(machine -> player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getAppearance())))
-                .orElse(player.hasCorrectToolForDrops(state));
+                .map(machine -> super.canHarvestBlock(MachineBlockState.CACHE.getUnchecked(machine.getAppearance()), level, pos, player))
+                .orElse(super.canHarvestBlock(state, level, pos, player));
     }
 
     @Override
