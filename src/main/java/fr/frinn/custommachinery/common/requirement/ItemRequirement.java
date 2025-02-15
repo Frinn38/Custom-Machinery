@@ -30,7 +30,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
     public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(ItemRequirement::getMode),
-                    DefaultCodecs.SIZED_INGREDIENT_WITH_NBT.fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
+                    DefaultCodecs.SIZED_INGREDIENT_WITH_NBT.fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
             ).apply(itemRequirementInstance, ItemRequirement::new), "Item requirement"
     );

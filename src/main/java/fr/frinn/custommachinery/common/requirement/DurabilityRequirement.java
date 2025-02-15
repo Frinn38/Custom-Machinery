@@ -31,7 +31,7 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
     public static final NamedCodec<DurabilityRequirement> CODEC = NamedCodec.record(durabilityRequirementInstance ->
             durabilityRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(DurabilityRequirement::getMode),
-                    NamedCodec.of(CraftingHelper.makeIngredientCodec(true)).fieldOf("item").forGetter(requirement -> requirement.item),
+                    NamedCodec.of(CraftingHelper.makeIngredientCodec(true)).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.item),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
                     NamedCodec.BOOL.optionalFieldOf("break", false).forGetter(requirement -> requirement.canBreak),
                     NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
