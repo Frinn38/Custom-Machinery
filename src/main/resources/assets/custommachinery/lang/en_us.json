@@ -9,6 +9,10 @@
   "custommachinery.command.reload": "Successfully reloaded custom machines !",
   "custommachinery.command.edit.missing": "Can't edit machine %s as it doesn't exist !",
   "custommachinery.command.edit.cant": "Machine %s can't be edited as it's not loaded from a json file !",
+  "custommachinery.command.verify.error": "Custom Machinery found %s errors !",
+  "custommachinery.command.verify.log": "[log]",
+  "custommachinery.command.verify.log.tooltip": "Open custommachinery.log",
+  "custommachinery.command.verify.success": "Custom Machinery did not found any errors",
 
   "custommachinery.box_creator.first_block": "First Block : %s",
   "custommachinery.box_creator.second_block": "Second Block : %s",

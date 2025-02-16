@@ -10,13 +10,17 @@ import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.network.SOpenCreationScreenPacket;
 import fr.frinn.custommachinery.common.network.SOpenEditScreenPacket;
 import fr.frinn.custommachinery.common.network.SOpenFilePacket;
+import fr.frinn.custommachinery.common.util.CMVerifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.ClickEvent.Action;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,7 +43,8 @@ public class CMCommand {
                 .then(logging())
                 .then(reload())
                 .then(create())
-                .then(edit());
+                .then(edit())
+                .then(verify());
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> logging() {
@@ -117,5 +122,18 @@ public class CMCommand {
 
     private static List<ResourceLocation> editableMachines() {
         return CustomMachinery.MACHINES.entrySet().stream().filter(entry -> entry.getValue().getLocation().canEdit()).map(Entry::getKey).toList();
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> verify() {
+        return Commands.literal("verify")
+                .requires(cs -> cs.hasPermission(2))
+                .executes(ctx -> {
+                    int errors = CMVerifier.verify(ctx.getSource().getLevel().getRecipeManager());
+                    if(errors > 0)
+                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.error", errors).withStyle(ChatFormatting.RED).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cm log")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.command.verify.log.tooltip"))))));
+                    else
+                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.success").withStyle(ChatFormatting.GREEN).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cm log")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.command.verify.log.tooltip"))))));
+                    return 0;
+                });
     }
 }
