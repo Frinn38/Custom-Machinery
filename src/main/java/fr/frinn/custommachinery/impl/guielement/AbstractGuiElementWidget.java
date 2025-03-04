@@ -50,4 +50,16 @@ public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends Ab
             PacketDistributor.sendToServer(new CGuiElementClickPacket(this.screen.getMachine().getGuiElements().indexOf(this.element), (byte)button));
         return clicked;
     }
+
+    /**
+     * Needed because Forgified Fabric API mixin makes {@link net.minecraft.client.gui.screens.inventory.AbstractContainerScreen#mouseReleased(double, double, int)}
+     * return early in case any of the widgets return true (which they do by default).
+     * This cause the slots of the gui (player inventory gui element) to behave weirdly, items can't be placed.
+     * Issue open : <a href="https://github.com/Sinytra/ForgifiedFabricAPI/issues/198">here</a>
+     */
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        super.mouseReleased(mouseX, mouseY, button);
+        return false;
+    }
 }
