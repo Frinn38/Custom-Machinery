@@ -127,6 +127,8 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     //When placed by anything else than an entity
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+        if(oldState.getBlock() == state.getBlock())
+            return;
         ResourceLocation id = CustomMachinery.CUSTOM_BLOCK_MACHINES.inverse().get(this);
         if(id != null && level.getBlockEntity(pos) instanceof CustomMachineTile machineTile)
             machineTile.refreshMachine(id);
