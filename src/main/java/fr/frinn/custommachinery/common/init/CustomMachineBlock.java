@@ -93,10 +93,11 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler.interactionFluidHandler)).orElse(false))
                 return ItemInteractionResult.SUCCESS;
 
-            if(player instanceof ServerPlayer serverPlayer && !machine.getGuiElements().isEmpty())
-                CustomMachineContainer.open(serverPlayer, machine);
-
-            return ItemInteractionResult.SUCCESS;
+            if(!machine.getGuiElements().isEmpty()) {
+                if(player instanceof ServerPlayer serverPlayer)
+                    CustomMachineContainer.open(serverPlayer, machine);
+                return ItemInteractionResult.sidedSuccess(level.isClientSide());
+            }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
