@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.impl.component.config;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
+import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
-import fr.frinn.custommachinery.impl.component.config.SideConfig.Template;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 
@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
 
-    public ToggleSideConfig(ISideConfigComponent component, Map<RelativeSide, ToggleSideMode> defaultConfig, boolean enabled) {
-        super(component, defaultConfig, enabled);
+    public ToggleSideConfig(ISideConfigComponent component, Map<RelativeSide, ToggleSideMode> defaultConfig, boolean enabled, Color color) {
+        super(component, defaultConfig, enabled, color);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
 
     @Override
     public ToggleSideConfig copy() {
-        return new ToggleSideConfig(this.getComponent(), this.sides, this.isEnabled());
+        return new ToggleSideConfig(this.getComponent(), this.sides, this.isEnabled(), this.getColor());
     }
 
     @Override
@@ -60,12 +60,13 @@ public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
         return false;
     }
 
-    public record Template(Map<RelativeSide, ToggleSideMode> sides, boolean enabled) implements SideConfig.Template<ToggleSideMode> {
+    public record Template(Map<RelativeSide, ToggleSideMode> sides, boolean enabled, Color color) implements SideConfig.Template<ToggleSideMode> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
                         EnumMapCodec.of(RelativeSide.class, ToggleSideMode.CODEC, ToggleSideMode.ENABLED).forGetter(template -> template.sides),
-                        NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(template -> template.enabled)
+                        NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(Template::enabled),
+                        Color.CODEC.optionalFieldOf("color", DEFAULT_COLOR).forGetter(Template::color)
                 ).apply(templateInstance, Template::new), "Toggle Side Config Template");
 
         public static final Template DEFAULT_ALL_ENABLED = makeDefault(ToggleSideMode.ENABLED, true);
@@ -76,11 +77,11 @@ public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
             EnumMap<RelativeSide, ToggleSideMode> map = Maps.newEnumMap(RelativeSide.class);
             for(RelativeSide side : RelativeSide.values())
                 map.put(side, defaultMode);
-            return new Template(map, enabled);
+            return new Template(map, enabled, DEFAULT_COLOR);
         }
 
         public <T extends ISideConfigComponent> ToggleSideConfig build(T component) {
-            return new ToggleSideConfig(component, this.sides, this.enabled);
+            return new ToggleSideConfig(component, this.sides, this.enabled, this.color);
         }
     }
 }

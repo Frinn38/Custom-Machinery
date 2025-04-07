@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.impl.component.config;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
+import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
-import fr.frinn.custommachinery.impl.component.config.SideConfig.Template;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 
@@ -16,8 +16,8 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
     private boolean autoInput;
     private boolean autoOutput;
 
-    public IOSideConfig(ISideConfigComponent component, Map<RelativeSide, IOSideMode> defaultConfig, boolean input, boolean output, boolean enabled) {
-        super(component, defaultConfig, enabled);
+    public IOSideConfig(ISideConfigComponent component, Map<RelativeSide, IOSideMode> defaultConfig, boolean input, boolean output, boolean enabled, Color color) {
+        super(component, defaultConfig, enabled, color);
         this.autoInput = input;
         this.autoOutput = output;
     }
@@ -59,7 +59,7 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
 
     @Override
     public IOSideConfig copy() {
-        return new IOSideConfig(this.getComponent(), this.sides, this.autoInput, this.autoOutput, this.isEnabled());
+        return new IOSideConfig(this.getComponent(), this.sides, this.autoInput, this.autoOutput, this.isEnabled(), this.getColor());
     }
 
     @Override
@@ -94,14 +94,15 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
         return false;
     }
 
-    public record Template(Map<RelativeSide, IOSideMode> sides, boolean autoInput, boolean autoOutput, boolean enabled) implements SideConfig.Template<IOSideMode> {
+    public record Template(Map<RelativeSide, IOSideMode> sides, boolean autoInput, boolean autoOutput, boolean enabled, Color color) implements SideConfig.Template<IOSideMode> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
                         EnumMapCodec.of(RelativeSide.class, IOSideMode.CODEC, IOSideMode.BOTH).forGetter(Template::sides),
                         NamedCodec.BOOL.optionalFieldOf("input", false).forGetter(Template::autoInput),
                         NamedCodec.BOOL.optionalFieldOf("output", false).forGetter(Template::autoOutput),
-                        NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(Template::enabled)
+                        NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(Template::enabled),
+                        Color.CODEC.optionalFieldOf("color", DEFAULT_COLOR).forGetter(Template::color)
                 ).apply(templateInstance, Template::new), "IO Side Config Template");
 
         public static final Template DEFAULT_ALL_BOTH = makeDefault(IOSideMode.BOTH, true);
@@ -114,11 +115,11 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
             EnumMap<RelativeSide, IOSideMode> map = Maps.newEnumMap(RelativeSide.class);
             for(RelativeSide side : RelativeSide.values())
                 map.put(side, defaultMode);
-            return new Template(map, false, false, enabled);
+            return new Template(map, false, false, enabled, DEFAULT_COLOR);
         }
 
         public <T extends ISideConfigComponent> IOSideConfig build(T component) {
-            return new IOSideConfig(component, this.sides, this.autoInput, this.autoOutput, this.enabled);
+            return new IOSideConfig(component, this.sides, this.autoInput, this.autoOutput, this.enabled, this.color);
         }
     }
 }

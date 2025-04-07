@@ -1,8 +1,7 @@
 package fr.frinn.custommachinery.common.network.data;
 
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
-import fr.frinn.custommachinery.impl.component.config.IOSideMode;
+import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideMode;
@@ -22,7 +21,7 @@ public class ToggleSideConfigData extends Data<ToggleSideConfig> {
         Map<RelativeSide, ToggleSideMode> map = new HashMap<>();
         for(RelativeSide side : RelativeSide.values())
             map.put(side, buffer.readBoolean() ? ToggleSideMode.ENABLED : ToggleSideMode.DISABLED);
-        return new ToggleSideConfigData(id, new ToggleSideConfig(null, map, true));
+        return new ToggleSideConfigData(id, new ToggleSideConfig(null, map, true, Color.fromARGB(buffer.readVarInt())));
     }
 
     @Override
@@ -30,5 +29,6 @@ public class ToggleSideConfigData extends Data<ToggleSideConfig> {
         super.writeData(buffer);
         for(RelativeSide side : RelativeSide.values())
             buffer.writeBoolean(getValue().getSideMode(side) == ToggleSideMode.ENABLED);
+        buffer.writeVarInt(getValue().getColor().getARGB());
     }
 }

@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.impl.component.config;
 
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
+import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -13,16 +14,21 @@ import java.util.Map;
 
 public abstract class SideConfig<M extends SideMode> {
 
+    public static final Color DEFAULT_COLOR = Color.fromColors(0.5, 0, 0, 1);
+
     final Map<RelativeSide, M> sides = new HashMap<>();
     private final ISideConfigComponent component;
 
     private final boolean enabled;
+    //Color of the slot in the MachineConfigScreen
+    private final Color color;
     private TriConsumer<RelativeSide, M, M> callback;
 
-    public SideConfig(ISideConfigComponent component, Map<RelativeSide, M> defaultConfig, boolean enabled) {
+    public SideConfig(ISideConfigComponent component, Map<RelativeSide, M> defaultConfig, boolean enabled, Color color) {
         this.component = component;
         this.sides.putAll(defaultConfig);
         this.enabled = enabled;
+        this.color = color;
     }
 
     private Direction facing() {
@@ -49,6 +55,10 @@ public abstract class SideConfig<M extends SideMode> {
 
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    public Color getColor() {
+        return this.color;
     }
 
     public void set(SideConfig<M> config) {

@@ -1,9 +1,12 @@
 package fr.frinn.custommachinery.common.util;
 
+import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.util.FastColor;
 
+import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
 public class Color {
@@ -24,7 +27,15 @@ public class Color {
             "Color"
     );
 
-    public static final NamedCodec<Color> CODEC = EitherManyCodec.of(MAP_CODEC, ARRAY_CODEC, NamedCodec.intRange(0, Integer.MAX_VALUE).xmap(Color::fromARGB, Color::getARGB, ""));
+    public static final NamedCodec<Color> STRING_CODEC = NamedCodec.STRING.comapFlatMap(s -> {
+        ChatFormatting color = ChatFormatting.getByName(s);
+        if(color == null || !color.isColor() || color.getColor() == null)
+            return DataResult.error(() -> "Color '" + s + "' not found");
+        return DataResult.success(Color.fromARGB(color.getColor()));
+    }, color -> Arrays.stream(ChatFormatting.values()).filter(c -> c.getColor() != null && c.getColor() == color.getARGB()).findFirst().orElse(ChatFormatting.BLACK).getName(),
+            "Color");
+
+    public static final NamedCodec<Color> CODEC = EitherManyCodec.of(MAP_CODEC, ARRAY_CODEC, NamedCodec.intRange(0, Integer.MAX_VALUE).xmap(Color::fromARGB, Color::getARGB, ""), STRING_CODEC);
 
     public static final Color WHITE = fromColors(255, 255, 255, 255);
     public static final Color TRANSPARENT_WHITE = fromColors(127, 255, 255, 255);

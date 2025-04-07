@@ -8,8 +8,6 @@ import fr.frinn.custommachinery.client.screen.widget.config.SideModeButton;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.Template;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideMode;
@@ -96,28 +94,28 @@ public class ComponentConfigBuilderWidget extends Button {
             if(this.template instanceof IOSideConfig.Template ioTemplate) {
                 Map<RelativeSide, IOSideMode> sides = new HashMap<>(ioTemplate.sides());
                 sides.put(side, next ? ioTemplate.sides().get(side).next() : ioTemplate.sides().get(side).previous());
-                this.template = new IOSideConfig.Template(sides, ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled());
+                this.template = new IOSideConfig.Template(sides, ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
             } else if(this.template instanceof ToggleSideConfig.Template toggleTemplate) {
                 Map<RelativeSide, ToggleSideMode> sides = new HashMap<>(toggleTemplate.sides());
                 sides.put(side, toggleTemplate.sides().get(side) == ToggleSideMode.ENABLED ? ToggleSideMode.DISABLED : ToggleSideMode.ENABLED);
-                this.template = new ToggleSideConfig.Template(sides, toggleTemplate.enabled());
+                this.template = new ToggleSideConfig.Template(sides, toggleTemplate.enabled(), toggleTemplate.color());
             }
         }
 
         private void setIO(boolean input) {
             if(this.template instanceof IOSideConfig.Template ioTemplate) {
                 if(input)
-                    this.template = new IOSideConfig.Template(ioTemplate.sides(), !ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled());
+                    this.template = new IOSideConfig.Template(ioTemplate.sides(), !ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
                 else
-                    this.template = new IOSideConfig.Template(ioTemplate.sides(), ioTemplate.autoInput(), !ioTemplate.autoOutput(), ioTemplate.enabled());
+                    this.template = new IOSideConfig.Template(ioTemplate.sides(), ioTemplate.autoInput(), !ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
             }
         }
 
         private void setAllNone() {
             if(this.template instanceof IOSideConfig.Template ioTemplate)
-                this.template = new IOSideConfig.Template(new HashMap<>(IOSideConfig.Template.DEFAULT_ALL_NONE.sides()), ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled());
+                this.template = new IOSideConfig.Template(new HashMap<>(IOSideConfig.Template.DEFAULT_ALL_NONE.sides()), ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
             else if(this.template instanceof ToggleSideConfig.Template toggleTemplate)
-                this.template = new ToggleSideConfig.Template(new HashMap<>(ToggleSideConfig.Template.DEFAULT_ALL_DISABLED.sides()), toggleTemplate.enabled());
+                this.template = new ToggleSideConfig.Template(new HashMap<>(ToggleSideConfig.Template.DEFAULT_ALL_DISABLED.sides()), toggleTemplate.enabled(), toggleTemplate.color());
         }
     }
 }
