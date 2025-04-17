@@ -3,8 +3,10 @@ package fr.frinn.custommachinery.client.screen.creation.component;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
+import fr.frinn.custommachinery.client.screen.widget.ColorWidget;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButton;
 import fr.frinn.custommachinery.client.screen.widget.config.SideModeButton;
+import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
@@ -15,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
@@ -45,7 +48,7 @@ public class ComponentConfigBuilderWidget extends Button {
         private Template<?> template;
 
         public ComponentConfigBuilderPopup(BaseScreen parent, Supplier<Template<?>> baseConfig, Consumer<Template<?>> onFinish) {
-            super(parent, 96, 96);
+            super(parent, 96, 145);
             this.template = baseConfig.get();
             this.onFinish = onFinish;
         }
@@ -77,12 +80,20 @@ public class ComponentConfigBuilderWidget extends Button {
             //EXIT
             ImageButton close = this.addRenderableWidget(new ImageButton(this.x + 5, this.y + 5, 9, 9, EXIT_SPRITES, button -> this.parent.closePopup(this)));
             close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.close")));
+
+            //Color
+            StringWidget colorTitle = this.addRenderableWidget(new StringWidget(Component.translatable("custommachinery.gui.creation.components.config.color"), this.font));
+            colorTitle.setPosition(this.x + 35, this.y + 90);
+            colorTitle.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.config.color.tooltip")));
+            ColorWidget color = this.addRenderableWidget(new ColorWidget(0, 0, this.xSize - 10, 20, Component.empty(), () -> this.template.color().getARGB(), this::setColor, true));
+            color.setPosition(this.x + 10, this.y + 100);
         }
 
         @Override
         public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
             super.renderBackground(graphics, mouseX, mouseY, partialTicks);
             graphics.drawString(Minecraft.getInstance().font, TITLE, (int)(this.x + this.xSize / 2F - font.width(TITLE) / 2F), this.y + 5, 0, false);
+
         }
 
         @Override
@@ -116,6 +127,13 @@ public class ComponentConfigBuilderWidget extends Button {
                 this.template = new IOSideConfig.Template(new HashMap<>(IOSideConfig.Template.DEFAULT_ALL_NONE.sides()), ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
             else if(this.template instanceof ToggleSideConfig.Template toggleTemplate)
                 this.template = new ToggleSideConfig.Template(new HashMap<>(ToggleSideConfig.Template.DEFAULT_ALL_DISABLED.sides()), toggleTemplate.enabled(), toggleTemplate.color());
+        }
+
+        private void setColor(int color) {
+            if(this.template instanceof IOSideConfig.Template ioTemplate)
+                this.template = new IOSideConfig.Template(ioTemplate.sides(), ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), Color.fromARGB(color));
+            else if(this.template instanceof ToggleSideConfig.Template toggleTemplate)
+                this.template = new ToggleSideConfig.Template(toggleTemplate.sides(), toggleTemplate.enabled(), Color.fromARGB(color));
         }
     }
 }

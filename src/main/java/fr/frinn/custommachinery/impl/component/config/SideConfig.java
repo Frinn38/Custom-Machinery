@@ -88,5 +88,6 @@ public abstract class SideConfig<M extends SideMode> {
     public interface Template<M extends SideMode> {
         Map<RelativeSide, M> sides();
         boolean enabled();
+        Color color();
     }
 }

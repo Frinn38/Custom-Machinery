@@ -184,6 +184,8 @@
   "custommachinery.gui.creation.components.capacity": "Capacity",
   "custommachinery.gui.creation.components.maxInput": "Max Input",
   "custommachinery.gui.creation.components.maxOutput": "Max Output",
+  "custommachinery.gui.creation.components.config.color": "Color",
+  "custommachinery.gui.creation.components.config.color.tooltip": "The color of the slot in I/O config mode",
   "custommachinery.gui.creation.components.item.title": "Item Component",
   "custommachinery.gui.creation.components.item.locked": "Locked",
   "custommachinery.gui.creation.components.item.locked.tooltip": "If set the slot wont be interactable from the gui, only pipes/hoppers will be able to insert/extract items",
