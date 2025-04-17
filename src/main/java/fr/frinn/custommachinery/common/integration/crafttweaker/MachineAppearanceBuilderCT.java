@@ -4,9 +4,10 @@ import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.sound.AmbientSound;
+import fr.frinn.custommachinery.common.util.sound.CMSoundType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -48,7 +49,7 @@ public class MachineAppearanceBuilderCT {
     @Method
     @Setter("ambient_sound")
     public MachineAppearanceBuilderCT ambientSound(SoundEvent sound) {
-        this.put(Registration.AMBIENT_SOUND_PROPERTY.get(), sound);
+        this.put(Registration.AMBIENT_SOUND_PROPERTY.get(), AmbientSound.makeDefault(sound));
         return this;
     }
 

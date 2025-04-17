@@ -1,13 +1,10 @@
-package fr.frinn.custommachinery.common.util;
+package fr.frinn.custommachinery.common.util.sound;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance.Attenuation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,16 +20,23 @@ public class SoundManager {
         this.pos = pos;
     }
 
-    @Nullable
-    public ResourceLocation getSoundID() {
-        return this.getSound().map(SoundInstance::getLocation).orElse(null);
+    public boolean isCurrentlyPlaying(AmbientSound sound) {
+        return this.sound != null
+                && this.sound.getLocation().equals(sound.sound().getLocation())
+                && this.sound.getVolume() == sound.volume()
+                && this.sound.getPitch() == sound.pitch()
+                && this.sound.getSource() == sound.source()
+                && this.sound.isLooping() == sound.loop()
+                && this.sound.getAttenuation() == (sound.attenuation() ? Attenuation.LINEAR : Attenuation.NONE)
+                && this.sound.getDelay() == sound.delay()
+                && this.sound.isRelative() == sound.relative();
     }
 
     public Optional<SoundInstance> getSound() {
         return Optional.ofNullable(this.sound);
     }
 
-    public void setSound(@Nullable SoundEvent sound) {
+    public void setSound(@Nullable AmbientSound sound) {
         stop();
 
         if(sound == null) {
@@ -40,7 +44,7 @@ public class SoundManager {
             return;
         }
 
-        this.sound = new SimpleSoundInstance(sound.getLocation(), SoundSource.BLOCKS, 1.0F, 1.0F, RandomSource.create(), true, 0, Attenuation.LINEAR, this.pos.getX(), this.pos.getY(), this.pos.getZ(), false);
+        this.sound = new SimpleSoundInstance(sound.sound().getLocation(), sound.source(), sound.volume(), sound.pitch(), RandomSource.create(), sound.loop(), sound.delay(), sound.attenuation() ? Attenuation.LINEAR : Attenuation.NONE, this.pos.getX(), this.pos.getY(), this.pos.getZ(), sound.relative());
         play();
     }
 

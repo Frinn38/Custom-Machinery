@@ -23,7 +23,7 @@ import fr.frinn.custommachinery.common.network.SUpdateMachineGuiElementsPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.MachineList;
-import fr.frinn.custommachinery.common.util.SoundManager;
+import fr.frinn.custommachinery.common.util.sound.SoundManager;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -82,7 +82,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     private UUID ownerID;
 
     //Players currently interacting with this machine
-    private List<WeakReference<ServerPlayer>> players = new ArrayList<>();
+    private final List<WeakReference<ServerPlayer>> players = new ArrayList<>();
 
     public CustomMachineTile(BlockPos pos, BlockState state) {
         super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);
@@ -129,10 +129,10 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
             this.status = status;
             this.errorMessage = message;
             this.setChanged();
-            if(this.getLevel() instanceof ServerLevel level) {
+            if(this.getLevel() instanceof ServerLevel serverLevel) {
                 BlockPos pos = this.getBlockPos();
-                level.updateNeighborsAt(pos, this.getBlockState().getBlock());
-                PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(pos), new SUpdateMachineStatusPacket(pos, this.status));
+                serverLevel.updateNeighborsAt(pos, this.getBlockState().getBlock());
+                PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pos), new SUpdateMachineStatusPacket(pos, this.status));
             }
         }
     }
@@ -289,7 +289,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
         if(tile.soundManager == null)
             tile.soundManager = new SoundManager(pos);
-        if(!tile.getAppearance().getAmbientSound().getLocation().equals(tile.soundManager.getSoundID())) {
+        if(!tile.soundManager.isCurrentlyPlaying(tile.getAppearance().getAmbientSound())) {
             if(tile.getAppearance().getAmbientSound() == Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue())
                 tile.soundManager.setSound(null);
             else

@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.FloatSlider;
 import fr.frinn.custommachinery.client.screen.widget.SoundEditBox;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.util.CMSoundType;
+import fr.frinn.custommachinery.common.util.sound.CMSoundType;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -15,7 +15,6 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
-import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -37,9 +36,9 @@ public class InteractionSoundAppearancePropertyBuilder implements IAppearancePro
 
     @Override
     public AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<CMSoundType> supplier, Consumer<CMSoundType> consumer) {
-        return Button.builder(this.title(), button -> {
-            parent.openPopup(new InteractionSoundEditPopup(parent, 205, 220, supplier, consumer), this.title().getString());
-        }).bounds(x, y, width, height).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.tooltip"))).build();
+        return Button.builder(this.title(), button ->
+            parent.openPopup(new InteractionSoundEditPopup(parent, 205, 220, supplier, consumer), this.title().getString())
+        ).bounds(x, y, width, height).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.tooltip"))).build();
     }
 
     private static class InteractionSoundEditPopup extends PopupScreen {

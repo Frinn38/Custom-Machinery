@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.api.machine;
 
+import fr.frinn.custommachinery.common.util.sound.AmbientSound;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -41,7 +41,7 @@ public interface IMachineAppearance {
     /**
      * @return The sound that the machine will emit.
      */
-    SoundEvent getAmbientSound();
+    AmbientSound getAmbientSound();
 
     /**
      * @return A collection of sounds the machine will emit when interacted by a player (place/break/step on...)

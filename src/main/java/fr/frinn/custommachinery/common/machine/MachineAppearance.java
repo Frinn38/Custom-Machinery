@@ -11,10 +11,10 @@ import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.MachineShape;
+import fr.frinn.custommachinery.common.util.sound.AmbientSound;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -107,7 +107,7 @@ public class MachineAppearance implements IMachineAppearance {
     }
 
     @Override
-    public SoundEvent getAmbientSound() {
+    public AmbientSound getAmbientSound() {
         return getProperty(Registration.AMBIENT_SOUND_PROPERTY.get());
     }
 

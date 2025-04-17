@@ -123,9 +123,10 @@ import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.requirement.TimeRequirement;
 import fr.frinn.custommachinery.common.requirement.WeatherRequirement;
 import fr.frinn.custommachinery.common.requirement.WorkingCoreRequirement;
-import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.MachineShape;
+import fr.frinn.custommachinery.common.util.sound.AmbientSound;
+import fr.frinn.custommachinery.common.util.sound.CMSoundType;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
@@ -138,7 +139,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
@@ -331,7 +331,7 @@ public class Registration {
     public static final Supplier<RequirementType<WeatherRequirement>>           WEATHER_REQUIREMENT             = REQUIREMENTS.register("weather", () -> RequirementType.world(WeatherRequirement.CODEC));
     public static final Supplier<RequirementType<WorkingCoreRequirement>>       WORKING_CORE_REQUIREMENT        = REQUIREMENTS.register("working_core", () -> RequirementType.world(WorkingCoreRequirement.CODEC));
 
-    public static final Supplier<MachineAppearanceProperty<SoundEvent>>           AMBIENT_SOUND_PROPERTY     = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(DefaultCodecs.SOUND_EVENT, SoundEvent.createVariableRangeEvent(ResourceLocation.parse(""))));
+    public static final Supplier<MachineAppearanceProperty<AmbientSound>>         AMBIENT_SOUND_PROPERTY     = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(AmbientSound.CODEC, AmbientSound.DEFAULT));
     public static final Supplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY       = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.DEFAULT));
     public static final Supplier<MachineAppearanceProperty<Integer>>              COLOR_PROPERTY             = APPEARANCE_PROPERTIES.register("color", () -> MachineAppearanceProperty.create(NamedCodec.INT, 0xFFFFFF));
     public static final Supplier<MachineAppearanceProperty<Float>>                HARDNESS_PROPERTY          = APPEARANCE_PROPERTIES.register("hardness", () -> MachineAppearanceProperty.create(NamedCodec.floatRange(-1.0F, Float.MAX_VALUE), 3.5F));

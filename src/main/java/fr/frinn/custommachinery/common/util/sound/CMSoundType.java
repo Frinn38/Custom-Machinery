@@ -1,7 +1,8 @@
-package fr.frinn.custommachinery.common.util;
+package fr.frinn.custommachinery.common.util.sound;
 
 import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.codec.NamedRecordCodec;

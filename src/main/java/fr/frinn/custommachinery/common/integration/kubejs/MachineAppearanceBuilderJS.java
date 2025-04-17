@@ -3,12 +3,14 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.util.CMSoundType;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.sound.AmbientSound;
+import fr.frinn.custommachinery.common.util.sound.CMSoundType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
@@ -36,7 +38,16 @@ public class MachineAppearanceBuilderJS {
     }
 
     public MachineAppearanceBuilderJS ambientSound(SoundEvent sound) {
-        this.put(Registration.AMBIENT_SOUND_PROPERTY.get(), sound);
+        return ambientSound(sound, 1, 1);
+    }
+
+    public MachineAppearanceBuilderJS ambientSound(SoundEvent sound, float volume, float pitch) {
+        this.put(Registration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSound(sound, volume, pitch, SoundSource.BLOCKS, true, true, 0, false));
+        return this;
+    }
+
+    public MachineAppearanceBuilderJS ambientSound(SoundEvent sound, float volume, float pitch, SoundSource source, boolean loop, boolean attenuation, int delay, boolean relative) {
+        this.put(Registration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSound(sound, volume, pitch, source, loop, attenuation, delay, relative));
         return this;
     }
 
