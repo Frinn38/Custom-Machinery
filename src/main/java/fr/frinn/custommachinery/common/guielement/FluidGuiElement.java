@@ -80,16 +80,10 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
                     else if(!component.getFluid().isEmpty())
                         result = FluidUtil.tryFillContainerAndStow(carried, component, new PlayerMainInvWrapper(player.getInventory()), Integer.MAX_VALUE, player, true);
 
-                    //In both case if success the carried item must be shrunk if player is not in creative mode
+                    //Result stack are the buckets
                     ItemStack stack = result.getResult();
-                    if(result.isSuccess() && !player.isCreative()) {
-                        if(carried.getCount() > 1) {
-                            carried.shrink(1);
-                            container.setCarried(carried);
-                            player.addItem(stack);
-                        } else
+                    if(result.isSuccess() && !player.isCreative())
                             container.setCarried(stack);
-                    }
                 });
     }
 }
