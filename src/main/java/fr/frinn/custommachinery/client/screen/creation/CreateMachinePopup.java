@@ -56,6 +56,8 @@ public class CreateMachinePopup extends PopupScreen {
         row.addChild(new StringWidget(this.xSize, 10, Component.translatable("custommachinery.gui.creation.popup.create"), this.font), 2, row.newCellSettings().alignHorizontallyCenter().paddingTop(5));
         this.id = row.addChild(new EditBox(this.font, this.x + 10, this.y + 20, this.xSize - 20, 20, Component.literal("machine_id")), 2, center);
         this.id.setFilter(s -> {
+            if(s.contains(":"))
+                return ResourceLocation.tryParse(s) != null;
             for(char c : s.toCharArray())
                 if(!ResourceLocation.validPathChar(c))
                     return false;

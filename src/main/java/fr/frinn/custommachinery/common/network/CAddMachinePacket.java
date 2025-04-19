@@ -40,7 +40,7 @@ public record CAddMachinePacket(String id, Component name, boolean kubejs) imple
         if (context.player() instanceof ServerPlayer player && player.getServer() != null && Utils.canPlayerManageMachines(player)) {
             context.enqueueWork(() -> {
                 CustomMachinery.LOGGER.info("Player: {} added new Machine: {}", player.getName().getString(), packet.id);
-                CustomMachine newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, ResourceLocation.fromNamespaceAndPath(CustomMachinery.MODID, packet.id), "")).setName(packet.name).build();
+                CustomMachine newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, ResourceLocation.parse(packet.id), "")).setName(packet.name).build();
                 FileUtils.writeNewMachineJson(player.getServer(), newMachine, packet.kubejs);
             });
         }
