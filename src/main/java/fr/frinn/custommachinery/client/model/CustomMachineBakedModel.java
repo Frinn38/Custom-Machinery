@@ -81,7 +81,11 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
 
     @Override
     public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
-        return getMachineModel(data).getRenderTypes(state, rand, data);
+        try {
+            return getMachineModel(data).getRenderTypes(state, rand, data);
+        } catch (IllegalArgumentException ignored) {
+            return ChunkRenderTypeSet.all();
+        }
     }
 
     @Override

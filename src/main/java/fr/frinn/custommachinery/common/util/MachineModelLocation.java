@@ -7,7 +7,6 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -41,16 +40,16 @@ public class MachineModelLocation implements IMachineModelLocation {
         try {
             state = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(loc), false).blockState();
         } catch (CommandSyntaxException ignored) {}
-        ResourceLocation id;
+        ResourceLocation id = null;
         String properties = null;
         if(loc.contains("#")) {
             id = ResourceLocation.parse(loc.substring(0, loc.indexOf("#")));
             properties = loc.substring(loc.indexOf("#") + 1);
-        } else
+        } else if(state == null)
             id = ResourceLocation.parse(loc);
 
         Item item = null;
-        if(BuiltInRegistries.ITEM.containsKey(id))
+        if(id != null && BuiltInRegistries.ITEM.containsKey(id))
             item = BuiltInRegistries.ITEM.get(id);
 
         return new MachineModelLocation(loc, state, item, id, properties);

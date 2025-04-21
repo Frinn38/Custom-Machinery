@@ -29,7 +29,7 @@ import java.util.Calendar;
 
 public class FileUtils {
 
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
     public static void writeNewMachineJson(MinecraftServer server, CustomMachine machine, boolean kubejs) {
         if(kubejs && !ModList.get().isLoaded("kubejs")) {
