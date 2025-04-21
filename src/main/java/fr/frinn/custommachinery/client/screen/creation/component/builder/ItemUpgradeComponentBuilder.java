@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.common.component.item.UpgradeItemMachineComponen
 import fr.frinn.custommachinery.common.init.Registration;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -35,7 +34,7 @@ public class ItemUpgradeComponentBuilder extends ItemComponentBuilder {
 
         @Override
         public Template makeTemplate() {
-            return new UpgradeItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), this.baseTemplate().map(template -> template.filter).orElse(Filter.empty()), Optional.of(this.mode.getValue().getBaseConfig()), this.locked.selected());
+            return new UpgradeItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), this.baseTemplate().map(template -> template.filter).orElse(Filter.empty()), Optional.of(this.config), this.locked.selected());
         }
     }
 }

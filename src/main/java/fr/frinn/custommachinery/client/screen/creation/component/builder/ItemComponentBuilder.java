@@ -57,7 +57,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
         protected IntegerSlider maxInput;
         protected IntegerSlider maxOutput;
         protected Checkbox locked;
-        private IOSideConfig.Template config;
+        protected IOSideConfig.Template config;
 
         public ItemComponentBuilderPopup(BaseScreen parent, @Nullable ItemMachineComponent.Template template, Consumer<ItemMachineComponent.Template> onFinish) {
             super(parent, template, onFinish, Component.translatable("custommachinery.gui.creation.components.item.title"));
