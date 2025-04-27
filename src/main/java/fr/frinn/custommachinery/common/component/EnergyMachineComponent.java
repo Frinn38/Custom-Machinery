@@ -14,14 +14,14 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
+import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.SidedEnergyStorage;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
+import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -118,20 +118,13 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void serverTick() {
         for(Direction side : Direction.values()) {
-            if(this.getConfig().getSideMode(side) == IOSideMode.NONE)
+            if(this.getConfig().getSideMode(side) == IOSideMode.NONE || (!this.getConfig().isAutoInput() && !this.getConfig().isAutoOutput()))
                 continue;
 
-            IEnergyStorage neighbour;
-
-            if(this.neighbourStorages.get(side) == null) {
+            if(this.neighbourStorages.get(side) == null)
                 this.neighbourStorages.put(side, BlockCapabilityCache.create(EnergyStorage.BLOCK, (ServerLevel)this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
-                if(this.neighbourStorages.get(side) != null)
-                    neighbour = this.neighbourStorages.get(side).getCapability();
-                else
-                    continue;
-            }
-            else
-                neighbour = this.neighbourStorages.get(side).getCapability();
+
+            IEnergyStorage neighbour = this.neighbourStorages.get(side).getCapability();
 
             if(neighbour == null)
                 continue;

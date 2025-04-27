@@ -13,8 +13,8 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.transfer.InteractionFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.SidedFluidHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
-import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
+import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -84,20 +84,13 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public void serverTick() {
         //I/O between the machine and neighbour blocks.
         for(Direction side : Direction.values()) {
-            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE))
+            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE || (!component.getConfig().isAutoInput() && !component.getConfig().isAutoOutput())))
                 continue;
 
-            IFluidHandler neighbour;
-
-            if(this.neighbourStorages.get(side) == null) {
+            if(this.neighbourStorages.get(side) == null)
                 this.neighbourStorages.put(side, BlockCapabilityCache.create(FluidHandler.BLOCK, (ServerLevel)this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
-                if(this.neighbourStorages.get(side) != null)
-                    neighbour = this.neighbourStorages.get(side).getCapability();
-                else
-                    continue;
-            }
-            else
-                neighbour = this.neighbourStorages.get(side).getCapability();
+
+            IFluidHandler neighbour = this.neighbourStorages.get(side).getCapability();
 
             if(neighbour == null)
                 continue;

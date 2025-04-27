@@ -205,20 +205,13 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
         //Sided auto-I/O
         for(Direction side : Direction.values()) {
-            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE))
+            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE || (!component.getConfig().isAutoInput() && !component.getConfig().isAutoOutput())))
                 continue;
 
-            IItemHandler neighbour;
-
-            if(this.neighbourStorages.get(side) == null || this.neighbourStorages.get(side).getCapability() == null) {
+            if(this.neighbourStorages.get(side) == null)
                 this.neighbourStorages.put(side, BlockCapabilityCache.create(ItemHandler.BLOCK, (ServerLevel) this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
-                if(this.neighbourStorages.get(side) != null)
-                    neighbour = this.neighbourStorages.get(side).getCapability();
-                else
-                    continue;
-            }
-            else
-                neighbour = this.neighbourStorages.get(side).getCapability();
+
+            IItemHandler neighbour = this.neighbourStorages.get(side).getCapability();
 
             if(neighbour == null)
                 continue;
