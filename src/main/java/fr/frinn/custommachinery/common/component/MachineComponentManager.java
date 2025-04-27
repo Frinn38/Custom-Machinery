@@ -15,10 +15,12 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +38,7 @@ import java.util.stream.StreamSupport;
 public class MachineComponentManager implements IMachineComponentManager {
 
     private final CustomMachineTile tile;
+    private final Direction facing;//Cache here to avoid calling Level#getBlockState each time.
     private final Map<MachineComponentType<?>, IMachineComponent> components;
     private final List<ISerializableComponent> serializableComponents;
     private final List<ITickableComponent> tickableComponents;
@@ -47,6 +50,7 @@ public class MachineComponentManager implements IMachineComponentManager {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
         this.tile = tile;
+        this.facing = tile.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         Map<MachineComponentType<?>, IMachineComponent> components = new LinkedHashMap<>();
         Map<MachineComponentType<?>, List<IMachineComponent>> handlers = new LinkedHashMap<>();
         templates.forEach(template -> {
@@ -150,6 +154,11 @@ public class MachineComponentManager implements IMachineComponentManager {
     @Override
     public MinecraftServer getServer() {
         return getLevel().getServer();
+    }
+
+    @Override
+    public Direction facing() {
+        return this.facing;
     }
 
     public void serverTick() {

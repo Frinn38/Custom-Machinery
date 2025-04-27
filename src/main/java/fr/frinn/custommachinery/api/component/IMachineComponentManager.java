@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.api.component;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 
@@ -76,6 +77,11 @@ public interface IMachineComponentManager {
      * @return The server currently running (integrated or dedicated).
      */
     MinecraftServer getServer();
+
+    /**
+     * @Return the {@link net.minecraft.core.Direction} the machine block is facing.
+     */
+    Direction facing();
 
     /**
      * Mark the tile as dirty, meaning some data changed and need to be written on disk on next tile unload.
