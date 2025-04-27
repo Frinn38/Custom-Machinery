@@ -72,7 +72,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     public void addFuel(int fuel) {
         this.fuel += fuel;
         this.maxFuel = fuel;
-        getManager().getTile().setChanged();
+        getManager().markDirty();
     }
 
     //Return true if the component successfully burned the required fuel amount

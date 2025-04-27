@@ -318,6 +318,12 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     }
 
     @Override
+    public void setChanged() {
+        if(this.level != null)
+            this.level.blockEntityChanged(this.worldPosition);
+    }
+
+    @Override
     public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
         super.saveAdditional(nbt, registries);
         nbt.putString("machineID", this.id.toString());
