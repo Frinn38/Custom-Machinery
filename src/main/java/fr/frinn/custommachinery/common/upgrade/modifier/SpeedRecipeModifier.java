@@ -37,10 +37,9 @@ public class SpeedRecipeModifier extends RecipeModifier {
     @Override
     public Component getDefaultTooltip() {
         double tooltipModifier = this.operation == OPERATION.ADDITION ? this.modifier : this.modifier * 100 - 100;
-        String tooltip = (tooltipModifier >= 0 ? "+" : "") + (this.operation == OPERATION.ADDITION ? tooltipModifier : tooltipModifier + "%") +
-                " " +
-                this.requirementType.getName().getString();
-        return Component.literal(tooltip);
+        return Component.literal((tooltipModifier >= 0 ? "+" : "") + (this.operation == OPERATION.ADDITION ? tooltipModifier : tooltipModifier + "%"))
+                .append(" ")
+                .append(this.requirementType.getName());
     }
 
     @Override

@@ -21,12 +21,10 @@ public class MultiplicationRecipeModifier extends RecipeModifier {
     @Override
     public Component getDefaultTooltip() {
         double tooltipModifier = this.modifier * 100 - 100;
-        String tooltip = (tooltipModifier >= 0 ? "+" : "") + tooltipModifier + "%" +
-                " " +
-                this.requirementType.getName().getString() +
-                " " +
-                Component.translatable(this.mode.getTranslationKey()).getString();
-        return Component.literal(tooltip);
+        return Component.literal((tooltipModifier >= 0 ? "+" : "") + tooltipModifier + "%" + " ")
+                .append(this.requirementType.getName())
+                .append(" ")
+                .append(Component.translatable(this.mode.getTranslationKey()));
     }
 
     @Override

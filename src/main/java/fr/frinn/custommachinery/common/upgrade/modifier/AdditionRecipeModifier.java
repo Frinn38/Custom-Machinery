@@ -20,12 +20,10 @@ public class AdditionRecipeModifier extends RecipeModifier {
 
     @Override
     public Component getDefaultTooltip() {
-        String tooltip = (this.modifier >= 0 ? "+" : "") + this.modifier +
-                " " +
-                this.requirementType.getName().getString() +
-                " " +
-                Component.translatable(this.mode.getTranslationKey()).getString();
-        return Component.literal(tooltip);
+        return Component.literal((this.modifier >= 0 ? "+" : "") + this.modifier + " ")
+                .append(this.requirementType.getName())
+                .append(" ")
+                .append(Component.translatable(this.mode.getTranslationKey()));
     }
 
     @Override
