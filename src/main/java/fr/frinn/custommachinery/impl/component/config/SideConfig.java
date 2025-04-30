@@ -25,7 +25,7 @@ public abstract class SideConfig<M extends SideMode> {
 
     public SideConfig(ISideConfigComponent component, Map<RelativeSide, M> defaultConfig, boolean enabled, Color color) {
         this.component = component;
-        this.facing = component != null ? component.getManager().facing() : null;
+        this.facing = component != null ? component.getManager().facing() : Direction.NORTH;
         this.sides.putAll(defaultConfig);
         this.enabled = enabled;
         this.color = color;

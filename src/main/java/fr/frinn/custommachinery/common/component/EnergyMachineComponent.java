@@ -118,7 +118,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void serverTick() {
         for(Direction side : Direction.values()) {
-            if(this.getConfig().getSideMode(side) == IOSideMode.NONE || (!this.getConfig().isAutoInput() && !this.getConfig().isAutoOutput()))
+            if(!this.getConfig().canAutoIO(side))
                 continue;
 
             if(this.neighbourStorages.get(side) == null)

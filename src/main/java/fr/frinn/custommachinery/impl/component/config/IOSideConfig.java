@@ -5,9 +5,11 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -15,11 +17,14 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
 
     private boolean autoInput;
     private boolean autoOutput;
+    private final Map<Direction, Boolean> autoIOFaces = new EnumMap<>(Direction.class);
 
     public IOSideConfig(ISideConfigComponent component, Map<RelativeSide, IOSideMode> defaultConfig, boolean input, boolean output, boolean enabled, Color color) {
         super(component, defaultConfig, enabled, color);
         this.autoInput = input;
         this.autoOutput = output;
+        Arrays.stream(Direction.values()).forEach(side -> this.autoIOFaces.put(side, false));
+        this.refreshAutoIO();
     }
 
     public boolean isAutoInput() {
@@ -32,10 +37,23 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
 
     public void setAutoInput(boolean autoInput) {
         this.autoInput = autoInput;
+        this.refreshAutoIO();
     }
 
     public void setAutoOutput(boolean autoOutput) {
         this.autoOutput = autoOutput;
+        this.refreshAutoIO();
+    }
+
+    private void refreshAutoIO() {
+        if(!this.autoInput && !this.autoOutput)
+            this.autoIOFaces.replaceAll((side, io) -> false);
+        else
+            this.autoIOFaces.replaceAll((side, io) -> this.getSideMode(side) != IOSideMode.NONE);
+    }
+
+    public boolean canAutoIO(Direction side) {
+        return this.autoIOFaces.get(side);
     }
 
     @Override
@@ -45,6 +63,12 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
             setAutoInput(ioSideConfig.isAutoInput());
             setAutoOutput(ioSideConfig.isAutoOutput());
         }
+    }
+
+    @Override
+    public void setSideMode(RelativeSide side, IOSideMode mode) {
+        super.setSideMode(side, mode);
+        this.refreshAutoIO();
     }
 
     @Override
@@ -78,6 +102,7 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
                 this.sides.put(side, IOSideMode.values()[byteTag.getAsInt()]);
         this.autoInput = nbt.getBoolean("input");
         this.autoOutput = nbt.getBoolean("output");
+        this.refreshAutoIO();
     }
 
     @Override

@@ -84,7 +84,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public void serverTick() {
         //I/O between the machine and neighbour blocks.
         for(Direction side : Direction.values()) {
-            if(this.getComponents().stream().allMatch(component -> component.getConfig().getSideMode(side) == IOSideMode.NONE || (!component.getConfig().isAutoInput() && !component.getConfig().isAutoOutput())))
+            if(this.getComponents().stream().noneMatch(component -> component.getConfig().canAutoIO(side)))
                 continue;
 
             if(this.neighbourStorages.get(side) == null)
