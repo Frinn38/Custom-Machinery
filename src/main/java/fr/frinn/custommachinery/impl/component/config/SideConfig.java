@@ -6,19 +6,18 @@ import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public abstract class SideConfig<M extends SideMode> {
 
     public static final Color DEFAULT_COLOR = Color.fromColors(0.5, 0, 0, 1);
 
-    final Map<RelativeSide, M> sides = new HashMap<>();
+    final Map<RelativeSide, M> sides = new EnumMap<>(RelativeSide.class);
     private final ISideConfigComponent component;
-
+    private final Direction facing;
     private final boolean enabled;
     //Color of the slot in the MachineConfigScreen
     private final Color color;
@@ -26,13 +25,10 @@ public abstract class SideConfig<M extends SideMode> {
 
     public SideConfig(ISideConfigComponent component, Map<RelativeSide, M> defaultConfig, boolean enabled, Color color) {
         this.component = component;
+        this.facing = component.getManager().facing();
         this.sides.putAll(defaultConfig);
         this.enabled = enabled;
         this.color = color;
-    }
-
-    private Direction facing() {
-        return this.component.getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
     }
 
     public ISideConfigComponent getComponent() {
@@ -44,7 +40,7 @@ public abstract class SideConfig<M extends SideMode> {
     }
 
     public M getSideMode(Direction direction) {
-        return getSideMode(RelativeSide.fromDirections(facing(), direction));
+        return getSideMode(RelativeSide.fromDirections(this.facing, direction));
     }
 
     public void setSideMode(RelativeSide side, M mode) {

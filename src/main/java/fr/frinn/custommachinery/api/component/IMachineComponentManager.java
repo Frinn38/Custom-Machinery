@@ -79,7 +79,7 @@ public interface IMachineComponentManager {
     MinecraftServer getServer();
 
     /**
-     * @Return the {@link net.minecraft.core.Direction} the machine block is facing.
+     * @return the {@link net.minecraft.core.Direction} the machine block is facing.
      */
     Direction facing();
 
