@@ -117,14 +117,6 @@ public class MachineProcessorCore implements ISyncableStuff {
     }
 
     private void checkConditions() {
-        for(RequirementWithFunction requirement : this.requirementList.getWorldConditions()) {
-            CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
-            if(!result.isSuccess()) {
-                this.setError(result.getMessage());
-                return;
-            }
-        }
-
         if(this.machineInventoryChanged) {
             this.machineInventoryChanged = false;
             for(RequirementWithFunction requirement : this.requirementList.getInventoryConditions()) {
@@ -133,6 +125,14 @@ public class MachineProcessorCore implements ISyncableStuff {
                     this.setError(result.getMessage());
                     return;
                 }
+            }
+        }
+
+        for(RequirementWithFunction requirement : this.requirementList.getWorldConditions()) {
+            CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
+            if(!result.isSuccess()) {
+                this.setError(result.getMessage());
+                return;
             }
         }
 
