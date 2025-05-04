@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.function;
 
+import dev.latvian.mods.kubejs.event.EventExit;
 import dev.latvian.mods.kubejs.event.KubeEvent;
 import dev.latvian.mods.kubejs.level.BlockContainerJS;
 import dev.latvian.mods.rhino.Context;
@@ -7,6 +8,7 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import net.minecraft.network.chat.Component;
 
 public class FunctionKubeEvent implements KubeEvent {
 
@@ -57,5 +59,9 @@ public class FunctionKubeEvent implements KubeEvent {
     @Override
     public Object defaultExitValue(Context cx) {
         return CraftingResult.pass();
+    }
+
+    public void error(Context cx, Component error) throws EventExit {
+        this.cancel(cx, error);
     }
 }
