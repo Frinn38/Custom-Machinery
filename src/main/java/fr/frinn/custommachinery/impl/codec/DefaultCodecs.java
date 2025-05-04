@@ -1,20 +1,14 @@
 package fr.frinn.custommachinery.impl.codec;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Holder.Reference;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryCodecs;
-import net.minecraft.resources.HolderSetCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -23,13 +17,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
@@ -46,13 +35,6 @@ public class DefaultCodecs {
     public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, NamedCodec.of(ItemStack.OPTIONAL_CODEC), "ItemStack").xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
 
     public static final NamedCodec<Ingredient> INGREDIENT = NamedCodec.of(Ingredient.CODEC, "Ingredient");
-
-    public static final NamedCodec<SizedIngredient> SIZED_INGREDIENT_WITH_NBT = NamedCodec.record(sizedIngredientInstance ->
-            sizedIngredientInstance.group(
-                    ITEM_OR_STACK.listOf().fieldOf("item").forGetter(ingredient -> Arrays.asList(ingredient.getItems())),
-                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", 1).forGetter(SizedIngredient::count)
-            ).apply(sizedIngredientInstance, (items, count) -> new SizedIngredient(Ingredient.of(items.stream()), count)), "Sized ingredient with nbt"
-    );
 
     public static final NamedCodec<AABB> BOX = NamedCodec.DOUBLE_STREAM.comapFlatMap(stream -> {
         double[] arr = stream.toArray();
