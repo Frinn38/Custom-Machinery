@@ -21,7 +21,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            return Arrays.stream(this.ingredient.getItems()).mapToInt(item -> component.getItemAmount(this.slot, item)).sum() >= amount;
+            return component.getIngredientAmount(this.slot, this.ingredient.ingredient()) >= amount;
         } else {
             if(this.ingredient.getItems().length > 0)
                 return component.getSpaceForItem(this.slot, this.ingredient.getItems()[0]) >= amount;
@@ -81,19 +80,10 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     private CraftingResult processInputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        int maxExtract = Arrays.stream(this.ingredient.getItems()).mapToInt(item -> component.getItemAmount(this.slot, item)).sum();
+        int maxExtract = component.getIngredientAmount(this.slot, this.ingredient.ingredient());
         if(maxExtract >= amount) {
-            int toExtract = amount;
-            for (ItemStack item : this.ingredient.getItems()) {
-                int canExtract = component.getItemAmount(this.slot, item);
-                if(canExtract > 0) {
-                    canExtract = Math.min(canExtract, toExtract);
-                    component.removeFromInputs(this.slot, item, canExtract);
-                    toExtract -= canExtract;
-                    if(toExtract == 0)
-                        return CraftingResult.success();
-                }
-            }
+            component.removeFromInputs(this.slot, this.ingredient.ingredient(), this.ingredient.count());
+            return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
     }

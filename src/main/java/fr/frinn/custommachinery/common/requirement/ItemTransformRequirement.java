@@ -67,7 +67,7 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
     @Override
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         return Arrays.stream(this.input.getItems()).anyMatch(item -> {
-            if(component.getItemAmount(this.inputSlot, item) < this.inputAmount)
+            if(component.getIngredientAmount(this.inputSlot, Ingredient.of(item)) < this.inputAmount)
                 return false;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
             ItemStack output = null;
@@ -86,7 +86,8 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
 
     private CraftingResult processTransform(ItemComponentHandler component, ICraftingContext context) {
         for(ItemStack item : this.input.getItems()) {
-            if(component.getItemAmount(this.inputSlot, item) < this.inputAmount)
+            Ingredient ingredient = Ingredient.of(item);
+            if(component.getIngredientAmount(this.inputSlot, ingredient) < this.inputAmount)
                 continue;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
             ItemStack output = null;
@@ -96,7 +97,7 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
                 output = new ItemStack(Holder.direct(this.output), 1, input.getComponentsPatch());
             if(component.getSpaceForItem(this.outputSlot, output) < this.outputAmount)
                 continue;
-            component.removeFromInputs(this.inputSlot, item, this.inputAmount);
+            component.removeFromInputs(this.inputSlot, ingredient, this.inputAmount);
             component.addToOutputs(this.outputSlot, output, this.outputAmount);
             return CraftingResult.success();
         }

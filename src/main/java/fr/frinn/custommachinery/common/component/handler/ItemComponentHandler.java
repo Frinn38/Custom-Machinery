@@ -25,6 +25,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
@@ -257,9 +258,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     private final List<ItemMachineComponent> inputs = new ArrayList<>();
     private final List<ItemMachineComponent> outputs = new ArrayList<>();
 
-    public int getItemAmount(String slot, ItemStack stack) {
+    public int getIngredientAmount(String slot, Ingredient ingredient) {
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        return this.inputs.stream().filter(component -> ItemStack.isSameItemSameComponents(component.getItemStack(), stack) && slotPredicate.test(component))
+        return this.inputs.stream().filter(component -> ingredient.test(component.getItemStack()) && slotPredicate.test(component))
                 .mapToInt(component -> component.getItemStack().getCount())
                 .sum();
     }
@@ -310,10 +311,10 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                 .sum();
     }
 
-    public void removeFromInputs(String slot, ItemStack stack, int amount) {
+    public void removeFromInputs(String slot, Ingredient ingredient, int amount) {
         AtomicInteger toRemove = new AtomicInteger(amount);
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
-        this.inputs.stream().filter(component -> ItemStack.isSameItemSameComponents(component.getItemStack(), stack) && slotPredicate.test(component)).forEach(component -> {
+        this.inputs.stream().filter(component -> ingredient.test(component.getItemStack()) && slotPredicate.test(component)).forEach(component -> {
             int maxExtract = Math.min(component.getItemStack().getCount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
             component.getItemStack().shrink(maxExtract);
