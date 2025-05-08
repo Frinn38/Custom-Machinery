@@ -35,15 +35,6 @@ public abstract class PopupScreen extends BaseScreen {
         });
     }
 
-    @Nullable
-    public Tooltip getTooltip(int mouseX, int mouseY) {
-        for(GuiEventListener listener : this.children()) {
-            if(listener.isMouseOver(mouseX, mouseY) && listener instanceof AbstractWidget widget)
-                return widget.getTooltip();
-        }
-        return null;
-    }
-
     @Override
     protected void init() {
         super.init();
@@ -60,7 +51,13 @@ public abstract class PopupScreen extends BaseScreen {
             this.dragX -= changedX;
             this.dragY -= changedY;
         }
+        boolean parentHasTooltip = this.parent.deferredTooltipRendering != null;
         super.render(graphics, mouseX, mouseY, partialTicks);
+        if(!parentHasTooltip && this.parent.deferredTooltipRendering != null) {
+            if(this.deferredTooltipRendering == null)
+                this.deferredTooltipRendering = this.parent.deferredTooltipRendering;
+            this.parent.deferredTooltipRendering = null;
+        }
     }
 
     @Override
