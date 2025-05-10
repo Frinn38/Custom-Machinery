@@ -23,6 +23,9 @@ import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -108,8 +111,11 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, II
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.click"));
         this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {
             IIngredient<PartialBlockState> ingredient = this.keys.get(key);
-            if(ingredient != null && amount > 0)
-                info.addTooltip(Component.translatable("custommachinery.requirements.structure.list", amount, Utils.getBlockName(ingredient).withStyle(ChatFormatting.GOLD)));
+            if(ingredient != null && amount > 0) {
+                Component block = Component.translatable("custommachinery.requirements.structure.list", amount, Utils.getBlockName(ingredient).withStyle(ChatFormatting.GOLD));
+                info.addTooltip(Component.literal("✓").withStyle(ChatFormatting.GREEN).append(block), ((player, advancedTooltips) -> hasBlockItem(player, ingredient, amount)));
+                info.addTooltip(Component.literal("  ").append(block), ((player, advancedTooltips) -> !hasBlockItem(player, ingredient, amount)));
+            }
         });
         switch(this.action) {
             case BREAK -> info.addTooltip(Component.translatable("custommachinery.requirements.structure.break").withStyle(ChatFormatting.DARK_RED));
@@ -132,5 +138,12 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, II
         BREAK,
         PLACE_BREAK,
         PLACE_DESTROY
+    }
+
+    private boolean hasBlockItem(Player player, IIngredient<PartialBlockState> block, long amount) {
+        return player.getInventory().items.stream()
+                .filter(stack -> stack.getItem() instanceof BlockItem && block.test(new PartialBlockState(((BlockItem)stack.getItem()).getBlock())))
+                .mapToLong(ItemStack::getCount)
+                .sum() >= amount;
     }
 }

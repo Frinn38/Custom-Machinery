@@ -421,7 +421,7 @@
   "custommachinery.requirements.structure.info": "Requires a structure",
   "custommachinery.requirements.structure.click": "Click to view the required structure",
   "custommachinery.requirements.structure.shift": "Press [Ctrl] to view blocks list",
-  "custommachinery.requirements.structure.list": "   %sx %s",
+  "custommachinery.requirements.structure.list": "  %sx %s",
   "custommachinery.requirements.structure.break": "Will break structure",
   "custommachinery.requirements.structure.destroy": "Will destroy structure",
   "custommachinery.requirements.structure.place": "Will place structure",
