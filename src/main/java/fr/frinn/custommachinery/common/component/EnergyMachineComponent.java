@@ -95,7 +95,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
         if(side == null)
             return this;
-        if(!this.config.getSideMode(side).isNone())
+        if(!this.config.getDirectionMode(side).isNone())
             return this.sidedStorages.get(side);
         return null;
     }
@@ -129,10 +129,10 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
             if(neighbour == null)
                 continue;
 
-            if(this.getConfig().isAutoInput() && this.getConfig().getSideMode(side).isInput() && this.getEnergy() < this.getCapacity())
+            if(this.getConfig().isAutoInput() && this.getConfig().getDirectionMode(side).isInput() && this.getEnergy() < this.getCapacity())
                 move(neighbour, this.sidedStorages.get(side), Integer.MAX_VALUE);
 
-            if(this.getConfig().isAutoOutput() && this.getConfig().getSideMode(side).isOutput() && this.getEnergy() > 0)
+            if(this.getConfig().isAutoOutput() && this.getConfig().getDirectionMode(side).isOutput() && this.getEnergy() > 0)
                 move(this.sidedStorages.get(side), neighbour, Integer.MAX_VALUE);
         }
     }

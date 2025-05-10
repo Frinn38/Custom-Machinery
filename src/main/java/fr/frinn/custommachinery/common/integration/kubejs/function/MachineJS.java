@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.TaskDelayer;
+import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -75,6 +76,14 @@ public class MachineJS {
 
     public void setPaused(boolean paused) {
         this.internal.setPaused(paused);
+    }
+
+    public SideConfig<?> getComponentConfig(String type) {
+        return this.getComponentConfig(type, "");
+    }
+
+    public SideConfig<?> getComponentConfig(String type, String id) {
+        return this.internal.getComponentManager().getConfigComponentById(type + ":" + id).orElseThrow(() -> new IllegalArgumentException("IO config not found for component with type: " + type + " and id: " + id)).getConfig();
     }
 
     /** OWNER STUFF **/

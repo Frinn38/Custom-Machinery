@@ -49,7 +49,7 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
         if(!this.autoInput && !this.autoOutput)
             this.autoIOFaces.replaceAll((side, io) -> false);
         else
-            this.autoIOFaces.replaceAll((side, io) -> this.getSideMode(side) != IOSideMode.NONE);
+            this.autoIOFaces.replaceAll((side, io) -> this.getDirectionMode(side) != IOSideMode.NONE);
     }
 
     public boolean canAutoIO(Direction side) {

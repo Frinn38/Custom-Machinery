@@ -34,7 +34,7 @@ public class SidedItemHandler implements IItemHandler {
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         ItemMachineComponent component = this.handler.getComponents().get(slot);
-        if(this.direction != null && !component.getConfig().getSideMode(this.direction).isInput())
+        if(this.direction != null && !component.getConfig().getDirectionMode(this.direction).isInput())
             return stack;
         return component.insertItem(0, stack, simulate);
     }
@@ -42,7 +42,7 @@ public class SidedItemHandler implements IItemHandler {
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         ItemMachineComponent component = this.handler.getComponents().get(slot);
-        if((this.direction != null && !component.getConfig().getSideMode(this.direction).isOutput()) || component.getItemStack().isEmpty())
+        if((this.direction != null && !component.getConfig().getDirectionMode(this.direction).isOutput()) || component.getItemStack().isEmpty())
             return ItemStack.EMPTY;
         return component.extractItem(0, amount, simulate);
     }

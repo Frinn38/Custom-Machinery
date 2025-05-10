@@ -17,12 +17,12 @@ public class SidedEnergyStorage implements IEnergyStorage {
 
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
-        return this.component.getConfig().getSideMode(this.side).isInput() ? this.component.receiveEnergy(maxReceive, simulate) : 0;
+        return this.component.getConfig().getDirectionMode(this.side).isInput() ? this.component.receiveEnergy(maxReceive, simulate) : 0;
     }
 
     @Override
     public int extractEnergy(int maxExtract, boolean simulate) {
-        return this.component.getConfig().getSideMode(this.side).isOutput() ? this.component.extractEnergy(maxExtract, simulate) : 0;
+        return this.component.getConfig().getDirectionMode(this.side).isOutput() ? this.component.extractEnergy(maxExtract, simulate) : 0;
     }
 
     @Override
@@ -37,11 +37,11 @@ public class SidedEnergyStorage implements IEnergyStorage {
 
     @Override
     public boolean canExtract() {
-        return this.component.getConfig().getSideMode(this.side).isOutput();
+        return this.component.getConfig().getDirectionMode(this.side).isOutput();
     }
 
     @Override
     public boolean canReceive() {
-        return this.component.getConfig().getSideMode(this.side).isInput();
+        return this.component.getConfig().getDirectionMode(this.side).isInput();
     }
 }

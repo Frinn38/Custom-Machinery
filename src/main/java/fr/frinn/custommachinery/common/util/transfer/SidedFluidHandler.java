@@ -22,7 +22,7 @@ public class SidedFluidHandler implements IFluidHandler {
     }
 
     public List<FluidMachineComponent> getComponentsForMode(Predicate<IOSideMode> filter) {
-        return this.handler.getComponents().stream().filter(component -> filter.test(component.getConfig().getSideMode(this.side))).toList();
+        return this.handler.getComponents().stream().filter(component -> filter.test(component.getConfig().getDirectionMode(this.side))).toList();
     }
 
     @Override

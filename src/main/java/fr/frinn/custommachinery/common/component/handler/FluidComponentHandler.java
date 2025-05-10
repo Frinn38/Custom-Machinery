@@ -65,7 +65,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public IFluidHandler getFluidHandler(@Nullable Direction side) {
         if(side == null)
             return this;
-        else if(this.getComponents().stream().anyMatch(component -> !component.getConfig().getSideMode(side).isNone()))
+        else if(this.getComponents().stream().anyMatch(component -> !component.getConfig().getDirectionMode(side).isNone()))
             return this.sidedHandlers.get(side);
         return null;
     }
@@ -96,10 +96,10 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 continue;
 
             this.getComponents().forEach(component -> {
-                if(component.getConfig().isAutoInput() && component.getConfig().getSideMode(side).isInput() && component.getFluid().getAmount() < component.getCapacity())
+                if(component.getConfig().isAutoInput() && component.getConfig().getDirectionMode(side).isInput() && component.getFluid().getAmount() < component.getCapacity())
                     FluidUtil.tryFluidTransfer(this.sidedHandlers.get(side), neighbour, Integer.MAX_VALUE, true);
 
-                if(component.getConfig().isAutoOutput() && component.getConfig().getSideMode(side).isOutput() && component.getFluid().getAmount() > 0)
+                if(component.getConfig().isAutoOutput() && component.getConfig().getDirectionMode(side).isOutput() && component.getFluid().getAmount() > 0)
                     FluidUtil.tryFluidTransfer(neighbour, this.sidedHandlers.get(side), Integer.MAX_VALUE, true);
             });
         }

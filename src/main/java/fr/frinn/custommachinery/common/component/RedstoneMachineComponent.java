@@ -76,14 +76,14 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
     private boolean shouldPauseMachine() {
         return Stream.of(Direction.values())
-                .filter(side -> this.config.getSideMode(side).isInput())
+                .filter(side -> this.config.getDirectionMode(side).isInput())
                 .mapToInt(direction -> getManager().getLevel().getDirectSignal(getManager().getTile().getBlockPos().relative(direction), direction))
                 .max()
                 .orElse(0) >= this.powerToPause;
     }
 
     public int getPowerOutput(Direction side) {
-        if(!this.config.getSideMode(side).isOutput())
+        if(!this.config.getDirectionMode(side).isOutput())
             return 0;
         return switch (this.getManager().getTile().getStatus()) {
             case IDLE -> this.idlePowerOutput;
@@ -105,7 +105,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
     public int getMachinePower() {
         return Stream.of(Direction.values())
-                .filter(side -> this.config.getSideMode(side).isInput())
+                .filter(side -> this.config.getDirectionMode(side).isInput())
                 .mapToInt(direction -> getManager().getLevel().getDirectSignal(getManager().getTile().getBlockPos().relative(direction), direction))
                 .max()
                 .orElse(0);

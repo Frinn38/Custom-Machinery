@@ -39,7 +39,7 @@ public abstract class SideConfig<M extends SideMode> {
         return this.sides.get(side);
     }
 
-    public M getSideMode(Direction direction) {
+    public M getDirectionMode(Direction direction) {
         return getSideMode(RelativeSide.fromDirections(this.facing, direction));
     }
 

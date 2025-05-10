@@ -74,7 +74,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     public IItemHandler getItemHandlerForSide(@Nullable Direction side) {
         if(side == null)
             return this;
-        if(this.getComponents().stream().anyMatch(component -> !component.getConfig().getSideMode(side).isNone()))
+        if(this.getComponents().stream().anyMatch(component -> !component.getConfig().getDirectionMode(side).isNone()))
             return this.sidedHandlers.get(side);
         return null;
     }
@@ -218,10 +218,10 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                 continue;
 
             this.sidedHandlers.get(side).getHandler().getComponents().forEach(component -> {
-                if(component.getConfig().isAutoInput() && component.getConfig().getSideMode(side).isInput() && component.getItemStack().getCount() < component.getCapacity())
+                if(component.getConfig().isAutoInput() && component.getConfig().getDirectionMode(side).isInput() && component.getItemStack().getCount() < component.getCapacity())
                     moveStacks(neighbour, component, Integer.MAX_VALUE);
 
-                if(component.getConfig().isAutoOutput() && component.getConfig().getSideMode(side).isOutput() && !component.getItemStack().isEmpty())
+                if(component.getConfig().isAutoOutput() && component.getConfig().getDirectionMode(side).isOutput() && !component.getItemStack().isEmpty())
                     moveStacks(component, neighbour, Integer.MAX_VALUE);
             });
         }
