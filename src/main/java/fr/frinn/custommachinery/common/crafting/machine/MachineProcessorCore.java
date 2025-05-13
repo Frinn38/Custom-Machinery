@@ -122,7 +122,10 @@ public class MachineProcessorCore implements ISyncableStuff {
             for(RequirementWithFunction requirement : this.requirementList.getInventoryConditions()) {
                 CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
                 if(!result.isSuccess()) {
-                    this.setError(result.getMessage());
+                    if(this.currentRecipe != null && this.currentRecipe.value().shouldResetOnError())
+                        this.reset();
+                    else
+                        this.setError(result.getMessage());
                     return;
                 }
             }
@@ -131,7 +134,10 @@ public class MachineProcessorCore implements ISyncableStuff {
         for(RequirementWithFunction requirement : this.requirementList.getWorldConditions()) {
             CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
             if(!result.isSuccess()) {
-                this.setError(result.getMessage());
+                if(this.currentRecipe != null && this.currentRecipe.value().shouldResetOnError())
+                    this.reset();
+                else
+                    this.setError(result.getMessage());
                 return;
             }
         }
@@ -158,7 +164,7 @@ public class MachineProcessorCore implements ISyncableStuff {
             if(!requirement.requirement().shouldSkip(this.tile.getComponentManager(), this.rand, this.context)) {
                 CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
                 if(!result.isSuccess()) {
-                    if(this.currentRecipe.value().shouldResetOnError())
+                    if(this.currentRecipe != null && this.currentRecipe.value().shouldResetOnError())
                         this.reset();
                     else
                         this.setError(result.getMessage());
@@ -181,7 +187,7 @@ public class MachineProcessorCore implements ISyncableStuff {
             if(!requirement.requirement().shouldSkip(this.tile.getComponentManager(), this.rand, this.context)) {
                 CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
                 if(!result.isSuccess()) {
-                    if(this.currentRecipe.value().shouldResetOnError())
+                    if(this.currentRecipe != null && this.currentRecipe.value().shouldResetOnError())
                         this.reset();
                     else
                         this.setError(result.getMessage());
