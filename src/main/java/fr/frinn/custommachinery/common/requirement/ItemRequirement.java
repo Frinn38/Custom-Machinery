@@ -23,22 +23,24 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import java.util.Collections;
 import java.util.List;
 
-public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot, boolean consumeOnEnd) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(ItemRequirement::getMode),
                     NamedCodec.of(SizedIngredient.FLAT_CODEC).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
-                    NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
+                    NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot),
+                    NamedCodec.BOOL.optionalFieldOf("consume_on_end", false).forGetter(requirement -> requirement.consumeOnEnd)
             ).apply(itemRequirementInstance, ItemRequirement::new), "Item requirement"
     );
 
-    public ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot) {
+    public ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot, boolean consumeOnEnd) {
         this.mode = mode;
         if(mode == RequirementIOMode.OUTPUT && ingredient.getItems().length > 1)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.ingredient = ingredient;
         this.slot = slot == null ? "" : slot;
+        this.consumeOnEnd = consumeOnEnd;
     }
 
     @Override
@@ -71,10 +73,24 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     @Override
     public void gatherRequirements(IRequirementList<ItemComponentHandler> list) {
-        if(this.mode == RequirementIOMode.INPUT)
-            list.processOnStart(this::processInputs);
+        if(this.mode == RequirementIOMode.INPUT) {
+            if(this.consumeOnEnd) {
+                list.inventoryCondition(this::checkInputs);
+                list.processOnEnd(this::processInputs);
+            } else
+                list.processOnStart(this::processInputs);
+        }
         else
             list.processOnEnd(this::processOutputs);
+    }
+
+    private CraftingResult checkInputs(ItemComponentHandler component, ICraftingContext context) {
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
+        int maxExtract = component.getIngredientAmount(this.slot, this.ingredient.ingredient());
+        if(maxExtract >= amount) {
+            return CraftingResult.success();
+        }
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
     }
 
     private CraftingResult processInputs(ItemComponentHandler component, ICraftingContext context) {

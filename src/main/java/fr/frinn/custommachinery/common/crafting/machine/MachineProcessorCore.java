@@ -103,7 +103,8 @@ public class MachineProcessorCore implements ISyncableStuff {
             if(this.phase == Phase.PROCESS_TICK)
                 this.processTickRequirements();
 
-            if(this.recipeProgressTime >= this.recipeTotalTime) {
+            //Check if the current recipe is not null because the core might have been reset during requirement process.
+            if(this.currentRecipe != null && this.recipeProgressTime >= this.recipeTotalTime) {
                 if(this.isLastRecipeTick) {
                     this.isLastRecipeTick = false;
                     this.currentRecipe = null;
@@ -117,17 +118,14 @@ public class MachineProcessorCore implements ISyncableStuff {
     }
 
     private void checkConditions() {
-        if(this.machineInventoryChanged) {
-            this.machineInventoryChanged = false;
-            for(RequirementWithFunction requirement : this.requirementList.getInventoryConditions()) {
-                CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
-                if(!result.isSuccess()) {
-                    if(this.currentRecipe != null && this.currentRecipe.value().shouldResetOnError())
-                        this.reset();
-                    else
-                        this.setError(result.getMessage());
-                    return;
-                }
+        for(RequirementWithFunction requirement : this.requirementList.getInventoryConditions()) {
+            CraftingResult result = requirement.process(this.tile.getComponentManager(), this.context);
+            if(!result.isSuccess()) {
+                if(this.currentRecipe != null && this.currentRecipe.value().shouldResetOnError())
+                    this.reset();
+                else
+                    this.setError(result.getMessage());
+                return;
             }
         }
 

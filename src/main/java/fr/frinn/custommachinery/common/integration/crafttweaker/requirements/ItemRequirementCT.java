@@ -20,13 +20,13 @@ public interface ItemRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T requireItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), slot, false));
     }
 
     @Method
     default T requireItemIngredient(IIngredient ingredient, @OptionalInt(1) int amount, @OptionalString String slot) {
         try {
-            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(ingredient.asVanillaIngredient(), amount), slot));
+            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(ingredient.asVanillaIngredient(), amount), slot, false));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }
@@ -34,6 +34,6 @@ public interface ItemRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T produceItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), slot));
+        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), slot, false));
     }
 }

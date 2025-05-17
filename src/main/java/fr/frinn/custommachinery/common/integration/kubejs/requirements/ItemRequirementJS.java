@@ -16,7 +16,17 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder requireItem(SizedIngredient ingredient, String slot) {
         if(ingredient.getItems().length == 0)
             return this.error("Invalid empty ingredient in item input requirement");
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, slot, false));
+    }
+
+    default RecipeJSBuilder requireItemOnEnd(SizedIngredient ingredient) {
+        return this.requireItemOnEnd(ingredient, "");
+    }
+
+    default RecipeJSBuilder requireItemOnEnd(SizedIngredient ingredient, String slot) {
+        if(ingredient.getItems().length == 0)
+            return this.error("Invalid empty ingredient in item input requirement");
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, slot, true));
     }
 
     default RecipeJSBuilder produceItem(ItemStack stack) {
@@ -26,6 +36,6 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder produceItem(ItemStack stack, String slot) {
         if(stack.isEmpty())
             return this.error("Invalid empty item in item output requirement");
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(DataComponentIngredient.of(true, stack), stack.getCount()), slot));
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(DataComponentIngredient.of(true, stack), stack.getCount()), slot, false));
     }
 }
