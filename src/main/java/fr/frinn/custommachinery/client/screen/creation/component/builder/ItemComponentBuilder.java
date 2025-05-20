@@ -8,6 +8,8 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentBuilderPopup;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentConfigBuilderWidget;
+import fr.frinn.custommachinery.client.screen.creation.component.FilterConfigPopup;
+import fr.frinn.custommachinery.client.screen.creation.component.FilterConfigPopup.FilterBuilderHelper;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
@@ -17,12 +19,16 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,6 +62,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
         protected IntegerSlider capacity;
         protected IntegerSlider maxInput;
         protected IntegerSlider maxOutput;
+        protected Filter<Item> filter;
         protected Checkbox locked;
         protected IOSideConfig.Template config;
 
@@ -65,7 +72,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
         @Override
         public ItemMachineComponent.Template makeTemplate() {
-            return new ItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), this.baseTemplate().map(template -> template.filter).orElse(Filter.empty()), Optional.of(this.config), this.locked.selected());
+            return new ItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), this.filter, Optional.of(this.config), this.locked.selected());
         }
 
         @Override
@@ -103,6 +110,10 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
             this.maxOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxOutput"), IntegerSlider.builder().bounds(0, 64).defaultValue(64).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxOutput")));
             this.baseTemplate().ifPresent(template -> this.maxOutput.setValue(template.maxOutput));
 
+            //Filter
+            this.baseTemplate().ifPresentOrElse(template -> this.filter = template.filter, () -> this.filter = Filter.empty());
+            this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.filter"), Button.builder(Component.translatable("custommachinery.gui.creation.components.filter"), button -> this.parent.openPopup(new FilterConfigPopup<>(this.parent, () -> this.filter, filter -> this.filter = filter, new ItemFilterHelper()), "Item Filter")).size(180, 20).build());
+
             //Locked
             this.locked = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.item.locked"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.item.locked"), this.font).selected(false).build());
             if(this.baseTemplate().map(template -> template.locked).orElse(false) != this.locked.selected())
@@ -112,6 +123,29 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
             //Config
             this.baseTemplate().ifPresentOrElse(template -> this.config = template.config, () -> this.config = IOSideConfig.Template.DEFAULT_ALL_INPUT);
             this.propertyList.add(Component.translatable("custommachinery.gui.config.component"), ComponentConfigBuilderWidget.make(0, 0, 180, 20, Component.translatable("custommachinery.gui.config.component"), this.parent, () -> this.config, template -> this.config = template));
+        }
+    }
+
+    private static class ItemFilterHelper implements FilterBuilderHelper<Item> {
+
+        @Override
+        public void renderSingle(Item single, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            graphics.renderFakeItem(single.getDefaultInstance(), 0, 0);
+        }
+
+        @Override
+        public Component tooltip(Item single) {
+            return single.getDescription();
+        }
+
+        @Override
+        public Registry<Item> registry() {
+            return BuiltInRegistries.ITEM;
+        }
+
+        @Override
+        public Item defaultValue() {
+            return Items.BARRIER;
         }
     }
 }

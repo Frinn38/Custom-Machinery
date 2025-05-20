@@ -44,7 +44,7 @@ public class ColorWidget extends GroupWidget {
                 consumer.accept(format.getColor());
                 editBox.setIntValue(format.getColor());
             });
-            button.setTooltip(Tooltip.create(Component.translatable(format.getName()).withStyle(format)));
+            button.setTooltip(Tooltip.create(Component.translatable(format.getName()).withStyle(format == ChatFormatting.BLACK ? ChatFormatting.WHITE : format)));
             if(twoLines)
                 button.setPosition(i % 8 * 10 - 1, (i < 8 ? 0 : 10) + 20);
             this.addWidget(button);
