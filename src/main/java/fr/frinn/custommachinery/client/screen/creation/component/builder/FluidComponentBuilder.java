@@ -3,10 +3,13 @@ package fr.frinn.custommachinery.client.screen.creation.component.builder;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.utils.Filter;
+import fr.frinn.custommachinery.client.render.FluidRenderer;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentBuilderPopup;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentConfigBuilderWidget;
+import fr.frinn.custommachinery.client.screen.creation.component.FilterConfigPopup;
+import fr.frinn.custommachinery.client.screen.creation.component.FilterConfigPopup.FilterBuilderHelper;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
@@ -15,16 +18,24 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMachineComponent, Template> {
 
@@ -53,6 +64,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
         private EditBox capacity;
         private EditBox maxInput;
         private EditBox maxOutput;
+        private Filter<Fluid> filter;
         private Checkbox unique;
         private IOSideConfig.Template config;
 
@@ -62,7 +74,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
 
         @Override
         public Template makeTemplate() {
-            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), this.baseTemplate().map(Template::filter).orElse(Filter.empty()), this.mode.getValue(), this.config, this.unique.selected());
+            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), this.filter, this.mode.getValue(), this.config, this.unique.selected());
         }
 
         @Override
@@ -103,6 +115,10 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
             this.maxOutput.setFilter(this::checkLong);
             this.baseTemplate().ifPresentOrElse(template -> this.maxOutput.setValue("" + template.maxOutput()), () -> this.maxOutput.setValue("10000"));
 
+            //Filter
+            this.baseTemplate().ifPresentOrElse(template -> this.filter = template.filter(), () -> this.filter = Filter.empty());
+            this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.filter"), Button.builder(Component.translatable("custommachinery.gui.creation.components.filter"), button -> this.parent.openPopup(new FilterConfigPopup<>(this.parent, () -> this.filter, filter -> this.filter = filter, new FluidFilterHelper()), "Fluid Filter")).size(180, 20).build());
+
             //Unique
             this.unique = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), this.font).selected(false).build());
             if(this.baseTemplate().map(FluidMachineComponent.Template::unique).orElse(false) != this.unique.selected())
@@ -111,6 +127,34 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
             //Config
             this.baseTemplate().ifPresentOrElse(template -> this.config = template.config(), () -> this.config = IOSideConfig.Template.DEFAULT_ALL_INPUT);
             this.propertyList.add(Component.translatable("custommachinery.gui.config.component"), ComponentConfigBuilderWidget.make(0, 0, 180, 20, Component.translatable("custommachinery.gui.config.component"), this.parent, () -> this.config, template -> this.config = template));
+        }
+    }
+
+    private static class FluidFilterHelper implements FilterBuilderHelper<Fluid> {
+
+        @Override
+        public void renderSingle(Fluid single, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            FluidRenderer.renderFluid(graphics.pose(), 0, 0, 16, 16, new FluidStack(single, 1), 1L);
+        }
+
+        @Override
+        public Component tooltip(Fluid single) {
+            return single.getFluidType().getDescription();
+        }
+
+        @Override
+        public Registry<Fluid> registry() {
+            return BuiltInRegistries.FLUID;
+        }
+
+        @Override
+        public Stream<ResourceLocation> getAll() {
+            return registry().entrySet().stream().filter(entry -> entry.getValue().defaultFluidState().isSource()).map(entry -> entry.getKey().location());
+        }
+
+        @Override
+        public Fluid defaultValue() {
+            return Fluids.EMPTY;
         }
     }
 }

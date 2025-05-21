@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class FilterConfigPopup<T> extends PopupScreen {
 
@@ -117,7 +118,8 @@ public class FilterConfigPopup<T> extends PopupScreen {
             list.forEach(either -> either.map(
                     tag -> this.list.add(new TagEntry(tag)),
                     holder -> this.list.add(new SimpleEntry(holder))));
-            this.list.add(new AddEntry());
+            if(this.mode == Mode.MODIFY)
+                this.list.add(new AddEntry());
         }
 
         public List<Either<TagKey<T>, Holder<T>>> getList() {
@@ -352,6 +354,10 @@ public class FilterConfigPopup<T> extends PopupScreen {
 
         Registry<T> registry();
 
+        default Stream<ResourceLocation> getAll() {
+            return registry().keySet().stream();
+        }
+
         T defaultValue();
     }
 
@@ -422,7 +428,7 @@ public class FilterConfigPopup<T> extends PopupScreen {
         private void refreshBoxSuggestions() {
             this.box.clearSuggestions();
             if(this.single.selected())
-                this.box.addSuggestions(this.helper.registry().keySet().stream().map(ResourceLocation::toString).toList());
+                this.box.addSuggestions(this.helper.getAll().map(ResourceLocation::toString).toList());
             if(this.tag.selected())
                 this.box.addSuggestions(this.helper.registry().getTagNames().map(key -> "#" + key.location()).toList());
             this.refreshList();
