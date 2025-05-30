@@ -5,8 +5,10 @@
 	"requirements": [
 		{
 			"type": "custommachinery:item",
-			"item": "minecraft:rotten_flesh",
-			"amount": 1,
+			"ingredient": {
+				"item": "minecraft:rotten_flesh",
+				"count": 1
+			},
 			"mode": "input"
 		},
 		{

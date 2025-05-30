@@ -22,8 +22,10 @@
 		},
 		{
 			"type": "custommachinery:item",
-			"item": "minecraft:stone",
-			"amount": 1,
+			"ingredient": {
+				"item": "minecraft:stone",
+				"count": 1
+			},
 			"mode": "output"
 		}
 	]

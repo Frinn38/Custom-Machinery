@@ -5,8 +5,10 @@
 	"requirements": [
 		{
 			"type": "custommachinery:item",
-			"item": "minecraft:stone",
-			"amount": 1,
+			"ingredient": {
+				"item": "minecraft:stone",
+				"count": 1
+			},
 			"mode": "input"
 		},
 		{
@@ -16,21 +18,27 @@
 		},
 		{
 			"type": "custommachinery:item",
-			"item": "minecraft:gravel",
-			"amount": 1,
+			"ingredient": {
+				"item": "minecraft:gravel",
+				"count": 1
+			},
 			"mode": "output"
 		},
 		{
 			"type": "custommachinery:item",
-			"item": "minecraft:gravel",
-			"amount": 1,
+			"ingredient": {
+				"item": "minecraft:gravel",
+				"count": 1
+			},
 			"mode": "output",
 			"chance": 0.5
 		},
 		{
 			"type": "custommachinery:item",
-			"item": "minecraft:gravel",
-			"amount": 1,
+			"ingredient": {
+				"item": "minecraft:gravel",
+				"count": 1
+			},
 			"mode": "output",
 			"chance": 0.1
 		}
