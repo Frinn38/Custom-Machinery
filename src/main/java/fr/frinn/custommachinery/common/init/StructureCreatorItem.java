@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class StructureCreatorItem extends Item {
 
-    private static final NamedCodec<List<List<String>>> PATTERN_CODEC = NamedCodec.STRING.listOf().listOf();
+    private static final NamedCodec<List<List<String>>> PATTERN_CODEC = NamedCodec.STRING.forcedListOf().forcedListOf();
     private static final NamedCodec<Map<Character, PartialBlockState>> KEYS_CODEC = NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, PartialBlockState.CODEC, "Map<Character, Block>");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 

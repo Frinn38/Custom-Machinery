@@ -17,23 +17,35 @@ public class EnhancedListCodec<A> implements NamedCodec<List<A>> {
 
     private final NamedCodec<A> elementCodec;
     private final String name;
+    //If true the encoding will always result in a list.
+    //Otherwise, the encoding will result in a single element if the list contains a single element.
+    private final boolean forceListEncoding;
 
     public static <A> EnhancedListCodec<A> of(NamedCodec<A> elementCodec) {
         return of(elementCodec, "List<" + elementCodec.name() + ">");
     }
 
     public static <A> EnhancedListCodec<A> of(NamedCodec<A> elementCodec, String name) {
-        return new EnhancedListCodec<>(elementCodec, name);
+        return new EnhancedListCodec<>(elementCodec, name, false);
     }
 
-    private EnhancedListCodec(final NamedCodec<A> elementCodec, String name) {
+    public static <A> EnhancedListCodec<A> forcedListOf(NamedCodec<A> elementCodec) {
+        return forcedListOf(elementCodec, "List<" + elementCodec.name() + ">");
+    }
+
+    public static <A> EnhancedListCodec<A> forcedListOf(NamedCodec<A> elementCodec, String name) {
+        return new EnhancedListCodec<>(elementCodec, name, true);
+    }
+
+    private EnhancedListCodec(final NamedCodec<A> elementCodec, String name, boolean forceListEncoding) {
         this.elementCodec = elementCodec;
         this.name = name;
+        this.forceListEncoding = forceListEncoding;
     }
 
     @Override
     public <T> DataResult<T> encode(final DynamicOps<T> ops, final List<A> input, final T prefix) {
-        if(input.size() == 1)
+        if(input.size() == 1 && !this.forceListEncoding)
             return this.elementCodec.encodeStart(ops, input.getFirst());
 
         final ListBuilder<T> builder = ops.listBuilder();

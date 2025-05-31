@@ -87,6 +87,14 @@ public interface NamedCodec<A> {
         return EnhancedListCodec.of(codec, name);
     }
 
+    static <A> NamedCodec<List<A>> forcedList(NamedCodec<A> codec) {
+        return EnhancedListCodec.forcedListOf(codec);
+    }
+
+    static <A> NamedCodec<List<A>> forcedList(NamedCodec<A> codec, String name) {
+        return EnhancedListCodec.forcedListOf(codec, name);
+    }
+
     static <F, S> NamedCodec<Either<F, S>> either(NamedCodec<F> first, NamedCodec<S> second) {
         return EnhancedEitherCodec.of(first, second);
     }
@@ -291,6 +299,14 @@ public interface NamedCodec<A> {
 
     default NamedCodec<List<A>> listOf(String name) {
         return list(this, name);
+    }
+
+    default NamedCodec<List<A>> forcedListOf() {
+        return forcedList(this);
+    }
+
+    default NamedCodec<List<A>> forcedListOf(String name) {
+        return forcedList(this, name);
     }
 
     default <E> NamedMapCodec<E> dispatch(Function<? super E, ? extends A> type, Function<? super A, ? extends NamedCodec<? extends E>> valueCodecGetter, String name) {

@@ -38,7 +38,7 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, II
 
     public static final NamedCodec<StructureRequirement> CODEC = NamedCodec.record(structureRequirementInstance ->
             structureRequirementInstance.group(
-                    NamedCodec.STRING.listOf().listOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
+                    NamedCodec.STRING.forcedListOf().forcedListOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
                     NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>").fieldOf("keys").forGetter(requirement -> requirement.keys),
                     NamedCodec.enumCodec(Action.class).optionalFieldOf("action", Action.CHECK).forGetter(requirement -> requirement.action)
             ).apply(structureRequirementInstance, StructureRequirement::new), "Structure requirement"
