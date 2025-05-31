@@ -26,6 +26,7 @@ import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -148,10 +149,10 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private final List<FluidMachineComponent> inputs = new ArrayList<>();
     private final List<FluidMachineComponent> outputs = new ArrayList<>();
 
-    public int getFluidAmount(String tank, FluidStack stack) {
+    public int getIngredientAmount(String tank, FluidIngredient ingredient) {
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
         return this.inputs.stream()
-                .filter(component -> FluidStack.isSameFluidSameComponents(component.getFluid(), stack) && tankPredicate.test(component))
+                .filter(component -> ingredient.test(component.getFluid()) && tankPredicate.test(component))
                 .mapToInt(component -> component.getFluid().getAmount())
                 .sum();
     }
@@ -164,10 +165,10 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 .sum();
     }
 
-    public void removeFromInputs(String tank, FluidStack stack) {
-        AtomicLong toRemove = new AtomicLong(stack.getAmount());
+    public void removeFromInputs(String tank, FluidIngredient ingredient, int amount) {
+        AtomicLong toRemove = new AtomicLong(amount);
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
-        this.inputs.stream().filter(component -> component.getFluid().getFluid() == stack.getFluid() && tankPredicate.test(component)).forEach(component -> {
+        this.inputs.stream().filter(component -> ingredient.test(component.getFluid()) && tankPredicate.test(component)).forEach(component -> {
             long maxExtract = Math.min(component.getFluid().getAmount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
             component.recipeExtract(maxExtract);

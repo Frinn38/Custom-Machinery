@@ -20,7 +20,6 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,7 +66,7 @@ public record FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredie
     public boolean test(FluidComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            return Arrays.stream(this.ingredient.getFluids()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum() >= amount;
+            return component.getIngredientAmount(this.tank, this.ingredient.ingredient()) >= amount;
         }
         else
             return component.getSpaceForFluid(this.tank, this.output()) >= amount;
@@ -82,22 +81,13 @@ public record FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredie
     }
 
     private CraftingResult processInputs(FluidComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getPerTickIntegerModifiedValue(this.ingredient.amount(), this, null);
-        int maxDrain = Arrays.stream(this.ingredient.getFluids()).mapToInt(fluid -> component.getFluidAmount(this.tank, fluid)).sum();
-        if(maxDrain >= amount) {
-            int toDrain = amount;
-            for (FluidStack fluid : this.ingredient.getFluids()) {
-                int canDrain = component.getFluidAmount(this.tank, fluid);
-                if(canDrain > 0) {
-                    canDrain = Math.min(canDrain, toDrain);
-                    component.removeFromInputs(this.tank, fluid.copyWithAmount(canDrain));
-                    toDrain -= canDrain;
-                    if(toDrain == 0)
-                        return CraftingResult.success();
-                }
-            }
+        int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
+        int maxExtract = component.getIngredientAmount(this.tank, this.ingredient.ingredient());
+        if(maxExtract >= amount) {
+            component.removeFromInputs(this.tank, this.ingredient.ingredient(), this.ingredient.amount());
+            return CraftingResult.success();
         }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", Utils.fluidIngredientName(this.ingredient), amount, maxDrain));
+        return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", Utils.fluidIngredientName(this.ingredient), amount, maxExtract));
     }
 
     private CraftingResult processOutputs(FluidComponentHandler component, ICraftingContext context) {
