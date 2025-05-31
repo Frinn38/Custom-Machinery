@@ -15,14 +15,34 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class MachineShape implements Function<Direction, VoxelShape> {
+    private static final NamedCodec<List<AABB>> BOX_LIST_CODEC = new NamedCodec<>() {
+        @Override
+        public <T> DataResult<Pair<List<AABB>, T>> decode(DynamicOps<T> ops, T input) {
+            //Try to decode a single element first.
+            DataResult<AABB> box = DefaultCodecs.BOX.read(ops, input);
+            if(box.result().isPresent())
+                return DataResult.success(Pair.of(Collections.singletonList(box.result().get()), ops.empty()));
+            return DefaultCodecs.BOX.listOf().decode(ops, input);
+        }
 
-    private static final NamedCodec<List<AABB>> BOX_CODEC = DefaultCodecs.BOX.listOf();
-    private static final NamedCodec<Map<Direction, List<AABB>>> MAP_CODEC = NamedCodec.unboundedMap(DefaultCodecs.DIRECTION, BOX_CODEC, "Map<Direction, List<Box>>");
+        @Override
+        public <T> DataResult<T> encode(DynamicOps<T> ops, List<AABB> input, T prefix) {
+            return DefaultCodecs.BOX.listOf().encode(ops, input, prefix);
+        }
+
+        @Override
+        public String name() {
+            return "BOX";
+        }
+    };
+
+    private static final NamedCodec<Map<Direction, List<AABB>>> MAP_CODEC = NamedCodec.unboundedMap(DefaultCodecs.DIRECTION, BOX_LIST_CODEC, "Map<Direction, List<Box>>");
 
     public static final NamedCodec<MachineShape> CODEC = new NamedCodec<>() {
         @Override
@@ -40,7 +60,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
                 }
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
-            DataResult<List<AABB>> boxes = BOX_CODEC.read(ops, input);
+            DataResult<List<AABB>> boxes = BOX_LIST_CODEC.read(ops, input);
             if(boxes.result().isPresent()) {
                 VoxelShape shape = fromAABBList(boxes.result().get());
                 Map<Direction, VoxelShape> shapes = Maps.newEnumMap(Direction.class);
@@ -66,7 +86,7 @@ public class MachineShape implements Function<Direction, VoxelShape> {
         public <T> DataResult<T> encode(DynamicOps<T> ops, MachineShape input, T prefix) {
             RecordBuilder<T> builder = ops.mapBuilder();
             input.shapes.forEach((side, shape) -> {
-                builder.add(side.getName(), BOX_CODEC.encodeStart(ops, shape.toAabbs()));
+                builder.add(side.getName(), BOX_LIST_CODEC.encodeStart(ops, shape.toAabbs()));
             });
             return builder.build(prefix);
         }
