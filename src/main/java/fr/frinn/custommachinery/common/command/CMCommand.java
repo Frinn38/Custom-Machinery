@@ -17,22 +17,30 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.ClickEvent.Action;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.InactiveProfiler;
+import net.neoforged.neoforge.common.conditions.ICondition.IContext;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class CMCommand {
 
@@ -96,8 +104,16 @@ public class CMCommand {
                         }));
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static void reloadMachines(MinecraftServer server, @Nullable ServerPlayer player) {
-        new CustomMachineJsonReloadListener().reload(CompletableFuture::completedFuture, server.getResourceManager(), InactiveProfiler.INSTANCE, InactiveProfiler.INSTANCE, server, server)
+        CustomMachineJsonReloadListener listener = new CustomMachineJsonReloadListener();
+        listener.injectContext(new IContext() {
+            @Override
+            public <T> Map<ResourceLocation, Collection<Holder<T>>> getAllTags(ResourceKey<? extends Registry<T>> registryKey) {
+                return server.registryAccess().registry(registryKey).map(registry -> registry.getTags().collect(Collectors.toMap(pair -> pair.getFirst().location(), pair -> (Collection<Holder<T>>)pair.getSecond().stream().toList()))).orElse(Collections.emptyMap());
+            }
+        }, server.registryAccess());
+        listener.reload(CompletableFuture::completedFuture, server.getResourceManager(), InactiveProfiler.INSTANCE, InactiveProfiler.INSTANCE, server, server)
                 .thenRun(() -> {
                     if(player != null)
                         player.sendSystemMessage(Component.translatable("custommachinery.command.reload").withStyle(ChatFormatting.GRAY));
