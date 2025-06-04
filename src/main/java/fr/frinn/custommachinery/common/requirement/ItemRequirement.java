@@ -97,7 +97,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
         int maxExtract = component.getIngredientAmount(this.slot, this.ingredient.ingredient());
         if(maxExtract >= amount) {
-            component.removeFromInputs(this.slot, this.ingredient.ingredient(), this.ingredient.count());
+            component.removeFromInputs(this.slot, this.ingredient.ingredient(), amount);
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));

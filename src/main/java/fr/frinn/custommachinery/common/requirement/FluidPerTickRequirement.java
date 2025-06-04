@@ -84,7 +84,7 @@ public record FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredie
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
         int maxExtract = component.getIngredientAmount(this.tank, this.ingredient.ingredient());
         if(maxExtract >= amount) {
-            component.removeFromInputs(this.tank, this.ingredient.ingredient(), this.ingredient.amount());
+            component.removeFromInputs(this.tank, this.ingredient.ingredient(), amount);
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", Utils.fluidIngredientName(this.ingredient), amount, maxExtract));
