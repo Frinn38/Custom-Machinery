@@ -106,7 +106,8 @@ public class MachineProcessorCore implements ISyncableStuff {
                 this.processTickRequirements();
 
             //Check if the current recipe is not null because the core might have been reset during requirement process.
-            if(this.currentRecipe != null && this.recipeProgressTime >= this.recipeTotalTime - this.context.getModifiedSpeed()) {
+            //Check if error is null because if a requirement errored at last recipe tick we don't want to end the process.
+            if(this.currentRecipe != null && this.error == null && this.recipeProgressTime >= this.recipeTotalTime - this.context.getModifiedSpeed()) {
                 if(this.isLastRecipeTick) {
                     this.isLastRecipeTick = false;
                     this.currentRecipe = null;
