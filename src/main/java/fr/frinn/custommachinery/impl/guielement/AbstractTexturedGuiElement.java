@@ -1,13 +1,13 @@
 package fr.frinn.custommachinery.impl.guielement;
 
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
 
 public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
 
-    private final ResourceLocation texture;
+    private final TextureInfo texture;
 
     public AbstractTexturedGuiElement(Properties properties) {
         super(properties);
@@ -16,16 +16,16 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
         this.texture = properties.texture();
     }
 
-    public AbstractTexturedGuiElement(Properties properties, ResourceLocation defaultTexture) {
+    public AbstractTexturedGuiElement(Properties properties, TextureInfo defaultTexture) {
         super(properties);
         this.texture = defaultTexture;
     }
 
-    public ResourceLocation getTexture() {
+    public TextureInfo getTexture() {
         return this.texture;
     }
 
-    public ResourceLocation getTextureHovered() {
+    public TextureInfo getTextureHovered() {
         return this.getProperties().textureHovered();
     }
 
@@ -34,7 +34,7 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
         if(super.getWidth() >= 0)
             return super.getWidth();
         else if(FMLLoader.getDist() == Dist.CLIENT)
-            return TextureSizeHelper.getTextureWidth(this.getTexture());
+            return TextureSizeHelper.getTextureWidth(this.getTexture().texture());
         else
             return -1;
     }
@@ -44,7 +44,7 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
         if(super.getHeight() >= 0)
             return super.getHeight();
         else if(FMLLoader.getDist() == Dist.CLIENT)
-            return TextureSizeHelper.getTextureHeight(this.getTexture());
+            return TextureSizeHelper.getTextureHeight(this.getTexture().texture());
         else
             return -1;
     }

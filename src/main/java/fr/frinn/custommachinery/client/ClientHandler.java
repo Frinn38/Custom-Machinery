@@ -84,6 +84,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -340,16 +341,20 @@ public class ClientHandler {
         return Minecraft.getInstance().font.width(text);
     }
 
-    public static void renderOrientedProgressTextures(GuiGraphics graphics, ResourceLocation emptyTexture, ResourceLocation filledTexture, int x, int y, int width, int height, double percent, Orientation orientation) {
+    public static void renderOrientedProgressTextures(GuiGraphics graphics, TextureInfo emptyTexture, TextureInfo filledTexture, int x, int y, int width, int height, double percent, Orientation orientation) {
         int filledWidth = (int)(width * Mth.clamp(percent, 0.0D, 1.0D));
         int filledHeight = (int)(height * Mth.clamp(percent, 0.0D, 1.0D));
 
-        graphics.blit(emptyTexture, x, y, 0, 0, width, height, width, height);
+        graphics.blit(emptyTexture.texture(), x, y, emptyTexture.u(), emptyTexture.v(), width, height, width, height);
         switch (orientation) {
-            case RIGHT -> graphics.blit(filledTexture, x, y, 0, 0, filledWidth, height, width, height);
-            case LEFT -> graphics.blit(filledTexture, x + width - filledWidth, y, width - filledWidth, 0, filledWidth, height, width, height);
-            case BOTTOM -> graphics.blit(filledTexture, x, y, 0, 0, width, filledHeight, width, height);
-            case TOP -> graphics.blit(filledTexture, x, y + height - filledHeight, 0, height - filledHeight, width, filledHeight, width, height);
+            case RIGHT -> graphics.blit(filledTexture.texture(), x, y, filledTexture.u(), filledTexture.v(), filledWidth, height, width, height);
+            case LEFT -> graphics.blit(filledTexture.texture(), x + width - filledWidth, y, filledTexture.u() + width - filledWidth, filledTexture.v(), filledWidth, height, width, height);
+            case BOTTOM -> graphics.blit(filledTexture.texture(), x, y, filledTexture.u(), filledTexture.v(), width, filledHeight, width, height);
+            case TOP -> graphics.blit(filledTexture.texture(), x, y + height - filledHeight, filledTexture.u(), filledTexture.v() + height - filledHeight, width, filledHeight, width, height);
         }
+    }
+
+    public static void blit(GuiGraphics graphics, TextureInfo texture, int x, int y, int width, int height) {
+        graphics.blit(texture.texture(), x, y, texture.u(), texture.v(), width, height, width, height);
     }
 }

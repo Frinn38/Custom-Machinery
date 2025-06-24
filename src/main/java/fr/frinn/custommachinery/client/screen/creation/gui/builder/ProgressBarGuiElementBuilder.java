@@ -13,12 +13,12 @@ import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -45,8 +45,8 @@ public class ProgressBarGuiElementBuilder implements IGuiElementBuilder<Progress
 
     public static class ProgressBarGuiElementBuilderPopup extends GuiElementBuilderPopup<ProgressBarGuiElement> {
 
-        private ResourceLocation emptyTexture = ProgressBarGuiElement.BASE_EMPTY_TEXTURE;
-        private ResourceLocation filledTexture = ProgressBarGuiElement.BASE_FILLED_TEXTURE;
+        private TextureInfo emptyTexture = ProgressBarGuiElement.BASE_EMPTY_TEXTURE;
+        private TextureInfo filledTexture = ProgressBarGuiElement.BASE_FILLED_TEXTURE;
         private Orientation baseOrientation;
         private CycleButton<Orientation> orientation;
         private float start = 0.0F;
@@ -88,11 +88,11 @@ public class ProgressBarGuiElementBuilder implements IGuiElementBuilder<Progress
         private void changeOrientation(CycleButton<Orientation> button, Orientation orientation) {
             if(this.emptyTexture.equals(ProgressBarGuiElement.BASE_EMPTY_TEXTURE) && this.filledTexture.equals(ProgressBarGuiElement.BASE_FILLED_TEXTURE)) {
                 if((this.baseOrientation == Orientation.RIGHT || this.baseOrientation == Orientation.LEFT) && (orientation == Orientation.TOP || orientation == Orientation.BOTTOM)) {
-                    this.properties.setWidth(TextureSizeHelper.getTextureHeight(this.emptyTexture));
-                    this.properties.setHeight(TextureSizeHelper.getTextureWidth(this.emptyTexture));
+                    this.properties.setWidth(TextureSizeHelper.getTextureHeight(this.emptyTexture.texture()));
+                    this.properties.setHeight(TextureSizeHelper.getTextureWidth(this.emptyTexture.texture()));
                 } else if((this.baseOrientation == Orientation.TOP || this.baseOrientation == Orientation.BOTTOM) && (orientation == Orientation.RIGHT || orientation == Orientation.LEFT)) {
-                    this.properties.setWidth(TextureSizeHelper.getTextureWidth(this.emptyTexture));
-                    this.properties.setHeight(TextureSizeHelper.getTextureHeight(this.emptyTexture));
+                    this.properties.setWidth(TextureSizeHelper.getTextureWidth(this.emptyTexture.texture()));
+                    this.properties.setHeight(TextureSizeHelper.getTextureHeight(this.emptyTexture.texture()));
                 }
             }
         }

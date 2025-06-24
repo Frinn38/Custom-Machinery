@@ -10,12 +10,12 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.SplitButtonGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -46,8 +46,8 @@ public class SplitButtonGuiElementBuilder implements IGuiElementBuilder<SplitBut
 
     public static class SplitButtonGuiElementBuilderPopup extends GuiElementBuilderPopup<SplitButtonGuiElement> {
 
-        private ResourceLocation textureToggle = SplitButtonGuiElement.BASE_TEXTURE_TOGGLE;
-        private ResourceLocation textureToggleHovered = SplitButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED;
+        private TextureInfo textureToggle = SplitButtonGuiElement.BASE_TEXTURE_TOGGLE;
+        private TextureInfo textureToggleHovered = SplitButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED;
         private EditBox slots;
 
         public SplitButtonGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable SplitButtonGuiElement from, Consumer<SplitButtonGuiElement> onFinish) {

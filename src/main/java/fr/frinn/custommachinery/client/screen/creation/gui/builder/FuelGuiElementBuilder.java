@@ -11,11 +11,11 @@ import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -42,8 +42,8 @@ public class FuelGuiElementBuilder implements IGuiElementBuilder<FuelGuiElement>
 
     public static class FuelGuiElementBuilderPopup extends GuiElementBuilderPopup<FuelGuiElement> {
 
-        private ResourceLocation textureEmpty = FuelGuiElement.BASE_EMPTY_TEXURE;
-        private ResourceLocation textureFilled = FuelGuiElement.BASE_FILLED_TEXTURE;
+        private TextureInfo textureEmpty = FuelGuiElement.BASE_EMPTY_TEXURE;
+        private TextureInfo textureFilled = FuelGuiElement.BASE_FILLED_TEXTURE;
         private CycleButton<Orientation> orientation;
 
         public FuelGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable FuelGuiElement from, Consumer<FuelGuiElement> onFinish) {

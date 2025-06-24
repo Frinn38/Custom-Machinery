@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
@@ -20,9 +21,9 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
     @Override
     public void renderWidget(GuiGraphics graphics, int i, int j, float f) {
         if(!this.isHovered())
-            graphics.blit(this.getElement().getTexture(), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+            ClientHandler.blit(graphics, this.getElement().getTexture(), this.getX(), this.getY(), this.width, this.height);
         else
-            graphics.blit(this.getElement().getTextureHovered(), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+            ClientHandler.blit(graphics, this.getElement().getTextureHovered(), this.getX(), this.getY(), this.width, this.height);
     }
 
     @Override

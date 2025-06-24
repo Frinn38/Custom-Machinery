@@ -7,16 +7,16 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public class ResetGuiElement extends AbstractTexturedGuiElement {
 
-    public static final ResourceLocation BASE_TEXTURE = CustomMachinery.rl("textures/gui/base_reset.png");
-    public static final ResourceLocation BASE_TEXTURE_HOVERED = CustomMachinery.rl("textures/gui/base_reset_hovered.png");
+    public static final TextureInfo BASE_TEXTURE = CustomMachinery.texture("textures/gui/base_reset.png");
+    public static final TextureInfo BASE_TEXTURE_HOVERED = CustomMachinery.texture("textures/gui/base_reset_hovered.png");
 
     public static final NamedCodec<ResetGuiElement> CODEC = NamedCodec.record(resetGuiElement ->
             resetGuiElement.group(

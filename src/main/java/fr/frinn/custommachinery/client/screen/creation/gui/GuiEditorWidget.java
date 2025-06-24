@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
@@ -168,7 +169,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         if(this.shouldShowBackground()) {
             BackgroundGuiElement background = this.parent.getBuilder().getGuiElements().stream().filter(element -> element instanceof BackgroundGuiElement).map(element -> (BackgroundGuiElement)element).findFirst().orElse(null);
             if(background != null && background.getTexture() != null)
-                graphics.blit(background.getTexture(), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                ClientHandler.blit(graphics, background.getTexture(), this.getX(), this.getY(), this.width, this.height);
         }
 
         //Grid

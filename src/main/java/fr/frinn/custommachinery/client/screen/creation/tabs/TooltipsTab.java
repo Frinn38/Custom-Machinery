@@ -60,7 +60,7 @@ public class TooltipsTab extends MachineEditTab {
 
         @Override
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.blit(SlotGuiElement.BASE_TEXTURE, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+            ClientHandler.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX(), this.getY(), this.width, this.height);
             graphics.renderFakeItem(CustomMachineItem.makeMachineItem(TooltipsTab.this.parent.getBuilder().getLocation().getId()), this.getX() + 1, this.getY() + 1);
             if(mouseX >= this.getX() + 1 && mouseX <= this.getX() + 16 && mouseY >= this.getY() + 1 && mouseY <= this.getY() + 16) {
                 ClientHandler.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, 16, 16);

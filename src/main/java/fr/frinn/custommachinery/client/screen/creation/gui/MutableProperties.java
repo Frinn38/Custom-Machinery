@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -16,9 +16,9 @@ public class MutableProperties {
     private int height = -1;
     private int priority = 0;
     @Nullable
-    private ResourceLocation texture = null;
+    private TextureInfo texture = null;
     @Nullable
-    private ResourceLocation textureHovered = null;
+    private TextureInfo textureHovered = null;
     private List<Component> tooltips = Collections.emptyList();
     private String id = "";
 
@@ -78,19 +78,21 @@ public class MutableProperties {
         this.priority = priority;
     }
 
-    public ResourceLocation getTexture() {
+    @Nullable
+    public TextureInfo getTexture() {
         return this.texture;
     }
 
-    public void setTexture(ResourceLocation texture) {
+    public void setTexture(@Nullable TextureInfo texture) {
         this.texture = texture;
     }
 
-    public ResourceLocation getTextureHovered() {
+    @Nullable
+    public TextureInfo getTextureHovered() {
         return this.textureHovered;
     }
 
-    public void setTextureHovered(ResourceLocation textureHovered) {
+    public void setTextureHovered(@Nullable TextureInfo textureHovered) {
         this.textureHovered = textureHovered;
     }
 

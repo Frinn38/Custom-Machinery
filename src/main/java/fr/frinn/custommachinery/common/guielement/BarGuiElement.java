@@ -5,14 +5,13 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 
 public class BarGuiElement extends AbstractTexturedGuiElement {
 
-    public static final ResourceLocation BASE_EMPTY_TEXTURE = CustomMachinery.rl("textures/gui/base_energy_storage_empty.png");
-    public static final ResourceLocation BASE_FILLED_TEXTURE = CustomMachinery.rl("textures/gui/base_energy_storage_filled.png");
+    public static final TextureInfo BASE_EMPTY_TEXTURE = CustomMachinery.texture("textures/gui/base_energy_storage_empty.png");
+    public static final TextureInfo BASE_FILLED_TEXTURE = CustomMachinery.texture("textures/gui/base_energy_storage_filled.png");
 
     public static final NamedCodec<BarGuiElement> CODEC = NamedCodec.record(barGuiElementInstance ->
             barGuiElementInstance.group(
@@ -21,8 +20,8 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
                     NamedCodec.INT.optionalFieldOf("max", 1000).forGetter(BarGuiElement::getMax),
                     NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(BarGuiElement::isHighlight),
                     NamedCodec.enumCodec(Orientation.class).optionalFieldOf("orientation", Orientation.TOP).aliases("direction").forGetter(BarGuiElement::getOrientation),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_empty", BASE_EMPTY_TEXTURE).forGetter(BarGuiElement::getEmptyTexture),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_filled", BASE_FILLED_TEXTURE).forGetter(BarGuiElement::getFilledTexture)
+                    TextureInfo.CODEC.optionalFieldOf("texture_empty", BASE_EMPTY_TEXTURE).forGetter(BarGuiElement::getEmptyTexture),
+                    TextureInfo.CODEC.optionalFieldOf("texture_filled", BASE_FILLED_TEXTURE).forGetter(BarGuiElement::getFilledTexture)
             ).apply(barGuiElementInstance, BarGuiElement::new), "Bar gui element"
     );
 
@@ -30,10 +29,10 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
     private final int max;
     private final boolean highlight;
     private final Orientation orientation;
-    private final ResourceLocation emptyTexture;
-    private final ResourceLocation filledTexture;
+    private final TextureInfo emptyTexture;
+    private final TextureInfo filledTexture;
 
-    public BarGuiElement(Properties properties, int min, int max, boolean highlight, Orientation orientation, ResourceLocation emptyTexture, ResourceLocation filledTexture) {
+    public BarGuiElement(Properties properties, int min, int max, boolean highlight, Orientation orientation, TextureInfo emptyTexture, TextureInfo filledTexture) {
         super(properties, emptyTexture);
         this.min = min;
         this.max = max;
@@ -64,11 +63,11 @@ public class BarGuiElement extends AbstractTexturedGuiElement {
         return this.orientation;
     }
 
-    public ResourceLocation getEmptyTexture() {
+    public TextureInfo getEmptyTexture() {
         return this.emptyTexture;
     }
 
-    public ResourceLocation getFilledTexture() {
+    public TextureInfo getFilledTexture() {
         return this.filledTexture;
     }
 }

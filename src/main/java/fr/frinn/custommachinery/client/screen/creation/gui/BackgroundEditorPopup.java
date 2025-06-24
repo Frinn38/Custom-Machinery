@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerEditBox;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -120,9 +121,9 @@ public class BackgroundEditorPopup extends PopupScreen {
             return;
         }
 
-        ResourceLocation texture = switch (this.mode.getValue()) {
+        TextureInfo texture = switch (this.mode.getValue()) {
             case DEFAULT -> BackgroundGuiElement.BASE_BACKGROUND;
-            case CUSTOM -> ResourceLocation.tryParse(this.texture.getValue());
+            case CUSTOM -> new TextureInfo(ResourceLocation.tryParse(this.texture.getValue()));
             case NO_BACKGROUND -> null;
         };
 
@@ -133,8 +134,8 @@ public class BackgroundEditorPopup extends PopupScreen {
             editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, this.width.getIntValue(), this.height.getIntValue()));
 
         if(editScreen.getTabManager().getCurrentTab() instanceof GuiTab tab) {
-            int width = this.width.getIntValue() > 0 ? this.width.getIntValue() : TextureSizeHelper.getTextureWidth(texture);
-            int height = this.height.getIntValue() > 0 ? this.height.getIntValue() : TextureSizeHelper.getTextureHeight(texture);
+            int width = this.width.getIntValue() > 0 ? this.width.getIntValue() : TextureSizeHelper.getTextureWidth(texture == null ? null : texture.texture());
+            int height = this.height.getIntValue() > 0 ? this.height.getIntValue() : TextureSizeHelper.getTextureHeight(texture == null ? null : texture.texture());
             tab.setSize(width, height);
         }
     }

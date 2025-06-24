@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.guielement.ButtonGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.StringWidget;
@@ -48,8 +49,8 @@ public class ButtonGuiElementBuilder implements IGuiElementBuilder<ButtonGuiElem
 
     public static class ButtonGuiElementBuilderPopup extends GuiElementBuilderPopup<ButtonGuiElement> {
 
-        private ResourceLocation textureToggle = ButtonGuiElement.BASE_TEXTURE_TOGGLE;
-        private ResourceLocation textureToggleHovered = ButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED;
+        private TextureInfo textureToggle = ButtonGuiElement.BASE_TEXTURE_TOGGLE;
+        private TextureInfo textureToggleHovered = ButtonGuiElement.BASE_TEXTURE_TOGGLE_HOVERED;
         private Checkbox toggle;
         private ComponentEditBox text;
         private SuggestedEditBox item;

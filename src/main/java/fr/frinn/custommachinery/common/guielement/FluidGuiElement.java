@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,7 @@ import net.neoforged.neoforge.items.wrapper.PlayerMainInvWrapper;
 
 public class FluidGuiElement extends AbstractTexturedGuiElement implements IComponentGuiElement<FluidMachineComponent> {
 
-    public static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(CustomMachinery.MODID, "textures/gui/base_fluid_storage.png");
+    public static final TextureInfo BASE_TEXTURE = CustomMachinery.texture("textures/gui/base_fluid_storage.png");
 
     public static final NamedCodec<FluidGuiElement> CODEC = NamedCodec.record(fluidGuiElement ->
             fluidGuiElement.group(

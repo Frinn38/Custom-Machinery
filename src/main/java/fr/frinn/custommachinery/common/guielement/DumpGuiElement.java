@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
@@ -17,8 +17,8 @@ import java.util.List;
 
 public class DumpGuiElement extends AbstractTexturedGuiElement {
 
-    public static final ResourceLocation BASE_TEXTURE = CustomMachinery.rl("textures/gui/base_dump.png");
-    public static final ResourceLocation BASE_TEXTURE_HOVERED = CustomMachinery.rl("textures/gui/base_dump_hovered.png");
+    public static final TextureInfo BASE_TEXTURE = CustomMachinery.texture("textures/gui/base_dump.png");
+    public static final TextureInfo BASE_TEXTURE_HOVERED = CustomMachinery.texture("textures/gui/base_dump_hovered.png");
 
     public static final NamedCodec<DumpGuiElement> CODEC = NamedCodec.record(dumpGuiElement ->
             dumpGuiElement.group(

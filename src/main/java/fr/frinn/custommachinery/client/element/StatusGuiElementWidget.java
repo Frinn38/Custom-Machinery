@@ -2,11 +2,12 @@ package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +21,13 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        ResourceLocation texture;
+        TextureInfo texture;
         switch (this.getScreen().getTile().getStatus()) {
             case RUNNING -> texture = this.getElement().getRunningTexture();
             case ERRORED -> texture = this.getElement().getErroredTexture();
             default -> texture = this.getElement().getIdleTexture();
         }
-        graphics.blit(texture, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+        ClientHandler.blit(graphics, texture, this.getX(), this.getY(), this.width, this.height);
     }
 
     @Override

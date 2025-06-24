@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.screen.creation.gui.builder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementBuilderPopup;
@@ -135,7 +136,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
 
         @Override
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.blit(SlotGuiElement.BASE_TEXTURE, this.getX() - 20, this.getY(), 18, 18, 0, 0, 18, 18, 18, 18);
+            ClientHandler.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX() - 20, this.getY(), 18, 18);
             try {
                 FakeItemRenderer.render(graphics, BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.items.getValue())).getDefaultInstance(), this.getX() - 19, this.getY() + 1, this.color.getARGB());
             } catch (ResourceLocationException | NullPointerException ignored) {

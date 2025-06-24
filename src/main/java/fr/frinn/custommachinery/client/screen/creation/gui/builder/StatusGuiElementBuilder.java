@@ -10,9 +10,9 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -40,9 +40,9 @@ public class StatusGuiElementBuilder implements IGuiElementBuilder<StatusGuiElem
 
     public static class StatusGuiElementBuilderPopup extends GuiElementBuilderPopup<StatusGuiElement> {
 
-        private ResourceLocation idleTexture = StatusGuiElement.BASE_STATUS_IDLE_TEXTURE;
-        private ResourceLocation runningTexture = StatusGuiElement.BASE_STATUS_RUNNING_TEXTURE;
-        private ResourceLocation erroredTexture = StatusGuiElement.BASE_STATUS_ERRORED_TEXTURE;
+        private TextureInfo idleTexture = StatusGuiElement.BASE_STATUS_IDLE_TEXTURE;
+        private TextureInfo runningTexture = StatusGuiElement.BASE_STATUS_RUNNING_TEXTURE;
+        private TextureInfo erroredTexture = StatusGuiElement.BASE_STATUS_ERRORED_TEXTURE;
 
         public StatusGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable StatusGuiElement from, Consumer<StatusGuiElement> onFinish) {
             super(parent, properties, from, onFinish);

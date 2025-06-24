@@ -12,12 +12,12 @@ import fr.frinn.custommachinery.common.guielement.BarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -48,8 +48,8 @@ public class BarGuiElementBuilder implements IGuiElementBuilder<BarGuiElement> {
         private IntegerEditBox max;
         private Checkbox highlight;
         private CycleButton<Orientation> orientation;
-        private ResourceLocation emptyTexture = BarGuiElement.BASE_EMPTY_TEXTURE;
-        private ResourceLocation filledTexture = BarGuiElement.BASE_FILLED_TEXTURE;
+        private TextureInfo emptyTexture = BarGuiElement.BASE_EMPTY_TEXTURE;
+        private TextureInfo filledTexture = BarGuiElement.BASE_FILLED_TEXTURE;
 
         public BarGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable BarGuiElement from, Consumer<BarGuiElement> onFinish) {
             super(parent, properties, from, onFinish);

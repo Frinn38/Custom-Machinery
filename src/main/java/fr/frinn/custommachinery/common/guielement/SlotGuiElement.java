@@ -9,11 +9,11 @@ import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 
 public class SlotGuiElement extends AbstractTexturedGuiElement implements IComponentGuiElement<ItemMachineComponent> {
 
-    public static final ResourceLocation BASE_TEXTURE = CustomMachinery.rl("textures/gui/base_slot.png");
+    public static final TextureInfo BASE_TEXTURE = CustomMachinery.texture("textures/gui/base_slot.png");
 
     public static final NamedCodec<SlotGuiElement> CODEC = NamedCodec.record(slotGuiElementCodec ->
             slotGuiElementCodec.group(

@@ -11,12 +11,12 @@ import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -43,8 +43,8 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
 
     public static class EnergyGuiElementBuilderPopup extends GuiElementBuilderPopup<EnergyGuiElement> {
 
-        private ResourceLocation textureEmpty = EnergyGuiElement.BASE_ENERGY_STORAGE_EMPTY_TEXTURE;
-        private ResourceLocation textureFilled = EnergyGuiElement.BASE_ENERGY_STORAGE_FILLED_TEXTURE;
+        private TextureInfo textureEmpty = EnergyGuiElement.BASE_ENERGY_STORAGE_EMPTY_TEXTURE;
+        private TextureInfo textureFilled = EnergyGuiElement.BASE_ENERGY_STORAGE_FILLED_TEXTURE;
         private CycleButton<Orientation> orientation;
         private Checkbox highlight;
 

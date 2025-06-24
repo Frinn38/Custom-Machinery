@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -75,12 +76,16 @@ public abstract class GuiElementBuilderPopup<T extends IGuiElement> extends Popu
         priority.setValue("" + this.properties.getPriority());
     }
 
-    public void addTexture(RowHelper row, Component title, Consumer<ResourceLocation> responder, @Nullable ResourceLocation baseTexture) {
+    public void addTexture(RowHelper row, Component title, Consumer<TextureInfo> responder, @Nullable TextureInfo baseTexture) {
         row.addChild(new StringWidget(title, this.font));
         SuggestedEditBox texture = row.addChild(new SuggestedEditBox(this.font, 0, 0, 100, 20, title, 5));
         texture.setMaxLength(Integer.MAX_VALUE);
-        texture.setResponder(s -> responder.accept(s.isEmpty() ? null : ResourceLocation.tryParse(s)));
-        texture.setValue(baseTexture == null ? "" : baseTexture.toString());
+        texture.setResponder(s -> {
+            int u = baseTexture == null ? 0 : baseTexture.u();
+            int v = baseTexture == null ? 0 : baseTexture.v();
+            responder.accept(s.isEmpty() ? null : new TextureInfo(ResourceLocation.tryParse(s), u, v));
+        });
+        texture.setValue(baseTexture == null ? "" : baseTexture.texture().toString());
         texture.hideSuggestions();
         texture.addSuggestions(Minecraft.getInstance().getResourceManager().listResources("textures", id -> true).keySet().stream().map(ResourceLocation::toString).toList());
         texture.setFilter(s -> ResourceLocation.tryParse(s) != null);

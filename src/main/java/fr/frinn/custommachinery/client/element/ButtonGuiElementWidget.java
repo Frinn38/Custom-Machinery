@@ -4,10 +4,10 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.ButtonGuiElement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiElement> {
 
@@ -19,7 +19,7 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation texture;
+        TextureInfo texture;
         if(getElement().isToggle() && getScreen().getTile().getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).map(component -> component.getData().getBoolean(getElement().getId())).orElse(false)) {
             if(this.isHovered())
                 texture = this.getElement().getTextureToggleHovered();
@@ -32,7 +32,7 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
                 texture = this.getElement().getTexture();
         }
 
-        graphics.blit(texture, this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+        graphics.blit(texture.texture(), this.getX(), this.getY(), texture.u(), texture.v(), this.width, this.height, this.width, this.height);
 
         if(!getElement().getText().getString().isEmpty())
             graphics.drawString(Minecraft.getInstance().font, this.getElement().getText(), (int)(this.getX() + this.width / 2.0f - Minecraft.getInstance().font.width(getElement().getText()) / 2.0f), (int)(this.getY() + this.height / 2.0f - Minecraft.getInstance().font.lineHeight / 2.0f), 0);

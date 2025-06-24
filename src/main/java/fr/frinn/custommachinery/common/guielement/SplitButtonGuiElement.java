@@ -7,9 +7,8 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
@@ -18,25 +17,25 @@ import java.util.List;
 
 public class SplitButtonGuiElement extends AbstractTexturedGuiElement {
 
-    public static final ResourceLocation BASE_TEXTURE = CustomMachinery.rl("textures/gui/base_split.png");
-    public static final ResourceLocation BASE_TEXTURE_HOVERED = CustomMachinery.rl("textures/gui/base_split_hovered.png");
-    public static final ResourceLocation BASE_TEXTURE_TOGGLE = CustomMachinery.rl("textures/gui/base_split_toogle.png");
-    public static final ResourceLocation BASE_TEXTURE_TOGGLE_HOVERED = CustomMachinery.rl("textures/gui/base_split_toogle_hovered.png");
+    public static final TextureInfo BASE_TEXTURE = CustomMachinery.texture("textures/gui/base_split.png");
+    public static final TextureInfo BASE_TEXTURE_HOVERED = CustomMachinery.texture("textures/gui/base_split_hovered.png");
+    public static final TextureInfo BASE_TEXTURE_TOGGLE = CustomMachinery.texture("textures/gui/base_split_toogle.png");
+    public static final TextureInfo BASE_TEXTURE_TOGGLE_HOVERED = CustomMachinery.texture("textures/gui/base_split_toogle_hovered.png");
 
     public static final NamedCodec<SplitButtonGuiElement> CODEC = NamedCodec.record(buttonGuiElementInstance ->
             buttonGuiElementInstance.group(
                     AbstractTexturedGuiElement.makePropertiesCodec(BASE_TEXTURE, BASE_TEXTURE_HOVERED).forGetter(SplitButtonGuiElement::getProperties),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toggle", BASE_TEXTURE_TOGGLE).forGetter(element -> element.textureToggle),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_toggle_hovered", BASE_TEXTURE_TOGGLE_HOVERED).forGetter(element -> element.textureToggleHovered),
+                    TextureInfo.CODEC.optionalFieldOf("texture_toggle", BASE_TEXTURE_TOGGLE).forGetter(element -> element.textureToggle),
+                    TextureInfo.CODEC.optionalFieldOf("texture_toggle_hovered", BASE_TEXTURE_TOGGLE_HOVERED).forGetter(element -> element.textureToggleHovered),
                     NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).forGetter(SplitButtonGuiElement::getSlots)
             ).apply(buttonGuiElementInstance, SplitButtonGuiElement::new), "Button gui element"
     );
 
-    private final ResourceLocation textureToggle;
-    private final ResourceLocation textureToggleHovered;
+    private final TextureInfo textureToggle;
+    private final TextureInfo textureToggleHovered;
     private final List<String> slots;
 
-    public SplitButtonGuiElement(Properties properties, ResourceLocation textureToggle, ResourceLocation textureToggleHovered, List<String> slots) {
+    public SplitButtonGuiElement(Properties properties, TextureInfo textureToggle, TextureInfo textureToggleHovered, List<String> slots) {
         super(properties);
         this.textureToggle = textureToggle;
         this.textureToggleHovered = textureToggleHovered;
@@ -48,11 +47,11 @@ public class SplitButtonGuiElement extends AbstractTexturedGuiElement {
         return Registration.SPLIT_GUI_ELEMENT.get();
     }
 
-    public ResourceLocation getTextureToggle() {
+    public TextureInfo getTextureToggle() {
         return this.textureToggle;
     }
 
-    public ResourceLocation getTextureToggleHovered() {
+    public TextureInfo getTextureToggleHovered() {
         return this.textureToggleHovered;
     }
 

@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.screen;
 
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
@@ -56,7 +57,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         if(this.background != null && this.background.getTexture() != null)
-            graphics.blit(this.background.getTexture(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, this.imageWidth, this.imageHeight);
+            ClientHandler.blit(graphics, this.background.getTexture(), this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
     }
 
     @Override

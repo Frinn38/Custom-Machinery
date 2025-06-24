@@ -5,11 +5,11 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 
 public class PlayerInventoryGuiElement extends AbstractTexturedGuiElement {
 
-    public static final ResourceLocation BASE_TEXTURE = CustomMachinery.rl("textures/gui/base_inventory.png");
+    public static final TextureInfo BASE_TEXTURE = CustomMachinery.texture("textures/gui/base_inventory.png");
 
     public static final NamedCodec<PlayerInventoryGuiElement> CODEC = NamedCodec.record(playerInventoryGuiElement ->
             playerInventoryGuiElement.group(

@@ -19,6 +19,7 @@ import fr.frinn.custommachinery.common.upgrade.Upgrades;
 import fr.frinn.custommachinery.common.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
@@ -171,5 +172,9 @@ public class CustomMachinery {
 
     public static ResourceLocation rl(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
+
+    public static TextureInfo texture(String path) {
+        return new TextureInfo(rl(path));
     }
 }
