@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -19,12 +20,16 @@ import org.joml.Matrix4f;
 
 public class FluidRenderer {
 
-    private static final int MIN_FLUID_HEIGHT = 1;
+    private static final int MIN_FLUID_SIZE = 1;
     private static final int TEXTURE_SIZE = 16;
 
-    public static void renderFluid(PoseStack poseStack, int posX, int posY, int width, int height, FluidStack fluidStack, long capacity) {
+    public static void renderFluid(PoseStack poseStack, int posX, int posY, int width, int height, FluidStack fluidStack, int capacity) {
+        renderFluid(poseStack, posX, posY, width, height, fluidStack, capacity, Orientation.RIGHT);
+    }
+
+    public static void renderFluid(PoseStack poseStack, int posX, int posY, int width, int height, FluidStack fluidStack, int capacity, Orientation orientation) {
         Fluid fluid = fluidStack.getFluid();
-        if (fluid == Fluids.EMPTY)
+        if (fluid == Fluids.EMPTY || fluidStack.isEmpty() || capacity == 0)
             return;
 
         RenderSystem.enableBlend();
@@ -36,23 +41,47 @@ public class FluidRenderer {
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(extensions.getStillTexture(fluidStack));
         int fluidColor = extensions.getTintColor(fluidStack);
 
-        long amount = fluidStack.getAmount();
-        int scaledAmount = (int) ((amount * height) / capacity);
-        if (amount > 0 && scaledAmount < MIN_FLUID_HEIGHT) {
-            scaledAmount = MIN_FLUID_HEIGHT;
-        }
-        if (scaledAmount > height) {
-            scaledAmount = height;
+        int amount = fluidStack.getAmount();
+        double fillingPercent = (double) amount / capacity;
+
+        int xOffset = 0;
+        int fluidWidth = width;
+        int yOffset = 0;
+        int fluidHeight = height;
+
+        switch (orientation) {
+            case TOP -> {
+                fluidHeight = (int) (fillingPercent * height);
+                if(amount > 0 && height < MIN_FLUID_SIZE)
+                    fluidHeight = MIN_FLUID_SIZE;
+                yOffset = height - fluidHeight;
+            }
+            case BOTTOM -> {
+                fluidHeight = (int) (fillingPercent * height);
+                if(amount > 0 && height < MIN_FLUID_SIZE)
+                    fluidHeight = MIN_FLUID_SIZE;
+            }
+            case RIGHT -> {
+                fluidWidth = (int) (fillingPercent * width);
+                if(amount > 0 && width < MIN_FLUID_SIZE)
+                    fluidWidth = MIN_FLUID_SIZE;
+            }
+            case LEFT -> {
+                fluidWidth = (int) (fillingPercent * width);
+                if(amount > 0 && width < MIN_FLUID_SIZE)
+                    fluidWidth = MIN_FLUID_SIZE;
+                xOffset = width - fluidWidth;
+            }
         }
 
-        drawTiledSprite(poseStack, width, height, fluidColor, scaledAmount, sprite);
+        drawTiledSprite(poseStack, xOffset, fluidWidth, yOffset, fluidHeight, fluidColor, sprite);
 
         poseStack.popPose();
 
         RenderSystem.disableBlend();
     }
 
-    private static void drawTiledSprite(PoseStack poseStack, final int tiledWidth, final int tiledHeight, int color, int scaledAmount, TextureAtlasSprite sprite) {
+    private static void drawTiledSprite(PoseStack poseStack, int xOffset, int tiledWidth, int yOffset, int tiledHeight, int color, TextureAtlasSprite sprite) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
         Matrix4f matrix = poseStack.last().pose();
@@ -60,15 +89,15 @@ public class FluidRenderer {
 
         final int xTileCount = tiledWidth / TEXTURE_SIZE;
         final int xRemainder = tiledWidth - (xTileCount * TEXTURE_SIZE);
-        final int yTileCount = scaledAmount / TEXTURE_SIZE;
-        final int yRemainder = scaledAmount - (yTileCount * TEXTURE_SIZE);
+        final int yTileCount = tiledHeight / TEXTURE_SIZE;
+        final int yRemainder = tiledHeight - (yTileCount * TEXTURE_SIZE);
 
         for (int xTile = 0; xTile <= xTileCount; xTile++) {
             for (int yTile = 0; yTile <= yTileCount; yTile++) {
                 int width = (xTile == xTileCount) ? xRemainder : TEXTURE_SIZE;
                 int height = (yTile == yTileCount) ? yRemainder : TEXTURE_SIZE;
-                int x = (xTile * TEXTURE_SIZE);
-                int y = tiledHeight - ((yTile + 1) * TEXTURE_SIZE);
+                int x = xOffset + (xTile * TEXTURE_SIZE);
+                int y = yOffset + tiledHeight - ((yTile + 1) * TEXTURE_SIZE);
                 if (width > 0 && height > 0) {
                     int maskTop = TEXTURE_SIZE - height;
                     int maskRight = TEXTURE_SIZE - width;

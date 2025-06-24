@@ -134,7 +134,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
 
         @Override
         public void renderSingle(Fluid single, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-            FluidRenderer.renderFluid(graphics.pose(), 0, 0, 16, 16, new FluidStack(single, 1), 1L);
+            FluidRenderer.renderFluid(graphics.pose(), 0, 0, 16, 16, new FluidStack(single, 1), 1);
         }
 
         @Override

@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.resources.ResourceLocation;
@@ -29,19 +30,26 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
             fluidGuiElement.group(
                     makePropertiesCodec(BASE_TEXTURE).forGetter(FluidGuiElement::getProperties),
                     NamedCodec.STRING.fieldOf("id").forGetter(FluidGuiElement::getId),
-                    NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(FluidGuiElement::highlight)
+                    NamedCodec.BOOL.optionalFieldOf("highlight", true).forGetter(FluidGuiElement::highlight),
+                    NamedCodec.enumCodec(Orientation.class).optionalFieldOf("orientation", Orientation.TOP).forGetter(FluidGuiElement::orientation)
             ).apply(fluidGuiElement, FluidGuiElement::new), "Fluid gui element"
     );
 
     private final boolean highlight;
+    private final Orientation orientation;
 
-    public FluidGuiElement(Properties properties, String id, boolean highlight) {
+    public FluidGuiElement(Properties properties, String id, boolean highlight, Orientation orientation) {
         super(properties);
         this.highlight = highlight;
+        this.orientation = orientation;
     }
 
     public boolean highlight() {
         return this.highlight;
+    }
+
+    public Orientation orientation() {
+        return this.orientation;
     }
 
     @Override

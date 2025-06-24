@@ -8,9 +8,11 @@ import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
+import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
@@ -28,9 +30,9 @@ public class FluidGuiElementBuilder implements IGuiElementBuilder<FluidGuiElemen
     @Override
     public FluidGuiElement make(Properties properties, @Nullable FluidGuiElement from) {
         if(from != null)
-            return new FluidGuiElement(properties, properties.id(), from.highlight());
+            return new FluidGuiElement(properties, properties.id(), from.highlight(), from.orientation());
         else
-            return new FluidGuiElement(properties, "", true);
+            return new FluidGuiElement(properties, "", true, Orientation.TOP);
     }
 
     @Override
@@ -41,6 +43,7 @@ public class FluidGuiElementBuilder implements IGuiElementBuilder<FluidGuiElemen
     public static class FluidGuiElementBuilderPopup extends GuiElementBuilderPopup<FluidGuiElement> {
 
         private Checkbox highlight;
+        private CycleButton<Orientation> orientation;
 
         public FluidGuiElementBuilderPopup(BaseScreen parent, MutableProperties properties, @Nullable FluidGuiElement from, Consumer<FluidGuiElement> onFinish) {
             super(parent, properties, from, onFinish);
@@ -48,7 +51,7 @@ public class FluidGuiElementBuilder implements IGuiElementBuilder<FluidGuiElemen
 
         @Override
         public FluidGuiElement makeElement() {
-            return new FluidGuiElement(this.properties.build(), this.properties.getId(), this.highlight.selected());
+            return new FluidGuiElement(this.properties.build(), this.properties.getId(), this.highlight.selected(), this.orientation.getValue());
         }
 
         @Override
@@ -65,6 +68,8 @@ public class FluidGuiElementBuilder implements IGuiElementBuilder<FluidGuiElemen
             this.addPriority(row);
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font));
             this.highlight = row.addChild(Checkbox.builder(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font).selected(this.baseElement == null || this.baseElement.highlight()).build());
+            row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.bar.orientation"), this.font));
+            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.name())).withValues(Orientation.values()).withInitialValue(this.baseElement != null ? this.baseElement.orientation() : Orientation.TOP).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
         }
     }
 }
