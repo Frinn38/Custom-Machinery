@@ -80,9 +80,11 @@ public class MachineProcessorCore implements ISyncableStuff {
                     .byKey(this.futureRecipeID)
                     .filter(holder -> holder.value() instanceof CustomMachineRecipe)
                     .map(holder -> (RecipeHolder<CustomMachineRecipe>)holder)
-                    .ifPresent(this::setRecipe);
-            //Remove all requirements that were already processed before the machine was unloaded.
-            this.requirementList.getProcessRequirements().entrySet().removeIf(entry -> entry.getKey() < this.recipeProgressTime / this.recipeTotalTime);
+                    .ifPresent(recipe -> {
+                        this.setRecipe(recipe);
+                        //Remove all requirements that were already processed before the machine was unloaded.
+                        this.requirementList.getProcessRequirements().entrySet().removeIf(entry -> entry.getKey() < this.recipeProgressTime / this.recipeTotalTime);
+                    });
             this.futureRecipeID = null;
         }
         this.recipeFinder.init();
