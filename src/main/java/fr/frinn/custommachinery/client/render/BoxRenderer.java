@@ -23,7 +23,7 @@ public class BoxRenderer {
     public void render(PoseStack matrix, MultiBufferSource buffer, Direction machineFacing) {
         matrix.pushPose();
         matrix.translate(0.5F, 0, 0.5F);
-        matrix.mulPose(new Quaternionf().rotateY((float)Math.toRadians(machineFacing.toYRot())));
+        matrix.mulPose(new Quaternionf().rotateY((float)Math.toRadians(-machineFacing.toYRot())));
         matrix.translate(-0.5F, 0, -0.5F);
         LevelRenderer.renderLineBox(matrix, buffer.getBuffer(RenderType.LINES), this.box, 1.0F, 0.0F, 0.0F, 1.0F);
         matrix.popPose();
