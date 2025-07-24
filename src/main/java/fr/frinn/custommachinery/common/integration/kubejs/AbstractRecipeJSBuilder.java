@@ -7,7 +7,6 @@ import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.script.ConsoleJS;
-import dev.latvian.mods.kubejs.script.ScriptType;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
@@ -98,16 +97,17 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
     }
 
     public AbstractRecipeJSBuilder<B> chance(double chance) {
-        if(this.lastRequirement != null)
-            this.lastRequirement.setChance(chance);
-        else
-            ScriptType.SERVER.console.warn("Can't set chance before adding requirements");
+        if(this.lastRequirement == null)
+            this.error("Can't set chance before adding requirements");
+
+        this.lastRequirement.setChance(chance);
         return this;
     }
 
     public AbstractRecipeJSBuilder<B> info(Consumer<DisplayInfoTemplate> consumer) {
         if(this.lastRequirement == null)
-            this.error("Can't add info on a null requirement !");
+            this.error("Can't add info before adding requirements !");
+
         try {
             DisplayInfoTemplate template = new DisplayInfoTemplate();
             consumer.accept(template);
@@ -124,10 +124,10 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
     }
 
     public AbstractRecipeJSBuilder<B> delay(double delay) {
-        if(this.lastRequirement != null)
-            this.lastRequirement.setDelay(delay);
-        else
-            ScriptType.SERVER.console.warn("Can't set delay for requirement: " + this.lastRequirement);
+        if(this.lastRequirement == null)
+            this.error("Can't set delay before adding requirements");
+
+        this.lastRequirement.setDelay(delay);
         return this;
     }
 
@@ -143,7 +143,7 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
 
     @Override
     public RecipeJSBuilder error(String error, Object... args) {
-        throw new KubeRuntimeException(MessageFormatter.arrayFormat(error, args).getMessage());
+        throw new KubeRuntimeException(MessageFormatter.arrayFormat(error, args).getMessage()).source(this.sourceLine);
     }
 
     protected <E> List<E> addToList(RecipeKey<List<E>> key, E element) {
