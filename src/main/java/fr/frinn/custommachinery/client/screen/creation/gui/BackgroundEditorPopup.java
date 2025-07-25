@@ -63,7 +63,7 @@ public class BackgroundEditorPopup extends PopupScreen {
         this.texture = row.addChild(new SuggestedEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.texture"), 5));
         this.texture.setMaxLength(Integer.MAX_VALUE);
         if(this.background != null) {
-            this.texture.setValue(this.background.getTexture().toString());
+            this.texture.setValue(this.background.getTexture().texture().toString());
             this.texture.hideSuggestions();
         }
         this.texture.addSuggestions(Minecraft.getInstance().getResourceManager().listResources("textures", id -> true).keySet().stream().map(ResourceLocation::toString).toList());
