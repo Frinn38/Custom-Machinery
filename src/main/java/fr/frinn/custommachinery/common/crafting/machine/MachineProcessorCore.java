@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -45,6 +46,8 @@ public class MachineProcessorCore implements ISyncableStuff {
     @Nullable
     private Component error = null;
     private boolean isLastRecipeTick = false;
+    //Only use to show current status in StatusGuiElement
+    private MachineStatus status = MachineStatus.IDLE;
 
     private RequirementList<?> requirementList;
     private final List<RequirementWithFunction> currentProcessRequirements = new ArrayList<>();
@@ -71,6 +74,10 @@ public class MachineProcessorCore implements ISyncableStuff {
 
     public double getRecipeTotalTime() {
         return this.recipeTotalTime;
+    }
+
+    public MachineStatus getStatus() {
+        return this.status;
     }
 
     public void init() {
@@ -214,16 +221,19 @@ public class MachineProcessorCore implements ISyncableStuff {
             requirement.requirement().gatherRequirements((RequirementList)this.requirementList);
         });
         this.phase = Phase.CONDITIONS;
+        this.setRunning();
     }
 
     private void setRunning() {
         this.error = null;
         this.processor.setRunning();
+        this.status = MachineStatus.RUNNING;
     }
 
     private void setError(Component error) {
         this.error = error;
         this.processor.setError(error);
+        this.status = MachineStatus.ERRORED;
     }
 
     public void reset() {
@@ -235,6 +245,7 @@ public class MachineProcessorCore implements ISyncableStuff {
         this.context = null;
         this.phase = Phase.CONDITIONS;
         this.currentProcessRequirements.clear();
+        this.status = MachineStatus.IDLE;
     }
 
     public void setSearchImmediately() {
@@ -269,6 +280,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
         container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
+        container.accept(IntegerSyncable.create(() -> this.status.ordinal(), index -> this.status = MachineStatus.values()[index]));
     }
 
     public enum Phase {

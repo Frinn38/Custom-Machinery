@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.element;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
@@ -21,12 +22,16 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        TextureInfo texture;
-        switch (this.getScreen().getTile().getStatus()) {
-            case RUNNING -> texture = this.getElement().getRunningTexture();
-            case ERRORED -> texture = this.getElement().getErroredTexture();
-            default -> texture = this.getElement().getIdleTexture();
-        }
+        MachineStatus status = MachineStatus.IDLE;
+        if(this.getElement().getCore() == 0)
+            status = this.getScreen().getTile().getStatus();
+        else if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor processor && processor.getCores().size() >= this.getElement().getCore())
+            status = processor.getCores().get(this.getElement().getCore() - 1).getStatus();
+        TextureInfo texture = switch(status) {
+            case RUNNING -> this.getElement().getRunningTexture();
+            case ERRORED -> this.getElement().getErroredTexture();
+            default -> this.getElement().getIdleTexture();
+        };
         ClientHandler.blit(graphics, texture, this.getX(), this.getY(), this.width, this.height);
     }
 

@@ -18,19 +18,23 @@ public class StatusGuiElement extends AbstractTexturedGuiElement {
                     makePropertiesCodec().forGetter(StatusGuiElement::getProperties),
                     TextureInfo.CODEC.optionalFieldOf("texture_idle", BASE_STATUS_IDLE_TEXTURE).forGetter(StatusGuiElement::getIdleTexture),
                     TextureInfo.CODEC.optionalFieldOf("texture_running", BASE_STATUS_RUNNING_TEXTURE).forGetter(StatusGuiElement::getRunningTexture),
-                    TextureInfo.CODEC.optionalFieldOf("texture_errored", BASE_STATUS_ERRORED_TEXTURE).forGetter(StatusGuiElement::getErroredTexture)
+                    TextureInfo.CODEC.optionalFieldOf("texture_errored", BASE_STATUS_ERRORED_TEXTURE).forGetter(StatusGuiElement::getErroredTexture),
+                    NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("core", 0).forGetter(StatusGuiElement::getCore)
             ).apply(statusGuiElement, StatusGuiElement::new), "Status gui element"
     );
 
     private final TextureInfo idleTexture;
     private final TextureInfo runningTexture;
     private final TextureInfo erroredTexture;
+    //0 for general machine status, higher values for specific core
+    private final int core;
 
-    public StatusGuiElement(Properties properties, TextureInfo idleTexture, TextureInfo runningTexture, TextureInfo erroredTexture) {
+    public StatusGuiElement(Properties properties, TextureInfo idleTexture, TextureInfo runningTexture, TextureInfo erroredTexture, int core) {
         super(properties, idleTexture);
         this.idleTexture = idleTexture;
         this.runningTexture = runningTexture;
         this.erroredTexture = erroredTexture;
+        this.core = core;
     }
 
     @Override
@@ -48,5 +52,9 @@ public class StatusGuiElement extends AbstractTexturedGuiElement {
 
     public TextureInfo getErroredTexture() {
         return this.erroredTexture;
+    }
+
+    public int getCore() {
+        return this.core;
     }
 }
