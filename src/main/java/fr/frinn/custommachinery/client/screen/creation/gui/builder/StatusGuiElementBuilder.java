@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +70,8 @@ public class StatusGuiElementBuilder implements IGuiElementBuilder<StatusGuiElem
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.status.errored"), texture -> this.erroredTexture = texture, this.erroredTexture);
             this.addPriority(row);
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.core"), this.font));
-            row.addChild(IntegerSlider.builder().bounds(0, 16).defaultValue(this.core).displayOnlyValue().setResponder(value -> this.core = value).create(0, 0, 100, 20, Component.empty()));
+            IntegerSlider coreSlider = row.addChild(IntegerSlider.builder().bounds(0, 16).defaultValue(this.core).displayOnlyValue().setResponder(value -> this.core = value).create(0, 0, 100, 20, Component.empty()));
+            coreSlider.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.status.core.tooltip")));
         }
     }
 }

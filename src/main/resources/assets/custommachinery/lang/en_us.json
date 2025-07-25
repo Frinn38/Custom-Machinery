@@ -259,6 +259,7 @@
   "custommachinery.gui.creation.gui.status.idle": "Idle texture",
   "custommachinery.gui.creation.gui.status.running": "Running texture",
   "custommachinery.gui.creation.gui.status.errored": "Errored texture",
+  "custommachinery.gui.creation.gui.status.core.tooltip": "0 to show status of the machine\n1 or more to show status of only a specific core",
   "custommachinery.gui.creation.gui.progress.orientation": "Orientation",
   "custommachinery.gui.creation.gui.progress.start": "Start",
   "custommachinery.gui.creation.gui.progress.end": "End",
