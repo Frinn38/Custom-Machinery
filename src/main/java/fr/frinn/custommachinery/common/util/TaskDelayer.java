@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@EventBusSubscriber(modid = CustomMachinery.MODID, bus = Bus.GAME)
+@EventBusSubscriber(modid = CustomMachinery.MODID)
 public class TaskDelayer {
 
     private static final List<Pair<AtomicInteger, Runnable>> tasks = new ArrayList<>();

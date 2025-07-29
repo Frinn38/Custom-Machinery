@@ -11,15 +11,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 
-import java.nio.file.Path;
-
-@EventBusSubscriber(modid = CustomMachinery.MODID, bus = Bus.GAME, value = Dist.CLIENT)
+@EventBusSubscriber(modid = CustomMachinery.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
     @SubscribeEvent

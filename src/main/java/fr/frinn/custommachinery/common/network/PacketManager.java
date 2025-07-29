@@ -3,11 +3,10 @@ package fr.frinn.custommachinery.common.network;
 import fr.frinn.custommachinery.CustomMachinery;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-@EventBusSubscriber(modid = CustomMachinery.MODID, bus = Bus.MOD)
+@EventBusSubscriber(modid = CustomMachinery.MODID)
 public class PacketManager {
 
     @SubscribeEvent
