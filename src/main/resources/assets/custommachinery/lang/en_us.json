@@ -237,6 +237,8 @@
   "custommachinery.gui.creation.gui.grid.spacing.x": "X spacing",
   "custommachinery.gui.creation.gui.grid.spacing.y": "Y spacing",
   "custommachinery.gui.creation.gui.grid.opacity": "Opacity",
+  "custommachinery.gui.creation.gui.revert.tooltip": "Revert last changes",
+  "custommachinery.gui.creation.gui.revert.tooltip2": "Ctrl+z",
   "custommachinery.gui.creation.gui.texture": "Texture",
   "custommachinery.gui.creation.gui.texture_hovered": "Texture hovered",
   "custommachinery.gui.creation.gui.config": "Config",

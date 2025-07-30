@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.GridEditorPopup;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementCreationPopup;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
@@ -23,8 +24,10 @@ public class GuiTab extends MachineEditTab {
     public static final WidgetSprites CREATE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/create_button"), CustomMachinery.rl("creation/create_button_hovered"));
     public static final WidgetSprites BACKGROUND_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/background_button"), CustomMachinery.rl("creation/background_button_hovered"));
     public static final WidgetSprites GRID_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/grid_button"), CustomMachinery.rl("creation/grid_button_hovered"));
+    public static final WidgetSprites REVERT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/revert_button"), CustomMachinery.rl("creation/revert_button_disabled"), CustomMachinery.rl("creation/revert_button_hovered"), CustomMachinery.rl("creation/revert_button_disabled_hovered"));
 
     private final GuiEditorWidget guiEditor;
+    public ImageButton revertButton;
 
     public GuiTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.gui"), parent);
@@ -54,7 +57,11 @@ public class GuiTab extends MachineEditTab {
         ImageButton gridButton = new ImageButton(0, 0, 20, 20, GRID_SPRITES, button -> this.grid());
         gridButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.grid")));
 
-        return List.of(addButton, backgroundButton, gridButton);
+        this.revertButton = new ImageButton(0, 0, 20, 20, REVERT_SPRITES, button -> this.guiEditor.revertChange());
+        this.revertButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip2").withStyle(ChatFormatting.GRAY))));
+        this.revertButton.active = false;
+
+        return List.of(addButton, backgroundButton, gridButton, revertButton);
     }
 
     private void create() {
