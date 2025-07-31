@@ -11,6 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.ImageWidget;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -25,9 +26,21 @@ public class GuiTab extends MachineEditTab {
     public static final WidgetSprites BACKGROUND_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/background_button"), CustomMachinery.rl("creation/background_button_hovered"));
     public static final WidgetSprites GRID_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/grid_button"), CustomMachinery.rl("creation/grid_button_hovered"));
     public static final WidgetSprites REVERT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/revert_button"), CustomMachinery.rl("creation/revert_button_disabled"), CustomMachinery.rl("creation/revert_button_hovered"), CustomMachinery.rl("creation/revert_button_disabled_hovered"));
+    public static final WidgetSprites ALIGN_TOP_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_top_button"), CustomMachinery.rl("creation/align_top_button_disabled"), CustomMachinery.rl("creation/align_top_button_hovered"), CustomMachinery.rl("creation/align_top_button_disabled_hovered"));
+    public static final WidgetSprites ALIGN_CENTER_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_center_button"), CustomMachinery.rl("creation/align_center_button_disabled"), CustomMachinery.rl("creation/align_center_button_hovered"), CustomMachinery.rl("creation/align_center_button_disabled_hovered"));
+    public static final WidgetSprites ALIGN_BOTTOM_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_bottom_button"), CustomMachinery.rl("creation/align_bottom_button_disabled"), CustomMachinery.rl("creation/align_bottom_button_hovered"), CustomMachinery.rl("creation/align_bottom_button_disabled_hovered"));
+    public static final WidgetSprites ALIGN_LEFT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_left_button"), CustomMachinery.rl("creation/align_left_button_disabled"), CustomMachinery.rl("creation/align_left_button_hovered"), CustomMachinery.rl("creation/align_left_button_disabled_hovered"));
+    public static final WidgetSprites ALIGN_MIDDLE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_middle_button"), CustomMachinery.rl("creation/align_middle_button_disabled"), CustomMachinery.rl("creation/align_middle_button_hovered"), CustomMachinery.rl("creation/align_middle_button_disabled_hovered"));
+    public static final WidgetSprites ALIGN_RIGHT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_right_button"), CustomMachinery.rl("creation/align_right_button_disabled"), CustomMachinery.rl("creation/align_right_button_hovered"), CustomMachinery.rl("creation/align_right_button_disabled_hovered"));
 
     private final GuiEditorWidget guiEditor;
     public ImageButton revertButton;
+    public ImageButton alignTop;
+    public ImageButton alignCenter;
+    public ImageButton alignBottom;
+    public ImageButton alignLeft;
+    public ImageButton alignMiddle;
+    public ImageButton alignRight;
 
     public GuiTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.gui"), parent);
@@ -61,7 +74,34 @@ public class GuiTab extends MachineEditTab {
         this.revertButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip2").withStyle(ChatFormatting.GRAY))));
         this.revertButton.active = false;
 
-        return List.of(addButton, backgroundButton, gridButton, revertButton);
+        this.alignTop = new ImageButton(0, 0, 20, 20, ALIGN_TOP_SPRITES, button -> this.guiEditor.alignTop());
+        this.alignTop.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.top")));
+
+        this.alignCenter = new ImageButton(0, 0, 20, 20, ALIGN_CENTER_SPRITES, button -> this.guiEditor.alignCenter());
+        this.alignCenter.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.center")));
+
+        this.alignBottom = new ImageButton(0, 0, 20, 20, ALIGN_BOTTOM_SPRITES, button -> this.guiEditor.alignBottom());
+        this.alignBottom.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.bottom")));
+
+        this.alignLeft = new ImageButton(0, 0, 20, 20, ALIGN_LEFT_SPRITES, button -> this.guiEditor.alignLeft());
+        this.alignLeft.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.left")));
+
+        this.alignMiddle = new ImageButton(0, 0, 20, 20, ALIGN_MIDDLE_SPRITES, button -> this.guiEditor.alignMiddle());
+        this.alignMiddle.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.middle")));
+
+        this.alignRight = new ImageButton(0, 0, 20, 20, ALIGN_RIGHT_SPRITES, button -> this.guiEditor.alignRight());
+        this.alignRight.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.right")));
+
+        this.enableAlignButtons(false);
+
+        ImageWidget empty = ImageWidget.texture(20, 20, CustomMachinery.rl("textures/gui/base_empty.png"), 1, 1);
+
+        //Order from top left to bottom right, max of 3 columns and 5 rows
+        return List.of(
+                this.alignTop,      this.alignLeft,   addButton,
+                this.alignCenter,   this.alignMiddle, backgroundButton,
+                this.alignBottom,   this.alignRight,  gridButton,
+                empty,                          empty,                      this.revertButton);
     }
 
     private void create() {
@@ -74,5 +114,14 @@ public class GuiTab extends MachineEditTab {
 
     private void grid() {
         this.parent.openPopup(new GridEditorPopup(this.parent, this.guiEditor), "grid");
+    }
+
+    public void enableAlignButtons(boolean active) {
+        this.alignTop.active = active;
+        this.alignCenter.active = active;
+        this.alignBottom.active = active;
+        this.alignLeft.active = active;
+        this.alignMiddle.active = active;
+        this.alignRight.active = active;
     }
 }

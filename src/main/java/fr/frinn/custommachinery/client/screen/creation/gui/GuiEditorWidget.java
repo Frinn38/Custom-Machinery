@@ -13,7 +13,6 @@ import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
-import fr.frinn.custommachinery.common.util.LRU;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import net.minecraft.ChatFormatting;
@@ -26,17 +25,20 @@ import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2d;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,12 +48,14 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     private final IMachineScreen dummyScreen = new DummyScreen();
     private final List<WidgetEditorWidget<?>> widgets = new ArrayList<>();
     private final Deque<Change> changes = new ArrayDeque<>();
+    private final List<WidgetEditorWidget<?>> selected = new ArrayList<>();
     private final Button config;
     private final Button priorityUp;
     private final Button priorityDown;
     private final Button delete;
 
     private boolean dragging;
+    private Vector2d selectionBoxStart;
     private GuiEventListener focused;
     private static GridSettings gridSettings = new GridSettings(false, 10, 10, 0.5F);
     private static boolean showBackground = true;
@@ -143,7 +147,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     private void delete() {
         if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
             ConfirmPopup popup = new ConfirmPopup(this.parent, 128, 96, () -> {
-                this.memorizeChange(widget, widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight());
+                this.memorizeChange(new SingleWidgetChange(widget));
                 this.widgets.remove(widget);
                 this.setFocused(null);
                 this.parent.getBuilder().getGuiElements().remove(widget.widget.getElement());
@@ -151,6 +155,25 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             });
             popup.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
             popup.text(Component.translatable("custommachinery.gui.creation.gui.delete.popup"));
+            popup.cancelCallback(() -> this.parent.setFocused(this));
+            this.parent.openPopup(popup);
+        }
+        if(!this.selected.isEmpty()) {
+            ConfirmPopup popup = new ConfirmPopup(this.parent, 128, 96, () -> {
+                List<Change> changes = new ArrayList<>();
+                for(Iterator<WidgetEditorWidget<?>> iterator = this.selected.iterator(); iterator.hasNext(); ) {
+                    WidgetEditorWidget<?> widget = iterator.next();
+                    changes.add(new SingleWidgetChange(widget));
+                    this.widgets.remove(widget);
+                    this.parent.getBuilder().getGuiElements().remove(widget.widget.getElement());
+                    iterator.remove();
+                }
+                this.memorizeChange(new GroupWidgetChange(changes));
+                this.parent.setChanged();
+            });
+            popup.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
+            popup.text(Component.translatable("custommachinery.gui.creation.gui.delete.popup"));
+            popup.cancelCallback(() -> this.parent.setFocused(this));
             this.parent.openPopup(popup);
         }
     }
@@ -162,8 +185,8 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         return new WidgetEditorWidget<>(widget, builder);
     }
 
-    public void memorizeChange(WidgetEditorWidget<?> widget, int x, int y, int width, int height) {
-        this.changes.addFirst(new Change(widget, x, y, width, height));
+    public void memorizeChange(Change change) {
+        this.changes.addFirst(change);
         if(this.parent.getTabManager().getCurrentTab() instanceof GuiTab guiTab && guiTab.revertButton != null)
             guiTab.revertButton.active = true;
     }
@@ -175,6 +198,78 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         this.changes.removeFirst();
         if(this.parent.getTabManager().getCurrentTab() instanceof GuiTab guiTab && guiTab.revertButton != null)
             guiTab.revertButton.active = !this.changes.isEmpty();
+    }
+
+    public void alignTop() {
+        if(this.selected.isEmpty())
+            return;
+        int y = this.selected.stream().mapToInt(AbstractWidget::getY).min().orElse(0);
+        List<Change> changes = new ArrayList<>();
+        this.selected.forEach(widget -> {
+            changes.add(new SingleWidgetChange(widget));
+            widget.setY(y);
+        });
+        this.memorizeChange(new GroupWidgetChange(changes));
+    }
+
+    public void alignCenter() {
+        if(this.selected.isEmpty())
+            return;
+        int y = (int)this.selected.stream().mapToDouble(widget -> widget.getY() + widget.getHeight() / 2.0D).average().orElse(0);
+        List<Change> changes = new ArrayList<>();
+        this.selected.forEach(widget -> {
+            changes.add(new SingleWidgetChange(widget));
+            widget.setY(y - (int)(widget.getHeight() / 2.0));
+        });
+        this.memorizeChange(new GroupWidgetChange(changes));
+    }
+
+    public void alignBottom() {
+        if(this.selected.isEmpty())
+            return;
+        int y = this.selected.stream().mapToInt(widget -> widget.getY() + widget.getHeight()).max().orElse(0);
+        List<Change> changes = new ArrayList<>();
+        this.selected.forEach(widget -> {
+            changes.add(new SingleWidgetChange(widget));
+            widget.setY(y - widget.getHeight());
+        });
+        this.memorizeChange(new GroupWidgetChange(changes));
+    }
+
+    public void alignLeft() {
+        if(this.selected.isEmpty())
+            return;
+        int x = this.selected.stream().mapToInt(AbstractWidget::getX).min().orElse(0);
+        List<Change> changes = new ArrayList<>();
+        this.selected.forEach(widget -> {
+            changes.add(new SingleWidgetChange(widget));
+            widget.setX(x);
+        });
+        this.memorizeChange(new GroupWidgetChange(changes));
+    }
+
+    public void alignMiddle() {
+        if(this.selected.isEmpty())
+            return;
+        int x = (int)this.selected.stream().mapToDouble(widget -> widget.getX() + widget.getWidth() / 2.0).min().orElse(0);
+        List<Change> changes = new ArrayList<>();
+        this.selected.forEach(widget -> {
+            changes.add(new SingleWidgetChange(widget));
+            widget.setX(x - (int)(widget.getWidth() / 2.0));
+        });
+        this.memorizeChange(new GroupWidgetChange(changes));
+    }
+
+    public void alignRight() {
+        if(this.selected.isEmpty())
+            return;
+        int x = this.selected.stream().mapToInt(widget -> widget.getX() + widget.getWidth()).max().orElse(0);
+        List<Change> changes = new ArrayList<>();
+        this.selected.forEach(widget -> {
+            changes.add(new SingleWidgetChange(widget));
+            widget.setX(x - widget.getWidth());
+        });
+        this.memorizeChange(new GroupWidgetChange(changes));
     }
 
     @Override
@@ -198,6 +293,12 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             for(int y = this.getY() + this.getGridSettings().ySpacing(); y < this.getY() + this.getHeight(); y += this.getGridSettings().ySpacing())
                 graphics.fill(this.getX(), y, this.getX() + this.getWidth(), y + 1, FastColor.ARGB32.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
         }
+
+        //Selection box
+        if(this.selectionBoxStart != null && this.isDragging())
+            graphics.renderOutline((int)Math.min(this.selectionBoxStart.x(), mouseX), (int)Math.min(this.selectionBoxStart.y(), mouseY), (int)Math.abs(this.selectionBoxStart.x() - mouseX), (int)Math.abs(this.selectionBoxStart.y() - mouseY), FastColor.ARGB32.color(255, 0, 0, 255));
+        if(this.parent.getTabManager().getCurrentTab() instanceof GuiTab guiTab)
+            guiTab.enableAlignButtons(!this.selected.isEmpty());
 
         //Elements
         this.widgets.forEach(widget -> widget.render(graphics, mouseX, mouseY, partialTick));
@@ -257,6 +358,16 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     @Override
     public void setFocused(@Nullable GuiEventListener focused) {
+        if(Screen.hasControlDown() && focused instanceof WidgetEditorWidget<?> widget) {
+            this.selected.add(widget);
+            if(this.focused != null) {
+                this.focused.setFocused(false);
+                if(this.focused instanceof WidgetEditorWidget<?> focusedWidget)
+                    this.selected.add(focusedWidget);
+            }
+            this.focused = null;
+            return;
+        }
         if(this.focused != null)
             this.focused.setFocused(false);
         this.focused = focused;
@@ -290,23 +401,36 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         for (GuiEventListener guiEventListener : this.widgets.reversed()) {
             if (!guiEventListener.mouseClicked(mouseX, mouseY, button)) continue;
             this.setFocused(guiEventListener);
-            if (button == 0)
-                this.setDragging(true);
+            this.setDragging(true);
+            this.selected.clear();
             return true;
         }
         this.setFocused(null);
+        if (button == 0 && mouseX >= this.getX() && mouseX <= this.getX() + this.getWidth() && mouseY >= this.getY() && mouseY <= this.getY() + this.getHeight()) {
+            this.setDragging(true);
+            this.selected.clear();
+            this.selectionBoxStart = new Vector2d(mouseX, mouseY);
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.setDragging(false);
+        if(this.selectionBoxStart != null) {
+            Rect2i selectionBox = new Rect2i((int)Math.min(this.selectionBoxStart.x(), mouseX), (int)Math.min(this.selectionBoxStart.y(), mouseY), (int)Math.abs(this.selectionBoxStart.x() - mouseX), (int)Math.abs(this.selectionBoxStart.y() - mouseY));
+            this.widgets.stream()
+                    .filter(widget -> ClientHandler.isOverlapping(selectionBox, new Rect2i(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight())))
+                    .forEach(this.selected::add);
+            this.selectionBoxStart = null;
+        }
         return this.getFocused() != null && this.getFocused().mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (this.getFocused() != null && this.isDragging() && button == 0)
+        if(this.getFocused() != null && this.isDragging() && button == 0)
             return this.getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY);
         return false;
     }
@@ -320,6 +444,43 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if(keyCode == GLFW.GLFW_KEY_Z || keyCode == GLFW.GLFW_KEY_W && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
             this.revertChange();
+            return true;
+        }
+
+        if(!this.selected.isEmpty()) {
+            int move = Screen.hasShiftDown() ? 5 : Screen.hasControlDown() ? 10 : 1;
+            List<Change> changes = new ArrayList<>();
+            for(WidgetEditorWidget<?> widget : this.selected) {
+                boolean moved =  switch (keyCode) {
+                    case GLFW.GLFW_KEY_LEFT -> {
+                        changes.add(new SingleWidgetChange(widget));
+                        widget.setX(Math.max(widget.getX() - move, this.getX()));
+                        yield true;
+                    }
+                    case GLFW.GLFW_KEY_RIGHT -> {
+                        changes.add(new SingleWidgetChange(widget));
+                        widget.setX(Math.min(widget.getX() + move, this.getX() + this.getWidth()));
+                        yield true;
+                    }
+                    case GLFW.GLFW_KEY_UP -> {
+                        changes.add(new SingleWidgetChange(widget));
+                        widget.setY(Math.max(widget.getY() - move, this.getY()));
+                        yield true;
+                    }
+                    case GLFW.GLFW_KEY_DOWN -> {
+                        changes.add(new SingleWidgetChange(widget));
+                        widget.setY(Math.min(widget.getY() + move, this.getY() + this.getHeight()));
+                        yield true;
+                    }
+                    default -> false;
+                };
+                if(moved)
+                    GuiEditorWidget.this.parent.setChanged();
+            }
+            if(keyCode == GLFW.GLFW_KEY_DELETE)
+                this.delete();
+            if(!changes.isEmpty())
+                this.memorizeChange(new GroupWidgetChange(changes));
             return true;
         }
         return this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers);
@@ -421,6 +582,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 graphics.fill(this.getX() -1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, FastColor.ARGB32.color(255, 255, 0, 0));
                 graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), FastColor.ARGB32.color(255, 198, 198, 198));
                 checkCursorShape(mouseX, mouseY);
+            } else if(GuiEditorWidget.this.selected.contains(this)) {
+                graphics.fill(this.getX() -1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, FastColor.ARGB32.color(255, 0, 0, 255));
+                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), FastColor.ARGB32.color(255, 198, 198, 198));
+                checkCursorShape(mouseX, mouseY);
             }
             this.widget.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTick);
             graphics.pose().popPose();
@@ -487,26 +652,26 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
             switch (this.dragType) {
                 case DEFAULT -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setX(this.getX() + (int)this.dragX);
                     this.setY(this.getY() + (int)this.dragY);
                 }
                 case LEFT_RESIZE -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setX(this.getX() + (int)this.dragX);
                     this.setWidth(this.getWidth() - (int)this.dragX);
                 }
                 case RIGHT_RESIZE -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setWidth(this.getWidth() + (int)this.dragX);
                 }
                 case UP_RESIZE -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setY(this.getY() + (int)this.dragY);
                     this.setHeight(this.getHeight() - (int)this.dragY);
                 }
                 case DOWN_RESIZE -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setHeight(this.getHeight() + (int)this.dragY);
                 }
             }
@@ -525,27 +690,26 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             int move = Screen.hasShiftDown() ? 5 : Screen.hasControlDown() ? 10 : 1;
             boolean moved =  switch (keyCode) {
                 case GLFW.GLFW_KEY_LEFT -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setX(Math.max(this.getX() - move, GuiEditorWidget.this.getX()));
                     yield true;
                 }
                 case GLFW.GLFW_KEY_RIGHT -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setX(Math.min(this.getX() + move, GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth()));
                     yield true;
                 }
                 case GLFW.GLFW_KEY_UP -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setY(Math.max(this.getY() - move, GuiEditorWidget.this.getY()));
                     yield true;
                 }
                 case GLFW.GLFW_KEY_DOWN -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                    GuiEditorWidget.this.memorizeChange(new SingleWidgetChange(this));
                     this.setY(Math.min(this.getY() + move, GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight()));
                     yield true;
                 }
                 case GLFW.GLFW_KEY_DELETE -> {
-                    GuiEditorWidget.this.memorizeChange(this, this.getX(), this.getY(), this.getWidth(), this.getHeight());
                     GuiEditorWidget.this.delete();
                     yield true;
                 }
@@ -553,7 +717,8 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             };
             if(moved) {
                 GuiEditorWidget.this.parent.setChanged();
-                GuiEditorWidget.this.showButtons(this);
+                if(this.isFocused())
+                    GuiEditorWidget.this.showButtons(this);
             }
             return moved;
         }
@@ -604,7 +769,11 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     public record GridSettings(boolean enabled, int xSpacing, int ySpacing, float opacity) {}
 
-    public class Change {
+    public interface Change {
+        void revert();
+    }
+
+    public class SingleWidgetChange implements Change {
 
         private final WidgetEditorWidget<?> widget;
         private final int x;
@@ -612,7 +781,15 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         private final int width;
         private final int height;
 
-        public Change(WidgetEditorWidget<?> widget, int x, int y, int width, int height) {
+        public SingleWidgetChange(WidgetEditorWidget<?> widget) {
+            this.widget = widget;
+            this.x = widget.getX();
+            this.y = widget.getY();
+            this.width = widget.getWidth();
+            this.height = widget.getHeight();
+        }
+
+        public SingleWidgetChange(WidgetEditorWidget<?> widget, int x, int y, int width, int height) {
             this.widget = widget;
             this.x = x;
             this.y = y;
@@ -620,6 +797,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             this.height = height;
         }
 
+        @Override
         public void revert() {
             if(!GuiEditorWidget.this.widgets.contains(this.widget)) {
                 GuiEditorWidget.this.widgets.add(this.widget);
@@ -635,6 +813,20 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                     this.widget.setHeight(this.height);
             }
             GuiEditorWidget.this.setFocused(this.widget);
+        }
+    }
+
+    public class GroupWidgetChange implements Change {
+        private final List<Change> changes;
+
+        public GroupWidgetChange(List<Change> changes) {
+            this.changes = changes;
+        }
+
+        @Override
+        public void revert() {
+            this.changes.forEach(Change::revert);
+            GuiEditorWidget.this.setFocused(null);
         }
     }
 }

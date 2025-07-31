@@ -89,6 +89,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
@@ -356,5 +357,9 @@ public class ClientHandler {
 
     public static void blit(GuiGraphics graphics, TextureInfo texture, int x, int y, int width, int height) {
         graphics.blit(texture.texture(), x, y, texture.u(), texture.v(), width, height, width, height);
+    }
+
+    public static boolean isOverlapping(Rect2i first, Rect2i second) {
+        return first.getX() <= second.getX() + second.getWidth() && first.getX() + first.getWidth() >= second.getX() && first.getY() <= second.getY() + second.getHeight() && first.getY() + first.getHeight() >= second.getY();
     }
 }
