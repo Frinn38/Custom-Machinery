@@ -39,8 +39,9 @@ public record CAddMachinePacket(String id, Component name, boolean kubejs) imple
     public static void handle(CAddMachinePacket packet, IPayloadContext context) {
         if (context.player() instanceof ServerPlayer player && player.getServer() != null && Utils.canPlayerManageMachines(player)) {
             context.enqueueWork(() -> {
-                CustomMachinery.LOGGER.info("Player: {} added new Machine: {}", player.getName().getString(), packet.id);
-                CustomMachine newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, ResourceLocation.parse(packet.id), "")).setName(packet.name).build();
+                ResourceLocation loc = packet.id.contains(":") ? ResourceLocation.parse(packet.id) : CustomMachinery.rl(packet.id);
+                CustomMachinery.LOGGER.info("Player: {} added new Machine: {}", player.getName().getString(), loc);
+                CustomMachine newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, loc, "")).setName(packet.name).build();
                 FileUtils.writeNewMachineJson(player.getServer(), newMachine, packet.kubejs);
             });
         }
