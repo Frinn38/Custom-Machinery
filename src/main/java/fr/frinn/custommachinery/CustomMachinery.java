@@ -11,21 +11,15 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.buildinggadgets.BuildingGadgetsIntegration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
-import fr.frinn.custommachinery.common.network.NetworkManager;
-import fr.frinn.custommachinery.common.network.SLootTablesPacket;
-import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
-import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
+import fr.frinn.custommachinery.common.network.*;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
+import fr.frinn.custommachinery.common.util.TagIndex;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.CommandEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.*;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
@@ -42,10 +36,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Mod(CustomMachinery.MODID)
 public class CustomMachinery {

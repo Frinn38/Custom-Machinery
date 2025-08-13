@@ -97,9 +97,9 @@ public class Codecs {
 
     public static final Codec<ComparatorMode> COMPARATOR_MODE_CODEC         = CodecLogger.namedCodec(Codec.STRING.comapFlatMap(Codecs::decodeComparatorMode, ComparatorMode::getPrefix), "Comparator Mode");
 
-    public static final Codec<ITag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(tagCodec(Utils::getItemTag, Utils::getItemTagID), "Item Tag");
-    public static final Codec<ITag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getFluidTag, Utils::getFluidTagID), "Fluid Tag");
-    public static final Codec<ITag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(tagCodec(Utils::getBlockTag, Utils::getBlockTagID), "Block Tag");
+    public static final Codec<ITag.INamedTag<Item>> ITEM_TAG_CODEC   = CodecLogger.namedCodec(namedTagCodec(TagIndex::getItemTag, TagIndex::getItemTagID), "Item Tag");
+    public static final Codec<ITag.INamedTag<Fluid>> FLUID_TAG_CODEC = CodecLogger.namedCodec(namedTagCodec(TagIndex::getFluidTag, TagIndex::getFluidTagID), "Fluid Tag");
+    public static final Codec<ITag.INamedTag<Block>> BLOCK_TAG_CODEC = CodecLogger.namedCodec(namedTagCodec(TagIndex::getBlockTag, TagIndex::getBlockTagID), "Block Tag");
 
     public static final Codec<MachineStatus> STATUS_CODEC                               = fromEnum(MachineStatus.class);
     public static final Codec<ComponentIOMode> COMPONENT_MODE_CODEC                     = fromEnum(ComponentIOMode.class);
@@ -155,13 +155,13 @@ public class Codecs {
         return new EnhancedListCodec<>(codec);
     }
 
-    public static <E> Codec<ITag<E>> tagCodec(Function<ResourceLocation, ITag<E>> tagGetter, Function<ITag<E>, ResourceLocation> idGetter) {
+    public static <E> Codec<ITag.INamedTag<E>> namedTagCodec(Function<ResourceLocation, ITag.INamedTag<E>> tagGetter, Function<ITag.INamedTag<E>, ResourceLocation> idGetter) {
         return Codec.STRING.comapFlatMap(string -> {
             if(string.startsWith("#"))
                 string = string.substring(1);
             if(!Utils.isResourceNameValid(string))
                 return DataResult.error(String.format("Invalid tag : %s is not a valid tag id !", string));
-            ITag<E> tag = tagGetter.apply(new ResourceLocation(string));
+            ITag.INamedTag<E> tag = tagGetter.apply(new ResourceLocation(string));
             if(tag == null)
                 return DataResult.error("Unknown tag : " + string);
             return DataResult.success(tag);

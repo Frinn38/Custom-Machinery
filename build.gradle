@@ -31,9 +31,13 @@ sourceSets {
     main{
         runtimeClasspath += sourceSets.api.output
         compileClasspath += sourceSets.api.output
-        ext.refMap = "main.refmap.json"
+        ext.refMap = "custommachinery.mixins.refmap.json"
     }
     test
+}
+
+mixin {
+    config "custommachinery.mixins.json"
 }
 
 configurations {
@@ -49,8 +53,7 @@ minecraft {
     // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: 'snapshot', version: '20210309-1.16.5'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-    
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer(files('src/main/resources/META-INF/accesstransformer.cfg'))
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -59,7 +62,7 @@ minecraft {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
-            //property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
@@ -75,15 +78,13 @@ minecraft {
                     source sourceSets.api
                 }
             }
-
-            accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
         }
 
         client2 {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
-            //property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
@@ -101,15 +102,13 @@ minecraft {
                     source sourceSets.api
                 }
             }
-
-            accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
         }
 
         server {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
@@ -125,8 +124,6 @@ minecraft {
                     source sourceSets.api
                 }
             }
-
-            accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
         }
 
         data {
@@ -147,8 +144,6 @@ minecraft {
                 }
             }
         }
-
-        accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     }
 }
 
@@ -177,7 +172,7 @@ repositories {
         url = "https://maven.architectury.dev"
     }
     maven { //KubeJS/Rhino
-        url = "https://maven.saps.dev/minecraft"
+        url = "https://maven.latvian.dev/releases"
     }
     maven { //HyperLightning
         url = "https://maven.hypherionmc.me/releases"
@@ -188,7 +183,7 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.42'
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
@@ -212,18 +207,19 @@ dependencies {
     implementation fg.deobf("mezz.jei:jei-1.16.5:${jei_version}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:${jei_version}")
     implementation fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:${ct_version}")
-    implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
-    implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
+    implementation fg.deobf("curse.maven:kubejs-238086:3647098")
+    implementation fg.deobf("curse.maven:rhino-416294:3525704")
     implementation fg.deobf("me.shedaniel:architectury-forge:${architectury_version}")
     implementation(fg.deobf("curse.maven:gadgets-298187:3498508"))
 
     runtimeOnly fg.deobf("mekanism:Mekanism:1.16.5-10.0.20.447")//Mekanism
     runtimeOnly fg.deobf("curse.maven:spark-361579:3337641")//Spark profiler
+    runtimeOnly fg.deobf("curse.maven:enablemultiplayermode-910522:4740559")
 
     //Jade
     implementation fg.deobf("curse.maven:jade-324717:3875132")
 
-    annotationProcessor "org.spongepowered:mixin:0.8.2:processor"
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 }
 
 def getManifestAttributes(String title) {
