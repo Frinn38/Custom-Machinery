@@ -26,7 +26,7 @@ public class RecipeRequirement<C extends IMachineComponent, R extends IRequireme
             recipeRequirementInstance.group(
                     IRequirement.CODEC.forGetter(RecipeRequirement::requirement),
                     NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("chance", 1.0D).forGetter(requirement -> requirement.chance),
-                    NamedCodec.doubleRange(0.0D, 1.0D).optionalFieldOf("delay", 0.0D).forGetter(requirement -> requirement.delay),
+                    NamedCodec.doubleRange(-1.0D, 1.0D).optionalFieldOf("delay", -1.0D).forGetter(requirement -> requirement.delay),
                     DisplayInfoTemplate.CODEC.optionalFieldOf("info").forGetter(requirement -> Optional.ofNullable(requirement.info))
             ).apply(recipeRequirementInstance, (requirement, chance, delay, info) ->
                     new RecipeRequirement<>(requirement, chance, delay, info.orElse(null))
@@ -47,7 +47,7 @@ public class RecipeRequirement<C extends IMachineComponent, R extends IRequireme
     }
 
     public RecipeRequirement(R requirement) {
-        this(requirement, 1.0D, 0.0D, null);
+        this(requirement, 1.0D, -1.0D, null);
     }
 
     @SuppressWarnings("unchecked")

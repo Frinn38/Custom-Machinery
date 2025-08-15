@@ -28,12 +28,12 @@ public class RequirementList<C extends IMachineComponent> implements IRequiremen
 
     @Override
     public void processOnStart(RequirementFunction<C> function) {
-        this.processRequirements.computeIfAbsent(0.0D, delay -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
+        this.addProcessRequirement(0.0D, function);
     }
 
     @Override
     public void processOnEnd(RequirementFunction<C> function) {
-        this.processRequirements.computeIfAbsent(1.0D, delay -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
+        this.addProcessRequirement(1.0D, function);
     }
 
     @Override
@@ -53,12 +53,27 @@ public class RequirementList<C extends IMachineComponent> implements IRequiremen
 
     @Override
     public void processDelayed(double baseDelay, RequirementFunction<C> function) {
-        this.processRequirements.computeIfAbsent(baseDelay, delay -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
+        this.addProcessRequirement(baseDelay, function);
     }
 
     @Override
     public void process(RequirementIOMode mode, RequirementFunction<C> function) {
-        this.processDelayed(mode == RequirementIOMode.INPUT ? 0.0D : 1.0D, function);
+        this.addProcessRequirement(mode == RequirementIOMode.INPUT ? 0.0D : 1.0D, function);
+    }
+
+    /**
+     * Handle choosing whether the requirement will use the base delay (0 for inputs and 1 for outputs) or a user specified custom delay.
+     * We know the user specified a custom delay when {@link RecipeRequirement#delay()} returns something other than -1 (default value).
+     * @param baseDelay The default delay specified by the requirement.
+     * @param function The {@link fr.frinn.custommachinery.api.crafting.IRequirementList.RequirementFunction} to use when the process reach the specified delay.
+     */
+    private void addProcessRequirement(double baseDelay, RequirementFunction<C> function) {
+        double delay = this.currentRequirement.delay();
+        if(delay == -1.0D) //Default value so use the default delay
+            delay = baseDelay;
+        else //Custom value so use it
+            delay = Math.clamp(delay, 0.0D, 1.0D); //Clamp as the user might have specified an incorrect delay value
+        this.processRequirements.computeIfAbsent(delay, d -> new ArrayList<>()).add(new RequirementWithFunction(this.currentRequirement, function));
     }
 
     public List<RequirementWithFunction> getWorldConditions() {
