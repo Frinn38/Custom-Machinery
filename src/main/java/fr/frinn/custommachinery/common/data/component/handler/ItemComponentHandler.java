@@ -231,7 +231,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         AtomicInteger toAdd = new AtomicInteger(amount);
         int maxStackSize = Utils.makeItemStack(item, amount, nbt).getMaxStackSize();
         Predicate<ItemMachineComponent> itemPredicate = component -> component.getItemStack().isEmpty() || (component.getItemStack().getItem() == item && component.getItemStack().getCount() < Math.min(maxStackSize, component.getCapacity()));
-        Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || (component.getItemStack().getTag() != null && Utils.testNBT(component.getItemStack().getTag(), nbt));
+        Predicate<ItemMachineComponent> nbtPredicate = component -> nbt == null || nbt.isEmpty() || component.getItemStack().getTag() == null || Utils.testNBT(component.getItemStack().getTag(), nbt);
         Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
         this.outputs.stream().filter(component -> itemPredicate.and(nbtPredicate).and(slotPredicate).test(component)).forEach(component -> {
             int maxInsert = Math.min(component.getSpaceForItem(item.getDefaultInstance()), toAdd.get());
