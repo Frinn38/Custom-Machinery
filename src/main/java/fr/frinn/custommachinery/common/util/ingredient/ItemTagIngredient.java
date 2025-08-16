@@ -3,10 +3,10 @@ package fr.frinn.custommachinery.common.util.ingredient;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import fr.frinn.custommachinery.common.util.Codecs;
+import fr.frinn.custommachinery.common.util.TagIndex;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.item.Item;
 import net.minecraft.tags.ITag;
-import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
@@ -19,9 +19,9 @@ public class ItemTagIngredient implements IIngredient<Item> {
     public static final Codec<ItemTagIngredient> CODEC = Codecs.either(CODEC_FOR_DATAPACK, CODEC_FOR_KUBEJS, "Item Tag Ingredient")
             .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
 
-    private ITag<Item> tag;
+    private final ITag.INamedTag<Item> tag;
 
-    public ItemTagIngredient(ITag<Item> tag) {
+    public ItemTagIngredient(ITag.INamedTag<Item> tag) {
         this.tag = tag;
     }
 
@@ -30,14 +30,14 @@ public class ItemTagIngredient implements IIngredient<Item> {
             s = s.substring(1);
         if(!Utils.isResourceNameValid(s))
             throw new IllegalArgumentException(String.format("Invalid tag id : %s", s));
-        ITag<Item> tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(s));
+        ITag.INamedTag<Item> tag = TagIndex.getItemTag(new ResourceLocation(s));
         if(tag == null)
             throw new IllegalArgumentException(String.format("Tag: %s does not exist", s));
         return new ItemTagIngredient(tag);
     }
 
     public static ItemTagIngredient create(ResourceLocation loc) throws IllegalArgumentException {
-        ITag<Item> tag = TagCollectionManager.getManager().getItemTags().get(loc);
+        ITag.INamedTag<Item> tag = TagIndex.getItemTag(loc);
         if(tag == null)
             throw new IllegalArgumentException(String.format("Tag: %s does not exist", loc));
         return new ItemTagIngredient(tag);
@@ -55,6 +55,6 @@ public class ItemTagIngredient implements IIngredient<Item> {
 
     @Override
     public String toString() {
-        return "#" + TagCollectionManager.getManager().getItemTags().getDirectIdFromTag(this.tag);
+        return "#" + TagIndex.getItemTagID(this.tag);
     }
 }

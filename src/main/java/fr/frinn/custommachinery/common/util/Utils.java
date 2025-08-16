@@ -9,11 +9,9 @@ import fr.frinn.custommachinery.common.data.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TieredItem;
@@ -33,9 +31,7 @@ import net.minecraft.nbt.ShortNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.EffectUtils;
 import net.minecraft.potion.Effects;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.TagCollectionManager;
+import net.minecraft.tags.*;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
@@ -48,10 +44,7 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,30 +55,6 @@ public class Utils {
 
     public static boolean canPlayerManageMachines(PlayerEntity player) {
         return player.hasPermissionLevel(Objects.requireNonNull(player.getServer()).getOpPermissionLevel());
-    }
-
-    public static ResourceLocation getItemTagID(ITag<Item> tag) {
-        return TagCollectionManager.getManager().getItemTags().getValidatedIdFromTag(tag);
-    }
-
-    public static ResourceLocation getFluidTagID(ITag<Fluid> tag) {
-        return TagCollectionManager.getManager().getFluidTags().getValidatedIdFromTag(tag);
-    }
-
-    public static ResourceLocation getBlockTagID(ITag<Block> tag) {
-        return TagCollectionManager.getManager().getBlockTags().getValidatedIdFromTag(tag);
-    }
-
-    public static ITag<Item> getItemTag(ResourceLocation loc) {
-        return TagCollectionManager.getManager().getItemTags().get(loc);
-    }
-
-    public static ITag<Fluid> getFluidTag(ResourceLocation loc) {
-        return TagCollectionManager.getManager().getFluidTags().get(loc);
-    }
-
-    public static ITag<Block> getBlockTag(ResourceLocation loc) {
-        return TagCollectionManager.getManager().getBlockTags().get(loc);
     }
 
     public static Vector3d vec3dFromBlockPos(BlockPos pos) {
