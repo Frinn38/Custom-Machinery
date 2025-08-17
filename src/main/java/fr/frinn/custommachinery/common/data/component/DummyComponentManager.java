@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompoundNBT;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -26,8 +27,8 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public List<IMachineComponent> getComponents() {
-        return Collections.emptyList();
+    public Map<MachineComponentType<?>, IMachineComponent> getComponents() {
+        return Collections.emptyMap();
     }
 
     @Override
