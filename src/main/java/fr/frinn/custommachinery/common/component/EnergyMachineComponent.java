@@ -43,17 +43,21 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     private long energy;
     private final long capacity;
     private final long maxInput;
+    private final long minInput;
     private final long maxOutput;
+    private final long minOutput;
     private final IOSideConfig config;
     private final Map<Direction, SidedEnergyStorage> sidedStorages = Maps.newEnumMap(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
 
-    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long maxOutput, IOSideConfig.Template configTemplate) {
+    public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long minInput, long maxOutput, long minOutput, IOSideConfig.Template configTemplate) {
         super(manager, ComponentIOMode.BOTH);
         this.energy = 0;
         this.capacity = capacity;
         this.maxInput = maxInput;
+        this.minInput = minInput;
         this.maxOutput = maxOutput;
+        this.minOutput = minOutput;
         this.config = configTemplate.build(this);
         this.config.setCallback(this::configChanged);
         for(Direction side : Direction.values())
@@ -64,8 +68,16 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         return this.maxInput;
     }
 
+    public long getMinInput() {
+        return this.minInput;
+    }
+
     public long getMaxOutput() {
         return this.maxOutput;
+    }
+
+    public long getMinOutput() {
+        return this.minOutput;
     }
 
     //For GUI element rendering
@@ -141,9 +153,14 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         int maxExtracted = from.extractEnergy(maxAmount, true);
         if(maxExtracted > 0) {
             int maxInserted = to.receiveEnergy(maxExtracted, true);
-            if(maxInserted > 0) {
-                from.extractEnergy(maxInserted, false);
-                to.receiveEnergy(maxExtracted, false);
+            int toTransfer = maxInserted;
+            if(maxInserted != maxExtracted) //Check in case 'from' can not accept to extract a lower value like our 'minOutput'.
+                toTransfer = from.extractEnergy(maxInserted, true);
+            if(toTransfer != maxInserted) //Check in case 'to' can not accept to insert a lower value like out 'minInput'.
+                toTransfer = to.receiveEnergy(toTransfer, true);
+            if(toTransfer > 0) {
+                from.extractEnergy(toTransfer, false);
+                to.receiveEnergy(toTransfer, false);
             }
         }
     }
@@ -202,11 +219,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public int receiveEnergy(int toReceive, boolean simulate) {
-        if (this.getMaxInput() <= 0)
+        if(this.getMaxInput() <= 0 || toReceive < this.getMinInput())
             return 0;
 
         int energyReceived = (int)Math.min(this.getCapacity() - this.getEnergy(), Math.min(this.getMaxInput(), toReceive));
-        if (!simulate && energyReceived > 0) {
+        if(!simulate && energyReceived > 0) {
             this.setEnergy(this.getEnergy() + energyReceived);
             this.getManager().markDirty();
         }
@@ -216,11 +233,11 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public int extractEnergy(int toExtract, boolean simulate) {
-        if (this.getMaxOutput() <= 0)
+        if(this.getMaxOutput() <= 0 || toExtract < this.getMinOutput())
             return 0;
 
         long energyExtracted = Math.min(this.getEnergy(), Math.min(this.getMaxOutput(), toExtract));
-        if (!simulate && energyExtracted > 0) {
+        if(!simulate && energyExtracted > 0) {
             this.setEnergy(this.getEnergy() - energyExtracted);
             this.getManager().markDirty();
         }
@@ -251,18 +268,22 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     public record Template(
             long capacity,
             long maxInput,
+            long minInput,
             long maxOutput,
+            long minOutput,
             IOSideConfig.Template config
     ) implements IMachineComponentTemplate<EnergyMachineComponent> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
-                        NamedCodec.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
+                        NamedCodec.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(Template::capacity),
                         NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("minInput", 0L).forGetter(Template::minInput),
                         NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
-                        IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
-                ).apply(templateInstance, (capacity, maxInput, maxOutput, config) ->
-                        new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), config)
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("minOutput", 0L).forGetter(Template::minOutput),
+                        IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_INPUT).forGetter(Template::config)
+                ).apply(templateInstance, (capacity, maxInput, minInput, maxOutput, minOutput, config) ->
+                        new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), minInput, maxOutput.orElse(capacity), minOutput, config)
                 ), "Energy machine component"
         );
 
@@ -283,7 +304,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         @Override
         public EnergyMachineComponent build(IMachineComponentManager manager) {
-            return new EnergyMachineComponent(manager, this.capacity, this.maxInput, this.maxOutput, this.config);
+            return new EnergyMachineComponent(manager, this.capacity, this.maxInput, this.minInput, this.maxOutput, this.minOutput, this.config);
         }
     }
 }

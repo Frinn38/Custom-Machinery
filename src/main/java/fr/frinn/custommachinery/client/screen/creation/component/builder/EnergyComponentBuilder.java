@@ -42,7 +42,9 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
 
         private EditBox capacity;
         private EditBox maxInput;
+        private EditBox minInput;
         private EditBox maxOutput;
+        private EditBox minOutput;
         private IOSideConfig.Template config;
 
         public EnergyComponentBuilderPopup(BaseScreen parent, @Nullable Template template, Consumer<Template> onFinish) {
@@ -51,7 +53,7 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
 
         @Override
         public Template makeTemplate() {
-            return new Template(this.parseLong(this.capacity.getValue()), this.parseLong(this.maxInput.getValue()), this.parseLong(this.maxOutput.getValue()), this.config);
+            return new Template(this.parseLong(this.capacity.getValue()), this.parseLong(this.maxInput.getValue()), this.parseLong(this.minInput.getValue()), this.parseLong(this.maxOutput.getValue()), this.parseLong(this.minOutput.getValue()), this.config);
         }
 
         @Override
@@ -68,10 +70,20 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
             this.maxInput.setFilter(this::checkLong);
             this.baseTemplate().ifPresentOrElse(template -> this.maxInput.setValue("" + template.maxInput()), () -> this.maxInput.setValue("10000"));
 
+            //Min input
+            this.minInput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.minInput"), new EditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.minInput")));
+            this.minInput.setFilter(this::checkLong);
+            this.baseTemplate().ifPresentOrElse(template -> this.minInput.setValue("" + template.minInput()), () -> this.minInput.setValue("0"));
+
             //Max output
             this.maxOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxOutput"), new EditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxOutput")));
             this.maxOutput.setFilter(this::checkLong);
             this.baseTemplate().ifPresentOrElse(template -> this.maxOutput.setValue("" + template.maxOutput()), () -> this.maxOutput.setValue("10000"));
+
+            //Min output
+            this.minOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.minOutput"), new EditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.minOutput")));
+            this.minOutput.setFilter(this::checkLong);
+            this.baseTemplate().ifPresentOrElse(template -> this.minOutput.setValue("" + template.minOutput()), () -> this.minOutput.setValue("0"));
 
             //Config
             this.baseTemplate().ifPresentOrElse(template -> this.config = template.config(), () -> this.config = IOSideConfig.Template.DEFAULT_ALL_INPUT);
