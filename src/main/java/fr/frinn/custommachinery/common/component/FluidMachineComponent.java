@@ -35,7 +35,9 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private final String id;
     private final int capacity;
     private final int maxInput;
+    private final int minInput;
     private final int maxOutput;
+    private final int minOutput;
     private final Filter<Fluid> filter;
     private final IOSideConfig config;
     private final boolean unique;
@@ -43,12 +45,14 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     private FluidStack fluidStack = FluidStack.EMPTY;
     private boolean bypassLimit = false;
 
-    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Fluid> filter, IOSideConfig.Template configTemplate, boolean unique) {
+    public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int minInput, int maxOutput, int minOutput, Filter<Fluid> filter, IOSideConfig.Template configTemplate, boolean unique) {
         super(manager, mode);
         this.id = id;
         this.capacity = capacity;
         this.maxInput = maxInput;
+        this.minInput = minInput;
         this.maxOutput = maxOutput;
+        this.minOutput = minOutput;
         this.filter = filter;
         this.config = configTemplate.build(this);
         this.unique = unique;
@@ -80,8 +84,16 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.maxInput;
     }
 
+    public int getMinInput() {
+        return this.minInput;
+    }
+
     public int getMaxOutput() {
         return this.maxOutput;
+    }
+
+    public int getMinOutput() {
+        return this.minOutput;
     }
 
     @Override
@@ -175,7 +187,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         int maxFill = resource.getAmount();
 
         if(!this.bypassLimit)
-            maxFill = Math.min(maxFill, this.getMaxInput());
+            maxFill = maxFill < this.getMinInput() ? 0 : Math.min(maxFill, this.getMaxInput());
 
         if(this.fluidStack.isEmpty()) {
             maxFill = Math.min(maxFill, this.getCapacity());
@@ -197,7 +209,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             return FluidStack.EMPTY;
 
         if(!this.bypassLimit)
-            maxDrain = Math.min(maxDrain, this.getMaxOutput());
+            maxDrain = maxDrain < this.getMinOutput() ? 0 : Math.min(maxDrain, this.getMaxOutput());
 
         maxDrain = Math.min(maxDrain, this.fluidStack.getAmount());
 
@@ -255,7 +267,9 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             String id,
             int capacity,
             int maxInput,
+            int minInput,
             int maxOutput,
+            int minOutput,
             Filter<Fluid> filter,
             ComponentIOMode mode,
             IOSideConfig.Template config,
@@ -267,13 +281,15 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
                         NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
                         NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
                         NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                        NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("minInput", 0).forGetter(template -> template.minInput),
                         NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
+                        NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("minOutput", 0).forGetter(template -> template.minOutput),
                         Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.FLUID)).orElse(Filter.empty()).forGetter(template -> template.filter),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
                         IOSideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("unique", false).forGetter(template -> template.unique)
-                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, maxOutput, filter, mode, config, unique) ->
-                        new Template(id, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, mode, config.orElse(mode.getBaseConfig()), unique)
+                ).apply(fluidMachineComponentTemplate, (id, capacity, maxInput, minInput, maxOutput, minOutput, filter, mode, config, unique) ->
+                        new Template(id, capacity, maxInput.orElse(capacity), minInput, maxOutput.orElse(capacity), minOutput, filter, mode, config.orElse(mode.getBaseConfig()), unique)
                 ), "Fluid machine component"
         );
 
@@ -305,7 +321,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         @Override
         public FluidMachineComponent build(IMachineComponentManager manager) {
-            return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.maxOutput, this.filter, this.config, this.unique);
+            return new FluidMachineComponent(manager, this.mode, this.id, this.capacity, this.maxInput, this.minInput, this.maxOutput, this.minOutput, this.filter, this.config, this.unique);
         }
     }
 }

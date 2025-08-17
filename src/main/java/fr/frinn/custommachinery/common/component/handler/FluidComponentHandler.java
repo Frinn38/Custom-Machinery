@@ -98,10 +98,10 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
             this.getComponents().forEach(component -> {
                 if(component.getConfig().isAutoInput() && component.getConfig().getDirectionMode(side).isInput() && component.getFluid().getAmount() < component.getCapacity())
-                    FluidUtil.tryFluidTransfer(this.sidedHandlers.get(side), neighbour, Integer.MAX_VALUE, true);
+                    FluidUtil.tryFluidTransfer(component, neighbour, Integer.MAX_VALUE, true);
 
                 if(component.getConfig().isAutoOutput() && component.getConfig().getDirectionMode(side).isOutput() && component.getFluid().getAmount() > 0)
-                    FluidUtil.tryFluidTransfer(neighbour, this.sidedHandlers.get(side), Integer.MAX_VALUE, true);
+                    FluidUtil.tryFluidTransfer(neighbour, component, Integer.MAX_VALUE, true);
             });
         }
     }

@@ -276,12 +276,12 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
-                        NamedCodec.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(Template::capacity),
+                        NamedCodec.longRange(1, Long.MAX_VALUE).fieldOf("capacity").forGetter(template -> template.capacity),
                         NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxInput").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
-                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("minInput", 0L).forGetter(Template::minInput),
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("minInput", 0L).forGetter(template -> template.minInput),
                         NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("maxOutput").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
-                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("minOutput", 0L).forGetter(Template::minOutput),
-                        IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_INPUT).forGetter(Template::config)
+                        NamedCodec.longRange(0, Long.MAX_VALUE).optionalFieldOf("minOutput", 0L).forGetter(template -> template.minOutput),
+                        IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_INPUT).forGetter(template -> template.config)
                 ).apply(templateInstance, (capacity, maxInput, minInput, maxOutput, minOutput, config) ->
                         new EnergyMachineComponent.Template(capacity, maxInput.orElse(capacity), minInput, maxOutput.orElse(capacity), minOutput, config)
                 ), "Energy machine component"

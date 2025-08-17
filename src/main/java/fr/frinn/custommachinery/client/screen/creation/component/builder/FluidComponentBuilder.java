@@ -63,7 +63,9 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
         private CycleButton<ComponentIOMode> mode;
         private EditBox capacity;
         private EditBox maxInput;
+        private EditBox minInput;
         private EditBox maxOutput;
+        private EditBox minOutput;
         private Filter<Fluid> filter;
         private Checkbox unique;
         private IOSideConfig.Template config;
@@ -74,7 +76,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
 
         @Override
         public Template makeTemplate() {
-            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), this.filter, this.mode.getValue(), this.config, this.unique.selected());
+            return new Template(this.id.getValue(), (int)this.parseLong(this.capacity.getValue()), (int)this.parseLong(this.maxInput.getValue()), (int)this.parseLong(this.minInput.getValue()), (int)this.parseLong(this.maxOutput.getValue()), (int)this.parseLong(this.minOutput.getValue()), this.filter, this.mode.getValue(), this.config, this.unique.selected());
         }
 
         @Override
@@ -110,10 +112,20 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
             this.maxInput.setFilter(this::checkLong);
             this.baseTemplate().ifPresentOrElse(template -> this.maxInput.setValue("" + template.maxInput()), () -> this.maxInput.setValue("10000"));
 
+            //Min input
+            this.minInput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.minInput"), new EditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.minInput")));
+            this.minInput.setFilter(this::checkLong);
+            this.baseTemplate().ifPresentOrElse(template -> this.minInput.setValue("" + template.minInput()), () -> this.minInput.setValue("0"));
+
             //Max output
             this.maxOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxOutput"), new EditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxOutput")));
             this.maxOutput.setFilter(this::checkLong);
             this.baseTemplate().ifPresentOrElse(template -> this.maxOutput.setValue("" + template.maxOutput()), () -> this.maxOutput.setValue("10000"));
+
+            //Min output
+            this.minOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.minOutput"), new EditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.minOutput")));
+            this.minOutput.setFilter(this::checkLong);
+            this.baseTemplate().ifPresentOrElse(template -> this.minOutput.setValue("" + template.minOutput()), () -> this.minOutput.setValue("0"));
 
             //Filter
             this.baseTemplate().ifPresentOrElse(template -> this.filter = template.filter(), () -> this.filter = Filter.empty());
