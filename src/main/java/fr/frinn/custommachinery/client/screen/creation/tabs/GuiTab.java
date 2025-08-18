@@ -26,6 +26,8 @@ public class GuiTab extends MachineEditTab {
     public static final WidgetSprites BACKGROUND_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/background_button"), CustomMachinery.rl("creation/background_button_hovered"));
     public static final WidgetSprites GRID_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/grid_button"), CustomMachinery.rl("creation/grid_button_hovered"));
     public static final WidgetSprites REVERT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/revert_button"), CustomMachinery.rl("creation/revert_button_disabled"), CustomMachinery.rl("creation/revert_button_hovered"), CustomMachinery.rl("creation/revert_button_disabled_hovered"));
+    public static final WidgetSprites COPY_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/copy_button"), CustomMachinery.rl("creation/copy_button_disabled"), CustomMachinery.rl("creation/copy_button_hovered"), CustomMachinery.rl("creation/copy_button_disabled_hovered"));
+    public static final WidgetSprites PASTE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/paste_button"), CustomMachinery.rl("creation/paste_button_disabled"), CustomMachinery.rl("creation/paste_button_hovered"), CustomMachinery.rl("creation/paste_button_disabled_hovered"));
     public static final WidgetSprites ALIGN_TOP_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_top_button"), CustomMachinery.rl("creation/align_top_button_disabled"), CustomMachinery.rl("creation/align_top_button_hovered"), CustomMachinery.rl("creation/align_top_button_disabled_hovered"));
     public static final WidgetSprites ALIGN_CENTER_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_center_button"), CustomMachinery.rl("creation/align_center_button_disabled"), CustomMachinery.rl("creation/align_center_button_hovered"), CustomMachinery.rl("creation/align_center_button_disabled_hovered"));
     public static final WidgetSprites ALIGN_BOTTOM_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_bottom_button"), CustomMachinery.rl("creation/align_bottom_button_disabled"), CustomMachinery.rl("creation/align_bottom_button_hovered"), CustomMachinery.rl("creation/align_bottom_button_disabled_hovered"));
@@ -35,6 +37,8 @@ public class GuiTab extends MachineEditTab {
 
     private final GuiEditorWidget guiEditor;
     public ImageButton revertButton;
+    public ImageButton copyButton;
+    public ImageButton pasteButton;
     public ImageButton alignTop;
     public ImageButton alignCenter;
     public ImageButton alignBottom;
@@ -74,6 +78,14 @@ public class GuiTab extends MachineEditTab {
         this.revertButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip2").withStyle(ChatFormatting.GRAY))));
         this.revertButton.active = false;
 
+        this.copyButton = new ImageButton(0, 0, 20, 20, COPY_SPRITES, button -> this.guiEditor.copy());
+        this.copyButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.copy.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.copy.tooltip2").withStyle(ChatFormatting.GRAY))));
+        this.copyButton.active = false;
+
+        this.pasteButton = new ImageButton(0, 0, 20, 20, PASTE_SPRITES, button -> this.guiEditor.paste());
+        this.pasteButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.paste.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.paste.tooltip2").withStyle(ChatFormatting.GRAY))));
+        this.pasteButton.active = false;
+
         this.alignTop = new ImageButton(0, 0, 20, 20, ALIGN_TOP_SPRITES, button -> this.guiEditor.alignTop());
         this.alignTop.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.top")));
 
@@ -98,10 +110,10 @@ public class GuiTab extends MachineEditTab {
 
         //Order from top left to bottom right, max of 3 columns and 5 rows
         return List.of(
-                this.alignTop,      this.alignLeft,   addButton,
-                this.alignCenter,   this.alignMiddle, backgroundButton,
-                this.alignBottom,   this.alignRight,  gridButton,
-                empty,                          empty,                      this.revertButton);
+                this.alignTop,      this.alignLeft,    addButton,
+                this.alignCenter,   this.alignMiddle,  backgroundButton,
+                this.alignBottom,   this.alignRight,   gridButton,
+                this.copyButton,    this.pasteButton,  this.revertButton);
     }
 
     private void create() {

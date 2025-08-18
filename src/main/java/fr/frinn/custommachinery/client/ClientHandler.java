@@ -362,4 +362,39 @@ public class ClientHandler {
     public static boolean isOverlapping(Rect2i first, Rect2i second) {
         return first.getX() <= second.getX() + second.getWidth() && first.getX() + first.getWidth() >= second.getX() && first.getY() <= second.getY() + second.getHeight() && first.getY() + first.getHeight() >= second.getY();
     }
+
+    public static void drawDottedRect(GuiGraphics g, int x, int y, int width, int height, int color, int dashLength, int gapLength, int offset) {
+        drawDottedLine(g, x, y, x + width, y, color, dashLength, gapLength, offset); // top
+        drawDottedLine(g, x + width, y, x + width, y + height, color, dashLength, gapLength, offset); // right
+        drawDottedLine(g, x + width, y + height, x, y + height, color, dashLength, gapLength, offset); // bottom
+        drawDottedLine(g, x, y + height, x, y, color, dashLength, gapLength, offset); // left
+    }
+
+    public static void drawDottedLine(GuiGraphics g, int x1, int y1, int x2, int y2, int argb, int dashLen, int gapLen, int offset) {
+        int total = dashLen + gapLen;
+
+        if (y1 == y2) { // horizontal
+            int step = x1 < x2 ? 1 : -1;
+            int len = Math.abs(x2 - x1);
+            int x = x1;
+            for (int i = 0; i < len; i++) {
+                int phase = (i + offset) % total;
+                if (phase < dashLen) {
+                    g.fill(x, y1, x + step, y1 + 1, argb);
+                }
+                x += step;
+            }
+        } else if (x1 == x2) { // vertical
+            int step = y1 < y2 ? 1 : -1;
+            int len = Math.abs(y2 - y1);
+            int y = y1;
+            for (int i = 0; i < len; i++) {
+                int phase = (i + offset) % total;
+                if (phase < dashLen) {
+                    g.fill(x1, y, x1 + 1, y + step, argb);
+                }
+                y += step;
+            }
+        }
+    }
 }

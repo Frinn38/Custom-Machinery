@@ -30,6 +30,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Objects;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -133,5 +135,26 @@ public class Utils {
             return Fluids.EMPTY.getFluidType().getDescription();
         else
             return ingredient.getFluids()[0].getHoverName();
+    }
+
+    public static String incrementLastNumber(String input) {
+        if(input == null || input.isEmpty())
+            return "";
+
+        Pattern p = Pattern.compile("(\\d+)(?!.*\\d)");
+        Matcher m = p.matcher(input);
+
+        if(m.find()) {
+            String numberStr = m.group(1);
+            int width = numberStr.length();
+            int number = Integer.parseInt(numberStr);
+            number++;
+
+            // format with zero-padding to preserve width
+            String newNumber = String.format("%0" + width + "d", number);
+
+            return input.substring(0, m.start()) + newNumber + input.substring(m.end());
+        } else
+            return input + "1";
     }
 }
