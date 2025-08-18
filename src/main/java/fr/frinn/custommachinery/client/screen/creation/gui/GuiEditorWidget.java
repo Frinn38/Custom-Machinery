@@ -398,15 +398,20 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         else if(this.delete.mouseClicked(mouseX, mouseY, button))
             return true;
 
-        for (GuiEventListener guiEventListener : this.widgets.reversed()) {
-            if (!guiEventListener.mouseClicked(mouseX, mouseY, button)) continue;
+        for(GuiEventListener guiEventListener : this.widgets.reversed()) {
+            if(!guiEventListener.mouseClicked(mouseX, mouseY, button))
+                continue;
+            if(guiEventListener instanceof WidgetEditorWidget<?> widget && this.selected.contains(widget)) {
+                this.setDragging(true);
+                return true;
+            }
             this.setFocused(guiEventListener);
             this.setDragging(true);
             this.selected.clear();
             return true;
         }
         this.setFocused(null);
-        if (button == 0 && mouseX >= this.getX() && mouseX <= this.getX() + this.getWidth() && mouseY >= this.getY() && mouseY <= this.getY() + this.getHeight()) {
+        if(button == 0 && mouseX >= this.getX() && mouseX <= this.getX() + this.getWidth() && mouseY >= this.getY() && mouseY <= this.getY() + this.getHeight()) {
             this.setDragging(true);
             this.selected.clear();
             this.selectionBoxStart = new Vector2d(mouseX, mouseY);
@@ -425,13 +430,36 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                     .forEach(this.selected::add);
             this.selectionBoxStart = null;
         }
-        return this.getFocused() != null && this.getFocused().mouseReleased(mouseX, mouseY, button);
+        if(this.getFocused() != null)
+            return this.getFocused().mouseReleased(mouseX, mouseY, button);
+        else if(!this.selected.isEmpty()) {
+            List<Change> changes = new ArrayList<>();
+            this.selected.forEach(widget -> {
+                widget.mouseReleased(mouseX, mouseY, button);
+                if(!this.changes.isEmpty() && this.changes.getFirst() instanceof SingleWidgetChange singleChange && singleChange.widget == widget)
+                    changes.add(this.changes.removeFirst());
+            });
+            if(!changes.isEmpty())
+                this.memorizeChange(new GroupWidgetChange(changes));
+            this.hideButtons();
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if(this.getFocused() != null && this.isDragging() && button == 0)
-            return this.getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        if(this.isDragging() && button == 0) {
+            if(this.getFocused() != null)
+                return this.getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            else if(!this.selected.isEmpty()) {
+                this.selected.forEach(widget -> {
+                    widget.dragType = DragType.DEFAULT;
+                    widget.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+                });
+                return true;
+            }
+        }
         return false;
     }
 
@@ -442,7 +470,8 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if(keyCode == GLFW.GLFW_KEY_Z || keyCode == GLFW.GLFW_KEY_W && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+        String key = GLFW.glfwGetKeyName(keyCode, scanCode);
+        if(key != null && key.equals("z") && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
             this.revertChange();
             return true;
         }
@@ -502,7 +531,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         private final MutableProperties properties;
 
         private AbstractGuiElementWidget<T> widget;
-        private DragType dragType = DragType.DEFAULT;
+        private DragType dragType = DragType.NONE;
         private double dragX = 0.0D;
         private double dragY = 0.0D;
 
@@ -526,8 +555,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         private DragType getDragType(double mouseX, double mouseY) {
-            if(!this.isMouseOver(mouseX, mouseY))
+            if(GuiEditorWidget.this.selected.stream().anyMatch(widget -> widget.isMouseOver(mouseX, mouseY)))
                 return DragType.DEFAULT;
+            if(!this.isMouseOver(mouseX, mouseY))
+                return DragType.NONE;
 
             //Left
             if(mouseX >= this.getX() && mouseX <= this.getX() + 1 && mouseY >= this.getY() && mouseY <= this.getY() + this.getHeight())
@@ -547,11 +578,12 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         private void checkCursorShape(int mouseX, int mouseY) {
-            if(this.dragType != DragType.DEFAULT)
+            if(this.dragType != DragType.NONE)
                 return;
             switch (this.getDragType(mouseX, mouseY)) {
                 case LEFT_RESIZE, RIGHT_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_EW_CURSOR));
                 case UP_RESIZE, DOWN_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NS_CURSOR));
+                case DEFAULT -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_ALL_CURSOR));
                 default -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
             }
         }
@@ -634,7 +666,20 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             GuiEditorWidget.this.hideButtons();
 
             switch (this.dragType) {
-                case DEFAULT, LEFT_RESIZE, UP_RESIZE -> {
+                case DEFAULT -> {
+                    if(GuiEditorWidget.this.focused == this) {
+                        this.dragX = Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - this.getX(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
+                        this.dragY = Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - this.getY(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
+                    } else if(GuiEditorWidget.this.selected.contains(this)) {
+                        double minDragX = GuiEditorWidget.this.selected.stream().mapToDouble(widget -> widget.getX() - widget.getWidth()).max().orElse(0);
+                        double minDragY = GuiEditorWidget.this.selected.stream().mapToDouble(widget -> widget.getY() - widget.getHeight()).max().orElse(0);
+                        double maxDragX = GuiEditorWidget.this.selected.stream().mapToDouble(widget -> widget.getX() + widget.getWidth()).max().orElse(0);
+                        double maxDragY = GuiEditorWidget.this.selected.stream().mapToDouble(widget -> widget.getY() + widget.getHeight()).max().orElse(0);
+                        this.dragX = Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - minDragX, GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - maxDragX);
+                        this.dragY = Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - minDragY, GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - maxDragY);
+                    }
+                }
+                 case LEFT_RESIZE, UP_RESIZE -> {
                     this.dragX = Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - this.getX(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
                     this.dragY = Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - this.getY(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
                 }
@@ -646,7 +691,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         @Override
         public void onRelease(double mouseX, double mouseY) {
             if(this.dragX == 0.0D && this.dragY == 0.0D) {
-                this.dragType = DragType.DEFAULT;
+                this.dragType = DragType.NONE;
                 return;
             }
 
@@ -679,7 +724,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             GuiEditorWidget.this.showButtons(this);
             GuiEditorWidget.this.parent.setChanged();
 
-            this.dragType = DragType.DEFAULT;
+            this.dragType = DragType.NONE;
             this.dragX = 0.0D;
             this.dragY = 0.0D;
             GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
@@ -760,7 +805,8 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     private enum DragType {
-        DEFAULT,
+        NONE,//No drag
+        DEFAULT,//Dragging
         UP_RESIZE,
         DOWN_RESIZE,
         LEFT_RESIZE,
@@ -812,7 +858,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 if(this.widget.getHeight() != this.height)
                     this.widget.setHeight(this.height);
             }
-            GuiEditorWidget.this.setFocused(this.widget);
+            GuiEditorWidget.this.showButtons(this.widget);
         }
     }
 
