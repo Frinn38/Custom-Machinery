@@ -141,9 +141,9 @@ allprojects {
             repositories {
                 maven {
                     name = 'maven'
-                    url = 'https://maven.frinn.fr/repository/maven/'
+                    url = 'https://maven.frinn.fr/releases/'
                     credentials {
-                        username = 'frinn'
+                        username = 'Frinn'
                         password = System.getenv('MAVEN_PASSWORD')
                     }
                 }
