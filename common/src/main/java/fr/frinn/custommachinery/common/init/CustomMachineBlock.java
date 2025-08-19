@@ -322,7 +322,7 @@ public class CustomMachineBlock extends Block implements EntityBlock, IBlockWith
 
     @Override
     public float[] getBeaconColorMultiplier(BlockState blockState, LevelReader levelReader, BlockPos blockPos, BlockPos blockPos1) {
-        return new float[0];
+        return new float[]{1.0F, 1.0F, 1.0F};
     }
 
     @Override
