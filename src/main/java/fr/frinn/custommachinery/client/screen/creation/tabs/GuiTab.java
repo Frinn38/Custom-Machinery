@@ -34,17 +34,23 @@ public class GuiTab extends MachineEditTab {
     public static final WidgetSprites ALIGN_LEFT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_left_button"), CustomMachinery.rl("creation/align_left_button_disabled"), CustomMachinery.rl("creation/align_left_button_hovered"), CustomMachinery.rl("creation/align_left_button_disabled_hovered"));
     public static final WidgetSprites ALIGN_MIDDLE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_middle_button"), CustomMachinery.rl("creation/align_middle_button_disabled"), CustomMachinery.rl("creation/align_middle_button_hovered"), CustomMachinery.rl("creation/align_middle_button_disabled_hovered"));
     public static final WidgetSprites ALIGN_RIGHT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/align_right_button"), CustomMachinery.rl("creation/align_right_button_disabled"), CustomMachinery.rl("creation/align_right_button_hovered"), CustomMachinery.rl("creation/align_right_button_disabled_hovered"));
+    public static final WidgetSprites CENTER_HORIZONTALLY_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/center_horizontally_button"), CustomMachinery.rl("creation/center_horizontally_button_disabled"), CustomMachinery.rl("creation/center_horizontally_button_hovered"), CustomMachinery.rl("creation/center_horizontally_button_disabled_hovered"));
+    public static final WidgetSprites CENTER_VERTICALLY_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/center_vertically_button"), CustomMachinery.rl("creation/center_vertically_button_disabled"), CustomMachinery.rl("creation/center_vertically_button_hovered"), CustomMachinery.rl("creation/center_vertically_button_disabled_hovered"));
+    public static final WidgetSprites COMPACT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/compact_button"), CustomMachinery.rl("creation/compact_button_disabled"), CustomMachinery.rl("creation/compact_button_hovered"), CustomMachinery.rl("creation/compact_button_disabled_hovered"));
 
     private final GuiEditorWidget guiEditor;
-    public ImageButton revertButton;
-    public ImageButton copyButton;
-    public ImageButton pasteButton;
+    public ImageButton revert;
+    public ImageButton copy;
+    public ImageButton paste;
     public ImageButton alignTop;
     public ImageButton alignCenter;
     public ImageButton alignBottom;
     public ImageButton alignLeft;
     public ImageButton alignMiddle;
     public ImageButton alignRight;
+    public ImageButton centerHorizontally;
+    public ImageButton centerVertically;
+    public ImageButton compact;
 
     public GuiTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.gui"), parent);
@@ -74,17 +80,17 @@ public class GuiTab extends MachineEditTab {
         ImageButton gridButton = new ImageButton(0, 0, 20, 20, GRID_SPRITES, button -> this.grid());
         gridButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.grid")));
 
-        this.revertButton = new ImageButton(0, 0, 20, 20, REVERT_SPRITES, button -> this.guiEditor.revertChange());
-        this.revertButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.revert.tooltip2").withStyle(ChatFormatting.GRAY))));
-        this.revertButton.active = false;
+        this.revert = new ImageButton(0, 0, 20, 20, REVERT_SPRITES, button -> this.guiEditor.revertChange());
+        this.revert.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.revert").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.revert.key").withStyle(ChatFormatting.GRAY))));
+        this.revert.active = false;
 
-        this.copyButton = new ImageButton(0, 0, 20, 20, COPY_SPRITES, button -> this.guiEditor.copy());
-        this.copyButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.copy.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.copy.tooltip2").withStyle(ChatFormatting.GRAY))));
-        this.copyButton.active = false;
+        this.copy = new ImageButton(0, 0, 20, 20, COPY_SPRITES, button -> this.guiEditor.copy());
+        this.copy.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.copy").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.copy.key").withStyle(ChatFormatting.GRAY))));
+        this.copy.active = false;
 
-        this.pasteButton = new ImageButton(0, 0, 20, 20, PASTE_SPRITES, button -> this.guiEditor.paste());
-        this.pasteButton.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.paste.tooltip").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.paste.tooltip2").withStyle(ChatFormatting.GRAY))));
-        this.pasteButton.active = false;
+        this.paste = new ImageButton(0, 0, 20, 20, PASTE_SPRITES, button -> this.guiEditor.paste());
+        this.paste.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.paste").append("\n").append(Component.translatable("custommachinery.gui.creation.gui.paste.key").withStyle(ChatFormatting.GRAY))));
+        this.paste.active = false;
 
         this.alignTop = new ImageButton(0, 0, 20, 20, ALIGN_TOP_SPRITES, button -> this.guiEditor.alignTop());
         this.alignTop.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.top")));
@@ -104,16 +110,30 @@ public class GuiTab extends MachineEditTab {
         this.alignRight = new ImageButton(0, 0, 20, 20, ALIGN_RIGHT_SPRITES, button -> this.guiEditor.alignRight());
         this.alignRight.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.align.right")));
 
+        this.centerHorizontally = new ImageButton(0, 0, 20, 20, CENTER_HORIZONTALLY_SPRITES, button -> this.guiEditor.centerHorizontally());
+        this.centerHorizontally.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.center.horizontally")));
+        this.centerHorizontally.active = false;
+
+        this.centerVertically = new ImageButton(0, 0, 20, 20, CENTER_VERTICALLY_SPRITES, button -> this.guiEditor.centerVertically());
+        this.centerVertically.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.center.vertically")));
+        this.centerVertically.active = false;
+
+        this.compact = new ImageButton(0, 0, 20, 20, COMPACT_SPRITES, button -> this.guiEditor.compact());
+        this.compact.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.compact")));
+        this.compact.active = false;
+
         this.enableAlignButtons(false);
 
         ImageWidget empty = ImageWidget.texture(20, 20, CustomMachinery.rl("textures/gui/base_empty.png"), 1, 1);
 
         //Order from top left to bottom right, max of 3 columns and 5 rows
         return List.of(
-                this.alignTop,      this.alignLeft,    addButton,
-                this.alignCenter,   this.alignMiddle,  backgroundButton,
-                this.alignBottom,   this.alignRight,   gridButton,
-                this.copyButton,    this.pasteButton,  this.revertButton);
+                this.alignTop,           this.alignLeft,        addButton,
+                this.alignCenter,        this.alignMiddle,      backgroundButton,
+                this.alignBottom,        this.alignRight,       gridButton,
+                this.centerHorizontally, this.centerVertically, this.compact,
+                this.copy,               this.paste,            this.revert
+        );
     }
 
     private void create() {
@@ -135,5 +155,6 @@ public class GuiTab extends MachineEditTab {
         this.alignLeft.active = active;
         this.alignMiddle.active = active;
         this.alignRight.active = active;
+        this.compact.active = active;
     }
 }
