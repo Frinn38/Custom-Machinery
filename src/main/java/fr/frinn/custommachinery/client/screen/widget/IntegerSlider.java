@@ -18,7 +18,7 @@ public class IntegerSlider extends AbstractSliderButton {
     private final int min;
     private final int max;
     private final boolean onlyValue;
-    private final Consumer<Integer> responder;
+    private Consumer<Integer> responder;
 
     private IntegerSlider(int x, int y, int width, int height, Component message, double value, int min, int max, boolean onlyValue, Consumer<Integer> responder) {
         super(x, y, width, height, onlyValue ? Component.literal("" + (int)Mth.map(value, 0.0D, 1.0D, min, max)) : Component.empty().append(message).append(": " + (int)Mth.map(value, 0.0D, 1.0D, min, max)), value);
@@ -37,6 +37,10 @@ public class IntegerSlider extends AbstractSliderButton {
         this.value = Mth.clamp(Mth.map(value, this.min, this.max, 0.0D, 1.0D), 0, 1);
         this.applyValue();
         this.updateMessage();
+    }
+
+    public void setResponder(Consumer<Integer> responder) {
+        this.responder = responder;
     }
 
     @Override
