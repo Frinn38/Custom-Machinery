@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.screen.creation.tabs;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.client.screen.creation.MachineComponentListWidget;
+import fr.frinn.custommachinery.client.screen.creation.MachineComponentListWidget.MachineComponentEntry;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentCreationPopup;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
@@ -10,28 +11,34 @@ import fr.frinn.custommachinery.client.screen.creation.component.MachineComponen
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Comparator;
 
 public class ComponentTab extends MachineEditTab {
 
     private final MachineComponentListWidget componentList;
     private final Button create;
     private final Button edit;
+    private final Button duplicate;
     private final Button delete;
 
     public ComponentTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.components"), parent);
         this.layout.rowSpacing(5).columnSpacing(10);
         this.layout.defaultCellSetting().paddingTop(5);
-        GridLayout.RowHelper row = this.layout.createRowHelper(3);
+        GridLayout.RowHelper row = this.layout.createRowHelper(4);
         LayoutSettings center = row.defaultCellSetting().alignHorizontallyCenter();
-        this.componentList = row.addChild(new MachineComponentListWidget(parent.x, parent.y + 10, parent.xSize - 10, parent.ySize - 50, 40, this), 3, center);
+        this.componentList = row.addChild(new MachineComponentListWidget(parent.x, parent.y + 10, parent.xSize - 10, parent.ySize - 50, 40, this), 4, center);
         this.componentList.setup(parent.getBuilder());
         this.create = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).size(60, 20).build(), center);
         this.edit = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).size(60, 20).build(), center);
+        this.duplicate = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.components.duplicate"), button -> this.duplicate()).size(60, 20).build(), center);
+        this.duplicate.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.duplicate.tooltip")));
         this.delete = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.delete"), button -> this.delete()).size(60, 20).build(), center);
         this.setupButtons();
     }
@@ -39,9 +46,11 @@ public class ComponentTab extends MachineEditTab {
     public void setupButtons() {
         if(this.componentList.getSelected() != null) {
             this.edit.active = true;
+            this.duplicate.active = !this.componentList.getSelected().getTemplate().getType().isSingle();
             this.delete.active = true;
         } else {
             this.edit.active = false;
+            this.duplicate.active = false;
             this.delete.active = false;
         }
     }
@@ -56,6 +65,18 @@ public class ComponentTab extends MachineEditTab {
             PopupScreen componentEditPopup = getComponentEditPopup(entry.getTemplate(), entry);
             if(componentEditPopup != null)
                 this.parent.openPopup(componentEditPopup);
+        }
+    }
+
+    public void duplicate() {
+        MachineComponentListWidget.MachineComponentEntry entry = this.componentList.getSelected();
+        if(entry != null && !entry.getTemplate().getType().isSingle()) {
+            MachineComponentEntry copy = entry.copy();
+            this.parent.getBuilder().getComponents().add(copy.getTemplate());
+            this.parent.setChanged();
+            this.componentList.addEntry(copy);
+            this.componentList.sort(Comparator.comparing(componentEntry -> componentEntry.getTemplate().getType().getId().toString() + ":" + componentEntry.getTemplate().getId()));
+            this.componentList.setSelected(copy);
         }
     }
 

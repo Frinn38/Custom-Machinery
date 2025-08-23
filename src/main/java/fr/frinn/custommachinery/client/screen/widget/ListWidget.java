@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ListWidget<E extends Entry> extends AbstractWidget implements ContainerEventHandler {
@@ -54,6 +55,10 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         this.entries.add(entry);
     }
 
+    public void sort(Comparator<E> comparator) {
+        this.entries.sort(comparator);
+    }
+
     public void clear() {
         this.entries.clear();
         this.selected = null;
@@ -66,6 +71,8 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
 
     public void setSelected(@Nullable E selected) {
         this.selected = selected;
+        if(selected != null)
+            this.ensureVisible(selected);
     }
 
     @Nullable

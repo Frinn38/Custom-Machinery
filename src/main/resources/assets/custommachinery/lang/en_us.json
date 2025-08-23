@@ -177,6 +177,8 @@
 
   "custommachinery.gui.creation.components.delete.title": "Delete component",
   "custommachinery.gui.creation.components.delete.info": "Are you sure you want to delete this machine component ?",
+  "custommachinery.gui.creation.components.duplicate": "Duplicate",
+  "custommachinery.gui.creation.components.duplicate.tooltip": "Duplicate this component and increment id",
   "custommachinery.gui.creation.components.create.title": "Choose a type",
   "custommachinery.gui.creation.components.id": "ID",
   "custommachinery.gui.creation.components.id.tooltip": "The id must be different for each components of the same type",
