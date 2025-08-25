@@ -34,13 +34,12 @@ public class ComponentTab extends MachineEditTab {
         GridLayout.RowHelper row = this.layout.createRowHelper(4);
         LayoutSettings center = row.defaultCellSetting().alignHorizontallyCenter();
         this.componentList = row.addChild(new MachineComponentListWidget(parent.x, parent.y + 10, parent.xSize - 10, parent.ySize - 50, 40, this), 4, center);
-        this.componentList.setup(parent.getBuilder());
         this.create = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).size(60, 20).build(), center);
         this.edit = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).size(60, 20).build(), center);
         this.duplicate = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.components.duplicate"), button -> this.duplicate()).size(60, 20).build(), center);
         this.duplicate.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.duplicate.tooltip")));
         this.delete = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.delete"), button -> this.delete()).size(60, 20).build(), center);
-        this.setupButtons();
+        this.componentList.setup(parent.getBuilder());//Call at the end because it will call setupButtons
     }
 
     public void setupButtons() {
