@@ -144,6 +144,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -223,7 +224,8 @@ public class Registration {
     );
 
     public static final DeferredItem<CustomMachineItem>     CUSTOM_MACHINE_ITEM     = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().component(MACHINE_DATA, CustomMachine.DUMMY_ID), null));
-    public static final DeferredItem<BoxCreatorItem>        BOX_CREATOR_ITEM        = ITEMS.register("box_creator_item", () -> new BoxCreatorItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<MachineCreatorItem>    MACHINE_CREATOR_ITEM    = ITEMS.register("machine_creator", () -> new MachineCreatorItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<BoxCreatorItem>        BOX_CREATOR_ITEM        = ITEMS.register("box_creator", () -> new BoxCreatorItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<StructureCreatorItem>  STRUCTURE_CREATOR_ITEM  = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<ConfigurationCardItem> CONFIGURATION_CARD_ITEM = ITEMS.register("configuration_card", () -> new ConfigurationCardItem(new Item.Properties().stacksTo(1)));
 
@@ -241,6 +243,7 @@ public class Registration {
         .title(Component.translatable("itemGroup.custommachinery.group"))
         .icon(() -> CustomMachineItem.makeMachineItem(CustomMachine.DUMMY_ID))
         .displayItems((params, output) -> {
+            output.accept(MACHINE_CREATOR_ITEM.get());
             output.accept(BOX_CREATOR_ITEM.get());
             output.accept(STRUCTURE_CREATOR_ITEM.get());
             output.accept(CONFIGURATION_CARD_ITEM.get());
