@@ -1,0 +1,139 @@
+{
+  "name": {
+    "text": "Power crusher"
+  },
+  "appearance": {
+    "running": {
+      "custommachinery:ambient_sound": {
+        "sound": "minecraft:block.anvil.land"
+      },
+      "custommachinery:light": 15
+    }
+  },
+  "components": [
+    {
+      "type": "custommachinery:energy",
+      "capacity": 10000
+    },
+    {
+      "type": "custommachinery:item",
+      "id": "input1",
+      "mode": "input"
+    },
+    {
+      "type": "custommachinery:item",
+      "id": "input2",
+      "mode": "input"
+    },
+    {
+      "type": "custommachinery:item",
+      "config": {
+        "TOP": "INPUT",
+        "BOTTOM": "INPUT",
+        "FRONT": "INPUT",
+        "RIGHT": "INPUT",
+        "BACK": "INPUT",
+        "LEFT": "INPUT"
+      },
+      "id": "output1",
+      "mode": "output"
+    },
+    {
+      "type": "custommachinery:item",
+      "config": {
+        "TOP": "INPUT",
+        "BOTTOM": "INPUT",
+        "FRONT": "INPUT",
+        "RIGHT": "INPUT",
+        "BACK": "INPUT",
+        "LEFT": "INPUT"
+      },
+      "id": "output2",
+      "mode": "output"
+    },
+    {
+      "type": "custommachinery:item",
+      "config": {
+        "TOP": "INPUT",
+        "BOTTOM": "INPUT",
+        "FRONT": "INPUT",
+        "RIGHT": "INPUT",
+        "BACK": "INPUT",
+        "LEFT": "INPUT"
+      },
+      "id": "output3",
+      "mode": "output"
+    }
+  ],
+  "gui": [
+    {
+      "type": "custommachinery:background",
+      "width": 200,
+      "height": 150
+    },
+    {
+      "type": "custommachinery:config",
+      "x": 176,
+      "y": 4
+    },
+    {
+      "type": "custommachinery:energy",
+      "x": 19,
+      "y": 21
+    },
+    {
+      "type": "custommachinery:player_inventory",
+      "x": 19,
+      "y": 67
+    },
+    {
+      "type": "custommachinery:progress",
+      "x": 86,
+      "y": 35
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "input1",
+      "x": 38,
+      "y": 34
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "input2",
+      "x": 57,
+      "y": 34
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "output1",
+      "x": 125,
+      "y": 34
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "output2",
+      "x": 144,
+      "y": 34
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "output3",
+      "x": 163,
+      "y": 34
+    },
+    {
+      "type": "custommachinery:status",
+      "x": 3,
+      "y": 3
+    },
+    {
+      "type": "custommachinery:text",
+      "x": 62,
+      "y": 10,
+      "text": {
+        "text": "Power crusher",
+        "color": "dark_gray"
+      }
+    }
+  ]
+}

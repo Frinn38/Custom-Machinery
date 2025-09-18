@@ -34,6 +34,8 @@ import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElement
 import fr.frinn.custommachinery.client.model.CustomMachineModelLoader;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.client.screen.creation.MachineTooltipComponent;
+import fr.frinn.custommachinery.client.screen.creation.MachineTooltipComponent.ClientMachineTooltipComponent;
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.AmbientSoundAppearancePropertyBuilder;
@@ -110,6 +112,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.ModelEvent.BakingCompleted;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
@@ -140,6 +143,8 @@ public class ClientHandler {
         MOD_BUS.addListener(this::registerModelLoader);
         MOD_BUS.addListener(this::registerAdditionalModels);
         MOD_BUS.addListener(this::onBackingCompleted);
+        MOD_BUS.addListener(this::registerClientTooltipComponents);
+
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
@@ -277,6 +282,10 @@ public class ClientHandler {
 
     public static Map<ModelResourceLocation, BakedModel> getAllModels() {
         return models;
+    }
+
+    private void registerClientTooltipComponents(final RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(MachineTooltipComponent.class, ClientMachineTooltipComponent::new);
     }
 
     private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {

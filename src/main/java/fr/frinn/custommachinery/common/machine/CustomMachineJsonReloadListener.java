@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.machine;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
@@ -11,6 +12,7 @@ import fr.frinn.custommachinery.common.requirement.FunctionRequirement;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import fr.frinn.custommachinery.common.util.MachineList;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
@@ -91,8 +93,18 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
             if(result.result().isPresent()) {
                 CustomMachine machine = result.result().get();
                 machine.setLocation(location);
-                CustomMachinery.MACHINES.put(id, machine);
-                ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
+                //Check if it's a template
+                if(id.getPath().startsWith("template/")) {
+                    //Try to parse a tooltip
+                    Component tooltip = Component.empty();
+                    if(jsonObject.has("template.tooltip") && jsonObject.get("template.tooltip").isJsonPrimitive() && jsonObject.getAsJsonPrimitive("template.tooltip").isString())
+                        tooltip = Component.translatable(jsonObject.getAsJsonPrimitive("template.tooltip").getAsString());
+                    CustomMachinery.TEMPLATES.put(id, Pair.of(machine, tooltip));
+                }
+                else { //Else it's a normal machine
+                    CustomMachinery.MACHINES.put(id, machine);
+                    ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
+                }
             } else if(result.error().isPresent())
                 ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing machine json: {}, skipping...\n{}", id, result.error().get().message());
         });
@@ -111,7 +123,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                             iterator.remove();
                         }
                     }, () -> {
-                        ICustomMachineryAPI.INSTANCE.logger().error("Upgraded machine '{}' reference parent machine '{}' which doesn't exist, skipping", triplet.getB(), triplet.getA());
+                        ICustomMachineryAPI.INSTANCE.logger().error("Upgraded machine '{}' reference parent machine '{}' which was not loaded, skipping", triplet.getB(), triplet.getA());
                         iterator.remove();
                     });
                     //Parent not already loaded
@@ -124,9 +136,9 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                     CustomMachine machine = result.result().get();
                     machine.setLocation(getMachineLocation(resourceManager, id));
                     CustomMachinery.MACHINES.put(id, machine);
-                    ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
+                    ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed upgraded machine json: {}", id);
                 } else if(result.error().isPresent())
-                    ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing machine json: {}, skipping...\n{}", id, result.error().get().message());
+                    ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing upgraded machine json: {}, skipping...\n{}", id, result.error().get().message());
 
                 iterator.remove();
             }

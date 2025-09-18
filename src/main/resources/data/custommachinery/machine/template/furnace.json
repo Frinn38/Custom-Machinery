@@ -1,0 +1,99 @@
+{
+  "name": {
+    "text": "Furnace"
+  },
+  "appearance": {
+    "running": {
+      "custommachinery:ambient_sound": {
+        "sound": "minecraft:block.furnace.fire_crackle"
+      },
+      "custommachinery:block": "minecraft:furnace#facing=north,lit=true",
+      "custommachinery:light": 15
+    },
+    "custommachinery:block": "minecraft:furnace"
+  },
+  "components": [
+    {
+      "type": "custommachinery:item",
+      "config": {
+        "TOP": "INPUT",
+        "BOTTOM": "INPUT",
+        "FRONT": "INPUT",
+        "RIGHT": "INPUT",
+        "BACK": "INPUT",
+        "LEFT": "INPUT"
+      },
+      "id": "fuel",
+      "mode": "none"
+    },
+    {
+      "type": "custommachinery:item",
+      "id": "input",
+      "mode": "input"
+    },
+    {
+      "type": "custommachinery:item",
+      "config": {
+        "TOP": "INPUT",
+        "BOTTOM": "INPUT",
+        "FRONT": "INPUT",
+        "RIGHT": "INPUT",
+        "BACK": "INPUT",
+        "LEFT": "INPUT"
+      },
+      "id": "output",
+      "mode": "output"
+    }
+  ],
+  "gui": [
+    {
+      "type": "custommachinery:background",
+      "width": 172,
+      "height": 160
+    },
+    {
+      "type": "custommachinery:fuel",
+      "x": 43,
+      "y": 40
+    },
+    {
+      "type": "custommachinery:player_inventory",
+      "x": 5,
+      "y": 78
+    },
+    {
+      "type": "custommachinery:progress",
+      "x": 74,
+      "y": 39
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "fuel",
+      "x": 41,
+      "y": 55
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "input",
+      "x": 41,
+      "y": 19
+    },
+    {
+      "type": "custommachinery:slot",
+      "id": "output",
+      "x": 112,
+      "y": 32,
+      "width": 30,
+      "height": 30
+    },
+    {
+      "type": "custommachinery:text",
+      "x": 65,
+      "y": 4,
+      "text": {
+        "text": "Furnace",
+        "color": "dark_gray"
+      }
+    }
+  ]
+}

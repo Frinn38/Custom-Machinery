@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 public class CMCommand {
 
     public static final SuggestionProvider<CommandSourceStack> ALL_MACHINES = SuggestionProviders.register(CustomMachinery.rl("all_machines"), (commandContext, suggestionsBuilder) -> suggestCMResource(editableMachines(), suggestionsBuilder));
+    public static final SuggestionProvider<CommandSourceStack> ALL_TEMPLATES = SuggestionProviders.register(CustomMachinery.rl("all_templates"), (commandContext, suggestionsBuilder) -> suggestCMResource(editableTemplates(), suggestionsBuilder));
 
     public static LiteralArgumentBuilder<CommandSourceStack> register(String name) {
         return Commands.literal(name)
@@ -52,7 +53,8 @@ public class CMCommand {
                 .then(reload())
                 .then(create())
                 .then(edit())
-                .then(verify());
+                .then(verify())
+                .then(editTemplate());
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> logging() {
@@ -104,6 +106,25 @@ public class CMCommand {
                         }));
     }
 
+    private static ArgumentBuilder<CommandSourceStack, ?> editTemplate() {
+        return Commands.literal("edit_template")
+                .requires(cs -> cs.hasPermission(2) && cs.isPlayer())
+                .then(Commands.argument("template", ResourceLocationArgument.id())
+                        .suggests(ALL_TEMPLATES)
+                        .executes(ctx -> {
+                            if(ctx.getSource().getEntity() instanceof ServerPlayer player) {
+                                ResourceLocation template = ResourceLocationArgument.getId(ctx, "template");
+                                if(!CustomMachinery.TEMPLATES.containsKey(template) || CustomMachinery.TEMPLATES.get(template).getFirst().isDummy())
+                                    player.sendSystemMessage(Component.translatable("custommachinery.command.edit.missing", template.toString()).withStyle(ChatFormatting.GRAY));
+                                else if(!CustomMachinery.TEMPLATES.get(template).getFirst().getLocation().canEdit())
+                                    player.sendSystemMessage(Component.translatable("custommachinery.command.edit.cant", template.toString()).withStyle(ChatFormatting.GRAY));
+                                else
+                                    PacketDistributor.sendToPlayer(player, new SOpenEditScreenPacket(template));
+                            }
+                            return 0;
+                        }));
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     public static void reloadMachines(MinecraftServer server, @Nullable ServerPlayer player) {
         CustomMachineJsonReloadListener listener = new CustomMachineJsonReloadListener();
@@ -138,6 +159,10 @@ public class CMCommand {
 
     private static List<ResourceLocation> editableMachines() {
         return CustomMachinery.MACHINES.entrySet().stream().filter(entry -> entry.getValue().getLocation().canEdit()).map(Entry::getKey).toList();
+    }
+
+    private static List<ResourceLocation> editableTemplates() {
+        return CustomMachinery.TEMPLATES.entrySet().stream().filter(entry -> entry.getValue().getFirst().getLocation().canEdit()).map(Entry::getKey).toList();
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> verify() {

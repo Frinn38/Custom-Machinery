@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client;
 
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
@@ -14,9 +15,11 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
+import fr.frinn.custommachinery.impl.codec.PairCodec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters;
 import net.minecraft.world.level.block.Block;
@@ -70,6 +73,11 @@ public class ClientPacketHandler {
             CustomMachineryJEIPlugin.reloadMachines(machines);
     }
 
+    public static void handleUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, Component>> templates) {
+        CustomMachinery.TEMPLATES.clear();
+        CustomMachinery.TEMPLATES.putAll(templates);
+    }
+
     public static void handleUpdateMachineAppearancePacket(BlockPos pos, @Nullable MachineAppearance appearance) {
         if(Minecraft.getInstance().level != null) {
             BlockEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);
@@ -101,6 +109,8 @@ public class ClientPacketHandler {
 
     public static void handleOpenEditScreenPacket(ResourceLocation machineId) {
         CustomMachine machine = CustomMachinery.MACHINES.get(machineId);
+        if(machine == null)
+            machine = CustomMachinery.TEMPLATES.get(machineId).getFirst();
         if(machine != null)
             Minecraft.getInstance().setScreen(new MachineEditScreen(new MachineCreationScreen(), 288, 210, new CustomMachineBuilder(machine)));
     }

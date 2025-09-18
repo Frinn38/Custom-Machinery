@@ -7,8 +7,11 @@ import fr.frinn.custommachinery.client.screen.creation.gui.GridEditorPopup;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementCreationPopup;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
+import fr.frinn.custommachinery.common.util.CycleTimer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.ImageWidget;
@@ -18,6 +21,7 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GuiTab extends MachineEditTab {
@@ -39,6 +43,7 @@ public class GuiTab extends MachineEditTab {
     public static final WidgetSprites COMPACT_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/compact_button"), CustomMachinery.rl("creation/compact_button_disabled"), CustomMachinery.rl("creation/compact_button_hovered"), CustomMachinery.rl("creation/compact_button_disabled_hovered"));
 
     private final GuiEditorWidget guiEditor;
+    private final StringWidget empty;
     public ImageButton revert;
     public ImageButton copy;
     public ImageButton paste;
@@ -54,18 +59,23 @@ public class GuiTab extends MachineEditTab {
 
     public GuiTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.gui"), parent);
-        RowHelper row = this.layout.createRowHelper(1);
+        RowHelper row = this.layout.createRowHelper(2);
         row.defaultCellSetting().paddingTop(2);
-        row.addChild(new StringWidget(parent.width, 0, Component.empty(), Minecraft.getInstance().font));
         BackgroundGuiElement background = parent.getBuilder().getGuiElements().stream().filter(element -> element instanceof BackgroundGuiElement).map(element -> (BackgroundGuiElement)element).findFirst().orElse(null);
         if(background != null)
-            this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, background.getWidth(), background.getHeight(), parent.getBuilder().getGuiElements()), row.newCellSettings().alignHorizontallyCenter());
+            this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, background.getWidth(), background.getHeight(), parent.getBuilder().getGuiElements()), 2, row.newCellSettings().alignHorizontallyCenter());
         else
-            this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, 256, 192, parent.getBuilder().getGuiElements()), row.newCellSettings().alignHorizontallyCenter());
+            this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, 256, 192, parent.getBuilder().getGuiElements()), 2, row.newCellSettings().alignHorizontallyCenter());
+        this.empty = row.addChild(new StringWidget(this.guiEditor.getWidth(), 192 - this.guiEditor.getHeight(), Component.empty(), Minecraft.getInstance().font), 2);
+        HintWidget hintWidget = row.addChild(new HintWidget(180), row.newCellSettings().alignHorizontallyLeft());
+        hintWidget.alignLeft();
+        MousePosWidget mousePosWidget = row.addChild(new MousePosWidget(48), row.newCellSettings().alignHorizontallyRight());
+        mousePosWidget.alignRight();
     }
 
     public void setSize(int width, int height) {
         this.guiEditor.setSize(width, height);
+        this.empty.setSize(width, 192 - height);
         this.layout.arrangeElements();
     }
 
@@ -156,5 +166,46 @@ public class GuiTab extends MachineEditTab {
         this.alignMiddle.active = active;
         this.alignRight.active = active;
         this.compact.active = active;
+    }
+
+    private static class HintWidget extends StringWidget {
+
+        private final List<Component> hints = new ArrayList<>();
+        private final CycleTimer hintsTimer = new CycleTimer(() -> 10000);
+
+        public HintWidget(int width) {
+            super(width, Minecraft.getInstance().font.lineHeight, Component.empty(), Minecraft.getInstance().font);
+            for(int i = 1; i < 4; i++)
+                this.hints.add(Component.translatable("custommachinery.gui.creation.gui.hints", Component.translatable("custommachinery.gui.creation.gui.hints." + i)).withStyle(ChatFormatting.DARK_GRAY));
+        }
+
+        @Override
+        public Component getMessage() {
+            return this.hintsTimer.getOrDefault(this.hints, Component.empty());
+        }
+
+        @Override
+        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            this.hintsTimer.onDraw();
+            Font font = Minecraft.getInstance().font;
+            Component hint = this.getMessage();
+            float scale = Math.clamp(this.getWidth() / (float)(font.width(hint) - 50), 0.5F, 1.0F);
+            graphics.pose().pushPose();
+            graphics.pose().scale(scale, scale, 1F);
+            graphics.drawString(Minecraft.getInstance().font, this.getMessage(), (int)(this.getX() / scale), (int)((this.getY() + 1) / scale), 0, false);
+            graphics.pose().popPose();
+        }
+    }
+
+    private class MousePosWidget extends StringWidget {
+
+        public MousePosWidget(int width) {
+            super(width, Minecraft.getInstance().font.lineHeight, Component.empty(), Minecraft.getInstance().font);
+        }
+
+        @Override
+        public Component getMessage() {
+            return Component.translatable("custommachinery.gui.creation.gui.mouse", Math.clamp((int)(Minecraft.getInstance().mouseHandler.xpos() / Minecraft.getInstance().getWindow().getGuiScale() - GuiTab.this.guiEditor.getX()), 0, GuiTab.this.guiEditor.getWidth()), Math.clamp((int)(Minecraft.getInstance().mouseHandler.ypos() / Minecraft.getInstance().getWindow().getGuiScale() - GuiTab.this.guiEditor.getY()), 0, GuiTab.this.guiEditor.getHeight()));
+        }
     }
 }

@@ -60,8 +60,6 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     private final Deque<Change> changes = new ArrayDeque<>();
     private final List<WidgetEditorWidget<?>> selected = new ArrayList<>();
     private final List<WidgetEditorWidget<?>> copied = new ArrayList<>();
-    private final List<Component> tips = new ArrayList<>();
-    private final CycleTimer tipsTimer = new CycleTimer(() -> 10000);
     private final ElementConfigWidget configWidget;
 
     private boolean dragging = false;
@@ -76,8 +74,6 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         super(x, y, width, height, Component.empty());
         this.parent = parent;
         baseElements.stream().sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed()).forEach(this::addElement);
-        for(int i = 1; i < 4; i++)
-            this.tips.add(Component.translatable("custommachinery.gui.creation.gui.tips", Component.translatable("custommachinery.gui.creation.gui.tips." + i)).withStyle(ChatFormatting.DARK_GRAY));
         this.configWidget = new ElementConfigWidget(this.getX() + this.getWidth(), this.getY(), 90, this.parent.ySize, this);
         this.configWidget.hide();
     }
@@ -373,27 +369,6 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         //Pasting cursor
         if(this.pasting && this.isMouseOver(mouseX, mouseY))
             GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_POINTING_HAND_CURSOR));
-
-        //Mouse coordinates
-        if(this.isMouseOver(mouseX, mouseY)) {
-            Component text = Component.translatable("custommachinery.gui.creation.gui.mouse", Math.clamp(mouseX - this.getX(), 0, this.getWidth()), Math.clamp(mouseY - this.getY(), 0, this.getHeight()));
-            float scale = 0.8F;
-            graphics.pose().pushPose();
-            graphics.pose().scale(scale, scale, 1F);
-            graphics.drawString(Minecraft.getInstance().font, text, (int)((this.getX() + this.getWidth() - Minecraft.getInstance().font.width(text) / 2F) / scale), (int)((this.getY() + this.getHeight() + 3) / scale), 0, false);
-            graphics.pose().popPose();
-        }
-
-        //Tips
-        if(!this.tips.isEmpty()) {
-            this.tipsTimer.onDraw();
-            Component tip = this.tipsTimer.getOrDefault(this.tips, Component.empty());
-            float scale = 0.8F;
-            graphics.pose().pushPose();
-            graphics.pose().scale(scale, scale, 1F);
-            graphics.drawString(Minecraft.getInstance().font, tip, (int)((this.getX() - 10) / scale), (int)((this.getY() + this.getHeight() + 3) / scale), 0, false);
-            graphics.pose().popPose();
-        }
     }
 
     @Override

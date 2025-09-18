@@ -24,6 +24,7 @@ public class PacketManager {
         registrar.playToClient(SUpdateMachinesPacket.TYPE, SUpdateMachinesPacket.CODEC, SUpdateMachinesPacket::handle);
         registrar.playToClient(SUpdateMachineAppearancePacket.TYPE, SUpdateMachineAppearancePacket.CODEC, SUpdateMachineAppearancePacket::handle);
         registrar.playToClient(SUpdateMachineStatusPacket.TYPE, SUpdateMachineStatusPacket.CODEC, SUpdateMachineStatusPacket::handle);
+        registrar.playToClient(SUpdateTemplatesPacket.TYPE, SUpdateTemplatesPacket.CODEC, SUpdateTemplatesPacket::handle);
         registrar.playToClient(SUpdateUpgradesPacket.TYPE, SUpdateUpgradesPacket.CODEC, SUpdateUpgradesPacket::handle);
 
         // Client to Server

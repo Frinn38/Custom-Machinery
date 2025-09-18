@@ -2,6 +2,7 @@ package fr.frinn.custommachinery;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.common.command.CMCommand;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
@@ -14,12 +15,14 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.network.SLootTablesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
+import fr.frinn.custommachinery.common.network.SUpdateTemplatesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
 import fr.frinn.custommachinery.common.upgrade.Upgrades;
 import fr.frinn.custommachinery.common.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
@@ -57,6 +60,7 @@ public class CustomMachinery {
     public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
+    public static final Map<ResourceLocation, Pair<CustomMachine, Component>> TEMPLATES = new HashMap<>();
     public static final BiMap<ResourceLocation, CustomMachineBlock> CUSTOM_BLOCK_MACHINES = HashBiMap.create();
     public static final Upgrades UPGRADES = new Upgrades();
 
@@ -151,6 +155,7 @@ public class CustomMachinery {
 
     public static void syncData(ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, new SUpdateMachinesPacket(CustomMachinery.MACHINES));
+        PacketDistributor.sendToPlayer(player, new SUpdateTemplatesPacket(CustomMachinery.TEMPLATES));
         PacketDistributor.sendToPlayer(player, new SUpdateUpgradesPacket(CustomMachinery.UPGRADES.getAllUpgrades()));
         PacketDistributor.sendToPlayer(player, new SLootTablesPacket(LootTableHelper.getLoots()));
     }

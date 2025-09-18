@@ -16,10 +16,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.Nullable;
 
-public record CAddMachinePacket(String id, Component name, boolean kubejs) implements CustomPacketPayload {
+public record CAddMachinePacket(String id, Component name, boolean kubejs, ResourceLocation template) implements CustomPacketPayload {
 
     public static final Type<CAddMachinePacket> TYPE = new Type<>(CustomMachinery.rl("add_machine"));
+    public static final ResourceLocation EMPTY_TEMPLATE = CustomMachinery.rl("template/empty");
 
     public static final StreamCodec<ByteBuf, CAddMachinePacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8,
@@ -28,6 +30,8 @@ public record CAddMachinePacket(String id, Component name, boolean kubejs) imple
             CAddMachinePacket::name,
             ByteBufCodecs.BOOL,
             CAddMachinePacket::kubejs,
+            ResourceLocation.STREAM_CODEC,
+            CAddMachinePacket::template,
             CAddMachinePacket::new
     );
 
@@ -40,8 +44,14 @@ public record CAddMachinePacket(String id, Component name, boolean kubejs) imple
         if (context.player() instanceof ServerPlayer player && player.getServer() != null && Utils.canPlayerManageMachines(player)) {
             context.enqueueWork(() -> {
                 ResourceLocation loc = packet.id.contains(":") ? ResourceLocation.parse(packet.id) : CustomMachinery.rl(packet.id);
-                CustomMachinery.LOGGER.info("Player: {} added new Machine: {}", player.getName().getString(), loc);
-                CustomMachine newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, loc, "")).setName(packet.name).build();
+                CustomMachine newMachine;
+                if(packet.template == EMPTY_TEMPLATE || !CustomMachinery.TEMPLATES.containsKey(packet.template)) {
+                    CustomMachinery.LOGGER.info("Player: {} added new Machine: {}", player.getName().getString(), loc);
+                    newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, loc, "")).setName(packet.name).build();
+                } else {
+                    CustomMachinery.LOGGER.info("Player: {} added new Machine: {} from template: {}", player.getName().getString(), loc, packet.template.toString());
+                    newMachine = new CustomMachineBuilder(CustomMachinery.TEMPLATES.get(packet.template).getFirst()).setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, loc, "")).setName(packet.name).build();
+                }
                 FileUtils.writeNewMachineJson(player.getServer(), newMachine, packet.kubejs);
             });
         }

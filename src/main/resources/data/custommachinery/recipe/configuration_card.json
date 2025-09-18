@@ -15,7 +15,7 @@
     }
   ],
   "result": {
-    "item": "custommachinery:configuration_card",
+    "id": "custommachinery:configuration_card",
     "count": 1
   }
 }
