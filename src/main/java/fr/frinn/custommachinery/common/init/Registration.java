@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
@@ -198,7 +199,7 @@ public class Registration {
     public static final DeferredBlock<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", () -> new CustomMachineBlock(false));
 
     public static final Supplier<DataComponentType<Pair<BlockPos, BlockPos>>> BOX_CREATOR_DATA = DATA_COMPONENTS.register("box_creator", () -> DataComponentType.<Pair<BlockPos, BlockPos>>builder()
-            .persistent(Codec.pair(BlockPos.CODEC, BlockPos.CODEC))
+            .persistent(RecordCodecBuilder.create(pair -> pair.group(BlockPos.CODEC.fieldOf("first").forGetter(Pair::getFirst), BlockPos.CODEC.fieldOf("second").forGetter(Pair::getSecond)).apply(pair, Pair::of)))
             .networkSynchronized(StreamCodec.composite(BlockPos.STREAM_CODEC, Pair::getFirst, BlockPos.STREAM_CODEC, Pair::getSecond, Pair::of))
             .build()
     );
