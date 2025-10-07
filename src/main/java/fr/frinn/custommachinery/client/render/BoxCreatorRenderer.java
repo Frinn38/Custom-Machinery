@@ -22,9 +22,6 @@ public class BoxCreatorRenderer {
             VertexConsumer builder = buffer.getBuffer(RenderTypes.THICK_LINES);
             Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
-            CompoundTag nbt = null;//stack.getTagElement(CustomMachinery.MODID);
-            if(nbt == null || nbt.isEmpty())
-                return;
             BlockPos block1 = BoxCreatorItem.getSelectedBlock(true, stack);
             if(block1 != null) {
                 AABB box = new AABB(block1);
