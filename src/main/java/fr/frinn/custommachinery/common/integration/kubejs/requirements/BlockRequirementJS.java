@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement.Action;
+import fr.frinn.custommachinery.common.requirement.BlockRequirement.Order;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
@@ -23,7 +24,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireBlock(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, ComparatorMode comparator) {
-        return this.blockRequirement(RequirementIOMode.INPUT, Action.CHECK, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist);
+        return this.requireBlock(filter, whitelist, startX, startY, startZ, endX, endY, endZ, amount, comparator, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder requireBlock(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, ComparatorMode comparator, Order order) {
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.CHECK, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, comparator, filter, whitelist, order);
     }
 
     default RecipeJSBuilder placeBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -31,7 +36,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder placeBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.INPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, Collections.emptyList(), true);
+        return this.placeBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, amount, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder placeBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, Order order) {
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, Collections.emptyList(), true, order);
     }
 
     default RecipeJSBuilder placeBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -39,7 +48,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder placeBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, Collections.emptyList(), true);
+        return this.placeBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, amount, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder placeBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, Order order) {
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.PLACE, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, Collections.emptyList(), true, order);
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -55,7 +68,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.INPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.breakAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, amount, filter, whitelist, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder breakAndPlaceBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist, Order order) {
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -71,7 +88,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakAndPlaceBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.breakAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, amount, filter, whitelist, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder breakAndPlaceBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist, Order order) {
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_BREAK, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -87,7 +108,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.INPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.destroyAndPlaceBlockOnStart(block, startX, startY, startZ, endX, endY, endZ, amount, filter, whitelist, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder destroyAndPlaceBlockOnStart(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist, Order order) {
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -103,7 +128,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyAndPlaceBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.destroyAndPlaceBlockOnEnd(block, startX, startY, startZ, endX, endY, endZ, amount, filter, whitelist, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder destroyAndPlaceBlockOnEnd(PartialBlockState block, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, List<BlockIngredient> filter, boolean whitelist, Order order) {
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.REPLACE_DESTROY, block, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
     }
 
     default RecipeJSBuilder destroyBlockOnStart(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -111,7 +140,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyBlockOnStart(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.INPUT, Action.DESTROY, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.destroyBlockOnStart(filter, whitelist, startX, startY, startZ, endX, endY, endZ, amount, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder destroyBlockOnStart(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, Order order) {
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.DESTROY, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
     }
 
     default RecipeJSBuilder destroyBlockOnEnd(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -119,7 +152,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder destroyBlockOnEnd(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.DESTROY, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.destroyBlockOnEnd(filter, whitelist, startX, startY, startZ, endX, endY, endZ, amount, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder destroyBlockOnEnd(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, Order order) {
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.DESTROY, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
     }
 
     default RecipeJSBuilder breakBlockOnStart(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -127,7 +164,11 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakBlockOnStart(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.INPUT, Action.BREAK, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.breakBlockOnStart(filter, whitelist, startX, startY, startZ, endX, endY, endZ, amount, Order.INCREASING);
+    }
+
+    default RecipeJSBuilder breakBlockOnStart(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, Order order) {
+        return this.blockRequirement(RequirementIOMode.INPUT, Action.BREAK, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
     }
 
     default RecipeJSBuilder breakBlockOnEnd(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ) {
@@ -135,13 +176,17 @@ public interface BlockRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder breakBlockOnEnd(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount) {
-        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.BREAK, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist);
+        return this.breakBlockOnEnd(filter, whitelist, startX, startY, startZ, endX, endY, endZ, amount, Order.INCREASING);
     }
 
-    default RecipeJSBuilder blockRequirement(RequirementIOMode mode, Action action, PartialBlockState state, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, ComparatorMode comparator, List<BlockIngredient> filter, boolean whitelist) {
+    default RecipeJSBuilder breakBlockOnEnd(List<BlockIngredient> filter, boolean whitelist, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, Order order) {
+        return this.blockRequirement(RequirementIOMode.OUTPUT, Action.BREAK, PartialBlockState.AIR, startX, startY, startZ, endX, endY, endZ, amount, ComparatorMode.EQUALS, filter, whitelist, order);
+    }
+
+    default RecipeJSBuilder blockRequirement(RequirementIOMode mode, Action action, PartialBlockState state, int startX, int startY, int startZ, int endX, int endY, int endZ, int amount, ComparatorMode comparator, List<BlockIngredient> filter, boolean whitelist, Order order) {
         AABB bb = new AABB(startX, startY, startZ, endX, endY, endZ);
         try {
-            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, comparator, state, filter, whitelist));
+            return this.addRequirement(new BlockRequirement(mode, action, bb, amount, comparator, state, filter, whitelist, order));
         } catch (IllegalArgumentException e) {
             return error("Invalid comparator: {}", comparator);
         }

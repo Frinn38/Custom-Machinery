@@ -26,9 +26,8 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
-public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<BlockIngredient> filter, boolean whitelist) implements IRequirement<BlockMachineComponent> {
+public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<BlockIngredient> filter, boolean whitelist, Order order) implements IRequirement<BlockMachineComponent> {
 
     public static final NamedCodec<BlockRequirement> CODEC = NamedCodec.record(blockRequirementInstance ->
             blockRequirementInstance.group(
@@ -39,7 +38,8 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
                     ComparatorMode.CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
                     PartialBlockState.CODEC.optionalFieldOf("block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
                     BlockIngredient.CODEC.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
-                    NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist)
+                    NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist),
+                    Order.CODEC.optionalFieldOf("order", Order.INCREASING).forGetter(requirement -> requirement.order)
             ).apply(blockRequirementInstance, BlockRequirement::new), "Block requirement"
     );
 
@@ -62,8 +62,7 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
     public boolean test(BlockMachineComponent component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         return switch (this.action) {
-            case CHECK ->
-                    this.comparator.compare((int) component.getBlockAmount(this.pos, this.filter, this.whitelist), amount);
+            case CHECK -> this.comparator.compare((int) component.getBlockAmount(this.pos, this.filter, this.whitelist), amount);
             case PLACE -> (int) component.getBlockAmount(this.pos, Collections.singletonList(BlockIngredient.AIR), true) >= amount;
             case BREAK, DESTROY, REPLACE_BREAK, REPLACE_DESTROY -> (int) component.getBlockAmount(this.pos, this.filter, this.whitelist) >= amount;
         };
@@ -89,27 +88,27 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         switch (this.action) {
             case PLACE -> {
-                if (component.placeBlock(this.pos, this.block, amount))
+                if (component.placeBlock(this.pos, this.order, this.block, amount))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             }
             case REPLACE_BREAK -> {
-                if (component.replaceBlock(this.pos, this.block, amount, true, this.filter, this.whitelist))
+                if (component.replaceBlock(this.pos, this.order, this.block, amount, true, this.filter, this.whitelist))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             }
             case REPLACE_DESTROY -> {
-                if (component.replaceBlock(this.pos, this.block, amount, false, this.filter, this.whitelist))
+                if (component.replaceBlock(this.pos, this.order, this.block, amount, false, this.filter, this.whitelist))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.block.place.error", amount, this.block.getName(), this.pos.toString()));
             }
             case BREAK -> {
-                if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, true))
+                if (component.breakBlock(this.pos, this.order, this.filter, this.whitelist, amount, true))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
             }
             case DESTROY -> {
-                if (component.breakBlock(this.pos, this.filter, this.whitelist, amount, false))
+                if (component.breakBlock(this.pos, this.order, this.filter, this.whitelist, amount, false))
                     return CraftingResult.success();
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.block.break.error", amount, this.pos.toString()));
             }
@@ -119,36 +118,34 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
 
     @Override
     public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
-        MutableComponent action = null;
-        switch (this.action) {
-            case CHECK -> action = Component.translatable("custommachinery.requirements.block.check.info");
+        MutableComponent action = switch (this.action) {
+            case CHECK -> Component.translatable("custommachinery.requirements.block.check.info");
             case BREAK -> {
                 if (this.getMode() == RequirementIOMode.INPUT)
-                    action = Component.translatable("custommachinery.requirements.block.break.info.input");
+                    yield Component.translatable("custommachinery.requirements.block.break.info.input");
                 else
-                    action = Component.translatable("custommachinery.requirements.block.break.info.output");
+                    yield Component.translatable("custommachinery.requirements.block.break.info.output");
             }
             case DESTROY -> {
                 if (this.getMode() == RequirementIOMode.INPUT)
-                    action = Component.translatable("custommachinery.requirements.block.destroy.info.input");
+                    yield Component.translatable("custommachinery.requirements.block.destroy.info.input");
                 else
-                    action = Component.translatable("custommachinery.requirements.block.destroy.info.output");
+                    yield Component.translatable("custommachinery.requirements.block.destroy.info.output");
             }
             case PLACE -> {
                 if (this.getMode() == RequirementIOMode.INPUT)
-                    action = Component.translatable("custommachinery.requirements.block.place.info.input", this.amount, this.block.getName());
+                    yield Component.translatable("custommachinery.requirements.block.place.info.input", this.amount, this.block.getName());
                 else
-                    action = Component.translatable("custommachinery.requirements.block.place.info.output", this.amount, this.block.getName());
+                    yield Component.translatable("custommachinery.requirements.block.place.info.output", this.amount, this.block.getName());
             }
             case REPLACE_BREAK, REPLACE_DESTROY -> {
                 if (this.getMode() == RequirementIOMode.INPUT)
-                    action = Component.translatable("custommachinery.requirements.block.replace.info.input", this.amount, this.block.getName());
+                    yield Component.translatable("custommachinery.requirements.block.replace.info.input", this.amount, this.block.getName());
                 else
-                    action = Component.translatable("custommachinery.requirements.block.replace.info.output", this.amount, this.block.getName());
+                    yield Component.translatable("custommachinery.requirements.block.replace.info.output", this.amount, this.block.getName());
             }
-        }
-        if(action != null)
-            info.addTooltip(action.withStyle(ChatFormatting.AQUA));
+        };
+        info.addTooltip(action.withStyle(ChatFormatting.AQUA));
         if(this.action != Action.PLACE) {
             if(this.action != Action.CHECK)
                 info.addTooltip(Component.translatable("custommachinery.requirements.block." + (this.whitelist ? "allowed" : "denied")).withStyle(this.whitelist ? ChatFormatting.GREEN : ChatFormatting.RED));
@@ -173,9 +170,12 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
         REPLACE_DESTROY;
 
         public static final NamedCodec<Action> CODEC = NamedCodec.enumCodec(Action.class);
+    }
 
-        public static Action value(String value) {
-            return valueOf(value.toUpperCase(Locale.ENGLISH));
-        }
+    public enum Order {
+        INCREASING,
+        DECREASING;
+
+        public static final NamedCodec<Order> CODEC = NamedCodec.enumCodec(Order.class);
     }
 }
