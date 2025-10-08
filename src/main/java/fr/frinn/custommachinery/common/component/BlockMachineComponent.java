@@ -21,8 +21,12 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -114,13 +118,14 @@ public class BlockMachineComponent extends AbstractMachineComponent {
 
     private Stream<BlockPos> getBlockPos(Order order, AABB aabb) {
         return switch(order) {
-            case INCREASING -> StreamSupport.stream(this.betweenClosedInverted(true, Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ)).spliterator(), false);
-            case DECREASING -> StreamSupport.stream(this.betweenClosedInverted(false, Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ)).spliterator(), false);
+            case INCREASING -> StreamSupport.stream(this.betweenClosed(true, Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ)).spliterator(), false);
+            case DECREASING -> StreamSupport.stream(this.betweenClosed(false, Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ)).spliterator(), false);
+            case RANDOM -> StreamSupport.stream(this.random(Mth.floor(aabb.minX), Mth.floor(aabb.minY), Mth.floor(aabb.minZ), Mth.floor(aabb.maxX), Mth.floor(aabb.maxY), Mth.floor(aabb.maxZ)).spliterator(), false);
         };
     }
 
     //Increasing false: top to bottom, true:bottom to top
-    private Iterable<BlockPos> betweenClosedInverted(boolean increasing, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    private Iterable<BlockPos> betweenClosed(boolean increasing, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         int xSize = maxX - minX + 1;
         int ySize = maxY - minY + 1;
         int zSize = maxZ - minZ + 1;
@@ -138,6 +143,33 @@ public class BlockMachineComponent extends AbstractMachineComponent {
                     int xPos = j1 % xSize;
                     int yPos = j1 / xSize;
                     this.index = increasing ? this.index - 1 : this.index + 1;
+                    return this.cursor.set(maxX - xPos, maxY - yPos, maxZ - zPos);
+                }
+            }
+        };
+    }
+
+    private Iterable<BlockPos> random(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        int xSize = maxX - minX + 1;
+        int ySize = maxY - minY + 1;
+        int zSize = maxZ - minZ + 1;
+        int blockAmount = xSize * ySize * zSize;
+        List<Integer> indexes = IntStream.rangeClosed(0, blockAmount).boxed().collect(Collectors.toCollection(ArrayList::new));
+        Collections.shuffle(indexes);
+        return () -> new AbstractIterator<>() {
+            private final MutableBlockPos cursor = new MutableBlockPos();
+            private int index;
+
+            protected BlockPos computeNext() {
+                if (this.index == blockAmount) {
+                    return this.endOfData();
+                } else {
+                    int blockIndex = indexes.get(this.index);
+                    int zPos = blockIndex % zSize;
+                    int j1 = blockIndex / zSize;
+                    int xPos = j1 % xSize;
+                    int yPos = j1 / xSize;
+                    this.index++;
                     return this.cursor.set(maxX - xPos, maxY - yPos, maxZ - zPos);
                 }
             }

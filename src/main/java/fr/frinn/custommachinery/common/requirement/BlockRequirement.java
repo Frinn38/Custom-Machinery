@@ -174,7 +174,8 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
 
     public enum Order {
         INCREASING,
-        DECREASING;
+        DECREASING,
+        RANDOM;
 
         public static final NamedCodec<Order> CODEC = NamedCodec.enumCodec(Order.class);
     }
