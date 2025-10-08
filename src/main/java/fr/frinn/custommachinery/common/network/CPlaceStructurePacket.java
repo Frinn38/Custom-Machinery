@@ -3,10 +3,9 @@ package fr.frinn.custommachinery.common.network;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.MachineList;
-import fr.frinn.custommachinery.common.util.PartialBlockState;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,10 +17,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.List;
 import java.util.Map;
 
-public record CPlaceStructurePacket(ResourceLocation machine, List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys) implements CustomPacketPayload {
+public record CPlaceStructurePacket(ResourceLocation machine, List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys) implements CustomPacketPayload {
 
     public static final NamedCodec<List<List<String>>> PATTERN_CODEC = NamedCodec.STRING.listOf().listOf();
-    public static final NamedCodec<Map<Character, IIngredient<PartialBlockState>>> KEYS_CODEC = NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>");
+    public static final NamedCodec<Map<Character, List<BlockIngredient>>> KEYS_CODEC = NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, BlockIngredient.CODEC.listOf(), "Structure keys");
 
     public static final Type<CPlaceStructurePacket> TYPE = new Type<>(CustomMachinery.rl("place_structure"));
 
@@ -51,7 +50,7 @@ public record CPlaceStructurePacket(ResourceLocation machine, List<List<String>>
                     BlockStructure.Builder builder = BlockStructure.Builder.start();
                     for(List<String> levels : packet.pattern)
                         builder.aisle(levels.toArray(new String[0]));
-                    for(Map.Entry<Character, IIngredient<PartialBlockState>> key : packet.keys.entrySet())
+                    for(Map.Entry<Character, List<BlockIngredient>> key : packet.keys.entrySet())
                         builder.where(key.getKey(), key.getValue());
                     BlockStructure structure = builder.build();
                     component.placeStructure(structure, false);

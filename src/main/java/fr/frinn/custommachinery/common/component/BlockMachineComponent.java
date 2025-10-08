@@ -4,9 +4,9 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +31,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         return Registration.BLOCK_MACHINE_COMPONENT.get();
     }
 
-    public long getBlockAmount(AABB box, List<IIngredient<PartialBlockState>> filter, boolean whitelist) {
+    public long getBlockAmount(AABB box, List<BlockIngredient> filter, boolean whitelist) {
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
         box = box.move(getManager().getTile().getBlockPos());
         return BlockPos.betweenClosedStream(box)
@@ -55,7 +55,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         return true;
     }
 
-    public boolean replaceBlock(AABB box, PartialBlockState block, int amount, boolean drop, List<IIngredient<PartialBlockState>> filter, boolean whitelist) {
+    public boolean replaceBlock(AABB box, PartialBlockState block, int amount, boolean drop, List<BlockIngredient> filter, boolean whitelist) {
         if(getBlockAmount(box, filter, whitelist) < amount)
             return false;
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
@@ -75,7 +75,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         return true;
     }
 
-    public boolean breakBlock(AABB box, List<IIngredient<PartialBlockState>> filter, boolean whitelist, int amount, boolean drop) {
+    public boolean breakBlock(AABB box, List<BlockIngredient> filter, boolean whitelist, int amount, boolean drop) {
         if(getBlockAmount(box, filter, whitelist) < amount)
             return false;
         box = Utils.rotateBox(box, getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));

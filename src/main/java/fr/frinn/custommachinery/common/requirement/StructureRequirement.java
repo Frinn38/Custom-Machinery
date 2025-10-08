@@ -16,10 +16,9 @@ import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.StructureMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.CPlaceStructurePacket;
+import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.BlockStructure;
-import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -34,26 +33,25 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public record StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys, Action action, BlockStructure structure) implements IRequirement<StructureMachineComponent> {
+public record StructureRequirement(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys, Action action, BlockStructure structure) implements IRequirement<StructureMachineComponent> {
 
     public static final NamedCodec<StructureRequirement> CODEC = NamedCodec.record(structureRequirementInstance ->
             structureRequirementInstance.group(
                     NamedCodec.STRING.forcedListOf().forcedListOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
-                    NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, IIngredient.BLOCK, "Map<Character, Block>").fieldOf("keys").forGetter(requirement -> requirement.keys),
+                    NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, BlockIngredient.CODEC.listOf(), "Structure keys").fieldOf("keys").forGetter(requirement -> requirement.keys),
                     NamedCodec.enumCodec(Action.class).optionalFieldOf("action", Action.CHECK).forGetter(requirement -> requirement.action)
             ).apply(structureRequirementInstance, StructureRequirement::new), "Structure requirement"
     );
 
-    public StructureRequirement(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys, Action action) {
+    public StructureRequirement(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys, Action action) {
         this(pattern, keys, action, makeStructure(pattern, keys));
     }
 
-    private static BlockStructure makeStructure(List<List<String>> pattern, Map<Character, IIngredient<PartialBlockState>> keys) {
+    private static BlockStructure makeStructure(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys) {
         BlockStructure.Builder builder = BlockStructure.Builder.start();
-        //TODO: iterate list in inverse order in 1.18 to make the pattern from top to bottom instead of from bottom to top (current)
         for(List<String> levels : pattern)
             builder.aisle(levels.toArray(new String[0]));
-        for(Map.Entry<Character, IIngredient<PartialBlockState>> key : keys.entrySet())
+        for(Map.Entry<Character, List<BlockIngredient>> key : keys.entrySet())
             builder.where(key.getKey(), key.getValue());
         return builder.build();
     }
@@ -110,11 +108,11 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, II
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.info"));
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.click"));
         this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {
-            IIngredient<PartialBlockState> ingredient = this.keys.get(key);
-            if(ingredient != null && amount > 0) {
-                Component block = Component.translatable("custommachinery.requirements.structure.list", amount, Utils.getBlockName(ingredient).withStyle(ChatFormatting.GOLD));
-                info.addTooltip(Component.literal("✓").withStyle(ChatFormatting.GREEN).append(block), ((player, advancedTooltips) -> hasBlockItem(player, ingredient, amount)));
-                info.addTooltip(Component.literal("  ").append(block), ((player, advancedTooltips) -> !hasBlockItem(player, ingredient, amount)));
+            List<BlockIngredient> ingredients = this.keys.get(key);
+            if(ingredients != null && !ingredients.isEmpty() && amount > 0) {
+                Component block = Component.translatable("custommachinery.requirements.structure.list", amount, Utils.blockIngredientName(ingredients).withStyle(ChatFormatting.GOLD));
+                info.addTooltip(Component.literal("✓").withStyle(ChatFormatting.GREEN).append(block), ((player, advancedTooltips) -> hasBlockItem(player, ingredients, amount)));
+                info.addTooltip(Component.literal("  ").append(block), ((player, advancedTooltips) -> !hasBlockItem(player, ingredients, amount)));
             }
         });
         switch(this.action) {
@@ -140,9 +138,9 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, II
         PLACE_DESTROY
     }
 
-    private boolean hasBlockItem(Player player, IIngredient<PartialBlockState> block, long amount) {
+    private boolean hasBlockItem(Player player, List<BlockIngredient> block, long amount) {
         return player.getInventory().items.stream()
-                .filter(stack -> stack.getItem() instanceof BlockItem && block.test(new PartialBlockState(((BlockItem)stack.getItem()).getBlock())))
+                .filter(stack -> stack.getItem() instanceof BlockItem && block.stream().anyMatch(blockIngredient -> blockIngredient.test(((BlockItem)stack.getItem()).getBlock())))
                 .mapToLong(ItemStack::getCount)
                 .sum() >= amount;
     }

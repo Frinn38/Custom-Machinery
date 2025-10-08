@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BiomeRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.BlockRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.ButtonRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.CommandRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.DimensionRequirementCT;
@@ -34,7 +33,6 @@ import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.Loo
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.PositionRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.RedstoneRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.SkyRequirementCT;
-import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.StructureRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.TimeRequirementCT;
 import fr.frinn.custommachinery.common.integration.crafttweaker.requirements.WeatherRequirementCT;
 import net.minecraft.ResourceLocationException;
@@ -56,7 +54,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
         PositionRequirementCT<CustomCraftRecipeCTBuilder>, BiomeRequirementCT<CustomCraftRecipeCTBuilder>, DimensionRequirementCT<CustomCraftRecipeCTBuilder>,
         FuelRequirementCT<CustomCraftRecipeCTBuilder>, CommandRequirementCT<CustomCraftRecipeCTBuilder>, EffectRequirementCT<CustomCraftRecipeCTBuilder>,
         WeatherRequirementCT<CustomCraftRecipeCTBuilder>, RedstoneRequirementCT<CustomCraftRecipeCTBuilder>, EntityRequirementCT<CustomCraftRecipeCTBuilder>,
-        LightRequirementCT<CustomCraftRecipeCTBuilder>, BlockRequirementCT<CustomCraftRecipeCTBuilder>, StructureRequirementCT<CustomCraftRecipeCTBuilder>,
+        LightRequirementCT<CustomCraftRecipeCTBuilder>,
         LootTableRequirementCT<CustomCraftRecipeCTBuilder>, DropRequirementCT<CustomCraftRecipeCTBuilder>, ButtonRequirementCT<CustomCraftRecipeCTBuilder>,
         SkyRequirementCT<CustomCraftRecipeCTBuilder>, ItemFilterRequirementCT<CustomCraftRecipeCTBuilder>, ExperienceRequirementCT<CustomCraftRecipeCTBuilder>,
         ExperiencePerTickRequirementCT<CustomCraftRecipeCTBuilder> {

@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -29,19 +30,19 @@ public class StructureMachineComponent extends AbstractMachineComponent {
     }
 
     public void destroyStructure(BlockStructure pattern, boolean drops) {
-        pattern.getBlocks(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)).forEach((pos, ingredient) -> {
-            if(!ingredient.test(PartialBlockState.MACHINE) && !ingredient.test(PartialBlockState.ANY))
+        pattern.getBlocks(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)).forEach((pos, ingredients) -> {
+            if(ingredients.stream().noneMatch(blockIngredient -> blockIngredient != BlockIngredient.MACHINE) && ingredients.stream().noneMatch(blockIngredient -> blockIngredient != BlockIngredient.ANY))
                 getManager().getLevel().destroyBlock(pos.offset(getManager().getTile().getBlockPos()), drops);
         });
     }
 
     public void placeStructure(BlockStructure pattern, boolean drops) {
-        pattern.getBlocks(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)).forEach((pos, ingredient) -> {
+        pattern.getBlocks(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)).forEach((pos, ingredients) -> {
             BlockPos worldPos = pos.offset(getManager().getTile().getBlockPos());
-            if(pos != BlockPos.ZERO && !ingredient.test(PartialBlockState.ANY)) {
+            if(pos != BlockPos.ZERO && ingredients.stream().noneMatch(blockIngredient -> blockIngredient != BlockIngredient.ANY)) {
                 if(!getManager().getLevel().getBlockState(worldPos).isAir())
                     getManager().getLevel().destroyBlock(worldPos, drops);
-                setBlock(getManager().getLevel(), worldPos, ingredient.getAll().get(0));
+                setBlock(getManager().getLevel(), worldPos, ingredients.stream().filter(blockIngredient -> !blockIngredient.not()).flatMap(blockIngredient -> blockIngredient.getAll().stream()).findAny().orElse(PartialBlockState.AIR));
             }
         });
     }

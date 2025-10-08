@@ -59,7 +59,7 @@ public enum ComparatorMode {
 
     public static ComparatorMode value(String value) {
         try {
-            return valueOf(value.toUpperCase(Locale.ENGLISH));
+            return valueOf(value.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return Stream.of(ComparatorMode.values()).filter(comparatorMode -> comparatorMode.prefix.equals(value)).findFirst().orElseThrow(() -> new IllegalArgumentException("Invalid Comparator Mode: " + value));
         }

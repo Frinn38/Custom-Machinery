@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.common.init.Registration;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -79,7 +80,7 @@ public class LootTableHelper {
             entries.stream().filter(entry -> entry instanceof TagEntry)
                     .map(entry -> (TagEntry)entry)
                     .forEach(entry -> {
-                        Consumer<ItemStack> consumer = stack -> loots.add(new LootData(stack, entry.weight / total / (entry.expand ? TagUtil.getItems(entry.tag).count() : 1), rolls, bonusRolls));
+                        Consumer<ItemStack> consumer = stack -> loots.add(new LootData(stack, entry.weight / total / (entry.expand ? BuiltInRegistries.ITEM.getTag(entry.tag).map(named -> named.stream().count()).orElse(0L) : 1), rolls, bonusRolls));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
                         entry.createItemStack(consumer, context);
                     });

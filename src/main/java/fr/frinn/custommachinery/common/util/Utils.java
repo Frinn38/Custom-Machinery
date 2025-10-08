@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -103,20 +105,32 @@ public class Utils {
         return NUMBER_FORMAT.format(number);
     }
 
-    public static MutableComponent getBlockName(IIngredient<PartialBlockState> ingredient) {
-        if(ingredient.getAll().size() == 1) {
-            PartialBlockState partialBlockState = ingredient.getAll().get(0);
-            if(partialBlockState.getBlockState().getBlock() instanceof CustomMachineBlock && partialBlockState.getNbt() != null && partialBlockState.getNbt().contains("machineID", Tag.TAG_STRING)) {
-                ResourceLocation machineID = ResourceLocation.tryParse(partialBlockState.getNbt().getString("machineID"));
-                if(machineID != null) {
-                    CustomMachine machine = CustomMachinery.MACHINES.get(machineID);
-                    if(machine != null)
-                        return (MutableComponent)machine.getName();
+    public static MutableComponent blockIngredientName(List<BlockIngredient> ingredients) {
+        MutableComponent builder = Component.empty();
+        for(Iterator<BlockIngredient> iterator = ingredients.iterator(); iterator.hasNext(); ) {
+            BlockIngredient blockIngredient = iterator.next();
+            PartialBlockState partialBlockState = blockIngredient.state();
+            if(partialBlockState != null) {
+                if (partialBlockState.getBlockState().getBlock() instanceof CustomMachineBlock && partialBlockState.getNbt() != null && partialBlockState.getNbt().contains("machineID", Tag.TAG_STRING)) {
+                    ResourceLocation machineID = ResourceLocation.tryParse(partialBlockState.getNbt().getString("machineID"));
+                    if (machineID != null) {
+                        CustomMachine machine = CustomMachinery.MACHINES.get(machineID);
+                        if (machine != null)
+                            builder.append(machine.getName());
+                    }
+                } else {
+                    if(blockIngredient.not())
+                        builder.append(Component.translatable("custommachinery.requirements.structure.not", partialBlockState.getName()));
+                    else
+                        builder.append(partialBlockState.getName());
                 }
             }
-            return partialBlockState.getName();
+            else builder.append(Component.literal(ingredients.getFirst().toString()));
+
+            if(iterator.hasNext())
+                builder.append(Component.translatable("custommachinery.requirements.structure.or").withStyle(ChatFormatting.GRAY));
         }
-        else return Component.literal(ingredient.toString());
+        return builder;
     }
 
     public static long clamp(long value, long min, long max) {

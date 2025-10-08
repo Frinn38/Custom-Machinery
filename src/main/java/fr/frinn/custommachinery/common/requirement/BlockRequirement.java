@@ -13,11 +13,10 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.common.util.ingredient.BlockIngredient;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -29,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<IIngredient<PartialBlockState>> filter, boolean whitelist) implements IRequirement<BlockMachineComponent> {
+public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, int amount, ComparatorMode comparator, PartialBlockState block, List<BlockIngredient> filter, boolean whitelist) implements IRequirement<BlockMachineComponent> {
 
     public static final NamedCodec<BlockRequirement> CODEC = NamedCodec.record(blockRequirementInstance ->
             blockRequirementInstance.group(
@@ -39,7 +38,7 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
                     NamedCodec.INT.optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
                     ComparatorMode.CODEC.optionalFieldOf("comparator", ComparatorMode.GREATER_OR_EQUALS).forGetter(requirement -> requirement.comparator),
                     PartialBlockState.CODEC.optionalFieldOf("block", PartialBlockState.AIR).forGetter(requirement -> requirement.block),
-                    IIngredient.BLOCK.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    BlockIngredient.CODEC.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
                     NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist)
             ).apply(blockRequirementInstance, BlockRequirement::new), "Block requirement"
     );
@@ -158,7 +157,7 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
             else if(!this.whitelist && this.filter.isEmpty())
                 info.addTooltip(Component.literal("-").append(Component.translatable("custommachinery.requirements.block.all")));
             else
-                this.filter.forEach(block -> info.addTooltip(Component.literal("- ").append(Utils.getBlockName(block))));
+                this.filter.forEach(block -> info.addTooltip(Component.literal("- ").append(Utils.blockIngredientName(List.of(block)))));
         }
         info.addTooltip(Component.translatable("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
         info.setClickAction((machine, recipe, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));

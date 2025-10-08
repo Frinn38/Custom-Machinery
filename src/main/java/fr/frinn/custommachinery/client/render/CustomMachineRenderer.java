@@ -3,8 +3,7 @@ package fr.frinn.custommachinery.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.util.PartialBlockState;
-import fr.frinn.custommachinery.common.util.ingredient.IIngredient;
+import fr.frinn.custommachinery.common.util.BlockIngredient;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -53,7 +53,7 @@ public class CustomMachineRenderer implements BlockEntityRenderer<CustomMachineT
         boxToRender.put(machine, new BoxRenderer(CMConfig.CONFIG.boxRenderTime.get(), box));
     }
 
-    public static void addRenderBlock(ResourceLocation machine, Function<Direction, Map<BlockPos, IIngredient<PartialBlockState>>> blocks) {
+    public static void addRenderBlock(ResourceLocation machine, Function<Direction, Map<BlockPos, List<BlockIngredient>>> blocks) {
         blocksToRender.put(machine, new StructureRenderer(CMConfig.CONFIG.structureRenderTime.get(), blocks));
     }
 }

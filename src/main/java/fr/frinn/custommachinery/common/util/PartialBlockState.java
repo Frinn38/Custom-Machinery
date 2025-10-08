@@ -58,14 +58,18 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     };
 
     public static final NamedCodec<PartialBlockState> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
-        StringReader reader = new StringReader(s);
         try {
-            BlockResult result = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), reader, true);
-            return DataResult.success(new PartialBlockState(result.blockState(), Lists.newArrayList(result.properties().keySet()), result.nbt()));
+            return DataResult.success(PartialBlockState.of(s));
         } catch (CommandSyntaxException exception) {
             return DataResult.error(exception::getMessage);
         }
     }, PartialBlockState::toString, "Partial block state");
+
+    public static PartialBlockState of(String s) throws CommandSyntaxException{
+        StringReader reader = new StringReader(s);
+        BlockResult result = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), reader, true);
+        return new PartialBlockState(result.blockState(), Lists.newArrayList(result.properties().keySet()), result.nbt());
+    }
 
     private final BlockState blockState;
     private final List<Property<?>> properties;
