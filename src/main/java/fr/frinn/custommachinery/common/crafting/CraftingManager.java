@@ -106,7 +106,9 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         if(this.futureRecipeID != null && this.tile.getWorld() != null) {
             CustomMachineRecipe recipe = (CustomMachineRecipe) this.tile.getWorld().getRecipeManager().getRecipe(this.futureRecipeID).orElse(null);
             if(recipe != null) {
+                PHASE previous = this.phase;
                 this.setRecipe(recipe);
+                this.phase = previous;
             }
             this.futureRecipeID = null;
         }
@@ -249,10 +251,10 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         this.setStatus(status, StringTextComponent.EMPTY);
     }
 
-    public void setStatus(MachineStatus status, ITextComponent mesage) {
+    public void setStatus(MachineStatus status, ITextComponent message) {
         if(this.status != status) {
             this.status = status;
-            this.errorMessage = mesage;
+            this.errorMessage = message;
             this.tile.markDirty();
             notifyStatusChanged();
         }
@@ -275,6 +277,7 @@ public class CraftingManager implements INBTSerializable<CompoundNBT> {
         this.futureRecipeID = null;
         this.setStatus(MachineStatus.IDLE);
         this.prevStatus = MachineStatus.IDLE;
+        this.phase = PHASE.STARTING;
         this.recipeProgressTime = 0;
         this.recipeTotalTime = 0;
         this.processedRequirements.clear();
