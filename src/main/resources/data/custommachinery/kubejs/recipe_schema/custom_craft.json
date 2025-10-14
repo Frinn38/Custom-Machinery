@@ -1,0 +1,69 @@
+{
+    "recipe_factory": "custommachinery:custom_craft",
+    "constructors": [
+        {
+            "keys": ["machine", "output"]
+        }
+    ],
+    "keys": [
+        {
+            "name": "machine",
+            "type": "custommachinery:rl"
+        },
+        {
+            "name": "output",
+            "role": "output",
+            "type": "item_stack"
+        },
+        {
+            "name": "requirements",
+            "type": {
+                "component": "custommachinery:requirements",
+                "type": "list",
+                "min": 0
+            },
+            "optional": [],
+            "excluded": true
+        },
+        {
+            "name": "jei",
+            "type": {
+                "component": "custommachinery:requirements",
+                "type": "list",
+                "min": 0
+            },
+            "optional": [],
+            "excluded": true
+        },
+        {
+            "name": "priority",
+            "type": "int",
+            "optional": 0,
+            "excluded": true
+        },
+        {
+            "name": "jeiPriority",
+            "type": "int",
+            "optional": 0,
+            "excluded": true
+        },
+        {
+            "name": "hidden",
+            "type": "boolean",
+            "optional": false,
+            "excluded": true
+        }
+    ],
+    "post_processors": [
+        {
+            "type": "custommachinery:recipe_id"
+        }
+    ],
+    "functions": {
+        "hide": {
+            "type": "set",
+            "key": "hidden",
+            "value": true
+        }
+    }
+}

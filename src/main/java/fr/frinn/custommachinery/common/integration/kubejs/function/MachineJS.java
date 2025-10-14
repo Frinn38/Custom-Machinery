@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.function;
 
-import dev.latvian.mods.kubejs.level.BlockContainerJS;
+import dev.latvian.mods.kubejs.level.CachedLevelBlock;
 import dev.latvian.mods.rhino.Wrapper;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
@@ -43,8 +43,8 @@ public class MachineJS {
             if(blockEntity instanceof CustomMachineTile customMachineTile)
                 return new MachineJS(customMachineTile);
         }
-        if(o instanceof BlockContainerJS blockContainerJS) {
-            return of(blockContainerJS.getEntity());
+        if(o instanceof CachedLevelBlock block) {
+            return of(block.getEntity());
         }
 
         return null;

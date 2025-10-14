@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
+import dev.latvian.mods.rhino.Context;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -37,7 +38,6 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.TimeRequi
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WeatherRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.WorkingCoreRequirementJS;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomMachineRecipeBuilder>
@@ -49,65 +49,26 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         ChunkloadRequirementJS, WorkingCoreRequirementJS {
 
     public CustomMachineRecipeBuilderJS() {
-        super(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineRecipeBuilder.CODEC);
-    }
-
-    @Override
-    public CustomMachineRecipeBuilder makeBuilder() {
-        CustomMachineRecipeBuilder builder = new CustomMachineRecipeBuilder(getValue(CustomMachineryRecipeSchemas.MACHINE_ID), (int)getValue(CustomMachineryRecipeSchemas.TIME).ticks());
-
-        if(getValue(CustomMachineryRecipeSchemas.ERROR))
-            builder.setResetOnError();
-
-        if(getValue(CustomMachineryRecipeSchemas.APPEARANCE) != null)
-            builder.withAppearance(getValue(CustomMachineryRecipeSchemas.APPEARANCE));
-
-        getValue(CustomMachineryRecipeSchemas.GUI).forEach(builder::withGuiElement);
-
-        getValue(CustomMachineryRecipeSchemas.ALLOWED_CORES).forEach(builder::withAllowedCore);
-
-        if(getValue(CustomMachineryRecipeSchemas.SINGLE_CORE))
-            builder.setSingleCore();
-
-        return builder;
-    }
-
-    /** ERROR **/
-
-    public CustomMachineRecipeBuilderJS resetOnError() {
-        setValue(CustomMachineryRecipeSchemas.ERROR, true);
-        return this;
+        super(Registration.CUSTOM_MACHINE_RECIPE.getId());
     }
 
     /** APPEARANCE **/
 
-    public CustomMachineRecipeBuilderJS appearance(Consumer<MachineAppearanceBuilderJS> consumer) {
+    public CustomMachineRecipeBuilderJS appearance(Context cx, Consumer<MachineAppearanceBuilderJS> consumer) {
         MachineAppearanceBuilderJS builder = new MachineAppearanceBuilderJS();
         consumer.accept(builder);
-        setValue(CustomMachineryRecipeSchemas.APPEARANCE, builder.build());
+        set(cx, "appearance", builder.build());
         return this;
     }
 
     /** GUI **/
 
-    public CustomMachineRecipeBuilderJS gui(JsonObject... elements) {
+    public CustomMachineRecipeBuilderJS gui(Context cx, JsonObject... elements) {
         for(JsonObject json : elements) {
             IGuiElement.CODEC.read(JsonOps.INSTANCE, json).resultOrPartial(s -> {
                 throw new KubeRuntimeException("Error when parsing recipe custom gui element\n" + json + "\n" + s);
-            }).ifPresent(element -> setValue(CustomMachineryRecipeSchemas.GUI, addToList(CustomMachineryRecipeSchemas.GUI, element)));
+            }).ifPresent(element -> set(cx, "gui", addToList("gui", element)));
         }
-        return this;
-    }
-
-    /** CORES **/
-
-    public CustomMachineRecipeBuilderJS cores(Integer[] cores) {
-        setValue(CustomMachineryRecipeSchemas.ALLOWED_CORES, Arrays.stream(cores).toList());
-        return this;
-    }
-
-    public CustomMachineRecipeBuilderJS singleCore() {
-        setValue(CustomMachineryRecipeSchemas.SINGLE_CORE, true);
         return this;
     }
 }

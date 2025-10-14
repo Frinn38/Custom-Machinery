@@ -36,11 +36,6 @@ public class CustomCraftRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomCr
         ExperienceRequirementJS {
 
     public CustomCraftRecipeBuilderJS() {
-        super(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomCraftRecipeBuilder.CODEC);
-    }
-
-    @Override
-    public CustomCraftRecipeBuilder makeBuilder() {
-        return new CustomCraftRecipeBuilder(getValue(CustomMachineryRecipeSchemas.MACHINE_ID), getValue(CustomMachineryRecipeSchemas.OUTPUT).copy());
+        super(Registration.CUSTOM_CRAFT_RECIPE.getId());
     }
 }

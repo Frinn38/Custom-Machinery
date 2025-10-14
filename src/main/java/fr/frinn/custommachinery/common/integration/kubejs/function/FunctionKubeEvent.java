@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 
 import dev.latvian.mods.kubejs.event.EventExit;
 import dev.latvian.mods.kubejs.event.KubeEvent;
-import dev.latvian.mods.kubejs.level.BlockContainerJS;
+import dev.latvian.mods.kubejs.level.CachedLevelBlock;
 import dev.latvian.mods.rhino.Context;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
@@ -52,8 +52,8 @@ public class FunctionKubeEvent implements KubeEvent {
         return this.machine;
     }
 
-    public BlockContainerJS getBlock() {
-        return new BlockContainerJS(getTile().getLevel(), getTile().getBlockPos());
+    public CachedLevelBlock getBlock() {
+        return new CachedLevelBlock(getTile().getLevel(), getTile().getBlockPos());
     }
 
     @Override

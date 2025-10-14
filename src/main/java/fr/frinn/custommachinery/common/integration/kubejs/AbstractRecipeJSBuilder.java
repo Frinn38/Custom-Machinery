@@ -1,13 +1,10 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.DataResult;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
-import dev.latvian.mods.kubejs.script.ConsoleJS;
-import fr.frinn.custommachinery.api.codec.NamedCodec;
+import dev.latvian.mods.kubejs.recipe.component.RecipeComponentValue;
+import dev.latvian.mods.rhino.Context;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
@@ -18,81 +15,29 @@ import net.minecraft.world.item.crafting.Recipe;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends Recipe<?>>> extends KubeRecipe implements RecipeJSBuilder {
 
-    public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
-
-    private final ResourceLocation typeID;
-    private final NamedCodec<B> codec;
+    public final ResourceLocation typeID;
     private RecipeRequirement<?, ?> lastRequirement;
-    private boolean jei = false;
+    public boolean jei = false;
 
-    public AbstractRecipeJSBuilder(ResourceLocation typeID, NamedCodec<B> codec) {
+    public AbstractRecipeJSBuilder(ResourceLocation typeID) {
         this.typeID = typeID;
-        this.codec = codec;
     }
-
-    @Override
-    public void afterLoaded() {
-        super.afterLoaded();
-        ResourceLocation machine = getValue(CustomMachineryRecipeSchemas.MACHINE_ID);
-
-        if(this.newRecipe) {
-            int uniqueID = IDS.computeIfAbsent(this.typeID, id -> new HashMap<>()).computeIfAbsent(machine, m -> 0);
-            IDS.get(this.typeID).put(machine, uniqueID + 1);
-            this.id = ResourceLocation.fromNamespaceAndPath("kubejs", this.typeID.getPath() + "/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID);
-        }
-    }
-
-    @Override
-    public KubeRecipe serializeChanges() {
-        if(!this.newRecipe)
-            return super.serializeChanges();
-
-        B builder = makeBuilder();
-
-        for (RecipeRequirement<?, ?> requirement : getValue(CustomMachineryRecipeSchemas.REQUIREMENTS))
-            builder.withRequirement(requirement);
-        for (RecipeRequirement<?, ?> requirement : getValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS))
-            builder.withJeiRequirement(requirement);
-
-        builder.withPriority(getValue(CustomMachineryRecipeSchemas.PRIORITY));
-        builder.withJeiPriority(getValue(CustomMachineryRecipeSchemas.JEI_PRIORITY));
-
-        if(getValue(CustomMachineryRecipeSchemas.HIDDEN))
-            builder.hide();
-
-        this.id = getOrCreateId();
-        DataResult<JsonElement> result = this.codec.encodeStart(this.type.event.registries.json(), builder);
-        if(result.result().isPresent())
-            this.json = (JsonObject) result.result().get();
-        else if(result.error().isPresent()) {
-            ConsoleJS.SERVER.error("Error in Custom Machine recipe: " + this.id + "\n" + result.error().get().message());
-            this.json = new JsonObject();
-        }
-
-        if(this.json != null)
-            this.json.addProperty("type", this.typeID.toString());
-        return this;
-    }
-
-    public abstract B makeBuilder();
 
     public AbstractRecipeJSBuilder<B> jei() {
         this.jei = true;
         return this;
     }
 
-    public AbstractRecipeJSBuilder<B> priority(int priority) {
+    public AbstractRecipeJSBuilder<B> priority(Context cx, int priority) {
         if(!this.jei)
-            setValue(CustomMachineryRecipeSchemas.PRIORITY, priority);
+            set(cx, "priority", priority);
         else
-            setValue(CustomMachineryRecipeSchemas.JEI_PRIORITY, priority);
+            set(cx, "jeiPriority", priority);
         return this;
     }
 
@@ -118,11 +63,6 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
         return this;
     }
 
-    public AbstractRecipeJSBuilder<B> hide() {
-        setValue(CustomMachineryRecipeSchemas.HIDDEN, true);
-        return this;
-    }
-
     public AbstractRecipeJSBuilder<B> delay(double delay) {
         if(this.lastRequirement == null)
             this.error("Can't set delay before adding requirements");
@@ -134,10 +74,12 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
     @Override
     public AbstractRecipeJSBuilder<B> addRequirement(IRequirement<?> requirement) {
         this.lastRequirement = new RecipeRequirement<>(requirement);
-        if(!this.jei)
-            setValue(CustomMachineryRecipeSchemas.REQUIREMENTS, addToList(CustomMachineryRecipeSchemas.REQUIREMENTS, this.lastRequirement));
-        else
-            setValue(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS, addToList(CustomMachineryRecipeSchemas.JEI_REQUIREMENTS, this.lastRequirement));
+        for(RecipeComponentValue<?> value : this.getRecipeComponentValues()) {
+            if(value.key.name.equals("requirements") && !this.jei)
+                setValue((RecipeKey)value.key, addToList("requirements", this.lastRequirement));
+            else if(value.key.name.equals("jei") && this.jei)
+                setValue((RecipeKey)value.key, addToList("jei", this.lastRequirement));
+        }
         return this;
     }
 
@@ -146,8 +88,8 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
         throw new KubeRuntimeException(MessageFormatter.arrayFormat(error, args).getMessage()).source(this.sourceLine);
     }
 
-    protected <E> List<E> addToList(RecipeKey<List<E>> key, E element) {
-        List<E> list = new ArrayList<>(getValue(key));
+    protected <E> List<E> addToList(String key, E element) {
+        List<E> list = new ArrayList<>((List<E>)get(key));
         list.add(element);
         return list;
     }

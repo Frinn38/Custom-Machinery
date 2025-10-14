@@ -7,7 +7,10 @@ import dev.latvian.mods.kubejs.event.EventHandler;
 import dev.latvian.mods.kubejs.event.EventTargetType;
 import dev.latvian.mods.kubejs.event.TargetedEventHandler;
 import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
+import dev.latvian.mods.kubejs.recipe.component.RecipeComponentTypeRegistry;
+import dev.latvian.mods.kubejs.recipe.schema.RecipeFactoryRegistry;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchemaRegistry;
+import dev.latvian.mods.kubejs.recipe.schema.postprocessing.RecipePostProcessorTypeRegistry;
 import dev.latvian.mods.kubejs.registry.BuilderTypeRegistry;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
 import dev.latvian.mods.kubejs.script.ScriptManager;
@@ -15,7 +18,6 @@ import dev.latvian.mods.kubejs.script.TypeWrapperRegistry;
 import dev.latvian.mods.rhino.type.TypeInfo;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.kubejs.CustomMachineUpgradeJSBuilder.UpgradeKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.FunctionKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.MachineJS;
@@ -35,7 +37,7 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
     @Override
     public void registerBuilderTypes(BuilderTypeRegistry registry) {
-        registry.of(Registries.BLOCK, reg -> reg.add(CustomMachinery.MODID, CustomMachineBlockBuilderJS.class, CustomMachineBlockBuilderJS::new));
+        registry.of(Registries.BLOCK, reg -> reg.add(CustomMachinery.rl("custom_machine"), CustomMachineBlockBuilderJS.class, CustomMachineBlockBuilderJS::new));
     }
 
     @Override
@@ -45,13 +47,32 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
     @Override
     public void registerRecipeSchemas(RecipeSchemaRegistry registry) {
-        registry.register(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_MACHINE);
-        registry.register(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_CRAFT);
+        //registry.register(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_MACHINE);
+        //registry.register(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_CRAFT);
+    }
+
+    @Override
+    public void registerRecipeComponents(RecipeComponentTypeRegistry registry) {
+        registry.register(CustomMachineryRecipeComponents.RESOURCE_LOCATION);
+        registry.register(CustomMachineryRecipeComponents.REQUIREMENT_COMPONENT);
+        registry.register(CustomMachineryRecipeComponents.CUSTOM_APPEARANCE);
+        registry.register(CustomMachineryRecipeComponents.CUSTOM_GUI_ELEMENTS);
+    }
+
+    @Override
+    public void registerRecipeFactories(RecipeFactoryRegistry registry) {
+        registry.register(CustomMachinery.rl("custom_machine"), CustomMachineRecipeBuilderJS.class, CustomMachineRecipeBuilderJS::new);
+        registry.register(CustomMachinery.rl("custom_craft"), CustomCraftRecipeBuilderJS.class, CustomCraftRecipeBuilderJS::new);
+    }
+
+    @Override
+    public void registerRecipePostProcessors(RecipePostProcessorTypeRegistry registry) {
+        registry.register(RecipeIdPostProcessor.TYPE);
     }
 
     @Override
     public void beforeScriptsLoaded(ScriptManager manager) {
-        AbstractRecipeJSBuilder.IDS.clear();
+        RecipeIdPostProcessor.IDS.clear();
     }
 
     @Override

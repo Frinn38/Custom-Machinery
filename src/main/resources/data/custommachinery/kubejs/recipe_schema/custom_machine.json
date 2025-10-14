@@ -1,0 +1,121 @@
+{
+    "recipe_factory": "custommachinery:custom_machine",
+    "constructors": [
+        {
+            "keys": [
+                "machine",
+                "time"
+            ]
+        }
+    ],
+    "keys": [
+        {
+            "name": "machine",
+            "type": "custommachinery:rl"
+        },
+        {
+            "name": "time",
+            "type": "ticks"
+        },
+        {
+            "name": "requirements",
+            "type": {
+                "component": "custommachinery:requirements",
+                "type": "list",
+                "min": 0
+            },
+            "optional": [],
+            "excluded": true
+        },
+        {
+            "name": "jei",
+            "type": {
+                "component": "custommachinery:requirements",
+                "type": "list",
+                "min": 0
+            },
+            "optional": [],
+            "excluded": true
+        },
+        {
+            "name": "priority",
+            "type": "int",
+            "optional": 0,
+            "excluded": true
+        },
+        {
+            "name": "jeiPriority",
+            "type": "int",
+            "optional": 0,
+            "excluded": true
+        },
+        {
+            "name": "error",
+            "type": "boolean",
+            "optional": false,
+            "excluded": true
+        },
+        {
+            "name": "hidden",
+            "type": "boolean",
+            "optional": false,
+            "excluded": true
+        },
+        {
+            "name": "appearance",
+            "type": "custommachinery:appearance",
+            "default_optional": true
+        },
+        {
+            "name": "gui",
+            "type": {
+                "component": "custommachinery:gui_element",
+                "type": "list",
+                "min": 0
+            },
+            "optional": [],
+            "excluded": true
+        },
+        {
+            "name": "cores",
+            "type": {
+                "component": {
+                    "min": 1,
+                    "type": "int"
+                },
+                "type": "list",
+                "min": 0
+            },
+            "optional": [],
+            "excluded": true
+        },
+        {
+            "name": "single_core",
+            "type": "boolean",
+            "optional": false,
+            "excluded": true
+        }
+    ],
+    "post_processors": [
+        {
+            "type": "custommachinery:recipe_id"
+        }
+    ],
+    "functions": {
+        "singleCore": {
+            "type": "set",
+            "key": "single_core",
+            "value": true
+        },
+        "resetOnError": {
+            "type": "set",
+            "key": "error",
+            "value": true
+        },
+        "hide": {
+            "type": "set",
+            "key": "hidden",
+            "value": true
+        }
+    }
+}
