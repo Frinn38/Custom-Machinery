@@ -24,6 +24,7 @@ import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegist
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.gui.builder.IClickableIngredientFactory;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
@@ -143,7 +144,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
             }
 
             @Override
-            public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(CustomMachineScreen screen, double mouseX, double mouseY) {
+            public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(IClickableIngredientFactory builder, CustomMachineScreen screen, double mouseX, double mouseY) {
                 return screen.getElementUnderMouse(mouseX, mouseY)
                         .flatMap(widget -> Optional.ofNullable(WidgetToJeiIngredientRegistry.getIngredient(widget, mouseX, mouseY, registration.getJeiHelpers())));
             }

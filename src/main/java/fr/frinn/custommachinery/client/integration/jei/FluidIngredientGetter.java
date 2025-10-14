@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry.IngredientGetter;
 import mezz.jei.api.helpers.IJeiHelpers;
-import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.runtime.IClickableIngredient;
@@ -24,25 +23,13 @@ public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement, 
         if (component == null)
             return null;
         IIngredientManager manager = helpers.getIngredientManager();
-        ITypedIngredient<FluidStack> ingredient = manager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(component.getFluid().getFluid(), component.getFluid().getAmount())).orElse(null);
+        ITypedIngredient<FluidStack> ingredient = manager.createTypedIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(component.getFluid().getFluid(), component.getFluid().getAmount()), false).orElse(null);
         if (ingredient == null)
             return null;
         return new IClickableIngredient<>() {
-            //Safe to remove
-            @SuppressWarnings("removal")
             @Override
             public ITypedIngredient<FluidStack> getTypedIngredient() {
                 return ingredient;
-            }
-
-            @Override
-            public IIngredientType<FluidStack> getIngredientType() {
-                return NeoForgeTypes.FLUID_STACK;
-            }
-
-            @Override
-            public FluidStack getIngredient() {
-                return ingredient.getIngredient();
             }
 
             @Override
