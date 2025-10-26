@@ -52,7 +52,7 @@
         {
             "name": "error",
             "type": "boolean",
-            "optional": false,
+            "optional": true,
             "excluded": true
         },
         {
@@ -110,7 +110,7 @@
         "resetOnError": {
             "type": "set",
             "key": "error",
-            "value": true
+            "value": false
         },
         "hide": {
             "type": "set",

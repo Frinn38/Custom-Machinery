@@ -71,10 +71,10 @@ public class StructureRenderer {
             BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state.getBlockState());
             if(model != Minecraft.getInstance().getModelManager().getMissingModel()) {
                 Arrays.stream(Direction.values())
-                        .flatMap(direction -> model.getQuads(state.getBlockState(), direction, RandomSource.create(42L)).stream())
-                        .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 1.0F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
-                model.getQuads(state.getBlockState(), null, RandomSource.create(42L))
-                        .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 1.0F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
+                        .flatMap(direction -> model.getQuads(state.getBlockState(), direction, RandomSource.create(42L), ModelData.EMPTY, null).stream())
+                        .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
+                model.getQuads(state.getBlockState(), null, RandomSource.create(42L), ModelData.EMPTY, null)
+                        .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
             }
     }
 
