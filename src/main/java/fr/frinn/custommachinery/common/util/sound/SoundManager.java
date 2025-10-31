@@ -8,12 +8,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public class SoundManager {
 
+    private static final SoundInstance DEFAULT = SimpleSoundInstance.forMusic(AmbientSound.DEFAULT.sound());
+
     private final BlockPos pos;
-    @Nullable
     private SoundInstance sound;
 
     public SoundManager(BlockPos pos) {
@@ -21,7 +20,7 @@ public class SoundManager {
     }
 
     public boolean isCurrentlyPlaying(AmbientSound sound) {
-        return this.sound != null
+        return this.sound != DEFAULT
                 && this.sound.getLocation().equals(sound.sound().getLocation())
                 && this.sound.getVolume() == sound.volume()
                 && this.sound.getPitch() == sound.pitch()
@@ -32,15 +31,11 @@ public class SoundManager {
                 && this.sound.isRelative() == sound.relative();
     }
 
-    public Optional<SoundInstance> getSound() {
-        return Optional.ofNullable(this.sound);
-    }
-
     public void setSound(@Nullable AmbientSound sound) {
         stop();
 
         if(sound == null) {
-            this.sound = null;
+            this.sound = DEFAULT;
             return;
         }
 
@@ -49,14 +44,16 @@ public class SoundManager {
     }
 
     public boolean isPlaying() {
-        return getSound().map(sound -> Minecraft.getInstance().getSoundManager().isActive(sound)).orElse(false);
+        return this.sound != DEFAULT && Minecraft.getInstance().getSoundManager().isActive(this.sound);
     }
 
     public void play() {
-        getSound().ifPresent(sound -> Minecraft.getInstance().getSoundManager().play(sound));
+        if(this.sound != DEFAULT)
+            Minecraft.getInstance().getSoundManager().play(sound);
     }
 
     public void stop() {
-        getSound().ifPresent(sound -> Minecraft.getInstance().getSoundManager().stop(sound));
+        if(this.sound != DEFAULT)
+            Minecraft.getInstance().getSoundManager().stop(sound);
     }
 }
