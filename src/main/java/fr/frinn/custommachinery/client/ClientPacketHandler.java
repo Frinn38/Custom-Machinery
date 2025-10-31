@@ -9,18 +9,20 @@ import fr.frinn.custommachinery.client.integration.jei.CustomMachineryJEIPlugin;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineCreationScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
+import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
+import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
-import fr.frinn.custommachinery.impl.codec.PairCodec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -31,6 +33,16 @@ import java.util.List;
 import java.util.Map;
 
 public class ClientPacketHandler {
+
+    public static void handleMachineCoreCountChangePacket(BlockPos pos, int count) {
+        if(Minecraft.getInstance().level != null) {
+            if(Minecraft.getInstance().level.getBlockEntity(pos) instanceof CustomMachineTile machineTile && machineTile.getProcessor() instanceof MachineProcessor processor) {
+                processor.setClientCoreCount(count);
+                if(Minecraft.getInstance().player instanceof Player player && player.containerMenu instanceof CustomMachineContainer container)
+                    container.init();
+            }
+        }
+    }
 
     public static void handleMachineStatusChangedPacket(BlockPos pos, MachineStatus status) {
         if(Minecraft.getInstance().level != null) {

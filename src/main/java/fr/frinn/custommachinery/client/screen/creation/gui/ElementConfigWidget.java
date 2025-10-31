@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
 import fr.frinn.custommachinery.client.screen.BaseScreen;
-import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget.SingleWidgetChange;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget.WidgetEditorWidget;
 import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
 import fr.frinn.custommachinery.client.screen.widget.IntegerEditBox;

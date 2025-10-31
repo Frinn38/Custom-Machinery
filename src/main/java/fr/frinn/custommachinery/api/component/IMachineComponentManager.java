@@ -6,10 +6,13 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public interface IMachineComponentManager {
 
@@ -87,4 +90,16 @@ public interface IMachineComponentManager {
      * Mark the tile as dirty, meaning some data changed and need to be written on disk on next tile unload.
      */
     void markDirty();
+
+    /**
+     * Add a value that can be modified using machine upgrades, example: energy capacity.
+     * @param component The {@link IMachineComponent} that will use the value.
+     * @param target A marker to know which value should be modified in case the component has several.
+     * @param defaultValue The default value (without upgrades).
+     * @param min A lower bound for the modified value.
+     * @param max An upper bound for the modified value.
+     * @param onChange A responder that will be called when the value is changed.
+     * @return A supplied that give the modified value (or default value if no upgrades are present).
+     */
+    Supplier<Double> addUpgradeableComponentValue(IMachineComponent component, @Nullable String target, double defaultValue, double min, double max, Consumer<Double> onChange);
 }

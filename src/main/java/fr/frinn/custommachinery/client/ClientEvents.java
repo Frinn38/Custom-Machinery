@@ -4,16 +4,21 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.render.BoxCreatorRenderer;
 import fr.frinn.custommachinery.client.render.StructureCreatorRenderer;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
-import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+
+import java.util.Iterator;
 
 @EventBusSubscriber(modid = CustomMachinery.MODID, value = Dist.CLIENT)
 public class ClientEvents {
@@ -22,10 +27,24 @@ public class ClientEvents {
     public static void onItemTooltip(final ItemTooltipEvent event) {
         CustomMachinery.UPGRADES.getUpgradesForItem(event.getItemStack().getItem())
                 .forEach(upgrade -> {
-                    event.getToolTip().addAll(upgrade.getTooltips());
+                    event.getToolTip().addAll(upgrade.tooltips());
 
-                    if(Screen.hasControlDown() || Screen.hasShiftDown())
-                        upgrade.getModifiers().stream().map(RecipeModifier::getTooltip).forEach(event.getToolTip()::add);
+                    if(Screen.hasControlDown() || Screen.hasShiftDown()) {
+                        MutableComponent machines = Component.empty();
+                        for(Iterator<ResourceLocation> iterator = upgrade.machines().iterator(); iterator.hasNext();) {
+                            CustomMachine machine = CustomMachinery.MACHINES.get(iterator.next());
+                            if(machine == null)
+                                continue;
+                            machines.append(machine.getName());
+                            if(iterator.hasNext())
+                                machines.append(", ");
+                        }
+                        if(!machines.getString().isEmpty())
+                            event.getToolTip().add(machines);
+                        upgrade.recipeModifiers().stream().map(modifier -> Component.literal("  ").append(modifier.tooltip())).forEach(event.getToolTip()::add);
+                        upgrade.components().stream().map(modifier -> Component.literal("  ").append(modifier.tooltip())).forEach(event.getToolTip()::add);
+                        upgrade.coreModifier().ifPresent(modifier -> event.getToolTip().add(Component.literal("  ").append(modifier.tooltip())));
+                    }
                 });
     }
 

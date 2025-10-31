@@ -51,7 +51,7 @@ public interface ICraftingContext {
     void setBaseSpeed(double baseSpeed);
 
     /**
-     * By default, the recipe processing speed is 1 per tick, but can be speeded up or slowed down if the machine have some upgrades modifiers.
+     * By default, the recipe processing speed is 1 per tick, but can be speeded up or slowed down if the machine have some upgrades recipeModifiers.
      * @return The speed of the crafting process.
      */
     double getModifiedSpeed();

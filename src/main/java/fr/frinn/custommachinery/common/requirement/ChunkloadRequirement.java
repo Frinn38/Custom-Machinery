@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.server.level.ServerLevel;
 
 public record ChunkloadRequirement(int radius) implements IRequirement<ChunkloadMachineComponent> {
 
@@ -43,7 +42,8 @@ public record ChunkloadRequirement(int radius) implements IRequirement<Chunkload
     @Override
     public void gatherRequirements(IRequirementList<ChunkloadMachineComponent> list) {
         list.processEachTick(((component, context) -> {
-            component.setActiveWithTempo((ServerLevel) context.getMachineTile().getLevel(), this.radius, 2);
+            int radius = (int)context.getIntegerModifiedValue(this.radius, this, null);
+            component.setActiveWithTempo(radius, 2);
             return CraftingResult.success();
         }));
     }

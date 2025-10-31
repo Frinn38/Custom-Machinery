@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.util.slot;
 
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
-import fr.frinn.custommachinery.common.component.item.UpgradeItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -56,12 +55,5 @@ public class SlotItemComponent extends Slot {
     @Override
     public boolean mayPickup(Player player) {
         return !this.component.isLocked();
-    }
-
-    @Override
-    public void setChanged() {
-        this.component.getManager().markDirty();
-        if(this.component instanceof UpgradeItemMachineComponent)
-            this.component.getManager().getTile().getUpgradeManager().markDirty();
     }
 }

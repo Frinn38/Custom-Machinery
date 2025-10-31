@@ -13,7 +13,6 @@ import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
-import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
@@ -21,8 +20,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -32,25 +29,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public class GuiEditorWidget extends AbstractWidget implements ContainerEventHandler {
 
@@ -648,7 +637,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             AtomicReference<String> copyId = new AtomicReference<>(Utils.incrementLastNumber(id));
             //Check if there isn't another element with this id.
             while(GuiEditorWidget.this.widgets.stream().anyMatch(widget -> {
-                if(widget == this || widget.builder.type() != this.builder.type())
+                if(widget == this || widget.builder.type() != this.builder.type() || widget.properties.getId().isEmpty())
                     return false;
                 return widget.properties.getId().equals(copyId.get());
             })) {

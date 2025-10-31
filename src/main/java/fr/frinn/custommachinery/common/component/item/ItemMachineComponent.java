@@ -13,8 +13,8 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
+import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -78,10 +78,10 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return this.capacity;
     }
 
+    //Should be used to set the stored ItemStack as it refresh upgrades
     public void setItemStack(ItemStack stack) {
         this.stack = stack;
         getManager().markDirty();
-        getManager().getTile().getUpgradeManager().markDirty();
     }
 
     public boolean canOutput() {
@@ -128,7 +128,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     @Override
     public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
         if(nbt.contains("item", Tag.TAG_COMPOUND))
-            this.stack = ItemStack.parseOptional(registries, nbt.getCompound("item"));
+            this.setItemStack(ItemStack.parseOptional(registries, nbt.getCompound("item")));
         if(nbt.contains("config"))
             this.config.deserialize(nbt.getCompound("config"));
     }
@@ -156,8 +156,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public void setStackInSlot(int slot, ItemStack stack) {
-        this.stack = stack;
-        this.getManager().markDirty();
+        this.setItemStack(stack);
     }
 
     @Override
@@ -191,12 +190,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         //If this slot is empty copy the input and insert the max amount
         if(this.stack.isEmpty()) {
             if(!simulate) {
-                this.stack = stack.copyWithCount(amountToInsert);
+                this.setItemStack(stack.copyWithCount(amountToInsert));
                 getManager().markDirty();
             }
         } else {//If this slot is not empty simply grow the contained stack
             if(!simulate) {
-                this.stack.grow(amountToInsert);
+                this.setItemStack(this.stack.copyWithCount(this.stack.getCount() + amountToInsert));
                 getManager().markDirty();
             }
         }
@@ -226,7 +225,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         ItemStack extracted = this.stack.copyWithCount(amount);
 
         if(!simulate) {
-            this.stack.shrink(amount);
+            this.setItemStack(this.stack.copyWithCount(this.stack.getCount() - amount));
             getManager().markDirty();
         }
         return extracted;

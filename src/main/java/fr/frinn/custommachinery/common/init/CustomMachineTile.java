@@ -14,7 +14,6 @@ import fr.frinn.custommachinery.client.model.CustomMachineBakedModel;
 import fr.frinn.custommachinery.common.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.crafting.DummyProcessor;
-import fr.frinn.custommachinery.common.crafting.UpgradeManager;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
@@ -22,6 +21,7 @@ import fr.frinn.custommachinery.common.network.SUpdateMachineAppearancePacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineGuiElementsPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
+import fr.frinn.custommachinery.common.upgrade.UpgradeManager;
 import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.sound.SoundManager;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
@@ -97,6 +97,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         this.processor = getMachine().getProcessorTemplate().build(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
         this.componentManager.getComponents().values().forEach(IMachineComponent::init);
+        this.upgradeManager.refresh();
     }
 
     /** MachineTile Implementation **/
@@ -155,6 +156,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         this.processor.deserialize(craftingManagerNBT);
         this.componentManager.deserializeNBT(componentManagerNBT, this.getLevel().registryAccess());
         this.componentManager.getComponents().values().forEach(IMachineComponent::init);
+        this.upgradeManager.refresh();
 
         PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.worldPosition), new SRefreshCustomMachineTilePacket(this.worldPosition, id));
     }
@@ -225,15 +227,20 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         if(this.getLevel() instanceof ServerLevel serverLevel) {
             BlockPos pos = this.getBlockPos();
             PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pos), new SUpdateMachineGuiElementsPacket(pos, this.customGuiElements));
-            Iterator<WeakReference<ServerPlayer>> iterator = this.players.iterator();
-            while(iterator.hasNext()) {
-                ServerPlayer player = iterator.next().get();
-                if(player == null || !(player.containerMenu instanceof CustomMachineContainer container) || container.getTile() != this) {
-                    iterator.remove();
-                    continue;
-                }
-                container.init();
+            this.refreshMachineContainer();
+        }
+    }
+
+    @Override
+    public void refreshMachineContainer() {
+        Iterator<WeakReference<ServerPlayer>> iterator = this.players.iterator();
+        while(iterator.hasNext()) {
+            ServerPlayer player = iterator.next().get();
+            if(player == null || !(player.containerMenu instanceof CustomMachineContainer container) || container.getTile() != this) {
+                iterator.remove();
+                continue;
             }
+            container.init();
         }
     }
 
@@ -305,6 +312,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         super.setLevel(level);
         MachineList.addMachine(this);
         this.componentManager.getComponents().values().forEach(IMachineComponent::init);
+        this.upgradeManager.refresh();
     }
 
     @Override

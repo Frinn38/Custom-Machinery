@@ -81,6 +81,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElemen
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
+import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
@@ -98,6 +99,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
@@ -405,5 +407,10 @@ public class ClientHandler {
                 y += step;
             }
         }
+    }
+
+    public static void refreshMachineContainer() {
+        if(Minecraft.getInstance().player instanceof Player player && player.containerMenu instanceof CustomMachineContainer container)
+            container.init();
     }
 }

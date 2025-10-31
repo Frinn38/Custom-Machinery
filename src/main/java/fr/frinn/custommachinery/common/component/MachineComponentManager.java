@@ -15,22 +15,27 @@ import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.upgrade.UpgradeableComponentValue;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -46,6 +51,7 @@ public class MachineComponentManager implements IMachineComponentManager {
     private final List<IComparatorInputComponent> comparatorInputComponents;
     private final List<IDumpComponent> dumpComponents;
     private final Map<String, ISideConfigComponent> configComponents;
+    private final Map<MachineComponentType<?>, Map<String, Map<String, UpgradeableComponentValue>>> upgradeableComponentValues = new HashMap<>(); //Must be initialized before components.
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
@@ -139,6 +145,26 @@ public class MachineComponentManager implements IMachineComponentManager {
 
     public Collection<ISideConfigComponent> getConfigComponents() {
         return this.configComponents.values();
+    }
+
+    @Override
+    public Supplier<Double> addUpgradeableComponentValue(IMachineComponent component, @Nullable String target, double defaultValue, double min, double max, Consumer<Double> onChange) {
+        String id = component.getType().isSingle() ? "" : component instanceof ISideConfigComponent sideConfigComponent ? sideConfigComponent.getId() : "";
+        Map<String, UpgradeableComponentValue> map = this.upgradeableComponentValues.computeIfAbsent(component.getType(), t -> new HashMap<>())
+            .computeIfAbsent(id, k -> new HashMap<>());
+        //Standard target key in case of wrong user input like 'min_input' instead of "minInput"
+        String targetId = target == null ? "" : Utils.standard(target);
+        if(map.containsKey(targetId))
+            throw new IllegalArgumentException("Can't add 2 upgradeable values for component type: " + component.getType().getId().toString() + " id: " + id + " target: " + target);
+        UpgradeableComponentValue upgradeableValue = new UpgradeableComponentValue(component, targetId, defaultValue, min, max, onChange);
+        map.put(targetId, upgradeableValue);
+        return upgradeableValue;
+    }
+
+    public Optional<UpgradeableComponentValue> getUpgradeableComponentValue(MachineComponentType<?> type, String id, String target) {
+        if(this.upgradeableComponentValues.get(type) != null && this.upgradeableComponentValues.get(type).get(id) != null)
+            return Optional.ofNullable(this.upgradeableComponentValues.get(type).get(id).get(Utils.standard(target)));
+        return Optional.empty();
     }
 
     @Override

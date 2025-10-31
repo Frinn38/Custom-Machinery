@@ -16,7 +16,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import org.jetbrains.annotations.Nullable;
 
 public record CAddMachinePacket(String id, Component name, boolean kubejs, ResourceLocation template) implements CustomPacketPayload {
 

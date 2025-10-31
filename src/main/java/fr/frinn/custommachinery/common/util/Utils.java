@@ -30,6 +30,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -170,5 +171,13 @@ public class Utils {
             return input.substring(0, m.start()) + newNumber + input.substring(m.end());
         } else
             return input + "1";
+    }
+
+    public static String standard(String input) {
+        return input.replace(" ", "")
+                .replace("_", "")
+                .replace("-", "")
+                .replace(".", "")
+                .toLowerCase(Locale.ROOT);
     }
 }

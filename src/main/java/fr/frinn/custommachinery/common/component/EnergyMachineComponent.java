@@ -37,15 +37,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent, IEnergyStorage {
 
     private long energy;
-    private final long capacity;
-    private final long maxInput;
-    private final long minInput;
-    private final long maxOutput;
-    private final long minOutput;
+    private long clientCapacity = 0;
+    private final Supplier<Long> capacity;
+    private final Supplier<Long> maxInput;
+    private final Supplier<Long> minInput;
+    private final Supplier<Long> maxOutput;
+    private final Supplier<Long> minOutput;
     private final IOSideConfig config;
     private final Map<Direction, SidedEnergyStorage> sidedStorages = Maps.newEnumMap(Direction.class);
     private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
@@ -53,36 +55,41 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long minInput, long maxOutput, long minOutput, IOSideConfig.Template configTemplate) {
         super(manager, ComponentIOMode.BOTH);
         this.energy = 0;
-        this.capacity = capacity;
-        this.maxInput = maxInput;
-        this.minInput = minInput;
-        this.maxOutput = maxOutput;
-        this.minOutput = minOutput;
+        this.capacity = this.upgradeableL(capacity, "capacity", 1, Long.MAX_VALUE, value -> this.energy = Math.min(this.energy, value));
+        this.maxInput = this.upgradeableL(maxInput, "max_input", 0, Long.MAX_VALUE);
+        this.minInput = this.upgradeableL(minInput, "min_input", 0, Long.MAX_VALUE);
+        this.maxOutput = this.upgradeableL(maxOutput, "max_output", 0, Long.MAX_VALUE);
+        this.minOutput = this.upgradeableL(minOutput, "min_output", 0, Long.MAX_VALUE);
         this.config = configTemplate.build(this);
         this.config.setCallback(this::configChanged);
         for(Direction side : Direction.values())
             this.sidedStorages.put(side, new SidedEnergyStorage(side, this));
+        this.clientCapacity = capacity;
     }
 
     public long getMaxInput() {
-        return this.maxInput;
+        return this.maxInput.get();
     }
 
     public long getMinInput() {
-        return this.minInput;
+        return this.minInput.get();
     }
 
     public long getMaxOutput() {
-        return this.maxOutput;
+        return this.maxOutput.get();
     }
 
     public long getMinOutput() {
-        return this.minOutput;
+        return this.minOutput.get();
     }
 
     //For GUI element rendering
     public double getFillPercent() {
-        return (double)this.energy / this.capacity;
+        return (double)this.energy / this.clientCapacity;
+    }
+
+    public long getClientCapacity() {
+        return this.clientCapacity;
     }
 
     public long getEnergy() {
@@ -90,7 +97,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     public long getCapacity() {
-        return this.capacity;
+        return this.capacity.get();
     }
 
     public void setEnergy(long energy) {
@@ -174,7 +181,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
         if(nbt.contains("energy", Tag.TAG_LONG))
-            this.energy = Math.min(nbt.getLong("energy"), this.capacity);
+            this.energy = Math.min(nbt.getLong("energy"), this.capacity.get());
         if(nbt.contains("config"))
             this.config.deserialize(nbt.getCompound("config"));
     }
@@ -182,12 +189,13 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(LongSyncable.create(() -> this.energy, energy -> this.energy = energy));
+        container.accept(LongSyncable.create(this.capacity, capacity -> this.clientCapacity = capacity));
         container.accept(IOSideConfigSyncable.create(this::getConfig, this.config::set));
     }
 
     @Override
     public int getComparatorInput() {
-        return (int) (15 * ((double)this.energy / (double)this.capacity));
+        return (int) (15 * ((double)this.energy / (double)this.capacity.get()));
     }
 
     @Override
@@ -198,7 +206,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     /** Recipe Stuff **/
 
     public int receiveRecipeEnergy(int maxReceive, boolean simulate) {
-        int energyReceived = Math.min(Utils.toInt(this.capacity - this.energy), maxReceive);
+        int energyReceived = Math.min(Utils.toInt(this.capacity.get() - this.energy), maxReceive);
         if(!simulate) {
             this.energy += energyReceived;
             getManager().markDirty();

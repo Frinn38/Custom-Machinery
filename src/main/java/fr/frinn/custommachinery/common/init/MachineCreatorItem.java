@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.common.init;
 
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.network.SOpenCreationScreenPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

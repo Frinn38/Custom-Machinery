@@ -53,8 +53,8 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
             DataResult<MachineUpgrade> result = MachineUpgrade.CODEC.read(JsonOps.INSTANCE, json);
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
-                if(upgrade.getItem() == Items.AIR) {
-                    logger.error("Invalid item: {}, defined for upgrade: {}", BuiltInRegistries.ITEM.getKey(upgrade.getItem()), id);
+                if(upgrade.item() == Items.AIR) {
+                    logger.error("Invalid item: {}, defined for upgrade: {}", BuiltInRegistries.ITEM.getKey(upgrade.item()), id);
                     return;
                 }
                 logger.info("Successfully parsed upgrade json: {}", id);

@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
+import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -29,15 +30,17 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IFluidHandler {
 
     private final String id;
-    private final int capacity;
-    private final int maxInput;
-    private final int minInput;
-    private final int maxOutput;
-    private final int minOutput;
+    private final Supplier<Integer> capacity;
+    private int clientCapacity;
+    private final Supplier<Integer> maxInput;
+    private final Supplier<Integer> minInput;
+    private final Supplier<Integer> maxOutput;
+    private final Supplier<Integer> minOutput;
     private final Filter<Fluid> filter;
     private final IOSideConfig config;
     private final boolean unique;
@@ -48,11 +51,11 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int minInput, int maxOutput, int minOutput, Filter<Fluid> filter, IOSideConfig.Template configTemplate, boolean unique) {
         super(manager, mode);
         this.id = id;
-        this.capacity = capacity;
-        this.maxInput = maxInput;
-        this.minInput = minInput;
-        this.maxOutput = maxOutput;
-        this.minOutput = minOutput;
+        this.capacity = this.upgradeableI(capacity, "capacity", 1, Integer.MAX_VALUE, value -> this.setFluidStack(this.fluidStack.copyWithAmount(Math.min(this.fluidStack.getAmount(), value))));
+        this.maxInput = this.upgradeableI(maxInput, "max_input", 0, Integer.MAX_VALUE);
+        this.minInput = this.upgradeableI(minInput, "min_input", 0, Integer.MAX_VALUE);
+        this.maxOutput = this.upgradeableI(maxOutput, "max_output", 0, Integer.MAX_VALUE);
+        this.minOutput = this.upgradeableI(minOutput, "min_output", 0, Integer.MAX_VALUE);
         this.filter = filter;
         this.config = configTemplate.build(this);
         this.unique = unique;
@@ -63,6 +66,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return Registration.FLUID_MACHINE_COMPONENT.get();
     }
 
+    @Override
     public String getId() {
         return this.id;
     }
@@ -77,23 +81,27 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     public int getCapacity() {
-        return this.capacity;
+        return this.capacity.get();
+    }
+
+    public int getClientCapacity() {
+        return this.clientCapacity;
     }
 
     public int getMaxInput() {
-        return this.maxInput;
+        return this.maxInput.get();
     }
 
     public int getMinInput() {
-        return this.minInput;
+        return this.minInput.get();
     }
 
     public int getMaxOutput() {
-        return this.maxOutput;
+        return this.maxOutput.get();
     }
 
     public int getMinOutput() {
-        return this.minOutput;
+        return this.minOutput.get();
     }
 
     @Override
@@ -120,11 +128,12 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
         container.accept(FluidStackSyncable.create(() -> this.fluidStack, fluidStack -> this.fluidStack = fluidStack));
         container.accept(IOSideConfigSyncable.create(this::getConfig, this.config::set));
+        container.accept(IntegerSyncable.create(this.capacity, capacity -> this.clientCapacity = capacity));
     }
 
     @Override
     public int getComparatorInput() {
-        return (int) (15 * ((double)this.fluidStack.getAmount() / (double)this.capacity));
+        return (int) (15 * ((double)this.fluidStack.getAmount() / (double)this.capacity.get()));
     }
 
     /** FLUID HANDLER STUFF **/
@@ -237,8 +246,8 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     public int getRecipeRemainingSpace() {
         if(!this.fluidStack.isEmpty())
-            return this.capacity - this.fluidStack.getAmount();
-        return this.capacity;
+            return this.capacity.get() - this.fluidStack.getAmount();
+        return this.capacity.get();
     }
 
     public void recipeInsert(Fluid fluid, long amount, CompoundTag nbt) {

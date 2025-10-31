@@ -30,7 +30,7 @@ public class UpgradedCustomMachine extends CustomMachine {
                                 DefaultCodecs.RESOURCE_LOCATION.listOf().optionalFieldOf("catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
                                 IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", parent.getComponentTemplates()).forGetter(CustomMachine::getComponentTemplates),
                                 IProcessorTemplate.CODEC.optionalFieldOf("processor", parent.getProcessorTemplate()).forGetter(CustomMachine::getProcessorTemplate),
-                                RecipeModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(UpgradedCustomMachine::getModifiers),
+                                RecipeModifier.CODEC.listOf().optionalFieldOf("recipeModifiers", Collections.emptyList()).forGetter(UpgradedCustomMachine::getModifiers),
                                 NamedCodec.BOOL.optionalFieldOf("allow_parent_recipes", true).forGetter(machine -> machine.canMakeParentRecipes)
                         ).apply(upgradedMachineCodec, (name, appearance, tooltips, gui, jei, catalysts, components, processor, modifiers, parentRecipes) ->
                                 new UpgradedCustomMachine(name, appearance, tooltips, gui, jei, catalysts, components, processor, modifiers, parent.getId(), parentRecipes)),

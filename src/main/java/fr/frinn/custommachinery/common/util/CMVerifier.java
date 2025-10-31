@@ -40,7 +40,7 @@ public class CMVerifier {
         //Upgrades
         logger.info("Found {} custom machine upgrades", CustomMachinery.UPGRADES.getAllUpgrades().size());
         CustomMachinery.UPGRADES.getAllUpgrades().forEach(upgrade -> {
-            logger.info(" - {}", BuiltInRegistries.ITEM.getKey(upgrade.getItem()).toString());
+            logger.info(" - {}", BuiltInRegistries.ITEM.getKey(upgrade.item()).toString());
             errors.addAndGet(verifyUpgrade(logger, upgrade));
         });
 
@@ -112,16 +112,16 @@ public class CMVerifier {
     private static int verifyUpgrade(final Logger logger, MachineUpgrade upgrade) {
         int errors = 0;
         //Check that machine exists
-        for(ResourceLocation id : upgrade.getMachines()) {
+        for(ResourceLocation id : upgrade.machines()) {
             if(!CustomMachinery.MACHINES.containsKey(id)) {
                 logger.error(" - Unknown machine id {} specified for this upgrade", id.toString());
                 errors++;
             }
         }
 
-        //Check that upgrade has modifiers
-        if(upgrade.getModifiers().isEmpty()) {
-            logger.error(" - Upgrade doesn't have any modifiers");
+        //Check that upgrade has recipeModifiers
+        if(upgrade.recipeModifiers().isEmpty()) {
+            logger.error(" - Upgrade doesn't have any recipeModifiers");
             errors++;
         }
         return errors;

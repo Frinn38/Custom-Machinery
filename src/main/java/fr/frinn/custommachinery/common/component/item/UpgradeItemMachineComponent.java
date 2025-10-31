@@ -30,19 +30,11 @@ public class UpgradeItemMachineComponent extends ItemMachineComponent {
     }
 
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        ItemStack remaining = super.insertItem(slot, stack, simulate);
-        if(remaining != stack)
-            this.getManager().getTile().getUpgradeManager().markDirty();
-        return remaining;
-    }
-
-    @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        ItemStack extracted = super.extractItem(slot, amount, simulate);
-        if(!extracted.isEmpty())
-            this.getManager().getTile().getUpgradeManager().markDirty();
-        return extracted;
+    public void setItemStack(ItemStack stack) {
+        ItemStack prevStack = this.getItemStack();
+        super.setItemStack(stack);
+        if(ItemStack.isSameItemSameComponents(prevStack, stack) || prevStack.getCount() != stack.getCount())
+            this.getManager().getTile().getUpgradeManager().refresh();
     }
 
     public static class Template extends ItemMachineComponent.Template {

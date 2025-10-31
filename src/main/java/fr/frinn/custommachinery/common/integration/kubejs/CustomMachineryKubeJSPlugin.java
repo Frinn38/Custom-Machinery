@@ -9,15 +9,17 @@ import dev.latvian.mods.kubejs.event.TargetedEventHandler;
 import dev.latvian.mods.kubejs.plugin.KubeJSPlugin;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponentTypeRegistry;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeFactoryRegistry;
-import dev.latvian.mods.kubejs.recipe.schema.RecipeSchemaRegistry;
 import dev.latvian.mods.kubejs.recipe.schema.postprocessing.RecipePostProcessorTypeRegistry;
 import dev.latvian.mods.kubejs.registry.BuilderTypeRegistry;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
 import dev.latvian.mods.kubejs.script.ScriptManager;
 import dev.latvian.mods.kubejs.script.TypeWrapperRegistry;
+import dev.latvian.mods.kubejs.util.RegistryAccessContainer;
 import dev.latvian.mods.rhino.type.TypeInfo;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
+import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.integration.kubejs.CustomMachineUpgradeJSBuilder.UpgradeKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.FunctionKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.MachineJS;
@@ -26,8 +28,11 @@ import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.impl.util.DoubleRange;
 import fr.frinn.custommachinery.impl.util.IntRange;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 
 public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
@@ -43,12 +48,6 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
     @Override
     public void registerEvents(EventGroupRegistry registry) {
         registry.register(CM_EVENTS);
-    }
-
-    @Override
-    public void registerRecipeSchemas(RecipeSchemaRegistry registry) {
-        //registry.register(Registration.CUSTOM_MACHINE_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_MACHINE);
-        //registry.register(Registration.CUSTOM_CRAFT_RECIPE.getId(), CustomMachineryRecipeSchemas.CUSTOM_CRAFT);
     }
 
     @Override
@@ -79,6 +78,8 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
     public void registerBindings(BindingRegistry registry) {
         registry.add("CustomMachine", MachineJS.class);
         registry.add("CMRecipeModifierBuilder", CustomMachineUpgradeJSBuilder.JSRecipeModifierBuilder.class);
+        registry.add("CMComponentModifierBuilder", CustomMachineUpgradeJSBuilder.JSComponentModifierBuilder.class);
+        registry.add("CMCoreModifierBuilder", CustomMachineUpgradeJSBuilder.JSCoreModifierBuilder.class);
         registry.add("TooltipPredicate", TooltipPredicate.class);
     }
 
@@ -111,5 +112,12 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
                 return ComparatorMode.value(charSequence.toString());
             throw new IllegalArgumentException("Comparator must be a string");
         });
+        registry.register(RequirementType.class, registryWrapper(RequirementType.REGISTRY_KEY));
+        registry.register(MachineComponentType.class, registryWrapper(MachineComponentType.REGISTRY_KEY));
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static <T> TypeWrapperRegistry.RegistriesFromFunction registryWrapper(ResourceKey<Registry<T>> registry) {
+        return (access, o) -> ((RegistryAccessContainer)access).access().registryOrThrow(registry).get(ResourceLocation.parse(o.toString()));
     }
 }

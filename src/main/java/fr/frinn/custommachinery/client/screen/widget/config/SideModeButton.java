@@ -2,10 +2,7 @@ package fr.frinn.custommachinery.client.screen.widget.config;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.network.CChangeSideModePacket;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
-import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,9 +12,7 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FastColor;
-import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SideModeButton extends ImageButton {

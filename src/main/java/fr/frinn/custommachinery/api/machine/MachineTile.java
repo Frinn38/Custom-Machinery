@@ -131,6 +131,11 @@ public abstract class MachineTile extends BlockEntity {
     public abstract void setCustomGuiElements(@Nullable List<IGuiElement> guiElements);
 
     /**
+     * This should be called if the list of things synced by the machine container changes.
+     */
+    public abstract void refreshMachineContainer();
+
+    /**
      * Set an entity as the owner of the machine.
      * This is done automatically when the machine block is placed by a player of fake-player.
      */

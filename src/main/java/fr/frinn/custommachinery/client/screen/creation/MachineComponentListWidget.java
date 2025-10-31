@@ -1,14 +1,11 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.client.screen.creation.MachineComponentListWidget.MachineComponentEntry;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.MachineComponentBuilderRegistry;
-import fr.frinn.custommachinery.client.screen.creation.gui.GuiEditorWidget;
 import fr.frinn.custommachinery.client.screen.creation.tabs.ComponentTab;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;

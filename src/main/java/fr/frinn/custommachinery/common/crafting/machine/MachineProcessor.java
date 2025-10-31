@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
@@ -10,34 +10,76 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.common.upgrade.CoreModifier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class MachineProcessor implements IProcessor, ISyncableStuff {
 
     private final MachineTile tile;
+    private final int coreAmount;
+    private final int recipeCheckCooldown;
     private boolean initialized = false;
 
-    private final List<MachineProcessorCore> cores;
+    private final List<MachineProcessorCore> cores = new ArrayList<>();
 
     public MachineProcessor(MachineTile tile, int amount, int recipeCheckCooldown) {
         this.tile = tile;
-        ImmutableList.Builder<MachineProcessorCore> cores = ImmutableList.builder();
+        this.coreAmount = amount;
+        this.recipeCheckCooldown = recipeCheckCooldown;
         for(int i = 0; i < amount; i++)
-            cores.add(new MachineProcessorCore(this, tile, recipeCheckCooldown, i + 1));
-        this.cores = cores.build();
+            this.cores.add(new MachineProcessorCore(this, tile, recipeCheckCooldown, i + 1));
     }
 
     public List<MachineProcessorCore> getCores() {
         return this.cores;
+    }
+
+    public void setClientCoreCount(int count) {
+        this.cores.clear();
+        for(int i = 0; i < count; i++) {
+            MachineProcessorCore core = new MachineProcessorCore(this, this.tile, this.recipeCheckCooldown, i + 1);
+            core.init();
+            this.cores.add(core);
+        }
+        ClientHandler.refreshMachineContainer();
+    }
+
+    public void refreshCoreCount(Stream<Pair<CoreModifier, Integer>> modifiers) {
+        if(this.tile.getLevel() instanceof ServerLevel level) {
+            AtomicInteger amount = new AtomicInteger(this.coreAmount);
+            modifiers.forEach(pair -> amount.set((int)Mth.clamp(pair.getFirst().apply(amount.get(), pair.getSecond()), pair.getFirst().min(), pair.getFirst().max())));
+            int currentAmount = this.cores.size();
+            if(amount.get() > currentAmount) {
+                for(int i = 0; i < amount.get() - currentAmount; i++) {
+                    MachineProcessorCore core = new MachineProcessorCore(this, this.tile, this.recipeCheckCooldown, this.cores.size() + 1);
+                    core.init();
+                    this.cores.add(core);
+                }
+                this.tile.refreshMachineContainer();
+                //PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.tile.getBlockPos()), new SMachineCoreCountChangePacket(this.tile.getBlockPos(), amount.get()));
+            } else if(amount.get() < currentAmount) {
+                for(int i = 0; i < currentAmount - amount.get(); i++)
+                    this.cores.removeLast();
+                this.tile.refreshMachineContainer();
+                //PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.tile.getBlockPos()), new SMachineCoreCountChangePacket(this.tile.getBlockPos(), amount.get()));
+            }
+        }
     }
 
     @Override
@@ -57,6 +99,8 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     private void init() {
         this.initialized = true;
         this.cores.forEach(MachineProcessorCore::init);
+        //if(this.cores.size() != this.coreAmount && this.tile.getLevel() instanceof ServerLevel level)
+        //    TaskDelayer.enqueue(1, () -> PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.tile.getBlockPos()), new SMachineCoreCountChangePacket(this.tile.getBlockPos(), this.cores.size())));
     }
 
     public void setRunning() {
@@ -127,6 +171,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
     @Override
     public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+        container.accept(IntegerSyncable.create(this.cores::size, this::setClientCoreCount));
         this.cores.forEach(core -> core.getStuffToSync(container));
     }
 

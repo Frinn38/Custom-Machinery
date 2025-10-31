@@ -105,7 +105,7 @@ public class CraftingContext implements ICraftingContext {
 
     private double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, @Nullable RequirementIOMode mode) {
         double modified = value;
-        List<Pair<IRecipeModifier, Integer>> modifiers = this.upgrades.getAllModifiers();
+        List<Pair<IRecipeModifier, Integer>> modifiers = this.upgrades.getRecipeModifiers();
         for(Pair<IRecipeModifier, Integer> pair : modifiers) {
             if(pair.getFirst().shouldApply(type, mode, target))
                 modified = pair.getFirst().apply(modified, pair.getSecond());

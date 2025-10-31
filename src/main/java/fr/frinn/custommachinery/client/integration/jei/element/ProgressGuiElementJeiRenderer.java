@@ -2,15 +2,11 @@ package fr.frinn.custommachinery.client.integration.jei.element;
 
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.client.element.ProgressGuiElementWidget;
 import fr.frinn.custommachinery.client.render.ProgressArrowRenderer;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
-import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -275,7 +275,7 @@ public class MachineCT {
     public void enableChunkload(int radius) {
         this.internal.getComponentManager()
                 .getComponent(Registration.CHUNKLOAD_MACHINE_COMPONENT.get())
-                .ifPresent(component -> component.setActive((ServerLevel) this.internal.getLevel(), radius));
+                .ifPresent(component -> component.setActive(radius));
     }
 
     @Method

@@ -2,8 +2,6 @@ package fr.frinn.custommachinery.common.network.syncable;
 
 import fr.frinn.custommachinery.common.network.data.IOSideConfigData;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
-import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
 import fr.frinn.custommachinery.impl.network.AbstractSyncable;
 
 import java.util.function.Consumer;

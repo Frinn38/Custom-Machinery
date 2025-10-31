@@ -42,7 +42,7 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
                                 "custommachinery.gui.element.energy.tooltip",
                                 Utils.format(component.getEnergy()),
                                 Component.translatable("unit.energy.forge"),
-                                Utils.format(component.getCapacity()),
+                                Utils.format(component.getClientCapacity()),
                                 Component.translatable("unit.energy.forge")
                         )
                 ))

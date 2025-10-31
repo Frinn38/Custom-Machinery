@@ -18,9 +18,9 @@ public class Upgrades {
 
     public void refresh(List<MachineUpgrade> upgrades) {
         this.upgrades = Collections.unmodifiableList(upgrades);
-        this.upgradesByItem = upgrades.stream().collect(Collectors.groupingBy(MachineUpgrade::getItem));
-        this.upgradesByMachine = upgrades.stream().flatMap(upgrade -> upgrade.getMachines().stream()).distinct()
-                .collect(Collectors.toMap(Function.identity(), id -> upgrades.stream().filter(upgrade -> upgrade.getMachines().contains(id)).toList()));
+        this.upgradesByItem = upgrades.stream().collect(Collectors.groupingBy(MachineUpgrade::item));
+        this.upgradesByMachine = upgrades.stream().flatMap(upgrade -> upgrade.machines().stream()).distinct()
+                .collect(Collectors.toMap(Function.identity(), id -> upgrades.stream().filter(upgrade -> upgrade.machines().contains(id)).toList()));
     }
 
     public void addUpgrade(MachineUpgrade upgrade) {

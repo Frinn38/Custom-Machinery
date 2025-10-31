@@ -13,7 +13,7 @@ public class SoundManager {
     private static final SoundInstance DEFAULT = SimpleSoundInstance.forMusic(AmbientSound.DEFAULT.sound());
 
     private final BlockPos pos;
-    private SoundInstance sound;
+    private SoundInstance sound = DEFAULT;
 
     public SoundManager(BlockPos pos) {
         this.pos = pos;
