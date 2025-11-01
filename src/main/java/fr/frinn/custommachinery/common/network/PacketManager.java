@@ -14,7 +14,6 @@ public class PacketManager {
         final PayloadRegistrar registrar = event.registrar("1");
 
         // Server to Client
-        registrar.playToClient(SMachineCoreCountChangePacket.TYPE, SMachineCoreCountChangePacket.CODEC, SMachineCoreCountChangePacket::handle);
         registrar.playToClient(SLootTablesPacket.TYPE, SLootTablesPacket.CODEC, SLootTablesPacket::handle);
         registrar.playToClient(SOpenCreationScreenPacket.TYPE, SOpenCreationScreenPacket.CODEC, SOpenCreationScreenPacket::handle);
         registrar.playToClient(SOpenEditScreenPacket.TYPE, SOpenEditScreenPacket.CODEC, SOpenEditScreenPacket::handle);
