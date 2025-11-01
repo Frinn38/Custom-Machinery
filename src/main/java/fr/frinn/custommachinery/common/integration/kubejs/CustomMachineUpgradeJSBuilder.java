@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import com.google.common.collect.ImmutableList;
+import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.event.KubeEvent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
@@ -68,6 +69,11 @@ public class CustomMachineUpgradeJSBuilder {
     }
 
     public CustomMachineUpgradeJSBuilder modifier(JSRecipeModifierBuilder builder) {
+        this.recipeModifiers.add(builder.build());
+        return this;
+    }
+
+    public CustomMachineUpgradeJSBuilder requirement(JSRecipeModifierBuilder builder) {
         this.recipeModifiers.add(builder.build());
         return this;
     }
@@ -206,6 +212,8 @@ public class CustomMachineUpgradeJSBuilder {
         }
 
         private ComponentModifier build() {
+            if(this.target == null || this.target.isEmpty())
+                throw new KubeRuntimeException("Invalid CM upgrade component modifier for component: " + this.type.getId() + " target not specified");
             return new ComponentModifier(this.type, this.id, this.target, this.operation, this.modifier, this.max, this.min, this.tooltip);
         }
     }
@@ -214,8 +222,8 @@ public class CustomMachineUpgradeJSBuilder {
 
         private final Operation operation;
         private final double modifier;
-        private double max = Double.POSITIVE_INFINITY;
-        private double min = Double.NEGATIVE_INFINITY;
+        private int max = 32;
+        private int min = 1;
         private Component tooltip = null;
 
         private JSCoreModifierBuilder(Operation operation, double modifier) {
@@ -235,12 +243,12 @@ public class CustomMachineUpgradeJSBuilder {
             return new JSCoreModifierBuilder(Operation.EXPONENTIAL, modifier);
         }
 
-        public JSCoreModifierBuilder max(double max) {
+        public JSCoreModifierBuilder max(int max) {
             this.max = max;
             return this;
         }
 
-        public JSCoreModifierBuilder min(double min) {
+        public JSCoreModifierBuilder min(int min) {
             this.min = min;
             return this;
         }

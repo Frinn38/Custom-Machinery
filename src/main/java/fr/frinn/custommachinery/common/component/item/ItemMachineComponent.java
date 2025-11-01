@@ -32,13 +32,14 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IItemHandlerModifiable {
 
     private final String id;
-    private final int capacity;
-    private final int maxInput;
-    private final int maxOutput;
+    private final Supplier<Integer> capacity;
+    private final Supplier<Integer> maxInput;
+    private final Supplier<Integer> maxOutput;
     private final Filter<Item> filter;
     private ItemStack stack = ItemStack.EMPTY;
     private final IOSideConfig config;
@@ -48,9 +49,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template configTemplate, boolean locked) {
         super(manager, mode);
         this.id = id;
-        this.capacity = capacity;
-        this.maxInput = maxInput;
-        this.maxOutput = maxOutput;
+        this.capacity = this.upgradeableI(capacity, "capacity", 1, 64, value -> {
+            if(this.stack.getCount() > value)
+                this.setItemStack(this.stack.copyWithCount(value));
+        });
+        this.maxInput = this.upgradeableI(maxInput, "maxInput", 0, 64);
+        this.maxOutput = this.upgradeableI(maxOutput, "maxOutput", 0, 64);
         this.filter = filter;
         this.config = configTemplate.build(this);
         this.locked = locked;
@@ -75,7 +79,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     public int getCapacity() {
-        return this.capacity;
+        return this.capacity.get();
     }
 
     //Should be used to set the stored ItemStack as it refresh upgrades
@@ -171,7 +175,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         //Check the per-tick limit
         if(!this.bypassLimit)
-            amountToInsert = Math.min(amountToInsert, this.maxInput);
+            amountToInsert = Math.min(amountToInsert, this.maxInput.get());
 
         //Check the inserted stack max size, in case a mod like AE2 try to insert a stack of non-stackable items
         amountToInsert = Math.min(amountToInsert, stack.getMaxStackSize());
@@ -181,7 +185,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
             amountToInsert = Math.min(amountToInsert, this.stack.getMaxStackSize() - this.stack.getCount());
 
         //Check the slot capacity
-        amountToInsert = Math.min(amountToInsert, this.capacity - this.stack.getCount());
+        amountToInsert = Math.min(amountToInsert, this.capacity.get() - this.stack.getCount());
 
         //If nothing can be inserted return input
         if(amountToInsert <= 0)
@@ -217,7 +221,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         //Check output limit
         if(!this.bypassLimit)
-            amount = Math.min(amount, this.maxOutput);
+            amount = Math.min(amount, this.maxOutput.get());
 
         //Check current stack size
         amount = Math.min(amount, this.stack.getCount());
@@ -234,7 +238,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     @Override
     public int getSlotLimit(int slot) {
         if(slot == 0)
-            return this.capacity;
+            return this.capacity.get();
         throw new IllegalArgumentException("Can't get capacity for slot " + slot + ", ItemMachineComponent only has slot 0");
     }
 

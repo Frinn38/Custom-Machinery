@@ -5,19 +5,19 @@ import fr.frinn.custommachinery.api.upgrade.Operation;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 
-public record CoreModifier(Operation operation, double modifier, double max, double min, Component tooltip) {
+public record CoreModifier(Operation operation, double modifier, int max, int min, Component tooltip) {
 
     public static final NamedCodec<CoreModifier> CODEC = NamedCodec.record(modifierInstance ->
             modifierInstance.group(
                     Operation.CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
                     NamedCodec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
-                    NamedCodec.DOUBLE.optionalFieldOf("max", Double.POSITIVE_INFINITY).forGetter(modifier -> modifier.max),
-                    NamedCodec.DOUBLE.optionalFieldOf("min", Double.NEGATIVE_INFINITY).forGetter(modifier -> modifier.min),
+                    NamedCodec.intRange(1, 32).optionalFieldOf("max", 32).forGetter(modifier -> modifier.max),
+                    NamedCodec.intRange(1, 32).optionalFieldOf("min", 1).forGetter(modifier -> modifier.min),
                     TextComponentUtils.CODEC.optionalFieldOf("tooltip", Component.empty()).forGetter(modifier -> modifier.tooltip)
             ).apply(modifierInstance, CoreModifier::new), "Core modifier"
     );
 
-    public CoreModifier(Operation operation, double modifier, double max, double min, Component tooltip) {
+    public CoreModifier(Operation operation, double modifier, int max, int min, Component tooltip) {
         this.operation = operation;
         this.modifier = modifier;
         this.max = max;

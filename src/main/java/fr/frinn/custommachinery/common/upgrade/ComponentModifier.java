@@ -16,7 +16,7 @@ public record ComponentModifier(MachineComponentType<?> component, String id, St
             modifierInstance.group(
                     RegistrarCodec.MACHINE_COMPONENT.fieldOf("component").forGetter(modifier -> modifier.component),
                     NamedCodec.STRING.optionalFieldOf("id", "").forGetter(modifier -> modifier.id),
-                    NamedCodec.STRING.optionalFieldOf("target", "").forGetter(modifier -> modifier.target),
+                    NamedCodec.STRING.fieldOf("target").forGetter(modifier -> modifier.target),
                     Operation.CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
                     NamedCodec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
                     NamedCodec.DOUBLE.optionalFieldOf("max", Double.POSITIVE_INFINITY).forGetter(modifier -> modifier.max),
