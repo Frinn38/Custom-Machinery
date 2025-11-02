@@ -12,9 +12,16 @@ import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +29,24 @@ public class KubeJSIntegration {
 
     public static MachineLocation getMachineLocation(Resource resource, String packName, ResourceLocation id) {
         try(PackResources pack = resource.source()) {
-            if(pack instanceof KubeFileResourcePack)
-                return MachineLocation.fromKubeJS(id, packName);
+            if(pack instanceof KubeFileResourcePack) {
+                if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
+                    File file = MachineLocation.getFile(server, id, MachineLocation.Loader.KUBEJS, packName);
+                    if(file != null && file.exists()) {
+                        try {
+                            BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                            return MachineLocation.fromKubeJS(id, packName, attributes.creationTime(), attributes.lastModifiedTime());
+                        } catch (IOException ignored) {
+
+                        }
+                    }
+                }
+                return MachineLocation.fromKubeJS(id, packName, null, null);
+            }
             else if(pack instanceof VirtualDataPack)
                 return MachineLocation.fromKubeJSScript(id, packName);
-            return MachineLocation.fromDefault(id, packName);
+            else
+                return MachineLocation.fromDefault(id, packName);
         }
     }
 

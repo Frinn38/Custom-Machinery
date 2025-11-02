@@ -113,9 +113,7 @@ public class CustomMachineBuilder {
     }
 
     public CustomMachineBuilder setId(ResourceLocation id) {
-        MachineLocation.Loader loader = this.location.getLoader();
-        String packName = this.location.getPackName();
-        this.location = MachineLocation.fromLoader(loader, id, packName);
+        this.location = MachineLocation.fromLoader(this.location.loader(), id, this.location.packName(), this.location.created(), this.location.modified());
         return this;
     }
 

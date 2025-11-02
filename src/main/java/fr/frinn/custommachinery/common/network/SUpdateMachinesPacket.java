@@ -36,7 +36,7 @@ public record SUpdateMachinesPacket(Map<ResourceLocation, CustomMachine> machine
                         machine = CustomMachine.CODEC.fromNetwork(buf);
                     }
                     machine.setLocation(location);
-                    map.put(location.getId(), machine);
+                    map.put(location.id(), machine);
                 } catch (EncoderException e) {
                     e.printStackTrace();
                 }

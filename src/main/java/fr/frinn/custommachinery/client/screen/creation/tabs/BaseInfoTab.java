@@ -47,7 +47,7 @@ public class BaseInfoTab extends MachineEditTab {
 
         //Id (1rst row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.id"), Minecraft.getInstance().font), middle);
-        row.addChild(new MachineIdWidget(150, 9, Component.literal(this.parent.getBuilder().getLocation().getId().toString()), Minecraft.getInstance().font));
+        row.addChild(new MachineIdWidget(150, 9, Component.literal(this.parent.getBuilder().getLocation().id().toString()), Minecraft.getInstance().font));
 
         //Name (2nd row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.name"), font), middle);

@@ -67,7 +67,7 @@ public class CustomMachine implements ICustomMachine {
 
     @Override
     public ResourceLocation getId() {
-        return this.location.getId();
+        return this.location.id();
     }
 
     @Override

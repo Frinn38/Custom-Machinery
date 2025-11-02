@@ -8,86 +8,80 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
-import net.neoforged.fml.loading.FMLLoader;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.Locale;
 
-public class MachineLocation {
+public record MachineLocation(ResourceLocation id, Loader loader, String packName, FileTime created, FileTime modified) {
 
     public static final NamedCodec<MachineLocation> CODEC = NamedCodec.record(machineLocationInstance ->
             machineLocationInstance.group(
-                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("id").forGetter(MachineLocation::getId),
-                    Loader.CODEC.fieldOf("loader").forGetter(MachineLocation::getLoader),
-                    NamedCodec.STRING.fieldOf("packName").forGetter(MachineLocation::getPackName)
+                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("id").forGetter(MachineLocation::id),
+                    Loader.CODEC.fieldOf("loader").forGetter(MachineLocation::loader),
+                    NamedCodec.STRING.fieldOf("packName").forGetter(MachineLocation::packName),
+                    NamedCodec.LONG.xmap(FileTime::fromMillis, FileTime::toMillis, "Time").fieldOf("created").forGetter(MachineLocation::created),
+                    NamedCodec.LONG.xmap(FileTime::fromMillis, FileTime::toMillis, "Time").fieldOf("modified").forGetter(MachineLocation::modified)
             ).apply(machineLocationInstance, MachineLocation::new), "Machine location"
     );
 
-    private final ResourceLocation id;
-    private final Loader loader;
-    private final String packName;
-
-    private MachineLocation(ResourceLocation id, Loader loader, String packName) {
+    public MachineLocation(ResourceLocation id, Loader loader, String packName, @Nullable FileTime created, @Nullable FileTime modified) {
         this.id = id;
         this.loader = loader;
         this.packName = packName;
+        this.created = created == null ? FileTime.fromMillis(0) : created;
+        this.modified = modified == null ? FileTime.fromMillis(0) : modified;
     }
 
-    public static MachineLocation fromLoader(Loader loader, ResourceLocation id, String packName) {
+    public static MachineLocation fromLoader(Loader loader, ResourceLocation id, String packName, @Nullable FileTime created, @Nullable FileTime modified) {
         return switch (loader) {
             case DEFAULT -> fromDefault(id, packName);
-            case DATAPACK -> fromDatapack(id, packName);
-            case DATAPACK_ZIP -> fromDatapackZip(id, packName);
-            case KUBEJS -> fromKubeJS(id, packName);
+            case DATAPACK -> fromDatapack(id, packName, created, modified);
+            case DATAPACK_ZIP -> fromDatapackZip(id, packName, created, modified);
+            case KUBEJS -> fromKubeJS(id, packName, created, modified);
             case KUBEJS_SCRIPT -> fromKubeJSScript(id, packName);
         };
     }
 
     public static MachineLocation fromDefault(ResourceLocation id, String packName) {
-        return new MachineLocation(id, Loader.DEFAULT, packName);
+        return new MachineLocation(id, Loader.DEFAULT, packName, null, null);
     }
 
-    public static MachineLocation fromDatapack(ResourceLocation id, String packName) {
-        if(packName.startsWith("file"))
+    public static MachineLocation fromDatapack(ResourceLocation id, String packName, @Nullable FileTime created, @Nullable FileTime modified) {
+        if (packName.startsWith("file"))
             packName = packName.substring(5);
-        return new MachineLocation(id, Loader.DATAPACK, packName);
+        return new MachineLocation(id, Loader.DATAPACK, packName, created, modified);
     }
 
-    public static MachineLocation fromDatapackZip(ResourceLocation id, String packName) {
-        return new MachineLocation(id, Loader.DATAPACK_ZIP, packName);
+    public static MachineLocation fromDatapackZip(ResourceLocation id, String packName, @Nullable FileTime created, @Nullable FileTime modified) {
+        return new MachineLocation(id, Loader.DATAPACK_ZIP, packName, created, modified);
     }
 
-    public static MachineLocation fromKubeJS(ResourceLocation id, String packName) {
-        return new MachineLocation(id, Loader.KUBEJS, packName);
+    public static MachineLocation fromKubeJS(ResourceLocation id, String packName, @Nullable FileTime created, @Nullable FileTime modified) {
+        return new MachineLocation(id, Loader.KUBEJS, packName, created, modified);
     }
 
     public static MachineLocation fromKubeJSScript(ResourceLocation id, String packName) {
-        return new MachineLocation(id, Loader.KUBEJS_SCRIPT, packName);
-    }
-
-    public ResourceLocation getId() {
-        return this.id;
-    }
-
-    public Loader getLoader() {
-        return this.loader;
-    }
-
-    public String getPackName() {
-        return this.packName;
+        return new MachineLocation(id, Loader.KUBEJS_SCRIPT, packName, null, null);
     }
 
     @Nullable
     public File getFile(MinecraftServer server) {
-        String pathFromData = "data" + File.separator + this.id.getNamespace() + File.separator + "machine" + File.separator + this.id.getPath() + ".json";
-        String root = server.getServerDirectory().toFile().getAbsolutePath();
-        if(!FMLLoader.isProduction())
-            root = root.substring(0, root.length() - 2);
-        root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + this.getId().getNamespace() + File.separator + "machine";
-        File kubeJS = new File(root, this.getId().getPath() + ".json");
-        return switch(this.loader) {
-            case DATAPACK -> server.getWorldPath(LevelResource.DATAPACK_DIR).resolve(this.packName + File.separator + pathFromData).normalize().toFile();
+        return getFile(server, this.id, this.loader, this.packName);
+    }
+
+    @Nullable
+    public static File getFile(MinecraftServer server, ResourceLocation id, Loader loader, String packName) {
+        String pathFromData = "data" + File.separator + id.getNamespace() + File.separator + "machine" + File.separator + id.getPath() + ".json";
+        String root = Path.of("").toFile().getAbsolutePath();
+        //if (!FMLLoader.isProduction())
+        //    root = root.substring(0, root.length() - 2);
+        root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + id.getNamespace() + File.separator + "machine";
+        File kubeJS = new File(root, id.getPath() + ".json");
+        return switch (loader) {
+            case DATAPACK -> server.getWorldPath(LevelResource.DATAPACK_DIR).resolve(packName + File.separator + pathFromData).normalize().toFile();
             case KUBEJS -> kubeJS;
             default -> null;
         };

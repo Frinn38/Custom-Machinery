@@ -13,6 +13,7 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
+import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.network.SLootTablesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateTemplatesPacket;
@@ -49,6 +50,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -137,6 +143,19 @@ public class CustomMachinery {
 
     private void serverStarting(final ServerStartingEvent event) {
         LootTableHelper.generate(event.getServer());
+        //Check machine file timestamps here because the server is not available on first load in CustomMachineJsonReloadListener
+        //On /reload the timestamps will be checked by the CustomMachineJsonReloadListener because server will be available then
+        MACHINES.forEach((id, machine) -> {
+            File file = machine.getLocation().getFile(event.getServer());
+            if(file != null && file.exists()) {
+                try {
+                    BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                    machine.setLocation(MachineLocation.fromLoader(machine.getLocation().loader(), machine.getId(), machine.getLocation().packName(), attributes.creationTime(), attributes.lastModifiedTime()));
+                } catch (IOException ignored) {
+
+                }
+            }
+        });
     }
 
     private void syncDatapacks(final OnDatapackSyncEvent event) {

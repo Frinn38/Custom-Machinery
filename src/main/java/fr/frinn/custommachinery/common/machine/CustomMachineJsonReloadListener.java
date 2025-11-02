@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.common.util.MachineList;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PathPackResources;
@@ -25,7 +26,11 @@ import net.neoforged.neoforge.common.conditions.ICondition.IContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import oshi.util.tuples.Triplet;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -56,7 +61,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         map.forEach((id, json) -> {
             MachineLocation location = getMachineLocation(resourceManager, id);
 
-            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: {} in datapack: {}", id, location.getPackName());
+            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: {} in datapack: {}", id, location.packName());
 
             //Check if the content of the json file is a json object
             if(!json.isJsonObject()) {
@@ -165,10 +170,35 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                 return KubeJSIntegration.getMachineLocation(res, packName, id);
             else {
                 try(PackResources pack = res.source()) {
-                    if(pack instanceof FilePackResources)
-                        return MachineLocation.fromDatapackZip(id, packName);
-                    else if(pack instanceof PathPackResources)
-                        return MachineLocation.fromDatapack(id, packName);
+                    if(pack instanceof FilePackResources) {
+                        if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
+                            File file = MachineLocation.getFile(server, id, MachineLocation.Loader.DATAPACK_ZIP, packName);
+                            if(file != null && file.exists()) {
+                                try {
+                                    BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                                    return MachineLocation.fromDatapackZip(id, packName, attributes.creationTime(), attributes.lastModifiedTime());
+                                } catch (IOException ignored) {
+
+                                }
+                            }
+                        }
+                        return MachineLocation.fromDatapackZip(id, packName, null, null);
+                    }
+
+                    else if(pack instanceof PathPackResources) {
+                        if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
+                            File file = MachineLocation.getFile(server, id, MachineLocation.Loader.DATAPACK, packName);
+                            if(file != null && file.exists()) {
+                                try {
+                                    BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                                    return MachineLocation.fromDatapack(id, packName, attributes.creationTime(), attributes.lastModifiedTime());
+                                } catch (IOException ignored) {
+
+                                }
+                            }
+                        }
+                        return MachineLocation.fromDatapack(id, packName, null, null);
+                    }
                 }
             }
         } catch (IOException ignored) {

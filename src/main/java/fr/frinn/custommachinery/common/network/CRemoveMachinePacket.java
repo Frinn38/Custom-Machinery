@@ -33,7 +33,7 @@ public record CRemoveMachinePacket(ResourceLocation id) implements CustomPacketP
             if(machine != null)
                 context.enqueueWork(() -> {
                     CustomMachinery.LOGGER.info("Player: {} removed machine: {}", player.getName().getString(), packet.id);
-                    if(FileUtils.deleteMachineJson(player.getServer(), machine.getLocation())) {
+                    if(FileUtils.deleteMachineJson(player.server, machine.getLocation())) {
                         CustomMachinery.MACHINES.remove(packet.id);
                         PacketDistributor.sendToAllPlayers(new SUpdateMachinesPacket(CustomMachinery.MACHINES));
                     }

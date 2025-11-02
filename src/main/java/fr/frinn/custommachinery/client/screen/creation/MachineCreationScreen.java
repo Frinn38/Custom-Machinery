@@ -12,7 +12,6 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 
 import java.io.File;
 import java.util.Objects;
@@ -43,8 +42,7 @@ public class MachineCreationScreen extends BaseScreen {
         MachineEntry entry = this.machineList.getSelected();
         if(entry != null) {
             try {
-                MinecraftServer server = Objects.requireNonNull(Minecraft.getInstance().getSingleplayerServer());
-                File file = Objects.requireNonNull(entry.getMachine().getLocation().getFile(server));
+                File file = Objects.requireNonNull(entry.getMachine().getLocation().getFile(Minecraft.getInstance().getSingleplayerServer()));
                 Util.getPlatform().openUri(file.toURI());
             } catch (NullPointerException e) {
                 CustomMachinery.LOGGER.warn("Can't open machine json for machine: {}", entry.getMachine().getId());

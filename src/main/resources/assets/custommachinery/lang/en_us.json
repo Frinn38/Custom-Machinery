@@ -102,6 +102,8 @@
   "custommachinery.gui.creation.save.toast": "Machine saved to file",
   "custommachinery.gui.creation.close": "Close without saving",
   "custommachinery.gui.creation.wiki": "Open wiki",
+  "custommachinery.gui.creation.time.created": "Created: %s",
+  "custommachinery.gui.creation.time.modified": "Modified: %s",
 
   "custommachinery.gui.creation.popup.create": "Create new machine",
   "custommachinery.gui.creation.popup.error.id": "Missing id",

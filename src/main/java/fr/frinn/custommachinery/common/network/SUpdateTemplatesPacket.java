@@ -40,7 +40,7 @@ public record SUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, C
                     }
                     machine.setLocation(location);
                     Component tooltip = TextComponentUtils.CODEC.fromNetwork(buf);
-                    map.put(location.getId(), Pair.of(machine, tooltip));
+                    map.put(location.id(), Pair.of(machine, tooltip));
                 } catch (EncoderException e) {
                     e.printStackTrace();
                 }
