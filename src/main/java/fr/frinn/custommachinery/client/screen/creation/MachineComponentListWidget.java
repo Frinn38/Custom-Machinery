@@ -97,6 +97,7 @@ public class MachineComponentListWidget extends ListWidget<MachineComponentEntry
             }, error -> {throw new IllegalStateException("Error while encoding machine component to json to copy: " + error.message());});
         }
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
             ((IMachineComponentBuilder)this.builder).render(graphics, x, y, width, height, this.template);

@@ -3,11 +3,13 @@ package fr.frinn.custommachinery.client.screen.creation;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineListWidget.MachineEntry;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
@@ -18,6 +20,7 @@ import java.util.Objects;
 
 public class MachineCreationScreen extends BaseScreen {
 
+    private CycleButton<MachineListSorting> sorter;
     private MachineListWidget machineList;
     private Button create;
     private Button edit;
@@ -26,6 +29,12 @@ public class MachineCreationScreen extends BaseScreen {
 
     public MachineCreationScreen() {
         super(Component.literal("Machine creation"), 256, 192);
+    }
+
+    public void sort(MachineListSorting sorting) {
+        CMConfig.CONFIG.sortMachineList.set(sorting);
+        CMConfig.CONFIG.sortMachineList.save();
+        this.machineList.sort();
     }
 
     public void create() {
@@ -67,8 +76,19 @@ public class MachineCreationScreen extends BaseScreen {
         layout.defaultCellSetting().padding(5);
         GridLayout.RowHelper row = layout.createRowHelper(4);
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
-        this.machineList = row.addChild(new MachineListWidget(this, 0, 0, this.xSize - 10, this.ySize - 40, 30), 4, center);
+
+        //Sort
+        this.sorter = row.addChild(CycleButton.<MachineListSorting>builder(v -> Component.literal(v.name()))
+                .withValues(MachineListSorting.values())
+                .displayOnlyValue()
+                .withInitialValue(CMConfig.CONFIG.sortMachineList.get())
+                .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 4, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+
+        //List
+        this.machineList = row.addChild(new MachineListWidget(this, 0, 0, this.xSize - 10, this.ySize - 65, 30), 4, center);
         this.machineList.reload();
+
+        //Buttons
         this.create = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
         this.edit = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).bounds(0, 0, 50, 20).build(), center);
         this.open = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.open"), button -> this.open()).bounds(0, 0, 50, 20).build(), center);

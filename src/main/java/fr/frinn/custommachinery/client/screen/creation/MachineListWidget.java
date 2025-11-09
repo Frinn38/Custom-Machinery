@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineListWidget.MachineEntry;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.ChatFormatting;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
+import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,10 +31,17 @@ public class MachineListWidget extends ListWidget<MachineEntry> {
 
     public void reload() {
         this.clear();
-        CustomMachinery.MACHINES.values()
-                .stream()
-                .sorted(Comparator.comparing(machine -> machine.getName().getString()))
-                .forEach(machine -> this.addEntry(new MachineEntry(machine)));
+        CustomMachinery.MACHINES.values().forEach(machine -> this.addEntry(new MachineEntry(machine)));
+        this.sort();
+    }
+
+    public void sort() {
+        this.sort(switch (CMConfig.CONFIG.sortMachineList.get()) {
+            case A_Z -> Comparator.comparing(entry -> entry.getMachine().getName().getString());
+            case Z_A -> Comparator.<MachineEntry, String>comparing(entry -> entry.getMachine().getName().getString()).reversed();
+            case NEWEST -> Comparator.<MachineEntry, FileTime>comparing(entry -> entry.getMachine().getLocation().modified()).reversed();
+            case OLDEST -> Comparator.comparing(entry -> entry.getMachine().getLocation().modified());
+        });
     }
 
     public static class MachineEntry extends Entry {
