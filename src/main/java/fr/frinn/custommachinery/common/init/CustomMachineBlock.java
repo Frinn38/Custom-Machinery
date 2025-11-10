@@ -78,7 +78,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         super(makeProperties(occlusion));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
@@ -206,19 +205,16 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             return Utils.createTickerHelper(type, Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineTile::serverTick);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean isSignalSource(BlockState state) {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         BlockEntity tile = level.getBlockEntity(pos);
@@ -227,7 +223,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         return 0;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
@@ -236,7 +231,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         return 0;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
@@ -245,7 +239,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         return 0;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
         return Optional.ofNullable(level.getBlockEntity(pos))
