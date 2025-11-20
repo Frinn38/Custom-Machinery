@@ -21,11 +21,8 @@ import java.util.List;
 
 public class MachineListWidget extends ListWidget<MachineEntry> {
 
-    private final MachineCreationScreen parent;
-
-    public MachineListWidget(MachineCreationScreen parent, int x, int y, int width, int height, int itemHeight) {
+    public MachineListWidget(int x, int y, int width, int height, int itemHeight) {
         super(x, y, width, height, itemHeight, Component.empty());
-        this.parent = parent;
         this.setRenderSelection();
     }
 

@@ -11,6 +11,7 @@ import fr.frinn.custommachinery.api.upgrade.Operation;
 import fr.frinn.custommachinery.common.integration.crafttweaker.RequirementTypeCTBrackets.CTRequirementType;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
+import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -196,7 +197,7 @@ public class CustomMachineUpgradeCTBuilder {
 
         @Override
         public void apply() {
-            CustomMachinery.UPGRADES.addUpgrade(this.upgrade);
+            CustomMachinery.UPGRADES.addUpgrade(UpgradeLocation.fromDefault(ResourceLocation.parse("CT"), ""), this.upgrade);
         }
 
         @Override

@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.config;
 
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.client.screen.creation.MachineListSorting;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.UpgradeListSorting;
 import fr.frinn.custommachinery.common.util.LoggingLevel;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
@@ -32,6 +33,7 @@ public class CMConfig {
     public final ConfigValue<Integer> blockTagCycleTime;
     public final ConfigValue<Integer> itemSlotCycleTime;
     public final ConfigValue<MachineListSorting> sortMachineList;
+    public final ConfigValue<UpgradeListSorting> sortUpgradeList;
 
     //MISC
     public final ConfigValue<List<String>> modelFolders;
@@ -70,6 +72,9 @@ public class CMConfig {
         this.sortMachineList = builder
                 .comment("How the machine list must be ordered in the machine editor.")
                 .defineEnum("sort_machine_list", MachineListSorting.A_Z);
+        this.sortUpgradeList = builder
+                .comment("How the upgrade list must be ordered in the upgrade editor.")
+                .defineEnum("sort_upgrade_list", UpgradeListSorting.ITEM);
         builder.pop();
 
         //MISC

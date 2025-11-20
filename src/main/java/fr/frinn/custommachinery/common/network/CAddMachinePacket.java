@@ -45,10 +45,10 @@ public record CAddMachinePacket(String id, Component name, boolean kubejs, Resou
                 ResourceLocation loc = packet.id.contains(":") ? ResourceLocation.parse(packet.id) : CustomMachinery.rl(packet.id);
                 CustomMachine newMachine;
                 if(packet.template == EMPTY_TEMPLATE || !CustomMachinery.TEMPLATES.containsKey(packet.template)) {
-                    CustomMachinery.LOGGER.info("Player: {} added new Machine: {}", player.getName().getString(), loc);
+                    CustomMachinery.LOGGER.info("Player: {} added new machine: {}", player.getName().getString(), loc);
                     newMachine = new CustomMachineBuilder().setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, loc, "", null, null)).setName(packet.name).build();
                 } else {
-                    CustomMachinery.LOGGER.info("Player: {} added new Machine: {} from template: {}", player.getName().getString(), loc, packet.template.toString());
+                    CustomMachinery.LOGGER.info("Player: {} added new machine: {} from template: {}", player.getName().getString(), loc, packet.template.toString());
                     newMachine = new CustomMachineBuilder(CustomMachinery.TEMPLATES.get(packet.template).getFirst()).setLocation(MachineLocation.fromLoader(packet.kubejs ? Loader.KUBEJS : Loader.DEFAULT, loc, "", null, null)).setName(packet.name).build();
                 }
                 FileUtils.writeNewMachineJson(player.getServer(), newMachine, packet.kubejs);

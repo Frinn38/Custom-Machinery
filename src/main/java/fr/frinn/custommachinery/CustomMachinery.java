@@ -18,6 +18,8 @@ import fr.frinn.custommachinery.common.network.SLootTablesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateTemplatesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import fr.frinn.custommachinery.common.upgrade.Upgrades;
 import fr.frinn.custommachinery.common.upgrade.UpgradesCustomReloadListener;
 import fr.frinn.custommachinery.common.util.CMLogger;
@@ -146,6 +148,8 @@ public class CustomMachinery {
         //Check machine file timestamps here because the server is not available on first load in CustomMachineJsonReloadListener
         //On /reload the timestamps will be checked by the CustomMachineJsonReloadListener because server will be available then
         MACHINES.forEach((id, machine) -> {
+            if(!machine.getLocation().canEdit())
+                return;
             File file = machine.getLocation().getFile(event.getServer());
             if(file != null && file.exists()) {
                 try {
@@ -156,6 +160,24 @@ public class CustomMachinery {
                 }
             }
         });
+        //Same for upgrades
+        Map<UpgradeLocation, MachineUpgrade> timestamped = new HashMap<>();
+        UPGRADES.getAllUpgrades().forEach((location, upgrade) -> {
+            if(!location.canEdit())
+                timestamped.put(location, upgrade);
+            else {
+                File file = location.getFile(event.getServer());
+                if(file != null && file.exists()) {
+                    try {
+                        BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                        timestamped.put(UpgradeLocation.fromLoader(location.loader(), location.id(), location.packName(), attributes.creationTime(), attributes.lastModifiedTime()), upgrade);
+                    } catch (IOException ignored) {
+                        timestamped.put(location, upgrade);
+                    }
+                }
+            }
+        });
+        UPGRADES.refresh(timestamped);
     }
 
     private void syncDatapacks(final OnDatapackSyncEvent event) {

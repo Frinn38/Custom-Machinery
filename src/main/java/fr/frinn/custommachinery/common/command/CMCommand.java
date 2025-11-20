@@ -7,9 +7,10 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
-import fr.frinn.custommachinery.common.network.SOpenCreationScreenPacket;
 import fr.frinn.custommachinery.common.network.SOpenEditScreenPacket;
 import fr.frinn.custommachinery.common.network.SOpenFilePacket;
+import fr.frinn.custommachinery.common.network.SOpenMachineCreationScreenPacket;
+import fr.frinn.custommachinery.common.network.SOpenUpgradeCreationScreenPacket;
 import fr.frinn.custommachinery.common.util.CMVerifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -54,7 +55,8 @@ public class CMCommand {
                 .then(create())
                 .then(edit())
                 .then(verify())
-                .then(editTemplate());
+                .then(editTemplate())
+                .then(upgrade());
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> logging() {
@@ -82,7 +84,7 @@ public class CMCommand {
                 .requires(cs -> cs.hasPermission(2) && cs.isPlayer())
                 .executes(ctx -> {
                     if(ctx.getSource().getEntity() instanceof ServerPlayer player)
-                        PacketDistributor.sendToPlayer(player, new SOpenCreationScreenPacket());
+                        PacketDistributor.sendToPlayer(player, new SOpenMachineCreationScreenPacket());
                     return 0;
                 });
     }
@@ -123,6 +125,17 @@ public class CMCommand {
                             }
                             return 0;
                         }));
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> upgrade() {
+        return Commands.literal("upgrade")
+                .requires(cs -> cs.hasPermission(2) && cs.isPlayer())
+                .executes(ctx -> {
+                    if(ctx.getSource().getEntity() instanceof ServerPlayer player) {
+                        PacketDistributor.sendToPlayer(player, new SOpenUpgradeCreationScreenPacket());
+                    }
+                    return 0;
+                });
     }
 
     @SuppressWarnings("UnstableApiUsage")

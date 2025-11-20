@@ -16,10 +16,10 @@ public class DeleteMachinePopup extends ConfirmPopup {
     private final CustomMachine machine;
 
     public DeleteMachinePopup(BaseScreen parent, CustomMachine machine) {
-        super(parent, 128, 96, () -> {});
+        super(parent, 128, 128, () -> {});
         this.machine = machine;
         this.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
-        this.text(Component.translatable("custommachinery.gui.creation.delete.popup"), Component.empty(), Component.empty());
+        this.text(Component.translatable("custommachinery.gui.creation.delete.popup"), Component.empty(), Component.empty());//2 empty lines for machine display
     }
 
     @Override

@@ -9,20 +9,20 @@ import fr.frinn.custommachinery.client.integration.jei.CustomMachineryJEIPlugin;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineCreationScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
-import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
-import fr.frinn.custommachinery.common.init.CustomMachineContainer;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.UpgradeCreationScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,16 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ClientPacketHandler {
-
-    public static void handleMachineCoreCountChangePacket(BlockPos pos, int count) {
-        if(Minecraft.getInstance().level != null) {
-            if(Minecraft.getInstance().level.getBlockEntity(pos) instanceof CustomMachineTile machineTile && machineTile.getProcessor() instanceof MachineProcessor processor) {
-                processor.setClientCoreCount(count);
-                if(Minecraft.getInstance().player instanceof Player player && player.containerMenu instanceof CustomMachineContainer container)
-                    container.init();
-            }
-        }
-    }
 
     public static void handleMachineStatusChangedPacket(BlockPos pos, MachineStatus status) {
         if(Minecraft.getInstance().level != null) {
@@ -85,6 +75,12 @@ public class ClientPacketHandler {
             CustomMachineryJEIPlugin.reloadMachines(machines);
     }
 
+    public static void handleUpdateUpgradesPacket(Map<UpgradeLocation, MachineUpgrade> upgrades) {
+        CustomMachinery.UPGRADES.refresh(upgrades);
+        if(Minecraft.getInstance().screen instanceof UpgradeCreationScreen creationScreen)
+            creationScreen.reloadList();
+    }
+
     public static void handleUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, Component>> templates) {
         CustomMachinery.TEMPLATES.clear();
         CustomMachinery.TEMPLATES.putAll(templates);
@@ -115,8 +111,12 @@ public class ClientPacketHandler {
         }
     }
 
-    public static void handleOpenCreationScreenPacket() {
+    public static void handleOpenMachineCreationScreenPacket() {
         Minecraft.getInstance().setScreen(new MachineCreationScreen());
+    }
+
+    public static void handleOpenUpgradeCreationScreenPacket() {
+        Minecraft.getInstance().setScreen(new UpgradeCreationScreen());
     }
 
     public static void handleOpenEditScreenPacket(ResourceLocation machineId) {

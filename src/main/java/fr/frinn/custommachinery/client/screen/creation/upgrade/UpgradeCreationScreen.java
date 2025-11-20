@@ -1,10 +1,8 @@
-package fr.frinn.custommachinery.client.screen.creation;
+package fr.frinn.custommachinery.client.screen.creation.upgrade;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
-import fr.frinn.custommachinery.client.screen.creation.MachineListWidget.MachineEntry;
 import fr.frinn.custommachinery.common.config.CMConfig;
-import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,55 +16,53 @@ import net.minecraft.network.chat.Component;
 import java.io.File;
 import java.util.Objects;
 
-public class MachineCreationScreen extends BaseScreen {
+public class UpgradeCreationScreen extends BaseScreen {
 
-    private CycleButton<MachineListSorting> sorter;
-    private MachineListWidget machineList;
+    private CycleButton<UpgradeListSorting> sorter;
+    private UpgradeListWidget upgradeList;
     private Button create;
     private Button edit;
     private Button open;
     private Button delete;
 
-    public MachineCreationScreen() {
-        super(Component.literal("Machine creation"), 256, 192);
+    public UpgradeCreationScreen() {
+        super(Component.literal("Upgrade creation"), 256, 192);
     }
 
-    public void sort(MachineListSorting sorting) {
-        CMConfig.CONFIG.sortMachineList.set(sorting);
-        CMConfig.CONFIG.sortMachineList.save();
-        this.machineList.sort();
+    public void sort(UpgradeListSorting sorting) {
+        CMConfig.CONFIG.sortUpgradeList.set(sorting);
+        CMConfig.CONFIG.sortUpgradeList.save();
+        this.upgradeList.sort();
     }
 
     public void create() {
-        this.openPopup(new CreateMachinePopup(this), "Creation popup");
+        this.openPopup(new CreateUpgradePopup(this), "Creation popup");
     }
 
     public void edit() {
-        MachineEntry entry = this.machineList.getSelected();
-        if(entry != null)
-            Minecraft.getInstance().setScreen(new MachineEditScreen(this, 288, 210, new CustomMachineBuilder(entry.getMachine())));
+
     }
 
     public void open() {
-        MachineEntry entry = this.machineList.getSelected();
+        UpgradeListWidget.UpgradeEntry entry = this.upgradeList.getSelected();
         if(entry != null) {
             try {
-                File file = Objects.requireNonNull(entry.getMachine().getLocation().getFile(Minecraft.getInstance().getSingleplayerServer()));
+                File file = Objects.requireNonNull(entry.getLocation().getFile(Minecraft.getInstance().getSingleplayerServer()));
                 Util.getPlatform().openUri(file.toURI());
             } catch (NullPointerException e) {
-                CustomMachinery.LOGGER.warn("Can't open machine json for machine: {}", entry.getMachine().getId());
+                CustomMachinery.LOGGER.warn("Can't open upgrade json for upgrade: {}", entry.getLocation().id());
             }
         }
     }
 
     public void delete() {
-        MachineEntry entry = this.machineList.getSelected();
+        UpgradeListWidget.UpgradeEntry entry = this.upgradeList.getSelected();
         if(entry != null)
-            this.openPopup(new DeleteMachinePopup(this, entry.getMachine()), "Delete machine");
+            this.openPopup(new DeleteUpgradePopup(this, entry.getLocation(), entry.getUpgrade()), "Delete upgrade");
     }
 
     public void reloadList() {
-        this.machineList.reload();
+        this.upgradeList.reload();
     }
 
     @Override
@@ -78,15 +74,15 @@ public class MachineCreationScreen extends BaseScreen {
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
 
         //Sort
-        this.sorter = row.addChild(CycleButton.<MachineListSorting>builder(v -> Component.literal(v.name()))
-                .withValues(MachineListSorting.values())
+        this.sorter = row.addChild(CycleButton.<UpgradeListSorting>builder(v -> Component.literal(v.name()))
+                .withValues(UpgradeListSorting.values())
                 .displayOnlyValue()
-                .withInitialValue(CMConfig.CONFIG.sortMachineList.get())
+                .withInitialValue(CMConfig.CONFIG.sortUpgradeList.get())
                 .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 4, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
 
         //List
-        this.machineList = row.addChild(new MachineListWidget(0, 0, this.xSize - 10, this.ySize - 65, 30), 4, center);
-        this.machineList.reload();
+        this.upgradeList = row.addChild(new UpgradeListWidget(0, 0, this.xSize - 10, this.ySize - 65, 30), 4, center);
+        this.upgradeList.reload();
 
         //Buttons
         this.create = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
@@ -99,12 +95,12 @@ public class MachineCreationScreen extends BaseScreen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(graphics, mouseX, mouseY, partialTick);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
-        MachineEntry entry = this.machineList.getSelected();
+        UpgradeListWidget.UpgradeEntry entry = this.upgradeList.getSelected();
         if(entry == null) {
-            Tooltip notSelected = Tooltip.create(Component.translatable("custommachinery.gui.creation.not_selected"));
+            Tooltip notSelected = Tooltip.create(Component.translatable("custommachinery.gui.creation.upgrade.not_selected"));
             this.edit.active = false;
             this.edit.setTooltip(notSelected);
             this.open.active = false;
@@ -113,7 +109,7 @@ public class MachineCreationScreen extends BaseScreen {
             this.delete.setTooltip(notSelected);
             return;
         }
-        if(entry.getMachine().getLocation().canEdit()) {
+        if(entry.getLocation().canEdit()) {
             this.edit.active = true;
             this.edit.setTooltip(null);
             if(Minecraft.getInstance().getSingleplayerServer() != null) {
@@ -121,17 +117,21 @@ public class MachineCreationScreen extends BaseScreen {
                 this.open.setTooltip(null);
             } else {
                 this.open.active = false;
-                this.open.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cant_open_server")));
+                this.open.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.upgrade.cant_open_server")));
             }
             this.delete.active = true;
             this.delete.setTooltip(null);
         } else {
             this.edit.active = false;
-            this.edit.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cant_edit")));
+            this.edit.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.upgrade.cant_edit")));
             this.open.active = false;
-            this.open.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cant_open")));
+            this.open.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.upgrade.cant_open")));
             this.delete.active = false;
-            this.delete.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.cant_delete")));
+            this.delete.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.upgrade.cant_delete")));
         }
+
+        //TODO
+        this.edit.active = false;
+        this.edit.setTooltip(Tooltip.create(Component.literal("WIP")));
     }
 }

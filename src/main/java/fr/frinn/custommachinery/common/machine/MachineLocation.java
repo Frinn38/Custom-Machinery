@@ -96,7 +96,7 @@ public record MachineLocation(ResourceLocation id, Loader loader, String packNam
     }
 
     public enum Loader {
-        DEFAULT(false, ChatFormatting.BLACK),
+        DEFAULT(false, ChatFormatting.WHITE),
         DATAPACK(true, ChatFormatting.DARK_GREEN),
         DATAPACK_ZIP(false, ChatFormatting.DARK_RED),
         KUBEJS(true, ChatFormatting.DARK_PURPLE),
@@ -104,8 +104,8 @@ public record MachineLocation(ResourceLocation id, Loader loader, String packNam
 
         public static final NamedCodec<Loader> CODEC = NamedCodec.enumCodec(Loader.class);
 
-        private final boolean canEdit;
-        private final ChatFormatting color;
+        public final boolean canEdit;
+        public final ChatFormatting color;
 
         Loader(boolean canEdit, ChatFormatting color) {
             this.canEdit = canEdit;

@@ -1,7 +1,7 @@
 {
   "block.custommachinery.custom_machine_block": "一些机器方块",
-  "item.custommachinery.machine_creator_item": "机器创造者",
-  "item.custommachinery.box_creator_item": "方块区域创造者",
+  "item.custommachinery.machine_creator": "机器创造者",
+  "item.custommachinery.box_creator": "方块区域创造者",
   "item.custommachinery.structure_creator": "结构创造者",
   "item.custommachinery.configuration_card": "配置卡",
   "itemGroup.custommachinery.group": "Custom Machinery",
@@ -30,7 +30,7 @@
   "custommachinery.configuration_card.cleared": "配置已清除",
   "custommachinery.configuration_card.different_machine": "此卡已经被配置到不同的机器",
 
-  "custommachinery.machine_creator.warning": "已经被禁用，使用json文件来创建您的机器",
+  "custommachinery.machine_creator.tooltip": "已经被禁用，使用json文件来创建您的机器",
 
   "custommachinery.comparator.greater": "greater than",
   "custommachinery.comparator.greater_or_equals": "greater or equals to",
@@ -68,14 +68,8 @@
   "custommachinery.gui.element.experience.output_one": "取出 1 级",
   "custommachinery.gui.element.experience.output_ten": "取出 10 级",
 
-  "custommachinery.gui.baseinfo.name": "名字:",
-  "custommachinery.gui.baseinfo.namespace": "命名空间:",
-  "custommachinery.gui.baseinfo.id": "ID:",
-  "custommachinery.gui.baseinfo.packname": "数据包:",
-
-  "custommachinery.gui.component.buildertypewidget": "单击以圈出可用组件",
-  "custommachinery.gui.component.empty": "使用这些按钮添加一些组件 ->",
-  "custommachinery.gui.component.select": "选择要编辑的组件",
+  "custommachinery.gui.creation.base_info.name": "名字:",
+  "custommachinery.gui.creation.base_info.id": "ID:",
 
   "custommachinery.gui.config.title": "配置 %s 边",
   "custommachinery.gui.config.tooltip": "点击来配置 I/O",
@@ -87,23 +81,12 @@
   "custommachinery.gui.config.enabled": "启用",
   "custommachinery.gui.config.disabled": "禁用",
 
-  "custommachinery.gui.machineappearance.appearance": "外观",
-  "custommachinery.gui.machineappearance.type.block": "方块",
-  "custommachinery.gui.machineappearance.type.blockstate": "方块状态",
-  "custommachinery.gui.machineappearance.type.model": "模型",
-  "custommachinery.gui.machineappearance.type.default": "默认",
-
-  "custommachinery.gui.machinecreation.baseinfos": "基础机器信息",
-  "custommachinery.gui.machinecreation.appearance": "机器外观",
-  "custommachinery.gui.machinecreation.components": "机器组件",
-  "custommachinery.gui.machinecreation.gui": "机器 GUI",
 
   "custommachinery.gui.creation.create": "创建",
   "custommachinery.gui.creation.save": "保存",
-  "custommachinery.gui.creation.cantsave": "此自定义机器未加载数据包，无法编辑",
-  "custommachinery.gui.creation.nomachine": "没有选择机器",
+  "custommachinery.gui.creation.cant_edit": "此自定义机器未加载数据包，无法编辑",
   "custommachinery.gui.creation.delete": "删除",
-  "custommachinery.gui.creation.cantdelete": "此定制机未加载数据包，无法删除",
+  "custommachinery.gui.creation.cant_delete": "此定制机未加载数据包，无法删除",
 
   "custommachinery.gui.popup.confirm": "确认",
   "custommachinery.gui.popup.cancel": "取消",
@@ -275,19 +258,6 @@
   "requirement.custommachinery.drop": "掉落物",
 
   "config.jade.plugin_custommachinery.machine_component_provider": "自定义机器提供者",
-
-  "text.autoconfig.custommachinery.category.Logs": "日志",
-  "text.autoconfig.custommachinery.category.Rendering": "渲染中",
-  "text.autoconfig.custommachinery.category.Misc": "杂项",
-  "text.autoconfig.custommachinery.option.logMissingOptional": "记录缺少的可选属性",
-  "text.autoconfig.custommachinery.option.logFirstEitherError": "首先记录任一错误",
-  "text.autoconfig.custommachinery.option.debugLevel": "调试日志级别",
-  "text.autoconfig.custommachinery.option.boxRenderTime": "方块区域渲染时间",
-  "text.autoconfig.custommachinery.option.structureRenderTime": "结构渲染时间",
-  "text.autoconfig.custommachinery.option.blockTagCycleTime": "方块标签循环时间",
-  "text.autoconfig.custommachinery.option.itemSlotCycleTime": "物品槽标签循环时间",
-  "text.autoconfig.custommachinery.option.needAdvancedInfoForRecipeID": "需要配方 ID 的高级信息",
-  "text.autoconfig.custommachinery.option.modelFolders": "模型文件夹",
 
   "unit.energy.forge": "FE",
   "unit.energy.fabric": "E"

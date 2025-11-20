@@ -11,6 +11,9 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
+import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.Util;
 import net.minecraft.Util.OS;
 import net.minecraft.server.MinecraftServer;
@@ -142,5 +145,89 @@ public class FileUtils {
         } catch (IOException e) {
             CustomMachinery.LOGGER.error("Error while writing temp machine to file: {}\n{}\n{}", temp.getAbsolutePath(), e.getMessage(), ExceptionUtils.getStackTrace(e));
         }
+    }
+
+    public static void writeNewUpgradeJson(MinecraftServer server, UpgradeLocation location, MachineUpgrade upgrade, boolean kubejs) {
+        if(kubejs && !ModList.get().isLoaded("kubejs")) {
+            CustomMachinery.LOGGER.error("Can't write new upgrade json {} in kubejs data folder because KubeJS isn't present", location.id());
+            return;
+        }
+        DataResult<JsonElement> result = MachineUpgrade.CODEC.encodeStart(JsonOps.INSTANCE, upgrade);
+        if(result.error().isPresent()) {
+            CustomMachinery.LOGGER.error("Can't write new upgrade json: {}\n{}", location.id().getPath(), result.error().get().message());
+            return;
+        }
+        if(result.result().isPresent()) {
+            JsonElement json = result.result().get();
+            String root = server.getServerDirectory().toFile().getAbsolutePath();
+            if(!FMLLoader.isProduction())
+                root = root.substring(0, root.length() - 2);
+            if(kubejs)
+                root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + location.id().getNamespace() + File.separator + "upgrade";
+            File file = new File(root, location.id().getPath() + ".json");
+            File directory = file.getParentFile();
+            if(!directory.exists() && !directory.mkdirs()) {
+                CustomMachinery.LOGGER.error("Can't create new directory for upgrade in '{}'", directory.getAbsolutePath());
+                return;
+            }
+            CustomMachinery.LOGGER.info("Writing new upgrade: {} in {}", location.id(), file.getPath());
+            try {
+                if(file.exists() || file.createNewFile()) {
+                    JsonWriter writer = GSON.newJsonWriter(new FileWriter(file));
+                    GSON.toJson(json, writer);
+                    writer.close();
+                    if(kubejs) {
+                        //Immediately update machine list
+                        CustomMachinery.UPGRADES.addUpgrade(location, upgrade);
+                        PacketDistributor.sendToAllPlayers(new SUpdateUpgradesPacket(CustomMachinery.UPGRADES.getAllUpgrades()));
+                    }
+                } else {
+                    CustomMachinery.LOGGER.error("Can't write new upgrade file in '{}'", file.getAbsolutePath());
+                }
+            } catch (IOException e) {
+                CustomMachinery.LOGGER.error("Error while writing new upgrade to file: {}\n{}\n{}", file.getAbsolutePath(), e.getMessage(), ExceptionUtils.getStackTrace(e));
+            }
+        }
+    }
+
+    public static void writeUpgradeJson(MinecraftServer server, UpgradeLocation location, MachineUpgrade upgrade) {
+        File upgradeJson = location.getFile(server);
+        if(upgradeJson == null) {
+            CustomMachinery.LOGGER.error("Error while editing upgrade: {}\nCan't edit upgrade loaded with {}", location.id(), location.loader().toString());
+            return;
+        } else if(!upgradeJson.exists() || upgradeJson.isDirectory()) {
+            CustomMachinery.LOGGER.error("Error while editing upgrade: {}\nFile '{}' doesn't exist", location.id(), upgradeJson.getAbsolutePath());
+            return;
+        }
+        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(upgradeJson))) {
+            DataResult<JsonElement> result = MachineUpgrade.CODEC.encodeStart(MachineJsonOps.INSTANCE, upgrade);
+            if(result.error().isPresent()) {
+                CustomMachinery.LOGGER.error("Can't edit upgrade json: {}\n{}", location.id().getPath(), result.error().get().message());
+                return;
+            }
+            if(result.result().isPresent()) {
+                JsonElement json = result.result().get();
+                GSON.toJson(json, writer);
+                CustomMachinery.LOGGER.info("Successfully edited upgrade: {} at location '{}'", location.id(), upgradeJson.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            CustomMachinery.LOGGER.error("Error while editing upgrade to file: {}\n{}\n{}", upgradeJson.getAbsolutePath(), e.getMessage(), ExceptionUtils.getStackTrace(e));
+        }
+    }
+
+    public static boolean deleteUpgradeJson(MinecraftServer server, UpgradeLocation location) {
+        File upgradeJson = location.getFile(server);
+        if(upgradeJson == null) {
+            CustomMachinery.LOGGER.error("Error while deleting upgrade: {}\nCan't delete machine loaded with {}", location.id(), location.loader().toString());
+            return false;
+        } else if(!upgradeJson.exists() || upgradeJson.isDirectory()) {
+            CustomMachinery.LOGGER.error("Error while deleting upgrade: {}\nFile '{}' doesn't exist", location.id(), upgradeJson.getAbsolutePath());
+            return false;
+        } else if(!upgradeJson.delete()) {
+            CustomMachinery.LOGGER.error("Error while deleting upgrade: {}\nFile '{}' can't be deleted", location.id(), upgradeJson.getAbsolutePath());
+            return false;
+        }
+        CustomMachinery.LOGGER.info("Successfully deleted upgrade: {} at location '{}'", location.id(), upgradeJson.getAbsolutePath());
+        return true;
     }
 }

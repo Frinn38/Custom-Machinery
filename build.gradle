@@ -175,6 +175,9 @@ dependencies {
 
     // Mekanism
     localRuntime("mekanism:Mekanism:${mekanism_version}")
+
+    //Applied
+    localRuntime("org.appliedenergistics:appliedenergistics2:${ae2_version}")
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

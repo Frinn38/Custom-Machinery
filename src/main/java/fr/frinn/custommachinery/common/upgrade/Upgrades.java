@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.common.upgrade;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -12,24 +12,33 @@ import java.util.stream.Collectors;
 
 public class Upgrades {
 
-    private List<MachineUpgrade> upgrades = Collections.emptyList();
+    private Map<UpgradeLocation, MachineUpgrade> upgrades;
     private Map<Item, List<MachineUpgrade>> upgradesByItem = Collections.emptyMap();
     private Map<ResourceLocation, List<MachineUpgrade>> upgradesByMachine = Collections.emptyMap();
 
-    public void refresh(List<MachineUpgrade> upgrades) {
-        this.upgrades = Collections.unmodifiableList(upgrades);
-        this.upgradesByItem = upgrades.stream().collect(Collectors.groupingBy(MachineUpgrade::item));
-        this.upgradesByMachine = upgrades.stream().flatMap(upgrade -> upgrade.machines().stream()).distinct()
-                .collect(Collectors.toMap(Function.identity(), id -> upgrades.stream().filter(upgrade -> upgrade.machines().contains(id)).toList()));
+    public void refresh(Map<UpgradeLocation, MachineUpgrade> upgrades) {
+        this.upgrades = Collections.unmodifiableMap(upgrades);
+        this.upgradesByItem = upgrades.values().stream().collect(Collectors.groupingBy(MachineUpgrade::item));
+        this.upgradesByMachine = upgrades.values().stream().flatMap(upgrade -> upgrade.machines().stream()).distinct()
+                .collect(Collectors.toMap(Function.identity(), id -> upgrades.values().stream().filter(upgrade -> upgrade.machines().contains(id)).toList()));
     }
 
-    public void addUpgrade(MachineUpgrade upgrade) {
-        List<MachineUpgrade> upgrades = new ArrayList<>(this.upgrades);
-        upgrades.add(upgrade);
+    public void addUpgrade(UpgradeLocation location, MachineUpgrade upgrade) {
+        Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>(this.upgrades);
+        upgrades.put(location, upgrade);
         refresh(upgrades);
     }
 
-    public List<MachineUpgrade> getAllUpgrades() {
+    public void removeUpgrade(ResourceLocation id) {
+        UpgradeLocation location = this.upgrades.keySet().stream().filter(loc -> loc.id().equals(id)).findFirst().orElse(null);
+        if(location != null) {
+            Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>(this.upgrades);
+            upgrades.remove(location);
+            refresh(upgrades);
+        }
+    }
+
+    public Map<UpgradeLocation, MachineUpgrade> getAllUpgrades() {
         return this.upgrades;
     }
 

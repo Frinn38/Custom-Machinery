@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.latvian.mods.kubejs.KubeJS;
 import dev.latvian.mods.kubejs.event.EventResult;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.script.data.KubeFileResourcePack;
@@ -10,6 +11,8 @@ import fr.frinn.custommachinery.common.integration.kubejs.CustomMachineUpgradeJS
 import fr.frinn.custommachinery.common.integration.kubejs.function.FunctionKubeEvent;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -23,7 +26,10 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class KubeJSIntegration {
 
@@ -50,7 +56,30 @@ public class KubeJSIntegration {
         }
     }
 
-    public static List<MachineUpgrade> collectMachineUpgrades() {
+    public static UpgradeLocation getUpgradeLocation(Resource resource, String packName, ResourceLocation id) {
+        try(PackResources pack = resource.source()) {
+            if(pack instanceof KubeFileResourcePack) {
+                if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
+                    File file = UpgradeLocation.getFile(server, id, MachineLocation.Loader.KUBEJS, packName);
+                    if(file != null && file.exists()) {
+                        try {
+                            BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                            return UpgradeLocation.fromKubeJS(id, packName, attributes.creationTime(), attributes.lastModifiedTime());
+                        } catch (IOException ignored) {
+
+                        }
+                    }
+                }
+                return UpgradeLocation.fromKubeJS(id, packName, null, null);
+            }
+            else if(pack instanceof VirtualDataPack)
+                return UpgradeLocation.fromKubeJSScript(id, packName);
+            else
+                return UpgradeLocation.fromDefault(id, packName);
+        }
+    }
+
+    public static Map<UpgradeLocation, MachineUpgrade> collectMachineUpgrades() {
         ScriptType.SERVER.console.info("Collecting Custom Machine upgrades from JS scripts.");
 
         UpgradeKubeEvent event = new UpgradeKubeEvent();
@@ -65,7 +94,16 @@ public class KubeJSIntegration {
         }
 
         ScriptType.SERVER.console.infof("Successfully added %s Custom Machine upgrades", event.getBuilders().size());
-        return upgrades;
+
+        Map<UpgradeLocation, MachineUpgrade> upgradeMap = new HashMap<>();
+        upgrades.stream().collect(Collectors.groupingBy(MachineUpgrade::item)).forEach((item, upgradeList) -> {
+            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+            if(upgradeList.size() == 1)
+                upgradeMap.put(UpgradeLocation.fromKubeJSScript(ResourceLocation.fromNamespaceAndPath(KubeJS.MOD_ID, itemId.getNamespace() + "/" + itemId.getPath()), ""), upgradeList.getFirst());
+            else
+                upgradeList.forEach(u -> upgradeMap.put(UpgradeLocation.fromKubeJSScript(ResourceLocation.fromNamespaceAndPath(KubeJS.MOD_ID, itemId.getNamespace() + "/" + itemId.getPath() + "/" + upgradeList.indexOf(u)), ""), u));
+        });
+        return upgradeMap;
     }
 
     public static CraftingResult sendFunctionRequirementEvent(String id, ICraftingContext context) {

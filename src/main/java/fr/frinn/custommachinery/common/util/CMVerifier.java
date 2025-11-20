@@ -39,7 +39,7 @@ public class CMVerifier {
 
         //Upgrades
         logger.info("Found {} custom machine upgrades", CustomMachinery.UPGRADES.getAllUpgrades().size());
-        CustomMachinery.UPGRADES.getAllUpgrades().forEach(upgrade -> {
+        CustomMachinery.UPGRADES.getAllUpgrades().forEach((location, upgrade) -> {
             logger.info(" - {}", BuiltInRegistries.ITEM.getKey(upgrade.item()).toString());
             errors.addAndGet(verifyUpgrade(logger, upgrade));
         });

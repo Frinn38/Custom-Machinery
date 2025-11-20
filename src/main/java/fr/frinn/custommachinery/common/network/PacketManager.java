@@ -15,7 +15,8 @@ public class PacketManager {
 
         // Server to Client
         registrar.playToClient(SLootTablesPacket.TYPE, SLootTablesPacket.CODEC, SLootTablesPacket::handle);
-        registrar.playToClient(SOpenCreationScreenPacket.TYPE, SOpenCreationScreenPacket.CODEC, SOpenCreationScreenPacket::handle);
+        registrar.playToClient(SOpenMachineCreationScreenPacket.TYPE, SOpenMachineCreationScreenPacket.CODEC, SOpenMachineCreationScreenPacket::handle);
+        registrar.playToClient(SOpenUpgradeCreationScreenPacket.TYPE, SOpenUpgradeCreationScreenPacket.CODEC, SOpenUpgradeCreationScreenPacket::handle);
         registrar.playToClient(SOpenEditScreenPacket.TYPE, SOpenEditScreenPacket.CODEC, SOpenEditScreenPacket::handle);
         registrar.playToClient(SOpenFilePacket.TYPE, SOpenFilePacket.CODEC, SOpenFilePacket::handle);
         registrar.playToClient(SRefreshCustomMachineTilePacket.TYPE, SRefreshCustomMachineTilePacket.CODEC, SRefreshCustomMachineTilePacket::handle);
@@ -29,12 +30,14 @@ public class PacketManager {
 
         // Client to Server
         registrar.playToServer(CAddMachinePacket.TYPE, CAddMachinePacket.CODEC, CAddMachinePacket::handle);
+        registrar.playToServer(CAddUpgradePacket.TYPE, CAddUpgradePacket.CODEC, CAddUpgradePacket::handle);
         registrar.playToServer(CAllSidesNonePacket.TYPE, CAllSidesNonePacket.CODEC, CAllSidesNonePacket::handle);
         registrar.playToServer(CChangeSideModePacket.TYPE, CChangeSideModePacket.CODEC, CChangeSideModePacket::handle);
         registrar.playToServer(CEditMachinePacket.TYPE, CEditMachinePacket.CODEC, CEditMachinePacket::handle);
         registrar.playToServer(CGuiElementClickPacket.TYPE, CGuiElementClickPacket.CODEC, CGuiElementClickPacket::handle);
         registrar.playToServer(CPlaceStructurePacket.TYPE, CPlaceStructurePacket.CODEC, CPlaceStructurePacket::handle);
         registrar.playToServer(CRemoveMachinePacket.TYPE, CRemoveMachinePacket.CODEC, CRemoveMachinePacket::handle);
+        registrar.playToServer(CRemoveUpgradePacket.TYPE, CRemoveUpgradePacket.CODEC, CRemoveUpgradePacket::handle);
         registrar.playToServer(CSetFilterSlotItemPacket.TYPE, CSetFilterSlotItemPacket.CODEC, CSetFilterSlotItemPacket::handle);
         registrar.playToServer(CTransferRecipePacket.TYPE, CTransferRecipePacket.CODEC, CTransferRecipePacket::handle);
     }

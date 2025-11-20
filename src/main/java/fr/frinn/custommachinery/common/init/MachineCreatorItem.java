@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.init;
 
-import fr.frinn.custommachinery.common.network.SOpenCreationScreenPacket;
+import fr.frinn.custommachinery.common.network.SOpenMachineCreationScreenPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,7 +24,7 @@ public class MachineCreatorItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if(!level.isClientSide() && player.hasPermissions(2) && player instanceof ServerPlayer serverPlayer)
-            PacketDistributor.sendToPlayer(serverPlayer, new SOpenCreationScreenPacket());
+            PacketDistributor.sendToPlayer(serverPlayer, new SOpenMachineCreationScreenPacket());
         return super.use(level, player, usedHand);
     }
 

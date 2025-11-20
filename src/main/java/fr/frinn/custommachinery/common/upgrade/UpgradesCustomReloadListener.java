@@ -6,18 +6,28 @@ import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
+import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.FilePackResources;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Items;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 import java.util.Map;
 
 public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
@@ -32,7 +42,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
         final Logger logger = ICustomMachineryAPI.INSTANCE.logger();
 
-        List<MachineUpgrade> upgrades = new ArrayList<>();
+        Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>();
 
         logger.info("Reading Custom Machinery Upgrades json");
 
@@ -58,7 +68,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
                     return;
                 }
                 logger.info("Successfully parsed upgrade json: {}", id);
-                upgrades.add(upgrade);
+                upgrades.put(this.getUpgradeLocation(resourceManager, id), upgrade);
                 return;
             } else if(result.error().isPresent()) {
                 logger.error("Error while parsing upgrade json: {}, skipping...\n{}", id, result.error().get().message());
@@ -74,16 +84,63 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
 
         if(ModList.get().isLoaded("kubejs")) {
             logger.info("Collecting machine upgrades with kubeJS.");
-            List<MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
+            Map<UpgradeLocation, MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
             if(!kubejsUpgrades.isEmpty())
                 logger.info("Successfully added {} machine upgrades with kubejs", kubejsUpgrades.size());
             else
                 logger.info("No machine upgrades found with kubejs");
-            upgrades.addAll(kubejsUpgrades);
+            upgrades.putAll(kubejsUpgrades);
         }
 
         logger.info("Finished creating custom machine upgrades.");
 
         CustomMachinery.UPGRADES.refresh(upgrades);
+    }
+
+    private UpgradeLocation getUpgradeLocation(ResourceManager resourceManager, ResourceLocation id) {
+        ResourceLocation path = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "upgrade/" + id.getPath() + ".json");
+        try {
+            Resource res = resourceManager.getResourceOrThrow(path);
+            String packName = res.sourcePackId();
+            if(packName.equals(MAIN_PACKNAME))
+                return UpgradeLocation.fromDefault(id, packName);
+            else if(packName.contains("KubeJS") && ModList.get().isLoaded("kubejs"))
+                return KubeJSIntegration.getUpgradeLocation(res, packName, id);
+            else {
+                try(PackResources pack = res.source()) {
+                    if(pack instanceof FilePackResources) {
+                        if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
+                            File file = UpgradeLocation.getFile(server, id, MachineLocation.Loader.DATAPACK_ZIP, packName);
+                            if(file != null && file.exists()) {
+                                try {
+                                    BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                                    return UpgradeLocation.fromDatapackZip(id, packName, attributes.creationTime(), attributes.lastModifiedTime());
+                                } catch (IOException ignored) {
+
+                                }
+                            }
+                        }
+                        return UpgradeLocation.fromDatapackZip(id, packName, null, null);
+                    }
+                    else if(pack instanceof PathPackResources) {
+                        if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
+                            File file = UpgradeLocation.getFile(server, id, MachineLocation.Loader.DATAPACK, packName);
+                            if(file != null && file.exists()) {
+                                try {
+                                    BasicFileAttributes attributes = Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class).readAttributes();
+                                    return UpgradeLocation.fromDatapack(id, packName, attributes.creationTime(), attributes.lastModifiedTime());
+                                } catch (IOException ignored) {
+
+                                }
+                            }
+                        }
+                        return UpgradeLocation.fromDatapack(id, packName, null, null);
+                    }
+                }
+            }
+        } catch (IOException ignored) {
+
+        }
+        return UpgradeLocation.fromDefault(id, MAIN_PACKNAME);
     }
 }
