@@ -21,6 +21,7 @@ public class SoundManager {
 
     public boolean isCurrentlyPlaying(AmbientSound sound) {
         return this.sound != DEFAULT
+                && this.sound.getSound() != null //Needed as that can be null in some weird cases
                 && this.sound.getLocation().equals(sound.sound().getLocation())
                 && this.sound.getVolume() == sound.volume()
                 && this.sound.getPitch() == sound.pitch()
