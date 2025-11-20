@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.tabs.MachineEditTab;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -17,11 +18,11 @@ import java.util.List;
 
 public class MachineTabManager extends TabManager {
 
-    private final MachineEditScreen parent;
+    private final BaseScreen parent;
     private GridLayout toolboxLayout;
     private ImageWidget toolboxBackground;
 
-    public MachineTabManager(MachineEditScreen parent) {
+    public MachineTabManager(BaseScreen parent) {
         super(parent::addRenderableWidget, parent::removeWidget);
         this.parent = parent;
     }

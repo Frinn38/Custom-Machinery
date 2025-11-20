@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client.screen.creation.tabs;
+package fr.frinn.custommachinery.client.screen.widget.tabs;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
@@ -17,14 +17,14 @@ public class EditTabButton extends TabButton {
 
     private final boolean inverted;
 
-    public EditTabButton(TabManager tabManager, MachineEditTab tab, int width, int height, boolean inverted) {
+    public EditTabButton(TabManager tabManager, EditTab tab, int width, int height, boolean inverted) {
         super(tabManager, tab, width, height);
         this.inverted = inverted;
     }
 
     @Override
-    public MachineEditTab tab() {
-        return (MachineEditTab) super.tab();
+    public EditTab tab() {
+        return (EditTab) super.tab();
     }
 
     @Override

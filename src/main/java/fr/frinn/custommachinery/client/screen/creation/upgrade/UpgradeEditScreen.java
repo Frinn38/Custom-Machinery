@@ -1,41 +1,44 @@
-package fr.frinn.custommachinery.client.screen.creation;
+package fr.frinn.custommachinery.client.screen.creation.upgrade;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
-import fr.frinn.custommachinery.client.screen.creation.tabs.AppearanceTab;
-import fr.frinn.custommachinery.client.screen.creation.tabs.ComponentTab;
-import fr.frinn.custommachinery.client.screen.creation.tabs.GuiTab;
-import fr.frinn.custommachinery.client.screen.creation.tabs.MachineBaseInfoTab;
-import fr.frinn.custommachinery.client.screen.creation.tabs.TooltipsTab;
+import fr.frinn.custommachinery.client.screen.creation.MachineTabManager;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.UpgradeBaseInfoTab;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.client.screen.widget.tabs.EditTabNavigationBar;
-import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
-import fr.frinn.custommachinery.common.network.CEditMachinePacket;
+import fr.frinn.custommachinery.common.network.CEditUpgradePacket;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
+import fr.frinn.custommachinery.common.upgrade.MachineUpgradeBuilder;
+import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.TabManager;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
-public class MachineEditScreen extends BaseScreen {
+public class UpgradeEditScreen extends BaseScreen {
 
     public static final WidgetSprites SAVE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/save_button"), CustomMachinery.rl("creation/save_button_hovered"));
     public static final WidgetSprites CLOSE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/close_button"), CustomMachinery.rl("creation/close_button_hovered"));
     public static final WidgetSprites WIKI_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/wiki_button"), CustomMachinery.rl("creation/wiki_button_hovered"));
 
-    private final MachineCreationScreen parent;
-    private final CustomMachineBuilder builder;
+    private final UpgradeCreationScreen parent;
+    private final UpgradeLocation location;
+    private final MachineUpgradeBuilder builder;
 
     private boolean changed = false;
 
@@ -44,15 +47,20 @@ public class MachineEditScreen extends BaseScreen {
     private ImageButton wiki;
     private TabManager tabManager;
     private EditTabNavigationBar topBar;
-    private EditTabNavigationBar bottomBar;
+    //private EditTabNavigationBar bottomBar;
 
-    public MachineEditScreen(MachineCreationScreen parent, int xSize, int ySize, CustomMachineBuilder builder) {
-        super(Component.literal("Machine edit"), xSize, ySize);
+    public UpgradeEditScreen(UpgradeCreationScreen parent, int xSize, int ySize, UpgradeLocation location, MachineUpgrade upgrade) {
+        super(Component.literal("Upgrade edit"), xSize, ySize);
         this.parent = parent;
-        this.builder = builder;
+        this.location = location;
+        this.builder = new MachineUpgradeBuilder(upgrade);
     }
 
-    public CustomMachineBuilder getBuilder() {
+    public UpgradeLocation getLocation() {
+        return this.location;
+    }
+
+    public MachineUpgradeBuilder getBuilder() {
         return this.builder;
     }
 
@@ -66,14 +74,14 @@ public class MachineEditScreen extends BaseScreen {
 
     public void save() {
         this.changed = false;
-        PacketDistributor.sendToServer(new CEditMachinePacket(this.builder.build()));
-        Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.save.toast"), null, false), 50);
+        PacketDistributor.sendToServer(new CEditUpgradePacket(this.location, this.builder.build()));
+        Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.upgrade.save.toast"), null, false), 50);
     }
 
     public void cancel() {
         if(!this.changed)
-            Minecraft.getInstance().setScreen(new MachineCreationScreen());
-        ConfirmPopup popup = new ConfirmPopup(this, 128, 96, () -> Minecraft.getInstance().setScreen(new MachineCreationScreen()));
+            Minecraft.getInstance().setScreen(new UpgradeCreationScreen());
+        ConfirmPopup popup = new ConfirmPopup(this, 128, 96, () -> Minecraft.getInstance().setScreen(new UpgradeCreationScreen()));
         popup.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
         popup.text(Component.translatable("custommachinery.gui.creation.popup.quit"));
         this.openPopup(popup, "close without editing");
@@ -101,9 +109,9 @@ public class MachineEditScreen extends BaseScreen {
         this.wiki = this.addRenderableWidget(new ImageButton(this.x - 28, this.y + 55, 20, 20, WIKI_SPRITES, button -> this.wiki()));
         this.wiki.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.wiki")));
         this.tabManager = new MachineTabManager(this);
-        this.topBar = this.addRenderableWidget(new EditTabNavigationBar(this.xSize, this.tabManager, List.of(new MachineBaseInfoTab(this), new AppearanceTab(this), new ComponentTab(this), new GuiTab(this)), false));
+        this.topBar = this.addRenderableWidget(new EditTabNavigationBar(this.xSize, this.tabManager, List.of(new UpgradeBaseInfoTab(this)), false));
         this.topBar.selectTab(0, false);
-        this.bottomBar = this.addRenderableWidget(new EditTabNavigationBar(this.xSize, this.tabManager, List.of(new TooltipsTab(this)), true));
+        //this.bottomBar = this.addRenderableWidget(new MachineEditTabNavigationBar(this.xSize, this.tabManager, List.of(), true));
         this.repositionElements();
     }
 
@@ -117,8 +125,18 @@ public class MachineEditScreen extends BaseScreen {
             return;
 
         this.topBar.setRectangle(this.xSize - 10, 20, this.x + 5, this.y - 20);
-        this.bottomBar.setRectangle((this.xSize - 10) / 4, 20, this.x + 5, this.y + this.ySize - 3);
+        //this.bottomBar.setRectangle((this.xSize - 10) / 4, 20, this.x + 5, this.y + this.ySize - 3);
         this.tabManager.setTabArea(new ScreenRectangle(this.x, this.y, this.xSize, this.ySize));
+    }
+
+    @Override
+    public  <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T widget) {
+        return super.addRenderableWidget(widget);
+    }
+
+    @Override
+    public void removeWidget(GuiEventListener listener) {
+        super.removeWidget(listener);
     }
 
     @Override

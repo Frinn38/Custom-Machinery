@@ -4,9 +4,9 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.screen.creation.AppearanceListWidget;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
-import fr.frinn.custommachinery.client.screen.creation.MachineEditTabNavigationBar;
 import fr.frinn.custommachinery.client.screen.creation.MachineTabManager;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
+import fr.frinn.custommachinery.client.screen.widget.tabs.EditTabNavigationBar;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -30,7 +30,7 @@ public class AppearanceTab extends MachineEditTab {
     public static final WidgetSprites RESET_SPRITE = new WidgetSprites(CustomMachinery.rl("creation/reset_button"), CustomMachinery.rl("creation/reset_button_hovered"));
 
     private final TabManager tabManager;
-    private final MachineEditTabNavigationBar bar;
+    private final EditTabNavigationBar bar;
 
     public AppearanceTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.appearance"), parent);
@@ -42,7 +42,7 @@ public class AppearanceTab extends MachineEditTab {
         List<MachineEditTab> tabs = new ArrayList<>();
         tabs.add(new SpecificAppearanceTab(Component.translatable("custommachinery.craftingstatus.default"), parent, null));
         Arrays.stream(MachineStatus.values()).forEach(status -> tabs.add(new SpecificAppearanceTab(Component.translatable("custommachinery.craftingstatus." + status.getSerializedName()), parent, status)));
-        this.bar = row.addChild(new MachineEditTabNavigationBar(parent.xSize, this.tabManager, tabs, false), row.newCellSettings().alignVerticallyTop().alignHorizontallyCenter().paddingTop(5));
+        this.bar = row.addChild(new EditTabNavigationBar(parent.xSize, this.tabManager, tabs, false), row.newCellSettings().alignVerticallyTop().alignHorizontallyCenter().paddingTop(5));
         this.bar.setRectangle(parent.xSize - 10, 20, 0, 0);
 
         row.addChild(new SeparationWidget(parent.xSize, 5), row.newCellSettings().paddingBottom(parent.ySize - 30).alignVerticallyTop());

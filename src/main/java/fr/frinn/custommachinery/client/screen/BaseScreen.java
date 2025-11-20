@@ -7,7 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent.ArrowNavigation;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent.TabNavigation;
@@ -85,6 +87,16 @@ public abstract class BaseScreen extends Screen {
     @Override
     public void removed() {
         this.popups.forEach(PopupScreen::closed);
+    }
+
+    @Override
+    public  <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T widget) {
+        return super.addRenderableWidget(widget);
+    }
+
+    @Override
+    public void removeWidget(GuiEventListener listener) {
+        super.removeWidget(listener);
     }
 
     @Override

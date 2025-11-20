@@ -26,7 +26,7 @@ public class InfoPopup extends PopupScreen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(Button.builder(Component.translatable("custommachinery.gui.popup.confirm"), button -> this.parent.closePopup(this)).bounds(this.x + 10, this.y + this.ySize - 30, this.xSize - 20, 20).build());
+        this.addRenderableWidget(Button.builder(CONFIRM, button -> this.parent.closePopup(this)).bounds(this.x + 10, this.y + this.ySize - 30, this.xSize - 20, 20).build());
     }
 
     @Override

@@ -24,13 +24,13 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BaseInfoTab extends MachineEditTab {
+public class MachineBaseInfoTab extends MachineEditTab {
 
     private final List<AbstractWidget> processorWidgets = new ArrayList<>();
     private int coresAmount = 1;
     private int recipeCheckCooldown = 20;
 
-    public BaseInfoTab(MachineEditScreen parent) {
+    public MachineBaseInfoTab(MachineEditScreen parent) {
         super(Component.translatable("custommachinery.gui.creation.tab.base_info"), parent);
         final Font font = this.parent.mc.font;
 

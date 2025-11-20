@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.client.screen.creation.component;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -14,9 +13,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public abstract class ComponentBuilderPopup<T extends IMachineComponentTemplate<?>> extends PopupScreen {
-
-    public static final Component CONFIRM = Component.translatable("custommachinery.gui.popup.confirm").withStyle(ChatFormatting.GREEN);
-    public static final Component CANCEL = Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.RED);
 
     @Nullable
     private final T baseTemplate;

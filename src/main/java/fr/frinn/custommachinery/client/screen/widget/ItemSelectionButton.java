@@ -1,10 +1,8 @@
-package fr.frinn.custommachinery.client.screen.creation.component;
+package fr.frinn.custommachinery.client.screen.widget;
 
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import fr.frinn.custommachinery.client.screen.widget.GridListWidget;
-import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,6 +27,8 @@ import java.util.function.Consumer;
 public class ItemSelectionButton extends Button {
 
     private final BaseScreen parent;
+    @Nullable
+    private Consumer<Item> responder = null;
     private Item item = Items.AIR;
 
     public ItemSelectionButton(BaseScreen parent, int x, int y, int width, int height) {
@@ -37,19 +38,32 @@ public class ItemSelectionButton extends Button {
 
     public void setItem(Item item) {
         this.item = item;
+        if(this.responder != null)
+            this.responder.accept(this.item);
     }
 
     public Item getItem() {
         return this.item;
     }
 
+    public void setResponder(@Nullable Consumer<Item> responder) {
+        this.responder = responder;
+    }
+
     @Override
     protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         graphics.pose().pushPose();
         graphics.pose().translate(this.getX(), this.getY(), 0);
-        graphics.blit(SlotGuiElement.BASE_TEXTURE.texture(), 0, 0, 18, 18, 0, 0, 18, 18, 18, 18);
+        graphics.blit(SlotGuiElement.BASE_TEXTURE.texture(), 0, 0, this.width, this.height, 0, 0, 18, 18, 18, 18);
+
+        graphics.pose().pushPose();
+        graphics.pose().scale(this.width / 18.0f, this.height / 18.0f, 1.0f);
         graphics.renderItem(this.item.getDefaultInstance(), 1, 1);
-        ClientHandler.renderSlotHighlight(graphics, 1, 1, 16, 16);
+        graphics.pose().popPose();
+
+        graphics.pose().translate(0, 0, 100);
+        if(this.isMouseOver(mouseX, mouseY))
+            ClientHandler.renderSlotHighlight(graphics, 1, 1, this.width - 2, this.height - 2);
         graphics.pose().popPose();
 
         //Tooltip
@@ -109,10 +123,10 @@ public class ItemSelectionButton extends Button {
             this.refreshBoxSuggestions();
 
             //Confirm
-            row.addChild(Button.builder(ComponentBuilderPopup.CONFIRM, button -> this.confirm()).size(50, 20).build(), center);
+            row.addChild(Button.builder(CONFIRM, button -> this.confirm()).size(50, 20).build(), center);
 
             //Cancel
-            row.addChild(Button.builder(ComponentBuilderPopup.CANCEL, button -> this.cancel()).size(50, 20).build(), center);
+            row.addChild(Button.builder(CANCEL, button -> this.cancel()).size(50, 20).build(), center);
 
             layout.arrangeElements();
             layout.visitWidgets(this::addRenderableWidget);

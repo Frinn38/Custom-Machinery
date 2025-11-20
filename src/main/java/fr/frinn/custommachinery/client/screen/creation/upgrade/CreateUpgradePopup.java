@@ -2,9 +2,9 @@ package fr.frinn.custommachinery.client.screen.creation.upgrade;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
-import fr.frinn.custommachinery.client.screen.creation.component.ItemSelectionButton;
 import fr.frinn.custommachinery.client.screen.popup.InfoPopup;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
+import fr.frinn.custommachinery.client.screen.widget.ItemSelectionButton;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.network.CAddUpgradePacket;
 import net.minecraft.ChatFormatting;

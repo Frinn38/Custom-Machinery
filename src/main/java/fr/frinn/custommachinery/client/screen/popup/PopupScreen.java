@@ -1,11 +1,15 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
 import fr.frinn.custommachinery.client.screen.BaseScreen;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.network.chat.Component;
 
 public abstract class PopupScreen extends BaseScreen {
+
+    public static final Component CONFIRM = Component.translatable("custommachinery.gui.popup.confirm").withStyle(ChatFormatting.GREEN);
+    public static final Component CANCEL = Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.RED);
 
     public final BaseScreen parent;
 

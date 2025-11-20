@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
 import fr.frinn.custommachinery.client.screen.BaseScreen;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
@@ -16,9 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ConfirmPopup extends PopupScreen {
-
-    public static final Component CONFIRM = Component.translatable("custommachinery.gui.popup.confirm").withStyle(ChatFormatting.GREEN);
-    public static final Component CANCEL = Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.RED);
 
     private final Runnable onConfirm;
     private final List<Component> text = new ArrayList<>();

@@ -1,8 +1,6 @@
-package fr.frinn.custommachinery.client.screen.creation;
+package fr.frinn.custommachinery.client.screen.widget.tabs;
 
 import com.google.common.collect.ImmutableList;
-import fr.frinn.custommachinery.client.screen.creation.tabs.EditTabButton;
-import fr.frinn.custommachinery.client.screen.creation.tabs.MachineEditTab;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -25,7 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class MachineEditTabNavigationBar extends AbstractWidget implements ContainerEventHandler {
+public class EditTabNavigationBar extends AbstractWidget implements ContainerEventHandler {
 
     private static final int NO_TAB = -1;
     private static final int MAX_WIDTH = 400;
@@ -35,14 +33,14 @@ public class MachineEditTabNavigationBar extends AbstractWidget implements Conta
     private final GridLayout layout;
 
     private final TabManager tabManager;
-    private final ImmutableList<MachineEditTab> tabs;
+    private final ImmutableList<EditTab> tabs;
     private final ImmutableList<TabButton> tabButtons;
 
     @Nullable
     private GuiEventListener focused;
     private boolean isDragging;
 
-    public MachineEditTabNavigationBar(int width, TabManager tabManager, Iterable<MachineEditTab> tabs, boolean inverted) {
+    public EditTabNavigationBar(int width, TabManager tabManager, Iterable<? extends EditTab> tabs, boolean inverted) {
         super(0, 0, width, HEIGHT, Component.empty());
         this.width = width;
         this.tabManager = tabManager;
@@ -52,7 +50,7 @@ public class MachineEditTabNavigationBar extends AbstractWidget implements Conta
         ImmutableList.Builder<TabButton> builder = ImmutableList.builder();
         int i = 0;
 
-        for (MachineEditTab tab : tabs)
+        for (EditTab tab : tabs)
             builder.add(this.layout.addChild(new EditTabButton(tabManager, tab, 0, 24, inverted), 0, i++));
 
         this.tabButtons = builder.build();

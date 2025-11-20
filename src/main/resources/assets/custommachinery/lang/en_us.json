@@ -343,6 +343,11 @@
   "custommachinery.gui.creation.upgrade.popup.success.description": "Upgrade json file created in the pack root folder\nMove the file in a valid datapack location and use /reload",
   "custommachinery.gui.creation.upgrade.popup.delete": "The following upgrade will be deleted forever",
   "custommachinery.gui.creation.upgrade.popup.item": "Choose an item",
+  "custommachinery.gui.creation.upgrade.save.toast": "Upgrade saved to file",
+  "custommachinery.gui.creation.upgrade.base_info.id": "Upgrade id : ",
+  "custommachinery.gui.creation.upgrade.base_info.item": "Item : ",
+  "custommachinery.gui.creation.upgrade.base_info.max": "Max upgrades : ",
+  "custommachinery.gui.creation.upgrade.base_info.max.tooltip": "MAx amount of upgrades that can be put in a single machine",
 
   "custommachinery.gui.popup.confirm": "Confirm",
   "custommachinery.gui.popup.cancel": "Cancel",

@@ -40,7 +40,9 @@ public class UpgradeCreationScreen extends BaseScreen {
     }
 
     public void edit() {
-
+        UpgradeListWidget.UpgradeEntry entry = this.upgradeList.getSelected();
+        if(entry != null)
+            Minecraft.getInstance().setScreen(new UpgradeEditScreen(this, 288, 210, entry.getLocation(), entry.getUpgrade()));
     }
 
     public void open() {
@@ -129,9 +131,5 @@ public class UpgradeCreationScreen extends BaseScreen {
             this.delete.active = false;
             this.delete.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.upgrade.cant_delete")));
         }
-
-        //TODO
-        this.edit.active = false;
-        this.edit.setTooltip(Tooltip.create(Component.literal("WIP")));
     }
 }
