@@ -36,7 +36,7 @@ public class TextGuiElementJeiRenderer implements IJEIElementRenderer<TextGuiEle
             graphics.pose().scale(scaleX, scaleY, 1.0F);
             graphics.pose().translate(-element.getX(), -element.getY(), 0);
         }
-        graphics.drawString(Minecraft.getInstance().font, element.getText(), posX, posY, 0);
+        graphics.drawString(Minecraft.getInstance().font, element.getText(), posX, posY, 0, false);
         graphics.pose().popPose();
     }
 }
