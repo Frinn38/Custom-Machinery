@@ -24,7 +24,6 @@ public class UpgradeBaseInfoTab extends UpgradeEditTab {
         RowHelper row = this.layout.rowSpacing(8).createRowHelper(2);
         row.defaultCellSetting().paddingHorizontal(0);
         LayoutSettings middle = row.newCellSettings().alignVerticallyMiddle();
-        LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
         LayoutSettings left = row.newCellSettings().alignHorizontallyLeft();
 
         //Id (1rst row)

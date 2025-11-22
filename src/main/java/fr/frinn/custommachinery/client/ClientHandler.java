@@ -88,7 +88,9 @@ import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
@@ -412,5 +414,23 @@ public class ClientHandler {
     public static void refreshMachineContainer() {
         if(Minecraft.getInstance().player instanceof Player player && player.containerMenu instanceof CustomMachineContainer container)
             container.init();
+    }
+
+    public static void renderScrollingStringNoShadow(GuiGraphics guiGraphics, Font font, Component text, int minX, int maxX, int y, int color) {
+        int width = font.width(text);
+        int maxWidth = maxX - minX;
+        if (width > maxWidth) {
+            int l = width - maxWidth;
+            double d0 = (double) Util.getMillis() / 1000.0;
+            double d1 = Math.max((double)l * 0.5, 3.0);
+            double d2 = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d0 / d1)) / 2.0 + 0.5;
+            double d3 = Mth.lerp(d2, 0.0, l);
+            guiGraphics.enableScissor(minX, y, maxX, y + font.lineHeight);
+            guiGraphics.drawString(font, text, minX - (int)d3, y, color, false);
+            guiGraphics.disableScissor();
+        } else {
+            int i1 = Mth.clamp(minX, minX + width / 2, maxX - width / 2);
+            guiGraphics.drawString(font, text, i1 - font.width(text) / 2, y, color, false);
+        }
     }
 }

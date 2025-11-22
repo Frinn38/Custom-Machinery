@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation.upgrade;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.upgrade.UpgradeListWidget.UpgradeEntry;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
@@ -69,6 +70,7 @@ public class UpgradeListWidget extends ListWidget<UpgradeEntry> {
         protected void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
             //Item
             graphics.renderItem(this.upgrade.item().getDefaultInstance(), x + 2, y + height / 2 - 8);
+
             //Machines
             MutableComponent machines = Component.empty();
             for(Iterator<ResourceLocation> iterator = this.upgrade.machines().iterator(); iterator.hasNext();) {
@@ -76,17 +78,21 @@ public class UpgradeListWidget extends ListWidget<UpgradeEntry> {
                 if(iterator.hasNext())
                     machines.append(", ");
             }
-            graphics.drawString(this.mc.font, machines, x + 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0, false);
+            ClientHandler.renderScrollingStringNoShadow(graphics, this.mc.font, machines, x + 20, x + width - 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0);
+
             //Id
             BaseScreen.drawScaledString(graphics, this.mc.font, Component.literal(this.location.id().toString()).withStyle(ChatFormatting.DARK_GRAY), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.8f, 0, false);
+
             //Loader
             BaseScreen.drawScaledString(graphics, this.mc.font, this.location.loader().getTranslatedName().withStyle(ChatFormatting.ITALIC), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.7f, 0, false);
+
             //Creation time
             if(this.location.created().toMillis() != 0) {
                 String creationTime = new SimpleDateFormat("dd/MM/yy HH:mm").format(this.location.created().toMillis());
                 Component creation = Component.translatable("custommachinery.gui.creation.time.created", creationTime).withStyle(ChatFormatting.DARK_GRAY);
                 BaseScreen.drawScaledString(graphics, this.mc.font, creation, x + width - this.mc.font.width(creation) / 2 - 10, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.5f, 0, false);
             }
+
             //Modification time
             if(this.location.modified().toMillis() != 0) {
                 String modificationTime = new SimpleDateFormat("dd/MM/yy HH:mm").format(this.location.modified().toMillis());

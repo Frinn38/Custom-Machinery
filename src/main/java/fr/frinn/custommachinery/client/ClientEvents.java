@@ -4,6 +4,8 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.render.BoxCreatorRenderer;
 import fr.frinn.custommachinery.client.render.StructureCreatorRenderer;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
+import fr.frinn.custommachinery.client.screen.creation.tabs.TooltipsTab;
+import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import net.minecraft.client.Minecraft;
@@ -19,12 +21,17 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.Iterator;
+import java.util.List;
 
 @EventBusSubscriber(modid = CustomMachinery.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
     @SubscribeEvent
     public static void onItemTooltip(final ItemTooltipEvent event) {
+        if(event.getFlags() instanceof TooltipsTab.EditorTooltipFlag(List<Component> tooltips) && !(event.getItemStack().getItem() instanceof CustomMachineItem)) {
+            event.getToolTip().addAll(tooltips);
+            return;
+        }
         CustomMachinery.UPGRADES.getUpgradesForItem(event.getItemStack().getItem())
                 .forEach(upgrade -> {
                     event.getToolTip().addAll(upgrade.tooltips());

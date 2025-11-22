@@ -3,7 +3,12 @@ package fr.frinn.custommachinery.client.screen.creation.upgrade;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineTabManager;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.ComponentModifiersTab;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.CoreModifierTab;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.MachinesTab;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.RecipeModifiersTab;
 import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.UpgradeBaseInfoTab;
+import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.UpgradeTooltipsTab;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.client.screen.widget.tabs.EditTabNavigationBar;
 import fr.frinn.custommachinery.common.network.CEditUpgradePacket;
@@ -47,7 +52,7 @@ public class UpgradeEditScreen extends BaseScreen {
     private ImageButton wiki;
     private TabManager tabManager;
     private EditTabNavigationBar topBar;
-    //private EditTabNavigationBar bottomBar;
+    private EditTabNavigationBar bottomBar;
 
     public UpgradeEditScreen(UpgradeCreationScreen parent, int xSize, int ySize, UpgradeLocation location, MachineUpgrade upgrade) {
         super(Component.literal("Upgrade edit"), xSize, ySize);
@@ -109,9 +114,9 @@ public class UpgradeEditScreen extends BaseScreen {
         this.wiki = this.addRenderableWidget(new ImageButton(this.x - 28, this.y + 55, 20, 20, WIKI_SPRITES, button -> this.wiki()));
         this.wiki.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.wiki")));
         this.tabManager = new MachineTabManager(this);
-        this.topBar = this.addRenderableWidget(new EditTabNavigationBar(this.xSize, this.tabManager, List.of(new UpgradeBaseInfoTab(this)), false));
+        this.topBar = this.addRenderableWidget(new EditTabNavigationBar(this.xSize, this.tabManager, List.of(new UpgradeBaseInfoTab(this), new MachinesTab(this), new RecipeModifiersTab(this), new ComponentModifiersTab(this), new CoreModifierTab(this)), false));
         this.topBar.selectTab(0, false);
-        //this.bottomBar = this.addRenderableWidget(new MachineEditTabNavigationBar(this.xSize, this.tabManager, List.of(), true));
+        this.bottomBar = this.addRenderableWidget(new EditTabNavigationBar(this.xSize, this.tabManager, List.of(new UpgradeTooltipsTab(this)), true));
         this.repositionElements();
     }
 
@@ -125,7 +130,7 @@ public class UpgradeEditScreen extends BaseScreen {
             return;
 
         this.topBar.setRectangle(this.xSize - 10, 20, this.x + 5, this.y - 20);
-        //this.bottomBar.setRectangle((this.xSize - 10) / 4, 20, this.x + 5, this.y + this.ySize - 3);
+        this.bottomBar.setRectangle((this.xSize - 10) / 4, 20, this.x + 5, this.y + this.ySize - 3);
         this.tabManager.setTabArea(new ScreenRectangle(this.x, this.y, this.xSize, this.ySize));
     }
 
