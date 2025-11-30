@@ -6,9 +6,11 @@ import dev.latvian.mods.kubejs.level.CachedLevelBlock;
 import dev.latvian.mods.rhino.Context;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public class FunctionKubeEvent implements KubeEvent {
 
@@ -54,6 +56,14 @@ public class FunctionKubeEvent implements KubeEvent {
 
     public CachedLevelBlock getBlock() {
         return new CachedLevelBlock(getTile().getLevel(), getTile().getBlockPos());
+    }
+
+    public IMachineRecipe getRecipe() {
+        return this.internal.getRecipe();
+    }
+
+    public ResourceLocation getRecipeId() {
+        return this.internal.getRecipeId();
     }
 
     @Override
