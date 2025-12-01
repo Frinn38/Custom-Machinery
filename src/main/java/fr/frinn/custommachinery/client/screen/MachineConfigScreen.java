@@ -71,7 +71,8 @@ public class MachineConfigScreen extends BaseScreen {
                         Vector2i pos = getStartingPos(this.getConfigurableElements().indexOf(element));
                         popup.move(pos.x * 20, pos.y * 20);
                     },
-                    config.getColor()
+                    config.getColor(),
+                    popup
             ));
         });
 

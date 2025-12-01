@@ -20,7 +20,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -72,7 +71,7 @@ public abstract class BaseScreen extends Screen {
         this.popupToId.remove(popup);
     }
 
-    public Collection<PopupScreen> popups() {
+    public LRU<PopupScreen> popups() {
         return this.popups;
     }
 

@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractCollection;
 import java.util.Iterator;
@@ -55,6 +56,16 @@ public class LRU<T> extends AbstractCollection<T> {
         }
         removeEntry(entry);
         addFirst(entry);
+    }
+
+    @Nullable
+    public T getFirst() {
+        return this.head.next.value;
+    }
+
+    @Nullable
+    public T getLast() {
+        return this.tail.prev.value;
     }
 
     @Override

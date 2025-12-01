@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 
 import java.util.Arrays;
 import java.util.stream.DoubleStream;
@@ -86,5 +87,9 @@ public class Color {
 
     public int getARGB() {
         return FastColor.ARGB32.color(this.alpha, this.red, this.green, this.blue);
+    }
+
+    public Color mul(double factor) {
+        return new Color(this.alpha, (int)Mth.clamp(this.red * factor, 0, 255), (int)Mth.clamp(this.green * factor, 0, 255), (int)Mth.clamp(this.blue * factor, 0, 255));
     }
 }
