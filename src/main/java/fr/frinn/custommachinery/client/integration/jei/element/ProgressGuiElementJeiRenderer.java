@@ -22,7 +22,7 @@ public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<Progre
 
     @Override
     public List<Component> getJEITooltips(ProgressBarGuiElement element, IMachineRecipe recipe) {
-        List<Component> tooltips = new ArrayList<>();
+        List<Component> tooltips = new ArrayList<>(element.getTooltips());
         if(recipe.getRecipeTime() > 0)
             tooltips.add(Component.translatable("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
         else
