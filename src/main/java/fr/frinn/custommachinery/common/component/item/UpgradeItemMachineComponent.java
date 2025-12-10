@@ -33,7 +33,7 @@ public class UpgradeItemMachineComponent extends ItemMachineComponent {
     public void setItemStack(ItemStack stack) {
         ItemStack prevStack = this.getItemStack();
         super.setItemStack(stack);
-        if(ItemStack.isSameItemSameComponents(prevStack, stack) || prevStack.getCount() != stack.getCount())
+        if(!ItemStack.isSameItemSameComponents(prevStack, stack) || prevStack.getCount() != stack.getCount())
             this.getManager().getTile().getUpgradeManager().refresh();
     }
 
