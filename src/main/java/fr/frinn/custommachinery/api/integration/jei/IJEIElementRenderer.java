@@ -32,6 +32,6 @@ public interface IJEIElementRenderer<T extends IGuiElement> {
      * @return A list of text components that will be displayed as tooltips when the mouse cursor hover the gui element.
      */
     default List<Component> getJEITooltips(T element, IMachineRecipe recipe) {
-        return Collections.emptyList();
+        return element.getTooltips();
     }
 }
