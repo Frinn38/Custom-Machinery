@@ -45,8 +45,8 @@ public class CustomMachineUpgradeJSBuilder {
     public MachineUpgrade build() {
         if(this.machines.isEmpty())
             throw new IllegalArgumentException("You must specify at least 1 machine for machine upgrade item: " + BuiltInRegistries.ITEM.getKey(this.item));
-        if(this.recipeModifiers.isEmpty())
-            throw new IllegalArgumentException("You must specify at least 1 recipe modifier for machine upgrade item: " + BuiltInRegistries.ITEM.getKey(this.item));
+        if(this.recipeModifiers.isEmpty() && this.componentModifiers.isEmpty() && this.coreModifier == null)
+            throw new IllegalArgumentException("You must specify at least 1 recipe/component/core modifier for machine upgrade item: " + BuiltInRegistries.ITEM.getKey(this.item));
         return new MachineUpgrade(this.item, this.machines, this.recipeModifiers, this.componentModifiers, Optional.ofNullable(this.coreModifier), this.tooltips, this.maxAmount);
     }
 
