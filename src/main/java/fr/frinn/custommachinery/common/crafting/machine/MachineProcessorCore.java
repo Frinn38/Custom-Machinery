@@ -9,9 +9,11 @@ import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.CraftingContext.Mutable;
 import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.crafting.RequirementList;
 import fr.frinn.custommachinery.impl.crafting.RequirementList.RequirementWithFunction;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -42,7 +44,6 @@ public class MachineProcessorCore implements ISyncableStuff {
     private int recipeTotalTime = 0;
     private boolean searchImmediately = false;
     private Phase phase = Phase.CONDITIONS;
-    private boolean machineInventoryChanged = true;
     @Nullable
     private Component error = null;
     private boolean isLastRecipeTick = false;
@@ -101,7 +102,6 @@ public class MachineProcessorCore implements ISyncableStuff {
         if(this.currentRecipe == null) {
             this.recipeFinder.findRecipe(this.searchImmediately).ifPresent(this::setRecipe);
             this.searchImmediately = false;
-            this.machineInventoryChanged = false;
         }
 
         if(this.currentRecipe != null) {
@@ -255,7 +255,6 @@ public class MachineProcessorCore implements ISyncableStuff {
 
     public void setMachineInventoryChanged() {
         this.recipeFinder.setInventoryChanged(true);
-        this.machineInventoryChanged = true;
     }
 
     public CompoundTag serialize() {
@@ -281,6 +280,8 @@ public class MachineProcessorCore implements ISyncableStuff {
         container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
         container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
         container.accept(IntegerSyncable.create(() -> this.status.ordinal(), index -> this.status = MachineStatus.values()[index]));
+        RegistryAccess registries = this.processor.tile().getLevel().registryAccess();
+        container.accept(StringSyncable.create(() -> Component.Serializer.toJson(this.getError() == null ? Component.empty() : this.getError(), registries), errorMessage -> this.error = Component.Serializer.fromJson(errorMessage, registries)));
     }
 
     public enum Phase {

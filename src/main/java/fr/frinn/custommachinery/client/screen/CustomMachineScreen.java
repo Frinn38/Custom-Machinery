@@ -72,7 +72,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
                 .filter(widget -> widget instanceof AbstractGuiElementWidget<?> element && element.isMouseOver(mouseX, mouseY) && !element.getTooltips().isEmpty())
                 .map(widget -> (AbstractGuiElementWidget<?>) widget)
                 .min((w1, w2) -> Comparators.GUI_ELEMENTS_COMPARATOR.compare(w1.getElement(), w2.getElement()))
-                .ifPresent(element -> graphics.renderTooltip(this.font, element.getTooltips().stream().flatMap(tooltip -> this.font.split(tooltip, 100).stream()).toList(), mouseX - this.leftPos, mouseY - this.topPos));
+                .ifPresent(element -> graphics.renderTooltip(this.font, element.getTooltips().stream().flatMap(tooltip -> this.font.split(tooltip, 1000).stream()).toList(), mouseX - this.leftPos, mouseY - this.topPos));
     }
 
     @Override

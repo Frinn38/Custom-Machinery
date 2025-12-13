@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
@@ -40,9 +41,24 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
         if(!this.getElement().getTooltips().isEmpty())
             return this.getElement().getTooltips();
         List<Component> tooltips = new ArrayList<>();
-        tooltips.add(Component.translatable("custommachinery.craftingstatus." + this.getScreen().getTile().getStatus().toString().toLowerCase(Locale.ENGLISH)));
-        if(this.getScreen().getTile().getStatus() == MachineStatus.ERRORED)
-            tooltips.add(this.getScreen().getTile().getMessage());
+        if(this.getScreen().getTile().getProcessor() instanceof MachineProcessor processor && processor.getCores().size() > 1) {
+            processor.getCores().forEach(core -> {
+                int index = processor.getCores().indexOf(core);
+                if(core.getStatus() == MachineStatus.RUNNING)
+                    tooltips.add(Component.empty().append(Component.literal("✓ ").withStyle(ChatFormatting.GREEN)).append(Component.literal("Core " + index + ": ")).append(Component.translatable("custommachinery.craftingstatus.running")));
+                else if(core.getStatus() == MachineStatus.IDLE)
+                    tooltips.add(Component.empty().append(Component.literal("|| ").withStyle(ChatFormatting.GOLD)).append(Component.literal("Core " + index + ": ")).append(Component.translatable("custommachinery.craftingstatus.idle")));
+                if(core.getStatus() == MachineStatus.ERRORED) {
+                    tooltips.add(Component.empty().append(Component.literal("X ").withStyle(ChatFormatting.DARK_RED)).append(Component.literal("Core " + index + ": ")).append(Component.translatable("custommachinery.craftingstatus.errored")));
+                    if(core.getError() != null)
+                        tooltips.add(Component.literal("  - ").append(core.getError()));
+                }
+            });
+        } else {
+            tooltips.add(Component.translatable("custommachinery.craftingstatus." + this.getScreen().getTile().getStatus().toString().toLowerCase(Locale.ROOT)));
+            if(this.getScreen().getTile().getStatus() == MachineStatus.ERRORED)
+                tooltips.add(this.getScreen().getTile().getMessage());
+        }
         return tooltips;
     }
 
