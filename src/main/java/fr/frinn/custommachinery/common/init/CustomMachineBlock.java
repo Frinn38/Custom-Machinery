@@ -48,8 +48,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -60,7 +58,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public class CustomMachineBlock extends Block implements EntityBlock {
@@ -138,18 +135,6 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
         if(blockEntity instanceof CustomMachineTile machine && player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(machine.getAppearance()), level, pos))
             super.playerDestroy(level, player, pos, state, blockEntity, tool);
-    }
-
-    @Override
-    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
-        List<ItemStack> drops = super.getDrops(state, builder);
-        if(builder.getParameter(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
-            ItemStack machineItem = CustomMachineItem.makeMachineItem(machine.getId());
-            if(machine.getAppearance().shouldKeepInventory())
-                machineItem.set(Registration.MACHINE_INVENTORY_DATA, machine.getComponentManager().serializeNBT(builder.getLevel().registryAccess()));
-            drops.add(machineItem);
-        }
-        return drops;
     }
 
     //Drop the machine's inventory when broken

@@ -149,6 +149,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -172,20 +173,21 @@ public class Registration {
             builder.optional(LootContextParams.ORIGIN).optional(LootContextParams.BLOCK_ENTITY)
     );
 
+    public static final DeferredRegister<MachineAppearanceProperty<?>>                      APPEARANCE_PROPERTIES = DeferredRegister.create(MachineAppearanceProperty.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister.Blocks                                             BLOCKS                = DeferredRegister.createBlocks(CustomMachinery.MODID);
+    public static final DeferredRegister<CreativeModeTab>                                   CREATIVE_TABS         = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, CustomMachinery.MODID);
     public static final DeferredRegister<DataComponentType<?>>                              DATA_COMPONENTS       = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, CustomMachinery.MODID);
+    public static final DeferredRegister<DataType<?, ?>>                                    DATAS                 = DeferredRegister.create(DataType.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister.Items                                              ITEMS                 = DeferredRegister.createItems(CustomMachinery.MODID);
-    public static final DeferredRegister<BlockEntityType<?>>                                TILE_ENTITIES         = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, CustomMachinery.MODID);
+    public static final DeferredRegister<GuiElementType<? extends IGuiElement>>             GUI_ELEMENTS          = DeferredRegister.create(GuiElementType.REGISTRY_KEY, CustomMachinery.MODID);
+    public static final DeferredRegister<LootItemFunctionType<?>>                           LOOT_ITEM_FUNCTIONS   = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, CustomMachinery.MODID);
+    public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS    = DeferredRegister.create(MachineComponentType.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister<MenuType<?>>                                       MENUS                 = DeferredRegister.create(Registries.MENU, CustomMachinery.MODID);
+    public static final DeferredRegister<ProcessorType<?>>                                  PROCESSORS            = DeferredRegister.create(ProcessorType.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister<RecipeSerializer<?>>                               RECIPE_SERIALIZERS    = DeferredRegister.create(Registries.RECIPE_SERIALIZER, CustomMachinery.MODID);
     public static final DeferredRegister<RecipeType<?>>                                     RECIPE_TYPES          = DeferredRegister.create(Registries.RECIPE_TYPE, CustomMachinery.MODID);
-    public static final DeferredRegister<CreativeModeTab>                                   CREATIVE_TABS         = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, CustomMachinery.MODID);
-    public static final DeferredRegister<GuiElementType<? extends IGuiElement>>             GUI_ELEMENTS          = DeferredRegister.create(GuiElementType.REGISTRY_KEY, CustomMachinery.MODID);
-    public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS    = DeferredRegister.create(MachineComponentType.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister<RequirementType<? extends IRequirement<?>>>        REQUIREMENTS          = DeferredRegister.create(RequirementType.REGISTRY_KEY, CustomMachinery.MODID);
-    public static final DeferredRegister<MachineAppearanceProperty<?>>                      APPEARANCE_PROPERTIES = DeferredRegister.create(MachineAppearanceProperty.REGISTRY_KEY, CustomMachinery.MODID);
-    public static final DeferredRegister<DataType<?, ?>>                                    DATAS                 = DeferredRegister.create(DataType.REGISTRY_KEY, CustomMachinery.MODID);
-    public static final DeferredRegister<ProcessorType<?>>                                  PROCESSORS            = DeferredRegister.create(ProcessorType.REGISTRY_KEY, CustomMachinery.MODID);
+    public static final DeferredRegister<BlockEntityType<?>>                                TILE_ENTITIES         = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, CustomMachinery.MODID);
 
     public static final Registry<GuiElementType<? extends IGuiElement>>             GUI_ELEMENT_TYPE_REGISTRY       = GUI_ELEMENTS.makeRegistry(builder -> {});
     public static final Registry<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENT_TYPE_REGISTRY = MACHINE_COMPONENTS.makeRegistry(builder -> {});
@@ -253,6 +255,8 @@ public class Registration {
             });
         }).build()
     );
+
+    public static final Supplier<LootItemFunctionType<MachineLootItemFunction>> MACHINE_LOOT_ITEM_FUNCTION = LOOT_ITEM_FUNCTIONS.register("machine_loot_item_function", () -> new LootItemFunctionType<>(MachineLootItemFunction.CODEC));
 
     public static final Supplier<GuiElementType<BackgroundGuiElement>>      BACKGROUND_GUI_ELEMENT       = GUI_ELEMENTS.register("background", () -> GuiElementType.create(BackgroundGuiElement.CODEC));
     public static final Supplier<GuiElementType<BarGuiElement>>             BAR_GUI_ELEMENT              = GUI_ELEMENTS.register("bar", () -> GuiElementType.create(BarGuiElement.CODEC));

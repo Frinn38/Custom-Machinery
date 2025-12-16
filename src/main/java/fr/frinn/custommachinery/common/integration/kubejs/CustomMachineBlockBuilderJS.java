@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.latvian.mods.kubejs.generator.KubeAssetGenerator;
+import dev.latvian.mods.kubejs.generator.KubeDataGenerator;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
 import dev.latvian.mods.kubejs.registry.AdditionalObjectRegistry;
 import dev.latvian.mods.kubejs.registry.BuilderBase;
@@ -10,16 +11,20 @@ import dev.latvian.mods.kubejs.util.ID;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
+import fr.frinn.custommachinery.common.init.MachineLootItemFunction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-
-import java.util.List;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
-    public static final List<String> VALID_RENDER_TYPES = List.of("solid", "cutout", "translucent");
     private ResourceLocation machineID;
     private boolean occlusion;
 
@@ -69,5 +74,12 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
     @Override
     public void generateAssets(KubeAssetGenerator generator) {
         generator.blockState(this.id, stateGenerator -> stateGenerator.simpleVariant("", CustomMachinery.rl("block/custom_machine_block")));
+    }
+
+    @Override
+    public void generateData(KubeDataGenerator generator) {
+        LootPool.Builder pool = LootPool.lootPool().when(ExplosionCondition.survivesExplosion()).setRolls(ConstantValue.exactly(1)).add(LootItem.lootTableItem(this.object.asItem()).apply(MachineLootItemFunction::new));
+        LootTable table = LootTable.lootTable().withPool(pool).build();
+        generator.json(id.withPath(ID.BLOCK_LOOT_TABLE), generator.getRegistries().json().withEncoder(LootTable.CODEC).apply(new Holder.Direct<>(table)).getOrThrow());
     }
 }

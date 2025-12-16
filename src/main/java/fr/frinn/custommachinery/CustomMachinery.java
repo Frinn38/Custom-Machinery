@@ -75,20 +75,21 @@ public class CustomMachinery {
     public CustomMachinery(final ModContainer CONTAINER, final IEventBus MOD_BUS) {
         CONTAINER.registerConfig(Type.COMMON, CMConfig.CONFIG_SPEC);
 
+        Registration.APPEARANCE_PROPERTIES.register(MOD_BUS);
         Registration.BLOCKS.register(MOD_BUS);
+        Registration.CREATIVE_TABS.register(MOD_BUS);
         Registration.DATA_COMPONENTS.register(MOD_BUS);
+        Registration.DATAS.register(MOD_BUS);
         Registration.ITEMS.register(MOD_BUS);
-        Registration.TILE_ENTITIES.register(MOD_BUS);
+        Registration.GUI_ELEMENTS.register(MOD_BUS);
+        Registration.LOOT_ITEM_FUNCTIONS.register(MOD_BUS);
+        Registration.MACHINE_COMPONENTS.register(MOD_BUS);
         Registration.MENUS.register(MOD_BUS);
+        Registration.PROCESSORS.register(MOD_BUS);
         Registration.RECIPE_SERIALIZERS.register(MOD_BUS);
         Registration.RECIPE_TYPES.register(MOD_BUS);
-        Registration.CREATIVE_TABS.register(MOD_BUS);
-        Registration.GUI_ELEMENTS.register(MOD_BUS);
-        Registration.MACHINE_COMPONENTS.register(MOD_BUS);
         Registration.REQUIREMENTS.register(MOD_BUS);
-        Registration.APPEARANCE_PROPERTIES.register(MOD_BUS);
-        Registration.DATAS.register(MOD_BUS);
-        Registration.PROCESSORS.register(MOD_BUS);
+        Registration.TILE_ENTITIES.register(MOD_BUS);
 
         MOD_BUS.addListener(this::commonSetup);
         MOD_BUS.addListener(this::sendIMCMessages);
