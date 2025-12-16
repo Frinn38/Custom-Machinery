@@ -4,7 +4,6 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -23,7 +22,7 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
             IProcessor processor = machine.getProcessor();
             CompoundTag tag = new CompoundTag();
             if(machine.getOwnerName() != null)
-                tag.putString("owner", TextComponentUtils.toJsonString(machine.getOwnerName()));
+                tag.putString("owner", Component.Serializer.toJson(machine.getOwnerName(), machine.getLevel().registryAccess()));
             tag.putByte("status", (byte)machine.getStatus().ordinal());
             if(processor instanceof MachineProcessor machineProcessor) {
                 ListTag cores = new ListTag();

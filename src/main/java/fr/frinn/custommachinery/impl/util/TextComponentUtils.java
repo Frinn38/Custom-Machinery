@@ -1,22 +1,25 @@
 package fr.frinn.custommachinery.impl.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.contents.KeybindContents;
+import net.minecraft.network.chat.contents.NbtContents;
+import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.network.chat.contents.PlainTextContents.LiteralContents;
+import net.minecraft.network.chat.contents.ScoreContents;
+import net.minecraft.network.chat.contents.SelectorContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.util.InsertingContents;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -50,11 +53,11 @@ public class TextComponentUtils {
 
     public static final NamedCodec<Component> TEXT_COMPONENT_CODEC = NamedCodec.record(iTextComponentInstance ->
             iTextComponentInstance.group(
-                    NamedCodec.STRING.fieldOf("text").forGetter(TextComponentUtils::getString),
+                    NamedCodec.either(NamedCodec.STRING, getComponentContentsCodec()).fieldOf("text").forGetter(component -> Either.right(component.getContents())),
                     STYLE_CODEC.forGetter(Component::getStyle),
                     NamedCodec.lazy(TextComponentUtils::getCodec, "Text component").listOf().optionalFieldOf("childrens", Collections.emptyList()).forGetter(Component::getSiblings)
             ).apply(iTextComponentInstance, (text, style, childrens) -> {
-                            MutableComponent component = Component.translatable(text);
+                            MutableComponent component = text.map(Component::translatable, MutableComponent::create);
                             component.setStyle(style);
                             childrens.forEach(component::append);
                             return component;
@@ -65,16 +68,6 @@ public class TextComponentUtils {
 
     public static final NamedCodec<Component> CODEC = NamedCodec.either(TEXT_COMPONENT_CODEC, NamedCodec.STRING)
             .xmap(either -> either.map(Function.identity(), Component::translatable), Either::left, "Text component");
-
-    public static String toJsonString(Component component) {
-        DataResult<JsonElement> result = TEXT_COMPONENT_CODEC.encodeStart(JsonOps.INSTANCE, component);
-        return result.result().map(JsonElement::toString).orElse("");
-    }
-
-    public static Component fromJsonString(String jsonString) {
-        JsonElement json = JsonParser.parseString(jsonString);
-        return TEXT_COMPONENT_CODEC.decode(JsonOps.INSTANCE, json).result().map(Pair::getFirst).orElse(Component.empty());
-    }
 
     private static NamedCodec<Component> getCodec() {
         return TEXT_COMPONENT_CODEC;
@@ -87,5 +80,11 @@ public class TextComponentUtils {
         else if(contents instanceof TranslatableContents translatable)
             return translatable.getKey();
         return component.getString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static NamedCodec<ComponentContents> getComponentContentsCodec() {
+        ComponentContents.Type<?>[] type = new ComponentContents.Type[]{PlainTextContents.TYPE, TranslatableContents.TYPE, KeybindContents.TYPE, ScoreContents.TYPE, SelectorContents.TYPE, NbtContents.TYPE, InsertingContents.TYPE};
+        return NamedCodec.of(((MapCodec<ComponentContents>)ComponentSerialization.createLegacyComponentMatcher(type, ComponentContents.Type::codec, ComponentContents::type, "type")).codec(), "Component contents");
     }
 }

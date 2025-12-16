@@ -24,7 +24,6 @@ import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.upgrade.UpgradeManager;
 import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.sound.SoundManager;
-import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
@@ -338,11 +337,11 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         nbt.put("craftingManager", this.processor.serialize());
         nbt.put("componentManager", this.componentManager.serializeNBT(registries));
         nbt.putString("status", this.status.toString());
-        nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
+        nbt.putString("message", Component.Serializer.toJson(this.errorMessage, registries));
         if(this.ownerID != null)
             nbt.putString("ownerID", this.ownerID.toString());
         if(this.ownerName != null)
-            nbt.putString("ownerName", TextComponentUtils.toJsonString(this.ownerName));
+            nbt.putString("ownerName", Component.Serializer.toJson(this.ownerName, registries));
     }
 
     @Override
@@ -361,13 +360,13 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
             this.setStatus(MachineStatus.value(nbt.getString("status")));
 
         if(nbt.contains("message", Tag.TAG_STRING))
-            this.errorMessage = TextComponentUtils.fromJsonString(nbt.getString("message"));
+            this.errorMessage = Component.Serializer.fromJson(nbt.getString("message"), registries);
 
         if(nbt.contains("ownerID", Tag.TAG_STRING))
             this.ownerID = UUID.fromString(nbt.getString("ownerID"));
 
         if(nbt.contains("ownerName", Tag.TAG_STRING))
-            this.ownerName = TextComponentUtils.fromJsonString(nbt.getString("ownerName"));
+            this.ownerName = Component.Serializer.fromJson(nbt.getString("ownerName"), registries);
 
         if(nbt.contains("appearance", Tag.TAG_COMPOUND))
             this.customAppearance = MachineAppearance.CODEC.read(NbtOps.INSTANCE, nbt.get("appearance")).result().map(MachineAppearance::new).orElse(null);
@@ -382,11 +381,11 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         CompoundTag nbt = super.getUpdateTag(registries);
         nbt.putString("machineID", getId().toString());
         nbt.putString("status", this.status.toString());
-        nbt.putString("message", TextComponentUtils.toJsonString(this.errorMessage));
+        nbt.putString("message", Component.Serializer.toJson(this.errorMessage, registries));
         if(this.ownerID != null)
             nbt.putString("ownerID", this.ownerID.toString());
         if(this.ownerName != null)
-            nbt.putString("ownerName", TextComponentUtils.toJsonString(this.ownerName));
+            nbt.putString("ownerName", Component.Serializer.toJson(this.ownerName, registries));
         if(this.customAppearance != null)
             MachineAppearance.CODEC.encodeStart(NbtOps.INSTANCE, this.customAppearance.getProperties()).result().ifPresent(appearance -> nbt.put("appearance", appearance));
         if(this.customGuiElements != null && !this.customGuiElements.isEmpty())
