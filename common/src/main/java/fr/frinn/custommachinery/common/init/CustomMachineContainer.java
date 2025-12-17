@@ -194,6 +194,7 @@ public class CustomMachineContainer extends SyncableContainer {
                 ItemStack removed = slotComponent.getItem().copy();
                 if(!this.playerInv.add(removed))
                     return ItemStack.EMPTY;
+                slotComponent.getComponent().setItemStack(removed);
                 slotComponent.setChanged();
 
                 int crafted = 0;
@@ -201,6 +202,7 @@ public class CustomMachineContainer extends SyncableContainer {
                     removed = slotComponent.getItem().copy();
                     if(!this.playerInv.add(removed))
                         return ItemStack.EMPTY;
+                    slotComponent.getComponent().setItemStack(removed);
                     slotComponent.setChanged();
                     if(crafted++ == 64 && player.getAbilities().instabuild) return ItemStack.EMPTY;
                 }
@@ -210,6 +212,7 @@ public class CustomMachineContainer extends SyncableContainer {
             ItemStack removed = slotComponent.getItem();
             if(!moveItemStackTo(removed, 0, this.firstComponentSlotIndex - 1, false))
                 return ItemStack.EMPTY;
+            slotComponent.getComponent().setItemStack(removed);
             slotComponent.setChanged();
         }
         return ItemStack.EMPTY;
