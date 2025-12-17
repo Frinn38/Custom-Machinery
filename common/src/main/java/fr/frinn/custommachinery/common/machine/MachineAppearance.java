@@ -102,7 +102,22 @@ public class MachineAppearance implements IMachineAppearance {
 
     @Override
     public IMachineModelLocation getItemModel() {
-        return getProperty(Registration.ITEM_MODEL_PROPERTY.get());
+        var itemModel =  getProperty(Registration.ITEM_MODEL_PROPERTY.get());
+        if (
+                itemModel != null
+                && itemModel.getLoc() != null
+                && itemModel.getLoc().getPath() != null
+                && itemModel.getLoc().getPath().equals("default/custom_machine_default")
+        ) {
+            var blockItemModel = getBlockModel();
+            if (blockItemModel != null
+                    && blockItemModel.getLoc() != null
+                    && blockItemModel.getLoc().getPath() != null
+                    && !blockItemModel.getLoc().getPath().equals( "default/custom_machine_default")) {
+                return blockItemModel;
+            }
+        }
+        return itemModel;
     }
 
     @Override

@@ -53,6 +53,10 @@ public class CMConfig implements ConfigData {
     @Comment("A list of folder names where CM will load models json.\nThese folders must be under the \"assets/namespace/models\" folder.")
     public List<String> modelFolders = Lists.newArrayList("machine", "machines");
 
+    @Category("Misc")
+    @Comment("The default directory for new machine json files.\nThe default is the root of the modpack folder.\nSpecify as a relative path (\"saves/my-world/datapacks/My Pack/data/custommachinery/machines\")")
+    public String defaultNewMachinePath = "";
+
     public static CMConfig get() {
         return AutoConfig.getConfigHolder(CMConfig.class).getConfig();
     }

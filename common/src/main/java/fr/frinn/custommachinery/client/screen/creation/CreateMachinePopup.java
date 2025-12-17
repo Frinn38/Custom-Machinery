@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.InfoPopup;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ComponentEditBox;
+import fr.frinn.custommachinery.common.integration.config.CMConfig;
 import fr.frinn.custommachinery.common.machine.MachineLocation.Loader;
 import fr.frinn.custommachinery.common.network.CAddMachinePacket;
 import net.minecraft.ChatFormatting;
@@ -41,7 +42,20 @@ public class CreateMachinePopup extends PopupScreen {
         new CAddMachinePacket(this.id.getValue(), this.name.getComponent(), this.loader.getValue() == Loader.KUBEJS).sendToServer();
         this.parent.closePopup(this);
         if(this.loader.getValue() == Loader.DEFAULT)
-            this.parent.openPopup(new InfoPopup(this.parent, 144, 96).text(Component.translatable("custommachinery.gui.creation.popup.create.success.description")));
+            this.parent.openPopup(
+                    new InfoPopup(
+                            this.parent,
+                            144,
+                            96
+                    ).text(
+                            Component.translatable(
+                                    CMConfig.get()
+                                            .defaultNewMachinePath.isEmpty()
+                                            ? "custommachinery.gui.creation.popup.create.success.description"
+                                            : "custommachinery.gui.creation.popup.create.success.custom_description"
+                            )
+                    )
+            );
         else if(this.loader.getValue() == Loader.KUBEJS)
             Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.popup.create.success"), null, false), 50);
     }

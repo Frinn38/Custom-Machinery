@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class MachineProcessor implements IProcessor, ISyncableStuff {
 
@@ -239,7 +240,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                 .filter(requirement -> requirement instanceof IDelayedRequirement)
                 .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
                 .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
         this.recipeTotalTime = this.currentRecipe.getRecipeTime();
         this.phase = PHASE.STARTING;
         this.setRunning();
@@ -259,7 +260,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                 .filter(requirement -> requirement instanceof IDelayedRequirement)
                 .map(requirement -> (IDelayedRequirement<IMachineComponent>)requirement)
                 .filter(requirement -> requirement.getDelay() > 0 && requirement.getDelay() < 1.0)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
         this.recipeTotalTime = this.currentRecipe.getRecipeTime();
         this.setRunning();
     }

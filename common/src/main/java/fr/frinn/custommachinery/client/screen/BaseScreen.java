@@ -132,14 +132,6 @@ public abstract class BaseScreen extends Screen {
         }
 
         graphics.pose().popPose();
-
-        if(hoveredPopup != null) {
-            Tooltip tooltip = hoveredPopup.getTooltip(mouseX, mouseY);
-            if(tooltip != null)
-                this.setTooltipForNextRenderPass(tooltip, DefaultTooltipPositioner.INSTANCE, true);
-            else
-                this.deferredTooltipRendering = null;
-        }
     }
 
     @Override
@@ -174,12 +166,10 @@ public abstract class BaseScreen extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         for(PopupScreen popup : this.popups) {
-            if(popup.isMouseOver(mouseX, mouseY)) {
-                boolean dragged = popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-                if(this.freezePopupsTicks <= 0)
-                    this.popups.moveUp(popup);
-                return dragged;
-            }
+            boolean dragged = popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            if(this.freezePopupsTicks <= 0)
+                this.popups.moveUp(popup);
+            return dragged;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }

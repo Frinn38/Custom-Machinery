@@ -115,6 +115,7 @@
   "custommachinery.gui.creation.popup.create.name.tooltip": "The name of the machine",
   "custommachinery.gui.creation.popup.create.success": "Machine created",
   "custommachinery.gui.creation.popup.create.success.description": "Machine json file created in the pack root folder\nMove the file in a valid datapack location and use /reload",
+  "custommachinery.gui.creation.popup.create.success.custom_description": "Machine json file created in folder specified in the config under \"defaultNewMachinePath\"\n use /reload to see it",
   "custommachinery.gui.creation.popup.create.loader.default": "The machine json file will be created in the pack root folder",
   "custommachinery.gui.creation.popup.create.loader.kubejs": "The machine json file will be created in the KubeJS data folder",
 
@@ -428,6 +429,7 @@
   "text.autoconfig.custommachinery.option.itemSlotCycleTime": "Item slot cycle time",
   "text.autoconfig.custommachinery.option.needAdvancedInfoForRecipeID": "Need advanced info for recipe ID",
   "text.autoconfig.custommachinery.option.modelFolders": "Models folders",
+  "text.autoconfig.custommachinery.option.defaultNewMachinePath": "New Machine Path",
 
   "unit.energy.forge": "FE",
   "unit.energy.fabric": "E"

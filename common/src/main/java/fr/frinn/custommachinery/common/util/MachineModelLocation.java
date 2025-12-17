@@ -43,7 +43,7 @@ public class MachineModelLocation implements IMachineModelLocation {
         ResourceLocation resourceLocation = new ResourceLocation(loc);
 
         if(BuiltInRegistries.ITEM.containsKey(resourceLocation))
-            return new MachineModelLocation(loc, null, BuiltInRegistries.ITEM.get(resourceLocation), null, null);
+            return new MachineModelLocation(loc, null, BuiltInRegistries.ITEM.get(resourceLocation), resourceLocation, null);
 
         return new MachineModelLocation(loc, null, null, new ResourceLocation(loc), null);
     }

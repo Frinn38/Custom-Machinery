@@ -15,6 +15,10 @@ import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.inventory.FurnaceFuelSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.FurnaceBlock;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 
 import java.util.function.Consumer;
 
@@ -113,9 +117,14 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
                         .filter(component -> component.getVariant() == FuelItemComponentVariant.INSTANCE && !component.getItemStack().isEmpty())
                         .findFirst()
         ).ifPresent(component -> {
-            int fuel = FuelRegistry.get(component.getItemStack());
+            ItemStack stack = component.getItemStack();
+            int fuel = FuelRegistry.get(stack);
             this.addFuel(fuel);
-            component.extract(1, false);
+
+            if(stack.getItem().hasCraftingRemainingItem())
+                component.setItemStack(new ItemStack(stack.getItem().getCraftingRemainingItem()));
+            else
+                component.extract(1, false);
         });
     }
 }

@@ -46,6 +46,7 @@ public class MachineAppearanceProperty<T> {
      * @return A {@link NamedCodec} used to parse/serialize the {@link MachineAppearanceProperty} value.
      */
     public NamedCodec<T> getCodec() {
+
         return this.codec;
     }
 
@@ -53,6 +54,7 @@ public class MachineAppearanceProperty<T> {
      * @return The default value for this {@link MachineAppearanceProperty}.
      */
     public T getDefaultValue() {
+
         return this.defaultValue;
     }
 

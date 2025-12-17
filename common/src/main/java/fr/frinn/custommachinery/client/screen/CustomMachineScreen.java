@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
@@ -16,6 +17,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineContainer> implements IMachineScreen {
@@ -24,6 +27,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     private final CustomMachine machine;
     @Nullable
     private final BackgroundGuiElement background;
+    private final List<AbstractGuiElementWidget<?>> elementWidgets = new ArrayList<>();
 
     public CustomMachineScreen(CustomMachineContainer container, Inventory inv, Component name) {
         super(container, inv, name);
@@ -47,10 +51,11 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     protected void init() {
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
+        this.elementWidgets.clear();
         this.tile.getGuiElements().stream()
                 .filter(element -> GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()))
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
-                .forEach(element -> addRenderableWidget(GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType)element.getType()).get(element, this)));
+                .forEach(element -> addElementWidget(GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType)element.getType()).get(element, this)));
     }
 
     @Override
@@ -112,6 +117,16 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for(AbstractGuiElementWidget<?> elementWidget : this.elementWidgets) {
+            if(elementWidget.mouseClicked(mouseX, mouseY, button)) {
+                new CGuiElementClickPacket(this.tile.getGuiElements().indexOf(elementWidget.getElement()), (byte)button).sendToServer();
+                return true;
+            }
+        }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+    private void addElementWidget(AbstractGuiElementWidget<?> widget) {
+        this.elementWidgets.add(widget);
+        addRenderableWidget(widget);
     }
 }

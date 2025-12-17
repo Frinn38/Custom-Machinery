@@ -137,7 +137,7 @@ public class SuggestedEditBox extends EditBox {
             this.hideSuggestions();
             this.setX(this.baseX);
             this.setWidth(this.baseWidth);
-        } else {
+        } else if (this.suggestionsList != null) {
             this.baseX = this.getX();
             this.showSuggestions(false);
             this.setX(this.suggestionsList.rect.getX());
