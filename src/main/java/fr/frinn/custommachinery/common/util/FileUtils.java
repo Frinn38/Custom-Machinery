@@ -25,6 +25,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
@@ -62,7 +63,7 @@ public class FileUtils {
             CustomMachinery.LOGGER.info("Writing new machine: {} in {}", machine.getLocation().id(), file.getPath());
             try {
                 if(file.exists() || file.createNewFile()) {
-                    JsonWriter writer = GSON.newJsonWriter(new FileWriter(file));
+                    JsonWriter writer = GSON.newJsonWriter(new FileWriter(file, StandardCharsets.UTF_8));
                     GSON.toJson(json, writer);
                     writer.close();
                     if(kubejs) {
@@ -90,7 +91,7 @@ public class FileUtils {
             CustomMachinery.LOGGER.error("Error while editing machine: {}\nFile '{}' doesn't exist", location.id(), machineJson.getAbsolutePath());
             return;
         }
-        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(machineJson))) {
+        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(machineJson, StandardCharsets.UTF_8))) {
             DataResult<JsonElement> result = CustomMachine.CODEC.encodeStart(MachineJsonOps.INSTANCE, machine);
             if(result.error().isPresent()) {
                 CustomMachinery.LOGGER.error("Can't edit machine json: {}\n{}", machine.getId().getPath(), result.error().get().message());
@@ -127,7 +128,7 @@ public class FileUtils {
     public static void writeTempMachineJson(File gameDirectory, CustomMachineBuilder builder) {
         String id = builder.getLocation().id().toString().replace(":", "_").replace("/", "_");
         File temp = Path.of(gameDirectory.toURI()).resolve(".temp custommachinery " + id + " " + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(Calendar.getInstance().getTime()) + ".json").toFile();
-        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(temp))) {
+        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(temp, StandardCharsets.UTF_8))) {
             if(temp.exists() || temp.createNewFile()) {
                 if (Util.getPlatform() == OS.WINDOWS)
                     Files.setAttribute(temp.toPath(), "dos:hidden", true);
@@ -173,7 +174,7 @@ public class FileUtils {
             CustomMachinery.LOGGER.info("Writing new upgrade: {} in {}", location.id(), file.getPath());
             try {
                 if(file.exists() || file.createNewFile()) {
-                    JsonWriter writer = GSON.newJsonWriter(new FileWriter(file));
+                    JsonWriter writer = GSON.newJsonWriter(new FileWriter(file, StandardCharsets.UTF_8));
                     GSON.toJson(json, writer);
                     writer.close();
                     if(kubejs) {
@@ -199,7 +200,7 @@ public class FileUtils {
             CustomMachinery.LOGGER.error("Error while editing upgrade: {}\nFile '{}' doesn't exist", location.id(), upgradeJson.getAbsolutePath());
             return;
         }
-        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(upgradeJson))) {
+        try(JsonWriter writer = GSON.newJsonWriter(new FileWriter(upgradeJson, StandardCharsets.UTF_8))) {
             DataResult<JsonElement> result = MachineUpgrade.CODEC.encodeStart(MachineJsonOps.INSTANCE, upgrade);
             if(result.error().isPresent()) {
                 CustomMachinery.LOGGER.error("Can't edit upgrade json: {}\n{}", location.id().getPath(), result.error().get().message());
