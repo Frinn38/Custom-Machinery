@@ -7,7 +7,6 @@ import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -76,7 +75,7 @@ public record BlockIngredient(boolean not, @Nullable PartialBlockState state, @N
         }
 
         if (this.tag != null) {
-            boolean valid = BuiltInRegistries.BLOCK.getTag(this.tag).map(named -> named.contains(Holder.direct(block.getState().getBlock()))).orElse(false);
+            boolean valid = block.getState().is(this.tag);
             if (this.not)
                 return !valid;
             else
@@ -95,7 +94,7 @@ public record BlockIngredient(boolean not, @Nullable PartialBlockState state, @N
         }
 
         if (this.tag != null) {
-            boolean valid = BuiltInRegistries.BLOCK.getTag(this.tag).map(named -> named.contains(Holder.direct(block))).orElse(false);
+            boolean valid = block.defaultBlockState().is(this.tag);
             if (this.not)
                 return !valid;
             else
