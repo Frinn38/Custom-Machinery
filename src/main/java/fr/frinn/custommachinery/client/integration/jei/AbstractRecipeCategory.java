@@ -289,7 +289,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
                 return false;
             if (input.isSimulate())
                 return true;
-            return this.info.handleClick(AbstractRecipeCategory.this.machine, this.recipe, input.getKey().getValue());
+            return input.getKey().getValue() == 0 && this.info.handleClick(AbstractRecipeCategory.this.machine, this.recipe, input.getKey().getValue());
         }
     }
 }

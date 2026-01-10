@@ -105,7 +105,7 @@ public record BlockIngredient(boolean not, @Nullable PartialBlockState state, @N
     }
 
     public BlockIngredient rotate(Rotation rotation) {
-        if (this.state != null)
+        if(this.state != null && this != ANY && this != MACHINE && this != AIR)
             return new BlockIngredient(this.not, this.state.rotate(rotation), this.tag);
         return this;
     }

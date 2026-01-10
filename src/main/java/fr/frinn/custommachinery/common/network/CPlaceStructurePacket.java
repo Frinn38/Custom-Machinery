@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.network;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.requirement.StructureRequirement;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.MachineList;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 public record CPlaceStructurePacket(ResourceLocation machine, List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys) implements CustomPacketPayload {
 
-    public static final NamedCodec<List<List<String>>> PATTERN_CODEC = NamedCodec.STRING.listOf().listOf();
+    public static final NamedCodec<List<List<String>>> PATTERN_CODEC = NamedCodec.STRING.forcedListOf().forcedListOf();
     public static final NamedCodec<Map<Character, List<BlockIngredient>>> KEYS_CODEC = NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, BlockIngredient.CODEC.listOf(), "Structure keys");
 
     public static final Type<CPlaceStructurePacket> TYPE = new Type<>(CustomMachinery.rl("place_structure"));
@@ -47,12 +48,7 @@ public record CPlaceStructurePacket(ResourceLocation machine, List<List<String>>
         if(context.player() instanceof ServerPlayer player && player.getAbilities().instabuild) {
             context.enqueueWork(() -> {
                 MachineList.findNearest(player, packet.machine, 20).flatMap(tile -> tile.getComponentManager().getComponent(Registration.STRUCTURE_MACHINE_COMPONENT.get())).ifPresent(component -> {
-                    BlockStructure.Builder builder = BlockStructure.Builder.start();
-                    for(List<String> levels : packet.pattern)
-                        builder.aisle(levels.toArray(new String[0]));
-                    for(Map.Entry<Character, List<BlockIngredient>> key : packet.keys.entrySet())
-                        builder.where(key.getKey(), key.getValue());
-                    BlockStructure structure = builder.build();
+                    BlockStructure structure = StructureRequirement.makeStructure(packet.pattern, packet.keys);
                     component.placeStructure(structure, false);
                 });
             });

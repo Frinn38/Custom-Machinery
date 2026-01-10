@@ -47,7 +47,7 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, Li
         this(pattern, keys, action, makeStructure(pattern, keys));
     }
 
-    private static BlockStructure makeStructure(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys) {
+    public static BlockStructure makeStructure(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys) {
         BlockStructure.Builder builder = BlockStructure.Builder.start();
         for(List<String> levels : pattern)
             builder.aisle(levels.toArray(new String[0]));

@@ -12,7 +12,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+
+import java.util.List;
 
 public class StructureMachineComponent extends AbstractMachineComponent {
 
@@ -39,10 +42,11 @@ public class StructureMachineComponent extends AbstractMachineComponent {
     public void placeStructure(BlockStructure pattern, boolean drops) {
         pattern.getBlocks(getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING)).forEach((pos, ingredients) -> {
             BlockPos worldPos = pos.offset(getManager().getTile().getBlockPos());
-            if(pos != BlockPos.ZERO && ingredients.stream().noneMatch(blockIngredient -> blockIngredient != BlockIngredient.ANY)) {
+            List<BlockIngredient> validToPlace = ingredients.stream().filter(blockIngredient -> !blockIngredient.not() && blockIngredient != BlockIngredient.ANY && blockIngredient != BlockIngredient.MACHINE).toList();
+            if(pos != BlockPos.ZERO && !validToPlace.isEmpty() && validToPlace.stream().noneMatch(blockIngredient -> blockIngredient.test(new BlockInWorld(getManager().getLevel(), worldPos, false)))) {
                 if(!getManager().getLevel().getBlockState(worldPos).isAir())
                     getManager().getLevel().destroyBlock(worldPos, drops);
-                setBlock(getManager().getLevel(), worldPos, ingredients.stream().filter(blockIngredient -> !blockIngredient.not()).flatMap(blockIngredient -> blockIngredient.getAll().stream()).findAny().orElse(PartialBlockState.AIR));
+                setBlock(getManager().getLevel(), worldPos, validToPlace.stream().flatMap(blockIngredient -> blockIngredient.getAll().stream()).findAny().orElse(PartialBlockState.AIR));
             }
         });
     }
