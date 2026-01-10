@@ -84,7 +84,7 @@ public class BoxCreatorItem extends Item {
             AABB aabb = new AABB(block1.getX(), block1.getY(), block1.getZ(), block2.getX(), block2.getY(), block2.getZ());
             aabb = aabb.move(-pos.getX(), -pos.getY(), -pos.getZ());
             Direction direction = context.getLevel().getBlockState(pos).getValue(BlockStateProperties.HORIZONTAL_FACING);
-            aabb = Utils.rotateBox(aabb, direction);
+            aabb = Utils.rotateBox(aabb, direction.getOpposite());
             String boxString = "[" + (int)aabb.minX + ", " + (int)aabb.minY + ", " + (int)aabb.minZ + ", " + (int)aabb.maxX + ", " + (int)aabb.maxY + ", " + (int)aabb.maxZ + "]";
             Component boxText = Component.literal(boxString).withStyle(Style.EMPTY.applyFormat(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.box_creator.copy"))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, boxString)));
             Component message = Component.translatable("custommachinery.box_creator.create_box", boxText);

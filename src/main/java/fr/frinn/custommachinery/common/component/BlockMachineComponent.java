@@ -132,18 +132,18 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         int blockAmount = xSize * ySize * zSize;
         return () -> new AbstractIterator<>() {
             private final MutableBlockPos cursor = new MutableBlockPos();
-            private int index = increasing ? blockAmount : 0;
+            private int index = increasing ? blockAmount - 1 : 0;
 
             protected BlockPos computeNext() {
-                if (this.index == (increasing ? 0 : blockAmount)) {
+                if(this.index < 0 || this.index >= blockAmount) {
                     return this.endOfData();
                 } else {
                     int zPos = this.index % zSize;
                     int j1 = this.index / zSize;
                     int xPos = j1 % xSize;
                     int yPos = j1 / xSize;
-                    this.index = increasing ? this.index - 1 : this.index + 1;
-                    return this.cursor.set(maxX - xPos, maxY - yPos, maxZ - zPos);
+                    this.index += increasing ? -1 : 1;
+                    return this.cursor.set(minX + xPos, minY + yPos, minZ + zPos);
                 }
             }
         };
@@ -154,7 +154,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         int ySize = maxY - minY + 1;
         int zSize = maxZ - minZ + 1;
         int blockAmount = xSize * ySize * zSize;
-        List<Integer> indexes = IntStream.rangeClosed(0, blockAmount).boxed().collect(Collectors.toCollection(ArrayList::new));
+        List<Integer> indexes = IntStream.rangeClosed(0, blockAmount - 1).boxed().collect(Collectors.toCollection(ArrayList::new));
         Collections.shuffle(indexes);
         return () -> new AbstractIterator<>() {
             private final MutableBlockPos cursor = new MutableBlockPos();

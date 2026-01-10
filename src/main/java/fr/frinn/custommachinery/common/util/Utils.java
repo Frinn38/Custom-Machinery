@@ -57,8 +57,8 @@ public class Utils {
             case NORTH -> //180° CCW
                     new AABB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
             case WEST -> //270° CCW
-                    new AABB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX); //No changes
-            default -> new AABB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+                    new AABB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
+            default -> new AABB(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ); //No changes
         };
     }
 
