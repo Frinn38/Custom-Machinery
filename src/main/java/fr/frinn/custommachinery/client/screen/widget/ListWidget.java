@@ -104,7 +104,7 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
     }
 
     public void setScrollAmount(double scroll) {
-        this.scrollAmount = Mth.clamp(scroll, 0.0, (double)this.getMaxScroll());
+        this.scrollAmount = Mth.clamp(scroll, 0.0, this.getMaxScroll());
     }
 
     public int getMaxScroll() {
