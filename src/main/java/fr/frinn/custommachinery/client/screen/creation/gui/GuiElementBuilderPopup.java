@@ -83,7 +83,7 @@ public abstract class GuiElementBuilderPopup<T extends IGuiElement> extends Popu
         texture.setResponder(s -> {
             int u = baseTexture == null ? 0 : baseTexture.u();
             int v = baseTexture == null ? 0 : baseTexture.v();
-            responder.accept(s.isEmpty() ? null : new TextureInfo(ResourceLocation.tryParse(s), u, v));
+            responder.accept(s.isEmpty() ? baseTexture : new TextureInfo(ResourceLocation.tryParse(s), u, v));
         });
         texture.setValue(baseTexture == null ? "" : baseTexture.texture().toString());
         texture.hideSuggestions();
