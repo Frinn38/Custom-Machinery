@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
@@ -21,6 +22,7 @@ import java.util.Objects;
 public class MachineCreationScreen extends BaseScreen {
 
     private CycleButton<MachineListSorting> sorter;
+    private EditBox search;
     private MachineListWidget machineList;
     private Button create;
     private Button edit;
@@ -82,7 +84,14 @@ public class MachineCreationScreen extends BaseScreen {
                 .withValues(MachineListSorting.values())
                 .displayOnlyValue()
                 .withInitialValue(CMConfig.CONFIG.sortMachineList.get())
-                .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 4, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+                .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 1, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+
+        //Search
+        this.search = row.addChild(new EditBox(this.font, 180, 20, Component.empty()), 3, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+        this.search.setResponder(s -> {
+            this.machineList.setFilterSearch(s);
+            this.machineList.reload();
+        });
 
         //List
         this.machineList = row.addChild(new MachineListWidget(0, 0, this.xSize - 10, this.ySize - 65, 30), 4, center);

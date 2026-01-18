@@ -21,14 +21,23 @@ import java.util.List;
 
 public class MachineListWidget extends ListWidget<MachineEntry> {
 
+    private String search = "";
+
     public MachineListWidget(int x, int y, int width, int height, int itemHeight) {
         super(x, y, width, height, itemHeight, Component.empty());
         this.setRenderSelection();
     }
 
+    public void setFilterSearch(String search) {
+        this.search = search;
+    }
+
     public void reload() {
         this.clear();
-        CustomMachinery.MACHINES.values().forEach(machine -> this.addEntry(new MachineEntry(machine)));
+        CustomMachinery.MACHINES.values().forEach(machine -> {
+            if(this.search.isEmpty() || machine.getId().toString().contains(this.search) || machine.getName().getString().contains(this.search))
+                this.addEntry(new MachineEntry(machine));
+        });
         this.sort();
     }
 

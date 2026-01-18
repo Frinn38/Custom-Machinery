@@ -27,15 +27,28 @@ import java.util.List;
 
 public class UpgradeListWidget extends ListWidget<UpgradeEntry> {
 
+    public String search = "";
 
     public UpgradeListWidget(int x, int y, int width, int height, int itemHeight) {
         super(x, y, width, height, itemHeight, Component.empty());
         this.setRenderSelection();
     }
 
+    public void setFilterSearch(String search) {
+        this.search = search;
+    }
+
     public void reload() {
         this.clear();
-        CustomMachinery.UPGRADES.getAllUpgrades().forEach((location, upgrade) -> this.addEntry(new UpgradeEntry(location, upgrade)));
+        CustomMachinery.UPGRADES.getAllUpgrades().forEach((location, upgrade) -> {
+            if(this.search.isEmpty()
+                    || location.id().toString().contains(this.search)
+                    || upgrade.item().getName(upgrade.item().getDefaultInstance()).getString().contains(this.search)
+                    || BuiltInRegistries.ITEM.getKey(upgrade.item()).toString().contains(this.search)
+                    || upgrade.machines().stream().anyMatch(id -> id.getPath().contains(this.search)))
+                this.addEntry(new UpgradeEntry(location, upgrade));
+        });
+        this.sort();
     }
 
     public void sort() {

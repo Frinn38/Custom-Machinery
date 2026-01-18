@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
@@ -19,6 +20,7 @@ import java.util.Objects;
 public class UpgradeCreationScreen extends BaseScreen {
 
     private CycleButton<UpgradeListSorting> sorter;
+    private EditBox search;
     private UpgradeListWidget upgradeList;
     private Button create;
     private Button edit;
@@ -80,7 +82,14 @@ public class UpgradeCreationScreen extends BaseScreen {
                 .withValues(UpgradeListSorting.values())
                 .displayOnlyValue()
                 .withInitialValue(CMConfig.CONFIG.sortUpgradeList.get())
-                .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 4, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+                .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 1, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+
+        //Search
+        this.search = row.addChild(new EditBox(this.font, 180, 20, Component.empty()), 3, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+        this.search.setResponder(s -> {
+            this.upgradeList.setFilterSearch(s);
+            this.upgradeList.reload();
+        });
 
         //List
         this.upgradeList = row.addChild(new UpgradeListWidget(0, 0, this.xSize - 10, this.ySize - 65, 30), 4, center);
