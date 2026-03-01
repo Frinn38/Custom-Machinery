@@ -141,6 +141,10 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     public void refreshMachine(@Nullable ResourceLocation id) {
         if(!(this.getLevel() instanceof ServerLevel level))
             return;
+
+        //Reset the old processor before creating a new one, for clearing result slot in case of craft processor.
+        this.processor.reset();
+
         CompoundTag craftingManagerNBT = this.processor.serialize();
         CompoundTag componentManagerNBT = this.componentManager.serializeNBT(this.getLevel().registryAccess());
 
@@ -150,6 +154,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         if(id == null)
             id = getId();
         this.id = id;
+
         this.processor = getMachine().getProcessorTemplate().build(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
         this.processor.deserialize(craftingManagerNBT);
