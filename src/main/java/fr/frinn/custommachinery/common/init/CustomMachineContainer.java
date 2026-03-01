@@ -196,8 +196,12 @@ public class CustomMachineContainer extends SyncableContainer {
             ItemStack removed = slotComponent.getItem();
             if(!moveItemStackTo(removed, 0, this.firstComponentSlotIndex - 1, false))
                 return ItemStack.EMPTY;
-            else
+            else {
+                //Needed as MC doesn't set the stack but mutate it instead.
+                this.tile.getComponentManager().markDirty();
                 this.tile.getUpgradeManager().refresh();
+            }
+
         }
         return ItemStack.EMPTY;
     }
