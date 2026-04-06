@@ -11,15 +11,18 @@ public class TextureGuiElement extends AbstractTexturedGuiElement {
     public static final NamedCodec<TextureGuiElement> CODEC = NamedCodec.record(textureGuiElement ->
             textureGuiElement.group(
                     makePropertiesCodec().forGetter(TextureGuiElement::getProperties),
-                    NamedCodec.BOOL.optionalFieldOf("jei", false).forGetter(IGuiElement::showInJei)
+                    NamedCodec.BOOL.optionalFieldOf("jei", false).forGetter(IGuiElement::showInJei),
+                    NamedCodec.INT.optionalFieldOf("zLevel", 0).forGetter(TextureGuiElement::getZLevel)
             ).apply(textureGuiElement, TextureGuiElement::new), "Texture gui element"
     );
 
     private final boolean jei;
+    private final int zLevel;
 
-    public TextureGuiElement(Properties properties, boolean jei) {
+    public TextureGuiElement(Properties properties, boolean jei, int zLevel) {
         super(properties);
         this.jei = jei;
+        this.zLevel = zLevel;
     }
 
     @Override
@@ -30,5 +33,9 @@ public class TextureGuiElement extends AbstractTexturedGuiElement {
     @Override
     public boolean showInJei() {
         return this.jei;
+    }
+
+    public int getZLevel() {
+        return this.zLevel;
     }
 }

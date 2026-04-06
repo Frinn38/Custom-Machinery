@@ -303,6 +303,8 @@
   "custommachinery.gui.creation.gui.text.text": "Text",
   "custommachinery.gui.creation.gui.text.alignment": "Alignment",
   "custommachinery.gui.creation.gui.text.jei": "Show in JEI",
+  "custommachinery.gui.creation.gui.texture.zlevel": "Z Level",
+  "custommachinery.gui.creation.gui.texture.zlevel.tooltip": "Higher values makes the texture render above everything else",
   "custommachinery.gui.creation.gui.dump.components": "Components",
   "custommachinery.gui.creation.gui.dump.components.tooltip": "List of component types separated by a comma\nExample: custommachinery:energy,custommachinery:fluid",
   "custommachinery.gui.creation.gui.dump.tanks": "Tanks",
