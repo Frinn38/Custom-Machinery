@@ -119,7 +119,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         if(this.getFocused() instanceof WidgetEditorWidget<?> widget) {
             widget.properties.setPriority(widget.properties.getPriority() + delta);
             widget.refreshWidget(null);
-            List<WidgetEditorWidget<?>> sorted = this.widgets.stream().sorted(Comparator.comparingInt(w -> w.properties.getPriority())).toList();
+            List<WidgetEditorWidget<?>> sorted = this.widgets.stream().sorted(Comparator.<WidgetEditorWidget<?>>comparingInt(w -> w.properties.getPriority()).reversed()).toList();
             this.widgets.clear();
             this.widgets.addAll(sorted);
             this.setChanged();
