@@ -2,67 +2,36 @@ package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.EffectRequirement;
-import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public interface EffectRequirementJS extends RecipeJSBuilder {
 
-    default RecipeJSBuilder giveEffectOnEnd(String effect, int time, int radius) {
-        return this.giveEffectOnEnd(effect, time, radius, 1, new String[]{});
+    default RecipeJSBuilder giveEffectOnEnd(MobEffect effect, int time, int radius) {
+        return this.giveEffectOnEnd(effect, time, radius, 1);
     }
 
-    default RecipeJSBuilder giveEffectOnEnd(String effect, int time, int radius, int level) {
-        return this.giveEffectOnEnd(effect, time, radius, level, new String[]{});
+    default RecipeJSBuilder giveEffectOnEnd(MobEffect effect, int time, int radius, int level) {
+        return this.giveEffectOnEnd(effect, time, radius, level, Collections.emptyList());
     }
 
-    default RecipeJSBuilder giveEffectOnEnd(String effect, int time, int radius, String[] filter) {
-        return this.giveEffectOnEnd(effect, time, radius, 1, filter);
+    default RecipeJSBuilder giveEffectOnEnd(MobEffect effect, int time, int radius, int level, List<EntityType<?>> filter) {
+        return this.addRequirement(new EffectRequirement(Holder.direct(effect), time, level, radius, filter, true));
     }
 
-    default RecipeJSBuilder giveEffectOnEnd(String effect, int time, int radius, int level, String[] filter) {
-        List<EntityType<?>> entityFilter = new ArrayList<>();
-        for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse(type)))
-                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(type)));
-            else
-                return error("Invalid entity ID: {}", type);
-        }
-        if(Utils.isResourceNameValid(effect) && BuiltInRegistries.MOB_EFFECT.containsKey(ResourceLocation.parse(effect)))
-            return this.addRequirement(new EffectRequirement(BuiltInRegistries.MOB_EFFECT.getHolder(ResourceLocation.parse(effect)).orElseThrow(), time, level, radius, entityFilter, true));
-        else
-            return error("Invalid effect ID: {}", effect);
+    default RecipeJSBuilder giveEffectEachTick(MobEffect effect, int time, int radius) {
+        return this.giveEffectEachTick(effect, time, radius, 1);
     }
 
-    default RecipeJSBuilder giveEffectEachTick(String effect, int time, int radius) {
-        return this.giveEffectEachTick(effect, time, radius, 1, new String[]{});
+    default RecipeJSBuilder giveEffectEachTick(MobEffect effect, int time, int radius, int level) {
+        return this.giveEffectEachTick(effect, time, radius, level, Collections.emptyList());
     }
 
-    default RecipeJSBuilder giveEffectEachTick(String effect, int time, int radius, Object levelOrFilter) {
-        if(levelOrFilter instanceof Number)
-            return this.giveEffectEachTick(effect, time, radius, ((Number)levelOrFilter).intValue(), new String[]{});
-        else if(levelOrFilter instanceof String)
-            return this.giveEffectEachTick(effect, time, radius, 1, new String[]{(String)levelOrFilter});
-        else if(levelOrFilter instanceof String[])
-            return this.giveEffectEachTick(effect, time, radius, 1, (String[])levelOrFilter);
-        return error("Invalid 4th param given to 'giveEffectEachTick' : {}", levelOrFilter.toString());
-    }
-
-    default RecipeJSBuilder giveEffectEachTick(String effect, int time, int radius, int level, String[] filter) {
-        List<EntityType<?>> entityFilter = new ArrayList<>();
-        for(String type : filter) {
-            if(Utils.isResourceNameValid(type) && BuiltInRegistries.ENTITY_TYPE.containsKey(ResourceLocation.parse(type)))
-                entityFilter.add(BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(type)));
-            else
-                return error("Invalid entity ID: {}", type);
-        }
-        if(Utils.isResourceNameValid(effect) && BuiltInRegistries.MOB_EFFECT.containsKey(ResourceLocation.parse(effect)))
-            return this.addRequirement(new EffectRequirement(BuiltInRegistries.MOB_EFFECT.getHolder(ResourceLocation.parse(effect)).orElseThrow(), time, level, radius, entityFilter, false));
-        else
-            return error("Invalid effect ID: {}", effect);
+    default RecipeJSBuilder giveEffectEachTick(MobEffect effect, int time, int radius, int level, List<EntityType<?>> filter) {
+        return this.addRequirement(new EffectRequirement(Holder.direct(effect), time, level, radius, filter, false));
     }
 }
