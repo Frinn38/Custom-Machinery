@@ -107,6 +107,10 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
             minY = Math.min(minY, element.getY());
             maxX = Math.max(maxX, element.getX() + element.getWidth());
             maxY = Math.max(maxY, element.getY() + element.getHeight());
+
+            //Check if the element overlap the + (recipe transfer) button
+            if(element.getX() + element.getWidth() >= maxX - 12 && element.getY() + element.getHeight() >= maxY - 12)
+                maxY += 12;
         }
 
         this.rowY = Math.max(maxY - minY, 20);
