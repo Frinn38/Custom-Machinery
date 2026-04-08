@@ -67,7 +67,7 @@ public class GuiTab extends MachineEditTab {
         else
             this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, 256, 192, parent.getBuilder().getGuiElements()), 2, row.newCellSettings().alignHorizontallyCenter());
         this.empty = row.addChild(new StringWidget(this.guiEditor.getWidth(), 192 - this.guiEditor.getHeight(), Component.empty(), Minecraft.getInstance().font), 2);
-        HintWidget hintWidget = row.addChild(new HintWidget(180), row.newCellSettings().alignHorizontallyLeft());
+        HintWidget hintWidget = row.addChild(new HintWidget(150));
         hintWidget.alignLeft();
         MousePosWidget mousePosWidget = row.addChild(new MousePosWidget(48), row.newCellSettings().alignHorizontallyRight());
         mousePosWidget.alignRight();
