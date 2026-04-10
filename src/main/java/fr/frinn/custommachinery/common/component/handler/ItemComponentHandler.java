@@ -370,6 +370,10 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         return ingredient.getComponents().stream().allMatch(component -> component.type() == DataComponents.DAMAGE || (toTest.has(component.type()) && Objects.equals(toTest.get(component.type()), component.value())));
     }
 
+    public boolean isInputSlotEmpty(String slot) {
+        return this.inputs.stream().anyMatch(component -> component.getItemStack().isEmpty() && (slot.isEmpty() || slot.equals(component.getId())));
+    }
+
     /** IItemHandler stuff **/
 
     @Override

@@ -110,6 +110,7 @@ import fr.frinn.custommachinery.common.requirement.FluidPerTickRequirement;
 import fr.frinn.custommachinery.common.requirement.FluidRequirement;
 import fr.frinn.custommachinery.common.requirement.FuelRequirement;
 import fr.frinn.custommachinery.common.requirement.FunctionRequirement;
+import fr.frinn.custommachinery.common.requirement.ItemEmptyRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemFilterRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
@@ -323,6 +324,7 @@ public class Registration {
     public static final Supplier<RequirementType<FluidRequirement>>             FLUID_REQUIREMENT               = REQUIREMENTS.register("fluid", () -> RequirementType.inventory(FluidRequirement.CODEC));
     public static final Supplier<RequirementType<FuelRequirement>>              FUEL_REQUIREMENT                = REQUIREMENTS.register("fuel", () -> RequirementType.inventory(FuelRequirement.CODEC));
     public static final Supplier<RequirementType<FunctionRequirement>>          FUNCTION_REQUIREMENT            = REQUIREMENTS.register("function", () -> RequirementType.world(FunctionRequirement.CODEC));
+    public static final Supplier<RequirementType<ItemEmptyRequirement>>         ITEM_EMPTY_REQUIREMENT          = REQUIREMENTS.register("item_empty", () -> RequirementType.inventory(ItemEmptyRequirement.CODEC));
     public static final Supplier<RequirementType<ItemFilterRequirement>>        ITEM_FILTER_REQUIREMENT         = REQUIREMENTS.register("item_filter", () -> RequirementType.inventory(ItemFilterRequirement.CODEC));
     public static final Supplier<RequirementType<ItemRequirement>>              ITEM_REQUIREMENT                = REQUIREMENTS.register("item", () -> RequirementType.inventory(ItemRequirement.CODEC));
     public static final Supplier<RequirementType<ItemTransformRequirement>>     ITEM_TRANSFORM_REQUIREMENT      = REQUIREMENTS.register("item_transform", () -> RequirementType.inventory(ItemTransformRequirement.CODEC));
