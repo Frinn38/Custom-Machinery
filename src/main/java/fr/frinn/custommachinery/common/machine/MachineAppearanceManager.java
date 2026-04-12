@@ -72,7 +72,7 @@ public class MachineAppearanceManager {
     public Map<MachineAppearanceProperty<?>, Object> getStatusProperties(MachineStatus status) {
         MachineAppearance appearance = this.getAppearance(status);
         ImmutableMap.Builder<MachineAppearanceProperty<?>, Object> map = ImmutableMap.builder();
-        appearance.getProperties().forEach((property, value) -> {
+        appearance.properties().forEach((property, value) -> {
             if(!value.equals(property.getDefaultValue()) && !value.equals(this.defaultProperties.get(property)))
                 map.put(property, value);
         });

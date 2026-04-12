@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.codec.NamedRecordCodec;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +28,9 @@ public class CMSoundType extends SoundType {
                     partCodec("step", SoundType::getStepSound),
                     partCodec("place", SoundType::getPlaceSound),
                     partCodec("hit", SoundType::getHitSound),
-                    partCodec("fall", SoundType::getFallSound)
+                    partCodec("fall", SoundType::getFallSound),
+                    DefaultCodecs.SOUND_EVENT.optionalFieldOf("open", SoundEvents.EMPTY).forGetter(CMSoundType::getOpenSound),
+                    DefaultCodecs.SOUND_EVENT.optionalFieldOf("close", SoundEvents.EMPTY).forGetter(CMSoundType::getCloseSound)
             ).apply(cmSoundTypeInstance, CMSoundType::new), "Sound type"
     );
 
@@ -37,16 +40,30 @@ public class CMSoundType extends SoundType {
             "Interaction sounds"
     );
 
+    private final SoundEvent openSound;
+    private final SoundEvent closeSound;
     private final PartialBlockState defaultBlock;
 
-    public CMSoundType(float volume, float pitch, SoundEvent breakSound, SoundEvent stepSound, SoundEvent placeSound, SoundEvent hitSound, SoundEvent fallSound) {
+    public CMSoundType(float volume, float pitch, SoundEvent breakSound, SoundEvent stepSound, SoundEvent placeSound, SoundEvent hitSound, SoundEvent fallSound, SoundEvent openSound, SoundEvent closeSound) {
         super(volume, pitch, breakSound, stepSound, placeSound, hitSound, fallSound);
+        this.openSound = openSound;
+        this.closeSound = closeSound;
         this.defaultBlock = PartialBlockState.AIR;
     }
 
     public CMSoundType(PartialBlockState state) {
         super(1.0F, 1.0F, state.getBlockState().getSoundType().getBreakSound(), state.getBlockState().getSoundType().getStepSound(), state.getBlockState().getSoundType().getPlaceSound(), state.getBlockState().getSoundType().getHitSound(), state.getBlockState().getSoundType().getFallSound());
+        this.openSound = SoundEvents.EMPTY;
+        this.closeSound = SoundEvents.EMPTY;
         this.defaultBlock = state;
+    }
+
+    public SoundEvent getOpenSound() {
+        return this.openSound;
+    }
+
+    public SoundEvent getCloseSound() {
+        return this.closeSound;
     }
 
     private static NamedRecordCodec<CMSoundType, SoundEvent> partCodec(String field, Function<SoundType, SoundEvent> typeToSound) {

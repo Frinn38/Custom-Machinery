@@ -168,6 +168,8 @@
   "custommachinery.gui.creation.appearance.interaction_sound.place": "Place sound",
   "custommachinery.gui.creation.appearance.interaction_sound.hit": "Hit sound",
   "custommachinery.gui.creation.appearance.interaction_sound.fall": "Fall sound",
+  "custommachinery.gui.creation.appearance.interaction_sound.open": "Open sound",
+  "custommachinery.gui.creation.appearance.interaction_sound.close": "Close sound",
   "custommachinery.gui.creation.appearance.item": "Item",
   "custommachinery.gui.creation.appearance.item.tooltip": "Open item appearance configuration",
   "custommachinery.gui.creation.appearance.keep_inventory": "Keep inventory",

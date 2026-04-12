@@ -11,6 +11,9 @@ import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -57,6 +60,9 @@ public class CustomMachineContainer extends SyncableContainer {
         this.tile = tile;
         this.init();
         tile.startInteracting(getPlayer());
+        SoundEvent openSound = tile.getAppearance().getInteractionSound().getOpenSound();
+        if(openSound != SoundEvents.EMPTY)
+            playerInv.player.playSound(openSound, 0.5F, 1.0F);
     }
 
     public CustomMachineContainer(int id, Inventory playerInv, FriendlyByteBuf extraData) {
@@ -238,6 +244,9 @@ public class CustomMachineContainer extends SyncableContainer {
     @Override
     public void removed(Player player) {
         super.removed(player);
+        SoundEvent closeSound = this.tile.getAppearance().getInteractionSound().getCloseSound();
+        if(closeSound != SoundEvents.EMPTY)
+            player.playSound(closeSound);
         if(player instanceof ServerPlayer serverPlayer)
             this.tile.stopInteracting(serverPlayer);
     }

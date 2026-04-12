@@ -1,11 +1,11 @@
 package fr.frinn.custommachinery.api.machine;
 
 import fr.frinn.custommachinery.common.util.sound.AmbientSound;
+import fr.frinn.custommachinery.common.util.sound.CMSoundType;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
@@ -46,7 +46,7 @@ public interface IMachineAppearance {
     /**
      * @return A collection of sounds the machine will emit when interacted by a player (place/break/step on...)
      */
-    SoundType getInteractionSound();
+    CMSoundType getInteractionSound();
 
     /**
      * @return The light level between 0 and 15 that the machine will emit.

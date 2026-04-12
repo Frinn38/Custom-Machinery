@@ -26,7 +26,7 @@ public record SUpdateMachineAppearancePacket(BlockPos pos, MachineAppearance app
             buf.writeBoolean(true);
         else {
             buf.writeBoolean(false);
-            MachineAppearance.CODEC.toNetwork(this.appearance.getProperties(), buf);
+            MachineAppearance.CODEC.toNetwork(this.appearance.properties(), buf);
         }
     }
 

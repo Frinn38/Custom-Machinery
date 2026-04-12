@@ -27,7 +27,7 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
                     NamedCodec.INT.optionalFieldOf("jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority),
                     NamedCodec.BOOL.optionalFieldOf("error", true).forGetter(builder -> !builder.resetOnError),
                     NamedCodec.BOOL.optionalFieldOf("hidden", false).forGetter(AbstractRecipeBuilder::isHidden),
-                    MachineAppearance.CODEC.optionalFieldOf("appearance").forGetter(builder -> Optional.ofNullable(builder.appearance).map(MachineAppearance::getProperties)),
+                    MachineAppearance.CODEC.optionalFieldOf("appearance").forGetter(builder -> Optional.ofNullable(builder.appearance).map(MachineAppearance::properties)),
                     IGuiElement.CODEC.listOf().optionalFieldOf("gui", Collections.emptyList()).forGetter(builder -> builder.guiElements),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).listOf().optionalFieldOf("cores", Collections.emptyList()).forGetter(builder -> builder.allowedCores),
                     NamedCodec.BOOL.optionalFieldOf("single_core", false).forGetter(builder -> builder.singleCore)

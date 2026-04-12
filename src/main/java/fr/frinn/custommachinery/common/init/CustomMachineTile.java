@@ -392,7 +392,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         if(this.ownerName != null)
             nbt.putString("ownerName", Component.Serializer.toJson(this.ownerName, registries));
         if(this.customAppearance != null)
-            MachineAppearance.CODEC.encodeStart(NbtOps.INSTANCE, this.customAppearance.getProperties()).result().ifPresent(appearance -> nbt.put("appearance", appearance));
+            MachineAppearance.CODEC.encodeStart(NbtOps.INSTANCE, this.customAppearance.properties()).result().ifPresent(appearance -> nbt.put("appearance", appearance));
         if(this.customGuiElements != null && !this.customGuiElements.isEmpty())
             IGuiElement.CODEC.listOf().encodeStart(NbtOps.INSTANCE, this.customGuiElements).result().ifPresent(elements -> nbt.put("gui", elements));
         return nbt;

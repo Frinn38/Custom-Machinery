@@ -54,7 +54,7 @@ public interface CustomMachineryRecipeComponents {
 
         @Override
         public Codec<MachineAppearance> codec() {
-            return MachineAppearance.CODEC.xmap(MachineAppearance::new, MachineAppearance::getProperties, "Machine appearance").codec();
+            return MachineAppearance.CODEC.xmap(MachineAppearance::new, MachineAppearance::properties, "Machine appearance").codec();
         }
 
         @Override

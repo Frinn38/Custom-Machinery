@@ -128,7 +128,7 @@ public class CustomMachineBuilder {
 
     public CustomMachine build() {
         Component name = this.name == null ? Component.literal("New Machine") : this.name;
-        MachineAppearanceManager appearance = new MachineAppearanceManager(this.defaultAppearance.build().getProperties(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
+        MachineAppearanceManager appearance = new MachineAppearanceManager(this.defaultAppearance.build().properties(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<Component> tooltips = this.tooltips == null ? ImmutableList.of() : ImmutableList.copyOf(this.tooltips);
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : this.guiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId().toString() + ":" + element.getId())).toList();
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : this.jeiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId().toString() + ":" + element.getId())).toList();
