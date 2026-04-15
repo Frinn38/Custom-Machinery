@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.integration.kubejs.function;
 
 import dev.latvian.mods.kubejs.level.CachedLevelBlock;
 import dev.latvian.mods.rhino.Wrapper;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
@@ -84,6 +85,14 @@ public class MachineJS {
 
     public SideConfig<?> getComponentConfig(String type, String id) {
         return this.internal.getComponentManager().getConfigComponentById(type + ":" + id).orElseThrow(() -> new IllegalArgumentException("IO config not found for component with type: " + type + " and id: " + id)).getConfig();
+    }
+
+    public CustomMachineTile getBlockEntity() {
+        return this.internal;
+    }
+
+    public MachineStatus getStatus() {
+        return this.internal.getStatus();
     }
 
     /** OWNER STUFF **/
