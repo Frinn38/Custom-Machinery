@@ -109,7 +109,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         //side of the model before rotation
         Direction originalSide = getRotatedDirection(machineFacing, side);
         List<BakedQuad> finalQuads = model.getQuads(null, originalSide, random, ModelData.EMPTY, type);
-        return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? quad.getDirection() : side)).toList();
+        return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? getRotatedDirection(machineFacing, quad.getDirection()) : side)).toList();
     }
 
     private Quaternionf getRotation(Direction machineFacing) {
