@@ -34,6 +34,11 @@ public abstract class MachineTile extends BlockEntity {
     }
 
     /**
+     * @return The id of the {@link fr.frinn.custommachinery.common.machine.CustomMachine} currently applied to this tile.
+     */
+    public abstract ResourceLocation getId();
+
+    /**
      * @return The ICustomMachine currently linked to this MachineTile, or DUMMY.
      */
     public abstract ICustomMachine getMachine();

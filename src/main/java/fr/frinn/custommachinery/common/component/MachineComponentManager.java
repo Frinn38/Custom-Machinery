@@ -139,6 +139,7 @@ public class MachineComponentManager implements IMachineComponentManager {
     }
 
     //ID is 'component_type_registry_name:id'
+    @Override
     public Optional<ISideConfigComponent> getConfigComponentById(String id) {
         return Optional.ofNullable(this.configComponents.get(id));
     }

@@ -87,10 +87,6 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);
     }
 
-    public ResourceLocation getId() {
-        return id;
-    }
-
     public void setId(ResourceLocation id) {
         this.id = id;
         this.processor = getMachine().getProcessorTemplate().build(this);
@@ -100,6 +96,11 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     }
 
     /** MachineTile Implementation **/
+
+    @Override
+    public ResourceLocation getId() {
+        return this.id;
+    }
 
     @Override
     public CustomMachine getMachine() {
@@ -244,7 +245,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
                 iterator.remove();
                 continue;
             }
-            container.init();
+            CustomMachineContainer.open(player, this);
         }
     }
 

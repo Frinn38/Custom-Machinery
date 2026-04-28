@@ -8,7 +8,6 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -19,7 +18,7 @@ public class FunctionKubeEvent implements KubeEvent {
 
     public FunctionKubeEvent(ICraftingContext internal) {
         this.internal = internal;
-        this.machine = new MachineJS((CustomMachineTile) getTile());
+        this.machine = MachineJS.of(getTile());
     }
 
     public FunctionKubeEvent getContext() {

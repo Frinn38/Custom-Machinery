@@ -67,6 +67,13 @@ public interface IMachineComponentManager {
     boolean hasComponent(MachineComponentType<?> type);
 
     /**
+     * Return a side-configurable component (if found).
+     * @param id The id of the component to find, syntax is 'type:id' Example: 'fluid:input1'
+     * @return A configurable component or nothing.
+     */
+    Optional<ISideConfigComponent> getConfigComponentById(String id);
+
+    /**
      * @return The {@link MachineTile} that hold this manager.
      */
     MachineTile getTile();
