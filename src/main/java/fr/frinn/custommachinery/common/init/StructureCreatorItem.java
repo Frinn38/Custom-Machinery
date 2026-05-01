@@ -77,11 +77,12 @@ public class StructureCreatorItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         int amount = getSelectedBlocks(stack).size();
-        if(amount <= 0)
+        if(amount == 0)
             tooltip.add(Component.translatable("custommachinery.structure_creator.no_blocks").withStyle(ChatFormatting.RED));
         else
             tooltip.add(Component.translatable("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()).withStyle(ChatFormatting.BLUE));
         tooltip.add(Component.translatable("custommachinery.structure_creator.select").withStyle(ChatFormatting.GREEN));
+        tooltip.add(Component.translatable("custommachinery.box_creator.select_machine").withStyle(ChatFormatting.GREEN));
         tooltip.add(Component.translatable("custommachinery.structure_creator.reset").withStyle(ChatFormatting.GOLD));
     }
 
