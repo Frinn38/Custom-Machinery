@@ -57,7 +57,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
             if(this.getTexture().equals(BASE_EMPTY_TEXTURE))
                 return switch (this.orientation) {
                     case TOP, BOTTOM -> TextureSizeHelper.getTextureHeight(this.getTexture().texture());
-                    case LEFT, RIGHT -> TextureSizeHelper.getTextureWidth(this.getTexture().texture());
+                    default -> TextureSizeHelper.getTextureWidth(this.getTexture().texture());
                 };
             else
                 return TextureSizeHelper.getTextureWidth(this.getTexture().texture());
@@ -73,7 +73,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
             if(this.getTexture().equals(BASE_EMPTY_TEXTURE))
                 return switch (this.orientation) {
                     case TOP, BOTTOM -> TextureSizeHelper.getTextureWidth(this.getTexture().texture());
-                    case LEFT, RIGHT -> TextureSizeHelper.getTextureHeight(this.getTexture().texture());
+                    default -> TextureSizeHelper.getTextureHeight(this.getTexture().texture());
                 };
             else
                 return TextureSizeHelper.getTextureHeight(this.getTexture().texture());
@@ -109,6 +109,8 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
         RIGHT,
         LEFT,
         TOP,
-        BOTTOM
+        BOTTOM,
+        CLOCKWISE,
+        COUNTER_CLOCKWISE
     }
 }

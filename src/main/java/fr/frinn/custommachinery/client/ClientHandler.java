@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendererEvent;
@@ -95,6 +97,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
@@ -119,10 +122,12 @@ import net.neoforged.neoforge.client.event.ModelEvent.BakingCompleted;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Mod(value = CustomMachinery.MODID, dist = Dist.CLIENT)
@@ -148,7 +153,7 @@ public class ClientHandler {
         MOD_BUS.addListener(this::registerAdditionalModels);
         MOD_BUS.addListener(this::onBackingCompleted);
         MOD_BUS.addListener(this::registerClientTooltipComponents);
-
+        MOD_BUS.addListener(this::registerShaders);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
@@ -290,6 +295,16 @@ public class ClientHandler {
 
     private void registerClientTooltipComponents(final RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(MachineTooltipComponent.class, ClientMachineTooltipComponent::new);
+    }
+
+    public static ShaderInstance RADIAL_FILL_SHADER;
+
+    private void registerShaders(final RegisterShadersEvent event) {
+        try {
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), CustomMachinery.rl("radial_fill"), DefaultVertexFormat.POSITION_TEX), shader -> RADIAL_FILL_SHADER = shader);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {

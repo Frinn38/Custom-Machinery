@@ -1,18 +1,32 @@
 package fr.frinn.custommachinery.client.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class ProgressArrowRenderer {
 
     public static void renderProgressArrow(GuiGraphics graphics, ProgressBarGuiElement element, int x, int y, double progress) {
+        //Radial
+        if(element.getDirection() == Orientation.CLOCKWISE || element.getDirection() == Orientation.COUNTER_CLOCKWISE) {
+            renderRadialProgress(graphics, element, x, y, progress);
+            return;
+        }
+
         int width = element.getWidth();
         int height = element.getHeight();
 
@@ -60,5 +74,24 @@ public class ProgressArrowRenderer {
                 matrix.translate(posY, -height - posX, 0);
             }
         }
+    }
+
+    public static void renderRadialProgress(GuiGraphics graphics, ProgressBarGuiElement element, int x, int y, double progress) {
+        int width = element.getWidth();
+        int height = element.getHeight();
+
+        ClientHandler.blit(graphics, element.getEmptyTexture(), x, y, width, height);
+        TextureInfo filled = element.getFilledTexture();
+
+        RenderSystem.setShaderTexture(0, filled.texture());
+        RenderSystem.setShader(() -> ClientHandler.RADIAL_FILL_SHADER);
+        ClientHandler.RADIAL_FILL_SHADER.safeGetUniform("Progress").set((float)progress);
+        Matrix4f matrix4f = graphics.pose().last().pose();
+        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferbuilder.addVertex(matrix4f, (float)x, (float)y, 0).setUv(filled.u() / (float)width, filled.v() / (float)height);
+        bufferbuilder.addVertex(matrix4f, (float)x, (float)y + height, 0).setUv(filled.u() / (float)width, (filled.v() + (float)height) / (float)height);
+        bufferbuilder.addVertex(matrix4f, (float)x + width, (float)y + height, 0).setUv((filled.u() + (float)width) / (float)width, (filled.v() + (float)height) / (float)height);
+        bufferbuilder.addVertex(matrix4f, (float)x + width, (float)y, 0).setUv((filled.u() + (float)width) / (float)width, filled.v() / (float)height);
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
     }
 }
