@@ -14,6 +14,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
@@ -153,7 +154,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
             Comparable<?> value = this.blockState.getValue(property);
             builder.append(property.getName());
             builder.append("=");
-            builder.append(value);
+            builder.append(value instanceof StringRepresentable sr ? sr.getSerializedName() : value.toString());
             if(iterator.hasNext())
                 builder.append(",");
             else
