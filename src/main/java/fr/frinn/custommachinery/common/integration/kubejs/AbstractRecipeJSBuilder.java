@@ -13,11 +13,14 @@ import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps.SynchronizedMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +28,7 @@ import java.util.function.Consumer;
 
 public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends Recipe<?>>> extends KubeRecipe implements RecipeJSBuilder {
 
-    public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
+    public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = Collections.synchronizedMap(new HashMap<>());
     public final ResourceLocation typeID;
     private RecipeRequirement<?, ?> lastRequirement;
     public boolean jei = false;
@@ -108,7 +111,9 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
     public ResourceLocation getOrCreateId() {
         if(this.id == null) {
             ResourceLocation machine = (ResourceLocation) this.get("machine");
-            int uniqueID = IDS.computeIfAbsent(this.typeID, id -> new HashMap<>()).computeIfAbsent(machine, m -> 0);
+            if(machine == null)
+                return super.getOrCreateId();
+            int uniqueID = IDS.computeIfAbsent(this.typeID, id -> Collections.synchronizedMap(new HashMap<>())).computeIfAbsent(machine, m -> 0);
             IDS.get(this.typeID).put(machine, uniqueID + 1);
             this.id = ResourceLocation.fromNamespaceAndPath("kubejs", this.typeID.getPath() + "/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID);
         }
