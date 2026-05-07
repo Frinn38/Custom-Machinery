@@ -65,13 +65,8 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
     }
 
     @Override
-    public void registerRecipePostProcessors(RecipePostProcessorTypeRegistry registry) {
-        registry.register(RecipeIdPostProcessor.TYPE);
-    }
-
-    @Override
     public void beforeScriptsLoaded(ScriptManager manager) {
-        RecipeIdPostProcessor.IDS.clear();
+        AbstractRecipeJSBuilder.IDS.clear();
     }
 
     @Override

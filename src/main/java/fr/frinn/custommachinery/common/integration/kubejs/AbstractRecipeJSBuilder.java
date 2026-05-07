@@ -1,10 +1,13 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import dev.latvian.mods.kubejs.CommonProperties;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
+import dev.latvian.mods.kubejs.plugin.builtin.wrapper.StringUtilsWrapper;
 import dev.latvian.mods.kubejs.recipe.KubeRecipe;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
 import dev.latvian.mods.kubejs.recipe.component.RecipeComponentValue;
 import dev.latvian.mods.rhino.Context;
+import dev.latvian.mods.rhino.util.HideFromJS;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
@@ -15,11 +18,14 @@ import net.minecraft.world.item.crafting.Recipe;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends Recipe<?>>> extends KubeRecipe implements RecipeJSBuilder {
 
+    public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = new HashMap<>();
     public final ResourceLocation typeID;
     private RecipeRequirement<?, ?> lastRequirement;
     public boolean jei = false;
@@ -71,6 +77,7 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
         return this;
     }
 
+    @HideFromJS
     @Override
     public AbstractRecipeJSBuilder<B> addRequirement(IRequirement<?> requirement) {
         this.lastRequirement = new RecipeRequirement<>(requirement);
@@ -83,14 +90,28 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
         return this;
     }
 
+    @HideFromJS
     @Override
     public RecipeJSBuilder error(String error, Object... args) {
         throw new KubeRuntimeException(MessageFormatter.arrayFormat(error, args).getMessage()).source(this.sourceLine);
     }
 
+    @HideFromJS
     protected <E> List<E> addToList(String key, E element) {
         List<E> list = new ArrayList<>((List<E>)get(key));
         list.add(element);
         return list;
+    }
+
+    @HideFromJS
+    @Override
+    public ResourceLocation getOrCreateId() {
+        if(this.id == null) {
+            ResourceLocation machine = (ResourceLocation) this.get("machine");
+            int uniqueID = IDS.computeIfAbsent(this.typeID, id -> new HashMap<>()).computeIfAbsent(machine, m -> 0);
+            IDS.get(this.typeID).put(machine, uniqueID + 1);
+            this.id = ResourceLocation.fromNamespaceAndPath("kubejs", this.typeID.getPath() + "/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID);
+        }
+        return this.id;
     }
 }

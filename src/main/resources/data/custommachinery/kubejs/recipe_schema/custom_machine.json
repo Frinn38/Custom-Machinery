@@ -96,11 +96,6 @@
             "excluded": true
         }
     ],
-    "post_processors": [
-        {
-            "type": "custommachinery:recipe_id"
-        }
-    ],
     "functions": {
         "singleCore": {
             "type": "set",
