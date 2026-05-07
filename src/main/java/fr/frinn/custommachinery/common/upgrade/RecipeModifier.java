@@ -11,6 +11,8 @@ import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Random;
 
 public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMode mode, String target,
@@ -63,19 +65,19 @@ public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMo
     @Override
     public Component getDefaultTooltip() {
         if (this.requirementType == Registration.SPEED_REQUIREMENT.get()) {
-            double tooltipModifier = this.operation == Operation.ADDITION ? this.modifier : this.modifier * 100 - 100;
-            return Component.literal((tooltipModifier >= 0 ? "+" : "") + (this.operation == Operation.ADDITION ? tooltipModifier : tooltipModifier + "%"))
+            BigDecimal tooltipModifier = this.operation == Operation.ADDITION ? new BigDecimal(this.modifier) : new BigDecimal("" + this.modifier).multiply(new BigDecimal("100")).add(new BigDecimal("-100")).stripTrailingZeros();
+            return Component.literal((tooltipModifier.intValue() >= 0 ? "+" : "") + (this.operation == Operation.ADDITION ? tooltipModifier.toPlainString() : tooltipModifier.toPlainString() + "%"))
                     .append(" ")
                     .append(this.requirementType.getName());
         }
         return switch (this.operation) {
-            case ADDITION -> Component.literal((this.modifier >= 0 ? "+" : "") + this.modifier + " ")
+            case ADDITION -> Component.literal((this.modifier >= 0 ? "+" : "") + new BigDecimal(this.modifier).stripTrailingZeros().toPlainString() + " ")
                     .append(this.requirementType.getName())
                     .append(" ")
                     .append(Component.translatable(this.mode.getTranslationKey()));
             case MULTIPLICATION, EXPONENTIAL -> {
-                double tooltipModifier = this.modifier * 100 - 100;
-                yield Component.literal((tooltipModifier >= 0 ? "+" : "") + tooltipModifier + "%" + " ")
+                BigDecimal tooltipModifier = new BigDecimal("" + this.modifier).multiply(new BigDecimal("100")).add(new BigDecimal("-100")).stripTrailingZeros();
+                yield Component.literal((tooltipModifier.intValue() >= 0 ? "+" : "") + tooltipModifier.toPlainString() + "%" + " ")
                         .append(this.requirementType.getName())
                         .append(" ")
                         .append(Component.translatable(this.mode.getTranslationKey()));

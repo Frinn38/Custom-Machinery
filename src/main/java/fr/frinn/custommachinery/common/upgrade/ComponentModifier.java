@@ -8,6 +8,8 @@ import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 
+import java.math.BigDecimal;
+
 public record ComponentModifier(MachineComponentType<?> component, String id, String target, Operation operation,
                                 double modifier, double max, double min,
                                 Component tooltip) implements IComponentModifier {
@@ -43,13 +45,13 @@ public record ComponentModifier(MachineComponentType<?> component, String id, St
 
     private Component getDefaultTooltip() {
         return switch (this.operation) {
-            case ADDITION -> Component.literal((this.modifier >= 0 ? "+" : "") + this.modifier + " ")
+            case ADDITION -> Component.literal((this.modifier >= 0 ? "+" : "") + new BigDecimal(this.modifier).stripTrailingZeros().toPlainString() + " ")
                     .append(this.component.getTranslatedName())
                     .append(" ")
                     .append(Component.literal(this.target));
             case MULTIPLICATION, EXPONENTIAL -> {
-                double tooltipModifier = this.modifier * 100 - 100;
-                yield Component.literal((tooltipModifier >= 0 ? "+" : "") + tooltipModifier + "%" + " ")
+                BigDecimal tooltipModifier = new BigDecimal("" + this.modifier).multiply(new BigDecimal("100")).add(new BigDecimal("-100")).stripTrailingZeros();
+                yield Component.literal((tooltipModifier.intValue() >= 0 ? "+" : "") + tooltipModifier.toPlainString() + "%" + " ")
                         .append(this.component.getTranslatedName())
                         .append(" ")
                         .append(Component.literal(this.target));
