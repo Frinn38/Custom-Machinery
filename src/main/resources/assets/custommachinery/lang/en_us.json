@@ -540,6 +540,7 @@
   "custommachinery.requirements.working_core.bad_recipe": "Core %s process wrong recipe !",
   "custommachinery.requirements.working_core.all_idle": "All cores are idle !",
   "custommachinery.requirements.working_core.all_bad": "No core process recipe %s !",
+  "custommachinery.requirements.data.error": "Invalid machine data '%s', expected %s but found %s",
 
   "custommachinery.side.top": "Top",
   "custommachinery.side.bottom": "Bottom",

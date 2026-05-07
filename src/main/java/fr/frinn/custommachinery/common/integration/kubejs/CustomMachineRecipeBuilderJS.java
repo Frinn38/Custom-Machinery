@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequ
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ChunkloadRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.CommandRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.DataRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DimensionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DropRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DurabilityRequirementJS;
@@ -46,7 +47,7 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         FuelRequirementJS, CommandRequirementJS, EffectRequirementJS, WeatherRequirementJS, RedstoneRequirementJS, LightRequirementJS,
         EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS,
         ButtonRequirementJS, SkyRequirementJS, ItemFilterRequirementJS, ExperienceRequirementJS, ExperiencePerTickRequirementJS,
-        ChunkloadRequirementJS, WorkingCoreRequirementJS {
+        ChunkloadRequirementJS, WorkingCoreRequirementJS, DataRequirementJS {
 
     public CustomMachineRecipeBuilderJS() {
         super(Registration.CUSTOM_MACHINE_RECIPE.getId());

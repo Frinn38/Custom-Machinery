@@ -69,7 +69,7 @@ public record Restriction<T extends Comparable<T>>(@Nullable T lowerBound, boole
     public String toString() {
         StringBuilder buf = new StringBuilder();
 
-        if(lowerBound() != null && lowerBound() == upperBound())
+        if(lowerBound() != null && lowerBound().equals(upperBound()))
             return lowerBound().toString();
 
         buf.append(lowerBoundInclusive() ? '[' : '(');

@@ -3,8 +3,9 @@ package fr.frinn.custommachinery.impl.util;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
-public class Range<T extends Comparable<T>> {
+public class Range<T extends Comparable<T>> implements Predicate<T> {
 
     private final List<Restriction<T>> restrictions;
 
@@ -59,6 +60,11 @@ public class Range<T extends Comparable<T>> {
             if(restriction.contains(thing))
                 return true;
         return false;
+    }
+
+    @Override
+    public boolean test(T t) {
+        return contains(t);
     }
 
     public String toFormattedString() {
