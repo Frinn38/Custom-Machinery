@@ -86,6 +86,8 @@ public class ProgressArrowRenderer {
         RenderSystem.setShaderTexture(0, filled.texture());
         RenderSystem.setShader(() -> ClientHandler.RADIAL_FILL_SHADER);
         ClientHandler.RADIAL_FILL_SHADER.safeGetUniform("Progress").set((float)progress);
+        if(element.getDirection() == Orientation.COUNTER_CLOCKWISE)
+            ClientHandler.RADIAL_FILL_SHADER.safeGetUniform("Reverse").set(1.0F);
         Matrix4f matrix4f = graphics.pose().last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferbuilder.addVertex(matrix4f, (float)x, (float)y, 0).setUv(filled.u() / (float)width, filled.v() / (float)height);

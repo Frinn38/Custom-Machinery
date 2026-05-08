@@ -2,6 +2,7 @@
 
 uniform sampler2D Sampler0;
 uniform float Progress;
+uniform float Reverse;
 
 in vec2 texCoord0;
 
@@ -35,10 +36,15 @@ void main() {
     // Normalize to 0..1
     float normalized = angle / (PI * 2.0);
 
-    // Clockwise fill
+    //Reverse
+    if (Reverse == 1.0)
+        normalized = 1.0 - normalized;
+
+    // Fill
     if (normalized > Progress) {
         discard;
     }
 
+    // Finish
     fragColor = color;
 }
