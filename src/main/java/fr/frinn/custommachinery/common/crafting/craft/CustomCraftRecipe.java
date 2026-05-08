@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public class CustomCraftRecipe implements Recipe<RecipeInput>, IMachineRecipe {
+public class CustomCraftRecipe implements IMachineRecipe {
 
     public static final List<RequirementType<?>> FORBIDDEN_REQUIREMENTS = Lists.newArrayList(
             Registration.ENERGY_PER_TICK_REQUIREMENT.get(),

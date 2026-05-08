@@ -5,48 +5,49 @@ import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CMRecipeTypes {
 
-    private static final Map<Class<? extends IMachineRecipe>, Map<ResourceLocation, RecipeType<? extends IMachineRecipe>>> TYPES = new HashMap<>();
+    private static final Map<ResourceLocation, RecipeType<RecipeHolder<CustomMachineRecipe>>> MACHINE_TYPES = new HashMap<>();
+    private static final Map<ResourceLocation, RecipeType<RecipeHolder<CustomCraftRecipe>>> CRAFT_TYPES = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     @Nullable
-    public static <T extends IMachineRecipe> RecipeType<T> get(Class<T> recipeClass, ResourceLocation id) {
-        Map<ResourceLocation, RecipeType<? extends IMachineRecipe>> map = TYPES.get(recipeClass);
-        if(map == null)
-            return null;
-        return (RecipeType<T>)map.get(id);
+    public static RecipeType<RecipeHolder<CustomMachineRecipe>> machine(ResourceLocation id) {
+        return MACHINE_TYPES.get(id);
     }
 
     @Nullable
-    public static RecipeType<CustomMachineRecipe> machine(ResourceLocation id) {
-        return get(CustomMachineRecipe.class, id);
+    public static RecipeType<RecipeHolder<CustomCraftRecipe>> craft(ResourceLocation id) {
+        return CRAFT_TYPES.get(id);
     }
 
-    @Nullable
-    public static RecipeType<CustomCraftRecipe> craft(ResourceLocation id) {
-        return get(CustomCraftRecipe.class, id);
-    }
-
-    @Nullable
-    public static RecipeType<? extends IMachineRecipe> fromID(ResourceLocation id) {
-        return TYPES.values().stream().filter(map -> map.containsKey(id)).findFirst().map(map -> map.get(id)).orElse(null);
-    }
-
-    public static <T extends IMachineRecipe> RecipeType<T> create(ResourceLocation id, Class<T> recipeClass) {
-        RecipeType<T> type = RecipeType.create(id.getNamespace(), id.getPath(), recipeClass);
-        TYPES.computeIfAbsent(recipeClass, c -> new  HashMap<>()).put(id, type);
+    public static RecipeType<RecipeHolder<CustomMachineRecipe>> createMachine(ResourceLocation id) {
+        RecipeType<RecipeHolder<CustomMachineRecipe>> type = RecipeType.createRecipeHolderType(id);
+        MACHINE_TYPES.put(id, type);
         return type;
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<RecipeType<IMachineRecipe>> all() {
-        return TYPES.values().stream().flatMap(map -> map.values().stream()).map(type -> (RecipeType<IMachineRecipe>)type).toList();
+    public static RecipeType<RecipeHolder<CustomCraftRecipe>> createCraft(ResourceLocation id) {
+        RecipeType<RecipeHolder<CustomCraftRecipe>> type = RecipeType.createRecipeHolderType(id);
+        CRAFT_TYPES.put(id, type);
+        return type;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static List<RecipeType<RecipeHolder<IMachineRecipe>>> all() {
+        List<RecipeType<RecipeHolder<IMachineRecipe>>> list = new ArrayList<>();
+        list.addAll((Collection)MACHINE_TYPES.values());
+        list.addAll((Collection)CRAFT_TYPES.values());
+        return list;
     }
 }

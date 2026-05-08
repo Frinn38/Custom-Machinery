@@ -14,13 +14,14 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.List;
 
-public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraftRecipe> {
+public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraftRecipe, RecipeHolder<CustomCraftRecipe>> {
 
-    public CustomCraftRecipeCategory(CustomMachine machine, RecipeType<CustomCraftRecipe> type, IJeiHelpers helpers) {
+    public CustomCraftRecipeCategory(CustomMachine machine, RecipeType<RecipeHolder<CustomCraftRecipe>> type, IJeiHelpers helpers) {
         super(machine, type, helpers);
 
         this.wrapperCache = CacheBuilder.newBuilder().build(new CacheLoader<>() {

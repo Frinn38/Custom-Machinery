@@ -2,10 +2,12 @@ package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 
 import java.util.List;
 
-public interface IMachineRecipe {
+public interface IMachineRecipe extends Recipe<RecipeInput> {
 
     /**
      * @return The id of the machine that can process this recipe.

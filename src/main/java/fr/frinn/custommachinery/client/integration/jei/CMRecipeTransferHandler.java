@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
@@ -28,13 +29,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class CMRecipeTransferHandler implements IRecipeTransferHandler<CustomMachineContainer, IMachineRecipe> {
+public class CMRecipeTransferHandler implements IRecipeTransferHandler<CustomMachineContainer, RecipeHolder<IMachineRecipe>> {
 
-    private final RecipeType<IMachineRecipe> type;
+    private final RecipeType<RecipeHolder<IMachineRecipe>> type;
     private final IRecipeTransferHandlerHelper transferHelper;
     private final IStackHelper stackHelper;
 
-    public CMRecipeTransferHandler(RecipeType<IMachineRecipe> type, IRecipeTransferHandlerHelper transferHelper, IStackHelper stackHelper) {
+    public CMRecipeTransferHandler(RecipeType<RecipeHolder<IMachineRecipe>> type, IRecipeTransferHandlerHelper transferHelper, IStackHelper stackHelper) {
         this.type = type;
         this.transferHelper = transferHelper;
         this.stackHelper = stackHelper;
@@ -51,13 +52,13 @@ public class CMRecipeTransferHandler implements IRecipeTransferHandler<CustomMac
     }
 
     @Override
-    public RecipeType<IMachineRecipe> getRecipeType() {
+    public RecipeType<RecipeHolder<IMachineRecipe>> getRecipeType() {
         return this.type;
     }
 
     @Nullable
     @Override
-    public IRecipeTransferError transferRecipe(CustomMachineContainer container, IMachineRecipe recipe, IRecipeSlotsView slots, Player player, boolean maxTransfer, boolean doTransfer) {
+    public IRecipeTransferError transferRecipe(CustomMachineContainer container, RecipeHolder<IMachineRecipe> recipe, IRecipeSlotsView slots, Player player, boolean maxTransfer, boolean doTransfer) {
         //List of required items
         List<IRecipeSlotView> inputItemSlots = slots.getSlotViews(RecipeIngredientRole.INPUT).stream().filter(view -> view.getItemStacks().findAny().isPresent()).toList();
         if(inputItemSlots.isEmpty())

@@ -36,6 +36,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
@@ -43,16 +44,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implements IRecipeCategory<T> {
+public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends RecipeHolder<R>> implements IRecipeCategory<H> {
 
     protected static final int ICON_SIZE = 10;
 
     protected CustomMachine machine;
-    protected final RecipeType<T> recipeType;
+    protected final RecipeType<H> recipeType;
     protected final IGuiHelper guiHelper;
     protected final RecipeHelper recipeHelper;
     protected final LoadingCache<RecipeRequirement<?, ?>, RequirementDisplayInfo> infoCache;
-    protected LoadingCache<T, List<IJEIIngredientWrapper<?>>> wrapperCache;
+    protected LoadingCache<R, List<IJEIIngredientWrapper<?>>> wrapperCache;
     protected int offsetX;
     protected int offsetY;
     protected int width;
@@ -61,7 +62,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     protected int rowY;
     protected int maxIconPerRow;
 
-    public AbstractRecipeCategory(CustomMachine machine, RecipeType<T> type, IJeiHelpers helpers) {
+    public AbstractRecipeCategory(CustomMachine machine, RecipeType<H> type, IJeiHelpers helpers) {
         this.machine = machine;
         this.recipeType = type;
         this.guiHelper = helpers.getGuiHelper();
@@ -82,7 +83,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         });
         this.wrapperCache = CacheBuilder.newBuilder().build(new CacheLoader<>() {
             @Override
-            public List<IJEIIngredientWrapper<?>> load(T recipe) {
+            public List<IJEIIngredientWrapper<?>> load(R recipe) {
                 ImmutableList.Builder<IJEIIngredientWrapper<?>> wrappers = ImmutableList.builder();
                 recipe.getDisplayInfoRequirements().forEach(requirement -> wrappers.addAll(requirement.getJeiIngredientWrappers(recipe)));
                 return wrappers.build();
@@ -136,7 +137,7 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public RecipeType<T> getRecipeType() {
+    public RecipeType<H> getRecipeType() {
         return this.recipeType;
     }
 
@@ -161,8 +162,10 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, T recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, H holder, IFocusGroup focuses) {
         builder.moveRecipeTransferButton(this.width - 11, this.height - 11);
+
+        R recipe = holder.value();
 
         List<IJEIIngredientWrapper<?>> wrappers = new ArrayList<>(this.wrapperCache.getUnchecked(recipe));
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
@@ -184,9 +187,11 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public void draw(T recipe, IRecipeSlotsView slotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+    public void draw(H holder, IRecipeSlotsView slotsView, GuiGraphics graphics, double mouseX, double mouseY) {
         //Draw background
         this.guiHelper.createBlankDrawable(this.width, this.height).draw(graphics);
+
+        R recipe = holder.value();
 
         //Render elements that doesn't have an ingredient/requirement such as the progress bar element
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
@@ -209,7 +214,9 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public void getTooltip(ITooltipBuilder builder, T recipe, IRecipeSlotsView view, double mouseX, double mouseY) {
+    public void getTooltip(ITooltipBuilder builder, H holder, IRecipeSlotsView view, double mouseX, double mouseY) {
+        R recipe = holder.value();
+
         //Check if any gui element is hovered and if so return its tooltips.
         List<IGuiElement> elements = this.machine.getJeiElements().isEmpty() ? this.machine.getGuiElements() : this.machine.getJeiElements();
         if(recipe instanceof CustomMachineRecipe machineRecipe && !machineRecipe.getGuiElements().isEmpty())
@@ -228,11 +235,12 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
     }
 
     @Override
-    public void createRecipeExtras(IRecipeExtrasBuilder builder, T recipe, IFocusGroup focuses) {
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, H holder, IFocusGroup focuses) {
         //If no recipes have display infos stop here
         if(!this.hasInfoRow)
             return;
 
+        R recipe = holder.value();
         AtomicInteger index = new AtomicInteger();
         AtomicInteger row = new AtomicInteger(0);
         recipe.getDisplayInfoRequirements().stream().map(this.infoCache).filter(RequirementDisplayInfo::shouldRender).forEach(info -> {
@@ -253,9 +261,9 @@ public abstract class AbstractRecipeCategory<T extends IMachineRecipe> implement
         private final ScreenPosition pos;
         private final ScreenRectangle area;
         private final RequirementDisplayInfo info;
-        private final T recipe;
+        private final R recipe;
 
-        public DisplayInfoWidget(int x, int y, RequirementDisplayInfo info, T recipe) {
+        public DisplayInfoWidget(int x, int y, RequirementDisplayInfo info, R recipe) {
             this.pos = new ScreenPosition(x, y);
             this.area = new ScreenRectangle(x, y, ICON_SIZE, ICON_SIZE);
             this.info = info;

@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeChecker<T extends Recipe<?> & IMachineRecipe> {
+public class RecipeChecker<T extends IMachineRecipe> {
 
     private final RecipeHolder<T> recipe;
     private final List<RecipeRequirement<?, ?>> inventoryRequirements;

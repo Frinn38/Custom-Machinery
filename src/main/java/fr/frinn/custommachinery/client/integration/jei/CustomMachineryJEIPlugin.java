@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.integration.jei;
 import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
+import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceIngredientHelper;
@@ -53,6 +54,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
     public static final ResourceLocation PLUGIN_ID = ResourceLocation.fromNamespaceAndPath(CustomMachinery.MODID, "jei_plugin");
     public static final List<ItemStack> FUEL_INGREDIENTS = Lists.newArrayList();
-    public static final Map<ResourceLocation, AbstractRecipeCategory<?>> CATEGORIES = new HashMap<>();
+    public static final Map<ResourceLocation, AbstractRecipeCategory<?, ?>> CATEGORIES = new HashMap<>();
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -80,11 +82,11 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registry) {
         CATEGORIES.clear();
         CustomMachinery.MACHINES.forEach((id, machine) -> {
-            AbstractRecipeCategory<?> category = null;
+            AbstractRecipeCategory<?, ?> category = null;
             if(machine.getProcessorTemplate().getType() == Registration.MACHINE_PROCESSOR.get())
-                category = new CustomMachineRecipeCategory(machine, CMRecipeTypes.create(id, CustomMachineRecipe.class), registry.getJeiHelpers());
+                category = new CustomMachineRecipeCategory(machine, CMRecipeTypes.createMachine(id), registry.getJeiHelpers());
             else if(machine.getProcessorTemplate().getType() == Registration.CRAFT_PROCESSOR.get())
-                category = new CustomCraftRecipeCategory(machine, CMRecipeTypes.create(id, CustomCraftRecipe.class), registry.getJeiHelpers());
+                category = new CustomCraftRecipeCategory(machine, CMRecipeTypes.createCraft(id), registry.getJeiHelpers());
 
             if(category != null) {
                 registry.addRecipeCategories(category);
@@ -98,28 +100,30 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         if(Minecraft.getInstance().level == null)
             return;
 
-        Map<ResourceLocation, List<CustomMachineRecipe>> machineRecipes = Minecraft.getInstance().level.getRecipeManager()
+        Map<ResourceLocation, List<RecipeHolder<CustomMachineRecipe>>> machineRecipes = Minecraft.getInstance().level.getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .filter(CustomMachineRecipe::showInJei)
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
-                .collect(Collectors.groupingBy(CustomMachineRecipe::getMachineId));
+                .map(this::getHolderForRecipe)
+                .collect(Collectors.groupingBy(holder -> holder.value().getMachineId()));
         machineRecipes.forEach((id, list) -> {
-            RecipeType<CustomMachineRecipe> type = CMRecipeTypes.machine(id);
+            RecipeType<RecipeHolder<CustomMachineRecipe>> type = CMRecipeTypes.machine(id);
             if(type != null)
                 registry.addRecipes(type, list);
         });
 
-        Map<ResourceLocation, List<CustomCraftRecipe>> craftRecipes = Minecraft.getInstance().level.getRecipeManager()
+        Map<ResourceLocation, List<RecipeHolder<CustomCraftRecipe>>> craftRecipes = Minecraft.getInstance().level.getRecipeManager()
                 .getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .filter(CustomCraftRecipe::showInJei)
                 .sorted(Comparators.JEI_PRIORITY_COMPARATOR.reversed())
-                .collect(Collectors.groupingBy(CustomCraftRecipe::getMachineId));
+                .map(this::getHolderForRecipe)
+                .collect(Collectors.groupingBy(holder -> holder.value().getMachineId()));
         craftRecipes.forEach((id, list) -> {
-            RecipeType<CustomCraftRecipe> type = CMRecipeTypes.craft(id);
+            RecipeType<RecipeHolder<CustomCraftRecipe>> type = CMRecipeTypes.craft(id);
             if(type != null)
                 registry.addRecipes(type, list);
         });
@@ -190,7 +194,13 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         CustomMachinery.MACHINES.forEach((id, machine) -> {
             machine.getRecipeIds().forEach(recipeId -> {
-                RecipeType<?> type = CMRecipeTypes.fromID(recipeId);
+                RecipeType<?> type;
+                if(machine.getProcessorTemplate().getType() == Registration.MACHINE_PROCESSOR.get())
+                    type = CMRecipeTypes.machine(id);
+                else if(machine.getProcessorTemplate().getType() == Registration.CRAFT_PROCESSOR.get())
+                    type = CMRecipeTypes.craft(id);
+                else
+                    type = null;
                 if(type != null) {
                     List<ResourceLocation> catalysts = machine.getCatalysts();
                     if(!catalysts.contains(id))
@@ -252,9 +262,20 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
     public static void reloadMachines(Map<ResourceLocation, CustomMachine> machines) {
         machines.forEach((id, machine) -> {
-            AbstractRecipeCategory<?> category = CATEGORIES.get(id);
+            AbstractRecipeCategory<?, ?> category = CATEGORIES.get(id);
             if(category != null)
                 category.updateMachine(machine);
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends IMachineRecipe> RecipeHolder<T> getHolderForRecipe(T recipe) {
+        if(Minecraft.getInstance().level == null)
+            throw new IllegalStateException("Trying to get recipes from client side when level is null");
+        return Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor((net.minecraft.world.item.crafting.RecipeType<T>)recipe.getType())
+                .stream()
+                .filter(holder -> holder.value() == recipe)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No registered holder for recipe: " + recipe));
     }
 }
