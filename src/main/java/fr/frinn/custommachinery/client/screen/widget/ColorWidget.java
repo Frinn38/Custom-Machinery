@@ -51,6 +51,11 @@ public class ColorWidget extends GroupWidget {
             colorButtonMap.put(format, button);
         }
 
+        AbstractWidget colorWidget = getColorWidget(supplier, twoLines);
+        this.addWidget(colorWidget);
+    }
+
+    private AbstractWidget getColorWidget(Supplier<Integer> supplier, boolean twoLines) {
         AbstractWidget colorWidget = new AbstractWidget(141, 1, 18, 18, Component.translatable("custommachinery.gui.creation.appearance.color")) {
             @Override
             protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
@@ -70,6 +75,6 @@ public class ColorWidget extends GroupWidget {
         };
         if(twoLines)
             colorWidget.setPosition(61, 1);
-        this.addWidget(colorWidget);
+        return colorWidget;
     }
 }

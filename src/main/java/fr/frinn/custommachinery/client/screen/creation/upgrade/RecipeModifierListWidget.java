@@ -19,22 +19,17 @@ import java.util.List;
 
 public class RecipeModifierListWidget extends ListWidget<RecipeModifierEntry> {
 
-    private final MachineUpgradeBuilder builder;
-
     public RecipeModifierListWidget(int x, int y, int width, int height, int itemHeight, MachineUpgradeBuilder builder) {
         super(x, y, width, height, itemHeight, Component.empty());
-        this.builder = builder;
-        this.builder.getRecipeModifiers().forEach(recipeModifierBuilder -> this.addEntry(new RecipeModifierEntry(recipeModifierBuilder)));
+        builder.getRecipeModifiers().forEach(recipeModifierBuilder -> this.addEntry(new RecipeModifierEntry(recipeModifierBuilder)));
     }
 
-    public class RecipeModifierEntry extends Entry {
+    public static class RecipeModifierEntry extends Entry {
 
-        private final RecipeModifierBuilder builder;
         private final CycleButton<RequirementType<?>> requirement;
         private final EditBox target;
 
         private RecipeModifierEntry(RecipeModifierBuilder builder) {
-            this.builder = builder;
             //Requirement
             this.requirement = CycleButton.<RequirementType<?>>builder(RequirementType::getName)
                     .displayOnlyValue()

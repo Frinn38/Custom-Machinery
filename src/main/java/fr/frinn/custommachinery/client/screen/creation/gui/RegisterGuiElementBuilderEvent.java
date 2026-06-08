@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class RegisterGuiElementBuilderEvent extends Event implements IModBusEvent {
 
-    public Map<GuiElementType<?>, IGuiElementBuilder<?>> builders = new HashMap<>();
+    private final Map<GuiElementType<?>, IGuiElementBuilder<?>> builders = new HashMap<>();
 
     public <T extends IGuiElement> void register(GuiElementType<T> type, IGuiElementBuilder<T> builder) {
         if(this.builders.containsKey(type))

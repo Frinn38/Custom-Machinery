@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +37,6 @@ public class ConfigurationCardItem extends Item {
     }
 
     @Override
-    @NotNull
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
 
@@ -55,7 +53,6 @@ public class ConfigurationCardItem extends Item {
     }
 
     @Override
-    @NotNull
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
@@ -74,9 +71,7 @@ public class ConfigurationCardItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         getMachineId(stack)
                 .flatMap(id -> Optional.ofNullable(CustomMachinery.MACHINES.get(id)))
-                .ifPresent(machine -> {
-                    tooltip.add(Component.translatable("custommachinery.configuration_card.configured", machine.getName()).withStyle(ChatFormatting.AQUA));
-                });
+                .ifPresent(machine -> tooltip.add(Component.translatable("custommachinery.configuration_card.configured", machine.getName()).withStyle(ChatFormatting.AQUA)));
 
         tooltip.add(Component.translatable("custommachinery.configuration_card.copy").withStyle(ChatFormatting.GREEN));
         tooltip.add(Component.translatable("custommachinery.configuration_card.paste").withStyle(ChatFormatting.GREEN));

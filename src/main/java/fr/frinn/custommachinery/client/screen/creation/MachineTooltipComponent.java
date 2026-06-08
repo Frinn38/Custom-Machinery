@@ -68,7 +68,7 @@ public record MachineTooltipComponent(CustomMachine machine) implements TooltipC
             }
         }
 
-        private class TemplateMachineScreen extends CustomMachineScreen {
+        private static class TemplateMachineScreen extends CustomMachineScreen {
 
             public TemplateMachineScreen(CustomMachineContainer container, Inventory inv, Component name) {
                 super(container, inv, name);

@@ -65,7 +65,7 @@ public class CustomMachinery {
 
     public static final String MODID = "custommachinery";
 
-    public static Logger LOGGER = LogManager.getLogger("Custom Machinery");
+    public static final Logger LOGGER = LogManager.getLogger("Custom Machinery");
 
     public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
     public static final Map<ResourceLocation, Pair<CustomMachine, Component>> TEMPLATES = new HashMap<>();

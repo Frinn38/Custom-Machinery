@@ -19,7 +19,6 @@ import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -83,7 +82,6 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         return null;
     }
 
-    @NotNull
     @Override
     public List<E> children() {
         return this.getEntries();
@@ -390,8 +388,8 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         @Override
         @Nullable
         public ComponentPath nextFocusPath(FocusNavigationEvent event) {
-            if (event instanceof ArrowNavigation arrowNavigation) {
-                int i = arrowNavigation.direction() == ScreenDirection.RIGHT ? 1 : 0;
+            if (event instanceof ArrowNavigation(ScreenDirection direction)) {
+                int i = direction == ScreenDirection.RIGHT ? 1 : 0;
                 if (i == 0)
                     return null;
 

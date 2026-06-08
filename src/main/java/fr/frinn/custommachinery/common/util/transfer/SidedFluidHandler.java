@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import net.minecraft.core.Direction;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -56,7 +55,6 @@ public class SidedFluidHandler implements IFluidHandler {
         return resource.getAmount() - toFill.getAmount();
     }
 
-    @NotNull
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         int toDrain = 0;

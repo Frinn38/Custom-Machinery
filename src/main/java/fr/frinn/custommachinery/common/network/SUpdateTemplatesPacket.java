@@ -42,7 +42,7 @@ public record SUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, C
                     Component tooltip = TextComponentUtils.CODEC.fromNetwork(buf);
                     map.put(location.id(), Pair.of(machine, tooltip));
                 } catch (EncoderException e) {
-                    e.printStackTrace();
+                    CustomMachinery.LOGGER.error("Can't decode custom machine templates to packet", e);
                 }
             }
             return new SUpdateTemplatesPacket(map);
@@ -60,7 +60,7 @@ public record SUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, C
                             MachineLocation.CODEC.toNetwork(machine.getLocation(), buf);
                             if(machine instanceof UpgradedCustomMachine upgradedMachine) {
                                 buf.writeBoolean(true);
-                                buf.writeResourceLocation(((UpgradedCustomMachine) machine).getParentId());
+                                buf.writeResourceLocation(upgradedMachine.getParentId());
                                 UpgradedCustomMachine.makeCodec(packet.templates.get(upgradedMachine.getParentId()).getFirst()).toNetwork(upgradedMachine, buf);
                                 TextComponentUtils.CODEC.toNetwork(packet.templates.get(machine.getId()).getSecond(), buf);
                             } else {
@@ -69,7 +69,7 @@ public record SUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, C
                                 TextComponentUtils.CODEC.toNetwork(packet.templates.get(machine.getId()).getSecond(), buf);
                             }
                         } catch (EncoderException e) {
-                            e.printStackTrace();
+                            CustomMachinery.LOGGER.error("Can't encode custom machine templates to packet", e);
                         }
                     });
         }

@@ -76,8 +76,6 @@ public record MachineLocation(ResourceLocation id, Loader loader, String packNam
     public static File getFile(MinecraftServer server, ResourceLocation id, Loader loader, String packName) {
         String pathFromData = "data" + File.separator + id.getNamespace() + File.separator + "machine" + File.separator + id.getPath() + ".json";
         String root = Path.of("").toFile().getAbsolutePath();
-        //if (!FMLLoader.isProduction())
-        //    root = root.substring(0, root.length() - 2);
         root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + id.getNamespace() + File.separator + "machine";
         File kubeJS = new File(root, id.getPath() + ".json");
         return switch (loader) {

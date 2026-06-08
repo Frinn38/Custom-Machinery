@@ -124,7 +124,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -306,7 +306,7 @@ public class ClientHandler {
         }
     }
 
-    private static int blockColor(BlockState state, BlockAndTintGetter level, BlockPos pos, int tintIndex) {
+    private static int blockColor(BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int tintIndex) {
         if(level == null || pos == null)
             return 0;
         switch (tintIndex) {
@@ -335,7 +335,6 @@ public class ClientHandler {
         return Minecraft.getInstance().getBlockColors().getColor(state, level, pos, tintIndex);
     }
 
-    @NotNull
     public static CustomMachineTile getClientSideCustomMachineTile(BlockPos pos) {
         if(Minecraft.getInstance().level != null) {
             BlockEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);

@@ -53,7 +53,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
     }
 
     @Override
-    public PopupScreen makeConfigPopup(MachineEditScreen parent, MutableProperties properties, SlotGuiElement from, Consumer<SlotGuiElement> onFinish) {
+    public PopupScreen makeConfigPopup(MachineEditScreen parent, MutableProperties properties, @Nullable SlotGuiElement from, Consumer<SlotGuiElement> onFinish) {
         return new SlotGuiElementBuilderPopup(parent, properties, from, onFinish);
     }
 

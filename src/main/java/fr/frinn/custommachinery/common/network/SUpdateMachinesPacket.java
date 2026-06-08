@@ -38,7 +38,7 @@ public record SUpdateMachinesPacket(Map<ResourceLocation, CustomMachine> machine
                     machine.setLocation(location);
                     map.put(location.id(), machine);
                 } catch (EncoderException e) {
-                    e.printStackTrace();
+                    CustomMachinery.LOGGER.error("Can't decode custom machines from packet", e);
                 }
             }
             return new SUpdateMachinesPacket(map);
@@ -55,14 +55,14 @@ public record SUpdateMachinesPacket(Map<ResourceLocation, CustomMachine> machine
                             MachineLocation.CODEC.toNetwork(machine.getLocation(), buf);
                             if(machine instanceof UpgradedCustomMachine upgradedMachine) {
                                 buf.writeBoolean(true);
-                                buf.writeResourceLocation(((UpgradedCustomMachine) machine).getParentId());
+                                buf.writeResourceLocation(upgradedMachine.getParentId());
                                 UpgradedCustomMachine.makeCodec(packet.machines.get(upgradedMachine.getParentId())).toNetwork(upgradedMachine, buf);
                             } else {
                                 buf.writeBoolean(false);
                                 CustomMachine.CODEC.toNetwork(machine, buf);
                             }
                         } catch (EncoderException e) {
-                            e.printStackTrace();
+                            CustomMachinery.LOGGER.error("Can't encode custom machines to packet", e);
                         }
                     });
         }

@@ -61,9 +61,6 @@ public class LootTableHelper {
         BiFunction<ItemStack, LootContext, ItemStack> globalFunction = lootTable.compositeFunction;
         List<LootPool> pools = getPoolsFromLootTable(lootTable);
 
-        if(pools == null)
-            return Collections.emptyList();
-
         for(LootPool pool : pools) {
             List<LootPoolEntryContainer> entries = pool.entries;
             float total = entries.stream().filter(entry -> entry instanceof LootPoolSingletonContainer).mapToInt(entry -> ((LootPoolSingletonContainer)entry).weight).sum();
@@ -104,7 +101,7 @@ public class LootTableHelper {
             case ConstantValue value -> Math.round(value.value()) + " Rolls";
             case UniformGenerator uniform -> "[" + uniform.min().getInt(context) + "," + uniform.max().getInt(context) + "] Rolls (uniform)";
             case BinomialDistributionGenerator binomial -> "[0," + binomial.n().getInt(context) + "] Rolls (binomial)";
-            case null, default -> "";
+            default -> "";
         };
     }
 
@@ -113,7 +110,7 @@ public class LootTableHelper {
             case ConstantValue value -> value.value() != 0.0f ? Math.round(value.value() * context.getLuck()) + " Rolls" : "";
             case UniformGenerator uniform -> "[" + uniform.min().getInt(context) * context.getLuck() + "," + uniform.max().getInt(context) * context.getLuck() + "] Rolls (uniform)";
             case BinomialDistributionGenerator binomial -> "[0," + binomial.n().getInt(context) * context.getLuck() + "] Rolls (binomial)";
-            case null, default -> "";
+            default -> "";
         };
     }
 
@@ -129,6 +126,7 @@ public class LootTableHelper {
         return lootsMap.getOrDefault(table, Collections.emptyList());
     }
 
+    @SuppressWarnings("unchecked")
     public static List<LootPool> getPoolsFromLootTable(LootTable table) {
         for(Field field : LootTable.class.getDeclaredFields()) {
             if(field.getName().equals("e") || field.getName().equals("f_79109_") || field.getName().equals("pools")) {
@@ -144,7 +142,7 @@ public class LootTableHelper {
     }
 
     public record LootData(ItemStack stack, double chance, String rolls, String bonusRolls) {
-        public static StreamCodec<RegistryFriendlyByteBuf, LootData> STREAM_CODEC = StreamCodec.composite(
+        public static final StreamCodec<RegistryFriendlyByteBuf, LootData> STREAM_CODEC = StreamCodec.composite(
                 ItemStack.STREAM_CODEC,
                 LootData::stack,
                 ByteBufCodecs.DOUBLE,

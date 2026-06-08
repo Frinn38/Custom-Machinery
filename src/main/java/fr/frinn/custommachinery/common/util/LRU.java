@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractCollection;
@@ -106,7 +105,6 @@ public class LRU<T> extends AbstractCollection<T> {
         }
     }
 
-    @NotNull
     @Override
     public LRUIterator iterator() {
         return new LRUIterator();

@@ -7,7 +7,6 @@ import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -83,11 +82,11 @@ public abstract class AbstractGuiElement implements IGuiElement {
         return makePropertiesCodec(defaultTexture, defaultTextureHovered, Collections.emptyList());
     }
 
-    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture, @Nullable ResourceLocation defaultTextureHovered, @NotNull List<Component> defaultTooltips) {
-        return makePropertiesCodec(new TextureInfo(defaultTexture), new TextureInfo(defaultTextureHovered), defaultTooltips);
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture, @Nullable ResourceLocation defaultTextureHovered, List<Component> defaultTooltips) {
+        return makePropertiesCodec(defaultTexture == null ? null : new TextureInfo(defaultTexture), defaultTextureHovered == null ? null : new TextureInfo(defaultTextureHovered), defaultTooltips);
     }
 
-    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable TextureInfo defaultTexture, @Nullable TextureInfo defaultTextureHovered, @NotNull List<Component> defaultTooltips) {
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable TextureInfo defaultTexture, @Nullable TextureInfo defaultTextureHovered, List<Component> defaultTooltips) {
         return NamedCodec.record(propertiesInstance ->
              propertiesInstance.group(
                      NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(Properties::x),

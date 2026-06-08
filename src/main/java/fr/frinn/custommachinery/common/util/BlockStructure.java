@@ -76,7 +76,7 @@ public class BlockStructure {
         /**
          * Adds a single aisle to this pattern, going in the y-axis. (so multiple calls to this will increase the y-size by 1)
          */
-        public Builder aisle(String... aisle) {
+        public void aisle(String... aisle) {
             if (!ArrayUtils.isEmpty(aisle) && !StringUtils.isEmpty(aisle[0])) {
                 if (this.depth.isEmpty()) {
                     this.aisleHeight = aisle.length;
@@ -99,7 +99,6 @@ public class BlockStructure {
                     }
 
                     this.depth.add(aisle);
-                    return this;
                 }
             } else {
                 throw new IllegalArgumentException("Empty pattern for aisle");
@@ -110,9 +109,8 @@ public class BlockStructure {
             return new Builder();
         }
 
-        public Builder where(char symbol, List<BlockIngredient> blockMatcher) {
+        public void where(char symbol, List<BlockIngredient> blockMatcher) {
             this.symbolMap.put(symbol, blockMatcher);
-            return this;
         }
 
         public BlockStructure build() {

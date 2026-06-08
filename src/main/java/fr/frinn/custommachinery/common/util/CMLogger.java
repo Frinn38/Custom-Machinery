@@ -14,7 +14,6 @@ import org.apache.logging.log4j.core.appender.rolling.RolloverDescriptionImpl;
 import org.apache.logging.log4j.core.appender.rolling.RolloverStrategy;
 import org.apache.logging.log4j.core.appender.rolling.TriggeringPolicy;
 import org.apache.logging.log4j.core.appender.rolling.action.AbstractAction;
-import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
@@ -77,7 +76,7 @@ public class CMLogger {
 
         config.addAppender(cmAppender);
 
-        LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, NAME, "true", new AppenderRef[0], null, config, null);
+        LoggerConfig loggerConfig = LoggerConfig.newBuilder().withAdditivity(false).withLevel(Level.ALL).withLoggerName(NAME).withIncludeLocation("true").withProperties(null).withConfig(config).withtFilter(null).build();
         loggerConfig.addAppender(cmAppender, CMConfig.CONFIG.debugLevel.get().getLevel(), null);
 
         Appender debug = config.getAppender("DebugFile");

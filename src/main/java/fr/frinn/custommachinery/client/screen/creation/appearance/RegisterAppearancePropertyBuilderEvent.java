@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class RegisterAppearancePropertyBuilderEvent extends Event implements IModBusEvent {
 
-    public Map<MachineAppearanceProperty<?>, IAppearancePropertyBuilder<?>> builders = new HashMap<>();
+    private final Map<MachineAppearanceProperty<?>, IAppearancePropertyBuilder<?>> builders = new HashMap<>();
 
     public <T> void register(MachineAppearanceProperty<T> property, IAppearancePropertyBuilder<T> builder) {
         if(this.builders.containsKey(property))

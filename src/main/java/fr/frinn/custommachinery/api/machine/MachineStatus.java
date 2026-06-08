@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.api.machine;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
@@ -38,7 +37,6 @@ public enum MachineStatus implements StringRepresentable {
         return super.toString().toLowerCase(Locale.ENGLISH);
     }
 
-    @NotNull
     @Override
     public String getSerializedName() {
         return toString();

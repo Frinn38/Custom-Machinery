@@ -19,7 +19,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -211,7 +210,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private void setRecipe(@NotNull RecipeHolder<CustomMachineRecipe> recipe) {
+    private void setRecipe(RecipeHolder<CustomMachineRecipe> recipe) {
         this.currentRecipe = recipe;
         this.context = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> this.recipeProgressTime, this.processor.getCores().indexOf(this));
         this.recipeTotalTime = this.currentRecipe.value().getRecipeTime();

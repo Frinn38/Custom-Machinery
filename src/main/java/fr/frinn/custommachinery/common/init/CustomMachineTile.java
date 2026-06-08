@@ -41,7 +41,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
@@ -50,6 +49,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -105,10 +105,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     @Override
     public CustomMachine getMachine() {
         CustomMachine machine = CustomMachinery.MACHINES.get(getId());
-        if(machine != null)
-            return machine;
-        else
-            return CustomMachine.DUMMY;
+        return Objects.requireNonNullElse(machine, CustomMachine.DUMMY);
     }
 
     @Override
@@ -140,7 +137,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     @Override
     public void refreshMachine(@Nullable ResourceLocation id) {
-        if(!(this.getLevel() instanceof ServerLevel level))
+        if(!(this.getLevel() instanceof ServerLevel serverLevel))
             return;
 
         //Reset the old processor before creating a new one, for clearing result slot in case of craft processor.
@@ -163,7 +160,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         this.componentManager.getComponents().values().forEach(IMachineComponent::init);
         this.upgradeManager.refresh();
 
-        PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.worldPosition), new SRefreshCustomMachineTilePacket(this.worldPosition, id));
+        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(this.worldPosition), new SRefreshCustomMachineTilePacket(this.worldPosition, id));
     }
 
     @Override
@@ -251,9 +248,6 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     @Override
     public void setOwner(LivingEntity entity) {
-        if(entity == null)
-            return;
-
         this.ownerName = entity.getName();
         this.ownerID = entity.getUUID();
     }
@@ -375,7 +369,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
             this.ownerName = Component.Serializer.fromJson(nbt.getString("ownerName"), registries);
 
         if(nbt.contains("appearance", Tag.TAG_COMPOUND))
-            this.customAppearance = MachineAppearance.CODEC.read(NbtOps.INSTANCE, nbt.get("appearance")).result().map(MachineAppearance::new).orElse(null);
+            this.customAppearance = MachineAppearance.CODEC.read(NbtOps.INSTANCE, nbt.getCompound("appearance")).result().map(MachineAppearance::new).orElse(null);
 
         if(nbt.contains("gui", Tag.TAG_LIST))
             this.customGuiElements = IGuiElement.CODEC.listOf().read(NbtOps.INSTANCE, nbt.getList("gui", Tag.TAG_COMPOUND)).result().orElse(Collections.emptyList());
@@ -416,7 +410,6 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         this.loadAdditional(tag, registries);
     }
 
-    @NotNull
     @Override
     public ModelData getModelData() {
         return ModelData.builder()

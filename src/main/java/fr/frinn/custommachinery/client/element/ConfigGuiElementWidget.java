@@ -27,7 +27,7 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
+    public void onClick(double mouseX, double mouseY, int button) {
         Minecraft.getInstance().setScreen(new MachineConfigScreen((CustomMachineScreen) this.getScreen()));
     }
 }

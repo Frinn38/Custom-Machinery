@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class RegisterComponentBuilderEvent extends Event implements IModBusEvent {
 
-    public Map<MachineComponentType<?>, IMachineComponentBuilder<?, ?>> builders = new HashMap<>();
+    private final Map<MachineComponentType<?>, IMachineComponentBuilder<?, ?>> builders = new HashMap<>();
 
     public <C extends IMachineComponent, T extends IMachineComponentTemplate<C>> void register(MachineComponentType<C> type, IMachineComponentBuilder<C, T> builder) {
         if(this.builders.containsKey(type))

@@ -27,8 +27,6 @@ public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<Progre
             tooltips.add(Component.translatable("custommachinery.jei.recipe.time", recipe.getRecipeTime()));
         else
             tooltips.add(Component.translatable("custommachinery.jei.recipe.instant"));
-        //if(!CMConfig.get().needAdvancedInfoForRecipeID || Minecraft.getInstance().options.advancedItemTooltips)
-        //    tooltips.add(Component.translatable("custommachinery.jei.recipe.id", recipe.getRecipeId().toString()).withStyle(ChatFormatting.DARK_GRAY));
         return tooltips;
     }
 }

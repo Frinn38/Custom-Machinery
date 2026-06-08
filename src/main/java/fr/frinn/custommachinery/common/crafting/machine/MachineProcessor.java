@@ -99,8 +99,6 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     private void init() {
         this.initialized = true;
         this.cores.forEach(MachineProcessorCore::init);
-        //if(this.cores.size() != this.coreAmount && this.tile.getLevel() instanceof ServerLevel level)
-        //    TaskDelayer.enqueue(1, () -> PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.tile.getBlockPos()), new SMachineCoreCountChangePacket(this.tile.getBlockPos(), this.cores.size())));
     }
 
     public void setRunning() {

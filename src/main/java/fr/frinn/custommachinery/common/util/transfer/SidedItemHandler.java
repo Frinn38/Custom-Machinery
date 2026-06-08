@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class SidedItemHandler implements IItemHandler {
 
@@ -34,7 +33,7 @@ public class SidedItemHandler implements IItemHandler {
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         ItemMachineComponent component = this.handler.getComponents().get(slot);
-        if(this.direction != null && !component.getConfig().getDirectionMode(this.direction).isInput())
+        if(!component.getConfig().getDirectionMode(this.direction).isInput())
             return stack;
         return component.insertItem(0, stack, simulate);
     }
@@ -42,7 +41,7 @@ public class SidedItemHandler implements IItemHandler {
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         ItemMachineComponent component = this.handler.getComponents().get(slot);
-        if((this.direction != null && !component.getConfig().getDirectionMode(this.direction).isOutput()) || component.getItemStack().isEmpty())
+        if(!component.getConfig().getDirectionMode(this.direction).isOutput() || component.getItemStack().isEmpty())
             return ItemStack.EMPTY;
         return component.extractItem(0, amount, simulate);
     }
@@ -53,7 +52,7 @@ public class SidedItemHandler implements IItemHandler {
     }
 
     @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+    public boolean isItemValid(int slot, ItemStack stack) {
         return this.handler.isItemValid(slot, stack);
     }
 }

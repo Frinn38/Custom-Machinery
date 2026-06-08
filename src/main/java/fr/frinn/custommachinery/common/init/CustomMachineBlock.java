@@ -265,7 +265,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         return Optional.ofNullable(level.getBlockEntity(pos))
                 .filter(tile -> tile instanceof CustomMachineTile)
                 .map(tile -> ((CustomMachineTile)tile).getAppearance().getResistance())
-                .orElse(super.getExplosionResistance());
+                .orElse(super.getExplosionResistance(state, level, pos, explosion));
     }
 
     @Override

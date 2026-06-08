@@ -28,7 +28,6 @@ import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 import net.neoforged.neoforge.common.NeoForgeConfig;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector4f;
@@ -80,7 +79,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
+    public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data) {
         try {
             return getMachineModel(data).getRenderTypes(state, rand, data);
         } catch (IllegalArgumentException ignored) {
@@ -95,9 +94,8 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
                 .orElse(List.of(RenderTypeHelper.getFallbackItemRenderType(stack, this, fabulous)));
     }
 
-    @NotNull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData data, RenderType type) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData data, @Nullable RenderType type) {
         BakedModel model = getMachineModel(data);
         if(state != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
             return getRotatedQuads(model, state.getValue(BlockStateProperties.HORIZONTAL_FACING), side, rand, type);
@@ -105,9 +103,9 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return model.getQuads(state, side, rand, ModelData.EMPTY, type);
     }
 
-    private List<BakedQuad> getRotatedQuads(BakedModel model, Direction machineFacing, Direction side, RandomSource random, RenderType type) {
+    private List<BakedQuad> getRotatedQuads(BakedModel model, Direction machineFacing, @Nullable Direction side, RandomSource random, @Nullable RenderType type) {
         //side of the model before rotation
-        Direction originalSide = getRotatedDirection(machineFacing, side);
+        Direction originalSide = side == null ? null : getRotatedDirection(machineFacing, side);
         List<BakedQuad> finalQuads = model.getQuads(null, originalSide, random, ModelData.EMPTY, type);
         return finalQuads.stream().map(quad -> rotateQuad(quad, getRotation(machineFacing), side == null ? getRotatedDirection(machineFacing, quad.getDirection()) : side)).toList();
     }
@@ -141,8 +139,8 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
         return new BakedQuad(newQuadData, quad.getTintIndex(), side, quad.getSprite(), quad.isShade());
     }
 
-    public Direction getRotatedDirection(Direction machineFacing, @Nullable Direction quad) {
-        if(quad == null || quad.getAxis() == Direction.Axis.Y)
+    public Direction getRotatedDirection(Direction machineFacing, Direction quad) {
+        if(quad.getAxis() == Direction.Axis.Y)
             return quad;
 
         return switch (machineFacing) {
@@ -154,11 +152,11 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon(@NotNull ModelData data) {
+    public TextureAtlasSprite getParticleIcon(ModelData data) {
         return getMachineModel(data).getParticleIcon(data);
     }
 
-    private BakedModel getMachineModel(@NotNull ModelData data) {
+    private BakedModel getMachineModel(ModelData data) {
         MachineAppearance appearance = data.get(APPEARANCE);
         MachineStatus status = data.get(STATUS);
         BakedModel model;
@@ -206,7 +204,7 @@ public class CustomMachineBakedModel implements IDynamicBakedModel {
                     model = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(itemModelLocation.getLoc()));
             }
 
-            if(model == missing)
+            if(model == missing || model == null)
                 model = getMachineBlockModel(appearance, MachineStatus.IDLE);
         }
 

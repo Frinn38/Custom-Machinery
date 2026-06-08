@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.tabs.GuiTab;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
@@ -123,19 +124,21 @@ public class BackgroundEditorPopup extends PopupScreen {
 
         TextureInfo texture = switch (this.mode.getValue()) {
             case DEFAULT -> BackgroundGuiElement.BASE_BACKGROUND;
-            case CUSTOM -> new TextureInfo(ResourceLocation.tryParse(this.texture.getValue()));
-            case NO_BACKGROUND -> null;
+            case CUSTOM -> {
+                ResourceLocation loc = ResourceLocation.tryParse(this.texture.getValue());
+                yield loc == null ? CustomMachinery.texture("textures/gui/base_empty.png") : new TextureInfo(loc);
+            }
+            case NO_BACKGROUND -> CustomMachinery.texture("textures/gui/base_empty.png");
         };
 
-        if(this.background != null) {
+        if(this.background != null)
             editScreen.getBuilder().getGuiElements().remove(this.background);
-            editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, this.width.intValue(), this.height.intValue()));
-        } else
-            editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, this.width.intValue(), this.height.intValue()));
+
+        editScreen.getBuilder().getGuiElements().add(new BackgroundGuiElement(texture, this.width.intValue(), this.height.intValue()));
 
         if(editScreen.getTabManager().getCurrentTab() instanceof GuiTab tab) {
-            int width = this.width.intValue() > 0 ? this.width.intValue() : TextureSizeHelper.getTextureWidth(texture == null ? null : texture.texture());
-            int height = this.height.intValue() > 0 ? this.height.intValue() : TextureSizeHelper.getTextureHeight(texture == null ? null : texture.texture());
+            int width = this.width.intValue() > 0 ? this.width.intValue() : TextureSizeHelper.getTextureWidth(texture.texture());
+            int height = this.height.intValue() > 0 ? this.height.intValue() : TextureSizeHelper.getTextureHeight(texture.texture());
             tab.setSize(width, height);
         }
     }

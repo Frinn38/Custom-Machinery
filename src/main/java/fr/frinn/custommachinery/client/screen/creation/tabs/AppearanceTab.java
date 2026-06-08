@@ -102,7 +102,7 @@ public class AppearanceTab extends MachineEditTab {
         }
     }
 
-    private class SeparationWidget extends AbstractWidget {
+    private static class SeparationWidget extends AbstractWidget {
 
         private final ResourceLocation texture;
 

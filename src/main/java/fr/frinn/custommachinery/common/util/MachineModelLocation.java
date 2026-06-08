@@ -29,7 +29,8 @@ public class MachineModelLocation implements IMachineModelLocation {
     private final String loc;
     @Nullable
     private final BlockState state;
-    @Nullable Item item;
+    @Nullable
+    private final Item item;
     @Nullable
     private final ResourceLocation id;
     @Nullable
