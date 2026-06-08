@@ -6,7 +6,6 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.UpgradedCustomMachine;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Comparator;
 

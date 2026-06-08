@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
 import org.apache.logging.log4j.util.TriConsumer;

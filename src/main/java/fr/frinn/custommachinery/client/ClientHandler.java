@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendererEvent;

@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
-import java.util.Collections;
 import java.util.List;
 
 /**

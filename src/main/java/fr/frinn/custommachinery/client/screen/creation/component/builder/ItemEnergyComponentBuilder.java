@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.component.builder;
 
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;

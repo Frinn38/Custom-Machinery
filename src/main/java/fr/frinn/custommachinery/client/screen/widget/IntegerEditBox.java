@@ -22,7 +22,7 @@ public class IntegerEditBox extends EditBox {
         this.max = max;
     }
 
-    public int getIntValue() {
+    public int intValue() {
         if(this.getValue().isEmpty())
             return 0;
         try {

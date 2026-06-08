@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.client.screen.creation.component.FilterConfigPop
 import fr.frinn.custommachinery.client.screen.creation.component.FilterConfigPopup.FilterBuilderHelper;
 import fr.frinn.custommachinery.client.screen.creation.component.IMachineComponentBuilder;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
+import fr.frinn.custommachinery.client.screen.widget.IntegerEditBox;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent.Template;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -59,9 +59,9 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
         protected EditBox id;
         protected CycleButton<ComponentIOMode> mode;
-        protected IntegerSlider capacity;
-        protected IntegerSlider maxInput;
-        protected IntegerSlider maxOutput;
+        protected IntegerEditBox capacity;
+        protected IntegerEditBox maxInput;
+        protected IntegerEditBox maxOutput;
         protected Filter<Item> filter;
         protected Checkbox locked;
         protected IOSideConfig.Template config;
@@ -99,16 +99,16 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
             this.baseTemplate().ifPresent(template -> this.mode.setValue(template.mode));
 
             //Capacity
-            this.capacity = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.capacity"), IntegerSlider.builder().bounds(0, 64).defaultValue(64).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.capacity")));
-            this.baseTemplate().ifPresent(template -> this.capacity.setValue(template.capacity));
+            this.capacity = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.capacity"), new IntegerEditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.capacity")));
+            this.baseTemplate().ifPresentOrElse(template -> this.capacity.setIntValue(template.capacity), () -> this.capacity.setIntValue(64));
 
             //Max input
-            this.maxInput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxInput"), IntegerSlider.builder().bounds(0, 64).defaultValue(64).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxInput")));
-            this.baseTemplate().ifPresent(template -> this.maxInput.setValue(template.maxInput));
+            this.maxInput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxInput"), new IntegerEditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxInput")));
+            this.baseTemplate().ifPresentOrElse(template -> this.maxInput.setValue("" + template.maxInput), () -> this.maxInput.setIntValue(64));
 
             //Max output
-            this.maxOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxOutput"), IntegerSlider.builder().bounds(0, 64).defaultValue(64).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxOutput")));
-            this.baseTemplate().ifPresent(template -> this.maxOutput.setValue(template.maxOutput));
+            this.maxOutput = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.maxOutput"), new IntegerEditBox(this.font, 0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.maxOutput")));
+            this.baseTemplate().ifPresentOrElse(template -> this.maxOutput.setValue("" + template.maxOutput), () -> this.maxOutput.setIntValue(64));
 
             //Filter
             this.baseTemplate().ifPresentOrElse(template -> this.filter = template.filter, () -> this.filter = Filter.empty());

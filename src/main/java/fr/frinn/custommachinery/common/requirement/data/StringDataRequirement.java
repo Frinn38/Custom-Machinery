@@ -11,7 +11,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;

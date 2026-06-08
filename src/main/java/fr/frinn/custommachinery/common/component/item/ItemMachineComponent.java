@@ -49,12 +49,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template configTemplate, boolean locked) {
         super(manager, mode);
         this.id = id;
-        this.capacity = this.upgradeableI(capacity, "capacity", 1, 64, value -> {
+        this.capacity = this.upgradeableI(capacity, "capacity", 1, Integer.MAX_VALUE, value -> {
             if(this.stack.getCount() > value)
                 this.setItemStack(this.stack.copyWithCount(value));
         });
-        this.maxInput = this.upgradeableI(maxInput, "maxInput", 0, 64);
-        this.maxOutput = this.upgradeableI(maxOutput, "maxOutput", 0, 64);
+        this.maxInput = this.upgradeableI(maxInput, "maxInput", 0, Integer.MAX_VALUE);
+        this.maxOutput = this.upgradeableI(maxOutput, "maxOutput", 0, Integer.MAX_VALUE);
         this.filter = filter;
         this.config = configTemplate.build(this);
         this.locked = locked;
@@ -257,7 +257,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
                     instance.group(
                             NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
                             ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                            NamedCodec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
+                            NamedCodec.INT.optionalFieldOf("capacity", Integer.MAX_VALUE).forGetter(template -> template.capacity),
                             NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
                             NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                             Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.ITEM)).orElse(Filter.empty()).forGetter(template -> template.filter),

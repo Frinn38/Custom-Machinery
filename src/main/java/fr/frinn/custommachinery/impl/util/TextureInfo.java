@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
 
-import java.util.Optional;
 import java.util.function.Function;
 
 public record TextureInfo(ResourceLocation texture, int u, int v) {

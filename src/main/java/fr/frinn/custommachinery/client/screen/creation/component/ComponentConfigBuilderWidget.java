@@ -1,9 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation.component;
 
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import fr.frinn.custommachinery.client.screen.widget.ColorWidget;
 import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButton;
 import fr.frinn.custommachinery.client.screen.widget.config.SideModeButton;
@@ -13,21 +11,15 @@ import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
-import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigGuiData;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.Template;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideMode;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.ImageWidget;
-import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 
 import java.util.HashMap;
 import java.util.Map;

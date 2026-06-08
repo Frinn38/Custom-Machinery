@@ -12,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.Random;
 
 public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMode mode, String target,

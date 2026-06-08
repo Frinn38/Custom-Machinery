@@ -61,7 +61,7 @@ public class BarGuiElementBuilder implements IGuiElementBuilder<BarGuiElement> {
 
         @Override
         public BarGuiElement makeElement() {
-            return new BarGuiElement(this.properties.build(), this.min.getIntValue(), this.max.getIntValue(), this.highlight.selected(), this.orientation.getValue(), this.emptyTexture, this.filledTexture);
+            return new BarGuiElement(this.properties.build(), this.min.intValue(), this.max.intValue(), this.highlight.selected(), this.orientation.getValue(), this.emptyTexture, this.filledTexture);
         }
 
         @Override

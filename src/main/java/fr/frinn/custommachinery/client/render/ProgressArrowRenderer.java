@@ -12,7 +12,6 @@ import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;

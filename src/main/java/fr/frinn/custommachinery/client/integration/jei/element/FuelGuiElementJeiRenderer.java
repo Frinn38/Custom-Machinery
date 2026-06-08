@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.client.integration.jei.element;
 
-import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
@@ -10,7 +9,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class FuelGuiElementJeiRenderer implements IJEIElementRenderer<FuelGuiElement> {

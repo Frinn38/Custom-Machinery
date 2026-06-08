@@ -1,13 +1,11 @@
 package fr.frinn.custommachinery.client.screen.widget.config;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FastColor;
