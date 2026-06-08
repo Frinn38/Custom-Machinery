@@ -4,7 +4,10 @@ import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLLoader;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 public record TextureInfo(ResourceLocation texture, int u, int v) {
@@ -21,5 +24,17 @@ public record TextureInfo(ResourceLocation texture, int u, int v) {
 
     public TextureInfo(ResourceLocation texture) {
         this(texture, 0, 0);
+    }
+
+    public int width() {
+        if(FMLLoader.getDist() == Dist.CLIENT)
+            return TextureSizeHelper.getTextureWidth(this.texture);
+        throw new IllegalStateException("Can't get width of texture on the server");
+    }
+
+    public int height() {
+        if(FMLLoader.getDist() == Dist.CLIENT)
+            return TextureSizeHelper.getTextureHeight(this.texture);
+        throw new IllegalStateException("Can't get height of texture on the server");
     }
 }

@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.screen.widget.config;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -15,7 +16,6 @@ import java.util.function.Supplier;
 
 public class AutoIOModeButton extends ImageButton {
 
-    private static final WidgetSprites SPRITES = new WidgetSprites(CustomMachinery.rl("config/auto_io_button"), CustomMachinery.rl("config/auto_io_button_hovered"));
     private static final MutableComponent INPUT = Component.translatable("custommachinery.gui.config.auto_input");
     private static final MutableComponent OUTPUT = Component.translatable("custommachinery.gui.config.auto_output");
     private static final MutableComponent ENABLED = Component.translatable("custommachinery.gui.config.enabled").withStyle(ChatFormatting.GREEN);
@@ -24,8 +24,8 @@ public class AutoIOModeButton extends ImageButton {
     private final Supplier<Boolean> enabled;
     private final boolean input;
 
-    public AutoIOModeButton(int x, int y, Supplier<Boolean> enabled, boolean input, OnPress onPress) {
-        super(x, y, 28, 14, SPRITES, onPress, input ? INPUT : OUTPUT);
+    public AutoIOModeButton(int x, int y, Supplier<Boolean> enabled, boolean input, OnPress onPress, ConfigButtonData data) {
+        super(x + data.x(), y + data.y(), data.width(), data.height(), data.sprites(), onPress, input ? INPUT : OUTPUT);
         this.enabled = enabled;
         this.input = input;
     }

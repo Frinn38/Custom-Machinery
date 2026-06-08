@@ -19,8 +19,8 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
     private boolean autoOutput;
     private final Map<Direction, Boolean> autoIOFaces = new EnumMap<>(Direction.class);
 
-    public IOSideConfig(ISideConfigComponent component, Map<RelativeSide, IOSideMode> defaultConfig, boolean input, boolean output, boolean enabled, Color color) {
-        super(component, defaultConfig, enabled, color);
+    public IOSideConfig(ISideConfigComponent component, Map<RelativeSide, IOSideMode> defaultConfig, boolean input, boolean output, boolean enabled, Color color, ConfigGuiData guiData) {
+        super(component, defaultConfig, enabled, color, guiData);
         this.autoInput = input;
         this.autoOutput = output;
         Arrays.stream(Direction.values()).forEach(side -> this.autoIOFaces.put(side, false));
@@ -83,7 +83,7 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
 
     @Override
     public IOSideConfig copy() {
-        return new IOSideConfig(this.getComponent(), this.sides, this.autoInput, this.autoOutput, this.isEnabled(), this.getColor());
+        return new IOSideConfig(this.getComponent(), this.sides, this.autoInput, this.autoOutput, this.isEnabled(), this.getColor(), this.getGuiData());
     }
 
     @Override
@@ -119,7 +119,7 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
         return false;
     }
 
-    public record Template(Map<RelativeSide, IOSideMode> sides, boolean autoInput, boolean autoOutput, boolean enabled, Color color) implements SideConfig.Template<IOSideMode> {
+    public record Template(Map<RelativeSide, IOSideMode> sides, boolean autoInput, boolean autoOutput, boolean enabled, Color color, ConfigGuiData guiData) implements SideConfig.Template<IOSideMode> {
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
@@ -127,7 +127,8 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
                         NamedCodec.BOOL.optionalFieldOf("input", false).forGetter(Template::autoInput),
                         NamedCodec.BOOL.optionalFieldOf("output", false).forGetter(Template::autoOutput),
                         NamedCodec.BOOL.optionalFieldOf("enabled", true).forGetter(Template::enabled),
-                        Color.CODEC.optionalFieldOf("color", DEFAULT_COLOR).forGetter(Template::color)
+                        Color.CODEC.optionalFieldOf("color", DEFAULT_COLOR).forGetter(Template::color),
+                        ConfigGuiData.CODEC.optionalFieldOf("gui", ConfigGuiData.DEFAULT).forGetter(Template::guiData)
                 ).apply(templateInstance, Template::new), "IO Side Config Template");
 
         public static final Template DEFAULT_ALL_BOTH = makeDefault(IOSideMode.BOTH, true);
@@ -140,11 +141,11 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
             EnumMap<RelativeSide, IOSideMode> map = Maps.newEnumMap(RelativeSide.class);
             for(RelativeSide side : RelativeSide.values())
                 map.put(side, defaultMode);
-            return new Template(map, false, false, enabled, DEFAULT_COLOR);
+            return new Template(map, false, false, enabled, DEFAULT_COLOR, ConfigGuiData.DEFAULT);
         }
 
         public <T extends ISideConfigComponent> IOSideConfig build(T component) {
-            return new IOSideConfig(component, this.sides, this.autoInput, this.autoOutput, this.enabled, this.color);
+            return new IOSideConfig(component, this.sides, this.autoInput, this.autoOutput, this.enabled, this.color, this.guiData);
         }
     }
 }

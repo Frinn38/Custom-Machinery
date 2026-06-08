@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigGuiData;
 import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
@@ -21,7 +22,7 @@ public class IOSideConfigData extends Data<IOSideConfig> {
         Map<RelativeSide, IOSideMode> map = new HashMap<>();
         for(RelativeSide side : RelativeSide.values())
             map.put(side, IOSideMode.values()[buffer.readByte()]);
-        return new IOSideConfigData(id, new IOSideConfig(null, map, buffer.readBoolean(), buffer.readBoolean(), true, Color.fromARGB(buffer.readVarInt())));
+        return new IOSideConfigData(id, new IOSideConfig(null, map, buffer.readBoolean(), buffer.readBoolean(), true, Color.fromARGB(buffer.readVarInt()), ConfigGuiData.CODEC.fromNetwork(buffer)));
     }
 
     @Override
@@ -32,5 +33,6 @@ public class IOSideConfigData extends Data<IOSideConfig> {
         buffer.writeBoolean(getValue().isAutoInput());
         buffer.writeBoolean(getValue().isAutoOutput());
         buffer.writeVarInt(getValue().getColor().getARGB());
+        ConfigGuiData.CODEC.toNetwork(getValue().getGuiData(), buffer);
     }
 }

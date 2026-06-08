@@ -4,23 +4,30 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ColorWidget;
+import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButton;
 import fr.frinn.custommachinery.client.screen.widget.config.SideModeButton;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
+import fr.frinn.custommachinery.impl.component.config.SideConfig;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigGuiData;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.Template;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideMode;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.ImageWidget;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FastColor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,15 +47,11 @@ public class ComponentConfigBuilderWidget extends Button {
 
     public static class ComponentConfigBuilderPopup extends PopupScreen {
 
-        private static final WidgetSprites ALL_NONE_SPRITES = new WidgetSprites(CustomMachinery.rl("config/all_none_button"), CustomMachinery.rl("config/all_none_button_hovered"));
-        private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
-        private static final Component TITLE = Component.translatable("custommachinery.gui.config.component");
-
         private final Consumer<Template<?>> onFinish;
         private Template<?> template;
 
         public ComponentConfigBuilderPopup(BaseScreen parent, Supplier<Template<?>> baseConfig, Consumer<Template<?>> onFinish) {
-            super(parent, 96, 145);
+            super(parent, baseConfig.get().guiData().width(), baseConfig.get().guiData().height());
             this.template = baseConfig.get();
             this.onFinish = onFinish;
         }
@@ -56,44 +59,42 @@ public class ComponentConfigBuilderWidget extends Button {
         @Override
         protected void init() {
             super.init();
+            GroupWidget guiConfig = this.addRenderableWidget(new GroupWidget(this.x, this.y, this.template.guiData().width(), this.template.guiData().height(), this.template.guiData().title()));
             //TOP
-            this.addRenderableWidget(new SideModeButton(this.x + 41, this.y + 25, () -> this.template.sides().get(RelativeSide.TOP), RelativeSide.TOP, button -> this.setSide(RelativeSide.TOP, true), button -> this.setSide(RelativeSide.TOP, false)));
+            guiConfig.addWidget(new SideModeButton(this.x, this.y, () -> this.template.sides().get(RelativeSide.TOP), RelativeSide.TOP, button -> this.setSide(RelativeSide.TOP, true), button -> this.setSide(RelativeSide.TOP, false), this.template.guiData().top()));
             //LEFT
-            this.addRenderableWidget(new SideModeButton(this.x + 25, this.y + 41, () -> this.template.sides().get(RelativeSide.LEFT), RelativeSide.LEFT, button -> this.setSide(RelativeSide.LEFT, true), button -> this.setSide(RelativeSide.LEFT, false)));
+            guiConfig.addWidget(new SideModeButton(this.x, this.y, () -> this.template.sides().get(RelativeSide.LEFT), RelativeSide.LEFT, button -> this.setSide(RelativeSide.LEFT, true), button -> this.setSide(RelativeSide.LEFT, false), this.template.guiData().left()));
             //FRONT
-            this.addRenderableWidget(new SideModeButton(this.x + 41, this.y + 41, () -> this.template.sides().get(RelativeSide.FRONT), RelativeSide.FRONT, button -> this.setSide(RelativeSide.FRONT, true), button -> this.setSide(RelativeSide.FRONT, false)));
+            guiConfig.addWidget(new SideModeButton(this.x, this.y, () -> this.template.sides().get(RelativeSide.FRONT), RelativeSide.FRONT, button -> this.setSide(RelativeSide.FRONT, true), button -> this.setSide(RelativeSide.FRONT, false), this.template.guiData().front()));
             //RIGHT
-            this.addRenderableWidget(new SideModeButton(this.x + 57, this.y + 41, () -> this.template.sides().get(RelativeSide.RIGHT), RelativeSide.RIGHT, button -> this.setSide(RelativeSide.RIGHT, true), button -> this.setSide(RelativeSide.RIGHT, false)));
+            guiConfig.addWidget(new SideModeButton(this.x, this.y, () -> this.template.sides().get(RelativeSide.RIGHT), RelativeSide.RIGHT, button -> this.setSide(RelativeSide.RIGHT, true), button -> this.setSide(RelativeSide.RIGHT, false), this.template.guiData().right()));
             //BACK
-            this.addRenderableWidget(new SideModeButton(this.x + 25, this.y + 57, () -> this.template.sides().get(RelativeSide.BACK), RelativeSide.BACK, button -> this.setSide(RelativeSide.BACK, true), button -> this.setSide(RelativeSide.BACK, false)));
+            guiConfig.addWidget(new SideModeButton(this.x, this.y, () -> this.template.sides().get(RelativeSide.BACK), RelativeSide.BACK, button -> this.setSide(RelativeSide.BACK, true), button -> this.setSide(RelativeSide.BACK, false), this.template.guiData().back()));
             //BOTTOM
-            this.addRenderableWidget(new SideModeButton(this.x + 41, this.y + 57, () -> this.template.sides().get(RelativeSide.BOTTOM), RelativeSide.BOTTOM, button -> this.setSide(RelativeSide.BOTTOM, true), button -> this.setSide(RelativeSide.BOTTOM, false)));
+            guiConfig.addWidget(new SideModeButton(this.x, this.y, () -> this.template.sides().get(RelativeSide.BOTTOM), RelativeSide.BOTTOM, button -> this.setSide(RelativeSide.BOTTOM, true), button -> this.setSide(RelativeSide.BOTTOM, false), this.template.guiData().bottom()));
             if(this.template instanceof IOSideConfig.Template) {
                 //AUTO-INPUT
-                this.addRenderableWidget(new AutoIOModeButton(this.x + 18, this.y + 75, () -> ((IOSideConfig.Template)this.template).autoInput(), true, button -> this.setIO(true)));
+                guiConfig.addWidget(new AutoIOModeButton(this.x, this.y, () -> ((IOSideConfig.Template)this.template).autoInput(), true, button -> this.setIO(true), this.template.guiData().input()));
                 //AUTO-OUTPUT
-                this.addRenderableWidget(new AutoIOModeButton(this.x + 50, this.y + 75, () -> ((IOSideConfig.Template)this.template).autoOutput(), false, button -> this.setIO(false)));
+                guiConfig.addWidget(new AutoIOModeButton(this.x, this.y, () -> ((IOSideConfig.Template)this.template).autoOutput(), false, button -> this.setIO(false), this.template.guiData().output()));
             }
             //All sides none
-            ImageButton allNone = this.addRenderableWidget(new ImageButton(this.x + 78, this.y + 57, 14, 14, ALL_NONE_SPRITES, button -> this.setAllNone()));
+            ConfigButtonData noneData = this.template.guiData().none();
+            ImageButton allNone = guiConfig.addWidget(new ImageButton(this.x + noneData.x(), this.y + noneData.y(), noneData.width(), noneData.height(), noneData.sprites(), button -> this.setAllNone()));
             allNone.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.all_none")));
             //EXIT
-            ImageButton close = this.addRenderableWidget(new ImageButton(this.x + 5, this.y + 5, 9, 9, EXIT_SPRITES, button -> this.parent.closePopup(this)));
+            ConfigButtonData exitData = this.template.guiData().exit();
+            ImageButton close = guiConfig.addWidget(new ImageButton(this.x + exitData.x(), this.y + exitData.y(), exitData.width(), exitData.height(), exitData.sprites(), button -> this.parent.closePopup(this)));
             close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.close")));
 
-            //Color
-            StringWidget colorTitle = this.addRenderableWidget(new StringWidget(Component.translatable("custommachinery.gui.creation.components.config.color"), this.font));
-            colorTitle.setPosition(this.x + 35, this.y + 90);
-            colorTitle.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.config.color.tooltip")));
-            ColorWidget color = this.addRenderableWidget(new ColorWidget(0, 0, this.xSize - 10, 20, Component.empty(), () -> this.template.color().getARGB(), this::setColor, true));
-            color.setPosition(this.x + 10, this.y + 100);
+            guiConfig.setPosition(this.x, this.y);
         }
 
         @Override
         public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
             super.renderBackground(graphics, mouseX, mouseY, partialTicks);
-            graphics.drawString(Minecraft.getInstance().font, TITLE, (int)(this.x + this.xSize / 2F - font.width(TITLE) / 2F), this.y + 5, 0, false);
-
+            graphics.blit(this.template.guiData().background().texture(), this.x, this.y, this.template.guiData().background().u(), this.template.guiData().background().v(), this.template.guiData().width(), this.template.guiData().height(), this.template.guiData().background().width(), this.template.guiData().background().height());
+            graphics.drawString(Minecraft.getInstance().font, this.template.guiData().title(), (int)(this.x + this.template.guiData().width() / 2F - font.width(this.template.guiData().title()) / 2F), this.y + 5, 0, false);
         }
 
         @Override
@@ -105,35 +106,28 @@ public class ComponentConfigBuilderWidget extends Button {
             if(this.template instanceof IOSideConfig.Template ioTemplate) {
                 Map<RelativeSide, IOSideMode> sides = new HashMap<>(ioTemplate.sides());
                 sides.put(side, next ? ioTemplate.sides().get(side).next() : ioTemplate.sides().get(side).previous());
-                this.template = new IOSideConfig.Template(sides, ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
+                this.template = new IOSideConfig.Template(sides, ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color(), ioTemplate.guiData());
             } else if(this.template instanceof ToggleSideConfig.Template toggleTemplate) {
                 Map<RelativeSide, ToggleSideMode> sides = new HashMap<>(toggleTemplate.sides());
                 sides.put(side, toggleTemplate.sides().get(side) == ToggleSideMode.ENABLED ? ToggleSideMode.DISABLED : ToggleSideMode.ENABLED);
-                this.template = new ToggleSideConfig.Template(sides, toggleTemplate.enabled(), toggleTemplate.color());
+                this.template = new ToggleSideConfig.Template(sides, toggleTemplate.enabled(), toggleTemplate.color(), toggleTemplate.guiData());
             }
         }
 
         private void setIO(boolean input) {
-            if(this.template instanceof IOSideConfig.Template ioTemplate) {
+            if(this.template instanceof IOSideConfig.Template(Map<RelativeSide, IOSideMode> sides, boolean autoInput, boolean autoOutput, boolean enabled, Color color, SideConfig.ConfigGuiData guiData)) {
                 if(input)
-                    this.template = new IOSideConfig.Template(ioTemplate.sides(), !ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
+                    this.template = new IOSideConfig.Template(sides, !autoInput, autoOutput, enabled, color, guiData);
                 else
-                    this.template = new IOSideConfig.Template(ioTemplate.sides(), ioTemplate.autoInput(), !ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
+                    this.template = new IOSideConfig.Template(sides, autoInput, !autoOutput, enabled, color, guiData);
             }
         }
 
         private void setAllNone() {
             if(this.template instanceof IOSideConfig.Template ioTemplate)
-                this.template = new IOSideConfig.Template(new HashMap<>(IOSideConfig.Template.DEFAULT_ALL_NONE.sides()), ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color());
+                this.template = new IOSideConfig.Template(new HashMap<>(IOSideConfig.Template.DEFAULT_ALL_NONE.sides()), ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color(), ioTemplate.guiData());
             else if(this.template instanceof ToggleSideConfig.Template toggleTemplate)
-                this.template = new ToggleSideConfig.Template(new HashMap<>(ToggleSideConfig.Template.DEFAULT_ALL_DISABLED.sides()), toggleTemplate.enabled(), toggleTemplate.color());
-        }
-
-        private void setColor(int color) {
-            if(this.template instanceof IOSideConfig.Template ioTemplate)
-                this.template = new IOSideConfig.Template(ioTemplate.sides(), ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), Color.fromARGB(color));
-            else if(this.template instanceof ToggleSideConfig.Template toggleTemplate)
-                this.template = new ToggleSideConfig.Template(toggleTemplate.sides(), toggleTemplate.enabled(), Color.fromARGB(color));
+                this.template = new ToggleSideConfig.Template(new HashMap<>(ToggleSideConfig.Template.DEFAULT_ALL_DISABLED.sides()), toggleTemplate.enabled(), toggleTemplate.color(), toggleTemplate.guiData());
         }
     }
 }

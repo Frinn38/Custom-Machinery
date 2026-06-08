@@ -87,6 +87,7 @@
   "custommachinery.gui.config.enabled": "Enabled",
   "custommachinery.gui.config.disabled": "Disabled",
   "custommachinery.gui.config.all_none": "Set all sides to none",
+  "custommachinery.gui.config.settings": "Customize config gui",
 
   "custommachinery.gui.creation.create": "Create",
   "custommachinery.gui.creation.edit": "Edit",
@@ -364,6 +365,7 @@
 
   "custommachinery.gui.popup.confirm": "Confirm",
   "custommachinery.gui.popup.cancel": "Cancel",
+  "custommachinery.gui.popup.reset": "Reset",
   "custommachinery.gui.popup.warning": "Warning !",
   "custommachinery.gui.popup.style": "Style",
 

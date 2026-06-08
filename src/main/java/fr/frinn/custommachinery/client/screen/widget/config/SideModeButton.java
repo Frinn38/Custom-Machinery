@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.client.screen.widget.config;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,15 +18,13 @@ import java.util.function.Supplier;
 
 public class SideModeButton extends ImageButton {
 
-    private static final WidgetSprites SPRITES = new WidgetSprites(CustomMachinery.rl("config/side_mode_button"), CustomMachinery.rl("config/side_mode_button_hovered"));
-
     private final Supplier<SideMode> modeGetter;
     private final RelativeSide side;
     private final OnPress leftClick;
     private final OnPress rightClick;
 
-    public SideModeButton(int x, int y, Supplier<SideMode> modeGetter, RelativeSide side, OnPress leftClick, OnPress rightClick) {
-        super(x, y, 14, 14, SPRITES, button -> {}, side.getTranslationName());
+    public SideModeButton(int x, int y, Supplier<SideMode> modeGetter, RelativeSide side, OnPress leftClick, OnPress rightClick, ConfigButtonData data) {
+        super(x + data.x(), y + data.y(), data.width(), data.height(), data.sprites(), button -> {}, side.getTranslationName());
         this.modeGetter = modeGetter;
         this.side = side;
         this.leftClick = leftClick;
