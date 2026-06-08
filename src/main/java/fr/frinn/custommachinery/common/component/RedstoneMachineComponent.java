@@ -77,7 +77,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     private boolean shouldPauseMachine() {
         return Stream.of(Direction.values())
                 .filter(side -> this.config.getDirectionMode(side).isInput())
-                .mapToInt(direction -> getManager().getLevel().getDirectSignal(getManager().getTile().getBlockPos().relative(direction), direction))
+                .mapToInt(direction -> Math.max(getManager().getLevel().getSignal(getManager().getTile().getBlockPos().relative(direction), direction), getManager().getLevel().getDirectSignal(getManager().getTile().getBlockPos().relative(direction), direction)))
                 .max()
                 .orElse(0) >= this.powerToPause;
     }
