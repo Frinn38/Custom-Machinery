@@ -6,9 +6,7 @@ import com.blamejared.crafttweaker.api.item.IItemStack;
 import fr.frinn.custommachinery.api.integration.crafttweaker.RecipeCTBuilder;
 import fr.frinn.custommachinery.common.integration.crafttweaker.CTConstants;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
@@ -24,9 +22,7 @@ public interface ItemTransformRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T transformItem(IIngredient ingredient, @OptionalInt(1) int amount, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<IItemStack, IItemStack> nbt) {
-        Item outputItem = output == null ? Items.AIR : output.getDefinition();
-        int outputAmount = output == null ? 1 : output.amount();
-        return addRequirement(new ItemTransformRequirement(ingredient.asVanillaIngredient(), amount, inputSlot, outputItem, outputAmount, outputSlot, true, new NbtTransformer(nbt)));
+        return addRequirement(new ItemTransformRequirement(ingredient.asVanillaIngredient(), amount, inputSlot, output.getInternal(), output.getInternal().getCount(), outputSlot, true, new NbtTransformer(nbt)));
     }
 
     class NbtTransformer implements Function<ItemStack, ItemStack> {

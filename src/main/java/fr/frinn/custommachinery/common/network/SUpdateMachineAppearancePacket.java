@@ -8,8 +8,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.Nullable;
 
-public record SUpdateMachineAppearancePacket(BlockPos pos, MachineAppearance appearance) implements CustomPacketPayload {
+public record SUpdateMachineAppearancePacket(BlockPos pos, @Nullable MachineAppearance appearance) implements CustomPacketPayload {
 
     public static final Type<SUpdateMachineAppearancePacket> TYPE = new Type<>(CustomMachinery.rl("update_machine_appearance"));
 

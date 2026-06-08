@@ -17,12 +17,10 @@ import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWra
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
-import net.minecraft.core.Holder;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.CraftingHelper;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -30,17 +28,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
-public record ItemTransformRequirement(Ingredient input, int inputAmount, String inputSlot, Item output, int outputAmount, String outputSlot, boolean copyNbt, @Nullable Function<ItemStack, ItemStack> function) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public record ItemTransformRequirement(Ingredient input, int inputAmount, String inputSlot, ItemStack output, int outputAmount, String outputSlot, boolean copyNbt, @Nullable Function<ItemStack, ItemStack> function) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemTransformRequirement> CODEC = NamedCodec.record(itemTransformRequirementInstance ->
             itemTransformRequirementInstance.group(
                     NamedCodec.of(CraftingHelper.makeIngredientCodec(false)).fieldOf("input").forGetter(requirement -> requirement.input),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("input_amount", 1).forGetter(requirement -> requirement.inputAmount),
                     NamedCodec.STRING.optionalFieldOf("input_slot", "").forGetter(requirement -> requirement.inputSlot),
-                    RegistrarCodec.ITEM.optionalFieldOf("output", Items.AIR).forGetter(requirement -> requirement.output),
+                    DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("output", ItemStack.EMPTY).forGetter(requirement -> requirement.output),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("output_amount", 1).forGetter(requirement -> requirement.outputAmount),
                     NamedCodec.STRING.optionalFieldOf("output_slot", "").forGetter(requirement -> requirement.outputSlot),
                     NamedCodec.BOOL.optionalFieldOf("copy_nbt", true).forGetter(requirement -> requirement.copyNbt)
@@ -70,11 +70,15 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
             if(component.getIngredientAmount(this.inputSlot, Ingredient.of(item)) < this.inputAmount)
                 return false;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
-            ItemStack output = null;
+            ItemStack output = this.output.copyWithCount(this.outputAmount);
             if(this.function != null)
                 output = this.function.apply(input.copy());
-            else if(this.copyNbt && this.output != Items.AIR)
-                output = new ItemStack(Holder.direct(this.output), 1, input.getComponentsPatch());
+            else if(this.copyNbt && this.output != ItemStack.EMPTY) {
+                for(Entry<DataComponentType<?>, Optional<?>> entry : input.getComponentsPatch().entrySet()) {
+                    if(entry.getValue().isPresent())
+                        this.setDataComponent(output, entry.getKey(), entry.getValue().get());
+                }
+            }
             return component.getSpaceForItem(this.outputSlot, output) >= this.outputAmount;
         });
     }
@@ -90,11 +94,15 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
             if(component.getIngredientAmount(this.inputSlot, ingredient) < this.inputAmount)
                 continue;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
-            ItemStack output = null;
+            ItemStack output = this.output.copyWithCount(this.outputAmount);
             if(this.function != null)
                 output = this.function.apply(input.copy());
-            else if(this.copyNbt && this.output != Items.AIR)
-                output = new ItemStack(Holder.direct(this.output), 1, input.getComponentsPatch());
+            else if(this.copyNbt && this.output != ItemStack.EMPTY) {
+                for(Entry<DataComponentType<?>, Optional<?>> entry : input.getComponentsPatch().entrySet()) {
+                    if(entry.getValue().isPresent())
+                        this.setDataComponent(output, entry.getKey(), entry.getValue().get());
+                }
+            }
             if(component.getSpaceForItem(this.outputSlot, output) < this.outputAmount)
                 continue;
             component.removeFromInputs(this.inputSlot, ingredient, this.inputAmount);
@@ -108,7 +116,12 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
         return Lists.newArrayList(
                 new ItemIngredientWrapper(RequirementIOMode.INPUT, new SizedIngredient(this.input, this.inputAmount), requirement.chance(), false, this.inputSlot, true),
-                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == Items.AIR ? new SizedIngredient(this.input, this.inputAmount) : new SizedIngredient(Ingredient.of(this.output), this.outputAmount), requirement.chance(), false, this.outputSlot, true)
+                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == ItemStack.EMPTY ? new SizedIngredient(this.input, this.inputAmount) : new SizedIngredient(Ingredient.of(this.output), this.outputAmount), requirement.chance(), false, this.outputSlot, true)
         );
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void setDataComponent(ItemStack stack, DataComponentType type, Object component) {
+        stack.set(type, component);
     }
 }

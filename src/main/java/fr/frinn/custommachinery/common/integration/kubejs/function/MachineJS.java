@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.function;
 
+import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.level.CachedLevelBlock;
 import dev.latvian.mods.rhino.Wrapper;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
@@ -35,18 +36,21 @@ public class MachineJS {
         this.nbt = this.internal.getComponentManager().getComponent(Registration.DATA_MACHINE_COMPONENT.get()).orElseThrow().getData();
     }
 
-    public static MachineJS of(Object o) {
-        if(o instanceof Wrapper w) {
+    @Nullable
+    public static MachineJS of(@Nullable Object o) {
+        if(o == null)
+            return null;
+
+        if(o instanceof Wrapper w)
             o = w.unwrap();
-        }
 
         if(o instanceof BlockEntity blockEntity) {
             if(blockEntity instanceof CustomMachineTile customMachineTile)
                 return new MachineJS(customMachineTile);
         }
-        if(o instanceof CachedLevelBlock block) {
+
+        if(o instanceof CachedLevelBlock block)
             return of(block.getEntity());
-        }
 
         return null;
     }
@@ -116,7 +120,9 @@ public class MachineJS {
         return this.internal.getOwner();
     }
 
-    public void setOwner(LivingEntity entity) {
+    public void setOwner(@Nullable LivingEntity entity) {
+        if(entity == null)
+            throw new KubeRuntimeException("Can't set null owner of custom machine: '" + getId() + "'");
         this.internal.setOwner(entity);
     }
 
@@ -205,9 +211,7 @@ public class MachineJS {
     public void setItemStored(String slot, ItemStack stack) {
         this.internal.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(slot))
-                .ifPresent(component -> {
-                    component.setItemStack(stack);
-                });
+                .ifPresent(component -> component.setItemStack(stack));
     }
 
     public int getItemCapacity(String slot) {

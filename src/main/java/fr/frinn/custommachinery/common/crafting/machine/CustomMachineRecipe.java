@@ -114,7 +114,7 @@ public class CustomMachineRecipe implements IMachineRecipe {
 
         for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY) {
             Object value = this.appearance.getProperty(property);
-            if(value == null || property.getDefaultValue().equals(value))
+            if(property.getDefaultValue().equals(value))
                 properties.put(property, baseAppearance.getProperty(property));
             else
                 properties.put(property, value);
@@ -129,6 +129,7 @@ public class CustomMachineRecipe implements IMachineRecipe {
         return this.guiElements;
     }
 
+    @Nullable
     public List<IGuiElement> getCustomGuiElements(List<IGuiElement> baseGuiElements) {
         if(this.customGuiElements != null)
             return this.customGuiElements;
