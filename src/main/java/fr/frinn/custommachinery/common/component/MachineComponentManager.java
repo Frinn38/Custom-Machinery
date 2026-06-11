@@ -84,7 +84,7 @@ public class MachineComponentManager implements IMachineComponentManager {
                 })
                 .filter(component -> component instanceof ISideConfigComponent)
                 .map(component -> (ISideConfigComponent)component)
-                .collect(Collectors.toUnmodifiableMap(component -> component.getType().getId().toString() + ":" + component.getId(), Function.identity()));
+                .collect(Collectors.toUnmodifiableMap(component -> component.getType().getId() + ":" + component.getId(), Function.identity()));
     }
 
     @Override
@@ -156,7 +156,7 @@ public class MachineComponentManager implements IMachineComponentManager {
         //Standard target key in case of wrong user input like 'min_input' instead of "minInput"
         String targetId = target == null ? "" : Utils.standard(target);
         if(map.containsKey(targetId))
-            throw new IllegalArgumentException("Can't add 2 upgradeable values for component type: " + component.getType().getId().toString() + " id: " + id + " target: " + target);
+            throw new IllegalArgumentException("Can't add 2 upgradeable values for component type: " + component.getType().getId() + " id: " + id + " target: " + target);
         UpgradeableComponentValue upgradeableValue = new UpgradeableComponentValue(component, targetId, defaultValue, min, max, onChange);
         map.put(targetId, upgradeableValue);
         return upgradeableValue;
@@ -175,12 +175,16 @@ public class MachineComponentManager implements IMachineComponentManager {
 
     @Override
     public Level getLevel() {
-        return getTile().getLevel();
+        if(this.getTile().getLevel() == null)
+            throw new IllegalStateException("Level is null for custom machine: " + this.getTile().getId());
+        return this.getTile().getLevel();
     }
 
     @Override
     public MinecraftServer getServer() {
-        return getLevel().getServer();
+        if(this.getLevel().getServer() == null)
+            throw new IllegalStateException("Server is null for custom machine: " + this.getTile().getId());
+        return this.getLevel().getServer();
     }
 
     @Override

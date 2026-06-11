@@ -27,6 +27,7 @@ import fr.frinn.custommachinery.impl.codec.OptionalFieldCodec;
 import fr.frinn.custommachinery.impl.codec.PairCodec;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.codec.UnboundedMapCodec;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -39,6 +40,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -192,7 +194,7 @@ public interface NamedCodec<A> {
     }
 
     static <A> NamedCodec<A> lazy(Supplier<NamedCodec<A>> supplier, String name) {
-        return new NamedCodec<A>() {
+        return new NamedCodec<>() {
             @Override
             public <T> DataResult<Pair<A, T>> decode(DynamicOps<T> ops, T input) {
                 return supplier.get().decode(ops, input);
@@ -275,7 +277,7 @@ public interface NamedCodec<A> {
     String name();
 
     default Codec<A> codec() {
-        return new Codec<A>() {
+        return new Codec<>() {
             @Override
             public <T> DataResult<Pair<A, T>> decode(DynamicOps<T> ops, T input) {
                 return NamedCodec.this.decode(ops, input);
@@ -318,7 +320,7 @@ public interface NamedCodec<A> {
     }
 
     default <S> NamedCodec<S> xmap(Function<? super A, ? extends S> to, Function<? super S, ? extends A> from, String name) {
-        return new NamedCodec<S>() {
+        return new NamedCodec<>() {
             @Override
             public <T> DataResult<Pair<S, T>> decode(DynamicOps<T> ops, T input) {
                 return NamedCodec.this.decode(ops, input).map(p -> p.mapFirst(to));
@@ -337,7 +339,7 @@ public interface NamedCodec<A> {
     }
 
     default <S> NamedCodec<S> comapFlatMap(Function<? super A, ? extends DataResult<? extends S>> to, Function<? super S, ? extends A> from, String name) {
-        return new NamedCodec<S>() {
+        return new NamedCodec<>() {
             @Override
             public <T> DataResult<Pair<S, T>> decode(DynamicOps<T> ops, T input) {
                 return NamedCodec.this.decode(ops, input).flatMap(p -> to.apply(p.getFirst()).map(r -> Pair.of(r, p.getSecond())));
@@ -356,7 +358,7 @@ public interface NamedCodec<A> {
     }
 
     default <S> NamedCodec<S> flatComapMap(Function<? super A, ? extends S> to, Function<? super S, ? extends DataResult<? extends A>> from, String name) {
-        return new NamedCodec<S>() {
+        return new NamedCodec<>() {
             @Override
             public <T> DataResult<Pair<S, T>> decode(DynamicOps<T> ops, T input) {
                 return NamedCodec.this.decode(ops, input).map(p -> p.mapFirst(to));
@@ -375,7 +377,7 @@ public interface NamedCodec<A> {
     }
 
     default <S> NamedCodec<S> flatXmap(Function<? super A, ? extends DataResult<? extends S>> to, Function<? super S, ? extends DataResult<? extends A>> from, String name) {
-        return new NamedCodec<S>() {
+        return new NamedCodec<>() {
             @Override
             public <T> DataResult<Pair<S, T>> decode(DynamicOps<T> ops, T input) {
                 return NamedCodec.this.decode(ops, input).flatMap(p -> to.apply(p.getFirst()).map(r -> Pair.of(r, p.getSecond())));
@@ -409,10 +411,14 @@ public interface NamedCodec<A> {
         return DefaultOptionalFieldCodec.of(fieldName, this, defaultValue, name());
     }
 
+    default NamedCodec<A> validate(final Function<A, DataResult<A>> checker) {
+        return flatXmap(checker, checker, name());
+    }
+
     default void toNetwork(A input, FriendlyByteBuf buf) {
         DataResult<Tag> result = encodeStart(NbtOps.INSTANCE, input);
         result.error().ifPresent(error -> {
-            throw new EncoderException(String.format("Failed to encode: %s\nError: %s\nInput: %s", name(), error.message(), input.toString()));
+            throw new EncoderException(String.format("Failed to encode: %s\nError: %s\nInput: %s", name(), error.message(), input));
         });
         Tag tag = result.result().orElseThrow();
         if(tag instanceof CompoundTag compoundTag)
@@ -426,11 +432,10 @@ public interface NamedCodec<A> {
 
     default A fromNetwork(FriendlyByteBuf buf) {
         CompoundTag tag = buf.readNbt();
-        DataResult<A> result;
-        if(tag != null && tag.contains("custommachinery$special_nbt_key"))
-            result = read(NbtOps.INSTANCE, tag.get("custommachinery$special_nbt_key"));
-        else
-            result = read(NbtOps.INSTANCE, tag);
+        if(tag == null)
+            throw new DecoderException("Error while reading " + name() + " from network");
+        Tag special_nbt = tag.get("custommachinery$special_nbt_key");
+        DataResult<A> result = read(NbtOps.INSTANCE, Objects.requireNonNullElse(special_nbt, tag));
         result.error().ifPresent(error -> {
             throw new EncoderException(String.format("Failed to decode: %s\nError: %s\nInput: %S", name(), error.message(), tag));
         });
@@ -576,7 +581,7 @@ public interface NamedCodec<A> {
             return ops.getStream(input).flatMap(stream -> {
                 final List<T> list = stream.toList();
                 if (list.stream().allMatch(element -> ops.getNumberValue(element).result().isPresent()))
-                    return DataResult.success(list.stream().mapToDouble(element -> ops.getNumberValue(element).result().get().doubleValue()));
+                    return DataResult.success(list.stream().map(element -> ops.getNumberValue(element).result()).filter(Optional::isPresent).mapToDouble(result -> result.get().doubleValue()));
                 return DataResult.error(() -> "Some elements are not doubles: " + input);
             }).map(r -> Pair.of(r, ops.empty()));
         }
@@ -592,7 +597,7 @@ public interface NamedCodec<A> {
         }
     };
 
-    NamedCodec<Dynamic<?>> PASSTHROUGH = new NamedCodec<Dynamic<?>>() {
+    NamedCodec<Dynamic<?>> PASSTHROUGH = new NamedCodec<>() {
         @Override
         public <T> DataResult<Pair<Dynamic<?>, T>> decode(final DynamicOps<T> ops, final T input) {
             return DataResult.success(Pair.of(new Dynamic<>(ops, input), ops.empty()));

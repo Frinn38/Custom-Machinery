@@ -1,6 +1,8 @@
 package fr.frinn.custommachinery.common.machine;
 
+import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
@@ -15,8 +17,10 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class CustomMachine implements ICustomMachine {
@@ -31,7 +35,7 @@ public class CustomMachine implements ICustomMachine {
                 IGuiElement.CODEC.listOf().optionalFieldOf("gui", Collections.emptyList()).forGetter(CustomMachine::getGuiElements),
                 IGuiElement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(CustomMachine::getJeiElements),
                 DefaultCodecs.RESOURCE_LOCATION.listOf().optionalFieldOf("catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
-                IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", Collections.emptyList()).forGetter(CustomMachine::getComponentTemplates),
+                IMachineComponentTemplate.CODEC.listOf().validate(CustomMachine::validateComponents).optionalFieldOf("components", Collections.emptyList()).forGetter(CustomMachine::getComponentTemplates),
                 IProcessorTemplate.CODEC.optionalFieldOf("processor", MachineProcessor.Template.DEFAULT).forGetter(CustomMachine::getProcessorTemplate)
         ).apply(machineCodec, CustomMachine::new),
             "Custom machine"
@@ -126,5 +130,16 @@ public class CustomMachine implements ICustomMachine {
 
     public MachineLocation getLocation() {
         return this.location;
+    }
+
+    private static DataResult<List<IMachineComponentTemplate<?>>> validateComponents(List<IMachineComponentTemplate<?>> templates) {
+        for(Iterator<IMachineComponentTemplate<?>> iterator = templates.iterator(); iterator.hasNext();) {
+            IMachineComponentTemplate<?> template = iterator.next();
+            if(templates.stream().filter(other -> template.getType() == other.getType() && template.getId().equals(other.getId())).count() > 1) {
+                ICustomMachineryAPI.INSTANCE.logger().error(MarkerManager.getMarker("ComponentValidator"), "Two components of type: {} found with the same id '{}', removing first found", template.getType().getId(), template.getId());
+                iterator.remove();
+            }
+        }
+        return DataResult.success(templates);
     }
 }
