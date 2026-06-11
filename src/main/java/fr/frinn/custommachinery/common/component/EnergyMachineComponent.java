@@ -42,7 +42,7 @@ import java.util.function.Supplier;
 public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent, IEnergyStorage {
 
     private long energy;
-    private long clientCapacity = 0;
+    private long clientCapacity;
     private final Supplier<Long> capacity;
     private final Supplier<Long> maxInput;
     private final Supplier<Long> minInput;
@@ -60,7 +60,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         this.minInput = this.upgradeableL(minInput, "min_input", 0, Long.MAX_VALUE);
         this.maxOutput = this.upgradeableL(maxOutput, "max_output", 0, Long.MAX_VALUE);
         this.minOutput = this.upgradeableL(minOutput, "min_output", 0, Long.MAX_VALUE);
-        this.config = configTemplate.build(this);
+        this.config = configTemplate.build(manager.facing());
         this.config.setCallback(this::configChanged);
         for(Direction side : Direction.values())
             this.sidedStorages.put(side, new SidedEnergyStorage(side, this));
@@ -149,15 +149,15 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
                 continue;
 
             if(this.getConfig().isAutoInput() && this.getConfig().getDirectionMode(side).isInput() && this.getEnergy() < this.getCapacity())
-                move(neighbour, this.sidedStorages.get(side), Integer.MAX_VALUE);
+                move(neighbour, this.sidedStorages.get(side));
 
             if(this.getConfig().isAutoOutput() && this.getConfig().getDirectionMode(side).isOutput() && this.getEnergy() > 0)
-                move(this.sidedStorages.get(side), neighbour, Integer.MAX_VALUE);
+                move(this.sidedStorages.get(side), neighbour);
         }
     }
 
-    private void move(IEnergyStorage from, IEnergyStorage to, int maxAmount) {
-        int maxExtracted = from.extractEnergy(maxAmount, true);
+    private void move(IEnergyStorage from, IEnergyStorage to) {
+        int maxExtracted = from.extractEnergy(Integer.MAX_VALUE, true);
         if(maxExtracted > 0) {
             int maxInserted = to.receiveEnergy(maxExtracted, true);
             int toTransfer = maxInserted;

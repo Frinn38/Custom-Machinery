@@ -2,9 +2,9 @@ package fr.frinn.custommachinery.impl.component.config;
 
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 
@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
 
-    public ToggleSideConfig(ISideConfigComponent component, Map<RelativeSide, ToggleSideMode> defaultConfig, boolean enabled, Color color, ConfigGuiData guiData) {
-        super(component, defaultConfig, enabled, color, guiData);
+    public ToggleSideConfig(Direction facing, Map<RelativeSide, ToggleSideMode> defaultConfig, boolean enabled, Color color, ConfigGuiData guiData) {
+        super(facing, defaultConfig, enabled, color, guiData);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
 
     @Override
     public ToggleSideConfig copy() {
-        return new ToggleSideConfig(this.getComponent(), this.sides, this.isEnabled(), this.getColor(), this.getGuiData());
+        return new ToggleSideConfig(this.getFacing(), this.sides, this.isEnabled(), this.getColor(), this.getGuiData());
     }
 
     @Override
@@ -81,8 +81,8 @@ public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
             return new Template(map, enabled, DEFAULT_COLOR, ConfigGuiData.DEFAULT);
         }
 
-        public <T extends ISideConfigComponent> ToggleSideConfig build(T component) {
-            return new ToggleSideConfig(component, this.sides, this.enabled, this.color, this.guiData);
+        public ToggleSideConfig build(Direction facing) {
+            return new ToggleSideConfig(facing, this.sides, this.enabled, this.color, this.guiData);
         }
     }
 }

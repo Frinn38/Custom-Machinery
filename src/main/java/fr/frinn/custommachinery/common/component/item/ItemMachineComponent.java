@@ -56,7 +56,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         this.maxInput = this.upgradeableI(maxInput, "maxInput", 0, Integer.MAX_VALUE);
         this.maxOutput = this.upgradeableI(maxOutput, "maxOutput", 0, Integer.MAX_VALUE);
         this.filter = filter;
-        this.config = configTemplate.build(this);
+        this.config = configTemplate.build(manager.facing());
         this.locked = locked;
     }
 
@@ -252,18 +252,19 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Item machine component");
 
-        public static <T extends Template> NamedCodec<T> defaultCodec(Function8<String, ComponentIOMode, Integer, Optional<Integer>, Optional<Integer>, Filter<Item>, Optional<IOSideConfig.Template>, Boolean, T> constructor, String name) {
+        public static <T extends Template> NamedCodec<T> defaultCodec(Function8<String, ComponentIOMode, Integer, Integer, Integer, Filter<Item>, IOSideConfig.Template, Boolean, T> constructor, String name) {
             return NamedCodec.record(instance ->
                     instance.group(
                             NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
                             ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                            NamedCodec.INT.optionalFieldOf("capacity", Integer.MAX_VALUE).forGetter(template -> template.capacity),
-                            NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
-                            NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
+                            NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("capacity", Integer.MAX_VALUE).forGetter(template -> template.capacity),
+                            NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                            NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
                             Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.ITEM)).orElse(Filter.empty()).forGetter(template -> template.filter),
                             IOSideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                             NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked)
-                    ).apply(instance, constructor), name);
+                    ).apply(instance, (id, mode, capacity, maxInput, maxOutput, filter, template, locked) ->
+                            constructor.apply(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, template.orElse(mode.getBaseConfig()), locked)), name);
         }
 
         public final String id;
@@ -275,14 +276,14 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         public final IOSideConfig.Template config;
         public final boolean locked;
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<IOSideConfig.Template> config, boolean locked) {
+        public Template(String id, ComponentIOMode mode, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template config, boolean locked) {
             this.id = id;
             this.mode = mode;
             this.capacity = capacity;
-            this.maxInput = maxInput.orElse(capacity);
-            this.maxOutput = maxOutput.orElse(capacity);
+            this.maxInput = maxInput;
+            this.maxOutput = maxOutput;
             this.filter = filter;
-            this.config = config.orElse(mode.getBaseConfig());
+            this.config = config;
             this.locked = locked;
         }
 

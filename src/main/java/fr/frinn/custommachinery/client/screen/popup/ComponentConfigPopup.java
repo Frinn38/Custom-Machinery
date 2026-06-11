@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
+import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButton;
@@ -19,13 +20,15 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class ComponentConfigPopup extends PopupScreen {
 
+    private final ISideConfigComponent component;
     private final SideConfig<?> config;
     private final ConfigGuiData guiData;
 
-    public ComponentConfigPopup(MachineConfigScreen parent, SideConfig<?> config) {
-        super(parent, config.getGuiData().width(), config.getGuiData().height());
-        this.config = config;
-        this.guiData = config.getGuiData();
+    public ComponentConfigPopup(MachineConfigScreen parent, ISideConfigComponent component) {
+        super(parent, component.getConfig().getGuiData().width(), component.getConfig().getGuiData().height());
+        this.component = component;
+        this.config = component.getConfig();
+        this.guiData = component.getConfig().getGuiData();
     }
 
     @Override
@@ -75,6 +78,6 @@ public class ComponentConfigPopup extends PopupScreen {
     }
 
     private String getComponentId() {
-        return this.config.getComponent().getType().getId() + ":" + this.config.getComponent().getId();
+        return this.component.getType().getId() + ":" + this.component.getId();
     }
 }

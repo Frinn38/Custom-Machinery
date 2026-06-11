@@ -9,7 +9,7 @@ import java.util.Locale;
 
 /**
  * Mostly copied from Mekanism API:
- * <a href="https://github.com/mekanism/Mekanism/blob/1.18.x/src/api/java/mekanism/api/RelativeSide.java">See on Github</a>
+ * <a href="https://github.com/mekanism/Mekanism/blob/1.18.x/src/api/java/mekanism/api/RelativeSide.java">See on GitHub</a>
  */
 
 public enum RelativeSide {

@@ -8,7 +8,6 @@ import fr.frinn.custommachinery.client.screen.popup.ComponentConfigPopup;
 import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
 import fr.frinn.custommachinery.client.screen.widget.config.ComponentConfigButton;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
-import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
@@ -57,8 +56,8 @@ public class MachineConfigScreen extends BaseScreen {
         this.parent.init(Minecraft.getInstance(), this.width, this.height);
         //Highlight elements in specified color
         this.getConfigurableElements().forEach(element -> {
-            SideConfig<?> config = this.getComponentFromElement(element).getConfig();
-            ComponentConfigPopup popup = new ComponentConfigPopup(this, config);
+            ISideConfigComponent component = this.getComponentFromElement(element);
+            ComponentConfigPopup popup = new ComponentConfigPopup(this, component);
             this.addRenderableWidget(new ComponentConfigButton(
                     this.x + element.getX(),
                     this.y + element.getY(),
@@ -71,7 +70,7 @@ public class MachineConfigScreen extends BaseScreen {
                         Vector2i pos = getStartingPos(this.getConfigurableElements().indexOf(element));
                         popup.move(pos.x * 20, pos.y * 20);
                     },
-                    config.getColor(),
+                    component.getConfig().getColor(),
                     popup
             ));
         });

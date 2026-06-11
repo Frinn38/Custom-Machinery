@@ -42,7 +42,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         this.pausedPowerOutput = pausedPowerOutput;
         this.comparatorInputType = comparatorInputType;
         this.comparatorInputID = comparatorInputID;
-        this.config = config.build(this);
+        this.config = config.build(manager.facing());
     }
 
     public RedstoneMachineComponent(IMachineComponentManager manager) {

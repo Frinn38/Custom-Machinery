@@ -133,18 +133,19 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
                 instance.group(
                         NamedCodec.STRING.fieldOf("id").forGetter(template -> template.id),
                         ComponentIOMode.CODEC.optionalFieldOf("mode", ComponentIOMode.BOTH).forGetter(template -> template.mode),
-                        NamedCodec.INT.optionalFieldOf("capacity", 64).forGetter(template -> template.capacity),
-                        NamedCodec.INT.optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
-                        NamedCodec.INT.optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
-                        Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.ITEM)).forGetter(template -> template.filter),
+                        NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("capacity", Integer.MAX_VALUE).forGetter(template -> template.capacity),
+                        NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_input").forGetter(template -> template.maxInput == template.capacity ? Optional.empty() : Optional.of(template.maxInput)),
+                        NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_output").forGetter(template -> template.maxOutput == template.capacity ? Optional.empty() : Optional.of(template.maxOutput)),
+                        Filter.codec(DefaultCodecs.registryValueOrTag(BuiltInRegistries.ITEM)).orElse(Filter.empty()).forGetter(template -> template.filter),
                         IOSideConfig.Template.CODEC.optionalFieldOf("config").forGetter(template -> template.config == template.mode.getBaseConfig() ? Optional.empty() : Optional.of(template.config)),
                         NamedCodec.BOOL.optionalFieldOf("locked", false).aliases("lock").forGetter(template -> template.locked),
                         NamedCodec.STRING.listOf().optionalFieldOf("tanks", Collections.emptyList()).forGetter(template -> template.tanks)
-                ).apply(instance, Template::new), "Fluid handler item machine component");
+                ).apply(instance, (id, mode, capacity, maxInput, maxOutput, filter, config, locked, tanks) ->
+                        new Template(id, mode, capacity, maxInput.orElse(capacity), maxOutput.orElse(capacity), filter, config.orElse(mode.getBaseConfig()), locked, tanks)), "Fluid handler item machine component");
 
         public final List<String> tanks;
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<IOSideConfig.Template> config, boolean locked, List<String> tanks) {
+        public Template(String id, ComponentIOMode mode, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template config, boolean locked, List<String> tanks) {
             super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
             this.tanks = tanks;
         }

@@ -10,7 +10,6 @@ import fr.frinn.custommachinery.common.component.item.ItemMachineComponent.Templ
 import fr.frinn.custommachinery.common.init.Registration;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ItemEnergyComponentBuilder extends ItemComponentBuilder {
@@ -33,7 +32,7 @@ public class ItemEnergyComponentBuilder extends ItemComponentBuilder {
 
         @Override
         public Template makeTemplate() {
-            return new EnergyItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), this.filter, Optional.of(this.config), this.locked.selected());
+            return new EnergyItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), this.maxInput.intValue(), this.maxOutput.intValue(), this.filter, this.config, this.locked.selected());
         }
     }
 }

@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ItemFluidComponentBuilder extends ItemComponentBuilder {
@@ -41,7 +40,7 @@ public class ItemFluidComponentBuilder extends ItemComponentBuilder {
 
         @Override
         public Template makeTemplate() {
-            return new FluidHandlerItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), Optional.of(this.maxInput.intValue()), Optional.of(this.maxOutput.intValue()), this.filter, Optional.of(this.config), this.locked.selected(), this.getTanks());
+            return new FluidHandlerItemMachineComponent.Template(this.id.getValue(), this.mode.getValue(), this.capacity.intValue(), this.maxInput.intValue(), this.maxOutput.intValue(), this.filter, this.config, this.locked.selected(), this.getTanks());
         }
 
         @Override

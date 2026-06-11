@@ -57,7 +57,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         this.maxOutput = this.upgradeableI(maxOutput, "max_output", 0, Integer.MAX_VALUE);
         this.minOutput = this.upgradeableI(minOutput, "min_output", 0, Integer.MAX_VALUE);
         this.filter = filter;
-        this.config = configTemplate.build(this);
+        this.config = configTemplate.build(manager.facing());
         this.unique = unique;
     }
 

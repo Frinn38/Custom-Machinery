@@ -5,6 +5,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -89,6 +90,7 @@ public class DataType<D extends IData<T>, T> {
      * A helper method to get the ID of this {@link DataType}.
      * @return The ID of this {@link DataType}, or null if it is not registered.
      */
+    @Nullable
     public ResourceLocation getId() {
         return ICustomMachineryAPI.INSTANCE.dataRegistrar().getKey(this);
     }

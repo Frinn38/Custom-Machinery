@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.impl.component.config;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
@@ -26,25 +25,24 @@ public abstract class SideConfig<M extends SideMode> {
     public static final Color DEFAULT_COLOR = Color.fromColors(0.5, 0, 0, 1);
 
     final Map<RelativeSide, M> sides = new EnumMap<>(RelativeSide.class);
-    private final ISideConfigComponent component;
     private final Direction facing;
     private final boolean enabled;
     //Color of the slot in the MachineConfigScreen
     private final Color color;
+    //Data used to display the config gui
     private final ConfigGuiData guiData;
     private TriConsumer<RelativeSide, M, M> callback;
 
-    public SideConfig(ISideConfigComponent component, Map<RelativeSide, M> defaultConfig, boolean enabled, Color color, ConfigGuiData guiData) {
-        this.component = component;
-        this.facing = component != null ? component.getManager().facing() : Direction.NORTH;
+    public SideConfig(Direction facing, Map<RelativeSide, M> defaultConfig, boolean enabled, Color color, ConfigGuiData guiData) {
+        this.facing = facing;
         this.sides.putAll(defaultConfig);
         this.enabled = enabled;
         this.color = color;
         this.guiData = guiData;
     }
 
-    public ISideConfigComponent getComponent() {
-        return this.component;
+    public Direction getFacing() {
+        return this.facing;
     }
 
     public M getSideMode(RelativeSide side) {
@@ -57,7 +55,7 @@ public abstract class SideConfig<M extends SideMode> {
 
     public void setSideMode(RelativeSide side, M mode) {
         M oldMode = this.sides.put(side, mode);
-        if(this.callback != null && !getComponent().getManager().getLevel().isClientSide())
+        if(this.callback != null)
             this.callback.accept(side, oldMode, mode);
     }
 

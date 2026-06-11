@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.impl.component.config;
 
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
 import net.minecraft.core.Direction;
@@ -19,8 +18,8 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
     private boolean autoOutput;
     private final Map<Direction, Boolean> autoIOFaces = new EnumMap<>(Direction.class);
 
-    public IOSideConfig(ISideConfigComponent component, Map<RelativeSide, IOSideMode> defaultConfig, boolean input, boolean output, boolean enabled, Color color, ConfigGuiData guiData) {
-        super(component, defaultConfig, enabled, color, guiData);
+    public IOSideConfig(Direction facing, Map<RelativeSide, IOSideMode> defaultConfig, boolean input, boolean output, boolean enabled, Color color, ConfigGuiData guiData) {
+        super(facing, defaultConfig, enabled, color, guiData);
         this.autoInput = input;
         this.autoOutput = output;
         Arrays.stream(Direction.values()).forEach(side -> this.autoIOFaces.put(side, false));
@@ -83,7 +82,7 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
 
     @Override
     public IOSideConfig copy() {
-        return new IOSideConfig(this.getComponent(), this.sides, this.autoInput, this.autoOutput, this.isEnabled(), this.getColor(), this.getGuiData());
+        return new IOSideConfig(this.getFacing(), this.sides, this.autoInput, this.autoOutput, this.isEnabled(), this.getColor(), this.getGuiData());
     }
 
     @Override
@@ -144,8 +143,8 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
             return new Template(map, false, false, enabled, DEFAULT_COLOR, ConfigGuiData.DEFAULT);
         }
 
-        public <T extends ISideConfigComponent> IOSideConfig build(T component) {
-            return new IOSideConfig(component, this.sides, this.autoInput, this.autoOutput, this.enabled, this.color, this.guiData);
+        public IOSideConfig build(Direction facing) {
+            return new IOSideConfig(facing, this.sides, this.autoInput, this.autoOutput, this.enabled, this.color, this.guiData);
         }
     }
 }

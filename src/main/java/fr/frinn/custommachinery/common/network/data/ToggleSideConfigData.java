@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigGuiData;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideMode;
 import fr.frinn.custommachinery.impl.network.Data;
+import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class ToggleSideConfigData extends Data<ToggleSideConfig> {
         Map<RelativeSide, ToggleSideMode> map = new HashMap<>();
         for(RelativeSide side : RelativeSide.values())
             map.put(side, buffer.readBoolean() ? ToggleSideMode.ENABLED : ToggleSideMode.DISABLED);
-        return new ToggleSideConfigData(id, new ToggleSideConfig(null, map, true, Color.fromARGB(buffer.readVarInt()), ConfigGuiData.CODEC.fromNetwork(buffer)));
+        return new ToggleSideConfigData(id, new ToggleSideConfig(Direction.NORTH, map, true, Color.fromARGB(buffer.readVarInt()), ConfigGuiData.CODEC.fromNetwork(buffer)));
     }
 
     @Override

@@ -22,6 +22,7 @@ public class WidgetToJeiIngredientRegistry {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    @Nullable
     public static IClickableIngredient<?> getIngredient(AbstractGuiElementWidget<?> widget, double mouseX, double mouseY, IJeiHelpers helpers) {
         IngredientGetter getter = registry.get(widget.getElement().getType());
         if(getter == null)

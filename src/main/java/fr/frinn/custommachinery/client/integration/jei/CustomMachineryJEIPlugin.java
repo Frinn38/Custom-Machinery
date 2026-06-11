@@ -191,7 +191,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        CustomMachinery.MACHINES.forEach((id, machine) -> {
+        CustomMachinery.MACHINES.forEach((id, machine) ->
             machine.getRecipeIds().forEach(recipeId -> {
                 RecipeType<?> type;
                 if(machine.getProcessorTemplate().getType() == Registration.MACHINE_PROCESSOR.get())
@@ -213,8 +213,8 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                             ICustomMachineryAPI.INSTANCE.logger().error("Invalid catalyst '{}' for machine '{}'. Not a machine or item id", catalyst, id);
                     });
                 }
-            });
-        });
+            })
+        );
     }
 
     @Override

@@ -15,8 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
-import java.util.Optional;
-
 public class EnergyItemMachineComponent extends ItemMachineComponent implements ITickableComponent {
 
     public EnergyItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template configTemplate, boolean locked) {
@@ -107,7 +105,7 @@ public class EnergyItemMachineComponent extends ItemMachineComponent implements 
 
         public static final NamedCodec<Template> CODEC = defaultCodec(Template::new, "Energy item machine component");
 
-        public Template(String id, ComponentIOMode mode, int capacity, Optional<Integer> maxInput, Optional<Integer> maxOutput, Filter<Item> filter, Optional<IOSideConfig.Template> config, boolean locked) {
+        public Template(String id, ComponentIOMode mode, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template config, boolean locked) {
             super(id, mode, capacity, maxInput, maxOutput, filter, config, locked);
         }
 
