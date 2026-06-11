@@ -85,6 +85,7 @@ import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientat
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.impl.component.config.SideConfig.SpriteData;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
@@ -93,6 +94,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.Rect2i;
@@ -445,5 +447,9 @@ public class ClientHandler {
             int i1 = Mth.clamp(minX, minX + width / 2, maxX - width / 2);
             guiGraphics.drawString(font, text, i1 - font.width(text) / 2, y, color, false);
         }
+    }
+
+    public static WidgetSprites dataToSprite(SpriteData data) {
+        return new WidgetSprites(data.texture(), data.textureHovered());
     }
 }

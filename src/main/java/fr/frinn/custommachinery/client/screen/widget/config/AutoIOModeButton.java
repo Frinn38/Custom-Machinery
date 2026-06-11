@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.widget.config;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,7 +24,7 @@ public class AutoIOModeButton extends ImageButton {
     private final boolean input;
 
     public AutoIOModeButton(int x, int y, Supplier<Boolean> enabled, boolean input, OnPress onPress, ConfigButtonData data) {
-        super(x + data.x(), y + data.y(), data.width(), data.height(), data.sprites(), onPress, input ? INPUT : OUTPUT);
+        super(x + data.x(), y + data.y(), data.width(), data.height(), ClientHandler.dataToSprite(data.sprites()), onPress, input ? INPUT : OUTPUT);
         this.enabled = enabled;
         this.input = input;
     }

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButton;
 import fr.frinn.custommachinery.client.screen.widget.config.SideModeButton;
@@ -49,10 +50,10 @@ public class ComponentConfigPopup extends PopupScreen {
             this.addRenderableWidget(new AutoIOModeButton(this.x, this.y, ioSideConfig::isAutoOutput, false, button -> this.setSide(7, true), this.guiData.output()));
         }
         //All sides none
-        ImageButton allNone = this.addRenderableWidget(new ImageButton(this.x + this.guiData.none().x(), this.y + this.guiData.none().y(), this.guiData.none().width(), this.guiData.none().height(), this.guiData.none().sprites(), button -> this.setAllNone()));
+        ImageButton allNone = this.addRenderableWidget(new ImageButton(this.x + this.guiData.none().x(), this.y + this.guiData.none().y(), this.guiData.none().width(), this.guiData.none().height(), ClientHandler.dataToSprite(this.guiData.none().sprites()), button -> this.setAllNone()));
         allNone.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.all_none")));
         //EXIT
-        ImageButton close = this.addRenderableWidget(new ImageButton(this.x + this.guiData.exit().x(), this.y + this.guiData.exit().y(), this.guiData.exit().width(), this.guiData.exit().height(), this.guiData.exit().sprites(), button -> this.parent.closePopup(this)));
+        ImageButton close = this.addRenderableWidget(new ImageButton(this.x + this.guiData.exit().x(), this.y + this.guiData.exit().y(), this.guiData.exit().width(), this.guiData.exit().height(), ClientHandler.dataToSprite(this.guiData.exit().sprites()), button -> this.parent.closePopup(this)));
         close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.close")));
     }
 
@@ -74,6 +75,6 @@ public class ComponentConfigPopup extends PopupScreen {
     }
 
     private String getComponentId() {
-        return this.config.getComponent().getType().getId().toString() + ":" + this.config.getComponent().getId();
+        return this.config.getComponent().getType().getId() + ":" + this.config.getComponent().getId();
     }
 }

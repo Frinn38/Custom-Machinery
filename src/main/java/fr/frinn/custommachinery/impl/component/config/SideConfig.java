@@ -9,10 +9,10 @@ import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -122,10 +122,10 @@ public abstract class SideConfig<M extends SideMode> {
         public static final TextureInfo DEFAULT_BACKGROUND = new TextureInfo(CustomMachinery.rl("textures/gui/sprites/config/background.png"));
         public static final Component DEFAULT_TITLE = Component.translatable("custommachinery.gui.config.component");
 
-        public static final WidgetSprites DEFAULT_EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
+        public static final SpriteData DEFAULT_EXIT_SPRITES = new SpriteData(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
         public static final ConfigButtonData DEFAULT_EXIT = new ConfigButtonData(5, 5, 9, 9, DEFAULT_EXIT_SPRITES);
 
-        public static final WidgetSprites DEFAULT_SIDE_MODE_SPRITES = new WidgetSprites(CustomMachinery.rl("config/side_mode_button"), CustomMachinery.rl("config/side_mode_button_hovered"));
+        public static final SpriteData DEFAULT_SIDE_MODE_SPRITES = new SpriteData(CustomMachinery.rl("config/side_mode_button"), CustomMachinery.rl("config/side_mode_button_hovered"));
         public static final ConfigButtonData DEFAULT_TOP = new ConfigButtonData(41, 25, 14, 14, DEFAULT_SIDE_MODE_SPRITES);
         public static final ConfigButtonData DEFAULT_BOTTOM = new ConfigButtonData(41, 57, 14, 14, DEFAULT_SIDE_MODE_SPRITES);
         public static final ConfigButtonData DEFAULT_LEFT = new ConfigButtonData(25, 41, 14, 14, DEFAULT_SIDE_MODE_SPRITES);
@@ -133,10 +133,10 @@ public abstract class SideConfig<M extends SideMode> {
         public static final ConfigButtonData DEFAULT_FRONT = new ConfigButtonData(41, 41, 14, 14, DEFAULT_SIDE_MODE_SPRITES);
         public static final ConfigButtonData DEFAULT_BACK = new ConfigButtonData(25, 57, 14, 14, DEFAULT_SIDE_MODE_SPRITES);
 
-        public static final WidgetSprites DEFAULT_NONE_SPRITES = new WidgetSprites(CustomMachinery.rl("config/all_none_button"), CustomMachinery.rl("config/all_none_button_hovered"));
+        public static final SpriteData DEFAULT_NONE_SPRITES = new SpriteData(CustomMachinery.rl("config/all_none_button"), CustomMachinery.rl("config/all_none_button_hovered"));
         public static final ConfigButtonData DEFAULT_NONE = new ConfigButtonData(78, 57, 14, 14, DEFAULT_NONE_SPRITES);
 
-        public static final WidgetSprites DEFAULT_IO_SPRITES = new WidgetSprites(CustomMachinery.rl("config/auto_io_button"), CustomMachinery.rl("config/auto_io_button_hovered"));
+        public static final SpriteData DEFAULT_IO_SPRITES = new SpriteData(CustomMachinery.rl("config/auto_io_button"), CustomMachinery.rl("config/auto_io_button_hovered"));
         public static final ConfigButtonData DEFAULT_INPUT = new ConfigButtonData(18, 75, 28, 14, DEFAULT_IO_SPRITES);
         public static final ConfigButtonData DEFAULT_OUTPUT = new ConfigButtonData(50, 75, 28, 14, DEFAULT_IO_SPRITES);
 
@@ -182,22 +182,24 @@ public abstract class SideConfig<M extends SideMode> {
         }
     }
 
-    public record ConfigButtonData(int x, int y, int width, int height, WidgetSprites sprites) {
-        public static final NamedCodec<WidgetSprites> SPRITE_CODEC = NamedCodec.record(widgetSpritesInstance ->
-                widgetSpritesInstance.group(
-                        DefaultCodecs.RESOURCE_LOCATION.fieldOf("texture").forGetter(WidgetSprites::enabled),
-                        DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered").forGetter(sprites -> Optional.of(sprites.enabled()))
-                ).apply(widgetSpritesInstance, (texture, texture_hovered) -> new WidgetSprites(texture, texture_hovered.orElse(texture))), "Widget sprites"
-        );
-
+    public record ConfigButtonData(int x, int y, int width, int height, SpriteData sprites) {
         public static final NamedCodec<ConfigButtonData> CODEC = NamedCodec.record(configButtonDataInstance ->
                 configButtonDataInstance.group(
                         NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("x").forGetter(ConfigButtonData::x),
                         NamedCodec.intRange(0, Integer.MAX_VALUE).fieldOf("y").forGetter(ConfigButtonData::y),
                         NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("width", -1).forGetter(ConfigButtonData::width),
                         NamedCodec.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("height", -1).forGetter(ConfigButtonData::height),
-                        SPRITE_CODEC.fieldOf("textures").forGetter(ConfigButtonData::sprites)
+                        SpriteData.CODEC.fieldOf("textures").forGetter(ConfigButtonData::sprites)
                 ).apply(configButtonDataInstance, ConfigButtonData::new), "Config button data"
+        );
+    }
+
+    public record SpriteData(ResourceLocation texture, ResourceLocation textureHovered) {
+        public static final NamedCodec<SpriteData> CODEC = NamedCodec.record(spriteDataInstance ->
+                spriteDataInstance.group(
+                        DefaultCodecs.RESOURCE_LOCATION.fieldOf("texture").forGetter(SpriteData::texture),
+                        DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered").forGetter(sprites -> Optional.of(sprites.textureHovered()))
+                ).apply(spriteDataInstance, (texture, texture_hovered) -> new SpriteData(texture, texture_hovered.orElse(texture))), "Widget sprites"
         );
     }
 }

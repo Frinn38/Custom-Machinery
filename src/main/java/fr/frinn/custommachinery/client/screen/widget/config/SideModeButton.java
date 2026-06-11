@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.widget.config;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
@@ -22,7 +23,7 @@ public class SideModeButton extends ImageButton {
     private final OnPress rightClick;
 
     public SideModeButton(int x, int y, Supplier<SideMode> modeGetter, RelativeSide side, OnPress leftClick, OnPress rightClick, ConfigButtonData data) {
-        super(x + data.x(), y + data.y(), data.width(), data.height(), data.sprites(), button -> {}, side.getTranslationName());
+        super(x + data.x(), y + data.y(), data.width(), data.height(), ClientHandler.dataToSprite(data.sprites()), button -> {}, side.getTranslationName());
         this.modeGetter = modeGetter;
         this.side = side;
         this.leftClick = leftClick;

@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.component;
 
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
@@ -72,11 +73,11 @@ public class ComponentConfigBuilderWidget extends Button {
             }
             //All sides none
             ConfigButtonData noneData = this.template.guiData().none();
-            ImageButton allNone = guiConfig.addWidget(new ImageButton(this.x + noneData.x(), this.y + noneData.y(), noneData.width(), noneData.height(), noneData.sprites(), button -> this.setAllNone()));
+            ImageButton allNone = guiConfig.addWidget(new ImageButton(this.x + noneData.x(), this.y + noneData.y(), noneData.width(), noneData.height(), ClientHandler.dataToSprite(noneData.sprites()), button -> this.setAllNone()));
             allNone.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.all_none")));
             //EXIT
             ConfigButtonData exitData = this.template.guiData().exit();
-            ImageButton close = guiConfig.addWidget(new ImageButton(this.x + exitData.x(), this.y + exitData.y(), exitData.width(), exitData.height(), exitData.sprites(), button -> this.parent.closePopup(this)));
+            ImageButton close = guiConfig.addWidget(new ImageButton(this.x + exitData.x(), this.y + exitData.y(), exitData.width(), exitData.height(), ClientHandler.dataToSprite(exitData.sprites()), button -> this.parent.closePopup(this)));
             close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.close")));
 
             guiConfig.setPosition(this.x, this.y);
@@ -95,14 +96,14 @@ public class ComponentConfigBuilderWidget extends Button {
         }
 
         private void setSide(RelativeSide side, boolean next) {
-            if(this.template instanceof IOSideConfig.Template ioTemplate) {
-                Map<RelativeSide, IOSideMode> sides = new HashMap<>(ioTemplate.sides());
-                sides.put(side, next ? ioTemplate.sides().get(side).next() : ioTemplate.sides().get(side).previous());
-                this.template = new IOSideConfig.Template(sides, ioTemplate.autoInput(), ioTemplate.autoOutput(), ioTemplate.enabled(), ioTemplate.color(), ioTemplate.guiData());
-            } else if(this.template instanceof ToggleSideConfig.Template toggleTemplate) {
-                Map<RelativeSide, ToggleSideMode> sides = new HashMap<>(toggleTemplate.sides());
-                sides.put(side, toggleTemplate.sides().get(side) == ToggleSideMode.ENABLED ? ToggleSideMode.DISABLED : ToggleSideMode.ENABLED);
-                this.template = new ToggleSideConfig.Template(sides, toggleTemplate.enabled(), toggleTemplate.color(), toggleTemplate.guiData());
+            if(this.template instanceof IOSideConfig.Template(Map<RelativeSide, IOSideMode> sides, boolean autoInput, boolean autoOutput, boolean enabled, Color color, SideConfig.ConfigGuiData guiData)) {
+                Map<RelativeSide, IOSideMode> newSides = new HashMap<>(sides);
+                newSides.put(side, next ? sides.get(side).next() : sides.get(side).previous());
+                this.template = new IOSideConfig.Template(newSides, autoInput, autoOutput, enabled, color, guiData);
+            } else if(this.template instanceof ToggleSideConfig.Template(Map<RelativeSide, ToggleSideMode> sides, boolean enabled, Color color, SideConfig.ConfigGuiData guiData)) {
+                Map<RelativeSide, ToggleSideMode> newSides = new HashMap<>(sides);
+                newSides.put(side, sides.get(side) == ToggleSideMode.ENABLED ? ToggleSideMode.DISABLED : ToggleSideMode.ENABLED);
+                this.template = new ToggleSideConfig.Template(newSides, enabled, color, guiData);
             }
         }
 
