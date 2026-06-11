@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -17,6 +17,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -26,7 +28,6 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
 
     private static final Gson GSON = new GsonBuilder().create();
     private static final int PATH_SUFFIX_LENGTH = ".json".length();
-    private static final Logger LOGGER = CustomMachinery.LOGGER;
     private final String directory;
     private final String legacyDirectory;
 
@@ -37,14 +38,16 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
 
     @Override
     protected Map<ResourceLocation, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
+        Logger logger = ICustomMachineryAPI.INSTANCE.logger();
+        Marker marker = MarkerManager.getMarker("FileLoader");
         //Checking if any files are in legacy directory
         if(CMConfig.CONFIG.logLegacyFolderFiles.get() && !manager.listResources(this.legacyDirectory, loc -> loc.getPath().endsWith(".json")).isEmpty()) {
-            LOGGER.warn("Files found in legacy folder: '{}'. To make CM work correctly please move these files to the correct folder: '{}'", this.legacyDirectory, this.directory);
+            logger.warn(marker, "Files found in legacy folder: '{}'. To make CM work correctly please move these files to the correct folder: '{}'", this.legacyDirectory, this.directory);
             if(ServerLifecycleHooks.getCurrentServer() != null)
                 ServerLifecycleHooks.getCurrentServer().getPlayerList().broadcastSystemMessage(Component.literal("Files found in legacy folder: " + this.legacyDirectory + "\nTo make CM work correctly please move these files to the correct folder: " + this.directory + "\nThis message can be turned off in CM config").withStyle(ChatFormatting.RED), false);
         }
 
-        LOGGER.info("Parsing all .json files in {} folder.", this.directory);
+        logger.info(marker, "Parsing all .json files in {} folder.", this.directory);
         Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
         int i = this.directory.length() + 1;
 
@@ -60,12 +63,12 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
                     if(replaced != null)
                         throw new IllegalStateException("Duplicate data file ignored with ID " + id);
                 } else
-                    LOGGER.error("Couldn't load data file {} from {} as it's null or empty", id, loc);
+                    logger.error(marker, "Couldn't load data file {} from {} as it's null or empty", id, loc);
             } catch (IllegalArgumentException | IOException | JsonParseException e) {
-                LOGGER.error("Couldn't parse data file {} from {}\n{}", id, loc, e);
+                logger.error(marker, "Couldn't parse data file {} from {}\n{}", id, loc, e);
             }
         }
-        LOGGER.info("Finished, {} .json files successfully parsed in {} folder.", map.size(), this.directory);
+        logger.info(marker, "Finished, {} .json files successfully parsed in {} folder.", map.size(), this.directory);
         return map;
     }
 }

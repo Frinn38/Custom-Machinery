@@ -32,7 +32,7 @@ public class CMLogger {
         final Configuration config = ctx.getConfiguration();
 
         PatternLayout logPattern = PatternLayout.newBuilder()
-                .withPattern("[%d{HH:mm:ss.SSS}][%level]: %msg%n%throwable")
+                .withPattern("[%d{HH:mm:ss.SSS}][%level][%markerSimpleName]: %msg%n%throwable")
                 .build();
 
         TriggeringPolicy policy = new TriggeringPolicy() {

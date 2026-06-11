@@ -17,175 +17,207 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class CMVerifier {
 
-    public static int verify(RecipeManager manager) {
-        final Logger logger = ICustomMachineryAPI.INSTANCE.logger();
-        AtomicInteger errors = new AtomicInteger();
-        logger.info("---------------------------------------------");
-        logger.info("| Starting verification of Custom Machinery |");
-        logger.info("---------------------------------------------");
+    public static Result verify(RecipeManager manager) {
+        ResultBuilder builder = new ResultBuilder();
+        builder.info("---------------------------------------------");
+        builder.info("| Starting verification of Custom Machinery |");
+        builder.info("---------------------------------------------");
+
         //Machines
-        logger.info("Found {} custom machines : ", CustomMachinery.MACHINES.size());
+        builder.pushCategory("Machines");
+        builder.info("Found {} custom machines : ", CustomMachinery.MACHINES.size());
         CustomMachinery.MACHINES.forEach((id, machine) -> {
-            logger.info(" - {}", id.toString());
-            errors.addAndGet(verifyMachine(logger, machine));
+            builder.pushCategory(machine.getId().toString());
+            verifyMachine(builder, machine);
+            builder.appendNoErrorMessage();
+            builder.popCategory();
         });
+        builder.popCategory();
 
         //Upgrades
-        logger.info("Found {} custom machine upgrades", CustomMachinery.UPGRADES.getAllUpgrades().size());
+        builder.pushCategory("Upgrades");
+        builder.info("Found {} custom machine upgrades", CustomMachinery.UPGRADES.getAllUpgrades().size());
         CustomMachinery.UPGRADES.getAllUpgrades().forEach((location, upgrade) -> {
-            logger.info(" - {}", BuiltInRegistries.ITEM.getKey(upgrade.item()).toString());
-            errors.addAndGet(verifyUpgrade(logger, upgrade));
+            builder.pushCategory(BuiltInRegistries.ITEM.getKey(upgrade.item()).toString());
+            verifyUpgrade(builder, upgrade);
+            builder.appendNoErrorMessage();
+            builder.popCategory();
         });
+        builder.popCategory();
 
         //Machine recipes
+        builder.pushCategory("Recipes");
         List<RecipeHolder<CustomMachineRecipe>> machineRecipes = manager.getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get());
-        logger.info("Found {} custom machine recipes", machineRecipes.size());
+        builder.info("Found {} custom machine recipes", machineRecipes.size());
         machineRecipes.forEach(holder -> {
-            logger.info(" - {}", holder.id().toString());
-            errors.addAndGet(verifyMachineRecipe(logger, holder.value()));
+            builder.pushCategory(holder.id().toString());
+            verifyMachineRecipe(builder, holder.value());
+            builder.appendNoErrorMessage();
+            builder.popCategory();
         });
 
         //Craft recipes
         List<RecipeHolder<CustomCraftRecipe>> craftRecipes = manager.getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get());
-        logger.info("Found {} custom craft recipes", craftRecipes.size());
+        builder.info("Found {} custom craft recipes", craftRecipes.size());
         craftRecipes.forEach(holder -> {
-            logger.info(" - {}", holder.id().toString());
-            errors.addAndGet(verifyCraftRecipe(logger, holder.value()));
+            builder.pushCategory(holder.id().toString());
+            verifyCraftRecipe(builder, holder.value());
+            builder.appendNoErrorMessage();
+            builder.popCategory();
         });
-        return errors.get();
+        builder.popCategory();
+
+        return builder.build();
     }
 
-    private static int verifyMachine(final Logger logger, CustomMachine machine) {
-        int errors = 0;
+    public static void verifyMachine(ResultBuilder builder, CustomMachine machine) {
         //Checking duplicate components
-        for(IMachineComponentTemplate<?> template : machine.getComponentTemplates()) {
-            for(IMachineComponentTemplate<?> other : machine.getComponentTemplates()) {
-                if(template != other && template.getType() == other.getType() && template.getId().equals(other.getId())) {
-                    logger.error(" - Multiple machine components of type {} have the same id '{}'", template.getType().getId().toString(), template.getId());
-                    errors++;
-                }
-            }
-        }
+        for(IMachineComponentTemplate<?> template : machine.getComponentTemplates())
+            for(IMachineComponentTemplate<?> other : machine.getComponentTemplates())
+                if(template != other && template.getType() == other.getType() && template.getId().equals(other.getId()))
+                    builder.error("Multiple machine components of type {} have the same id '{}'", template.getType().getId().toString(), template.getId());
 
         //Checking duplicate elements
-        for(IGuiElement element : machine.getGuiElements()) {
-            for(IGuiElement other : machine.getGuiElements()) {
-                if(element != other && element.getType() == other.getType() && element.getId().equals(other.getId()) && !element.getId().isEmpty()) {
-                    logger.error(" - Multiple gui elements of type {} have the same id '{}'", element.getType().getId().toString(), element.getId());
-                    errors++;
-                }
-            }
-        }
+        for(IGuiElement element : machine.getGuiElements())
+            for(IGuiElement other : machine.getGuiElements())
+                if(element != other && element.getType() == other.getType() && element.getId().equals(other.getId()) && !element.getId().isEmpty())
+                    builder.error("Multiple gui elements of type {} have the same id '{}'", element.getType().getId().toString(), element.getId());
 
         //Checking component gui elements without components
         for(IGuiElement element : machine.getGuiElements()) {
             if(element instanceof SlotGuiElement slotGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template instanceof ItemMachineComponent.Template && template.getId().equals(slotGuiElement.getComponentId())))
-                logger.error(" - Slot gui element of id '{}' doesn't have an associated machine component", slotGuiElement.getComponentType().getId().toString(), slotGuiElement.getComponentId());
+                builder.error("Slot gui element of id '{}' doesn't have an associated machine component", slotGuiElement.getComponentId());
             if(element.getType() != Registration.SLOT_GUI_ELEMENT.get() && element instanceof IComponentGuiElement<?> componentGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == componentGuiElement.getComponentType() && template.getId().equals(componentGuiElement.getComponentId())))
-                logger.error(" - Gui element of type {} and id '{}' doesn't have an associated machine component", componentGuiElement.getComponentType().getId().toString(), componentGuiElement.getComponentId());
+                builder.error("Gui element of type {} and id '{}' doesn't have an associated machine component", componentGuiElement.getComponentType().getId().toString(), componentGuiElement.getComponentId());
         }
 
         //Checking presence of result item component
         boolean crafter = machine.getProcessorTemplate().getType() == Registration.CRAFT_PROCESSOR.get();
-        for(IMachineComponentTemplate<?> template : machine.getComponentTemplates()) {
-            if(template.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get() && !crafter) {
-                logger.error(" - Found item component of type {} with id '{}' but machine isn't using craft processor !\n" +
+        for(IMachineComponentTemplate<?> template : machine.getComponentTemplates())
+            if(template.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get() && !crafter)
+                builder.error("Found item component of type {} with id '{}' but machine isn't using craft processor !\n" +
                         "Result item components should only be used for machines with craft processor, consider using item component type {} instead.", template.getType().getId().toString(), template.getId(), Registration.ITEM_MACHINE_COMPONENT.get().getId().toString());
-                errors++;
-            }
-        }
-        if(crafter && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get())) {
-            logger.error(" - No result item machine component found but machine is using craft processor !\n" +
+        if(crafter && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()))
+            builder.error("No result item machine component found but machine is using craft processor !\n" +
                     "At least 1 item component of type {} is required for the craft processor to work correctly.", Registration.ITEM_RESULT_MACHINE_COMPONENT.get().getId().toString());
-            errors++;
-        }
-        return errors;
     }
 
-    private static int verifyUpgrade(final Logger logger, MachineUpgrade upgrade) {
-        int errors = 0;
+    private static void verifyUpgrade(ResultBuilder builder, MachineUpgrade upgrade) {
         //Check that machine exists
-        for(ResourceLocation id : upgrade.machines()) {
-            if(!CustomMachinery.MACHINES.containsKey(id)) {
-                logger.error(" - Unknown machine id {} specified for this upgrade", id.toString());
-                errors++;
-            }
-        }
+        for(ResourceLocation id : upgrade.machines())
+            if(!CustomMachinery.MACHINES.containsKey(id))
+                builder.error("Unknown machine id {} specified for this upgrade", id.toString());
 
         //Check that upgrade has recipeModifiers
-        if(upgrade.recipeModifiers().isEmpty()) {
-            logger.error(" - Upgrade doesn't have any recipeModifiers");
-            errors++;
-        }
-        return errors;
+        if(upgrade.recipeModifiers().isEmpty())
+            builder.error("Upgrade doesn't have any recipeModifiers");
     }
 
-    private static int verifyMachineRecipe(final Logger logger, CustomMachineRecipe recipe) {
-        int errors = 0;
+    private static void verifyMachineRecipe(ResultBuilder builder, CustomMachineRecipe recipe) {
         //Check that the machine exists
         CustomMachine machine = CustomMachinery.MACHINES.get(recipe.getMachineId());
         if(machine == null) {
-            logger.error(" - Unknown machine id: {}", recipe.getMachineId());
-            return 1;
+            builder.error("Unknown machine id: {}", recipe.getMachineId());
+            return;
         }
 
         //Check that the machine has the correct processor
-        if(machine.getProcessorTemplate().getType() != Registration.MACHINE_PROCESSOR.get()) {
-            logger.error(" - Recipe can't be processed by machine {} as it doesn't use machine processor");
-            errors++;
-        }
+        if(machine.getProcessorTemplate().getType() != Registration.MACHINE_PROCESSOR.get())
+            builder.error("Recipe can't be processed by machine {} as it doesn't use machine processor");
 
         //Check that the recipe has requirements
-        if(recipe.getRequirements().isEmpty() && recipe.getJeiRequirements().isEmpty()) {
-            logger.error(" - Recipe doesn't have any requirements");
-            errors++;
-        }
+        if(recipe.getRequirements().isEmpty() && recipe.getJeiRequirements().isEmpty())
+            builder.error("Recipe doesn't have any requirements");
 
         //Check requirements
-        for(RecipeRequirement<?, ?> requirement : recipe.getRequirements()) {
-            if(!requirement.requirement().getComponentType().isDefaultComponent() && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == requirement.requirement().getComponentType())) {
-                logger.error(" - Recipe has a requirement of type {} but machine doesn't have a component of type {}", requirement.requirement().getType().getId().toString(), requirement.requirement().getComponentType().getId().toString());
-                errors++;
-            }
-        }
-        return errors;
+        for(RecipeRequirement<?, ?> requirement : recipe.getRequirements())
+            if(!requirement.requirement().getComponentType().isDefaultComponent() && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == requirement.requirement().getComponentType()))
+                builder.error("Recipe has a requirement of type {} but machine doesn't have a component of type {}", requirement.requirement().getType().getId().toString(), requirement.requirement().getComponentType().getId().toString());
     }
 
-    private static int verifyCraftRecipe(final Logger logger, CustomCraftRecipe recipe) {
-        int errors = 0;
+    private static void verifyCraftRecipe(final ResultBuilder builder, CustomCraftRecipe recipe) {
         //Check that the machine exists
         CustomMachine machine = CustomMachinery.MACHINES.get(recipe.getMachineId());
         if(machine == null) {
-            logger.error(" - Unknown machine id: {}", recipe.getMachineId());
-            return 1;
+            builder.error("Unknown machine id: {}", recipe.getMachineId());
+            return;
         }
 
         //Check that the machine has the correct processor
         if(machine.getProcessorTemplate().getType() != Registration.CRAFT_PROCESSOR.get()) {
-            logger.error(" - Recipe can't be processed by machine {} as it doesn't use craft processor");
-            errors++;
+            builder.error("Recipe can't be processed by machine {} as it doesn't use craft processor");
         }
 
         //Check that the recipe has requirements
-        if(recipe.getRequirements().isEmpty() && recipe.getJeiRequirements().isEmpty()) {
-            logger.error(" - Recipe doesn't have any requirements");
-            errors++;
-        }
+        if(recipe.getRequirements().isEmpty() && recipe.getJeiRequirements().isEmpty())
+            builder.error("Recipe doesn't have any requirements");
 
         //Check requirements
-        for(RecipeRequirement<?, ?> requirement : recipe.getRequirements()) {
-            if(!requirement.requirement().getComponentType().isDefaultComponent() && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == requirement.requirement().getComponentType())) {
-                logger.error(" - Recipe has a requirement of type {} but machine doesn't have a component of type {}", requirement.requirement().getType().getId().toString(), requirement.requirement().getComponentType().getId().toString());
-                errors++;
-            }
+        for(RecipeRequirement<?, ?> requirement : recipe.getRequirements())
+            if(!requirement.requirement().getComponentType().isDefaultComponent() && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == requirement.requirement().getComponentType()))
+                builder.error("Recipe has a requirement of type {} but machine doesn't have a component of type {}", requirement.requirement().getType().getId().toString(), requirement.requirement().getComponentType().getId().toString());
+    }
+
+    public record LogLine(Level level, Marker category, String message, Object... args) {}
+
+    public record Result(int errors, List<LogLine> log) {
+
+        public void print(Logger logger) {
+            this.log.forEach(line -> logger.log(line.level, line.category, line.message, line.args));
         }
-        return errors;
+
+        public List<String> getErrors() {
+            Logger logger = ICustomMachineryAPI.INSTANCE.logger();
+            return this.log.stream().filter(line -> line.level == Level.ERROR).map(line -> logger.getMessageFactory().newMessage(line.message, line.args).getFormattedMessage()).toList();
+        }
+    }
+
+    public static class ResultBuilder {
+        private final List<LogLine> log = new LinkedList<>();
+        private int errors = 0;
+        private Marker category = MarkerManager.getMarker("Verifier");
+        private boolean errorInCurrentCategory = false;
+
+        public void pushCategory(String category) {
+            Marker newCategory = MarkerManager.getMarker(this.category.getName() + "/" + category);
+            newCategory.addParents(this.category);
+            this.category = newCategory;
+            this.errorInCurrentCategory = false;
+        }
+
+        public void popCategory() {
+            if(this.category == null || this.category.getParents() == null)
+                throw new IllegalStateException("Popping too much !");
+            this.category = this.category.getParents()[0];
+        }
+
+        public void info(String message, Object... args) {
+            this.log.add(new LogLine(Level.INFO, this.category, message, args));
+        }
+
+        public void error(String message, Object... args) {
+            this.log.add(new LogLine(Level.ERROR, this.category, message, args));
+            this.errors++;
+            this.errorInCurrentCategory = true;
+        }
+
+        public void appendNoErrorMessage() {
+            if(!this.errorInCurrentCategory)
+                this.info("No error found");
+        }
+
+        public Result build() {
+            return new Result(this.errors, this.log);
+        }
     }
 }

@@ -7,10 +7,12 @@ import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.util.CMVerifier;
+import fr.frinn.custommachinery.common.util.CMVerifier.ResultBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 
 import java.nio.file.attribute.FileTime;
@@ -54,9 +56,13 @@ public class MachineListWidget extends ListWidget<MachineEntry> {
 
         private final Minecraft mc = Minecraft.getInstance();
         private final CustomMachine machine;
+        private final int errors;
 
         public MachineEntry(CustomMachine machine) {
             this.machine = machine;
+            ResultBuilder builder = new ResultBuilder();
+            CMVerifier.verifyMachine(builder, machine);
+            this.errors = builder.build().errors();
         }
 
         public CustomMachine getMachine() {
@@ -85,10 +91,16 @@ public class MachineListWidget extends ListWidget<MachineEntry> {
                 Component modification = Component.translatable("custommachinery.gui.creation.time.modified", modificationTime).withStyle(ChatFormatting.DARK_GRAY);
                 BaseScreen.drawScaledString(graphics, this.mc.font, modification, x + width - this.mc.font.width(modification) / 2 - 11, y + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.5f, 0, false);
             }
+            //Warning
+            switch (this.errors) {
+                case 0 -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.ok"), x + width - 10, y + 3, 0.7f, 43520, false);
+                case 1 -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.error"), x + width - 10, y + 3, 0.7f, 11141120, false);
+                default -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.errors", this.errors), x + width - 10, y + 3, 0.7f, 11141120, false);
+            }
         }
 
         @Override
-        public List<? extends GuiEventListener> children() {
+        public List<AbstractWidget> children() {
             return Collections.emptyList();
         }
     }

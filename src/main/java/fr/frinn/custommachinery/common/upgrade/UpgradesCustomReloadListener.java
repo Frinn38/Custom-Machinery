@@ -21,6 +21,8 @@ import net.minecraft.world.item.Items;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,11 +42,12 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
-        final Logger logger = ICustomMachineryAPI.INSTANCE.logger();
+        Logger logger = ICustomMachineryAPI.INSTANCE.logger();
+        Marker marker = MarkerManager.getMarker("UpgradeLoader");
 
         Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>();
 
-        logger.info("Reading Custom Machinery Upgrades json");
+        logger.info(marker, "Reading Custom Machinery Upgrades json");
 
         map.forEach((id, json) -> {
             String packName;
@@ -53,10 +56,10 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
-            logger.info("Parsing upgrade json: {} in datapack: {}", id, packName);
+            logger.info(marker, "Parsing upgrade json: {} in datapack: {}", id, packName);
 
             if(!json.isJsonObject()) {
-                logger.error("Bad upgrade JSON: {} must be a json object and not an array or primitive, skipping...", id);
+                logger.error(marker, "Bad upgrade JSON: {} must be a json object and not an array or primitive, skipping...", id);
                 return;
             }
 
@@ -64,35 +67,35 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
             if(result.result().isPresent()) {
                 MachineUpgrade upgrade = result.result().get();
                 if(upgrade.item() == Items.AIR) {
-                    logger.error("Invalid item: {}, defined for upgrade: {}", BuiltInRegistries.ITEM.getKey(upgrade.item()), id);
+                    logger.error(marker, "Invalid item: {}, defined for upgrade: {}", BuiltInRegistries.ITEM.getKey(upgrade.item()), id);
                     return;
                 }
-                logger.info("Successfully parsed upgrade json: {}", id);
+                logger.info(marker, "Successfully parsed upgrade json: {}", id);
                 upgrades.put(this.getUpgradeLocation(resourceManager, id), upgrade);
                 return;
             } else if(result.error().isPresent()) {
-                logger.error("Error while parsing upgrade json: {}, skipping...\n{}", id, result.error().get().message());
+                logger.error(marker, "Error while parsing upgrade json: {}, skipping...\n{}", id, result.error().get().message());
                 return;
             }
             throw new IllegalStateException("No success nor error when parsing machine json: " + id + ". This can't happen.");
         });
 
         if(!upgrades.isEmpty())
-            logger.info("Successfully parsed {} upgrade json.", upgrades.size());
+            logger.info(marker, "Successfully parsed {} upgrade json.", upgrades.size());
         else
-            logger.info("No machine upgrade json found.");
+            logger.info(marker, "No machine upgrade json found.");
 
         if(ModList.get().isLoaded("kubejs")) {
-            logger.info("Collecting machine upgrades with kubeJS.");
+            logger.info(marker, "Collecting machine upgrades with kubeJS.");
             Map<UpgradeLocation, MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
             if(!kubejsUpgrades.isEmpty())
-                logger.info("Successfully added {} machine upgrades with kubejs", kubejsUpgrades.size());
+                logger.info(marker, "Successfully added {} machine upgrades with kubejs", kubejsUpgrades.size());
             else
-                logger.info("No machine upgrades found with kubejs");
+                logger.info(marker, "No machine upgrades found with kubejs");
             upgrades.putAll(kubejsUpgrades);
         }
 
-        logger.info("Finished creating custom machine upgrades.");
+        logger.info(marker, "Finished creating custom machine upgrades.");
 
         CustomMachinery.UPGRADES.refresh(upgrades);
     }

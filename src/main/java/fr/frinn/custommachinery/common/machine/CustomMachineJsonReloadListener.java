@@ -24,6 +24,9 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.conditions.ICondition.IContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import oshi.util.tuples.Triplet;
 
 import java.io.File;
@@ -48,7 +51,9 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
-        ICustomMachineryAPI.INSTANCE.logger().info("Reading Custom Machinery Machines...");
+        Logger logger = ICustomMachineryAPI.INSTANCE.logger();
+        Marker marker = MarkerManager.getMarker("MachineLoader");
+        logger.info(marker, "Reading Custom Machinery Machines...");
 
         CustomMachinery.MACHINES.clear();
 
@@ -61,11 +66,11 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         map.forEach((id, json) -> {
             MachineLocation location = getMachineLocation(resourceManager, id);
 
-            ICustomMachineryAPI.INSTANCE.logger().info("Parsing machine json: {} in datapack: {}", id, location.packName());
+            logger.info(marker, "Parsing machine json: {} in datapack: {}", id, location.packName());
 
             //Check if the content of the json file is a json object
             if(!json.isJsonObject()) {
-                ICustomMachineryAPI.INSTANCE.logger().error("Bad machine JSON: {} must be a json object and not an array or primitive, skipping...", id);
+                logger.error(marker, "Bad machine JSON: {} must be a json object and not an array or primitive, skipping...", id);
                 return;
             }
 
@@ -73,7 +78,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
             //If there is already a machine with same id: error and skip
             if(CustomMachinery.MACHINES.containsKey(id)) {
-                ICustomMachineryAPI.INSTANCE.logger().error("A machine with id: {} already exists, skipping...", id);
+                logger.error(marker, "A machine with id: {} already exists, skipping...", id);
                 return;
             }
 
@@ -85,10 +90,10 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                     if(map.containsKey(parentID))
                         upgradedMachines.add(new Triplet<>(parentID, id, jsonObject));
                     else
-                        ICustomMachineryAPI.INSTANCE.logger().error("Upgraded machine '{}' reference parent machine '{}' which doesn't exist, skipping", id, parentID);
+                        logger.error(marker, "Upgraded machine '{}' reference parent machine '{}' which doesn't exist, skipping", id, parentID);
                     return;
                 } catch (ResourceLocationException e) {
-                    ICustomMachineryAPI.INSTANCE.logger().error("Invalid parent ID '{}' in machine json '{}', skipping...\n{}", parent, id, e.getMessage());
+                    logger.error(marker, "Invalid parent ID '{}' in machine json '{}', skipping...\n{}", parent, id, e.getMessage());
                     return;
                 }
             }
@@ -108,10 +113,10 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                 }
                 else { //Else it's a normal machine
                     CustomMachinery.MACHINES.put(id, machine);
-                    ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed machine json: {}", id);
+                    logger.info(marker, "Successfully parsed machine json: {}", id);
                 }
             } else if(result.error().isPresent())
-                ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing machine json: {}, skipping...\n{}", id, result.error().get().message());
+                logger.error(marker, "Error while parsing machine json: {}, skipping...\n{}", id, result.error().get().message());
         });
 
         //Process upgraded machines
@@ -124,11 +129,11 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                     //Check if the parent is in our waiting list
                     upgradedMachines.stream().filter(t -> t.getB().equals(triplet.getA())).findFirst().ifPresentOrElse(t -> {
                         if(t.getA().equals(triplet.getB())) {
-                            ICustomMachineryAPI.INSTANCE.logger().error("Circular reference in upgraded machines '{}' and '{}' both referencing each other as parent", triplet.getB(), t.getA());
+                            logger.error(marker, "Circular reference in upgraded machines '{}' and '{}' both referencing each other as parent", triplet.getB(), t.getA());
                             iterator.remove();
                         }
                     }, () -> {
-                        ICustomMachineryAPI.INSTANCE.logger().error("Upgraded machine '{}' reference parent machine '{}' which was not loaded, skipping", triplet.getB(), triplet.getA());
+                        logger.error(marker, "Upgraded machine '{}' reference parent machine '{}' which was not loaded, skipping", triplet.getB(), triplet.getA());
                         iterator.remove();
                     });
                     //Parent not already loaded
@@ -141,9 +146,9 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                     CustomMachine machine = result.result().get();
                     machine.setLocation(getMachineLocation(resourceManager, id));
                     CustomMachinery.MACHINES.put(id, machine);
-                    ICustomMachineryAPI.INSTANCE.logger().info("Successfully parsed upgraded machine json: {}", id);
+                    logger.info(marker, "Successfully parsed upgraded machine json: {}", id);
                 } else if(result.error().isPresent())
-                    ICustomMachineryAPI.INSTANCE.logger().error("Error while parsing upgraded machine json: {}, skipping...\n{}", id, result.error().get().message());
+                    logger.error(marker, "Error while parsing upgraded machine json: {}, skipping...\n{}", id, result.error().get().message());
 
                 iterator.remove();
             }
@@ -151,7 +156,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
         context = null;
 
-        ICustomMachineryAPI.INSTANCE.logger().info("Finished creating {} custom machines.", CustomMachinery.MACHINES.keySet().size());
+        logger.info(marker, "Finished creating {} custom machines.", CustomMachinery.MACHINES.size());
 
         //Refresh existing loaded machines
         if(ServerLifecycleHooks.getCurrentServer() != null)

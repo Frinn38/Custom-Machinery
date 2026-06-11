@@ -6,12 +6,14 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
 import fr.frinn.custommachinery.common.network.SOpenEditScreenPacket;
 import fr.frinn.custommachinery.common.network.SOpenFilePacket;
 import fr.frinn.custommachinery.common.network.SOpenMachineCreationScreenPacket;
 import fr.frinn.custommachinery.common.network.SOpenUpgradeCreationScreenPacket;
 import fr.frinn.custommachinery.common.util.CMVerifier;
+import fr.frinn.custommachinery.common.util.CMVerifier.Result;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -182,9 +184,10 @@ public class CMCommand {
         return Commands.literal("verify")
                 .requires(cs -> cs.hasPermission(2))
                 .executes(ctx -> {
-                    int errors = CMVerifier.verify(ctx.getSource().getLevel().getRecipeManager());
-                    if(errors > 0)
-                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.error", errors).withStyle(ChatFormatting.RED).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cm log")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.command.verify.log.tooltip"))))));
+                    Result result = CMVerifier.verify(ctx.getSource().getLevel().getRecipeManager());
+                    result.print(ICustomMachineryAPI.INSTANCE.logger());
+                    if(result.errors() > 0)
+                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.error", result.errors()).withStyle(ChatFormatting.RED).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cm log")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.command.verify.log.tooltip"))))));
                     else
                         ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.success").withStyle(ChatFormatting.GREEN).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cm log")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.command.verify.log.tooltip"))))));
                     return 0;

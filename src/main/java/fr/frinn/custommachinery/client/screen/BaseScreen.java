@@ -292,7 +292,7 @@ public abstract class BaseScreen extends Screen {
     public static void drawCenteredScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
         graphics.pose().pushPose();
         graphics.pose().scale(scale, scale, 0);
-        graphics.drawString(font, text, (int)((x - (font.width(text) * scale) / 2) / scale), (int)((y - font.lineHeight / 2) / scale), color, shadow);
+        graphics.drawString(font, text, (int)((x - (font.width(text) * scale) / 2) / scale), (int)((y - font.lineHeight / 2.0f) / scale), color, shadow);
         graphics.pose().popPose();
     }
 
@@ -300,6 +300,13 @@ public abstract class BaseScreen extends Screen {
         graphics.pose().pushPose();
         graphics.pose().scale(scale, scale, 0);
         graphics.drawString(font, text, (int)(x / scale), (int)(y / scale), color, shadow);
+        graphics.pose().popPose();
+    }
+
+    public static void drawRightAlignedScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
+        graphics.pose().pushPose();
+        graphics.pose().scale(scale, scale, 0);
+        graphics.drawString(font, text, (int)((x - font.width(text) * scale) / scale), (int)(y / scale), color, shadow);
         graphics.pose().popPose();
     }
 }

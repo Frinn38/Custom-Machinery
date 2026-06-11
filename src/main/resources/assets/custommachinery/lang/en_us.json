@@ -105,6 +105,9 @@
   "custommachinery.gui.creation.wiki": "Open wiki",
   "custommachinery.gui.creation.time.created": "Created: %s",
   "custommachinery.gui.creation.time.modified": "Modified: %s",
+  "custommachinery.gui.creation.warning.error": "1 error found !",
+  "custommachinery.gui.creation.warning.errors": "%s errors !",
+  "custommachinery.gui.creation.warning.ok": "No error found",
 
   "custommachinery.gui.creation.popup.create": "Create new machine",
   "custommachinery.gui.creation.popup.error.id": "Missing id",
