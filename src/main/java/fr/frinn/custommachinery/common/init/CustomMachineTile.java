@@ -91,7 +91,8 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         this.id = id;
         this.processor = getMachine().getProcessorTemplate().build(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
-        this.componentManager.getComponents().values().forEach(IMachineComponent::init);
+        if(this.getLevel() != null) //In case of null level (loading machine BE from nbt) init will be done in setLevel which happen after setId
+            this.componentManager.getComponents().values().forEach(IMachineComponent::init);
         this.upgradeManager.refresh();
     }
 
@@ -310,7 +311,8 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     public void setLevel(Level level) {
         super.setLevel(level);
         MachineList.addMachine(this);
-        this.componentManager.getComponents().values().forEach(IMachineComponent::init);
+        if(this.getId() != DUMMY) //In case of dummy machine (just placed) init will happen in setId after setLevel
+            this.componentManager.getComponents().values().forEach(IMachineComponent::init);
         this.upgradeManager.refresh();
     }
 

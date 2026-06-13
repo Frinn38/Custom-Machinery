@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import mezz.jei.api.helpers.IJeiHelpers;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 
 import java.util.Optional;
@@ -23,6 +24,8 @@ public class RecipeHelper implements IRecipeHelper {
     public RecipeHelper(CustomMachine machine, IJeiHelpers jeiHelpers) {
         this.machine = machine;
         CustomMachineTile tile = new CustomMachineTile(BlockPos.ZERO, Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
+        if(Minecraft.getInstance().level != null)
+            tile.setLevel(Minecraft.getInstance().level);
         tile.setId(machine.getId());
         this.manager = new DummyComponentManager(tile);
         this.jeiHelpers = jeiHelpers;

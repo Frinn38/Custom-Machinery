@@ -22,7 +22,7 @@ import java.util.UUID;
 
 /**
  * The base class of the custom machine tile entity,
- * used to get some data about the tile like it's world or position or the ICustomMachine linked to this tile.
+ * Used to get some data about the tile like it's world or position or the {@link ICustomMachine} linked to this tile.
  */
 public abstract class MachineTile extends BlockEntity {
 
@@ -102,7 +102,7 @@ public abstract class MachineTile extends BlockEntity {
     /**
      * Get the current machine appearance.
      * The returned {@link IMachineAppearance} will be either a custom appearance set by the recipe currently processing
-     * or the default appearance specified in the machine json.
+     * or the default appearance specified in the machine JSON.
      * This is synced from the server to client.
      * @return The current {@link IMachineAppearance} for this {@link MachineTile}
      */
@@ -112,7 +112,7 @@ public abstract class MachineTile extends BlockEntity {
      * This allows to set a custom {@link IMachineAppearance} to this machine tile only (other tiles from the same machine won't be changed).
      * It is used by recipes for setting a custom running appearance per recipe.
      * This method should be called on the server side only, as it will be synced to all clients automatically.
-     * Pass null to make the machine use its default appearance, as specified in the machine json.
+     * Pass null to make the machine use its default appearance, as specified in the machine JSON.
      * @param appearance A custom machine appearance to display.
      */
     public abstract void setCustomAppearance(@Nullable IMachineAppearance appearance);
@@ -120,7 +120,7 @@ public abstract class MachineTile extends BlockEntity {
     /**
      * Get the current list of {@link IGuiElement} this tile will use in a gui.
      * The returned list will be either a custom list set by the recipe currently processing
-     * or the default list specified in the machine json.
+     * or the default list specified in the machine JSON.
      * This is synced from the server to client.
      * @return The current {@link IMachineAppearance} for this {@link MachineTile}
      */
@@ -130,7 +130,7 @@ public abstract class MachineTile extends BlockEntity {
      * This allows to set a custom list of {@link IGuiElement} to this machine tile only (other tiles from the same machine won't be changed).
      * It is used by recipes for setting a custom list of elements per recipe.
      * This method should be called on the server side only, as it will be synced to all clients automatically.
-     * Pass null to make the machine use its default gui elements list, as specified in the machine json.
+     * Pass null to make the machine use its default gui elements list, as specified in the machine JSON.
      * @param guiElements A custom list of {@link IGuiElement} to display.
      */
     public abstract void setCustomGuiElements(@Nullable List<IGuiElement> guiElements);

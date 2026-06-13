@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
  * Implements this interface to define a custom machine component.
  * Machine components are used to communicate some information about the machine status to their corresponding recipe requirement.
  * They can also be used to store values in the machine tile nbt, execute code each tick, expose capabilities,
- * and modify the machine redstone comparator behaviour by implementing the corresponding sub-interfaces.
+ * and modify the machine redstone comparator behavior by implementing the corresponding sub-interfaces.
  * The machine component will be created by the {@link IMachineComponentManager} when the {@link MachineTile} is created.
  */
 public interface IMachineComponent {
@@ -33,6 +33,9 @@ public interface IMachineComponent {
     /**
      * Called on both sides when the {@link Level} is set on the {@link MachineTile}.
      * Use this method to initialize the component for things that depends on the {@link Level} of the {@link MachineTile}.
+     * Fired during CustomMachineTile#setId in cases where level was set before (machine block placed, client refresh or jei dummy machine construction).
+     * Fired during {@link MachineTile#refreshMachine} when machine is updated.
+     * Fired during {@link MachineTile#setLevel} after CustomMachineTile#setId was called (loading {@link MachineTile} from disk).
      */
     default void init() {}
 

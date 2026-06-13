@@ -67,6 +67,8 @@ public class ClientPacketHandler {
         CustomMachinery.MACHINES.clear();
         CustomMachinery.MACHINES.putAll(machines);
         Minecraft mc = Minecraft.getInstance();
+        if(mc.player == null || mc.level == null)
+            return;
         ItemDisplayParameters params = new ItemDisplayParameters(mc.player.connection.enabledFeatures(), mc.player.canUseGameMasterBlocks() && mc.options.operatorItemsTab().get(), mc.level.registryAccess());
         Registration.CUSTOM_MACHINE_TAB.get().buildContents(params);
         if(Minecraft.getInstance().screen instanceof MachineCreationScreen creationScreen)
