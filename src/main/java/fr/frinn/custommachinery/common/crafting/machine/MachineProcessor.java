@@ -113,7 +113,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                 this.tile.setCustomAppearance(customAppearance);
 
             List<IGuiElement> customGuiElements = currentRecipe.value().getCustomGuiElements(this.tile.getMachine().getGuiElements());
-            if(customGuiElements != null && !customGuiElements.isEmpty())
+            if(!customGuiElements.isEmpty())
                 this.tile.setCustomGuiElements(customGuiElements);
         }
     }

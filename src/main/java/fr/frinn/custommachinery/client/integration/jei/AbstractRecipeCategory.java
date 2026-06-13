@@ -281,7 +281,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
 
         @Override
         public void getTooltip(ITooltipBuilder builder, double mouseX, double mouseY) {
-            if(mouseX > ICON_SIZE || mouseY > ICON_SIZE || mouseX < -1 || mouseY < 0)
+            if(mouseX > ICON_SIZE || mouseY > ICON_SIZE || mouseX < -1 || mouseY < 0 || Minecraft.getInstance().player == null)
                 return;
             this.info.getTooltips().stream()
                     .filter(pair -> pair.getSecond().shouldDisplay(Minecraft.getInstance().player, Minecraft.getInstance().options.advancedItemTooltips))

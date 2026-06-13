@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CustomMachineRecipe implements IMachineRecipe {
@@ -129,13 +130,12 @@ public class CustomMachineRecipe implements IMachineRecipe {
         return this.guiElements;
     }
 
-    @Nullable
     public List<IGuiElement> getCustomGuiElements(List<IGuiElement> baseGuiElements) {
         if(this.customGuiElements != null)
             return this.customGuiElements;
 
         if(this.guiElements.isEmpty())
-            return null;
+            return Collections.emptyList();
 
         List<IGuiElement> elements = new ArrayList<>(baseGuiElements);
         this.guiElements.forEach(element -> {
