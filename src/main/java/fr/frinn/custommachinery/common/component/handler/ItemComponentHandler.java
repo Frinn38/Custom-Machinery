@@ -219,10 +219,10 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
             this.sidedHandlers.get(side).getHandler().getComponents().forEach(component -> {
                 if(component.getConfig().isAutoInput() && component.getConfig().getDirectionMode(side).isInput() && component.getItemStack().getCount() < component.getCapacity())
-                    moveStacks(neighbour, component, Integer.MAX_VALUE);
+                    moveStacks(neighbour, component);
 
                 if(component.getConfig().isAutoOutput() && component.getConfig().getDirectionMode(side).isOutput() && !component.getItemStack().isEmpty())
-                    moveStacks(component, neighbour, Integer.MAX_VALUE);
+                    moveStacks(component, neighbour);
             });
         }
     }
@@ -421,15 +421,15 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             throw new RuntimeException("Slot " + slot + " not in valid range - [0," + this.getSlots() + ")");
     }
 
-    private void moveStacks(IItemHandler from, IItemHandler to, int maxAmount) {
+    private void moveStacks(IItemHandler from, IItemHandler to) {
         for(int i = 0; i < from.getSlots(); i++) {
-            ItemStack canExtract = from.extractItem(i, maxAmount, true);
+            ItemStack canExtract = from.extractItem(i, Integer.MAX_VALUE, true);
             if(canExtract.isEmpty())
                 continue;
 
             ItemStack canInsert = ItemHandlerHelper.insertItemStacked(to, canExtract, false);
             if(canInsert.isEmpty())
-                from.extractItem(i, maxAmount, false);
+                from.extractItem(i, Integer.MAX_VALUE, false);
             else
                 from.extractItem(i, canExtract.getCount() - canInsert.getCount(), false);
         }

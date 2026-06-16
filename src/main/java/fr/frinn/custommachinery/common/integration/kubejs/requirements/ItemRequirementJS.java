@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.ItemEmptyRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
@@ -45,6 +46,7 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
     default RecipeJSBuilder produceItem(ItemStack stack, String slot) {
         if(stack.isEmpty())
             return this.error("Invalid empty item in item output requirement");
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(DataComponentIngredient.of(true, stack), stack.getCount()), slot, false));
+        Ingredient ingredient = stack.isComponentsPatchEmpty() ? Ingredient.of(stack) : DataComponentIngredient.of(true, stack);
+        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(ingredient, stack.getCount()), slot, false));
     }
 }

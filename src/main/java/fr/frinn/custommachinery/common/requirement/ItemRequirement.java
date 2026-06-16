@@ -39,7 +39,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
         if(mode == RequirementIOMode.OUTPUT && ingredient.getItems().length > 1)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.ingredient = ingredient;
-        this.slot = slot == null ? "" : slot;
+        this.slot = slot;
         this.consumeOnEnd = consumeOnEnd;
     }
 
