@@ -14,11 +14,11 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.ImageWidget;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -134,7 +134,7 @@ public class GuiTab extends MachineEditTab {
 
         this.enableAlignButtons(false);
 
-        ImageWidget empty = ImageWidget.texture(20, 20, CustomMachinery.rl("textures/gui/base_empty.png"), 1, 1);
+        //ImageWidget empty = ImageWidget.texture(20, 20, CustomMachinery.rl("textures/gui/base_empty.png"), 1, 1);
 
         //Order from top left to bottom right, max of 3 columns and 5 rows
         return List.of(
@@ -175,7 +175,7 @@ public class GuiTab extends MachineEditTab {
 
         public HintWidget(int width) {
             super(width, Minecraft.getInstance().font.lineHeight, Component.empty(), Minecraft.getInstance().font);
-            for(int i = 1; i < 4; i++)
+            for(int i = 1; I18n.exists("custommachinery.gui.creation.gui.hints." + i); i++)
                 this.hints.add(Component.translatable("custommachinery.gui.creation.gui.hints", Component.translatable("custommachinery.gui.creation.gui.hints." + i)).withStyle(ChatFormatting.DARK_GRAY));
         }
 
