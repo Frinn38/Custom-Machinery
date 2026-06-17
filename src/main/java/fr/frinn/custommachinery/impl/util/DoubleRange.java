@@ -47,9 +47,6 @@ public class DoubleRange extends Range<Double> {
      *
      */
     public static DoubleRange createFromString(String spec) throws IllegalArgumentException {
-        if(spec == null)
-            throw new IllegalArgumentException("Can't parse a double range fromm a null String");
-
         if(spec.isEmpty() || spec.equals("*"))
             return ALL;
 
@@ -93,8 +90,8 @@ public class DoubleRange extends Range<Double> {
                 process = process.substring(1).trim();
         }
 
-        if(process.length() > 0) {
-            if(restrictions.size() > 0)
+        if(!process.isEmpty()) {
+            if(!restrictions.isEmpty())
                 throw new IllegalArgumentException("Only fully-qualified sets allowed in multiple set scenario: \"" + spec + "\"");
             else {
                 try {
@@ -112,9 +109,6 @@ public class DoubleRange extends Range<Double> {
     }
 
     public static DoubleRange of(Object o) throws IllegalArgumentException {
-        if(o == null)
-            throw new IllegalArgumentException("Cannot build IntRange from null");
-
         if(o instanceof CharSequence string)
             return createFromString(string.toString());
 
@@ -140,7 +134,7 @@ public class DoubleRange extends Range<Double> {
 
             Double version = Double.parseDouble(process);
 
-            restriction = new Restriction<>(version, lowerBoundInclusive, version, upperBoundInclusive);
+            restriction = new Restriction<>(version, true, version, true);
         }
         else {
             String lowerBound = process.substring(0, index).trim();
@@ -149,11 +143,11 @@ public class DoubleRange extends Range<Double> {
                 throw new IllegalArgumentException("Range cannot have identical boundaries: " + spec);
 
             Double lowerVersion = null;
-            if(lowerBound.length() > 0)
+            if(!lowerBound.isEmpty())
                 lowerVersion = Double.parseDouble(lowerBound);
 
             Double upperVersion = null;
-            if(upperBound.length() > 0)
+            if(!upperBound.isEmpty())
                 upperVersion = Double.parseDouble(upperBound);
 
             if(upperVersion != null && lowerVersion != null && upperVersion.compareTo(lowerVersion) < 0)

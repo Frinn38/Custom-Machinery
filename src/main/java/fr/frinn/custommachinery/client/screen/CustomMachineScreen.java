@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.client.screen;
 
-import fr.frinn.custommachinery.api.guielement.GuiElementType;
+import fr.frinn.custommachinery.api.guielement.IGuiElementWidgetSupplier;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
@@ -51,7 +51,12 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         this.tile.getGuiElements().stream()
                 .filter(element -> GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()))
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
-                .forEach(element -> addRenderableWidget(GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType)element.getType()).get(element, this)));
+                .forEach(element -> {
+                    IGuiElementWidgetSupplier widgetSupplier = GuiElementWidgetSupplierRegistry.getWidgetSupplier(element.getType());
+                    if(widgetSupplier != null) {
+                        this.addRenderableWidget(widgetSupplier.get(element, this));
+                    }
+                });
     }
 
     @Override

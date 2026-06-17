@@ -20,14 +20,13 @@ public class ComponentEditBox extends GroupWidget {
     public static final WidgetSprites BUTTON_TEXTURE = new WidgetSprites(CustomMachinery.rl("creation/style/style_button"), CustomMachinery.rl("creation/style/style_button_hovered"));
 
     private final EditBox editBox;
-    private final ImageButton button;
     private Style style = Style.EMPTY;
 
     public ComponentEditBox(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message);
         this.editBox = this.addWidget(new EditBox(Minecraft.getInstance().font, x, y, width - 20, height, message));
         this.editBox.setFormatter((value, pos) -> FormattedCharSequence.forward(value, this.style));
-        this.button = this.addWidget(new ImageButton(x + width - 20, y, 20, 20, BUTTON_TEXTURE, button -> this.button()));
+        ImageButton button1 = this.addWidget(new ImageButton(x + width - 20, y, 20, 20, BUTTON_TEXTURE, button -> this.button()));
     }
 
     private void button() {

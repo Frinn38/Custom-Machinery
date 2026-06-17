@@ -41,7 +41,6 @@ public class UpgradeEditScreen extends BaseScreen {
     public static final WidgetSprites CLOSE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/close_button"), CustomMachinery.rl("creation/close_button_hovered"));
     public static final WidgetSprites WIKI_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/wiki_button"), CustomMachinery.rl("creation/wiki_button_hovered"));
 
-    private final UpgradeCreationScreen parent;
     private final UpgradeLocation location;
     private final MachineUpgradeBuilder builder;
 
@@ -56,7 +55,6 @@ public class UpgradeEditScreen extends BaseScreen {
 
     public UpgradeEditScreen(UpgradeCreationScreen parent, int xSize, int ySize, UpgradeLocation location, MachineUpgrade upgrade) {
         super(Component.literal("Upgrade edit"), xSize, ySize);
-        this.parent = parent;
         this.location = location;
         this.builder = new MachineUpgradeBuilder(upgrade);
     }

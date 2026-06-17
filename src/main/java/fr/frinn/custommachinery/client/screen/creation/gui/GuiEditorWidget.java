@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.screen.creation.gui;
 
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.api.guielement.IGuiElementWidgetSupplier;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
@@ -68,20 +69,18 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     public void addElement(IGuiElement element) {
-        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
-            return;
-
-        this.widgets.add(this.getWidget(element));
+        WidgetEditorWidget<?> widget = this.getWidget(element);
+        if(widget != null)
+            this.widgets.add(widget);
     }
 
     public void addCreatedElement(IGuiElement element) {
-        if(!GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()) || !GuiElementBuilderRegistry.hasBuilder(element.getType()))
-            return;
-
         WidgetEditorWidget<?> widget = this.getWidget(element);
-        widget.setPosition(this.getX() + (this.getWidth() + widget.getWidth()) / 2, this.getY() + (this.getHeight() + widget.getHeight()) / 2);
-        this.widgets.add(widget);
-        this.setFocused(widget);
+        if(widget != null) {
+            widget.setPosition(this.getX() + (this.getWidth() + widget.getWidth()) / 2, this.getY() + (this.getHeight() + widget.getHeight()) / 2);
+            this.widgets.add(widget);
+            this.setFocused(widget);
+        }
     }
 
     public <T extends IGuiElement> void config(WidgetEditorWidget<T> widget) {
@@ -162,9 +161,15 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     private <T extends IGuiElement> WidgetEditorWidget<T> getWidget(T element) {
-        AbstractGuiElementWidget<T> widget =  GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType<T>)element.getType()).get(element, this.dummyScreen);
+        IGuiElementWidgetSupplier<T> widgetSupplier = GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType<T>)element.getType());
+        if(widgetSupplier == null)
+            return null;
+        AbstractGuiElementWidget<T> widget =  widgetSupplier.get(element, this.dummyScreen);
         IGuiElementBuilder<T> builder = GuiElementBuilderRegistry.getBuilder((GuiElementType<T>)element.getType());
+        if(builder == null)
+            return null;
         return new WidgetEditorWidget<>(widget, builder);
     }
 
@@ -328,7 +333,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         //Grid
-        if(this.getGridSettings() != null && this.getGridSettings().enabled()) {
+        if(this.getGridSettings().enabled()) {
             for(int x = this.getX() + this.getGridSettings().xSpacing(); x < this.getX() + this.getWidth(); x += this.getGridSettings().xSpacing())
                 graphics.fill(x, this.getY(), x + 1, this.getY() + this.getHeight(), FastColor.ARGB32.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
 
@@ -623,7 +628,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         public void refreshWidget(@Nullable T from) {
             T element = this.widget.getElement();
             T newElement = from != null ? from : this.builder.make(this.properties.build(), element);
-            this.widget = GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType<T>)element.getType()).get(newElement, GuiEditorWidget.this.dummyScreen);
+            IGuiElementWidgetSupplier<T> widgetSupplier = GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType<T>)element.getType());
+            if(widgetSupplier == null)
+                throw new IllegalStateException("Gui element type '" + this.builder.type().getId() + "' don't have a widget supplier");
+            this.widget = widgetSupplier.get(newElement, GuiEditorWidget.this.dummyScreen);
             this.widget.setPosition(this.getX(), this.getY());
             this.width = this.widget.getWidth();
             this.height = this.widget.getHeight();
@@ -645,7 +653,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             }
             copyProperties.setId(copyId.get());
             T element = this.builder.make(copyProperties.build(), this.widget.getElement());
-            return GuiEditorWidget.this.getWidget(element);
+            WidgetEditorWidget<T> widget = GuiEditorWidget.this.getWidget(element);
+            if(widget == null)
+                throw new IllegalStateException("Copy of widget '" + this + "' returned a null widget");
+            return widget;
         }
 
         private DragType getDragType(double mouseX, double mouseY) {

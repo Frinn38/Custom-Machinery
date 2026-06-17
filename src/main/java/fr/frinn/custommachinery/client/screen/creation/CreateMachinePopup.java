@@ -30,7 +30,6 @@ import java.util.Locale;
 public class CreateMachinePopup extends PopupScreen {
 
     private Button create;
-    private Button cancel;
     private EditBox id;
     private ComponentEditBox name;
     private CycleButton<Loader> loader;
@@ -93,7 +92,7 @@ public class CreateMachinePopup extends PopupScreen {
         this.create = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.create").withStyle(ChatFormatting.GREEN), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
 
         //Cancel
-        this.cancel = row.addChild(Button.builder(Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.DARK_RED), button -> this.parent.closePopup(this)).bounds(0, 0, 50, 20).build(), center);
+        Button cancel = row.addChild(Button.builder(Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.DARK_RED), button -> this.parent.closePopup(this)).bounds(0, 0, 50, 20).build(), center);
 
         layout.arrangeElements();
         layout.visitWidgets(this::addRenderableWidget);

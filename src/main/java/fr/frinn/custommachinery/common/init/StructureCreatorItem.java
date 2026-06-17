@@ -137,18 +137,17 @@ public class StructureCreatorItem extends Item {
                     if(charIndex.get() == 122) charIndex.set(65); //All lowercase are used, so switch to uppercase.
                 });
         List<List<String>> pattern = new ArrayList<>();
-        for(int i = 0; i < states.length; i++) {
+        for (PartialBlockState[][] state : states) {
             List<String> floor = new ArrayList<>();
-            for(int j = 0; j < states[i].length; j++) {
+            for (PartialBlockState[] partialBlockStates : state) {
                 StringBuilder row = new StringBuilder();
-                for (int k = 0; k < states[i][j].length; k++) {
-                    PartialBlockState partial = states[i][j][k];
+                for (PartialBlockState partial : partialBlockStates) {
                     char key;
-                    if(partial.getBlockState().getBlock() instanceof CustomMachineBlock)
+                    if (partial.getBlockState().getBlock() instanceof CustomMachineBlock)
                         key = 'm';
-                    else if(partial == PartialBlockState.ANY)
+                    else if (partial == PartialBlockState.ANY)
                         key = ' ';
-                    else if(keys.containsValue(partial))
+                    else if (keys.containsValue(partial))
                         key = keys.inverse().get(partial);
                     else
                         key = '?';
@@ -164,7 +163,7 @@ public class StructureCreatorItem extends Item {
         JsonObject both = new JsonObject();
         both.add("keys", keysJson);
         both.add("pattern", patternJson);
-        String ctKubeString = ".requireStructure(" + patternJson.toString() + ", " + keysJson.toString() + ")";
+        String ctKubeString = ".requireStructure(" + patternJson + ", " + keysJson + ")";
         Component jsonText = Component.literal("[JSON]").withStyle(style -> style.applyFormats(ChatFormatting.YELLOW).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(both.toString()))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, both.toString())));
         Component prettyJsonText = Component.literal("[PRETTY JSON]").withStyle(style -> style.applyFormats(ChatFormatting.GOLD).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(GSON.toJson(both)))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, GSON.toJson(both))));
         Component crafttweakerText = Component.literal("[CRAFTTWEAKER]").withStyle(style -> style.applyFormats(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));

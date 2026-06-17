@@ -21,10 +21,7 @@ import java.util.Objects;
 
 public class MachineCreationScreen extends BaseScreen {
 
-    private CycleButton<MachineListSorting> sorter;
-    private EditBox search;
     private MachineListWidget machineList;
-    private Button create;
     private Button edit;
     private Button open;
     private Button delete;
@@ -51,7 +48,7 @@ public class MachineCreationScreen extends BaseScreen {
 
     public void open() {
         MachineEntry entry = this.machineList.getSelected();
-        if(entry != null) {
+        if(entry != null && Minecraft.getInstance().getSingleplayerServer() != null) {
             try {
                 File file = Objects.requireNonNull(entry.getMachine().getLocation().getFile(Minecraft.getInstance().getSingleplayerServer()));
                 Util.getPlatform().openUri(file.toURI());
@@ -80,15 +77,15 @@ public class MachineCreationScreen extends BaseScreen {
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
 
         //Sort
-        this.sorter = row.addChild(CycleButton.<MachineListSorting>builder(v -> Component.literal(v.name()))
+        CycleButton<MachineListSorting> sorter = row.addChild(CycleButton.<MachineListSorting>builder(v -> Component.literal(v.name()))
                 .withValues(MachineListSorting.values())
                 .displayOnlyValue()
                 .withInitialValue(CMConfig.CONFIG.sortMachineList.get())
                 .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 1, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
 
         //Search
-        this.search = row.addChild(new EditBox(this.font, 180, 20, Component.empty()), 3, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
-        this.search.setResponder(s -> {
+        EditBox search = row.addChild(new EditBox(this.font, 180, 20, Component.empty()), 3, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
+        search.setResponder(s -> {
             this.machineList.setFilterSearch(s);
             this.machineList.reload();
         });
@@ -98,7 +95,7 @@ public class MachineCreationScreen extends BaseScreen {
         this.machineList.reload();
 
         //Buttons
-        this.create = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
+        Button create = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.create"), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
         this.edit = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.edit"), button -> this.edit()).bounds(0, 0, 50, 20).build(), center);
         this.open = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.open"), button -> this.open()).bounds(0, 0, 50, 20).build(), center);
         this.delete = row.addChild(new Button.Builder(Component.translatable("custommachinery.gui.creation.delete"), button -> this.delete()).bounds(0, 0, 50, 20).build(), center);

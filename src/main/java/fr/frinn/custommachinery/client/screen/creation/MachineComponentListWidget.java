@@ -37,7 +37,7 @@ public class MachineComponentListWidget extends ListWidget<MachineComponentEntry
             if(componentBuilder != null)
                 this.addEntry(new MachineComponentEntry(template, componentBuilder));
         }
-        this.sort(Comparator.comparing(entry -> entry.getTemplate().getType().getId().toString() + ":" + entry.getTemplate().getId()));
+        this.sort(Comparator.comparing(entry -> entry.getTemplate().getType().getId() + ":" + entry.getTemplate().getId()));
         this.tab.setupButtons();
     }
 
@@ -91,7 +91,10 @@ public class MachineComponentListWidget extends ListWidget<MachineComponentEntry
                     }
                     templateJson.addProperty("id", copyId.get());
                     IMachineComponentTemplate<?> copyTemplate = IMachineComponentTemplate.CODEC.read(JsonOps.INSTANCE, templateJson).getOrThrow();
-                    return new MachineComponentEntry(copyTemplate, MachineComponentBuilderRegistry.getBuilder(copyTemplate.getType()));
+                    IMachineComponentBuilder<?, ?> builder = MachineComponentBuilderRegistry.getBuilder(copyTemplate.getType());
+                    if(builder == null)
+                        throw new IllegalStateException("Machine component type '" + this.template.getType().getId() + "' doesn't have a builder");
+                    return new MachineComponentEntry(copyTemplate, builder);
                 }
                 throw new IllegalStateException("Trying to copy machine component without id: " + json);
             }, error -> {throw new IllegalStateException("Error while encoding machine component to json to copy: " + error.message());});

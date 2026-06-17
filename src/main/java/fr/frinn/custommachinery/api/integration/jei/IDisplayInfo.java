@@ -27,7 +27,7 @@ public interface IDisplayInfo {
      */
     default IDisplayInfo addTooltip(Component text) {
         return addTooltip(text, TooltipPredicate.ALWAYS);
-    };
+    }
 
     /**
      * Add a new line on the tooltip to render when the player mouse cursor hover the requirement.

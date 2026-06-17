@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,9 +75,10 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
 
     private final BlockState blockState;
     private final List<Property<?>> properties;
+    @Nullable
     private final CompoundTag nbt;
 
-    public PartialBlockState(BlockState blockState, List<Property<?>> properties, CompoundTag nbt) {
+    public PartialBlockState(BlockState blockState, List<Property<?>> properties, @Nullable CompoundTag nbt) {
         this.blockState = blockState;
         this.properties = properties;
         this.nbt = nbt;
@@ -94,6 +96,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         return this.properties.stream().map(property -> property.getName() + "=" + this.blockState.getValue(property)).toList();
     }
 
+    @Nullable
     public CompoundTag getNbt() {
         return this.nbt;
     }
@@ -136,8 +139,8 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
             if (this.nbt == null) {
                 return true;
             } else {
-                BlockEntity tileentity = cachedBlockInfo.getEntity();
-                return tileentity != null && NbtUtils.compareNbt(this.nbt, tileentity.saveWithFullMetadata(cachedBlockInfo.getLevel().registryAccess()), true);
+                BlockEntity be = cachedBlockInfo.getEntity();
+                return be != null && NbtUtils.compareNbt(this.nbt, be.saveWithFullMetadata(cachedBlockInfo.getLevel().registryAccess()), true);
             }
         }
     }

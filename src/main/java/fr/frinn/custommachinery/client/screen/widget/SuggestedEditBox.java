@@ -92,15 +92,10 @@ public class SuggestedEditBox extends EditBox {
         int i = getLastWordIndex(string);
         String string2 = string.substring(i).toLowerCase(Locale.ROOT);
         ArrayList<Suggestion> list = Lists.newArrayList();
-        ArrayList<Suggestion> list2 = Lists.newArrayList();
-        for (Suggestion suggestion : suggestions.getList()) {
-            if (suggestion.getText().startsWith(string2) || suggestion.getText().startsWith("minecraft:" + string2)) {
+        for(Suggestion suggestion : suggestions.getList()) {
+            if(suggestion.getText().startsWith(string2) || suggestion.getText().startsWith("minecraft:" + string2))
                 list.add(suggestion);
-                continue;
-            }
-            list2.add(suggestion);
         }
-        //list.addAll(list2);
         return list;
     }
 
@@ -199,16 +194,13 @@ public class SuggestedEditBox extends EditBox {
         private final String originalContents;
         private final List<Suggestion> suggestionList;
         private final int suggestionLineLimit;
-        private final int lineStartOffset = 1;
         private final boolean anchorToBottom;
-        private final int fillColor = -805306368;
         private final Font font = Minecraft.getInstance().font;
         private int offset;
         private int current;
         private Vec2 lastMouse = Vec2.ZERO;
         private boolean tabCycles;
         private int lastNarratedEntry;
-        private boolean keepSuggestions;
 
         SuggestionsList(int xPos, int yPos, int width, List<Suggestion> suggestionList, boolean narrateFirstSuggestion, boolean anchorToBottom, int suggestionLineLimit) {
             this.suggestionLineLimit = suggestionLineLimit;
@@ -235,10 +227,11 @@ public class SuggestedEditBox extends EditBox {
             if (bl4) {
                 this.lastMouse = new Vec2(mouseX, mouseY);
             }
+            int fillColor = -805306368;
             if (bl3) {
                 int k;
-                graphics.fill(this.rect.getX(), this.rect.getY() - 1, this.rect.getX() + this.rect.getWidth(), this.rect.getY(), this.fillColor);
-                graphics.fill(this.rect.getX(), this.rect.getY() + this.rect.getHeight(), this.rect.getX() + this.rect.getWidth(), this.rect.getY() + this.rect.getHeight() + 1, this.fillColor);
+                graphics.fill(this.rect.getX(), this.rect.getY() - 1, this.rect.getX() + this.rect.getWidth(), this.rect.getY(), fillColor);
+                graphics.fill(this.rect.getX(), this.rect.getY() + this.rect.getHeight(), this.rect.getX() + this.rect.getWidth(), this.rect.getY() + this.rect.getHeight() + 1, fillColor);
                 if (bl) {
                     for (k = 0; k < this.rect.getWidth(); ++k) {
                         if (k % 2 != 0) continue;
@@ -255,7 +248,7 @@ public class SuggestedEditBox extends EditBox {
             boolean bl52 = false;
             for (int l = 0; l < i; ++l) {
                 Suggestion suggestion = this.suggestionList.get(l + this.offset);
-                graphics.fill(this.rect.getX(), this.rect.getY() + 12 * l, this.rect.getX() + this.rect.getWidth(), this.rect.getY() + 12 * l + 12, this.fillColor);
+                graphics.fill(this.rect.getX(), this.rect.getY() + 12 * l, this.rect.getX() + this.rect.getWidth(), this.rect.getY() + 12 * l + 12, fillColor);
                 if (mouseX > this.rect.getX() && mouseX < this.rect.getX() + this.rect.getWidth() && mouseY > this.rect.getY() + 12 * l && mouseY < this.rect.getY() + 12 * l + 12) {
                     if (bl4) {
                         this.select(l + this.offset);
@@ -283,9 +276,8 @@ public class SuggestedEditBox extends EditBox {
         }
 
         public boolean mouseScrolled(double delta) {
-            int j;
             int i = (int)(Minecraft.getInstance().mouseHandler.xpos() * (double)Minecraft.getInstance().getWindow().getGuiScaledWidth() / (double)Minecraft.getInstance().getWindow().getScreenWidth());
-            if (this.rect.contains(i, j = (int)(Minecraft.getInstance().mouseHandler.ypos() * (double)Minecraft.getInstance().getWindow().getGuiScaledHeight() / (double)Minecraft.getInstance().getWindow().getScreenHeight()))) {
+            if (this.rect.contains(i, (int)(Minecraft.getInstance().mouseHandler.ypos() * (double)Minecraft.getInstance().getWindow().getGuiScaledHeight() / (double)Minecraft.getInstance().getWindow().getScreenHeight()))) {
                 this.offset = Mth.clamp((int)((double)this.offset - delta), 0, Math.max(this.suggestionList.size() - this.suggestionLineLimit, 0));
                 return true;
             }
@@ -330,7 +322,8 @@ public class SuggestedEditBox extends EditBox {
             if (this.current < i) {
                 this.offset = Mth.clamp(this.current, 0, Math.max(this.suggestionList.size() - this.suggestionLineLimit, 0));
             } else if (this.current > j) {
-                this.offset = Mth.clamp(this.current + this.lineStartOffset - this.suggestionLineLimit, 0, Math.max(this.suggestionList.size() - this.suggestionLineLimit, 0));
+                int lineStartOffset = 1;
+                this.offset = Mth.clamp(this.current + lineStartOffset - this.suggestionLineLimit, 0, Math.max(this.suggestionList.size() - this.suggestionLineLimit, 0));
             }
         }
 
@@ -345,7 +338,6 @@ public class SuggestedEditBox extends EditBox {
                 this.current -= this.suggestionList.size();
             }
             Suggestion suggestion = this.suggestionList.get(this.current);
-            //SuggestedEditBox.this.setSuggestion(CommandSuggestions.calculateSuggestionSuffix(SuggestedEditBox.this.getValue(), suggestion.apply(this.originalContents)));
             if (this.lastNarratedEntry != this.current) {
                 Minecraft.getInstance().getNarrator().sayNow(this.getNarrationMessage());
             }
@@ -355,13 +347,11 @@ public class SuggestedEditBox extends EditBox {
             if(this.suggestionList == null || this.suggestionList.isEmpty() || this.current > this.suggestionList.size() + 1)
                 return;
             Suggestion suggestion = this.suggestionList.get(this.current);
-            this.keepSuggestions = true;
             SuggestedEditBox.this.setValue(suggestion.apply(this.originalContents));
             int i = suggestion.getRange().getStart() + suggestion.getText().length();
             SuggestedEditBox.this.setCursorPosition(i);
             SuggestedEditBox.this.setHighlightPos(i);
             this.select(this.current);
-            this.keepSuggestions = false;
             this.tabCycles = true;
         }
 

@@ -78,7 +78,7 @@ public class GuiElementCreationPopup extends PopupScreen {
                     this.addEntry(new GuiElementCreationListWidget.GuiElementCreationListEntry(builder));
             }
 
-            this.setSelected(this.getEntries().isEmpty() ? null : this.getEntries().get(0));
+            this.setSelected(this.getEntries().isEmpty() ? null : this.getEntries().getFirst());
         }
 
         protected static class GuiElementCreationListEntry extends Entry {

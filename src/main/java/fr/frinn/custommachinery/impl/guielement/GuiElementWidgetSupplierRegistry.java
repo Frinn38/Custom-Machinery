@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.guielement.IGuiElementWidgetSupplier;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
 import net.neoforged.fml.ModLoader;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public class GuiElementWidgetSupplierRegistry {
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     public static <E extends IGuiElement> IGuiElementWidgetSupplier<E> getWidgetSupplier(GuiElementType<E> type) {
         return (IGuiElementWidgetSupplier<E>) widgetSuppliers.get(type);
     }

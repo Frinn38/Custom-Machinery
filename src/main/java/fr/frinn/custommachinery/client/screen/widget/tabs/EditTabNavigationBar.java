@@ -191,8 +191,9 @@ public class EditTabNavigationBar extends AbstractWidget implements ContainerEve
 
     private int currentTabIndex() {
         Tab tab = this.tabManager.getCurrentTab();
-        int i = this.tabs.indexOf(tab);
-        return i != -1 ? i : -1;
+        if(tab instanceof EditTab editTab)
+            return this.tabs.indexOf(editTab);
+        return -1;
     }
 
     @Nullable

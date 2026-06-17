@@ -130,10 +130,10 @@ public class CustomMachineBuilder {
         Component name = this.name == null ? Component.literal("New Machine") : this.name;
         MachineAppearanceManager appearance = new MachineAppearanceManager(this.defaultAppearance.build().properties(), this.appearance.get(MachineStatus.IDLE).build(), this.appearance.get(MachineStatus.RUNNING).build(), this.appearance.get(MachineStatus.ERRORED).build(), this.appearance.get(MachineStatus.PAUSED).build());
         List<Component> tooltips = this.tooltips == null ? ImmutableList.of() : ImmutableList.copyOf(this.tooltips);
-        List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : this.guiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId().toString() + ":" + element.getId())).toList();
-        List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : this.jeiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId().toString() + ":" + element.getId())).toList();
+        List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : this.guiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId() + ":" + element.getId())).toList();
+        List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : this.jeiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId() + ":" + element.getId())).toList();
         List<ResourceLocation> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);
-        List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = this.components == null ? ImmutableList.of() : this.components.stream().sorted(Comparator.comparing(component -> component.getType().getId().toString() + ":" + component.getId())).toList();
+        List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = this.components == null ? ImmutableList.of() : this.components.stream().sorted(Comparator.comparing(component -> component.getType().getId() + ":" + component.getId())).toList();
         return new CustomMachine(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates, this.processor).setLocation(this.location);
     }
 }

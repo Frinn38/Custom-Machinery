@@ -22,14 +22,12 @@ public class ElementConfigWidget extends GroupWidget {
 
     private final GuiEditorWidget parent;
     private final StringWidget title;
-    private final Button config;
     private final IntegerSlider priority;
     private final EditBox id;
     private final IntegerEditBox xPos;
     private final IntegerEditBox yPos;
     private final IntegerEditBox width;
     private final IntegerEditBox height;
-    private final Button delete;
     private WidgetEditorWidget<?> widget = null;
 
     public ElementConfigWidget(int x, int y, int width, int height, GuiEditorWidget parent) {
@@ -45,8 +43,8 @@ public class ElementConfigWidget extends GroupWidget {
         this.title = row.addChild(new StringWidget(width - 10, Minecraft.getInstance().font.lineHeight, Component.literal("Dummy"), Minecraft.getInstance().font), 2);
 
         //Config
-        this.config = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.gui.config"), button -> {
-            if(this.widget != null)
+        Button config = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.gui.config"), button -> {
+            if (this.widget != null)
                 this.parent.config(widget);
         }).size(80, 20).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.config"))).build(), 2);
 
@@ -77,7 +75,7 @@ public class ElementConfigWidget extends GroupWidget {
         this.height.bounds(1, this.parent.getHeight());
 
         //Delete
-        this.delete = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.delete").withStyle(ChatFormatting.RED), button -> this.parent.delete())
+        Button delete = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.delete").withStyle(ChatFormatting.RED), button -> this.parent.delete())
                 .size(80, 20).tooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.delete"))).build(), 2);
 
         layout.arrangeElements();

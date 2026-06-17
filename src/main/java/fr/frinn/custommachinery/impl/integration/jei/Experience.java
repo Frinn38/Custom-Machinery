@@ -24,8 +24,7 @@ public record Experience(int xp, int capacity, double chance, boolean isPerTick,
   }
 
   public int getLevels() {
-      int experienceLevel = 0;
-      return experienceLevel;
+      return 0;
   }
 
   public boolean isLevels() {
@@ -51,13 +50,8 @@ public record Experience(int xp, int capacity, double chance, boolean isPerTick,
 
     while(experienceProgress < 0.0F) {
       float f = experienceProgress * (float) this.getXpNeededForNextLevel(experienceLevel);
-      if (experienceLevel > 0) {
-        experienceLevel -= 1;
-        experienceProgress = 1.0F + f / (float) this.getXpNeededForNextLevel(experienceLevel);
-      } else {
         experienceLevel -= 1;
         experienceProgress = 0.0F;
-      }
     }
 
     while(experienceProgress >= 1.0F) {
