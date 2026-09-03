@@ -61,7 +61,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     }
 
     public void refreshCoreCount(Stream<Pair<CoreModifier, Integer>> modifiers) {
-        if(this.tile.getLevel() instanceof ServerLevel level) {
+        if(this.tile.getLevel() instanceof ServerLevel) {
             AtomicInteger amount = new AtomicInteger(this.coreAmount);
             modifiers.forEach(pair -> amount.set((int)Mth.clamp(pair.getFirst().apply(amount.get(), pair.getSecond()), pair.getFirst().min(), pair.getFirst().max())));
             int currentAmount = this.cores.size();
@@ -72,12 +72,10 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
                     this.cores.add(core);
                 }
                 this.tile.refreshMachineContainer();
-                //PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.tile.getBlockPos()), new SMachineCoreCountChangePacket(this.tile.getBlockPos(), amount.get()));
             } else if(amount.get() < currentAmount) {
                 for(int i = 0; i < currentAmount - amount.get(); i++)
                     this.cores.removeLast();
                 this.tile.refreshMachineContainer();
-                //PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(this.tile.getBlockPos()), new SMachineCoreCountChangePacket(this.tile.getBlockPos(), amount.get()));
             }
         }
     }

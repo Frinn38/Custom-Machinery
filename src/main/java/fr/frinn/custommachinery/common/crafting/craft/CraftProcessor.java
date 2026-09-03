@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
+import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.crafting.RequirementList;
@@ -24,7 +25,7 @@ public class CraftProcessor implements IProcessor {
 
     private final MachineTile tile;
     private final Random rand = Utils.RAND;
-    private final CraftingContext.Mutable mutableCraftingContext;
+    private final MutableCraftingContext mutableCraftingContext;
     private final CraftRecipeFinder recipeFinder;
     private boolean shouldCheck = true;
     private int recipeCheckCooldown = rand.nextInt(20);
@@ -36,7 +37,7 @@ public class CraftProcessor implements IProcessor {
 
     public CraftProcessor(MachineTile tile) {
         this.tile = tile;
-        this.mutableCraftingContext = new CraftingContext.Mutable(tile, tile.getUpgradeManager(), 0);
+        this.mutableCraftingContext = new MutableCraftingContext(tile, 0);
         this.recipeFinder = new CraftRecipeFinder(tile, 20);
     }
 
@@ -59,7 +60,7 @@ public class CraftProcessor implements IProcessor {
 
         if(currentRecipe == null)
             this.recipeFinder.findRecipe(this.mutableCraftingContext, this.shouldCheck).ifPresent(this::setCurrentRecipe);
-        else if(this.mutableCraftingContext != null && (this.shouldCheck || this.recipeCheckCooldown-- == 0)) {
+        else if(this.currentContext != null && (this.shouldCheck || this.recipeCheckCooldown-- == 0)) {
             this.recipeCheckCooldown = 20;
             if(!this.checkRecipe(this.currentRecipe, this.currentContext))
                 this.reset();
@@ -105,7 +106,7 @@ public class CraftProcessor implements IProcessor {
 
     private void setCurrentRecipe(RecipeHolder<CustomCraftRecipe> recipe) {
         this.currentRecipe = recipe;
-        this.currentContext = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> 0.0, 0);
+        this.currentContext = new CraftingContext(this.tile, recipe, () -> 0.0, 0);
         this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
                 .ifPresent(component -> component.setItemStack(recipe.value().getOutput().copy()));

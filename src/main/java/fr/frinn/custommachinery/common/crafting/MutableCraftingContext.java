@@ -7,21 +7,19 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.init.Registration;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
-
-public class CraftingContext implements ICraftingContext {
+public class MutableCraftingContext implements ICraftingContext {
 
     private final MachineTile tile;
-    private final RecipeHolder<? extends IMachineRecipe> recipe;
-    private final Supplier<Double> progressTimeGetter;
     private final int core;
+    @Nullable
+    private RecipeHolder<? extends IMachineRecipe> recipe;
     private double baseSpeed = 1.0D;
 
-    public CraftingContext(MachineTile tile, RecipeHolder<? extends IMachineRecipe> recipe, Supplier<Double> progressTimeGetter, int core) {
+    public MutableCraftingContext(MachineTile tile, int core) {
         this.tile = tile;
-        this.recipe = recipe;
-        this.progressTimeGetter = progressTimeGetter;
+        this.recipe = null;
         this.core = core;
     }
 
@@ -37,17 +35,26 @@ public class CraftingContext implements ICraftingContext {
 
     @Override
     public IMachineRecipe getRecipe() {
+        if(this.recipe == null)
+            throw new IllegalStateException("Trying to get null recipe on mutable crafting context");
         return this.recipe.value();
+    }
+
+    public MutableCraftingContext setRecipe(@Nullable RecipeHolder<? extends IMachineRecipe> recipe) {
+        this.recipe = recipe;
+        return this;
     }
 
     @Override
     public ResourceLocation getRecipeId() {
+        if(this.recipe == null)
+            throw new IllegalStateException("Trying to get null recipe on mutable crafting context");
         return this.recipe.id();
     }
 
     @Override
     public double getRemainingTime() {
-        return getRecipe().getRecipeTime() - this.progressTimeGetter.get();
+        return getRecipe().getRecipeTime();
     }
 
     @Override

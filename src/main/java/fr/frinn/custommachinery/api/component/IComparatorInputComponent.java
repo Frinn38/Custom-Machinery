@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.api.component;
 
 /**
- * Used to define a custom comparator behaviour for this component.
+ * Used to define a custom comparator behavior for this component.
  */
 public interface IComparatorInputComponent extends IMachineComponent {
 

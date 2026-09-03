@@ -4,6 +4,9 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import net.minecraft.resources.ResourceLocation;
 
+/**
+ * Thrown by the machine {@link IProcessor} in case the machine doesn't have an {@link fr.frinn.custommachinery.api.component.IMachineComponent} required by the {@link fr.frinn.custommachinery.api.requirement.IRequirement} currently checked.
+ */
 public class ComponentNotFoundException extends RuntimeException {
 
     private final ResourceLocation recipeId;

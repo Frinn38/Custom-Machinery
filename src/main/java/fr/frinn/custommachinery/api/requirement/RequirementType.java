@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Used for registering custom {@link RequirementType}.
  * An {@link IRequirement} MUST be linked to a single {@link RequirementType}.
- * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link net.neoforged.neoforge.registries.DeferredRegister} for Forge or Architectury.
+ * All instances of this class must be created and registered using {@link net.neoforged.neoforge.registries.DeferredRegister}.
  * @param <T> The {@link IRequirement} handled by this {@link RequirementType}.
  */
 public class RequirementType<T extends IRequirement<?>> {
@@ -25,7 +25,7 @@ public class RequirementType<T extends IRequirement<?>> {
     /**
      * Use this factory method to create new {@link RequirementType} for an {@link IRequirement} that depends on something in-world instead of the machine inventory.
      * The handled {@link IRequirement} will be checked every tick by the machine {@link IProcessor} to see if it's still valid.
-     * @param codec A {@link NamedCodec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
+     * @param codec A {@link NamedCodec} used to deserialize any {@link IRequirement} of this type from JSON, and to send it to the client over the network in multiplayer.
      * @return A new {@link RequirementType} that will handle the specified {@link IRequirement}.
      */
     public static <T extends IRequirement<?>> RequirementType<T> world(NamedCodec<T> codec) {
@@ -35,7 +35,7 @@ public class RequirementType<T extends IRequirement<?>> {
     /**
      * Use this factory method to create new {@link RequirementType} for an {@link IRequirement} that depends on the machine inventory.
      * The handled {@link IRequirement} will be checked by the machine {@link IProcessor} ONLY if the machine inventory changed to see if it's still valid.
-     * @param codec A {@link NamedCodec} used to deserialize any {@link IRequirement} of this type from json, and to send it to the client over the network in multiplayer.
+     * @param codec A {@link NamedCodec} used to deserialize any {@link IRequirement} of this type from JSON, and to send it to the client over the network in multiplayer.
      * @return A new {@link RequirementType} that will handle the specified {@link IRequirement}.
      */
     public static <T extends IRequirement<?>> RequirementType<T> inventory(NamedCodec<T> codec) {
@@ -55,8 +55,8 @@ public class RequirementType<T extends IRequirement<?>> {
     }
 
     /**
-     * Used by the dispatch codec that deserialize all requirements from the recipe json.
-     * @return A codec that can deserialize a requirement of this type from json.
+     * Used by the dispatch codec that deserialize all requirements from the recipe JSON.
+     * @return A codec that can deserialize a requirement of this type from JSON.
      */
     public NamedCodec<T> getCodec() {
         return this.codec;
@@ -73,7 +73,10 @@ public class RequirementType<T extends IRequirement<?>> {
     }
 
     public ResourceLocation getId() {
-        return ICustomMachineryAPI.INSTANCE.requirementRegistrar().getKey(this);
+        ResourceLocation id = ICustomMachineryAPI.INSTANCE.requirementRegistrar().getKey(this);
+        if(id == null)
+            throw new IllegalStateException("Trying to get id for an unregistered processor type");
+        return id;
     }
 
     /**
@@ -81,8 +84,6 @@ public class RequirementType<T extends IRequirement<?>> {
      * @return A text component representing the name of this requirement.
      */
     public Component getName() {
-        if(getId() == null)
-            return Component.literal("unknown");
         return Component.translatable("requirement." + getId().getNamespace() + "." + getId().getPath());
     }
 }

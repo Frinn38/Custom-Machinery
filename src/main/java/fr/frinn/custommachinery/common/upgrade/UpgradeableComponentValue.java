@@ -37,13 +37,17 @@ public class UpgradeableComponentValue implements Supplier<Double> {
     }
 
     protected void refresh(ComponentModifier modifier, int upgradeAmount) {
-        if(modifier == null || upgradeAmount == 0)
+        if(upgradeAmount == 0)
             this.value = this.defaultValue;
         else
             this.value = Mth.clamp(modifier.apply(this.defaultValue, upgradeAmount), this.min, this.max);
 
         //Notify the component that the value changed
         this.onChange.accept(this.value);
+    }
+
+    protected void reset() {
+        this.value = this.defaultValue;
     }
 
     @Override

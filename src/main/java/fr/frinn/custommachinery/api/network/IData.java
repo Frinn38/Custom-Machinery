@@ -31,8 +31,6 @@ public interface IData<T> {
      * @param buffer The PacketBuffer that will be sent to the client.
      */
     default void writeData(RegistryFriendlyByteBuf buffer) {
-        if(getType().getId() == null)
-            throw new IllegalStateException("Attempting to write invalid data to Custom Machine container syncing packet : " + getType() + " is not registered !");
         buffer.writeResourceLocation(getType().getId());
         buffer.writeShort(getID());
     }

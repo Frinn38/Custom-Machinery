@@ -12,14 +12,12 @@ public interface WorkingCoreRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireWorkingCore(Object obj) {
-        if(obj instanceof Number number)
-            return this.requireWorkingCore(number.intValue(), null);
-        else if(obj instanceof ResourceLocation recipe)
-            return this.requireWorkingCore(0, recipe);
-        else if(obj instanceof CharSequence string && ResourceLocation.tryParse(string.toString()) != null)
-            return this.requireWorkingCore(0, ResourceLocation.tryParse(string.toString()));
-        else
-            return this.error("Invalid argument {} in 'requireWorkingCore' method\nMust be either core id or recipe id !", obj);
+        return switch (obj) {
+            case Number number -> this.requireWorkingCore(number.intValue(), null);
+            case ResourceLocation recipe -> this.requireWorkingCore(0, recipe);
+            case CharSequence string when ResourceLocation.tryParse(string.toString()) != null -> this.requireWorkingCore(0, ResourceLocation.tryParse(string.toString()));
+            default -> this.error("Invalid argument {} in 'requireWorkingCore' method\nMust be either core id or recipe id !", obj);
+        };
     }
 
     default RecipeJSBuilder requireWorkingCore(int core, @Nullable ResourceLocation recipe) {

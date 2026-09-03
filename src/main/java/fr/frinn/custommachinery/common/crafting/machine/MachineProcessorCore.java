@@ -1,29 +1,32 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
+import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
-import fr.frinn.custommachinery.common.crafting.CraftingContext.Mutable;
+import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
 import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.crafting.RequirementList;
 import fr.frinn.custommachinery.impl.crafting.RequirementList.RequirementWithFunction;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -38,7 +41,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     private RecipeHolder<CustomMachineRecipe> currentRecipe;
     //Recipe that was processed when the machine was unloaded, and we need to resume
     private ResourceLocation futureRecipeID;
-    private CraftingContext context;
+    private ICraftingContext context;
     private double recipeProgressTime = 0;
     private int recipeTotalTime = 0;
     private boolean searchImmediately = false;
@@ -55,7 +58,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     public MachineProcessorCore(MachineProcessor processor, MachineTile tile, int baseCooldown, int core) {
         this.processor = processor;
         this.tile = tile;
-        this.recipeFinder = new MachineRecipeFinder(tile, processor, baseCooldown, new Mutable(tile, tile.getUpgradeManager(), core - 1), core);
+        this.recipeFinder = new MachineRecipeFinder(tile, processor, baseCooldown, new MutableCraftingContext(tile, core - 1), core);
     }
 
     @Nullable
@@ -83,10 +86,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     public void init() {
         //Search for previous recipe
         if(this.futureRecipeID != null && this.tile.getLevel() != null) {
-            this.tile.getLevel().getRecipeManager()
-                    .byKey(this.futureRecipeID)
-                    .filter(holder -> holder.value() instanceof CustomMachineRecipe)
-                    .map(holder -> (RecipeHolder<CustomMachineRecipe>)holder)
+            this.getRecipeById(this.tile.getLevel().getRecipeManager(), this.futureRecipeID)
                     .ifPresent(recipe -> {
                         this.setRecipe(recipe);
                         //Remove all requirements that were already processed before the machine was unloaded.
@@ -212,7 +212,7 @@ public class MachineProcessorCore implements ISyncableStuff {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void setRecipe(RecipeHolder<CustomMachineRecipe> recipe) {
         this.currentRecipe = recipe;
-        this.context = new CraftingContext(this.tile, this.tile.getUpgradeManager(), recipe, () -> this.recipeProgressTime, this.processor.getCores().indexOf(this));
+        this.context = new CraftingContext(this.tile, recipe, () -> this.recipeProgressTime, this.processor.getCores().indexOf(this));
         this.recipeTotalTime = this.currentRecipe.value().getRecipeTime();
         this.requirementList = new RequirementList<>();
         this.currentRecipe.value().getRequirements().forEach(requirement -> {
@@ -279,8 +279,16 @@ public class MachineProcessorCore implements ISyncableStuff {
         container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
         container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
         container.accept(IntegerSyncable.create(() -> this.status.ordinal(), index -> this.status = MachineStatus.values()[index]));
-        RegistryAccess registries = this.processor.tile().getLevel().registryAccess();
-        container.accept(StringSyncable.create(() -> Component.Serializer.toJson(this.getError() == null ? Component.empty() : this.getError(), registries), errorMessage -> this.error = Component.Serializer.fromJson(errorMessage, registries)));
+        Level level = this.processor.tile().getLevel();
+        if(level != null)
+            container.accept(StringSyncable.create(() -> Component.Serializer.toJson(this.getError() == null ? Component.empty() : this.getError(), level.registryAccess()), errorMessage -> this.error = Component.Serializer.fromJson(errorMessage, level.registryAccess())));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<RecipeHolder<CustomMachineRecipe>> getRecipeById(RecipeManager manager, ResourceLocation id) {
+        return manager.byKey(id)
+                .filter(holder -> holder.value() instanceof CustomMachineRecipe)
+                .map(holder -> (RecipeHolder<CustomMachineRecipe>)holder);
     }
 
     public enum Phase {

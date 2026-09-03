@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * A part of the Custom Machine data, used to display things on the machine gui and/or in jei.
- * All gui elements are parsed from the machine json gui property, then created using the Codec passed when registering the corresponding {@link GuiElementType}.
+ * All gui elements are parsed from the machine JSON gui property, then created using the Codec passed when registering the corresponding {@link GuiElementType}.
  * As gui elements are part of the machine data, they must exist on both sides, so no rendering or other client side only things are allowed here.
  * This class only hold data, the rendering is handled by {@link fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget}.
  * Each {@link IGuiElement} must have a {@link GuiElementType} registered to the forge registry.
@@ -20,7 +20,7 @@ import java.util.List;
 public interface IGuiElement {
 
     /**
-     * A dispatch codec, used to create all {@link IGuiElement} from the machine json.
+     * A dispatch codec, used to create all {@link IGuiElement} from the machine JSON.
      */
     NamedCodec<IGuiElement> CODEC = RegistrarCodec.GUI_ELEMENT.dispatch(
             IGuiElement::getType,

@@ -14,8 +14,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * Used by the JEI integration to collect information about an {@link fr.frinn.custommachinery.api.requirement.IRequirement}
- * This can be used to set an icon in the jei recipe screen, add a tooltip when the player mouse cursor hover the requirement,
- * or execute an action when the player click on the requirement.
+ * Displays icon, tooltip when the player mouse cursor hover the requirement, execute an action when the player click on it.
  */
 public interface IDisplayInfo {
 

@@ -14,10 +14,10 @@ import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 
 /**
  * The base interface to declare an IRequirement.
- * Requirements are defined by the user in a recipe json, they represent an input, an output or a condition to process the recipe.
+ * Requirements are defined by the user in a recipe JSON, they represent an input, an output or a condition to process the recipe.
  * Each IRequirement must be registered to the ForgeRegistry using a {@link RequirementType}.
  * Each IRequirement must have a {@link RequirementIOMode} which is either INPUT or OUTPUT, you can make it fixed or left to the user.
- * Each IRequirement must have a Codec registered with its type, the Codec will be used to deserialize the requirement from json, and send it to the client.
+ * Each IRequirement must have a Codec registered with its type, the Codec will be used to deserialize the requirement from JSON, and send it to the client.
  * Each IRequirement must be associated to an {@link IMachineComponent} the associated component will be passed for each action of the requirement.
  * If any execution method return {@link CraftingResult#error(net.minecraft.network.chat.Component)} the crafting process will be paused and the error shown to the player.
  * The crafting process will be resumed only after the errored requirement return success or pass.
@@ -26,9 +26,9 @@ import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 public interface IRequirement<C extends IMachineComponent> {
 
     /**
-     * A dispatch codec, used by the {@link IMachineRecipe} main codec to parse all requirements from json using the "type" property of the requirement.
+     * A dispatch codec, used by the {@link IMachineRecipe} main codec to parse all requirements from JSON using the "type" property of the requirement.
      */
-    NamedMapCodec<IRequirement<?>> CODEC = RegistrarCodec.REQUIREMENT.<IRequirement<?>>dispatch(IRequirement::getType, RequirementType::getCodec, "Requirement");
+    NamedMapCodec<IRequirement<?>> CODEC = RegistrarCodec.REQUIREMENT.dispatch(IRequirement::getType, RequirementType::getCodec, "Requirement");
 
     /**
      * Used by the requirement dispatch codec to serialize an IRequirement.

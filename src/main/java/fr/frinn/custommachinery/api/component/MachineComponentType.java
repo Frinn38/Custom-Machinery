@@ -18,7 +18,7 @@ import java.util.function.Function;
 /**
  * Used to build and/or compare {@link IMachineComponent}.
  * An {@link IMachineComponent} MUST be linked to a single {@link MachineComponentType}.
- * All instances of this class must be created and registered using {@link net.neoforged.neoforge.registries.DeferredRegister} for Forge or Architectury.
+ * All instances of this class must be created and registered using {@link net.neoforged.neoforge.registries.DeferredRegister}.
  * @param <T> The {@link IMachineComponent} handled by this {@link MachineComponentType}.
  */
 public class MachineComponentType<T extends IMachineComponent> {
@@ -30,32 +30,32 @@ public class MachineComponentType<T extends IMachineComponent> {
     public static final ResourceKey<Registry<MachineComponentType<? extends IMachineComponent>>> REGISTRY_KEY = ResourceKey.createRegistryKey(ICustomMachineryAPI.INSTANCE.rl("component_type"));
 
     /**
-     * Use this factory method if you need to parse extra data inside the machine json.
+     * Use this factory method if you need to parse extra data inside the machine JSON.
      * The data will be stored as a {@link IMachineComponentTemplate} inside the {@link ICustomMachine} and will be used to build the specified {@link IMachineComponent}
      * when a machine tile is created.
-     * @param codec A {@link Codec} used to deserialize the {@link IMachineComponentTemplate} from the machine json.
+     * @param codec A {@link Codec} used to deserialize the {@link IMachineComponentTemplate} from the machine JSON.
      */
     public static <T extends IMachineComponent> MachineComponentType<T> create(NamedCodec<? extends IMachineComponentTemplate<T>> codec) {
-        return new MachineComponentType<T>(codec);
+        return new MachineComponentType<>(codec);
     }
 
     /**
-     * Use this factory method if the {@link IMachineComponent} don't need any extra data provided in the machine json.
+     * Use this factory method if the {@link IMachineComponent} don't need any extra data provided in the machine JSON.
      * @param defaultComponentBuilder Usually a method reference to the component constructor.
      *                                This will be used to build the component when the {@link MachineTile} is created.
      */
     public static <T extends IMachineComponent> MachineComponentType<T> create(Function<IMachineComponentManager, T> defaultComponentBuilder) {
-        return new MachineComponentType<T>(defaultComponentBuilder);
+        return new MachineComponentType<>(defaultComponentBuilder);
     }
 
     /**
-     * Use this factory method if the component may have extra data provided in the machine json,
-     * or use a default factory method if the user didn't specify the component in the machine json.
-     * @param codec The {@link Codec} used to deserialize the {@link IMachineComponent} in the machine json, if specified by the user.
-     * @param defaultComponentBuilder The factory method used if the user didn't specify the component in the machine json.
+     * Use this factory method if the component may have extra data provided in the machine JSON,
+     * or use a default factory method if the user didn't specify the component in the machine JSON.
+     * @param codec The {@link Codec} used to deserialize the {@link IMachineComponent} in the machine JSON, if specified by the user.
+     * @param defaultComponentBuilder The factory method used if the user didn't specify the component in the machine JSON.
      */
     public static <T extends IMachineComponent> MachineComponentType<T> create(NamedCodec<? extends IMachineComponentTemplate<T>> codec, Function<IMachineComponentManager, T> defaultComponentBuilder) {
-        return new MachineComponentType<T>(codec, defaultComponentBuilder);
+        return new MachineComponentType<>(codec, defaultComponentBuilder);
     }
 
     private NamedCodec<? extends IMachineComponentTemplate<T>> codec;
@@ -93,7 +93,7 @@ public class MachineComponentType<T extends IMachineComponent> {
 
     /**
      * By default, a {@link IMachineComponentManager} can hold only one {@link IMachineComponent} for each type.
-     * Use this method to override the default behaviour and tell the {@link IMachineComponentManager} to use a {@link IComponentHandler} instead of a {@link IMachineComponent}.
+     * Use this method to override the default behavior and tell the {@link IMachineComponentManager} to use a {@link IComponentHandler} instead of a {@link IMachineComponent}.
      * The {@link IComponentHandler} will hold all {@link IMachineComponent} for its type and redirect the {@link IMachineComponent} logic to them as needed.
      * @param handlerBuilder Usually a method reference to the {@link IComponentHandler} constructor.
      *                       This will be used to build the {@link IComponentHandler} when the {@link IMachineComponentManager} is created.
@@ -106,7 +106,7 @@ public class MachineComponentType<T extends IMachineComponent> {
     }
 
     /**
-     * @return The {@link NamedCodec} passed in the constructor. Used by the {@link IMachineComponent} dispatch codec to deserialize an {@link IMachineComponentTemplate} from the machine json.
+     * @return The {@link NamedCodec} passed in the constructor. Used by the {@link IMachineComponent} dispatch codec to deserialize an {@link IMachineComponentTemplate} from the machine JSON.
      */
     public NamedCodec<? extends IMachineComponentTemplate<T>> getCodec() {
         if(this.codec != null)
@@ -131,7 +131,7 @@ public class MachineComponentType<T extends IMachineComponent> {
      */
     public IComponentHandler<T> getHandler(IMachineComponentManager manager, List<T> components) {
         if(this.isSingle || this.handlerBuilder == null)
-            return null;
+            throw new IllegalStateException("Machine component manager for machine '" + manager.getTile().getMachine().getId() + "' tried to build an handler for single component '" + getId() + "'");
         return this.handlerBuilder.apply(manager, components);
     }
 
@@ -154,7 +154,10 @@ public class MachineComponentType<T extends IMachineComponent> {
      * @return The ID of this {@link MachineComponentType}, or null if it is not registered.
      */
     public ResourceLocation getId() {
-        return ICustomMachineryAPI.INSTANCE.componentRegistrar().getKey(this);
+        ResourceLocation id = ICustomMachineryAPI.INSTANCE.componentRegistrar().getKey(this);
+        if(id == null)
+            throw new IllegalStateException("Trying to get id for an unregistered machine component type");
+        return id;
     }
 
     /**
@@ -162,8 +165,6 @@ public class MachineComponentType<T extends IMachineComponent> {
      * The translation key for the {@link MachineComponentType} will be : "namespace.machine.component.path".
      */
     public Component getTranslatedName() {
-        if(getId() == null)
-            throw new IllegalStateException("Trying to get the registry name of an unregistered MachineComponentType");
         return Component.translatable(getId().getNamespace() + ".machine.component." + getId().getPath());
     }
 }

@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Used for registering custom gui elements.
  * An {@link IGuiElement} MUST be linked to a single {@link GuiElementType}.
- * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link net.neoforged.neoforge.registries.DeferredRegister} for Forge or Architectury.
+ * All instances of this class must be created and registered using {@link net.neoforged.neoforge.registries.DeferredRegister}.
  * @param <T> The {@link IGuiElement} handled by this {@link GuiElementType}.
  */
 public class GuiElementType<T extends IGuiElement> {
@@ -32,7 +32,7 @@ public class GuiElementType<T extends IGuiElement> {
     }
 
     /**
-     * Used to parse the machine json file gui property entry to create the corresponding gui element.
+     * Used to parse the machine JSON file gui property entry to create the corresponding gui element.
      */
     private final NamedCodec<T> codec;
 
@@ -52,11 +52,14 @@ public class GuiElementType<T extends IGuiElement> {
     }
 
     /**
-     * A helper method to get the ID of this GuiElementType.
-     * @return The ID of this GuiElementType, or null if it is not registered.
+     * A helper method to get the ID of this {@link GuiElementType}.
+     * @return The ID of this {@link GuiElementType}, or null if it is not registered.
      */
     public ResourceLocation getId() {
-        return ICustomMachineryAPI.INSTANCE.guiElementRegistrar().getKey(this);
+        ResourceLocation id = ICustomMachineryAPI.INSTANCE.guiElementRegistrar().getKey(this);
+        if(id == null)
+            throw new IllegalStateException("Trying to get id for an unregistered processor type");
+        return id;
     }
 
     /**
@@ -64,8 +67,6 @@ public class GuiElementType<T extends IGuiElement> {
      * The translation key for the {@link GuiElementType} will be : "namespace.machine.guielement.path".
      */
     public Component getTranslatedName() {
-        if(getId() == null)
-            throw new IllegalStateException("Trying to get the registry name of an unregistered GuiElementType");
         return Component.translatable(getId().getNamespace() + ".machine.guielement." + getId().getPath());
     }
 }

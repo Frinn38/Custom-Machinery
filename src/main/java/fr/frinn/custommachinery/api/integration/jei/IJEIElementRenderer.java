@@ -21,7 +21,7 @@ public interface IJEIElementRenderer<T extends IGuiElement> {
 
     /**
      * Called to check if the mouse cursor currently hover this element on a jei recipe.
-     * If this method return true the element tooltips returned by getJeiTooltips method will be rendered at mouse cursor position.
+     * If this method return true the element tooltips returned by {@link IJEIElementRenderer#getJEITooltips(IGuiElement, IMachineRecipe)} method will be rendered at mouse cursor position.
      */
     default boolean isHoveredInJei(T element, int posX, int posY, int mouseX, int mouseY) {
         return mouseX >= posX && mouseX <= posX + element.getWidth() && mouseY >= posY && mouseY <= posY + element.getHeight();

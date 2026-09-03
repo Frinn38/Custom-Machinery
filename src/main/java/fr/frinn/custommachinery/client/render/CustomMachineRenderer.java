@@ -23,7 +23,7 @@ public class CustomMachineRenderer implements BlockEntityRenderer<CustomMachineT
     private static final Map<ResourceLocation, BoxRenderer> boxToRender = new HashMap<>();
     private static final Map<ResourceLocation, StructureRenderer> blocksToRender = new HashMap<>();
 
-    public CustomMachineRenderer(BlockEntityRendererProvider.Context context) {
+    public CustomMachineRenderer(BlockEntityRendererProvider.Context ignoredContext) {
 
     }
 

@@ -10,12 +10,12 @@ import java.util.List;
 public interface ICustomMachine {
 
     /**
-     * @return The name of this machine, as specified in the "name" property of the machine json.
+     * @return The name of this machine, as specified in the "name" property of the machine JSON.
      */
     Component getName();
 
     /**
-     * @return The id of the machine. Path of the id will be the path of the machine json file in the datapack.
+     * @return The id of the machine. Path of the id will be the path of the machine JSON file in the datapack.
      */
     ResourceLocation getId();
 

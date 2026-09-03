@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 /**
  * This interface is passed to the {@link fr.frinn.custommachinery.api.requirement.IRequirement#gatherRequirements(IRequirementList)}
  * method to collect every {@link RequirementFunction} that the processor must check or process for this requirement.
- * Each method in this list has different behaviours
+ * Each method in this list has different behaviors
  */
 public interface IRequirementList<C extends IMachineComponent> {
 

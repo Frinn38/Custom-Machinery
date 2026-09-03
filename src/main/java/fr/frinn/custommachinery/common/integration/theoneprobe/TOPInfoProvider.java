@@ -97,12 +97,11 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
 
     private static void showHarvestInfo(IProbeInfo probeInfo, MachineAppearance appearance, boolean harvestable) {
         List<String> tools = appearance.getTool().stream().map(TagKey::location).map(TOPInfoProvider::getTool).toList();
-        String level = "" + Config.getHarvestabilityTags().get(appearance.getMiningLevel().location());
-        boolean v = true;
-        int offs = v ? 16 : 0;
-        int dim = v ? 13 : 16;
+        String level = Config.getHarvestabilityTags().get(appearance.getMiningLevel().location());
+        int offs = 16;
+        int dim = 13;
         ILayoutStyle alignment = probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER);
-        IIconStyle iconStyle = probeInfo.defaultIconStyle().width(v ? 18 : 20).height(v ? 14 : 16).textureWidth(32).textureHeight(32);
+        IIconStyle iconStyle = probeInfo.defaultIconStyle().width(18).height(14).textureWidth(32).textureHeight(32);
         IProbeInfo horizontal = probeInfo.horizontal(alignment);
         if (harvestable) {
             horizontal.icon(ICONS, 0, offs, dim, dim, iconStyle).text(CompoundText.create().style(TextStyleClass.OK).text(getToolText(tools)));
@@ -129,7 +128,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         if(tools.isEmpty())
             return "No tool";
         else if(tools.size() == 1)
-            return tools.get(0);
+            return tools.getFirst();
         else
             return tools.toString();
     }

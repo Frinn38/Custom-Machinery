@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.crafting.CraftingContext;
+import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
 import fr.frinn.custommachinery.common.crafting.RecipeChecker;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
@@ -17,7 +17,7 @@ public class MachineRecipeFinder {
     private final MachineTile tile;
     private final MachineProcessor processor;
     private final int baseCooldown;
-    private final CraftingContext.Mutable mutableCraftingContext;
+    private final MutableCraftingContext mutableCraftingContext;
     private final int core;
     private List<RecipeChecker<CustomMachineRecipe>> recipes;
     private List<RecipeChecker<CustomMachineRecipe>> okToCheck;
@@ -25,7 +25,7 @@ public class MachineRecipeFinder {
 
     private int recipeCheckCooldown;
 
-    public MachineRecipeFinder(MachineTile tile, MachineProcessor processor, int baseCooldown, CraftingContext.Mutable mutableCraftingContext, int core) {
+    public MachineRecipeFinder(MachineTile tile, MachineProcessor processor, int baseCooldown, MutableCraftingContext mutableCraftingContext, int core) {
         this.tile = tile;
         this.processor = processor;
         this.baseCooldown = baseCooldown;
@@ -62,14 +62,14 @@ public class MachineRecipeFinder {
                 RecipeChecker<CustomMachineRecipe> checker = iterator.next();
                 if(!this.inventoryChanged && checker.isInventoryRequirementsOnly() && !immediately)
                     continue;
-                if(checker.check(this.tile, this.mutableCraftingContext.setRecipe(checker.getRecipe().value(), checker.getRecipe().id()), this.inventoryChanged || immediately)) {
+                if(checker.check(this.tile, this.mutableCraftingContext.setRecipe(checker.getRecipe()), this.inventoryChanged || immediately)) {
                     //Check if the recipe can be run on this core
                     if((!checker.getRecipe().value().getAllowedCores().isEmpty() && !checker.getRecipe().value().getAllowedCores().contains(this.core)) || (checker.getRecipe().value().isSingleCore() && this.processor.getCores().stream().anyMatch(core -> core.getCurrentRecipe() != null && core.getCurrentRecipe().id().equals(checker.getRecipe().id()))))
                         continue;
                     setInventoryChanged(false);
                     return Optional.of(checker.getRecipe());
                 }
-                if(!checker.isInventoryRequirementsOk())
+                if(checker.inventoryRequirementNotOk())
                     iterator.remove();
             }
             setInventoryChanged(false);

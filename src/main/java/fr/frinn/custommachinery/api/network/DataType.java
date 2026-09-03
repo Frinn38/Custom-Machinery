@@ -5,7 +5,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -15,7 +14,7 @@ import java.util.function.Supplier;
 /**
  * Used by the machine container to sync some data of a specific type T.
  * Used for registering custom {@link DataType}.
- * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link net.neoforged.neoforge.registries.DeferredRegister} for Forge or Architectury.
+ * All instances of this class must be created and registered using {@link net.neoforged.neoforge.registries.DeferredRegister}.
  * @param <T> The {@link IData} handled by this {@link DataType}.
  */
 public class DataType<D extends IData<T>, T> {
@@ -88,10 +87,12 @@ public class DataType<D extends IData<T>, T> {
 
     /**
      * A helper method to get the ID of this {@link DataType}.
-     * @return The ID of this {@link DataType}, or null if it is not registered.
+     * @return The ID of this {@link DataType}.
      */
-    @Nullable
     public ResourceLocation getId() {
-        return ICustomMachineryAPI.INSTANCE.dataRegistrar().getKey(this);
+        ResourceLocation id = ICustomMachineryAPI.INSTANCE.dataRegistrar().getKey(this);
+        if(id == null)
+            throw new IllegalStateException("Trying to get id for an unregistered data type");
+        return id;
     }
 }

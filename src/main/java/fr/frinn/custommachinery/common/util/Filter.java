@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.utils;
+package fr.frinn.custommachinery.common.util;
 
 import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.codec.NamedCodec;

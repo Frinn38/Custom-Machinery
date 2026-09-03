@@ -22,7 +22,7 @@ public class BoxCreatorRenderer {
             Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
             BlockPos block1 = BoxCreatorItem.getSelectedBlock(true, stack);
-            if(block1 != null) {
+            if(block1 != BlockPos.ZERO) {
                 AABB box = new AABB(block1);
                 pose.pushPose();
                 pose.translate(-playerPos.x(), -playerPos.y(), -playerPos.z());
@@ -31,7 +31,7 @@ public class BoxCreatorRenderer {
             }
 
             BlockPos block2 = BoxCreatorItem.getSelectedBlock(false, stack);
-            if(block2 != null) {
+            if(block2 != BlockPos.ZERO) {
                 AABB box = new AABB(block2);
                 pose.pushPose();
                 pose.translate(-playerPos.x(), -playerPos.y(), -playerPos.z());
@@ -39,7 +39,7 @@ public class BoxCreatorRenderer {
                 pose.popPose();
             }
 
-            if(block1 != null && block2 != null) {
+            if(block1 != BlockPos.ZERO && block2 != BlockPos.ZERO) {
                 AABB box = new AABB(block1.getX(), block1.getY(), block1.getZ(), block2.getX(), block2.getY(), block2.getZ()).expandTowards(1.0D, 1.0D, 1.0D);
                 pose.pushPose();
                 pose.translate(-playerPos.x(), -playerPos.y(), -playerPos.z());

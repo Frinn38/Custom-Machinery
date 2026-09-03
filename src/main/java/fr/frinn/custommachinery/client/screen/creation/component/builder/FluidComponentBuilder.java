@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.client.screen.creation.component.builder;
 
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.client.render.FluidRenderer;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
@@ -15,6 +14,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent.Template;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

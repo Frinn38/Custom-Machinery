@@ -102,7 +102,7 @@ public class FluidRenderer {
                     int maskTop = TEXTURE_SIZE - height;
                     int maskRight = TEXTURE_SIZE - width;
 
-                    drawTextureWithMasking(matrix, x, y, sprite, maskTop, maskRight, 100);
+                    drawTextureWithMasking(matrix, x, y, sprite, maskTop, maskRight);
                 }
             }
         }
@@ -120,7 +120,7 @@ public class FluidRenderer {
         RenderSystem.setShaderColor(red, green, blue, alpha);
     }
 
-    private static void drawTextureWithMasking(Matrix4f matrix, float xCoord, float yCoord, TextureAtlasSprite textureSprite, int maskTop, int maskRight, float zLevel) {
+    private static void drawTextureWithMasking(Matrix4f matrix, float xCord, float yCord, TextureAtlasSprite textureSprite, int maskTop, int maskRight) {
         float uMin = textureSprite.getU0();
         float uMax = textureSprite.getU1();
         float vMin = textureSprite.getV0();
@@ -128,12 +128,12 @@ public class FluidRenderer {
         uMax = uMax - (maskRight / 16F * (uMax - uMin));
         vMax = vMax - (maskTop / 16F * (vMax - vMin));
 
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder bufferBuilder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix, xCoord, yCoord + 16, zLevel).setUv(uMin, vMax);
-        bufferBuilder.addVertex(matrix, xCoord + 16 - maskRight, yCoord + 16, zLevel).setUv(uMax, vMax);
-        bufferBuilder.addVertex(matrix, xCoord + 16 - maskRight, yCoord + maskTop, zLevel).setUv(uMax, vMin);
-        bufferBuilder.addVertex(matrix, xCoord, yCoord + maskTop, zLevel).setUv(uMin, vMin);
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.addVertex(matrix, xCord, yCord + 16, 100F).setUv(uMin, vMax);
+        bufferBuilder.addVertex(matrix, xCord + 16 - maskRight, yCord + 16, 100F).setUv(uMax, vMax);
+        bufferBuilder.addVertex(matrix, xCord + 16 - maskRight, yCord + maskTop, 100F).setUv(uMax, vMin);
+        bufferBuilder.addVertex(matrix, xCord, yCord + maskTop, 100F).setUv(uMin, vMin);
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
     }
 }

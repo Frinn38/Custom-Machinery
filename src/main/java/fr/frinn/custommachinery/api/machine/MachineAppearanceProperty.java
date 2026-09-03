@@ -22,8 +22,8 @@ public class MachineAppearanceProperty<T> {
 
     /**
      * A factory method to create new {@link MachineAppearanceProperty}.
-     * @param codec A codec used to parse the {@link MachineAppearanceProperty} from the machine json file and send it to the client.
-     * @param defaultValue The default value for this property, used if the machine creator didn't specify a value in the machine json.
+     * @param codec A codec used to parse the {@link MachineAppearanceProperty} from the machine JSON file and send it to the client.
+     * @param defaultValue The default value for this property, used if the machine creator didn't specify a value in the machine JSON.
      */
     public static <T> MachineAppearanceProperty<T> create(NamedCodec<T> codec, T defaultValue) {
         return new MachineAppearanceProperty<>(codec, defaultValue);
@@ -60,6 +60,9 @@ public class MachineAppearanceProperty<T> {
      * @return The ID of this {@link MachineAppearanceProperty}, or null if it is not registered.
      */
     public ResourceLocation getId() {
-        return ICustomMachineryAPI.INSTANCE.appearancePropertyRegistrar().getKey(this);
+        ResourceLocation id = ICustomMachineryAPI.INSTANCE.appearancePropertyRegistrar().getKey(this);
+        if(id == null)
+            throw new IllegalStateException("Trying to get id for an unregistered appearance property");
+        return id;
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Used for registering custom {@link ProcessorType}.
- * All instances of this class must be created and registered using {@link Registry} for Fabric or {@link net.neoforged.neoforge.registries.DeferredRegister} for Forge or Architectury.
+ * All instances of this class must be created and registered using {@link net.neoforged.neoforge.registries.DeferredRegister}.
  * @param <T> The {@link IProcessor} handled by this {@link ProcessorType}.
  */
 public class ProcessorType<T extends IProcessor> {
@@ -21,7 +21,7 @@ public class ProcessorType<T extends IProcessor> {
 
     /**
      * A factory method used to create new {@link ProcessorType}.
-     * @param codec A {@link NamedCodec} used to parse the specified {@link IProcessorTemplate} from the machine json and send it to the client.
+     * @param codec A {@link NamedCodec} used to parse the specified {@link IProcessorTemplate} from the machine JSON and send it to the client.
      * @param <T> The {@link IProcessor} handled by this {@link ProcessorType}.
      */
     public static <T extends IProcessor> ProcessorType<T> create(NamedCodec<? extends IProcessorTemplate<T>> codec) {
@@ -39,7 +39,7 @@ public class ProcessorType<T extends IProcessor> {
     }
 
     /**
-     * @return A {@link NamedCodec} used to parse the {@link IProcessorTemplate} from the machine json and send it to the clients.
+     * @return A {@link NamedCodec} used to parse the {@link IProcessorTemplate} from the machine JSON and send it to the clients.
      */
     public NamedCodec<? extends IProcessorTemplate<T>> getCodec() {
         return this.codec;
@@ -50,6 +50,9 @@ public class ProcessorType<T extends IProcessor> {
      * @return The ID of this {@link ProcessorType}, or null if it is not registered.
      */
     public ResourceLocation getId() {
-        return ICustomMachineryAPI.INSTANCE.processorRegistrar().getKey(this);
+        ResourceLocation id = ICustomMachineryAPI.INSTANCE.processorRegistrar().getKey(this);
+        if(id == null)
+            throw new IllegalStateException("Trying to get id for an unregistered processor type");
+        return id;
     }
 }

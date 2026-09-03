@@ -41,18 +41,18 @@ public class UpgradeManager implements IMachineUpgradeManager {
     private void refreshComponentModifiers() {
         List<UpgradeableComponentValue> actives = new ArrayList<>(this.activeModifiedValues);
         this.activeModifiedValues.clear();
-        this.getCurrentUpgrades().forEach(pair -> {
-            pair.getFirst().components().forEach(modifier -> {
+        this.getCurrentUpgrades().forEach(pair ->
+            pair.getFirst().components().forEach(modifier ->
                 this.tile.getComponentManager().getUpgradeableComponentValue(modifier.component(), modifier.id(), modifier.target())
                         .ifPresent(value -> {
                             actives.remove(value);
                             this.activeModifiedValues.add(value);
                             value.refresh(modifier, pair.getSecond());
-                        });
-            });
-        });
+                        })
+            )
+        );
         //Values that were active but now aren't must be reset.
-        actives.forEach(value -> value.refresh(null, 0));
+        actives.forEach(UpgradeableComponentValue::reset);
 
         //Then refresh processor core count
         if(this.tile.getProcessor() instanceof MachineProcessor machineProcessor)

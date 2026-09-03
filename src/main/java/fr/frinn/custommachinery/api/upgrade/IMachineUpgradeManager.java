@@ -6,6 +6,11 @@ import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Manages upgrade items stored inside the machine.
+ * Can be accessed by an {@link fr.frinn.custommachinery.api.crafting.IProcessor} when crafting to apply upgrades.
+ * Will also be used by the {@link fr.frinn.custommachinery.api.component.IMachineComponentManager} to apply upgrades to components.
+ */
 public interface IMachineUpgradeManager {
 
     /**

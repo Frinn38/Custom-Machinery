@@ -7,6 +7,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.RecordBuilder;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,6 +19,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class MachineShape implements Function<Direction, VoxelShape> {
@@ -47,16 +49,16 @@ public class MachineShape implements Function<Direction, VoxelShape> {
     public static final NamedCodec<MachineShape> CODEC = new NamedCodec<>() {
         @Override
         public <T> DataResult<Pair<MachineShape, T>> decode(DynamicOps<T> ops, T input) {
-            DataResult<PartialBlockState> block = PartialBlockState.CODEC.read(ops, input);
-            if(block.result().isPresent()) {
-                BlockState state = block.result().get().getBlockState();
+            Optional<PartialBlockState> result = PartialBlockState.CODEC.read(ops, input).result();
+            if(result.isPresent()) {
+                BlockState state = result.get().getBlockState();
                 Map<Direction, VoxelShape> shapes = Maps.newEnumMap(Direction.class);
                 try {
                     for (Direction side : Direction.values()) {
-                        shapes.put(side, state.getShape(null, null));
+                        shapes.put(side, state.getShape(null, BlockPos.ZERO));
                     }
                 } catch (Exception e) {
-                    return DataResult.error(() -> "Can't mimic shape of block: " + block.result().get());
+                    return DataResult.error(() -> "Can't mimic shape of block: " + result.get());
                 }
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
@@ -67,16 +69,16 @@ public class MachineShape implements Function<Direction, VoxelShape> {
                 for (Direction side : Direction.values()) {
                     if(side.getAxis() == Axis.Y)
                         continue;
-                    shapes.put(side, rotateShape(Direction.NORTH, side, shape));
+                    shapes.put(side, rotateShapeToNorth(side, shape));
                 }
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
             DataResult<Map<Direction, List<AABB>>> map = MAP_CODEC.read(ops, input);
             if(map.result().isPresent()) {
                 Map<Direction, VoxelShape> shapes = Maps.newEnumMap(Direction.class);
-                map.result().get().forEach((side, box) -> {
-                    shapes.put(side, fromAABBList(box));
-                });
+                map.result().get().forEach((side, box) ->
+                    shapes.put(side, fromAABBList(box))
+                );
                 return DataResult.success(Pair.of(new MachineShape(shapes), ops.empty()));
             }
             return DataResult.error(() -> "Can't parse block shape: " + input);
@@ -85,9 +87,9 @@ public class MachineShape implements Function<Direction, VoxelShape> {
         @Override
         public <T> DataResult<T> encode(DynamicOps<T> ops, MachineShape input, T prefix) {
             RecordBuilder<T> builder = ops.mapBuilder();
-            input.shapes.forEach((side, shape) -> {
-                builder.add(side.getName(), BOX_LIST_CODEC.encodeStart(ops, shape.toAabbs()));
-            });
+            input.shapes.forEach((side, shape) ->
+                builder.add(side.getName(), BOX_LIST_CODEC.encodeStart(ops, shape.toAabbs()))
+            );
             return builder.build(prefix);
         }
 
@@ -126,12 +128,12 @@ public class MachineShape implements Function<Direction, VoxelShape> {
         return shape;
     }
 
-    private static VoxelShape rotateShape(Direction from, Direction to, VoxelShape shape) {
-        if (from == to) { return shape; }
+    private static VoxelShape rotateShapeToNorth(Direction to, VoxelShape shape) {
+        if (Direction.NORTH == to) { return shape; }
 
         VoxelShape[] buffer = new VoxelShape[] { shape, Shapes.empty() };
 
-        int times = (to.get2DDataValue() - from.get2DDataValue() + 4) % 4;
+        int times = (to.get2DDataValue() - Direction.NORTH.get2DDataValue() + 4) % 4;
         for (int i = 0; i < times; i++)
         {
             buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> buffer[1] = Shapes.or(

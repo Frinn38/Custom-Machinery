@@ -29,7 +29,7 @@ public class StructureMachineComponent extends AbstractMachineComponent {
     }
 
     public boolean checkStructure(BlockStructure pattern) {
-        return pattern.match(getManager().getTile().getLevel(), getManager().getTile().getBlockPos(), getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
+        return pattern.match(getManager().getLevel(), getManager().getTile().getBlockPos(), getManager().getTile().getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
     }
 
     public void destroyStructure(BlockStructure pattern, boolean drops) {

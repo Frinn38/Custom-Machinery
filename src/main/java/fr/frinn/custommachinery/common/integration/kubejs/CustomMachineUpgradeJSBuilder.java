@@ -98,7 +98,7 @@ public class CustomMachineUpgradeJSBuilder {
         private double chance = 1.0D;
         private double max = Double.POSITIVE_INFINITY;
         private double min = Double.NEGATIVE_INFINITY;
-        private Component tooltip = null;
+        private Component tooltip = Component.empty();
 
         private JSRecipeModifierBuilder(RequirementType<?> type, RequirementIOMode mode, Operation operation, double modifier) {
             this.requirement = type;
@@ -170,7 +170,7 @@ public class CustomMachineUpgradeJSBuilder {
         private String target = "";
         private double max = Double.POSITIVE_INFINITY;
         private double min = Double.NEGATIVE_INFINITY;
-        private Component tooltip = null;
+        private Component tooltip = Component.empty();
 
         private JSComponentModifierBuilder(MachineComponentType<?> type, String id, Operation operation, double modifier) {
             this.type = type;

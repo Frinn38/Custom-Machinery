@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.common.upgrade;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.upgrade.IComponentModifier;
 import fr.frinn.custommachinery.api.upgrade.Operation;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
@@ -12,7 +11,7 @@ import java.math.BigDecimal;
 
 public record ComponentModifier(MachineComponentType<?> component, String id, String target, Operation operation,
                                 double modifier, double max, double min,
-                                Component tooltip) implements IComponentModifier {
+                                Component tooltip) {
 
     public static final NamedCodec<ComponentModifier> CODEC = NamedCodec.record(modifierInstance ->
             modifierInstance.group(
@@ -35,10 +34,9 @@ public record ComponentModifier(MachineComponentType<?> component, String id, St
         this.modifier = modifier;
         this.max = max;
         this.min = min;
-        this.tooltip = tooltip != null && !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
+        this.tooltip = !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
     }
 
-    @Override
     public double apply(double original, int upgradeAmount) {
         return this.operation.apply(original, this.modifier, upgradeAmount, this.min, this.max);
     }

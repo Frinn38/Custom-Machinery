@@ -34,7 +34,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -83,7 +83,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     @Override
     public void serverTick() {
-        //I/O between the machine and neighbour blocks.
+        //I/O between the machine and neighbor blocks.
         for(Direction side : Direction.values()) {
             if(this.getComponents().stream().noneMatch(component -> component.getConfig().canAutoIO(side)))
                 continue;
@@ -122,8 +122,8 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
         if(nbt.contains("fluids", Tag.TAG_LIST)) {
             ListTag componentsNBT = nbt.getList("fluids", Tag.TAG_COMPOUND);
-            componentsNBT.forEach(inbt -> {
-                if(inbt instanceof CompoundTag componentNBT) {
+            componentsNBT.forEach(iNBT -> {
+                if(iNBT instanceof CompoundTag componentNBT) {
                     if(componentNBT.contains("id", Tag.TAG_STRING)) {
                         this.getComponents().stream().filter(component -> component.getId().equals(componentNBT.getString("id"))).findFirst().ifPresent(component -> component.deserialize(componentNBT, registries));
                     }
@@ -166,25 +166,25 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     }
 
     public void removeFromInputs(String tank, FluidIngredient ingredient, int amount) {
-        AtomicLong toRemove = new AtomicLong(amount);
+        AtomicInteger toRemove = new AtomicInteger(amount);
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
         this.inputs.stream().filter(component -> ingredient.test(component.getFluid()) && tankPredicate.test(component)).forEach(component -> {
-            long maxExtract = Math.min(component.getFluid().getAmount(), toRemove.get());
+            int maxExtract = Math.min(component.getFluid().getAmount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
             component.recipeExtract(maxExtract);
         });
     }
 
     public void addToOutputs(String tank, FluidStack stack) {
-        AtomicLong toAdd = new AtomicLong(stack.getAmount());
+        AtomicInteger toAdd = new AtomicInteger(stack.getAmount());
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
         this.outputs.stream()
                 .filter(component -> component.isFluidValid(0, stack) && tankPredicate.test(component))
                 .sorted(Comparator.comparingInt(component -> FluidStack.isSameFluidSameComponents(component.getFluid(), stack) ? -1 : 1))
                 .forEach(component -> {
-                    long maxInsert = Math.min(component.getRecipeRemainingSpace(), toAdd.get());
+                    int maxInsert = Math.min(component.getRecipeRemainingSpace(), toAdd.get());
                     toAdd.addAndGet(-maxInsert);
-                    component.recipeInsert(stack.getFluid(), maxInsert, null);
+                    component.recipeInsert(stack.copy(), maxInsert);
                 });
     }
 

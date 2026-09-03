@@ -10,12 +10,11 @@ import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
-import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
@@ -250,25 +249,25 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return this.capacity.get();
     }
 
-    public void recipeInsert(Fluid fluid, long amount, CompoundTag nbt) {
+    public void recipeInsert(FluidStack fluid, int amount) {
         if(amount <= 0)
             return;
 
         if(this.fluidStack.isEmpty())
-            this.fluidStack = new FluidStack(fluid, (int)amount);
+            this.fluidStack = fluid.copyWithAmount(amount);
         else {
-            amount = Utils.clamp(amount, 0, getRecipeRemainingSpace());
-            this.fluidStack.grow((int)amount);
+            amount = Math.clamp(amount, 0, getRecipeRemainingSpace());
+            this.fluidStack.grow(amount);
         }
         getManager().markDirty();
     }
 
-    public void recipeExtract(long amount) {
+    public void recipeExtract(int amount) {
         if(amount <= 0)
             return;
 
-        amount = Utils.clamp(amount, 0, this.fluidStack.getAmount());
-        this.fluidStack.shrink((int)amount);
+        amount = Math.clamp(amount, 0, this.fluidStack.getAmount());
+        this.fluidStack.shrink(amount);
         getManager().markDirty();
     }
 

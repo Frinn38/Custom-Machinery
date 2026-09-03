@@ -5,12 +5,24 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 
 public interface IMachineScreen {
 
+    /**
+     * @return The left position (in pixels) of this machine screen.
+     */
     int getX();
 
+    /**
+     * @return The top position (in pixels) of this machine screen.
+     */
     int getY();
 
+    /**
+     * @return The width (in pixels) of this machine screen.
+     */
     int getWidth();
 
+    /**
+     * @return The height (in pixels) of this machine screen.
+     */
     int getHeight();
 
     /**

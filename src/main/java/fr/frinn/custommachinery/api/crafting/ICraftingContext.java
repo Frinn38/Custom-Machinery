@@ -1,10 +1,15 @@
 package fr.frinn.custommachinery.api.crafting;
 
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
+import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
+import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * Provide various information about the actual crafting process, like the current IMachineRecipe or the MachineTile executing this recipe.
@@ -64,12 +69,33 @@ public interface ICraftingContext {
      * @param target The name of the value to modify, or null, because machine upgrades can target a specific value of a requirement.
      * @return The modified value, or the same value if no upgrades could be applied.
      */
-    double getModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
+    default double getModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
+        return getModifiedValue(value, requirement.getType(), target, requirement.getMode());
+    }
+
+    /**
+     * Used to apply all currently active machine upgrades to an {@link IRequirement} value.
+     * @param value The value to modify (example an amount of item, energy etc...).
+     * @param type The type of requirement the value depends, because machine upgrades can target a specific {@link RequirementType}.
+     * @param target The name of the value to modify, or null, because machine upgrades can target a specific value of a requirement.
+     * @return The modified value, or the same value if no upgrades could be applied.
+     */
+    default double getModifiedValue(double value, RequirementType<?> type, @Nullable String target, RequirementIOMode mode) {
+        double modified = value;
+        List<Pair<IRecipeModifier, Integer>> modifiers = this.getMachineTile().getUpgradeManager().getRecipeModifiers();
+        for(Pair<IRecipeModifier, Integer> pair : modifiers) {
+            if(pair.getFirst().shouldApply(type, mode, target))
+                modified = pair.getFirst().apply(modified, pair.getSecond());
+        }
+        return modified;
+    }
 
     /**
      * Same as the method above but round the value to a {@link Long}
      */
-    long getIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
+    default long getIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
+        return Math.round(getModifiedValue(value, requirement, target));
+    }
 
     /**
      * Use this method only for requirements that will be executed every tick of the crafting process.
@@ -78,10 +104,16 @@ public interface ICraftingContext {
      * @param target The name of the value to modify, or null, because machine upgrades can target a specific value of a requirement.
      * @return The modified value, or the same value if no upgrades could be applied.
      */
-    double getPerTickModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
+    default double getPerTickModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
+        if(this.getRemainingTime() > 0)
+            return getModifiedValue(value, requirement, target) * Math.min(this.getModifiedSpeed(), this.getRemainingTime());
+        return getModifiedValue(value, requirement, target) * this.getModifiedSpeed();
+    }
 
     /**
      * Same as the method above but round the value to a {@link Long}
      */
-    long getPerTickIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target);
+    default long getPerTickIntegerModifiedValue(double value, IRequirement<?> requirement, @Nullable String target) {
+        return Math.round(getPerTickModifiedValue(value, requirement, target));
+    }
 }

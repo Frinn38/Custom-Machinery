@@ -56,8 +56,8 @@ public class RecipeChecker<T extends IMachineRecipe> {
         return this.isInventoryRequirementsOnly;
     }
 
-    public boolean isInventoryRequirementsOk() {
-        return this.inventoryRequirementsOk;
+    public boolean inventoryRequirementNotOk() {
+        return !this.inventoryRequirementsOk;
     }
 
     private boolean checkRequirement(RecipeRequirement<?, ?> requirement, MachineTile tile, ICraftingContext context) {

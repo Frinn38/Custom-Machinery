@@ -22,9 +22,9 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderWidget(graphics, mouseX, mouseY, partialTicks);
-        this.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId())).ifPresent(component -> {
-            FluidRenderer.renderFluid(graphics.pose(), this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2, component.getFluid(), component.getClientCapacity(), this.getElement().orientation());
-        });
+        this.getScreen().getTile().getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId())).ifPresent(component ->
+            FluidRenderer.renderFluid(graphics.pose(), this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2, component.getFluid(), component.getClientCapacity(), this.getElement().orientation())
+        );
         if(this.isHovered() && this.getElement().highlight())
             ClientHandler.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2);
     }

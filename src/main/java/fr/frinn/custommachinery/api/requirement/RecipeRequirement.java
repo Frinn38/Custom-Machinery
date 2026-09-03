@@ -88,10 +88,6 @@ public class RecipeRequirement<C extends IMachineComponent, R extends IRequireme
         return rand.nextDouble() > chance;
     }
 
-    public boolean isDelayed() {
-        return this.delay > 0.0D && this.delay < 1.0D;
-    }
-
     public void getDisplayInfo(RequirementDisplayInfo info) {
         this.requirement.getDefaultDisplayInfo(info, this);
     }

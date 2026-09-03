@@ -107,7 +107,7 @@ public class CustomCraftRecipe implements IMachineRecipe {
 
     @Override
     public ItemStack assemble(RecipeInput p_345149_, Provider p_346030_) {
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class CustomCraftRecipe implements IMachineRecipe {
 
     @Override
     public ItemStack getResultItem(Provider pRegistries) {
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override

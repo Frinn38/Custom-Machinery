@@ -6,8 +6,8 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import java.util.Locale;
 
 /**
- * Represents the mode, INPUT or OUTPUT of an IRequirement.
- * Each IRequirement have a mode which can be fixed or chosen by the recipe maker.
+ * Represents the mode, INPUT or OUTPUT of an {@link IRequirement}.
+ * Each {@link IRequirement} have a mode which can be fixed or chosen by the recipe maker.
  */
 public enum RequirementIOMode {
     /**

@@ -9,7 +9,7 @@ import java.util.Optional;
  * An IComponentHandler is used to allow a MachineTile to hold several components of the same type (several item slots or fluid tank).
  * When a IMachineComponent whose type return false to MachineComponentType#isSingle is passed to the IMachineComponentManager,
  * the manager will put it into the existing IComponentHandler of the same type, or create one if it's the first component of this type.
- * The IMachineComponentManager hold only the IComponentHandler instance, which hold all IMachineComponent instances for it's type.
+ * The IMachineComponentManager hold only the IComponentHandler instance, which hold all IMachineComponent instances for its type.
  * @param <T> The IMachineComponent handled by this IComponentHandler.
  */
 public interface IComponentHandler<T extends IMachineComponent> extends IMachineComponent {
@@ -20,7 +20,7 @@ public interface IComponentHandler<T extends IMachineComponent> extends IMachine
     List<T> getComponents();
 
     /**
-     * Used to get a component by it's String id.
+     * Used to get a component by its String id.
      * @param id The id of the component to find.
      * @return An Optional component.
      */

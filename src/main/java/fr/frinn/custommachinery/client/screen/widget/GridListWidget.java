@@ -153,8 +153,7 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
 
         E hovered = this.getElementUnderMouse(mouseX, mouseY);
         if(hovered != null) {
-            List<Component> tooltip = new ArrayList<>();
-            tooltip.addAll(hovered.getTooltips());
+            List<Component> tooltip = new ArrayList<>(hovered.getTooltips());
             graphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), mouseX, mouseY);
         }
     }

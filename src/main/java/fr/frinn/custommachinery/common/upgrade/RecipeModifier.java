@@ -43,7 +43,7 @@ public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMo
         this.chance = chance;
         this.max = max;
         this.min = min;
-        this.tooltip = tooltip != null && !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
+        this.tooltip = !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
     }
 
     @Override
@@ -56,13 +56,11 @@ public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMo
                 && this.chance > RAND.nextDouble();
     }
 
-    @Override
     public double apply(double original, int upgradeAmount) {
         return this.operation.apply(original, this.modifier, upgradeAmount, this.min, this.max);
     }
 
-    @Override
-    public Component getDefaultTooltip() {
+    private Component getDefaultTooltip() {
         if (this.requirementType == Registration.SPEED_REQUIREMENT.get()) {
             BigDecimal tooltipModifier = this.operation == Operation.ADDITION ? new BigDecimal(this.modifier) : new BigDecimal("" + this.modifier).multiply(new BigDecimal("100")).add(new BigDecimal("-100")).stripTrailingZeros();
             return Component.literal((tooltipModifier.intValue() >= 0 ? "+" : "") + (this.operation == Operation.ADDITION ? tooltipModifier.toPlainString() : tooltipModifier.toPlainString() + "%"))

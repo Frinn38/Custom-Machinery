@@ -85,7 +85,7 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
 
     /** ChunkLoader stuff **/
 
-    private static final TicketType<BlockPos> MACHINE_CHUNKLOADER = TicketType.create("custom_machine", Vec3i::compareTo, 0);
+    private static final TicketType<BlockPos> MACHINE_CHUNKLOAD = TicketType.create("custom_machine", Vec3i::compareTo, 0);
 
     public void setActive(int radius) {
         if(getManager().getLevel() instanceof ServerLevel level) {
@@ -98,7 +98,7 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
             BlockPos machinePos = getManager().getTile().getBlockPos();
             ChunkPos chunk = new ChunkPos(machinePos);
             level.setChunkForced(chunk.x, chunk.z, true);
-            level.getChunkSource().addRegionTicket(MACHINE_CHUNKLOADER, chunk, radius + 1, machinePos);
+            level.getChunkSource().addRegionTicket(MACHINE_CHUNKLOAD, chunk, radius + 1, machinePos);
         }
     }
 
@@ -115,7 +115,7 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
         ChunkPos chunk = new ChunkPos(machinePos);
         if(MachineList.findInSameChunk(getManager().getTile()).isEmpty())
             level.setChunkForced(chunk.x, chunk.z, false);
-        level.getChunkSource().removeRegionTicket(MACHINE_CHUNKLOADER, chunk, this.currentRadius + 1, machinePos);
+        level.getChunkSource().removeRegionTicket(MACHINE_CHUNKLOAD, chunk, this.currentRadius + 1, machinePos);
     }
 
     public boolean isActive() {

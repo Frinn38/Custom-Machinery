@@ -19,7 +19,7 @@ public class EnumButton<E> extends Button {
         if(this.values.contains(defaultValue))
             this.value = defaultValue;
         else
-            this.value = this.values.get(0);
+            this.value = this.values.getFirst();
     }
 
     @Override

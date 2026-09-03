@@ -2,13 +2,13 @@ package fr.frinn.custommachinery.client.screen.creation.component;
 
 import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.utils.Filter;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.FilterConfigPopup.FilterSelectionList.Mode;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.GridListWidget;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.util.CycleTimer;
+import fr.frinn.custommachinery.common.util.Filter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

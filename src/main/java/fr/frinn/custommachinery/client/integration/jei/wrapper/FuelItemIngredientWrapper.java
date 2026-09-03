@@ -35,13 +35,13 @@ public class FuelItemIngredientWrapper implements IJEIIngredientWrapper<ItemStac
                 List<ItemStack> ingredients = CustomMachineryJEIPlugin.FUEL_INGREDIENTS.stream().filter(stack -> template.canAccept(stack, true, helper.getDummyManager())).toList();
                 builder.addSlot(RecipeIngredientRole.INPUT, element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
-                    .addRichTooltipCallback((view, tooltips) -> {
+                    .addRichTooltipCallback((view, tooltips) ->
                         view.getDisplayedIngredient(VanillaTypes.ITEM_STACK).ifPresent(stack -> {
                                     tooltips.add(Component.translatable("custommachinery.jei.ingredient.fuel.amount", this.amount).withStyle(ChatFormatting.GOLD));
                                     tooltips.add(Component.translatable("custommachinery.jei.ingredient.fuel.burntime", stack.getBurnTime(RecipeType.SMELTING)).withStyle(ChatFormatting.GRAY));
                                 }
-                        );
-                    });
+                        )
+                    );
                 return true;
             }
             return false;

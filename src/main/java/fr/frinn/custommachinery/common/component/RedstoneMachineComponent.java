@@ -8,8 +8,6 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
@@ -94,13 +92,17 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getComparatorInput() {
-        return ((CustomMachineTile)this.getManager().getTile()).getComponentManager().getComponent(this.comparatorInputType).map(component -> {
-            if(component instanceof IComparatorInputComponent)
-                return (IComparatorInputComponent)component;
-            else if(component instanceof IComponentHandler)
-                return (IComparatorInputComponent) ((IComponentHandler<?>) component).getComponentForID(this.comparatorInputID).orElse(null);
-            else return null;
-        }).map(IComparatorInputComponent::getComparatorInput).orElse(0);
+        if(this.comparatorInputType.isSingle())
+            return this.getManager().getComparatorInputComponents().stream()
+                    .filter(component -> component.getType() == this.comparatorInputType)
+                    .findAny()
+                    .map(IComparatorInputComponent::getComparatorInput)
+                    .orElse(0);
+        else
+            return this.getManager().getComponentHandler(this.comparatorInputType)
+                    .flatMap(handler -> handler.getComponentForID(this.comparatorInputID))
+                    .map(component -> component instanceof IComparatorInputComponent cic ? cic.getComparatorInput() : 0)
+                    .orElse(0);
     }
 
     public int getMachinePower() {
@@ -124,13 +126,13 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
         public static final NamedCodec<Template> CODEC = NamedCodec.record(templateInstance ->
                 templateInstance.group(
-                        NamedCodec.INT.optionalFieldOf("powertopause", 1).forGetter(template -> template.powerToPause),
-                        NamedCodec.INT.optionalFieldOf("craftingpoweroutput", 0).forGetter(template -> template.craftingPowerOutput),
-                        NamedCodec.INT.optionalFieldOf("idlepoweroutput", 0).forGetter(template -> template.idlePowerOutput),
-                        NamedCodec.INT.optionalFieldOf("erroredpoweroutput", 0).forGetter(template -> template.erroredPowerOutput),
-                        NamedCodec.INT.optionalFieldOf("pausedpoweroutput", 0).forGetter(template -> template.pausedPowerOutput),
-                        RegistrarCodec.MACHINE_COMPONENT.optionalFieldOf("comparatorinputtype", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
-                        NamedCodec.STRING.optionalFieldOf("comparatorinputid", "").forGetter(template -> template.comparatorInputId),
+                        NamedCodec.INT.optionalFieldOf("powerToPause", 1).forGetter(template -> template.powerToPause),
+                        NamedCodec.INT.optionalFieldOf("craftingPowerOutput", 0).forGetter(template -> template.craftingPowerOutput),
+                        NamedCodec.INT.optionalFieldOf("idlePowerOutput", 0).forGetter(template -> template.idlePowerOutput),
+                        NamedCodec.INT.optionalFieldOf("erroredPowerOutput", 0).forGetter(template -> template.erroredPowerOutput),
+                        NamedCodec.INT.optionalFieldOf("pausedPowerOutput", 0).forGetter(template -> template.pausedPowerOutput),
+                        RegistrarCodec.MACHINE_COMPONENT.optionalFieldOf("comparatorInputType", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
+                        NamedCodec.STRING.optionalFieldOf("comparatorInputId", "").forGetter(template -> template.comparatorInputId),
                         IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_BOTH).forGetter(template -> template.config)
                 ).apply(templateInstance, Template::new), "Redstone machine component"
         );

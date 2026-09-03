@@ -5,6 +5,12 @@ import net.minecraft.util.Mth;
 
 import java.util.Locale;
 
+/**
+ * Different types of operations used by the recipe and component modifiers.
+ * ADDITION:        result = original + modifier * upgradeAmount
+ * MULTIPLICATION:  result = original * modifier * upgradeAmount
+ * EXPONENTIAL:     result = original * modifier ^ upgradeAmount
+ */
 public enum Operation {
     ADDITION,
     MULTIPLICATION,

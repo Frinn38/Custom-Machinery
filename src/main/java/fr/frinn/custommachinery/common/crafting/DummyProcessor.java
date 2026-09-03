@@ -22,7 +22,7 @@ public record DummyProcessor(MachineTile tile) implements IProcessor {
 
     @Override
     public MachineTile tile() {
-        return null;
+        throw new IllegalStateException("Trying to get machine tile from dummy processor");
     }
 
     @Override

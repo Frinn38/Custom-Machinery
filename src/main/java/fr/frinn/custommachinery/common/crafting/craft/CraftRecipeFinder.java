@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.crafting.craft;
 
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.crafting.CraftingContext;
+import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
 import fr.frinn.custommachinery.common.crafting.RecipeChecker;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.Comparators;
@@ -40,7 +40,7 @@ public class CraftRecipeFinder {
         this.recipeCheckCooldown = tile.getLevel().random.nextInt(this.baseCooldown);
     }
 
-    public Optional<RecipeHolder<CustomCraftRecipe>> findRecipe(CraftingContext.Mutable context, boolean immediately) {
+    public Optional<RecipeHolder<CustomCraftRecipe>> findRecipe(MutableCraftingContext context, boolean immediately) {
         if(tile.getLevel() == null)
             return Optional.empty();
 
@@ -55,11 +55,11 @@ public class CraftRecipeFinder {
                 RecipeChecker<CustomCraftRecipe> checker = iterator.next();
                 if(!this.inventoryChanged && checker.isInventoryRequirementsOnly())
                     continue;
-                if(checker.check(this.tile, context.setRecipe(checker.getRecipe().value(), checker.getRecipe().id()), this.inventoryChanged)) {
+                if(checker.check(this.tile, context.setRecipe(checker.getRecipe()), this.inventoryChanged)) {
                     setInventoryChanged(false);
                     return Optional.of(checker.getRecipe());
                 }
-                if(!checker.isInventoryRequirementsOk())
+                if(checker.inventoryRequirementNotOk())
                     iterator.remove();
             }
             setInventoryChanged(false);
