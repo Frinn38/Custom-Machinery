@@ -86,7 +86,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
             logger.info(marker, "No machine upgrade json found.");
 
         if(ModList.get().isLoaded("kubejs")) {
-            logger.info(marker, "Collecting machine upgrades with kubeJS.");
+            logger.info(marker, "Collecting machine upgrades with kubejs.");
             Map<UpgradeLocation, MachineUpgrade> kubejsUpgrades = KubeJSIntegration.collectMachineUpgrades();
             if(!kubejsUpgrades.isEmpty())
                 logger.info(marker, "Successfully added {} machine upgrades with kubejs", kubejsUpgrades.size());

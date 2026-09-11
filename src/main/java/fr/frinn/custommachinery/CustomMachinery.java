@@ -175,7 +175,8 @@ public class CustomMachinery {
                     } catch (IOException ignored) {
                         timestamped.put(location, upgrade);
                     }
-                }
+                } else
+                    timestamped.put(location, upgrade);
             }
         });
         UPGRADES.refresh(timestamped);
