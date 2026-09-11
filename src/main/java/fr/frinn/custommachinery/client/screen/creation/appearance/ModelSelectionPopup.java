@@ -72,7 +72,7 @@ public class ModelSelectionPopup extends PopupScreen {
             possibleSuggestions.addAll(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
 
         if(this.models.selected())
-            possibleSuggestions.addAll(ClientHandler.getAllModels().keySet().stream().map(ModelResourceLocation::toString).toList());
+            possibleSuggestions.addAll(ClientHandler.getAllModels().keySet().stream().map(Object::toString).toList());
 
         this.box.addSuggestions(possibleSuggestions);
         this.sortList(possibleSuggestions);
