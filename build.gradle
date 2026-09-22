@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.146'
-    id "me.shedaniel.unified-publishing" version "0.1.+"
+    id "me.modmuss50.mod-publish-plugin" version "2.2.0"
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -268,46 +268,45 @@ idea {
     }
 }
 
-unifiedPublishing {
-    project {
-        displayName = "[NeoForge]Custom-Machinery-${minecraft_version}-${mod_version}"
-        releaseType = "beta"
-        if(rootProject.file("CHANGELOG.md").exists()) {
-            changelog = rootProject.file("CHANGELOG.md").text
-        }
-        gameVersions = ["${minecraft_version}", "1.21"]
-        gameLoaders = ["neoforge"]
-        mainPublication jar
+publishMods {
+    file = jar.archiveFile
+    displayName = "[NeoForge]Custom-Machinery-${minecraft_version}-${mod_version}"
+    type = "beta"
+    if(rootProject.file("CHANGELOG.md").exists()) {
+        changelog = rootProject.file("CHANGELOG.md").text
+    }
+    modLoaders.add("neoforge")
 
-        var CURSE_API_KEY = System.getenv("CURSEFORGE")
-        if (CURSE_API_KEY != null) {
-            curseforge {
-                token = CURSE_API_KEY
-                id = "457017"
-                gameVersions.addAll "Java 21"
-                relations {
-                    optional "kubejs"
-                    optional "crafttweaker"
-                    optional "jei"
-                    optional "the-one-probe"
-                    optional "jade"
-                }
-            }
-        }
+    var CURSE_API_KEY = System.getenv("CURSEFORGE")
+    if (CURSE_API_KEY != null) {
+        curseforge {
+            accessToken = CURSE_API_KEY
+            projectId = "457017"
+            minecraftVersions.add("1.21.1")
 
-        var MODRINTH_TOKEN = System.getenv("MODRINTH")
-        if (MODRINTH_TOKEN != null) {
-            modrinth {
-                token = MODRINTH_TOKEN
-                id = "OrB5XFtI"
-                relations {
-                    optional "kubejs"
-                    optional "crafttweaker"
-                    optional "jei"
-                    optional "the-one-probe"
-                    optional "jade"
-                }
-            }
+            client = true
+            server = true
+
+            optional("kubejs")
+            optional("crafttweaker")
+            optional("jei")
+            optional("the-one-probe")
+            optional("jade")
+        }
+    }
+
+    var MODRINTH_TOKEN = System.getenv("MODRINTH")
+    if (MODRINTH_TOKEN != null) {
+        modrinth {
+            accessToken = MODRINTH_TOKEN
+            projectId = "OrB5XFtI"
+            minecraftVersions.add("1.21.1")
+
+            optional("kubejs")
+            optional("crafttweaker")
+            optional("jei")
+            optional("the-one-probe")
+            optional("jade")
         }
     }
 }
