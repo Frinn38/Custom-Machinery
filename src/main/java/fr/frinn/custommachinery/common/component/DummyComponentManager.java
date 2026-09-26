@@ -9,8 +9,8 @@ import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,12 +86,12 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-        return new CompoundTag();
+    public void serialize(ValueOutput output) {
+
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void deserialize(ValueInput input) {
 
     }
 }

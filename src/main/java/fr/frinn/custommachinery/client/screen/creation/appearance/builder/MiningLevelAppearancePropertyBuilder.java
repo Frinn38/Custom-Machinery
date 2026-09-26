@@ -4,16 +4,17 @@ import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.IAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -32,7 +33,7 @@ public class MiningLevelAppearancePropertyBuilder implements IAppearanceProperty
 
     @Override
     public MachineAppearanceProperty<TagKey<Block>> type() {
-        return Registration.MINING_LEVEL_PROPERTY.get();
+        return CMRegistration.MINING_LEVEL_PROPERTY.get();
     }
 
     @Override
@@ -81,18 +82,17 @@ public class MiningLevelAppearancePropertyBuilder implements IAppearanceProperty
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             if(this.selected) {
-                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), FastColor.ARGB32.color(255, 0, 0, 0));
-                graphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.getWidth() - 1, this.getY() + this.getHeight() - 1, FastColor.ARGB32.color(255, 198, 198, 198));
+                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), ARGB.color(255, 0, 0, 0));
+                graphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.getWidth() - 1, this.getY() + this.getHeight() - 1, ARGB.color(255, 198, 198, 198));
             }
-            graphics.renderFakeItem(this.item.getDefaultInstance(), this.getX() + 1, this.getY() + 1);
+            graphics.item(this.item.getDefaultInstance(), this.getX() + 1, this.getY() + 1);
         }
 
         @Override
-        public void onPress() {
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
             this.selected = !this.selected;
-            super.onPress();
         }
     }
 }

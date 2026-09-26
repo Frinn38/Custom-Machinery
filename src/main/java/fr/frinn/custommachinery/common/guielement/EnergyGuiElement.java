@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
@@ -59,12 +59,12 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
 
     @Override
     public GuiElementType<EnergyGuiElement> getType() {
-        return Registration.ENERGY_GUI_ELEMENT.get();
+        return CMRegistration.ENERGY_GUI_ELEMENT.get();
     }
 
     @Override
     public MachineComponentType<EnergyMachineComponent> getComponentType() {
-        return Registration.ENERGY_MACHINE_COMPONENT.get();
+        return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
     }
 
     @Override

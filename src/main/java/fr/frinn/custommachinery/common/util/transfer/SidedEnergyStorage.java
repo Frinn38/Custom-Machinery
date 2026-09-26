@@ -1,11 +1,11 @@
 package fr.frinn.custommachinery.common.util.transfer;
 
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
-import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class SidedEnergyStorage implements IEnergyStorage {
+public class SidedEnergyStorage implements EnergyHandler {
 
     private final Direction side;
     private final EnergyMachineComponent component;
@@ -16,32 +16,22 @@ public class SidedEnergyStorage implements IEnergyStorage {
     }
 
     @Override
-    public int receiveEnergy(int maxReceive, boolean simulate) {
-        return this.component.getConfig().getDirectionMode(this.side).isInput() ? this.component.receiveEnergy(maxReceive, simulate) : 0;
+    public int insert(int amount, TransactionContext tx) {
+        return this.component.getConfig().getDirectionMode(this.side).isInput() ? this.component.insert(amount, tx) : 0;
     }
 
     @Override
-    public int extractEnergy(int maxExtract, boolean simulate) {
-        return this.component.getConfig().getDirectionMode(this.side).isOutput() ? this.component.extractEnergy(maxExtract, simulate) : 0;
+    public int extract(int amount, TransactionContext tx) {
+        return this.component.getConfig().getDirectionMode(this.side).isOutput() ? this.component.extract(amount, tx) : 0;
     }
 
     @Override
-    public int getEnergyStored() {
-        return Utils.toInt(this.component.getEnergy());
+    public long getAmountAsLong() {
+        return this.component.getEnergy();
     }
 
     @Override
-    public int getMaxEnergyStored() {
-        return Utils.toInt(this.component.getCapacity());
-    }
-
-    @Override
-    public boolean canExtract() {
-        return this.component.getConfig().getDirectionMode(this.side).isOutput();
-    }
-
-    @Override
-    public boolean canReceive() {
-        return this.component.getConfig().getDirectionMode(this.side).isInput();
+    public long getCapacityAsLong() {
+        return this.component.getCapacity();
     }
 }

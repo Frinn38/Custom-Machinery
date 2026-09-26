@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.client.screen.creation.upgrade;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -75,10 +75,9 @@ public class UpgradeCreationScreen extends BaseScreen {
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
 
         //Sort
-        CycleButton<UpgradeListSorting> sorter = row.addChild(CycleButton.<UpgradeListSorting>builder(v -> Component.literal(v.name()))
+        CycleButton<UpgradeListSorting> sorter = row.addChild(CycleButton.builder(v -> Component.literal(v.name()), CMConfig.CONFIG.sortUpgradeList.get())
                 .withValues(UpgradeListSorting.values())
                 .displayOnlyValue()
-                .withInitialValue(CMConfig.CONFIG.sortUpgradeList.get())
                 .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 1, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
 
         //Search
@@ -103,8 +102,8 @@ public class UpgradeCreationScreen extends BaseScreen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTick);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
         UpgradeListWidget.UpgradeEntry entry = this.upgradeList.getSelected();
         if(entry == null) {

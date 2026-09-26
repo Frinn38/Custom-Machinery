@@ -6,11 +6,10 @@ import fr.frinn.custommachinery.client.screen.creation.appearance.IAppearancePro
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -52,7 +51,7 @@ public abstract class NumberAppearancePropertyBuilder<T extends Number> implemen
                 return Mth.map(this.value, 0, 1, min.doubleValue(), max.doubleValue());
             }
 
-            private void setValue(double value) {
+            protected void setValue(double value) {
                 this.value = Mth.clamp(Mth.map(value, min.doubleValue(), max.doubleValue(), 0, 1), 0, 1);
                 this.applyValue();
                 this.updateMessage();
@@ -69,14 +68,14 @@ public abstract class NumberAppearancePropertyBuilder<T extends Number> implemen
             }
 
             @Override
-            public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+            public boolean keyPressed(KeyEvent event) {
                 double value = this.value();
-                boolean pressed = super.keyPressed(keyCode, scanCode, modifiers);
-                double modifier = Screen.hasShiftDown() ? max.doubleValue() / 10 : Screen.hasControlDown() ? max.doubleValue() / 20 : 1;
-                switch(keyCode) {
-                    case GLFW.GLFW_KEY_RIGHT -> this.setValue(value + modifier);
-                    case GLFW.GLFW_KEY_LEFT -> this.setValue(value - modifier);
-                }
+                boolean pressed = super.keyPressed(event);
+                double modifier = event.hasShiftDown() ? max.doubleValue() / 10 : event.hasControlDown() ? max.doubleValue() / 20 : 1;
+                if(event.isRight())
+                    this.setValue(value + modifier);
+                else if(event.isLeft())
+                    this.setValue(value - modifier);
                 return pressed;
             }
         };

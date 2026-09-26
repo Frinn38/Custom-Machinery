@@ -2,13 +2,14 @@ package fr.frinn.custommachinery.common.util.transfer;
 
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InteractionFluidHandler implements IFluidHandler {
+public class InteractionFluidHandler implements ResourceHandler<FluidResource> {
 
     private final FluidComponentHandler handler;
 
@@ -17,88 +18,46 @@ public class InteractionFluidHandler implements IFluidHandler {
     }
 
     @Override
-    public int getTanks() {
+    public int size() {
         return this.handler.getComponents().size();
     }
 
     @Override
-    public FluidStack getFluidInTank(int tank) {
-        return this.handler.getComponents().get(tank).getFluid();
+    public FluidResource getResource(int index) {
+        return this.handler.getComponents().get(index).getResource(0);
     }
 
     @Override
-    public int getTankCapacity(int tank) {
-        return this.handler.getComponents().get(tank).getCapacity();
+    public long getAmountAsLong(int index) {
+        return this.handler.getComponents().get(index).getAmountAsLong(0);
     }
 
     @Override
-    public boolean isFluidValid(int tank, FluidStack stack) {
-        return this.handler.getComponents().get(tank).isFluidValid(0, stack);
+    public long getCapacityAsLong(int index, FluidResource resource) {
+        return this.handler.getComponents().get(index).getCapacityAsLong(0, resource);
     }
 
     @Override
-    public int fill(FluidStack stack, FluidAction action) {
-        AtomicInteger remaining = new AtomicInteger(stack.getAmount());
+    public boolean isValid(int index, FluidResource resource) {
+        return this.handler.getComponents().get(index).isValid(0, resource);
+    }
+
+    @Override
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        AtomicInteger remainingToInsert = new AtomicInteger(amount);
         this.handler.getComponents().stream()
-                .filter(component -> component.isFluidValid(0, stack) && component.getCapacity() - component.getFluid().getAmount() > 0 && component.getMode().isInput())
-                .sorted(Comparator.comparingInt(component -> FluidStack.isSameFluidSameComponents(component.getFluid(), stack) ? -1 : 1))
-                .forEach(component -> {
-                    int toInput = Math.min(remaining.get(), component.fill(stack, FluidAction.SIMULATE));
-                    if(toInput > 0) {
-                        remaining.addAndGet(-toInput);
-                        if (action.execute())
-                            component.fill(stack.copyWithAmount(toInput), FluidAction.EXECUTE);
-                    }
-                });
-        return stack.getAmount() - remaining.get();
+                .filter(component -> component.isValid(0, resource) && component.getCapacity() - component.getFluid().getAmount() > 0 && component.getMode().isInput())
+                .sorted(Comparator.comparingInt(component -> resource.matches(component.getFluid()) ? -1 : 1))
+                .forEach(component -> remainingToInsert.addAndGet(-component.insert(0, resource, remainingToInsert.get(), transaction)));
+        return amount - remainingToInsert.get();
     }
 
     @Override
-    public FluidStack drain(FluidStack maxDrain, FluidAction action) {
-        int remainingToDrain = maxDrain.getAmount();
-        for (FluidMachineComponent component : this.handler.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? -1 : 1)).toList()) {
-            if (!component.getFluid().isEmpty() && FluidStack.isSameFluidSameComponents(component.getFluid(), maxDrain)) {
-                FluidStack stack = component.drain(maxDrain.getAmount(), FluidAction.SIMULATE);
-                if (stack.getAmount() >= remainingToDrain) {
-                    if (action.execute())
-                        component.drain(maxDrain.getAmount(), FluidAction.EXECUTE);
-                    return maxDrain;
-                } else {
-                    if (action.execute())
-                        component.drain(stack.getAmount(), FluidAction.EXECUTE);
-                    remainingToDrain -= stack.getAmount();
-                }
-            }
-        }
-        if (remainingToDrain == maxDrain.getAmount())
-            return FluidStack.EMPTY;
-        else
-            return maxDrain.copyWithAmount(maxDrain.getAmount() - remainingToDrain);
-    }
-
-    @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
-        FluidStack toDrain = FluidStack.EMPTY;
-        int remainingToDrain = maxDrain;
-        for (FluidMachineComponent component : this.handler.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? -1 : 1)).toList()) {
-            if (!component.getFluid().isEmpty() && (toDrain.isEmpty() || FluidStack.isSameFluidSameComponents(component.getFluid(), toDrain))) {
-                FluidStack stack = component.drain(remainingToDrain, FluidAction.SIMULATE);
-                if (stack.getAmount() >= remainingToDrain) {
-                    if (action.execute())
-                        component.drain(remainingToDrain, FluidAction.EXECUTE);
-                    return stack.copyWithAmount(maxDrain);
-                } else {
-                    if (toDrain.isEmpty())
-                        toDrain = stack;
-                    if (action.execute())
-                        component.drain(stack.getAmount(), FluidAction.EXECUTE);
-                    remainingToDrain -= stack.getAmount();
-                }
-            }
-        }
-        if (toDrain.isEmpty() || remainingToDrain == maxDrain)
-            return FluidStack.EMPTY;
-        else
-            return toDrain.copyWithAmount(maxDrain - remainingToDrain);
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        int remainingToDrain = amount;
+        for (FluidMachineComponent component : this.handler.getComponents().stream().sorted(Comparator.comparingInt(c -> c.getMode().isOutput() ? -1 : 1)).toList())
+            if (!component.getFluid().isEmpty() && resource.matches(component.getFluid()))
+                remainingToDrain -= component.extract(0, resource, remainingToDrain, transaction);
+        return amount - remainingToDrain;
     }
 }

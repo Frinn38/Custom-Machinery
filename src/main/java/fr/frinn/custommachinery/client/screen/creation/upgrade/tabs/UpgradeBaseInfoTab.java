@@ -5,13 +5,14 @@ import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.client.screen.widget.ItemSelectionButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 public class UpgradeBaseInfoTab extends UpgradeEditTab {
@@ -26,7 +27,7 @@ public class UpgradeBaseInfoTab extends UpgradeEditTab {
         LayoutSettings middle = row.newCellSettings().alignVerticallyMiddle();
         LayoutSettings left = row.newCellSettings().alignHorizontallyLeft();
 
-        //Id (1rst row)
+        //ID (1rst row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.upgrade.base_info.id"), font), middle);
         row.addChild(new UpgradeIdWidget(150, 9, Component.literal(this.parent.getLocation().id().toString()), font), left);
 
@@ -56,14 +57,14 @@ public class UpgradeBaseInfoTab extends UpgradeEditTab {
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY, int button) {
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
             Minecraft.getInstance().keyboardHandler.setClipboard(this.getMessage().getString());
-            Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.base_info.id.copied"), null, false), 50);
+            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.base_info.id.copied"), null, false, 50));
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            guiGraphics.drawScrollingString(this.getFont(), this.getMessage(), this.getX(), this.getX() + this.getWidth(), this.getY(), this.getColor());
+        public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            graphics.drawScrollingString(graphics.textRenderer(), this.getFont(), this.getMessage(), this.getX(), this.getX() + this.getWidth(), this.getY());
         }
     }
 }

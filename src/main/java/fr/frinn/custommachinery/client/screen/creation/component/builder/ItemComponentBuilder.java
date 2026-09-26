@@ -14,11 +14,11 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerEditBox;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
@@ -27,7 +27,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
 
     @Override
     public MachineComponentType<ItemMachineComponent> type() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -47,11 +47,11 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, int width, int height, ItemMachineComponent.Template template) {
-        graphics.renderFakeItem(Items.DIAMOND.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.drawString(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
-        graphics.drawString(Minecraft.getInstance().font, "id: \"" + template.getId() + "\"", x + 25, y + 15, FastColor.ARGB32.color(255, 128, 0, 0), false);
-        graphics.drawString(Minecraft.getInstance().font, "mode: " + template.mode, x + 25, y + 25, FastColor.ARGB32.color(255, 0, 0, 128), false);
+    public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, ItemMachineComponent.Template template) {
+        graphics.item(Items.DIAMOND.getDefaultInstance(), x, y + height / 2 - 8);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+        graphics.text(Minecraft.getInstance().font, "id: \"" + template.getId() + "\"", x + 25, y + 15, ARGB.color(255, 128, 0, 0), false);
+        graphics.text(Minecraft.getInstance().font, "mode: " + template.mode, x + 25, y + 25, ARGB.color(255, 0, 0, 128), false);
     }
 
     public static class ItemComponentBuilderPopup extends ComponentBuilderPopup<Template> {
@@ -78,7 +78,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
         public Component canCreate() {
             if(this.id.getValue().isEmpty())
                 return Component.translatable("custommachinery.gui.creation.gui.id.missing");
-            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == Registration.ITEM_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
+            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == CMRegistration.ITEM_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
                 return Component.translatable("custommachinery.gui.creation.gui.id.duplicate", this.id.getValue());
             else
                 return Component.empty();
@@ -94,7 +94,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
             this.id.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.id.tooltip")));
 
             //Mode
-            this.mode = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.mode"), CycleButton.builder(ComponentIOMode::toComponent).displayOnlyValue().withValues(ComponentIOMode.values()).withInitialValue(ComponentIOMode.BOTH).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.mode")));
+            this.mode = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.mode"), CycleButton.builder(ComponentIOMode::toComponent, ComponentIOMode.BOTH).displayOnlyValue().withValues(ComponentIOMode.values()).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.mode")));
             this.baseTemplate().ifPresent(template -> this.mode.setValue(template.mode));
 
             //Capacity
@@ -114,9 +114,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
             this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.filter"), Button.builder(Component.translatable("custommachinery.gui.creation.components.filter"), button -> this.parent.openPopup(new FilterConfigPopup<>(this.parent, () -> this.filter, filter -> this.filter = filter, new ItemFilterHelper()), "Item Filter")).size(180, 20).build());
 
             //Locked
-            this.locked = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.item.locked"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.item.locked"), this.font).selected(false).build());
-            if(this.baseTemplate().map(template -> template.locked).orElse(false) != this.locked.selected())
-                this.locked.onPress();
+            this.locked = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.item.locked"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.item.locked"), this.font).selected(this.baseTemplate().map(template -> template.locked).orElse(false)).build());
             this.locked.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.item.locked.tooltip")));
 
             //Config
@@ -128,13 +126,13 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
     private static class ItemFilterHelper implements FilterBuilderHelper<Item> {
 
         @Override
-        public void renderSingle(Item single, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-            graphics.renderFakeItem(single.getDefaultInstance(), 0, 0);
+        public void renderSingle(Item single, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+            graphics.item(single.getDefaultInstance(), 0, 0);
         }
 
         @Override
         public Component tooltip(Item single) {
-            return single.getDescription();
+            return Component.translatable(single.getDescriptionId());
         }
 
         @Override

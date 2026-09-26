@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.RedstoneMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -26,12 +26,12 @@ public record RedstoneRequirement(IntRange power) implements IRequirement<Redsto
 
     @Override
     public RequirementType<RedstoneRequirement> getType() {
-        return Registration.REDSTONE_REQUIREMENT.get();
+        return CMRegistration.REDSTONE_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<RedstoneMachineComponent> getComponentType() {
-        return Registration.REDSTONE_MACHINE_COMPONENT.get();
+        return CMRegistration.REDSTONE_MACHINE_COMPONENT.get();
     }
 
     @Override

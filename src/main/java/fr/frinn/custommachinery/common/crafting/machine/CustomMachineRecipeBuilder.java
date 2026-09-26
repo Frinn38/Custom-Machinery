@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.crafting.AbstractRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
 
     public static final NamedMapCodec<CustomMachineRecipeBuilder> CODEC = NamedCodec.record(recipeBuilderInstance ->
             recipeBuilderInstance.group(
-                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
+                    DefaultCodecs.IDENTIFIER.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
                     NamedCodec.INT.fieldOf("time").forGetter(builder -> builder.time),
                     RecipeRequirement.CODEC.listOf().optionalFieldOf("requirements", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getRequirements),
                     RecipeRequirement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
@@ -58,7 +58,7 @@ public class CustomMachineRecipeBuilder extends AbstractRecipeBuilder<CustomMach
     private List<Integer> allowedCores = new ArrayList<>();
     private boolean singleCore = false;
 
-    public CustomMachineRecipeBuilder(ResourceLocation machine, int time) {
+    public CustomMachineRecipeBuilder(Identifier machine, int time) {
         super(machine);
         this.time = time;
     }

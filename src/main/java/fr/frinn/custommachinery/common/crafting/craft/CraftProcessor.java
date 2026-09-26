@@ -8,13 +8,14 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.crafting.RequirementList;
 import fr.frinn.custommachinery.impl.crafting.RequirementList.RequirementWithFunction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class CraftProcessor implements IProcessor {
 
     @Override
     public ProcessorType<CraftProcessor> getType() {
-        return Registration.CRAFT_PROCESSOR.get();
+        return CMRegistration.CRAFT_PROCESSOR.get();
     }
 
     @Override
@@ -107,8 +108,8 @@ public class CraftProcessor implements IProcessor {
     private void setCurrentRecipe(RecipeHolder<CustomCraftRecipe> recipe) {
         this.currentRecipe = recipe;
         this.currentContext = new CraftingContext(this.tile, recipe, () -> 0.0, 0);
-        this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
+        this.tile.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
                 .ifPresent(component -> component.setItemStack(recipe.value().getOutput().copy()));
     }
 
@@ -131,18 +132,18 @@ public class CraftProcessor implements IProcessor {
     public void reset() {
         this.currentRecipe = null;
         this.currentContext = null;
-        this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
+        this.tile.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
+                .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
                 .ifPresent(component -> component.setItemStack(ItemStack.EMPTY));
     }
 
     @Override
-    public CompoundTag serialize() {
-        return new CompoundTag();
+    public void serialize(ValueOutput output) {
+
     }
 
     @Override
-    public void deserialize(CompoundTag nbt) {
+    public void deserialize(ValueInput input) {
 
     }
 
@@ -153,7 +154,7 @@ public class CraftProcessor implements IProcessor {
 
         @Override
         public ProcessorType<CraftProcessor> getType() {
-            return Registration.CRAFT_PROCESSOR.get();
+            return CMRegistration.CRAFT_PROCESSOR.get();
         }
 
         @Override

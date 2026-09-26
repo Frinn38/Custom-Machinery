@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -27,20 +27,21 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     private final BackgroundGuiElement background;
 
     public CustomMachineScreen(CustomMachineContainer container, Inventory inv, Component name) {
-        super(container, inv, name);
         this.tile = container.getTile();
         this.machine = container.getTile().getMachine();
-        this.imageWidth = 256;
-        this.imageHeight = 192;
-        this.background = this.tile.getGuiElements().stream()
+        int imageWidth = 256;
+        int imageHeight = 192;
+        BackgroundGuiElement background = container.getTile().getGuiElements().stream()
                 .filter(element -> element instanceof BackgroundGuiElement)
                 .map(element -> (BackgroundGuiElement)element)
                 .findFirst()
                 .orElse(null);
-        if(this.background != null) {
-            this.imageWidth = this.background.getWidth();
-            this.imageHeight = this.background.getHeight();
+        this.background = background;
+        if(background != null) {
+            imageWidth = background.getWidth();
+            imageHeight = background.getHeight();
         }
+        super(container, inv, name, imageWidth, imageHeight);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -60,24 +61,23 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if(this.background != null && this.background.getTexture() != null)
             ClientHandler.blit(graphics, this.background.getTexture(), this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        super.render(graphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(graphics, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         this.children().stream()
                 .filter(widget -> widget instanceof AbstractGuiElementWidget<?> element && element.isMouseOver(mouseX, mouseY) && !element.getTooltips().isEmpty())
                 .map(widget -> (AbstractGuiElementWidget<?>) widget)
                 .min((w1, w2) -> Comparators.GUI_ELEMENTS_COMPARATOR.compare(w1.getElement(), w2.getElement()))
-                .ifPresent(element -> graphics.renderTooltip(this.font, element.getTooltips().stream().flatMap(tooltip -> this.font.split(tooltip, 1000).stream()).toList(), mouseX - this.leftPos, mouseY - this.topPos));
+                .ifPresent(element -> graphics.setTooltipForNextFrame(this.font, element.getTooltips().stream().flatMap(tooltip -> this.font.split(tooltip, 1000).stream()).toList(), mouseX - this.leftPos, mouseY - this.topPos));
     }
 
     @Override
@@ -117,16 +117,5 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
             }
         }
         return Optional.empty();
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        return super.mouseReleased(mouseX, mouseY, button);
     }
 }

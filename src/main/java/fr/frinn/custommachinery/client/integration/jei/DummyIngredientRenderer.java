@@ -1,19 +1,21 @@
 package fr.frinn.custommachinery.client.integration.jei;
 
-import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.ingredients.IIngredientRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DummyIngredientRenderer<T> implements IIngredientRenderer<T> {
 
     @Override
-    public void render(GuiGraphics graphics, @Nullable T t) {
+    public void render(GuiGraphicsExtractor graphics, @Nullable T t) {
 
     }
 
@@ -25,7 +27,7 @@ public class DummyIngredientRenderer<T> implements IIngredientRenderer<T> {
     }
 
     @Override
-    public void getTooltip(ITooltipBuilder tooltip, T ingredient, TooltipFlag tooltipFlag) {
-
+    public List<Component> getTooltip(T ingredient, TooltipContext tooltipContext, @Nullable Player player, TooltipFlag tooltipFlag) {
+        return Collections.emptyList();
     }
 }

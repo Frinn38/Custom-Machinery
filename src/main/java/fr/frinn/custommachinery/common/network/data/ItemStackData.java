@@ -1,13 +1,13 @@
 package fr.frinn.custommachinery.common.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemStackData extends Data<ItemStack> {
     public ItemStackData(short id, ItemStack value) {
-        super(Registration.ITEMSTACK_DATA.get(), id, value);
+        super(CMRegistration.ITEMSTACK_DATA.get(), id, value);
     }
 
     public ItemStackData(short id, RegistryFriendlyByteBuf buffer) {

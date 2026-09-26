@@ -2,77 +2,61 @@ package fr.frinn.custommachinery.common.util.transfer;
 
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.function.Predicate;
+public class SidedFluidHandler implements ResourceHandler<FluidResource> {
 
-public class SidedFluidHandler implements IFluidHandler {
-
+    @Nullable
     private final Direction side;
     private final FluidComponentHandler handler;
 
-    public SidedFluidHandler(Direction side, FluidComponentHandler handler) {
+    public SidedFluidHandler(@Nullable Direction side, FluidComponentHandler handler) {
         this.side = side;
         this.handler = handler;
     }
 
-    public List<FluidMachineComponent> getComponentsForMode(Predicate<IOSideMode> filter) {
-        return this.handler.getComponents().stream().filter(component -> filter.test(component.getConfig().getDirectionMode(this.side))).toList();
+    @Override
+    public int size() {
+        return this.handler.getComponents().size();
     }
 
     @Override
-    public int getTanks() {
-        return this.handler.getTanks();
+    public FluidResource getResource(int index) {
+        return this.handler.getComponents().get(index).getResource(0);
     }
 
     @Override
-    public FluidStack getFluidInTank(int tank) {
-        return this.handler.getFluidInTank(tank);
+    public long getAmountAsLong(int index) {
+        return this.handler.getComponents().get(index).getAmountAsLong(0);
     }
 
     @Override
-    public int getTankCapacity(int tank) {
-        return this.handler.getTankCapacity(tank);
+    public long getCapacityAsLong(int index, FluidResource resource) {
+        return this.handler.getComponents().get(index).getCapacityAsLong(0, resource);
     }
 
     @Override
-    public boolean isFluidValid(int tank, FluidStack stack) {
-        return this.handler.isFluidValid(tank, stack);
+    public boolean isValid(int index, FluidResource resource) {
+        return this.handler.getComponents().get(index).isValid(0, resource);
     }
 
     @Override
-    public int fill(FluidStack resource, FluidAction action) {
-        FluidStack toFill = resource.copy();
-        for(FluidMachineComponent component : this.getComponentsForMode(IOSideMode::isInput)) {
-            toFill.shrink(component.fill(toFill, action));
-            if(toFill.isEmpty())
-                break;
-        }
-        return resource.getAmount() - toFill.getAmount();
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        FluidMachineComponent component = this.handler.getComponents().get(index);
+        if(this.side == null || component.getConfig().getDirectionMode(this.side).isInput())
+            component.insert(resource, amount, transaction);
+        return 0;
     }
 
     @Override
-    public FluidStack drain(FluidStack resource, FluidAction action) {
-        int toDrain = 0;
-        for(FluidMachineComponent component : this.getComponentsForMode(IOSideMode::isOutput)) {
-            toDrain += component.drain(resource.copyWithAmount(resource.getAmount() - toDrain), action).getAmount();
-            if(toDrain == resource.getAmount())
-                break;
-        }
-        return resource.copyWithAmount(toDrain);
-    }
-
-    @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
-        for(FluidMachineComponent component : this.getComponentsForMode(IOSideMode::isOutput)) {
-            FluidStack drained = component.drain(maxDrain, action);
-            if(!drained.isEmpty())
-                return drained;
-        }
-        return FluidStack.EMPTY;
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        FluidMachineComponent component = this.handler.getComponents().get(index);
+        if(this.side == null || component.getConfig().getDirectionMode(this.side).isOutput())
+            component.extract(resource, amount, transaction);
+        return 0;
     }
 }

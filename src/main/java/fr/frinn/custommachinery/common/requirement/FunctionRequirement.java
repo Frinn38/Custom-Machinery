@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.FunctionMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.ModList;
@@ -29,12 +29,12 @@ public record FunctionRequirement(Phase phase, String id) implements IRequiremen
 
     @Override
     public RequirementType<FunctionRequirement> getType() {
-        return Registration.FUNCTION_REQUIREMENT.get();
+        return CMRegistration.FUNCTION_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<FunctionMachineComponent> getComponentType() {
-        return Registration.FUNCTION_MACHINE_COMPONENT.get();
+        return CMRegistration.FUNCTION_MACHINE_COMPONENT.get();
     }
 
     @Override

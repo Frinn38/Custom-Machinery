@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.client.screen.widget.config;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.popup.ComponentConfigPopup;
 import fr.frinn.custommachinery.common.util.Color;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -24,7 +24,7 @@ public class ComponentConfigButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.color.getARGB());
         if(this.popup.parent.popups().getFirst() == this.popup) {
             int offset = (int)(System.currentTimeMillis() / 100 % 100);

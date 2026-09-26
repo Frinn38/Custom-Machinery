@@ -6,13 +6,14 @@ import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.ExperienceUtils;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.impl.integration.jei.Experience;
-import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.ingredients.IIngredientType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,14 +39,14 @@ public class ExperienceJEIIngredientRenderer extends JEIIngredientRenderer<Exper
   }
 
   @Override
-  public void render(GuiGraphics graphics, @Nullable Experience ingredient) {
+  public void render(GuiGraphicsExtractor graphics, @Nullable Experience ingredient) {
     int width = this.getWidth();
     int height = this.getHeight();
 
     if(this.element.getMode().isDisplayBar()) {
       String levels = "" + (ingredient != null ? ingredient.isLevels() ? ingredient.xp() : ExperienceUtils.getLevelFromXp(ingredient.xp()) : 0);
       int xPos = width / 2 - Minecraft.getInstance().font.width(levels) / 2;
-      graphics.drawString(Minecraft.getInstance().font, levels, xPos, 0, 0x80FF20, true);
+      graphics.text(Minecraft.getInstance().font, levels, xPos, 0, 0x80FF20, true);
       graphics.fill(0, height - 3, width, height, 0xFF000000);
       if(ingredient != null && ingredient.isPoints()) {
         int level = ExperienceUtils.getLevelFromXp(ingredient.xp());
@@ -68,7 +69,7 @@ public class ExperienceJEIIngredientRenderer extends JEIIngredientRenderer<Exper
   }
 
   @Override
-  public void getTooltip(ITooltipBuilder builder, Experience ingredient, TooltipFlag flag) {
-
+  public List<Component> getTooltip(Experience ingredient, TooltipContext tooltipContext, @Nullable Player player, TooltipFlag tooltipFlag) {
+    return super.getTooltip(ingredient, tooltipContext, player, tooltipFlag);
   }
 }

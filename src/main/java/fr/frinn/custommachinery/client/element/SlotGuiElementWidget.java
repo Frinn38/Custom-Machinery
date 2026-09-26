@@ -3,18 +3,16 @@ package fr.frinn.custommachinery.client.element;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
-import fr.frinn.custommachinery.impl.util.FakeItemRenderer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElement> {
@@ -26,26 +24,26 @@ public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElemen
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderWidget(graphics, mouseX, mouseY, partialTicks);
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
 
         GhostItem ghost = this.getElement().getGhost();
-        if(ghost != GhostItem.EMPTY && ghost.ingredient().getItems().length != 0 && (ghost.alwaysRender() || this.isSlotEmpty())) {
+        if(ghost != GhostItem.EMPTY && ghost.ingredient().getValues().size() != 0 && (ghost.alwaysRender() || this.isSlotEmpty())) {
             timer.onDraw();
-            List<Item> items = Arrays.stream(ghost.ingredient().getItems()).map(ItemStack::getItem).toList();
-            FakeItemRenderer.render(graphics, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), this.getX() + 1, this.getY() + 1, ghost.color().getARGB());
+            List<Item> items = ghost.ingredient().getValues().stream().map(Holder::value).toList();
+            //TODO FakeItemRenderer.render(graphics, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), this.getX() + 1, this.getY() + 1, ghost.color().getARGB());
         }
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         return false;
     }
 
     private boolean isSlotEmpty() {
         return this.getScreen().getTile()
                 .getComponentManager()
-                .getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(this.getElement().getComponentId()))
                 .map(component -> component.getItemStack().isEmpty())
                 .orElse(true);

@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.upgrade;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.upgrade.Operation;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 
@@ -15,7 +15,7 @@ public record ComponentModifier(MachineComponentType<?> component, String id, St
 
     public static final NamedCodec<ComponentModifier> CODEC = NamedCodec.record(modifierInstance ->
             modifierInstance.group(
-                    RegistrarCodec.MACHINE_COMPONENT.fieldOf("component").forGetter(modifier -> modifier.component),
+                    RegistryCodecs.MACHINE_COMPONENT.fieldOf("component").forGetter(modifier -> modifier.component),
                     NamedCodec.STRING.optionalFieldOf("id", "").forGetter(modifier -> modifier.id),
                     NamedCodec.STRING.fieldOf("target").forGetter(modifier -> modifier.target),
                     Operation.CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),

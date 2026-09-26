@@ -1,13 +1,13 @@
 package fr.frinn.custommachinery.common.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class IntegerData extends Data<Integer> {
 
     public IntegerData(short id, int value) {
-        super(Registration.INTEGER_DATA.get(), id, value);
+        super(CMRegistration.INTEGER_DATA.get(), id, value);
     }
 
     public IntegerData(short id, RegistryFriendlyByteBuf buffer) {

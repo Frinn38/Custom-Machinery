@@ -1,8 +1,9 @@
 package fr.frinn.custommachinery.client.screen.widget.tabs;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.TabButton;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
@@ -14,7 +15,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
@@ -25,10 +26,8 @@ import java.util.Optional;
 
 public class EditTabNavigationBar extends AbstractWidget implements ContainerEventHandler {
 
-    private static final int NO_TAB = -1;
     private static final int MAX_WIDTH = 400;
     private static final int HEIGHT = 24;
-    private static final int MARGIN = 14;
     private static final Component USAGE_NARRATION = Component.translatable("narration.tab_navigation.usage");
     private final GridLayout layout;
 
@@ -71,21 +70,23 @@ public class EditTabNavigationBar extends AbstractWidget implements ContainerEve
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
-        for (GuiEventListener guieventlistener : this.children()) {
-            if (guieventlistener.mouseClicked(mouseX, mouseY, button))
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        for(GuiEventListener guieventlistener : this.children()) {
+            if(guieventlistener.mouseClicked(event, doubleClick)) {
                 this.setFocused(guieventlistener);
-        }
-    }
-
-    public @Nullable ComponentPath nextFocusPath(FocusNavigationEvent event) {
-        if (!this.isFocused()) {
-            TabButton tabButton = this.currentTabButton();
-            if (tabButton != null) {
-                return ComponentPath.path(this, ComponentPath.leaf(tabButton));
+                return true;
             }
         }
+        return false;
+    }
 
+    @Nullable
+    public ComponentPath nextFocusPath(FocusNavigationEvent event) {
+        if(!this.isFocused()) {
+            TabButton tabButton = this.currentTabButton();
+            if(tabButton != null)
+                return ComponentPath.path(this, ComponentPath.leaf(tabButton));
+        }
         return event instanceof FocusNavigationEvent.TabNavigation ? null : super.nextFocusPath(event);
     }
 
@@ -137,9 +138,9 @@ public class EditTabNavigationBar extends AbstractWidget implements ContainerEve
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        for (TabButton tabButton : this.tabButtons)
-            tabButton.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        for(TabButton tabButton : this.tabButtons)
+            tabButton.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -171,22 +172,6 @@ public class EditTabNavigationBar extends AbstractWidget implements ContainerEve
             this.setFocused(this.tabButtons.get(index));
         else
             this.tabManager.setCurrentTab(this.tabs.get(index), playClickSound);
-    }
-
-    private int getNextTabIndex(int keycode) {
-        if (keycode >= 49 && keycode <= 57) {
-            return keycode - 49;
-        } else {
-            if (keycode == 258) {
-                int i = this.currentTabIndex();
-                if (i != -1) {
-                    int j = Screen.hasShiftDown() ? i - 1 : i + 1;
-                    return Math.floorMod(j, this.tabs.size());
-                }
-            }
-
-            return -1;
-        }
     }
 
     private int currentTabIndex() {

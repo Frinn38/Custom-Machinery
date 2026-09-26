@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ExperienceIngredientWrapper;
 import fr.frinn.custommachinery.common.component.ExperienceMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.integration.jei.Experience;
 import fr.frinn.custommachinery.impl.integration.jei.Experience.Form;
 import net.minecraft.network.chat.Component;
@@ -34,12 +34,12 @@ public record ExperienceRequirement(RequirementIOMode mode, int amount, Form for
 
     @Override
     public RequirementType<ExperienceRequirement> getType() {
-        return Registration.EXPERIENCE_REQUIREMENT.get();
+        return CMRegistration.EXPERIENCE_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<ExperienceMachineComponent> getComponentType() {
-        return Registration.EXPERIENCE_MACHINE_COMPONENT.get();
+        return CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get();
     }
 
     @Override

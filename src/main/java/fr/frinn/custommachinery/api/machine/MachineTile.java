@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -36,7 +36,7 @@ public abstract class MachineTile extends BlockEntity {
     /**
      * @return The id of the {@link fr.frinn.custommachinery.common.machine.CustomMachine} currently applied to this tile.
      */
-    public abstract ResourceLocation getId();
+    public abstract Identifier getId();
 
     /**
      * @return The ICustomMachine currently linked to this MachineTile, or DUMMY.
@@ -49,7 +49,7 @@ public abstract class MachineTile extends BlockEntity {
      * If machineId param is not null, the MachineTile custom machine will change to the corresponding machine.
      * @param machineId The id of the new machine linked to the tile, or null if the tile should keep its current machine.
      */
-    public abstract void refreshMachine(@Nullable ResourceLocation machineId);
+    public abstract void refreshMachine(@Nullable Identifier machineId);
 
     /**
      * Pause or resume the MachineTile process.
@@ -133,7 +133,7 @@ public abstract class MachineTile extends BlockEntity {
      * Pass null to make the machine use its default gui elements list, as specified in the machine JSON.
      * @param guiElements A custom list of {@link IGuiElement} to display.
      */
-    public abstract void setCustomGuiElements(@Nullable List<IGuiElement> guiElements);
+    public abstract void setCustomGuiElements(List<IGuiElement> guiElements);
 
     /**
      * This should be called if the list of things synced by the machine container changes.

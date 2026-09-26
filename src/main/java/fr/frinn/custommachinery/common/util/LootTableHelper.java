@@ -1,13 +1,13 @@
 package fr.frinn.custommachinery.common.util;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -37,25 +37,25 @@ import java.util.function.Consumer;
 
 public class LootTableHelper {
 
-    private static final List<ResourceLocation> tables = new ArrayList<>();
-    private static Map<ResourceLocation, List<LootData>> lootsMap = new HashMap<>();
+    private static final List<Identifier> tables = new ArrayList<>();
+    private static Map<Identifier, List<LootData>> lootsMap = new HashMap<>();
 
-    public static void addTable(ResourceLocation table) {
+    public static void addTable(Identifier table) {
         if(!tables.contains(table))
             tables.add(table);
     }
 
     public static void generate(MinecraftServer server) {
         lootsMap.clear();
-        LootParams params = new LootParams.Builder(server.overworld()).create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
+        LootParams params = new LootParams.Builder(server.overworld()).create(CMRegistration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
         LootContext context = new LootContext.Builder(params).create(Optional.empty());
-        for (ResourceLocation table : tables) {
+        for (Identifier table : tables) {
             List<LootData> loots = getLoots(table, server, context);
             lootsMap.put(table, loots);
         }
     }
 
-    private static List<LootData> getLoots(ResourceLocation table, MinecraftServer server, LootContext context) {
+    private static List<LootData> getLoots(Identifier table, MinecraftServer server, LootContext context) {
         List<LootData> loots = new ArrayList<>();
         LootTable lootTable = server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, table));
         BiFunction<ItemStack, LootContext, ItemStack> globalFunction = lootTable.compositeFunction;
@@ -77,14 +77,14 @@ public class LootTableHelper {
             entries.stream().filter(entry -> entry instanceof TagEntry)
                     .map(entry -> (TagEntry)entry)
                     .forEach(entry -> {
-                        Consumer<ItemStack> consumer = stack -> loots.add(new LootData(stack, entry.weight / total / (entry.expand ? BuiltInRegistries.ITEM.getTag(entry.tag).map(named -> named.stream().count()).orElse(0L) : 1), rolls, bonusRolls));
+                        Consumer<ItemStack> consumer = stack -> loots.add(new LootData(stack, entry.weight / total / (entry.expand ? BuiltInRegistries.ITEM.get(entry.tag).map(named -> named.stream().count()).orElse(0L) : 1), rolls, bonusRolls));
                         consumer = applyFunctions(consumer, entry.functions, globalFunction, context);
                         entry.createItemStack(consumer, context);
                     });
 
             entries.stream().filter(entry -> entry instanceof NestedLootTable)
                     .map(entry -> (NestedLootTable)entry)
-                    .map(entry -> getLoots(entry.contents.map(ResourceKey::location, LootTable::getLootTableId), server, context))
+                    .map(entry -> getLoots(entry.contents.map(ResourceKey::identifier, LootTable::getLootTableId), server, context))
                     .forEach(loots::addAll);
         }
         return loots;
@@ -114,15 +114,15 @@ public class LootTableHelper {
         };
     }
 
-    public static Map<ResourceLocation, List<LootData>> getLoots() {
+    public static Map<Identifier, List<LootData>> getLoots() {
         return lootsMap;
     }
 
-    public static void receiveLoots(Map<ResourceLocation, List<LootData>> newLoots) {
+    public static void receiveLoots(Map<Identifier, List<LootData>> newLoots) {
         lootsMap = newLoots;
     }
 
-    public static List<LootData> getLootsForTable(ResourceLocation table) {
+    public static List<LootData> getLootsForTable(Identifier table) {
         return lootsMap.getOrDefault(table, Collections.emptyList());
     }
 

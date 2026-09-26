@@ -1,27 +1,26 @@
 package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
-import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.RenderTypes;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -68,13 +67,17 @@ public class StructureRenderer {
             VertexConsumer builder = buffer.getBuffer(RenderTypes.PHANTOM);
             pose.translate(0.1F, 0.1F, 0.1F);
             pose.scale(0.8F, 0.8F, 0.8F);
-            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state.getBlockState());
-            if(model != Minecraft.getInstance().getModelManager().getMissingModel()) {
-                Arrays.stream(Direction.values())
-                        .flatMap(direction -> model.getQuads(state.getBlockState(), direction, RandomSource.create(42L), ModelData.EMPTY, null).stream())
-                        .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
-                model.getQuads(state.getBlockState(), null, RandomSource.create(42L), ModelData.EMPTY, null)
-                        .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
+            BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state.getBlockState());
+            if(model != Minecraft.getInstance().getModelManager().getBlockStateModelSet().missingModel()) {
+                List<BlockStateModelPart> parts = new ArrayList<>();
+                model.collectParts(BlockAndTintGetter.EMPTY, BlockPos.ZERO, state.getBlockState(), RandomSource.create(), parts);
+                parts.forEach(part -> {
+                    Arrays.stream(Direction.values())
+                            .flatMap(direction -> part.getQuads(direction).stream())
+                            .forEach(quad -> builder.putBakedQuad(pose.last(), quad, new QuadInstance()));
+                    part.getQuads(null)
+                            .forEach(quad -> builder.putBakedQuad(pose.last(), quad, new QuadInstance()));
+                });
             }
     }
 
@@ -84,8 +87,9 @@ public class StructureRenderer {
     }
 
     private void renderNope(PoseStack pose, MultiBufferSource buffer) {
+        /*
         VertexConsumer builder = buffer.getBuffer(RenderTypes.NOPE);
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(CustomMachinery.rl("block/nope")));
+        BakedModel model = Minecraft.getInstance().getModelManager()..getModel(ModelResourceLocation.standalone(CustomMachinery.rl("block/nope")));
         pose.translate(-0.0005, -0.0005, -0.0005);
         pose.scale(1.001F, 1.001F, 1.001F);
         Arrays.stream(Direction.values())
@@ -93,6 +97,8 @@ public class StructureRenderer {
                 .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
         model.getQuads(null, null, RandomSource.create(42L), ModelData.EMPTY, null)
                 .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
+
+         */
     }
 
     public boolean shouldRender() {

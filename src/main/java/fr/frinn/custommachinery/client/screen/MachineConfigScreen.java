@@ -9,11 +9,11 @@ import fr.frinn.custommachinery.client.screen.widget.TexturedButton;
 import fr.frinn.custommachinery.client.screen.widget.config.ComponentConfigButton;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.joml.Vector2i;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +53,7 @@ public class MachineConfigScreen extends BaseScreen {
     @Override
     protected void init() {
         super.init();
-        this.parent.init(Minecraft.getInstance(), this.width, this.height);
+        this.parent.init(this.width, this.height);
         //Highlight elements in specified color
         this.getConfigurableElements().forEach(element -> {
             ISideConfigComponent component = this.getComponentFromElement(element);
@@ -90,26 +90,26 @@ public class MachineConfigScreen extends BaseScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        graphics.pose().pushPose();
-        this.parent.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
-        graphics.pose().translate(0, 0, 400);
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        graphics.pose().popPose();
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        graphics.pose().pushMatrix();
+        this.parent.extractRenderState(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
+        graphics.nextStratum();
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+        graphics.pose().popMatrix();
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (Minecraft.getInstance().options.keyInventory.matches(keyCode, scanCode) || keyCode == GLFW.GLFW_KEY_ESCAPE) {
+    public boolean keyPressed(KeyEvent event) {
+        if (Minecraft.getInstance().options.keyInventory.matches(event) || event.isEscape()) {
             Minecraft.getInstance().setScreen(this.parent);
             return true;
         }
-        else return super.keyPressed(keyCode, scanCode, modifiers);
+        else return super.keyPressed(event);
     }
 
     private static Vector2i getStartingPos(int np) {

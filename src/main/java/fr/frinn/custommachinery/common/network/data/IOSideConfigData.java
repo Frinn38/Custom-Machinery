@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class IOSideConfigData extends Data<IOSideConfig> {
 
     public IOSideConfigData(Short id, IOSideConfig value) {
-        super(Registration.IO_SIDE_CONFIG_DATA.get(), id, value);
+        super(CMRegistration.IO_SIDE_CONFIG_DATA.get(), id, value);
     }
 
     public static IOSideConfigData readData(short id, RegistryFriendlyByteBuf buffer) {

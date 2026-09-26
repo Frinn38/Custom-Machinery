@@ -3,15 +3,17 @@ package fr.frinn.custommachinery.client.screen.widget;
 import fr.frinn.custommachinery.client.screen.widget.GridListWidget.Entry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +26,7 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
 
     private final List<E> list = new ArrayList<>();
 
-    private int maxColumns;
+    private final int maxColumns;
     private double scrollAmount;
     private boolean scrolling = false;
     @Nullable
@@ -60,10 +62,6 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
         this.renderSelection = true;
     }
 
-    public void setMaxColumns(int maxColumns) {
-        this.maxColumns = maxColumns;
-    }
-
     @Nullable
     public E getSelected() {
         return this.selected;
@@ -77,10 +75,6 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
         if(index < 0 || index >= this.list.size())
             return null;
         return this.list.get(index);
-    }
-
-    private void scroll(int scroll) {
-        this.setScrollAmount(this.getScrollAmount() + (double)scroll);
     }
 
     public double getScrollAmount() {
@@ -99,10 +93,6 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
         return this.list.size() / this.maxColumns * 20;
     }
 
-    public int getScrollBottom() {
-        return (int)this.getScrollAmount() - this.getHeight();
-    }
-
     protected void updateScrollingState(double mouseX, double mouseY, int button) {
         this.scrolling = button == 0 && mouseX >= this.getScrollbarPosition() && mouseX < this.getScrollbarPosition() + 6;
     }
@@ -112,28 +102,28 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         graphics.enableScissor(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight());
-        graphics.pose().pushPose();
-        graphics.pose().translate(this.getX(), this.getY(), 0);
+        graphics.pose().pushMatrix();
+        graphics.pose().translation(this.getX(), this.getY());
         for(int i = 0; i < this.list.size(); i++) {
             int x = (i % this.maxColumns) * 20;
             int y = i / this.maxColumns * 20 - (int)this.getScrollAmount();
-            graphics.pose().pushPose();
-            graphics.pose().translate(x, y, 0);
+            graphics.pose().pushMatrix();
+            graphics.pose().translation(x, y);
 
             E entry = this.list.get(i);
 
             if(this.renderSelection && this.selected == entry)
-                graphics.fill(0, 0, 20, 20, FastColor.ARGB32.color(255, 255, 0, 0));
+                graphics.fill(0, 0, 20, 20, ARGB.color(255, 255, 0, 0));
 
-            graphics.pose().translate(0, 0, 100);
+            graphics.nextStratum();
 
             entry.render(graphics, mouseX, mouseY, partialTick);
 
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
         }
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
 
         if(this.getMaxScroll() > 0) {
             int i = this.getX() + this.getWidth() - 10;
@@ -154,7 +144,7 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
         E hovered = this.getElementUnderMouse(mouseX, mouseY);
         if(hovered != null) {
             List<Component> tooltip = new ArrayList<>(hovered.getTooltips());
-            graphics.renderTooltip(Minecraft.getInstance().font, tooltip, Optional.empty(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(Minecraft.getInstance().font, tooltip, Optional.empty(), mouseX, mouseY);
         }
     }
 
@@ -164,25 +154,25 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        this.updateScrollingState(mouseX, mouseY, button);
-        E selected = this.getElementUnderMouse(mouseX, mouseY);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        this.updateScrollingState(event.x(), event.y(), event.button());
+        E selected = this.getElementUnderMouse(event.x(), event.y());
         if(selected != null) {
             this.selected = selected;
-            return selected.mouseClicked(mouseX, mouseY, button);
+            return selected.mouseClicked(event, doubleClick);
         }
         return false;
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if(super.mouseDragged(mouseX, mouseY, button, dragX, dragY))
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if(super.mouseDragged(event, dragX, dragY))
             return true;
-        if (button != 0 || !this.scrolling)
+        if (event.button() != 0 || !this.scrolling)
             return false;
-        if (mouseY < this.getY()) {
+        if (event.y() < this.getY()) {
             this.setScrollAmount(0.0);
-        } else if (mouseY > this.getY() + this.getHeight()) {
+        } else if (event.y() > this.getY() + this.getHeight()) {
             this.setScrollAmount(this.getMaxScroll());
         } else {
             double d = Math.max(1, this.getMaxScroll());
@@ -206,7 +196,7 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
         private GuiEventListener focused;
         private boolean dragging;
 
-        public abstract void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks);
+        public abstract void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks);
 
         public abstract List<Component> getTooltips();
 
@@ -245,19 +235,10 @@ public class GridListWidget<E extends Entry> extends AbstractWidget {
             this.focused = focused;
         }
 
-        @Nullable
-        public ComponentPath focusPathAtIndex(FocusNavigationEvent event, int index) {
-            if (this.children().isEmpty()) {
-                return null;
-            }
-            ComponentPath componentPath = this.children().get(Math.min(index, this.children().size() - 1)).nextFocusPath(event);
-            return ComponentPath.path(this, componentPath);
-        }
-
         @Override
         @Nullable
         public ComponentPath nextFocusPath(FocusNavigationEvent event) {
-            if (event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection direction)) {
+            if (event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection direction, @Nullable ScreenRectangle previousFocus)) {
                 int i = direction == ScreenDirection.RIGHT ? 1 : 0;
                 if (i == 0)
                     return null;

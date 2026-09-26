@@ -5,9 +5,8 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineListWidget.MachineEntry;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -15,6 +14,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 
 import java.io.File;
 import java.util.Objects;
@@ -77,10 +77,9 @@ public class MachineCreationScreen extends BaseScreen {
         LayoutSettings center = row.newCellSettings().alignHorizontallyCenter();
 
         //Sort
-        CycleButton<MachineListSorting> sorter = row.addChild(CycleButton.<MachineListSorting>builder(v -> Component.literal(v.name()))
+        CycleButton<MachineListSorting> sorter = row.addChild(CycleButton.<MachineListSorting>builder(v -> Component.literal(v.name()), CMConfig.CONFIG.sortMachineList.get())
                 .withValues(MachineListSorting.values())
                 .displayOnlyValue()
-                .withInitialValue(CMConfig.CONFIG.sortMachineList.get())
                 .create(0, 0, 50, 20, Component.empty(), (button, sort) -> this.sort(sort)), 1, row.newCellSettings().alignHorizontallyLeft().paddingBottom(0));
 
         //Search
@@ -105,8 +104,8 @@ public class MachineCreationScreen extends BaseScreen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
         MachineEntry entry = this.machineList.getSelected();
         if(entry == null) {

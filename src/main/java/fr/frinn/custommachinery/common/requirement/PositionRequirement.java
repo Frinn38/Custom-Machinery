@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -29,12 +29,12 @@ public record PositionRequirement(IntRange x, IntRange y, IntRange z) implements
 
     @Override
     public RequirementType<PositionRequirement> getType() {
-        return Registration.POSITION_REQUIREMENT.get();
+        return CMRegistration.POSITION_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<PositionMachineComponent> getComponentType() {
-        return Registration.POSITION_MACHINE_COMPONENT.get();
+        return CMRegistration.POSITION_MACHINE_COMPONENT.get();
     }
 
     @Override

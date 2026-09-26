@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.api.upgrade.Operation;
-import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMo
 
     public static final NamedCodec<RecipeModifier> CODEC = NamedCodec.record(modifierInstance ->
             modifierInstance.group(
-                    RegistrarCodec.REQUIREMENT.fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
+                    RegistryCodecs.REQUIREMENT.fieldOf("requirement").forGetter(modifier -> modifier.requirementType),
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(modifier -> modifier.mode),
                     NamedCodec.STRING.optionalFieldOf("target", "").forGetter(modifier -> modifier.target),
                     Operation.CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
@@ -48,7 +48,7 @@ public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMo
 
     @Override
     public boolean shouldApply(RequirementType<?> type, RequirementIOMode mode, @Nullable String target) {
-        if (this.requirementType == Registration.SPEED_REQUIREMENT.get() && type == Registration.SPEED_REQUIREMENT.get())
+        if (this.requirementType == CMRegistration.SPEED_REQUIREMENT.get() && type == CMRegistration.SPEED_REQUIREMENT.get())
             return true;
         return type == this.requirementType
                 && mode == this.mode
@@ -61,7 +61,7 @@ public record RecipeModifier(RequirementType<?> requirementType, RequirementIOMo
     }
 
     private Component getDefaultTooltip() {
-        if (this.requirementType == Registration.SPEED_REQUIREMENT.get()) {
+        if (this.requirementType == CMRegistration.SPEED_REQUIREMENT.get()) {
             BigDecimal tooltipModifier = this.operation == Operation.ADDITION ? new BigDecimal(this.modifier) : new BigDecimal("" + this.modifier).multiply(new BigDecimal("100")).add(new BigDecimal("-100")).stripTrailingZeros();
             return Component.literal((tooltipModifier.intValue() >= 0 ? "+" : "") + (this.operation == Operation.ADDITION ? tooltipModifier.toPlainString() : tooltipModifier.toPlainString() + "%"))
                     .append(" ")

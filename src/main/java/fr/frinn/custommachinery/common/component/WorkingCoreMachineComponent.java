@@ -6,10 +6,10 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessorCore;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class WorkingCoreMachineComponent extends AbstractMachineComponent {
@@ -20,10 +20,10 @@ public class WorkingCoreMachineComponent extends AbstractMachineComponent {
 
     @Override
     public MachineComponentType<WorkingCoreMachineComponent> getType() {
-        return Registration.WORKING_CORE_MACHINE_COMPONENT.get();
+        return CMRegistration.WORKING_CORE_MACHINE_COMPONENT.get();
     }
 
-    public CraftingResult isCoreWorking(int coreId, @Nullable ResourceLocation recipe, int currentCore) {
+    public CraftingResult isCoreWorking(int coreId, @Nullable Identifier recipe, int currentCore) {
         if(this.getManager().getTile().getProcessor() instanceof MachineProcessor processor) {
             if(coreId == 0) {
                 if(recipe == null && processor.getCores().stream().noneMatch(core -> processor.getCores().indexOf(core) != currentCore && core.getCurrentRecipe() != null && core.getError() == null))

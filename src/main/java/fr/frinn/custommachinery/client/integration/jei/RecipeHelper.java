@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.common.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import mezz.jei.api.helpers.IJeiHelpers;
 import net.minecraft.client.Minecraft;
@@ -23,7 +23,7 @@ public class RecipeHelper implements IRecipeHelper {
 
     public RecipeHelper(CustomMachine machine, IJeiHelpers jeiHelpers) {
         this.machine = machine;
-        CustomMachineTile tile = new CustomMachineTile(BlockPos.ZERO, Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
+        CustomMachineTile tile = new CustomMachineTile(BlockPos.ZERO, CMRegistration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
         if(Minecraft.getInstance().level != null)
             tile.setLevel(Minecraft.getInstance().level);
         tile.setId(machine.getId());
@@ -42,7 +42,7 @@ public class RecipeHelper implements IRecipeHelper {
             if(!template.getId().equals(element.getComponentId()))
                 return false;
             //Special case for slot gui element because several components of different types (default, filter, fluid etc...) can map to it.
-            if(element.getComponentType() == Registration.ITEM_MACHINE_COMPONENT.get())
+            if(element.getComponentType() == CMRegistration.ITEM_MACHINE_COMPONENT.get())
                 return template instanceof ItemMachineComponent.Template;
             return template.getType() == element.getComponentType();
         }).findFirst();

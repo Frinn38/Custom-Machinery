@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.render.ProgressArrowRenderer;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
 public class ProgressGuiElementJeiRenderer implements IJEIElementRenderer<ProgressBarGuiElement> {
 
     @Override
-    public void renderElementInJEI(GuiGraphics graphics, ProgressBarGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
+    public void renderElementInJEI(GuiGraphicsExtractor graphics, ProgressBarGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
         if(Minecraft.getInstance().level == null)
             return;
         ProgressArrowRenderer.renderProgressArrow(graphics, element, element.getX(), element.getY(), recipe.getRecipeTime() <= 0 ? 0 : (double) (Minecraft.getInstance().level.getGameTime() % recipe.getRecipeTime()) / recipe.getRecipeTime());

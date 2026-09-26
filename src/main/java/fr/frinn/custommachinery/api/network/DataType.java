@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.api.network;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -89,8 +89,8 @@ public class DataType<D extends IData<T>, T> {
      * A helper method to get the ID of this {@link DataType}.
      * @return The ID of this {@link DataType}.
      */
-    public ResourceLocation getId() {
-        ResourceLocation id = ICustomMachineryAPI.INSTANCE.dataRegistrar().getKey(this);
+    public Identifier getId() {
+        Identifier id = ICustomMachineryAPI.INSTANCE.dataRegistrar().getKey(this);
         if(id == null)
             throw new IllegalStateException("Trying to get id for an unregistered data type");
         return id;

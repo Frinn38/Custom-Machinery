@@ -11,10 +11,9 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.StructureMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.CPlaceStructurePacket;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.BlockStructure;
@@ -26,12 +25,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public record StructureRequirement(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys, Action action, BlockStructure structure) implements IRequirement<StructureMachineComponent> {
 
@@ -58,12 +58,12 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, Li
 
     @Override
     public RequirementType<StructureRequirement> getType() {
-        return Registration.STRUCTURE_REQUIREMENT.get();
+        return CMRegistration.STRUCTURE_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<StructureMachineComponent> getComponentType() {
-        return Registration.STRUCTURE_MACHINE_COMPONENT.get();
+        return CMRegistration.STRUCTURE_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -121,9 +121,9 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, Li
             case PLACE_BREAK, PLACE_DESTROY -> info.addTooltip(Component.translatable("custommachinery.requirements.structure.place").withStyle(ChatFormatting.DARK_RED));
         }
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.creative").withStyle(ChatFormatting.DARK_PURPLE), TooltipPredicate.CREATIVE);
-        info.setClickAction((machine, recipe, mouseButton) -> {
-            if(ClientHandler.isShiftKeyDown())
-                PacketDistributor.sendToServer(new CPlaceStructurePacket(machine.getId(), this.pattern, this.keys));
+        info.setClickAction((machine, recipe, inputWithModifiers) -> {
+            if(inputWithModifiers.hasShiftDown())
+                ClientPacketDistributor.sendToServer(new CPlaceStructurePacket(machine.getId(), this.pattern, this.keys));
             else
                 CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks);
         });
@@ -139,7 +139,7 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, Li
     }
 
     private boolean hasBlockItem(Player player, List<BlockIngredient> block, long amount) {
-        return player.getInventory().items.stream()
+        return StreamSupport.stream(player.getInventory().spliterator(), false)
                 .filter(stack -> stack.getItem() instanceof BlockItem && block.stream().anyMatch(blockIngredient -> blockIngredient.test(((BlockItem)stack.getItem()).getBlock())))
                 .mapToLong(ItemStack::getCount)
                 .sum() >= amount;

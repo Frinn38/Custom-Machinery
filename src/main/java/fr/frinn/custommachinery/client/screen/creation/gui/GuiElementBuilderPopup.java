@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
@@ -17,7 +17,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -83,12 +83,12 @@ public abstract class GuiElementBuilderPopup<T extends IGuiElement> extends Popu
         texture.setResponder(s -> {
             int u = baseTexture == null ? 0 : baseTexture.u();
             int v = baseTexture == null ? 0 : baseTexture.v();
-            responder.accept(s.isEmpty() ? baseTexture : new TextureInfo(ResourceLocation.tryParse(s), u, v));
+            responder.accept(s.isEmpty() ? baseTexture : new TextureInfo(Identifier.tryParse(s), u, v));
         });
         texture.setValue(baseTexture == null ? "" : baseTexture.texture().toString());
         texture.hideSuggestions();
-        texture.addSuggestions(Minecraft.getInstance().getResourceManager().listResources("textures", id -> true).keySet().stream().map(ResourceLocation::toString).toList());
-        texture.setFilter(s -> ResourceLocation.tryParse(s) != null);
+        texture.addSuggestions(Minecraft.getInstance().getResourceManager().listResources("textures", id -> true).keySet().stream().map(Identifier::toString).toList());
+        texture.setFilter(s -> Identifier.tryParse(s) != null);
     }
 
     @Override
@@ -110,15 +110,15 @@ public abstract class GuiElementBuilderPopup<T extends IGuiElement> extends Popu
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         Component canCreate = this.canCreate();
         if(canCreate.getString().isEmpty())
             this.confirm.active = true;
         else {
             this.confirm.active = false;
             if(this.confirm.isHovered())
-                graphics.renderTooltip(this.font, canCreate, mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, canCreate, mouseX, mouseY);
         }
     }
 }

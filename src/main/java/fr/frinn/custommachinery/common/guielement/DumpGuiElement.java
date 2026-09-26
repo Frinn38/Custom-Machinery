@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +23,7 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
     public static final NamedCodec<DumpGuiElement> CODEC = NamedCodec.record(dumpGuiElement ->
             dumpGuiElement.group(
                     makePropertiesCodec(BASE_TEXTURE, BASE_TEXTURE_HOVERED).forGetter(DumpGuiElement::getProperties),
-                    RegistrarCodec.MACHINE_COMPONENT.listOf().optionalFieldOf("component", () -> Collections.singletonList(Registration.FLUID_MACHINE_COMPONENT.get())).forGetter(element -> element.components),
+                    RegistryCodecs.MACHINE_COMPONENT.listOf().optionalFieldOf("component", () -> Collections.singletonList(CMRegistration.FLUID_MACHINE_COMPONENT.get())).forGetter(element -> element.components),
                     NamedCodec.STRING.listOf().optionalFieldOf("tanks", Collections.emptyList()).forGetter(element -> element.tanks)
             ).apply(dumpGuiElement, DumpGuiElement::new), "Dump gui element"
     );
@@ -47,7 +47,7 @@ public class DumpGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<DumpGuiElement> getType() {
-        return Registration.DUMP_GUI_ELEMENT.get();
+        return CMRegistration.DUMP_GUI_ELEMENT.get();
     }
 
     @Override

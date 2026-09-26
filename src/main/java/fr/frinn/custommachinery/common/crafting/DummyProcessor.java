@@ -5,8 +5,9 @@ import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.nbt.CompoundTag;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public record DummyProcessor(MachineTile tile) implements IProcessor {
 
@@ -32,16 +33,16 @@ public record DummyProcessor(MachineTile tile) implements IProcessor {
 
     @Override
     public ProcessorType<DummyProcessor> getType() {
-        return Registration.DUMMY_PROCESSOR.get();
+        return CMRegistration.DUMMY_PROCESSOR.get();
     }
 
     @Override
-    public CompoundTag serialize() {
-        return new CompoundTag();
+    public void serialize(ValueOutput output) {
+
     }
 
     @Override
-    public void deserialize(CompoundTag nbt) {
+    public void deserialize(ValueInput input) {
 
     }
 
@@ -51,7 +52,7 @@ public record DummyProcessor(MachineTile tile) implements IProcessor {
 
         @Override
         public ProcessorType<DummyProcessor> getType() {
-            return Registration.DUMMY_PROCESSOR.get();
+            return CMRegistration.DUMMY_PROCESSOR.get();
         }
 
         @Override

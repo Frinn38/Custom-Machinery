@@ -5,9 +5,9 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.appearance.IAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.ModelSelectionPopup;
 import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -20,7 +20,7 @@ public record ModelAppearancePropertyBuilder(Component title, MachineAppearanceP
 
     @Override
     public AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<MachineModelLocation> supplier, Consumer<MachineModelLocation> consumer) {
-        return new ModelShowingButtonWidget(parent, x, y, width, height, this.title, supplier, consumer, this.type == Registration.BLOCK_MODEL_PROPERTY.get());
+        return new ModelShowingButtonWidget(parent, x, y, width, height, this.title, supplier, consumer, this.type == CMRegistration.BLOCK_MODEL_PROPERTY.get());
     }
 
     public static class ModelShowingButtonWidget extends GroupWidget {
@@ -34,8 +34,8 @@ public record ModelAppearancePropertyBuilder(Component title, MachineAppearanceP
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
             ModelSelectionPopup.renderModel(graphics, this.getX() + 10, this.getY() + 10, this.supplier.get(), 16);
         }
     }

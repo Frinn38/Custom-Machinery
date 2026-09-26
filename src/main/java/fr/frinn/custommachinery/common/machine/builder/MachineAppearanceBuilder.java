@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.machine.builder;
 import com.google.common.collect.ImmutableMap;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,7 @@ public class MachineAppearanceBuilder {
     public MachineAppearanceBuilder(Map<MachineAppearanceProperty<?>, Object> properties, @Nullable MachineStatus status) {
         this.status = status;
         Map<MachineAppearanceProperty<?>, Object> map = new HashMap<>();
-        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY)
+        for(MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY)
             if(!properties.containsKey(property) || properties.get(property) == null)
                 map.put(property, property.getDefaultValue());
             else

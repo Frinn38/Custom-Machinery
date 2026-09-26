@@ -13,11 +13,11 @@ import fr.frinn.custommachinery.client.screen.creation.component.IMachineCompone
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
@@ -26,8 +26,8 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -41,7 +41,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
 
     @Override
     public MachineComponentType<FluidMachineComponent> type() {
-        return Registration.FLUID_MACHINE_COMPONENT.get();
+        return CMRegistration.FLUID_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -50,11 +50,11 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, int width, int height, Template template) {
-        graphics.renderFakeItem(Items.WATER_BUCKET.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.drawString(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
-        graphics.drawString(Minecraft.getInstance().font, "id: \"" + template.getId() + "\"", x + 25, y + 15, FastColor.ARGB32.color(255, 128, 0, 0), false);
-        graphics.drawString(Minecraft.getInstance().font, "mode: " + template.mode(), x + 25, y + 25, FastColor.ARGB32.color(255, 0, 0, 128), false);
+    public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Template template) {
+        graphics.item(Items.WATER_BUCKET.getDefaultInstance(), x, y + height / 2 - 8);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+        graphics.text(Minecraft.getInstance().font, "id: \"" + template.getId() + "\"", x + 25, y + 15, ARGB.color(255, 128, 0, 0), false);
+        graphics.text(Minecraft.getInstance().font, "mode: " + template.mode(), x + 25, y + 25, ARGB.color(255, 0, 0, 128), false);
     }
 
     public static class FluidComponentBuilderPopup extends ComponentBuilderPopup<Template> {
@@ -83,7 +83,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
         public Component canCreate() {
             if(this.id.getValue().isEmpty())
                 return Component.translatable("custommachinery.gui.creation.gui.id.missing");
-            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == Registration.FLUID_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
+            else if(this.parent instanceof MachineEditScreen screen && screen.getBuilder().getComponents().stream().anyMatch(template -> template.getType() == CMRegistration.FLUID_MACHINE_COMPONENT.get() && this.baseTemplate().map(base -> base != template).orElse(true) && template.getId().equals(this.id.getValue())))
                 return Component.translatable("custommachinery.gui.creation.gui.id.duplicate", this.id.getValue());
             else
                 return Component.empty();
@@ -99,7 +99,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
             this.id.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.id.tooltip")));
 
             //Mode
-            this.mode = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.mode"), CycleButton.builder(ComponentIOMode::toComponent).displayOnlyValue().withValues(ComponentIOMode.values()).withInitialValue(ComponentIOMode.BOTH).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.mode")));
+            this.mode = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.mode"), CycleButton.builder(ComponentIOMode::toComponent, ComponentIOMode.BOTH).displayOnlyValue().withValues(ComponentIOMode.values()).create(0, 0, 180, 20, Component.translatable("custommachinery.gui.creation.components.mode")));
             this.baseTemplate().ifPresent(template -> this.mode.setValue(template.mode()));
 
             //Capacity
@@ -132,9 +132,7 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
             this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.filter"), Button.builder(Component.translatable("custommachinery.gui.creation.components.filter"), button -> this.parent.openPopup(new FilterConfigPopup<>(this.parent, () -> this.filter, filter -> this.filter = filter, new FluidFilterHelper()), "Fluid Filter")).size(180, 20).build());
 
             //Unique
-            this.unique = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), this.font).selected(false).build());
-            if(this.baseTemplate().map(FluidMachineComponent.Template::unique).orElse(false) != this.unique.selected())
-                this.unique.onPress();
+            this.unique = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.fluid.unique"), this.font).selected(this.baseTemplate().map(FluidMachineComponent.Template::unique).orElse(false)).build());
 
             //Config
             this.baseTemplate().ifPresentOrElse(template -> this.config = template.config(), () -> this.config = IOSideConfig.Template.DEFAULT_ALL_INPUT);
@@ -145,8 +143,8 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
     private static class FluidFilterHelper implements FilterBuilderHelper<Fluid> {
 
         @Override
-        public void renderSingle(Fluid single, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-            FluidRenderer.renderFluid(graphics.pose(), 0, 0, 16, 16, new FluidStack(single, 1), 1);
+        public void renderSingle(Fluid single, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+            FluidRenderer.renderFluid(graphics, 0, 0, 16, 16, new FluidStack(single, 1), 1);
         }
 
         @Override
@@ -160,8 +158,8 @@ public class FluidComponentBuilder implements IMachineComponentBuilder<FluidMach
         }
 
         @Override
-        public Stream<ResourceLocation> getAll() {
-            return registry().entrySet().stream().filter(entry -> entry.getValue().defaultFluidState().isSource()).map(entry -> entry.getKey().location());
+        public Stream<Identifier> getAll() {
+            return registry().entrySet().stream().filter(entry -> entry.getValue().defaultFluidState().isSource()).map(entry -> entry.getKey().identifier());
         }
 
         @Override

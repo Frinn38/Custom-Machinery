@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.crafting.AbstractRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Collections;
@@ -14,7 +14,7 @@ public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftR
 
     public static final NamedMapCodec<CustomCraftRecipeBuilder> CODEC = NamedCodec.record(builderInstance ->
             builderInstance.group(
-                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
+                    DefaultCodecs.IDENTIFIER.fieldOf("machine").forGetter(AbstractRecipeBuilder::getMachine),
                     DefaultCodecs.ITEM_OR_STACK.fieldOf("output").forGetter(builder -> builder.output),
                     RecipeRequirement.CODEC.listOf().optionalFieldOf("requirements", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getRequirements),
                     RecipeRequirement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
@@ -35,7 +35,7 @@ public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftR
 
     private final ItemStack output;
 
-    public CustomCraftRecipeBuilder(ResourceLocation machine, ItemStack output) {
+    public CustomCraftRecipeBuilder(Identifier machine, ItemStack output) {
         super(machine);
         this.output = output;
     }

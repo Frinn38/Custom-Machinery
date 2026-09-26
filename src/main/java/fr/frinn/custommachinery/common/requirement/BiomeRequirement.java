@@ -10,35 +10,35 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 
 import java.util.List;
 
-public record BiomeRequirement(List<ResourceLocation> filter, boolean blacklist) implements IRequirement<PositionMachineComponent> {
+public record BiomeRequirement(List<Identifier> filter, boolean blacklist) implements IRequirement<PositionMachineComponent> {
 
     public static final NamedCodec<BiomeRequirement> CODEC = NamedCodec.record(biomeRequirementInstance ->
             biomeRequirementInstance.group(
-                    DefaultCodecs.RESOURCE_LOCATION.listOf().fieldOf("filter").forGetter(requirement -> requirement.filter),
+                    DefaultCodecs.IDENTIFIER.listOf().fieldOf("filter").forGetter(requirement -> requirement.filter),
                     NamedCodec.BOOL.optionalFieldOf("blacklist", false).forGetter(requirement -> requirement.blacklist)
             ).apply(biomeRequirementInstance, BiomeRequirement::new), "Biome requirement"
     );
 
     @Override
     public RequirementType<BiomeRequirement> getType() {
-        return Registration.BIOME_REQUIREMENT.get();
+        return CMRegistration.BIOME_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<PositionMachineComponent> getComponentType() {
-        return Registration.POSITION_MACHINE_COMPONENT.get();
+        return CMRegistration.POSITION_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -48,8 +48,8 @@ public record BiomeRequirement(List<ResourceLocation> filter, boolean blacklist)
 
     @Override
     public boolean test(PositionMachineComponent component, ICraftingContext context) {
-        Registry<Biome> biomeRegistry = component.getManager().getLevel().registryAccess().registryOrThrow(Registries.BIOME);
-        return this.filter.stream().anyMatch(biome -> biomeRegistry.get(biome) == component.getBiome()) != this.blacklist;
+        Registry<Biome> biomeRegistry = component.getManager().getLevel().registryAccess().lookupOrThrow(Registries.BIOME);
+        return this.filter.stream().anyMatch(biome -> biomeRegistry.getOptional(biome).orElse(null) == component.getBiome()) != this.blacklist;
     }
 
     @Override

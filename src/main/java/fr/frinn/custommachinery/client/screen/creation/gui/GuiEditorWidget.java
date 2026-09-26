@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.guielement.IGuiElementWidgetSupplier;
@@ -12,23 +13,25 @@ import fr.frinn.custommachinery.client.screen.creation.tabs.GuiTab;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
@@ -54,7 +57,9 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     private boolean dragging = false;
     private boolean pasting = false;
+    @Nullable
     private Vector2d selectionBoxStart;
+    @Nullable
     private GuiEventListener focused;
 
     private static GridSettings gridSettings = new GridSettings(false, 10, 10, 0.5F);
@@ -320,10 +325,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         //Black border
-        graphics.fill(this.getX() - 2, this.getY() - 2, this.getX() + this.getWidth() + 2, this.getY() + this.getHeight() + 2, FastColor.ARGB32.color(255, 0, 0, 0));
-        graphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, FastColor.ARGB32.color(255, 198, 198, 198));
+        graphics.fill(this.getX() - 2, this.getY() - 2, this.getX() + this.getWidth() + 2, this.getY() + this.getHeight() + 2, ARGB.color(255, 0, 0, 0));
+        graphics.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, ARGB.color(255, 198, 198, 198));
 
         //Background
         if(this.shouldShowBackground()) {
@@ -335,15 +340,15 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         //Grid
         if(this.getGridSettings().enabled()) {
             for(int x = this.getX() + this.getGridSettings().xSpacing(); x < this.getX() + this.getWidth(); x += this.getGridSettings().xSpacing())
-                graphics.fill(x, this.getY(), x + 1, this.getY() + this.getHeight(), FastColor.ARGB32.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
+                graphics.fill(x, this.getY(), x + 1, this.getY() + this.getHeight(), ARGB.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
 
             for(int y = this.getY() + this.getGridSettings().ySpacing(); y < this.getY() + this.getHeight(); y += this.getGridSettings().ySpacing())
-                graphics.fill(this.getX(), y, this.getX() + this.getWidth(), y + 1, FastColor.ARGB32.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
+                graphics.fill(this.getX(), y, this.getX() + this.getWidth(), y + 1, ARGB.color((int)(255 * this.getGridSettings().opacity()), 85, 85, 85));
         }
 
         //Selection box
         if(this.selectionBoxStart != null && this.isDragging())
-            graphics.renderOutline((int)Math.min(this.selectionBoxStart.x(), mouseX), (int)Math.min(this.selectionBoxStart.y(), mouseY), (int)Math.abs(this.selectionBoxStart.x() - mouseX), (int)Math.abs(this.selectionBoxStart.y() - mouseY), FastColor.ARGB32.color(255, 0, 0, 255));
+            graphics.outline((int)Math.min(this.selectionBoxStart.x(), mouseX), (int)Math.min(this.selectionBoxStart.y(), mouseY), (int)Math.abs(this.selectionBoxStart.x() - mouseX), (int)Math.abs(this.selectionBoxStart.y() - mouseY), ARGB.color(255, 0, 0, 255));
         if(this.parent.getTabManager().getCurrentTab() instanceof GuiTab guiTab) {
             guiTab.enableAlignButtons(!this.selected.isEmpty());
             if(guiTab.copy != null)
@@ -355,14 +360,14 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         //Elements
-        this.widgets.forEach(widget -> widget.render(graphics, mouseX, mouseY, partialTick));
+        this.widgets.forEach(widget -> widget.extractRenderState(graphics, mouseX, mouseY, partialTick));
 
         //Config panel
-        this.configWidget.renderWidget(graphics, mouseX, mouseY, partialTick);
+        this.configWidget.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
 
         //Pasting cursor
         if(this.pasting && this.isMouseOver(mouseX, mouseY))
-            GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_POINTING_HAND_CURSOR));
+            Minecraft.getInstance().getWindow().selectCursor(CursorTypes.POINTING_HAND);
     }
 
     @Override
@@ -407,7 +412,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     @Override
     public void setFocused(@Nullable GuiEventListener focused) {
-        if(Screen.hasControlDown() && focused instanceof WidgetEditorWidget<?> widget) {
+        if(Minecraft.getInstance().hasControlDown() && focused instanceof WidgetEditorWidget<?> widget) {
             this.selected.add(widget);
             if(this.focused != null) {
                 this.focused.setFocused(false);
@@ -429,12 +434,12 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(this.configWidget.isMouseOver(mouseX, mouseY)) {
-            this.configWidget.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleCLick) {
+        if(this.configWidget.isMouseOver(event.x(), event.y())) {
+            this.configWidget.mouseClicked(event, doubleCLick);
             return true;
         }
-        if(!this.isMouseOver(mouseX, mouseY) || button != 0)
+        if(!this.isMouseOver(event.x(), event.y()) || event.button() != 0)
             return false;
         if(this.pasting && !this.copied.isEmpty()) {
             this.pasting = false;
@@ -443,7 +448,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             GroupWidgetChange change = this.memorizeChange(new GroupWidgetChange());
             this.copied.forEach(widget -> {
                 WidgetEditorWidget<?> copy = widget.copy();
-                copy.setPosition((int)(mouseX + widget.getX() - minX), (int)(mouseY + widget.getY() - minY));
+                copy.setPosition((int)(event.x() + widget.getX() - minX), (int)(event.y() + widget.getY() - minY));
                 this.widgets.add(copy);
                 change.add(new AddedWidgetChange(copy));
             });
@@ -452,12 +457,12 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 guiTab.paste.active = false;
             this.selected.clear();
             this.setFocused(null);
-            GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
+            Minecraft.getInstance().getWindow().selectCursor(CursorTypes.ARROW);
             return true;
         }
 
         for(GuiEventListener guiEventListener : this.widgets.reversed()) {
-            if(!guiEventListener.mouseClicked(mouseX, mouseY, button))
+            if(!guiEventListener.mouseClicked(event, doubleCLick))
                 continue;
             if(guiEventListener instanceof WidgetEditorWidget<?> widget && this.selected.contains(widget)) {
                 this.setDragging(true);
@@ -471,19 +476,19 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         this.setFocused(null);
         this.setDragging(true);
         this.selected.clear();
-        this.selectionBoxStart = new Vector2d(mouseX, mouseY);
+        this.selectionBoxStart = new Vector2d(event.x(), event.y());
         return true;
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         this.setDragging(false);
-        if(this.configWidget.isMouseOver(mouseX, mouseY)) {
-            this.configWidget.mouseReleased(mouseX, mouseY, button);
+        if(this.configWidget.isMouseOver(event.x(), event.y())) {
+            this.configWidget.mouseReleased(event);
             return true;
         }
         if(this.selectionBoxStart != null) {
-            Rect2i selectionBox = new Rect2i((int)Math.min(this.selectionBoxStart.x(), mouseX), (int)Math.min(this.selectionBoxStart.y(), mouseY), (int)Math.abs(this.selectionBoxStart.x() - mouseX), (int)Math.abs(this.selectionBoxStart.y() - mouseY));
+            Rect2i selectionBox = new Rect2i((int)Math.min(this.selectionBoxStart.x(), event.x()), (int)Math.min(this.selectionBoxStart.y(), event.y()), (int)Math.abs(this.selectionBoxStart.x() - event.x()), (int)Math.abs(this.selectionBoxStart.y() - event.y()));
             this.widgets.stream()
                     .filter(widget -> ClientHandler.isOverlapping(selectionBox, new Rect2i(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight())))
                     .sorted(Comparator.comparingInt(widget -> widget.getX() * 1000 + widget.getY()))
@@ -491,11 +496,11 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             this.selectionBoxStart = null;
         }
         if(this.getFocused() != null)
-            return this.getFocused().mouseReleased(mouseX, mouseY, button);
+            return this.getFocused().mouseReleased(event);
         else if(!this.selected.isEmpty()) {
             GroupWidgetChange change = new GroupWidgetChange();
             this.selected.forEach(widget -> {
-                widget.mouseReleased(mouseX, mouseY, button);
+                widget.mouseReleased(event);
                 if(!this.changes.isEmpty() && this.changes.getFirst() instanceof SingleWidgetChange singleChange && singleChange.widget == widget)
                     change.add(this.changes.removeFirst());
             });
@@ -507,18 +512,18 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if(this.configWidget.isMouseOver(mouseX, mouseY)) {
-            this.configWidget.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if(this.configWidget.isMouseOver(event.x(), event.y())) {
+            this.configWidget.mouseDragged(event, dragX, dragY);
             return true;
         }
-        if(this.isDragging() && button == 0) {
+        if(this.isDragging() && event.button() == 0) {
             if(this.getFocused() != null)
-                return this.getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY);
+                return this.getFocused().mouseDragged(event, dragX, dragY);
             else if(!this.selected.isEmpty()) {
                 this.selected.forEach(widget -> {
                     widget.dragType = DragType.DEFAULT;
-                    widget.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+                    widget.mouseDragged(event, dragX, dragY);
                 });
                 return true;
             }
@@ -532,9 +537,9 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        String key = GLFW.glfwGetKeyName(keyCode, scanCode);
-        if(key != null && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+    public boolean keyPressed(KeyEvent event) {
+        String key = GLFW.glfwGetKeyName(event.key(), event.scancode());
+        if(key != null && event.hasControlDown()) {
             switch(key) {
                 case "z" -> this.revertChange();
                 case "c" -> this.copy();
@@ -545,10 +550,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         if(!this.selected.isEmpty()) {
-            int move = Screen.hasShiftDown() ? 5 : Screen.hasControlDown() ? 10 : 1;
+            int move = event.hasShiftDown() ? 5 : event.hasControlDown() ? 10 : 1;
             GroupWidgetChange change = new GroupWidgetChange();
             for(WidgetEditorWidget<?> widget : this.selected) {
-                boolean moved =  switch (keyCode) {
+                boolean moved =  switch (event.key()) {
                     case GLFW.GLFW_KEY_LEFT -> {
                         change.add(widget);
                         widget.setX(Math.max(widget.getX() - move, this.getX()));
@@ -574,29 +579,29 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 if(moved)
                     GuiEditorWidget.this.setChanged();
             }
-            if(keyCode == GLFW.GLFW_KEY_DELETE)
+            if(event.key() == 261)
                 this.delete();
             if(change.hasChanges())
                 this.memorizeChange(change);
             return true;
         }
-        if(this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers))
+        if(this.getFocused() != null && this.getFocused().keyPressed(event))
             return true;
-        return this.configWidget.keyPressed(keyCode, scanCode, modifiers);
+        return this.configWidget.keyPressed(event);
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if(this.getFocused() != null && this.getFocused().keyReleased(keyCode, scanCode, modifiers))
+    public boolean keyReleased(KeyEvent event) {
+        if(this.getFocused() != null && this.getFocused().keyReleased(event))
             return true;
-        return this.configWidget.keyReleased(keyCode, scanCode, modifiers);
+        return this.configWidget.keyReleased(event);
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
-        if(this.getFocused() != null && this.getFocused().charTyped(codePoint, modifiers))
+    public boolean charTyped(CharacterEvent event) {
+        if(this.getFocused() != null && this.getFocused().charTyped(event))
             return true;
-        return this.configWidget.charTyped(codePoint, modifiers);
+        return this.configWidget.charTyped(event);
     }
 
     public class WidgetEditorWidget<T extends IGuiElement> extends AbstractWidget {
@@ -606,8 +611,8 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
         private AbstractGuiElementWidget<T> widget;
         private DragType dragType = DragType.NONE;
-        private double dragX = 0.0D;
-        private double dragY = 0.0D;
+        private float dragX = 0.0F;
+        private float dragY = 0.0F;
 
         public WidgetEditorWidget(AbstractGuiElementWidget<T> widget, IGuiElementBuilder<T> builder) {
             super(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), widget.getMessage());
@@ -686,56 +691,56 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             if(this.dragType != DragType.NONE)
                 return;
             switch (this.getDragType(mouseX, mouseY)) {
-                case LEFT_RESIZE, RIGHT_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_EW_CURSOR));
-                case UP_RESIZE, DOWN_RESIZE -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NS_CURSOR));
-                case DEFAULT -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_ALL_CURSOR));
-                default -> GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
+                case LEFT_RESIZE, RIGHT_RESIZE -> Minecraft.getInstance().getWindow().selectCursor(CursorTypes.RESIZE_EW);
+                case UP_RESIZE, DOWN_RESIZE -> Minecraft.getInstance().getWindow().selectCursor(CursorTypes.RESIZE_NS);
+                case DEFAULT -> Minecraft.getInstance().getWindow().selectCursor(CursorTypes.RESIZE_ALL);
+                default -> Minecraft.getInstance().getWindow().selectCursor(CursorTypes.ARROW);
             }
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.pose().pushPose();
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            graphics.pose().pushMatrix();
             switch (this.dragType) {
-                case DEFAULT -> graphics.pose().translate(this.dragX, this.dragY, 0);
+                case DEFAULT -> graphics.pose().translation(this.dragX, this.dragY);
                 case LEFT_RESIZE -> {
-                    graphics.pose().translate(-this.getX() * -this.dragX / this.getWidth() + this.dragX, 0, 0);
-                    graphics.pose().scale((float)(-this.dragX / this.getWidth()) + 1, 1.0F, 1.0F);
+                    graphics.pose().translation(-this.getX() * -this.dragX / this.getWidth() + this.dragX, 0);
+                    graphics.pose().scale((float)(-this.dragX / this.getWidth()) + 1, 1.0F);
                 }
                 case RIGHT_RESIZE -> {
-                    graphics.pose().translate(-this.getX() * this.dragX / this.getWidth(), 0, 0);
-                    graphics.pose().scale((float)(this.dragX / this.getWidth()) + 1, 1.0F, 1.0F);
+                    graphics.pose().translation(-this.getX() * this.dragX / this.getWidth(), 0);
+                    graphics.pose().scale((float)(this.dragX / this.getWidth()) + 1, 1.0F);
                 }
                 case UP_RESIZE -> {
-                    graphics.pose().translate(0, -this.getY() * -this.dragY / this.getHeight() + this.dragY, 0);
-                    graphics.pose().scale(1.0F, (float)(-this.dragY / this.getHeight()) + 1, 1.0F);
+                    graphics.pose().translation(0, -this.getY() * -this.dragY / this.getHeight() + this.dragY);
+                    graphics.pose().scale(1.0F, (float)(-this.dragY / this.getHeight()) + 1);
                 }
                 case DOWN_RESIZE -> {
-                    graphics.pose().translate(0, -this.getY() * this.dragY / this.getHeight(), 0);
-                    graphics.pose().scale(1.0F, (float)(this.dragY / this.getHeight()) + 1, 1.0F);
+                    graphics.pose().translation(0, -this.getY() * this.dragY / this.getHeight());
+                    graphics.pose().scale(1.0F, (float)(this.dragY / this.getHeight()) + 1);
                 }
             }
             boolean highlighted = false;
             if(this.isFocused()) {
-                graphics.fill(this.getX() -1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, FastColor.ARGB32.color(255, 255, 0, 0));
-                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), FastColor.ARGB32.color(255, 198, 198, 198));
+                graphics.fill(this.getX() -1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, ARGB.color(255, 255, 0, 0));
+                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), ARGB.color(255, 198, 198, 198));
                 checkCursorShape(mouseX, mouseY);
                 highlighted = true;
             } else if(GuiEditorWidget.this.selected.contains(this)) {
-                graphics.fill(this.getX() -1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, FastColor.ARGB32.color(255, 0, 0, 255));
-                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), FastColor.ARGB32.color(255, 198, 198, 198));
+                graphics.fill(this.getX() -1, this.getY() - 1, this.getX() + this.getWidth() + 1, this.getY() + this.getHeight() + 1, ARGB.color(255, 0, 0, 255));
+                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), ARGB.color(255, 198, 198, 198));
                 checkCursorShape(mouseX, mouseY);
                 highlighted = true;
             }
-            this.widget.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTick);
+            this.widget.extractRenderState(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTick);
             if(GuiEditorWidget.this.copied.contains(this)) {
                 int offset = (int)(System.currentTimeMillis() / 100 % 100);
                 if(highlighted)
-                    ClientHandler.drawDottedRect(graphics, this.getX() - 2, this.getY() - 2, this.getWidth() + 3, this.getHeight() + 3, FastColor.ARGB32.color(255, 0, 255, 0), 4, 4, offset);
+                    ClientHandler.drawDottedRect(graphics, this.getX() - 2, this.getY() - 2, this.getWidth() + 3, this.getHeight() + 3, ARGB.color(255, 0, 255, 0), 4, 4, offset);
                 else
-                    ClientHandler.drawDottedRect(graphics, this.getX() - 1, this.getY() - 1, this.getWidth() + 1, this.getHeight() + 1, FastColor.ARGB32.color(255, 0, 255, 0), 4, 4, offset);
+                    ClientHandler.drawDottedRect(graphics, this.getX() - 1, this.getY() - 1, this.getWidth() + 1, this.getHeight() + 1, ARGB.color(255, 0, 255, 0), 4, 4, offset);
             }
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
         }
 
         @Override
@@ -779,38 +784,38 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY, int button) {
-            this.dragType = this.getDragType(mouseX, mouseY);
-            checkCursorShape((int)mouseX, (int)mouseY);
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
+            this.dragType = this.getDragType(event.x(), event.y());
+            checkCursorShape((int)event.x(), (int)event.y());
         }
 
         @Override
-        protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+        protected void onDrag(MouseButtonEvent event, double dragX, double dragY) {
             switch (this.dragType) {
                 case DEFAULT -> {
                     if(GuiEditorWidget.this.focused == this) {
-                        this.dragX = Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - this.getX(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
-                        this.dragY = Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - this.getY(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
+                        this.dragX = (float)Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - this.getX(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
+                        this.dragY = (float)Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - this.getY(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
                     } else if(GuiEditorWidget.this.selected.contains(this)) {
                         double minDragX = GuiEditorWidget.this.selected.stream().mapToDouble(AbstractWidget::getX).min().orElse(0);
                         double minDragY = GuiEditorWidget.this.selected.stream().mapToDouble(AbstractWidget::getY).min().orElse(0);
                         double maxDragX = GuiEditorWidget.this.selected.stream().mapToDouble(widget -> widget.getX() + widget.getWidth()).max().orElse(0);
                         double maxDragY = GuiEditorWidget.this.selected.stream().mapToDouble(widget -> widget.getY() + widget.getHeight()).max().orElse(0);
-                        this.dragX = Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - minDragX, GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - maxDragX);
-                        this.dragY = Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - minDragY, GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - maxDragY);
+                        this.dragX = (float)Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - minDragX, GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - maxDragX);
+                        this.dragY = (float)Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - minDragY, GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - maxDragY);
                     }
                 }
                  case LEFT_RESIZE, UP_RESIZE -> {
-                    this.dragX = Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - this.getX(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
-                    this.dragY = Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - this.getY(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
+                    this.dragX = (float)Mth.clamp(this.dragX + dragX, GuiEditorWidget.this.getX() - this.getX(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
+                    this.dragY = (float)Mth.clamp(this.dragY + dragY, GuiEditorWidget.this.getY() - this.getY(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
                 }
-                case RIGHT_RESIZE -> this.dragX = Mth.clamp(this.dragX + dragX, -this.getWidth(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
-                case DOWN_RESIZE -> this.dragY = Mth.clamp(this.dragY + dragY, -this.getHeight(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
+                case RIGHT_RESIZE -> this.dragX = (float)Mth.clamp(this.dragX + dragX, -this.getWidth(), GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth() - this.getX() - this.getWidth());
+                case DOWN_RESIZE -> this.dragY = (float)Mth.clamp(this.dragY + dragY, -this.getHeight(), GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight() - this.getY() - this.getHeight());
             }
         }
 
         @Override
-        public void onRelease(double mouseX, double mouseY) {
+        public void onRelease(MouseButtonEvent event) {
             if(this.dragX == 0.0D && this.dragY == 0.0D) {
                 this.dragType = DragType.NONE;
                 return;
@@ -845,41 +850,35 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             GuiEditorWidget.this.setChanged();
 
             this.dragType = DragType.NONE;
-            this.dragX = 0.0D;
-            this.dragY = 0.0D;
-            GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));
+            this.dragX = 0.0F;
+            this.dragY = 0.0F;
+            Minecraft.getInstance().getWindow().selectCursor(CursorTypes.ARROW);
         }
 
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            int move = Screen.hasShiftDown() ? 5 : Screen.hasControlDown() ? 10 : 1;
-            boolean moved =  switch (keyCode) {
-                case GLFW.GLFW_KEY_LEFT -> {
-                    GuiEditorWidget.this.memorizeChange(this);
-                    this.setX(Math.max(this.getX() - move, GuiEditorWidget.this.getX()));
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_RIGHT -> {
-                    GuiEditorWidget.this.memorizeChange(this);
-                    this.setX(Math.min(this.getX() + move, GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth()));
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_UP -> {
-                    GuiEditorWidget.this.memorizeChange(this);
-                    this.setY(Math.max(this.getY() - move, GuiEditorWidget.this.getY()));
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_DOWN -> {
-                    GuiEditorWidget.this.memorizeChange(this);
-                    this.setY(Math.min(this.getY() + move, GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight()));
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_DELETE -> {
-                    GuiEditorWidget.this.delete();
-                    yield true;
-                }
-                default -> false;
-            };
+        public boolean keyPressed(KeyEvent event) {
+            int move = event.hasShiftDown() ? 5 : event.hasControlDown() ? 10 : 1;
+            boolean moved = false;
+            if(event.isLeft()) {
+                GuiEditorWidget.this.memorizeChange(this);
+                this.setX(Math.max(this.getX() - move, GuiEditorWidget.this.getX()));
+                moved = true;
+            } else if(event.isRight()) {
+                GuiEditorWidget.this.memorizeChange(this);
+                this.setX(Math.min(this.getX() + move, GuiEditorWidget.this.getX() + GuiEditorWidget.this.getWidth()));
+                moved = true;
+            } else if(event.isUp()) {
+                GuiEditorWidget.this.memorizeChange(this);
+                this.setY(Math.max(this.getY() - move, GuiEditorWidget.this.getY()));
+                moved = true;
+            } else if(event.isDown()) {
+                GuiEditorWidget.this.memorizeChange(this);
+                this.setY(Math.min(this.getY() + move, GuiEditorWidget.this.getY() + GuiEditorWidget.this.getHeight()));
+                moved = true;
+            } else if(event.key() == 261) {
+                GuiEditorWidget.this.delete();
+                moved = true;
+            }
             if(moved)
                 GuiEditorWidget.this.setChanged();
             return moved;
@@ -888,7 +887,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     private class DummyScreen implements IMachineScreen {
 
-        private final MachineTile dummy = new CustomMachineTile(BlockPos.ZERO, Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
+        private final MachineTile dummy = new CustomMachineTile(BlockPos.ZERO, CMRegistration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
 
         @Override
         public int getX() {

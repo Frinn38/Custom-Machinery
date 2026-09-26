@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +36,7 @@ public class CycleTimer {
     }
 
     public void onDraw() {
-        if (!Screen.hasShiftDown()) {
+        if (!Minecraft.getInstance().hasShiftDown() || Minecraft.getInstance().hasControlDown()) {
             if (pausedDuration > 0) {
                 startTime += pausedDuration;
                 pausedDuration = 0;

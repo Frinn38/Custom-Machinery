@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent.WeatherType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
@@ -27,12 +27,12 @@ public record WeatherRequirement(WeatherType weather, boolean onMachine) impleme
 
     @Override
     public RequirementType<WeatherRequirement> getType() {
-        return Registration.WEATHER_REQUIREMENT.get();
+        return CMRegistration.WEATHER_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<WeatherMachineComponent> getComponentType() {
-        return Registration.WEATHER_MACHINE_COMPONENT.get();
+        return CMRegistration.WEATHER_MACHINE_COMPONENT.get();
     }
 
     @Override

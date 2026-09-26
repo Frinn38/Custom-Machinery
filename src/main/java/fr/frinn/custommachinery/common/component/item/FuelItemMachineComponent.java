@@ -4,12 +4,13 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 public class FuelItemMachineComponent extends ItemMachineComponent {
 
@@ -19,12 +20,12 @@ public class FuelItemMachineComponent extends ItemMachineComponent {
 
     @Override
     public MachineComponentType<ItemMachineComponent> getType() {
-        return Registration.ITEM_FUEL_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_FUEL_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        return super.isItemValid(slot, stack) && stack.getBurnTime(RecipeType.SMELTING) > 0;
+    public boolean isValid(int index, ItemResource resource) {
+        return super.isValid(index, resource) && resource.toStack().getBurnTime(RecipeType.SMELTING, this.getManager().getLevel().fuelValues()) > 0;
     }
 
     public static class Template extends ItemMachineComponent.Template {
@@ -37,12 +38,12 @@ public class FuelItemMachineComponent extends ItemMachineComponent {
 
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
-            return Registration.ITEM_FUEL_MACHINE_COMPONENT.get();
+            return CMRegistration.ITEM_FUEL_MACHINE_COMPONENT.get();
         }
 
         @Override
         public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
-            return super.isItemValid(manager, stack) && stack.getBurnTime(RecipeType.SMELTING) > 0;
+            return super.isItemValid(manager, stack) && stack.getBurnTime(RecipeType.SMELTING, manager.getLevel().fuelValues()) > 0;
         }
 
         @Override

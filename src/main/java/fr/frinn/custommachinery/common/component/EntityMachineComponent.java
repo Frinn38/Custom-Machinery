@@ -4,7 +4,7 @@ import com.google.common.base.Suppliers;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.CustomMachineDamageSource;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -28,7 +28,7 @@ public class EntityMachineComponent extends AbstractMachineComponent {
 
     @Override
     public MachineComponentType<EntityMachineComponent> getType() {
-        return Registration.ENTITY_MACHINE_COMPONENT.get();
+        return CMRegistration.ENTITY_MACHINE_COMPONENT.get();
     }
 
     public int getEntitiesInRadius(int radius, Predicate<Entity> filter) {

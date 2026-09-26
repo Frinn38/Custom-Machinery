@@ -4,13 +4,13 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.common.util.slot.ResultSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 public class ResultItemMachineComponent extends ItemMachineComponent {
 
@@ -20,7 +20,7 @@ public class ResultItemMachineComponent extends ItemMachineComponent {
 
     @Override
     public MachineComponentType<ItemMachineComponent> getType() {
-        return Registration.ITEM_RESULT_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ResultItemMachineComponent extends ItemMachineComponent {
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
+    public boolean isValid(int index, ItemResource resource) {
         return false;
     }
 
@@ -53,7 +53,7 @@ public class ResultItemMachineComponent extends ItemMachineComponent {
 
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
-            return Registration.ITEM_RESULT_MACHINE_COMPONENT.get();
+            return CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get();
         }
 
         @Override

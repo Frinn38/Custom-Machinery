@@ -4,7 +4,7 @@ import com.google.common.collect.AbstractIterator;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement.Order;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
@@ -14,11 +14,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ public class BlockMachineComponent extends AbstractMachineComponent {
 
     @Override
     public MachineComponentType<BlockMachineComponent> getType() {
-        return Registration.BLOCK_MACHINE_COMPONENT.get();
+        return CMRegistration.BLOCK_MACHINE_COMPONENT.get();
     }
 
     public long getBlockAmount(AABB box, List<BlockIngredient> filter, boolean whitelist) {
@@ -104,15 +106,15 @@ public class BlockMachineComponent extends AbstractMachineComponent {
         return true;
     }
 
-    private void setBlock(Level world, BlockPos pos, PartialBlockState state) {
-        world.setBlockAndUpdate(pos, state.getBlockState());
-        BlockEntity tile = world.getBlockEntity(pos);
+    private void setBlock(Level level, BlockPos pos, PartialBlockState state) {
+        level.setBlockAndUpdate(pos, state.getBlockState());
+        BlockEntity tile = level.getBlockEntity(pos);
         if(tile != null && state.getNbt() != null && !state.getNbt().isEmpty()) {
             CompoundTag nbt = state.getNbt().copy();
             nbt.putInt("x", pos.getX());
             nbt.putInt("y", pos.getY());
             nbt.putInt("z", pos.getZ());
-            tile.loadWithComponents(nbt, world.registryAccess());
+            tile.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), nbt));
         }
     }
 

@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class FunctionKubeEvent implements KubeEvent {
 
@@ -18,7 +18,7 @@ public class FunctionKubeEvent implements KubeEvent {
 
     public FunctionKubeEvent(ICraftingContext internal) {
         this.internal = internal;
-        this.machine = MachineJS.of(getTile());
+        this.machine = new MachineJS(internal.getMachineTile());
     }
 
     public FunctionKubeEvent getContext() {
@@ -54,14 +54,14 @@ public class FunctionKubeEvent implements KubeEvent {
     }
 
     public CachedLevelBlock getBlock() {
-        return new CachedLevelBlock(getTile().getLevel(), getTile().getBlockPos());
+        return new CachedLevelBlock(getTile().getComponentManager().getLevel(), getTile().getBlockPos());
     }
 
     public IMachineRecipe getRecipe() {
         return this.internal.getRecipe();
     }
 
-    public ResourceLocation getRecipeId() {
+    public Identifier getRecipeId() {
         return this.internal.getRecipeId();
     }
 

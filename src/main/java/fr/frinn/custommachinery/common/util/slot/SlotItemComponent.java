@@ -1,12 +1,14 @@
 package fr.frinn.custommachinery.common.util.slot;
 
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public class SlotItemComponent extends Slot {
 
@@ -32,9 +34,9 @@ public class SlotItemComponent extends Slot {
     public boolean mayPlace(ItemStack stack) {
         if(this.component.isLocked())
             return false;
-        if(this.component.getType() == Registration.ITEM_MACHINE_COMPONENT.get())
-            return this.component.getMode().isInput() && this.component.isItemValid(0, stack);
-        return this.component.isItemValid(0, stack);
+        if(this.component.getType() == CMRegistration.ITEM_MACHINE_COMPONENT.get())
+            return this.component.getMode().isInput() && this.component.isValid(0, ItemResource.of(stack));
+        return this.component.isValid(0, ItemResource.of(stack));
     }
 
     @Override
@@ -66,7 +68,13 @@ public class SlotItemComponent extends Slot {
 
     @Override
     public ItemStack remove(int amount) {
-        return this.component.extractItemBypassLimit(amount, false);
+        ItemResource resource = ItemResource.of(component.getItemStack());
+        int extracted;
+        try(Transaction transaction = Transaction.openRoot()) {
+            extracted = this.component.extractBypassLimit(resource, amount, transaction);
+            transaction.commit();
+        }
+        return resource.toStack(extracted);
     }
 
     @Override

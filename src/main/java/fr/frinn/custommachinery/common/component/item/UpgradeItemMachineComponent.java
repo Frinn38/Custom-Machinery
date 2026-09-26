@@ -5,11 +5,12 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 public class UpgradeItemMachineComponent extends ItemMachineComponent {
 
@@ -19,12 +20,12 @@ public class UpgradeItemMachineComponent extends ItemMachineComponent {
 
     @Override
     public MachineComponentType<ItemMachineComponent> getType() {
-        return Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_UPGRADE_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        return super.isItemValid(slot, stack) && !CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(stack.getItem(), this.getManager().getTile().getMachine().getId()).isEmpty();
+    public boolean isValid(int index, ItemResource resource) {
+        return super.isValid(index, resource) && !CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(resource.getItem(), this.getManager().getTile().getMachine().getId()).isEmpty();
     }
 
     @Override
@@ -45,7 +46,7 @@ public class UpgradeItemMachineComponent extends ItemMachineComponent {
 
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
-            return Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get();
+            return CMRegistration.ITEM_UPGRADE_MACHINE_COMPONENT.get();
         }
 
         @Override

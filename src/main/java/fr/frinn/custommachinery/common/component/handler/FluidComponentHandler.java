@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.common.component.handler;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.component.IDumpComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
@@ -9,24 +10,24 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.transfer.InteractionFluidHandler;
 import fr.frinn.custommachinery.common.util.transfer.SidedFluidHandler;
 import fr.frinn.custommachinery.impl.component.AbstractComponentHandler;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueOutput.ValueOutputList;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.crafting.FluidIngredient;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,11 +39,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements ISerializableComponent, ISyncableStuff, ITickableComponent, IDumpComponent, IFluidHandler {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements ISerializableComponent, ISyncableStuff, ITickableComponent, IDumpComponent {
 
     public final InteractionFluidHandler interactionFluidHandler = new InteractionFluidHandler(this);
+    private final SidedFluidHandler generalHandler = new SidedFluidHandler(null, this);
     private final Map<Direction, SidedFluidHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
-    private final Map<Direction, BlockCapabilityCache<IFluidHandler, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
+    private final Map<Direction, BlockCapabilityCache<ResourceHandler<FluidResource>, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
 
     public FluidComponentHandler(IMachineComponentManager manager, List<FluidMachineComponent> components) {
         super(manager, components);
@@ -63,9 +65,9 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     }
 
     @Nullable
-    public IFluidHandler getFluidHandler(@Nullable Direction side) {
+    public ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction side) {
         if(side == null)
-            return this;
+            return this.generalHandler;
         else if(this.getComponents().stream().anyMatch(component -> !component.getConfig().getDirectionMode(side).isNone()))
             return this.sidedHandlers.get(side);
         return null;
@@ -73,7 +75,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
 
     @Override
     public MachineComponentType<FluidMachineComponent> getType() {
-        return Registration.FLUID_MACHINE_COMPONENT.get();
+        return CMRegistration.FLUID_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -89,47 +91,36 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
                 continue;
 
             if(this.neighbourStorages.get(side) == null)
-                this.neighbourStorages.put(side, BlockCapabilityCache.create(FluidHandler.BLOCK, (ServerLevel)this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
+                this.neighbourStorages.put(side, BlockCapabilityCache.create(Capabilities.Fluid.BLOCK, (ServerLevel)this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
 
-            IFluidHandler neighbour = this.neighbourStorages.get(side).getCapability();
+            ResourceHandler<FluidResource> neighbour = this.neighbourStorages.get(side).getCapability();
 
             if(neighbour == null)
                 continue;
 
             this.getComponents().forEach(component -> {
                 if(component.getConfig().isAutoInput() && component.getConfig().getDirectionMode(side).isInput() && component.getFluid().getAmount() < component.getCapacity())
-                    FluidUtil.tryFluidTransfer(component, neighbour, Integer.MAX_VALUE, true);
+                    ResourceHandlerUtil.move(neighbour, component, Predicates.alwaysTrue(), Integer.MAX_VALUE, null);
 
                 if(component.getConfig().isAutoOutput() && component.getConfig().getDirectionMode(side).isOutput() && component.getFluid().getAmount() > 0)
-                    FluidUtil.tryFluidTransfer(neighbour, component, Integer.MAX_VALUE, true);
+                    ResourceHandlerUtil.move(component, neighbour, Predicates.alwaysTrue(), Integer.MAX_VALUE, null);
             });
         }
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        ListTag componentsNBT = new ListTag();
+    public void serialize(ValueOutput output) {
+        ValueOutputList list = output.childrenList("fluids");
         this.getComponents().forEach(component -> {
-            CompoundTag componentNBT = new CompoundTag();
-            component.serialize(componentNBT, registries);
-            componentNBT.putString("id", component.getId());
-            componentsNBT.add(componentNBT);
+            ValueOutput child = list.addChild();
+            component.serialize(child);
+            child.putString("id", component.getId());
         });
-        nbt.put("fluids", componentsNBT);
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if(nbt.contains("fluids", Tag.TAG_LIST)) {
-            ListTag componentsNBT = nbt.getList("fluids", Tag.TAG_COMPOUND);
-            componentsNBT.forEach(iNBT -> {
-                if(iNBT instanceof CompoundTag componentNBT) {
-                    if(componentNBT.contains("id", Tag.TAG_STRING)) {
-                        this.getComponents().stream().filter(component -> component.getId().equals(componentNBT.getString("id"))).findFirst().ifPresent(component -> component.deserialize(componentNBT, registries));
-                    }
-                }
-            });
-        }
+    public void deserialize(ValueInput input) {
+        input.childrenList("fluids").ifPresent(list -> list.forEach(child -> child.getString("id").flatMap(this::getComponentForID).ifPresent(component -> component.deserialize(child))));
     }
 
     @Override
@@ -160,7 +151,7 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     public int getSpaceForFluid(String tank, FluidStack stack) {
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
         return this.outputs.stream()
-                .filter(component -> component.isFluidValid(0, stack) && tankPredicate.test(component))
+                .filter(component -> component.isValid(0, FluidResource.of(stack)) && tankPredicate.test(component))
                 .mapToInt(FluidMachineComponent::getRecipeRemainingSpace)
                 .sum();
     }
@@ -179,74 +170,12 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         AtomicInteger toAdd = new AtomicInteger(stack.getAmount());
         Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
         this.outputs.stream()
-                .filter(component -> component.isFluidValid(0, stack) && tankPredicate.test(component))
+                .filter(component -> component.isValid(0, FluidResource.of(stack)) && tankPredicate.test(component))
                 .sorted(Comparator.comparingInt(component -> FluidStack.isSameFluidSameComponents(component.getFluid(), stack) ? -1 : 1))
                 .forEach(component -> {
                     int maxInsert = Math.min(component.getRecipeRemainingSpace(), toAdd.get());
                     toAdd.addAndGet(-maxInsert);
                     component.recipeInsert(stack.copy(), maxInsert);
                 });
-    }
-
-    /** IFluidHandler Stuff **/
-
-    @Override
-    public int getTanks() {
-        return this.getComponents().size();
-    }
-
-    @Override
-    public FluidStack getFluidInTank(int tank) {
-        validateTankIndex(tank);
-        return this.getComponents().get(tank).getFluid();
-    }
-
-    @Override
-    public int getTankCapacity(int tank) {
-        validateTankIndex(tank);
-        return this.getComponents().get(tank).getCapacity();
-    }
-
-    @Override
-    public boolean isFluidValid(int tank, FluidStack stack) {
-        validateTankIndex(tank);
-        return this.getComponents().get(tank).isFluidValid(0, stack);
-    }
-
-    @Override
-    public int fill(FluidStack resource, FluidAction action) {
-        FluidStack toFill = resource.copy();
-        for(FluidMachineComponent component : this.getComponents()) {
-            toFill.shrink(component.fill(toFill, action));
-            if(toFill.isEmpty())
-                break;
-        }
-        return resource.getAmount() - toFill.getAmount();
-    }
-
-    @Override
-    public FluidStack drain(FluidStack resource, FluidAction action) {
-        int toDrain = 0;
-        for(FluidMachineComponent component : this.getComponents()) {
-            toDrain += component.drain(resource.copyWithAmount(resource.getAmount() - toDrain), action).getAmount();
-            if(toDrain == resource.getAmount())
-                break;
-        }
-        return resource.copyWithAmount(toDrain);
-    }
-
-    @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
-        for(FluidMachineComponent component : this.getComponents()) {
-            FluidStack drained = component.drain(maxDrain, action);
-            if(!drained.isEmpty())
-                return drained;
-        }
-        return FluidStack.EMPTY;
-    }
-
-    protected void validateTankIndex(int tank) {
-        if (tank < 0 || tank >= this.getTanks())
-            throw new RuntimeException("Tank " + tank + " not in valid range - [0," + this.getTanks() + ")");
     }
 }

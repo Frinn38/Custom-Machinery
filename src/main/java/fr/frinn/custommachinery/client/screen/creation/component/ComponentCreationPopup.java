@@ -5,11 +5,11 @@ import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentCreationPopup.ComponentCreationListWidget.ComponentCreationListEntry;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -67,9 +67,9 @@ public class ComponentCreationPopup extends PopupScreen {
             super(x, y, width, height, 20, Component.empty());
             this.setRenderSelection();
 
-            for(MachineComponentType<?> type : Registration.MACHINE_COMPONENT_TYPE_REGISTRY.entrySet().stream()
+            for(MachineComponentType<?> type : CMRegistration.MACHINE_COMPONENT_TYPE_REGISTRY.entrySet().stream()
                     .filter(entry -> !entry.getValue().isSingle() || builder.getComponents().stream().noneMatch(template -> template.getType() == entry.getValue()))
-                    .sorted(Comparator.comparing(entry -> entry.getKey().location()))
+                    .sorted(Comparator.comparing(entry -> entry.getKey().identifier()))
                     .map(Map.Entry::getValue)
                     .toList()) {
                 IMachineComponentBuilder<?, ?> componentBuilder = MachineComponentBuilderRegistry.getBuilder(type);
@@ -89,8 +89,8 @@ public class ComponentCreationPopup extends PopupScreen {
             }
 
             @Override
-            public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-                graphics.drawString(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), x + 5, y + 5, 0, false);
+            public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+                graphics.text(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), x + 5, y + 5, 0, false);
             }
 
             @Override

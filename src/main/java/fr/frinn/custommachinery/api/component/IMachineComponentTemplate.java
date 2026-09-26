@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.api.component;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 
 /**
  * A template for a specific {@link MachineComponentType}.
@@ -17,7 +17,7 @@ public interface IMachineComponentTemplate<T extends IMachineComponent> {
      * The dispatch codec will read the "type" property inside the component JSON and find the proper {@link MachineComponentType} for this type.
      * The codec passed to the {@link MachineComponentType} on registration will then be used to deserialize the component JSON into the template.
      */
-    NamedCodec<IMachineComponentTemplate<? extends IMachineComponent>> CODEC = RegistrarCodec.MACHINE_COMPONENT.dispatch(
+    NamedCodec<IMachineComponentTemplate<? extends IMachineComponent>> CODEC = RegistryCodecs.MACHINE_COMPONENT.dispatch(
             IMachineComponentTemplate::getType,
             MachineComponentType::getCodec,
             "Machine Component"

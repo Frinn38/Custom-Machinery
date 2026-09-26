@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.BoxCreatorItem;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
@@ -26,8 +26,9 @@ import fr.frinn.custommachinery.common.util.CMLogger;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.ModContainer;
@@ -37,12 +38,10 @@ import net.neoforged.fml.config.ModConfig.Type;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
-import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
-import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
-import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.CommandEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -67,29 +66,29 @@ public class CustomMachinery {
 
     public static final Logger LOGGER = LogManager.getLogger(CMLogger.NAME);
 
-    public static final Map<ResourceLocation, CustomMachine> MACHINES = new HashMap<>();
-    public static final Map<ResourceLocation, Pair<CustomMachine, Component>> TEMPLATES = new HashMap<>();
-    public static final BiMap<ResourceLocation, CustomMachineBlock> CUSTOM_BLOCK_MACHINES = HashBiMap.create();
+    public static final Map<Identifier, CustomMachine> MACHINES = new HashMap<>();
+    public static final Map<Identifier, Pair<CustomMachine, Component>> TEMPLATES = new HashMap<>();
+    public static final BiMap<Identifier, CustomMachineBlock> CUSTOM_BLOCK_MACHINES = HashBiMap.create();
     public static final Upgrades UPGRADES = new Upgrades();
 
     public CustomMachinery(final ModContainer CONTAINER, final IEventBus MOD_BUS) {
         CONTAINER.registerConfig(Type.COMMON, CMConfig.CONFIG_SPEC);
 
-        Registration.APPEARANCE_PROPERTIES.register(MOD_BUS);
-        Registration.BLOCKS.register(MOD_BUS);
-        Registration.CREATIVE_TABS.register(MOD_BUS);
-        Registration.DATA_COMPONENTS.register(MOD_BUS);
-        Registration.DATAS.register(MOD_BUS);
-        Registration.ITEMS.register(MOD_BUS);
-        Registration.GUI_ELEMENTS.register(MOD_BUS);
-        Registration.LOOT_ITEM_FUNCTIONS.register(MOD_BUS);
-        Registration.MACHINE_COMPONENTS.register(MOD_BUS);
-        Registration.MENUS.register(MOD_BUS);
-        Registration.PROCESSORS.register(MOD_BUS);
-        Registration.RECIPE_SERIALIZERS.register(MOD_BUS);
-        Registration.RECIPE_TYPES.register(MOD_BUS);
-        Registration.REQUIREMENTS.register(MOD_BUS);
-        Registration.TILE_ENTITIES.register(MOD_BUS);
+        CMRegistration.APPEARANCE_PROPERTIES.register(MOD_BUS);
+        CMRegistration.BLOCKS.register(MOD_BUS);
+        CMRegistration.CREATIVE_TABS.register(MOD_BUS);
+        CMRegistration.DATA_COMPONENTS.register(MOD_BUS);
+        CMRegistration.DATAS.register(MOD_BUS);
+        CMRegistration.ITEMS.register(MOD_BUS);
+        CMRegistration.GUI_ELEMENTS.register(MOD_BUS);
+        CMRegistration.LOOT_ITEM_FUNCTIONS.register(MOD_BUS);
+        CMRegistration.MACHINE_COMPONENTS.register(MOD_BUS);
+        CMRegistration.MENUS.register(MOD_BUS);
+        CMRegistration.PROCESSORS.register(MOD_BUS);
+        CMRegistration.RECIPE_SERIALIZERS.register(MOD_BUS);
+        CMRegistration.RECIPE_TYPES.register(MOD_BUS);
+        CMRegistration.REQUIREMENTS.register(MOD_BUS);
+        CMRegistration.TILE_ENTITIES.register(MOD_BUS);
 
         MOD_BUS.addListener(this::commonSetup);
         MOD_BUS.addListener(this::sendIMCMessages);
@@ -117,24 +116,24 @@ public class CustomMachinery {
 
     private void registerCapabilities(final RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
-                ItemHandler.BLOCK,
-                Registration.CUSTOM_MACHINE_TILE.get(),
-                (be, side) -> be.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                Capabilities.Item.BLOCK,
+                CMRegistration.CUSTOM_MACHINE_TILE.get(),
+                (be, side) -> be.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
                         .map(handler -> ((ItemComponentHandler)handler).getItemHandlerForSide(side))
                         .orElse(null)
         );
         event.registerBlockEntity(
-                FluidHandler.BLOCK,
-                Registration.CUSTOM_MACHINE_TILE.get(),
-                (be, side) -> be.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+                Capabilities.Fluid.BLOCK,
+                CMRegistration.CUSTOM_MACHINE_TILE.get(),
+                (be, side) -> be.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get())
                         .map(handler -> ((FluidComponentHandler)handler).getFluidHandler(side))
                         .orElse(null)
         );
         event.registerBlockEntity(
-                EnergyStorage.BLOCK,
-                Registration.CUSTOM_MACHINE_TILE.get(),
-                (be, side) -> be.getComponentManager().getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
-                        .map(energy -> energy.getEnergyStorage(side))
+                Capabilities.Energy.BLOCK,
+                CMRegistration.CUSTOM_MACHINE_TILE.get(),
+                (be, side) -> be.getComponentManager().getComponent(CMRegistration.ENERGY_MACHINE_COMPONENT.get())
+                        .map(energy -> energy.getEnergyHandler(side))
                         .orElse(null)
         );
     }
@@ -190,9 +189,9 @@ public class CustomMachinery {
         }
     }
 
-    private void registerReloadListener(final AddReloadListenerEvent event) {
-        event.addListener(new CustomMachineJsonReloadListener());
-        event.addListener(new UpgradesCustomReloadListener());
+    private void registerReloadListener(final AddServerReloadListenersEvent event) {
+        event.addListener(rl("machine_loader"), new CustomMachineJsonReloadListener());
+        event.addListener(rl("upgrade_loader"), new UpgradesCustomReloadListener());
     }
 
     public static void syncData(ServerPlayer player) {
@@ -213,12 +212,12 @@ public class CustomMachinery {
     }
 
     private void onReloadStart(final CommandEvent event) {
-        if(event.getParseResults().getReader().getString().equals("reload") && event.getParseResults().getContext().getSource().hasPermission(2))
+        if(event.getParseResults().getReader().getString().equals("reload") && event.getParseResults().getContext().getSource().permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
             CMLogger.reset();
     }
 
-    public static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier rl(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
     public static TextureInfo texture(String path) {

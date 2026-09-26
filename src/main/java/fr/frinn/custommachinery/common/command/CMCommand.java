@@ -18,19 +18,21 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.ClickEvent.Action;
+import net.minecraft.network.chat.ClickEvent.RunCommand;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.profiling.InactiveProfiler;
+import net.minecraft.server.packs.resources.ReloadInstance;
+import net.minecraft.server.packs.resources.SimpleReloadInstance;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.Unit;
 import net.neoforged.neoforge.common.conditions.ICondition.IContext;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -40,10 +42,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class CMCommand {
 
@@ -63,7 +63,7 @@ public class CMCommand {
 
     private static ArgumentBuilder<CommandSourceStack, ?> logging() {
         return Commands.literal("log")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(ctx -> {
                     if(ctx.getSource().getEntity() instanceof ServerPlayer player)
                         PacketDistributor.sendToPlayer(player, new SOpenFilePacket(new File("logs/custommachinery.log").toURI().toString()));
@@ -73,17 +73,17 @@ public class CMCommand {
 
     private static ArgumentBuilder<CommandSourceStack, ?> reload() {
         return Commands.literal("reload")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(ctx -> {
                     if(ctx.getSource().getEntity() instanceof ServerPlayer player)
-                        reloadMachines(player.server, player);
+                        reloadMachines(player.level().getServer(), player);
                     return 0;
                 });
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> create() {
         return Commands.literal("create")
-                .requires(cs -> cs.hasPermission(2) && cs.isPlayer())
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) && cs.isPlayer())
                 .executes(ctx -> {
                     if(ctx.getSource().getEntity() instanceof ServerPlayer player)
                         PacketDistributor.sendToPlayer(player, new SOpenMachineCreationScreenPacket());
@@ -93,12 +93,12 @@ public class CMCommand {
 
     private static ArgumentBuilder<CommandSourceStack, ?> edit() {
         return Commands.literal("edit")
-                .requires(cs -> cs.hasPermission(2) && cs.isPlayer())
-                .then(Commands.argument("machine", ResourceLocationArgument.id())
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) && cs.isPlayer())
+                .then(Commands.argument("machine", IdentifierArgument.id())
                         .suggests(ALL_MACHINES)
                         .executes(ctx -> {
                             if(ctx.getSource().getEntity() instanceof ServerPlayer player) {
-                                ResourceLocation machine = ResourceLocationArgument.getId(ctx, "machine");
+                                Identifier machine = IdentifierArgument.getId(ctx, "machine");
                                 if(!CustomMachinery.MACHINES.containsKey(machine) || CustomMachinery.MACHINES.get(machine).isDummy())
                                     player.sendSystemMessage(Component.translatable("custommachinery.command.edit.missing", machine.toString()).withStyle(ChatFormatting.GRAY));
                                 else if(!CustomMachinery.MACHINES.get(machine).getLocation().canEdit())
@@ -112,12 +112,12 @@ public class CMCommand {
 
     private static ArgumentBuilder<CommandSourceStack, ?> editTemplate() {
         return Commands.literal("edit_template")
-                .requires(cs -> cs.hasPermission(2) && cs.isPlayer())
-                .then(Commands.argument("template", ResourceLocationArgument.id())
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) && cs.isPlayer())
+                .then(Commands.argument("template", IdentifierArgument.id())
                         .suggests(ALL_TEMPLATES)
                         .executes(ctx -> {
                             if(ctx.getSource().getEntity() instanceof ServerPlayer player) {
-                                ResourceLocation template = ResourceLocationArgument.getId(ctx, "template");
+                                Identifier template = IdentifierArgument.getId(ctx, "template");
                                 if(!CustomMachinery.TEMPLATES.containsKey(template) || CustomMachinery.TEMPLATES.get(template).getFirst().isDummy())
                                     player.sendSystemMessage(Component.translatable("custommachinery.command.edit.missing", template.toString()).withStyle(ChatFormatting.GRAY));
                                 else if(!CustomMachinery.TEMPLATES.get(template).getFirst().getLocation().canEdit())
@@ -131,7 +131,7 @@ public class CMCommand {
 
     private static ArgumentBuilder<CommandSourceStack, ?> upgrade() {
         return Commands.literal("upgrade")
-                .requires(cs -> cs.hasPermission(2) && cs.isPlayer())
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER) && cs.isPlayer())
                 .executes(ctx -> {
                     if(ctx.getSource().getEntity() instanceof ServerPlayer player) {
                         PacketDistributor.sendToPlayer(player, new SOpenUpgradeCreationScreenPacket());
@@ -145,21 +145,26 @@ public class CMCommand {
         CustomMachineJsonReloadListener listener = new CustomMachineJsonReloadListener();
         listener.injectContext(new IContext() {
             @Override
-            public <T> Map<ResourceLocation, Collection<Holder<T>>> getAllTags(ResourceKey<? extends Registry<T>> registryKey) {
-                return server.registryAccess().registry(registryKey).map(registry -> registry.getTags().collect(Collectors.toMap(pair -> pair.getFirst().location(), pair -> (Collection<Holder<T>>)pair.getSecond().stream().toList()))).orElse(Collections.emptyMap());
+            public <T> boolean isTagLoaded(TagKey<T> key) {
+                return server.registryAccess().get(key).isEmpty();
+            }
+
+            @Override
+            public <T> Collection<Holder<T>> getTag(TagKey<T> key) {
+                return server.registryAccess().get(key).map(named -> named.stream().toList()).orElse(Collections.emptyList());
             }
         }, server.registryAccess());
-        listener.reload(CompletableFuture::completedFuture, server.getResourceManager(), InactiveProfiler.INSTANCE, InactiveProfiler.INSTANCE, server, server)
-                .thenRun(() -> {
-                    if(player != null)
-                        player.sendSystemMessage(Component.translatable("custommachinery.command.reload").withStyle(ChatFormatting.GRAY));
-                });
+        ReloadInstance instance = SimpleReloadInstance.create(server.getResourceManager(), Collections.singletonList(listener), server, server, CompletableFuture.completedFuture(Unit.INSTANCE), false);
+        instance.done().thenRun(() -> {
+            if(player != null)
+                player.sendSystemMessage(Component.translatable("custommachinery.command.reload").withStyle(ChatFormatting.GRAY));
+        });
     }
 
-    private static CompletableFuture<Suggestions> suggestCMResource(Iterable<ResourceLocation> resources, SuggestionsBuilder builder) {
+    private static CompletableFuture<Suggestions> suggestCMResource(Iterable<Identifier> resources, SuggestionsBuilder builder) {
         String string = builder.getRemaining().toLowerCase(Locale.ROOT);
         boolean bl = string.indexOf(58) > -1;
-        for (ResourceLocation object : resources) {
+        for (Identifier object : resources) {
             if (bl) {
                 String string2 = object.toString();
                 if (!SharedSuggestionProvider.matchesSubStr(string, string2)) continue;
@@ -172,24 +177,24 @@ public class CMCommand {
         return builder.buildFuture();
     }
 
-    private static List<ResourceLocation> editableMachines() {
+    private static List<Identifier> editableMachines() {
         return CustomMachinery.MACHINES.entrySet().stream().filter(entry -> entry.getValue().getLocation().canEdit()).map(Entry::getKey).toList();
     }
 
-    private static List<ResourceLocation> editableTemplates() {
+    private static List<Identifier> editableTemplates() {
         return CustomMachinery.TEMPLATES.entrySet().stream().filter(entry -> entry.getValue().getFirst().getLocation().canEdit()).map(Entry::getKey).toList();
     }
 
     private static ArgumentBuilder<CommandSourceStack, ?> verify() {
         return Commands.literal("verify")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(ctx -> {
-                    Result result = CMVerifier.verify(ctx.getSource().getLevel().getRecipeManager());
+                    Result result = CMVerifier.verify(ctx.getSource().getLevel().recipeAccess());
                     result.print(ICustomMachineryAPI.INSTANCE.logger());
                     if(result.errors() > 0)
-                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.error", result.errors()).withStyle(ChatFormatting.RED).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cm log")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.command.verify.log.tooltip"))))));
+                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.error", result.errors()).withStyle(ChatFormatting.RED).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent.RunCommand("/cm log")).withHoverEvent(new HoverEvent.ShowText(Component.translatable("custommachinery.command.verify.log.tooltip"))))));
                     else
-                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.success").withStyle(ChatFormatting.GREEN).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new ClickEvent(Action.RUN_COMMAND, "/cm log")).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("custommachinery.command.verify.log.tooltip"))))));
+                        ctx.getSource().sendSystemMessage(Component.translatable("custommachinery.command.verify.success").withStyle(ChatFormatting.GREEN).append(" ").append(Component.translatable("custommachinery.command.verify.log").withStyle(style -> style.withColor(ChatFormatting.GOLD).withClickEvent(new RunCommand("/cm log")).withHoverEvent(new HoverEvent.ShowText(Component.translatable("custommachinery.command.verify.log.tooltip"))))));
                     return 0;
                 });
     }

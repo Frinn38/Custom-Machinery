@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.client.screen.creation.component;
 import fr.frinn.custommachinery.client.screen.creation.component.ComponentPropertyListWidget.ComponentPropertyEntry;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
@@ -34,8 +34,8 @@ public class ComponentPropertyListWidget extends ListWidget<ComponentPropertyEnt
         }
 
         @Override
-        public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-            graphics.drawString(Minecraft.getInstance().font, this.title, x, y + (height - Minecraft.getInstance().font.lineHeight) / 2, 0, false);
+        public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+            graphics.text(Minecraft.getInstance().font, this.title, x, y + (height - Minecraft.getInstance().font.lineHeight) / 2, 0, false);
             this.widget.setPosition(x + width - this.widget.getWidth() - 10, y + (height - this.widget.getHeight()) / 2);
         }
 

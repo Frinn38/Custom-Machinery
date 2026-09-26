@@ -3,40 +3,41 @@ package fr.frinn.custommachinery.common.integration.jade;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.BoxStyle;
-import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.IDisplayHelper;
+import snownee.jade.impl.ui.BoxElementImpl;
 
 public class CustomMachineComponentProvider implements IBlockComponentProvider {
 
     public static final CustomMachineComponentProvider INSTANCE = new CustomMachineComponentProvider();
-    public static final ResourceLocation ID = CustomMachinery.rl("machine_component_provider");
+    public static final Identifier ID = CustomMachinery.rl("machine_component_provider");
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if(accessor.getBlockEntity() instanceof CustomMachineTile tile) {
-            CompoundTag nbt = accessor.getServerData().getCompound(CustomMachinery.MODID);
+            CompoundTag nbt = accessor.getServerData().getCompoundOrEmpty(CustomMachinery.MODID);
             if(nbt.isEmpty() || tile.getLevel() == null)
                 return;
 
-            if(nbt.contains("owner", Tag.TAG_STRING)) {
-                Component ownerName = Component.Serializer.fromJson(nbt.getString("owner"), tile.getLevel().registryAccess());
-                if(ownerName != null && !ownerName.getString().isEmpty())
+            if(nbt.contains("owner")) {
+                Component ownerName = TextComponentUtils.fromJSON(nbt.getStringOr("owner", ""));
+                if(!ownerName.getString().isEmpty())
                     tooltip.add(Component.translatable("custommachinery.machine.info.owner", ownerName));
             }
 
-            if(nbt.contains("status", Tag.TAG_BYTE)) {
-                MachineStatus machineStatus = MachineStatus.values()[nbt.getByte("status")];
+            if(nbt.contains("status")) {
+                MachineStatus machineStatus = MachineStatus.values()[nbt.getByteOr("status", (byte)0)];
                 MutableComponent status = machineStatus.getTranslatedName();
                 switch (machineStatus) {
                     case ERRORED -> status.withStyle(ChatFormatting.RED);
@@ -45,21 +46,21 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
                 }
                 tooltip.add(status);
             }
-            if(nbt.contains("cores", Tag.TAG_LIST)) {
-                ListTag cores = nbt.getList("cores", Tag.TAG_COMPOUND);
+            if(nbt.contains("cores")) {
+                ListTag cores = nbt.getListOrEmpty("cores");
                 cores.forEach(tag -> {
                     if(!(tag instanceof CompoundTag coreNbt))
                         return;
-                    if(coreNbt.contains("recipeProgressTime", Tag.TAG_DOUBLE) && coreNbt.contains("recipeTotalTime", Tag.TAG_INT)) {
-                        double recipeProgressTime = coreNbt.getDouble("recipeProgressTime");
-                        int recipeTotalTime = coreNbt.getInt("recipeTotalTime");
+                    if(coreNbt.contains("recipeProgressTime") && coreNbt.contains("recipeTotalTime")) {
+                        double recipeProgressTime = coreNbt.getDoubleOr("recipeProgressTime", 0);
+                        int recipeTotalTime = coreNbt.getIntOr("recipeTotalTime", 0);
                         float progress = (float) (recipeProgressTime / recipeTotalTime);
                         Component component = Component.literal((int)recipeProgressTime + " / " + recipeTotalTime).withStyle(ChatFormatting.WHITE);
-                        IElementHelper helper = IElementHelper.get();
-                        tooltip.add(helper.progress(progress, component, helper.progressStyle(), BoxStyle.getNestedBox(), true));
+                        IDisplayHelper helper = IDisplayHelper.get();
+                        //tooltip.add(helper.progress(progress, component, helper.progressStyle(), BoxStyle.getNestedBox(), true));
                     }
-                    if(coreNbt.contains("errorMessage", Tag.TAG_STRING) && tile.getLevel() != null)
-                        tooltip.add(Component.Serializer.fromJson(coreNbt.getString("errorMessage"), tile.getLevel().registryAccess()));
+                    if(coreNbt.contains("errorMessage") && tile.getLevel() != null)
+                        tooltip.add(TextComponentUtils.fromJSON(coreNbt.getStringOr("errorMessage", "")));
                 });
             }
 
@@ -69,7 +70,7 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 }

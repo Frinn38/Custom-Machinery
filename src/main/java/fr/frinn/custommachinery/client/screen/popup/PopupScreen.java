@@ -2,8 +2,9 @@ package fr.frinn.custommachinery.client.screen.popup;
 
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 public abstract class PopupScreen extends BaseScreen {
@@ -43,7 +44,7 @@ public abstract class PopupScreen extends BaseScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         if((int) Math.abs(this.dragX) >= 1 || (int) Math.abs(this.dragY) >= 1) {
             int changedX = (int) this.dragX;
             int changedY = (int) this.dragY;
@@ -51,27 +52,19 @@ public abstract class PopupScreen extends BaseScreen {
             this.dragX -= changedX;
             this.dragY -= changedY;
         }
-        boolean parentHasTooltip = this.parent.deferredTooltipRendering != null;
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        //If parent didn't have tooltip before rendering this popup, but now have it that means the tooltips were added by this popup.
-        //So we move them to this popup tooltips
-        if(!parentHasTooltip && this.parent.deferredTooltipRendering != null) {
-            if(this.deferredTooltipRendering == null)
-                this.deferredTooltipRendering = this.parent.deferredTooltipRendering;
-            this.parent.deferredTooltipRendering = null;
-        }
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(super.mouseClicked(mouseX, mouseY, button))
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if(super.mouseClicked(event, doubleClick))
             return true;
-        if(isMouseOver(mouseX, mouseY) && mouseY < this.y + 20) {
+        if(isMouseOver(event.x(), event.y()) && event.y() < this.y + 20) {
             this.dragging = true;
             return true;
         } else {
@@ -81,18 +74,18 @@ public abstract class PopupScreen extends BaseScreen {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         this.dragging = false;
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
         if(this.dragging) {
             this.dragX += deltaX;
             this.dragY += deltaY;
         }
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        return super.mouseDragged(event, deltaX, deltaY);
     }
 
     @Override

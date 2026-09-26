@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.impl.util;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,7 @@ public interface IMachineModelLocation {
     Item getItem();
 
     @Nullable
-    ResourceLocation getLoc();
+    Identifier getLoc();
 
     @Nullable
     String getProperties();

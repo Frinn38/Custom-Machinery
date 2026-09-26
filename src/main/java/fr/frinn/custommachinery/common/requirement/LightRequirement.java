@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.LightMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -27,12 +27,12 @@ public record LightRequirement(IntRange light, boolean sky) implements IRequirem
 
     @Override
     public RequirementType<LightRequirement> getType() {
-        return Registration.LIGHT_REQUIREMENT.get();
+        return CMRegistration.LIGHT_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<LightMachineComponent> getComponentType() {
-        return Registration.LIGHT_MACHINE_COMPONENT.get();
+        return CMRegistration.LIGHT_MACHINE_COMPONENT.get();
     }
 
     @Override

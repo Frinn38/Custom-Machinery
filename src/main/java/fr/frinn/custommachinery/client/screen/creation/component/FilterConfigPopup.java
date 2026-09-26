@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.Filter;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.StringWidget;
@@ -18,12 +18,13 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -137,9 +138,9 @@ public class FilterConfigPopup<T> extends PopupScreen {
             }
 
             @Override
-            public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
                 if(this.list.mode == Mode.SELECT && this.list.getSelected() == this)
-                    graphics.fill(0, 0, 20, 20, FastColor.ARGB32.color(255, 255, 0, 0));
+                    graphics.fill(0, 0, 20, 20, ARGB.color(255, 255, 0, 0));
             }
 
             @Override
@@ -157,21 +158,21 @@ public class FilterConfigPopup<T> extends PopupScreen {
             }
 
             @Override
-            public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
                 super.render(graphics, mouseX, mouseY, partialTicks);
-                graphics.pose().pushPose();
-                graphics.pose().translate(2, 2, 0);
+                graphics.pose().pushMatrix();
+                graphics.pose().translation(2, 2);
                 this.list.helper.renderSingle(this.holder.value(), graphics, mouseX, mouseY, partialTicks);
-                graphics.pose().popPose();
+                graphics.pose().popMatrix();
             }
 
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
                 if(this.list.getSelected() == this && this.list.mode == Mode.MODIFY) {
                     this.list.remove(this);
                     return true;
                 }
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(event, doubleClick);
             }
 
             @Override
@@ -194,23 +195,23 @@ public class FilterConfigPopup<T> extends PopupScreen {
             }
 
             @Override
-            public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
                 super.render(graphics, mouseX, mouseY, partialTicks);
                 this.timer.onDraw();
-                T single = this.timer.getOrDefault(this.list.helper.registry().getTag(this.tag).map(named -> named.stream().map(Holder::value).toList()).orElse(Collections.emptyList()), this.list.helper.defaultValue());
-                graphics.pose().pushPose();
-                graphics.pose().translate(2, 2, 0);
+                T single = this.timer.getOrDefault(this.list.helper.registry().get(this.tag).map(named -> named.stream().map(Holder::value).toList()).orElse(Collections.emptyList()), this.list.helper.defaultValue());
+                graphics.pose().pushMatrix();
+                graphics.pose().translation(2, 2);
                 this.list.helper.renderSingle(single, graphics, mouseX, mouseY, partialTicks);
-                graphics.pose().popPose();
+                graphics.pose().popMatrix();
             }
 
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
                 if(this.list.getSelected() == this && this.list.mode == Mode.MODIFY) {
                     this.list.remove(this);
                     return true;
                 }
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(event, doubleClick);
             }
 
             @Override
@@ -225,19 +226,19 @@ public class FilterConfigPopup<T> extends PopupScreen {
 
         private static class AddEntry<T> extends FilterListEntry<T> {
 
-            public static final ResourceLocation ADD_TEXTURE = CustomMachinery.rl("textures/gui/create_icon.png");
+            public static final Identifier ADD_TEXTURE = CustomMachinery.rl("textures/gui/create_icon.png");
 
             private AddEntry(FilterSelectionList<T> list) {
                 super(list);
             }
 
             @Override
-            public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
                 graphics.blit(ADD_TEXTURE, 0, 0, 0, 0, 20, 20, 20, 20);
             }
 
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
                 if(this.list.getSelected() == this) {
                     this.list.parent.openPopup(new FilterValueAddPopup<>(this.list.parent, this.list.helper, entry -> {
                         FilterListEntry<T> newEntry = switch (entry) {
@@ -249,7 +250,7 @@ public class FilterConfigPopup<T> extends PopupScreen {
                     }), "Add entry");
                     return true;
                 }
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(event, doubleClick);
             }
 
             @Override
@@ -261,13 +262,13 @@ public class FilterConfigPopup<T> extends PopupScreen {
 
     public interface FilterBuilderHelper<T> {
 
-        void renderSingle(T single, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks);
+        void renderSingle(T single, GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks);
 
         Component tooltip(T single);
 
         Registry<T> registry();
 
-        default Stream<ResourceLocation> getAll() {
+        default Stream<Identifier> getAll() {
             return registry().keySet().stream();
         }
 
@@ -341,9 +342,9 @@ public class FilterConfigPopup<T> extends PopupScreen {
         private void refreshBoxSuggestions() {
             this.box.clearSuggestions();
             if(this.single.selected())
-                this.box.addSuggestions(this.helper.getAll().map(ResourceLocation::toString).toList());
+                this.box.addSuggestions(this.helper.getAll().map(Identifier::toString).toList());
             if(this.tag.selected())
-                this.box.addSuggestions(this.helper.registry().getTagNames().map(key -> "#" + key.location()).toList());
+                this.box.addSuggestions(this.helper.registry().getTags().map(named -> "#" + named.key().location()).toList());
             this.refreshList();
         }
 
@@ -364,9 +365,9 @@ public class FilterConfigPopup<T> extends PopupScreen {
                 return -matchingChars;
             })).limit(100).map(s -> {
                 if(s.startsWith("#"))
-                    return Either.<TagKey<T>, Holder<T>>left(TagKey.create(this.helper.registry().key(), ResourceLocation.parse(s.substring(1))));
+                    return Either.<TagKey<T>, Holder<T>>left(TagKey.create(this.helper.registry().key(), Identifier.parse(s.substring(1))));
                 else
-                    return Either.<TagKey<T>, Holder<T>>right(this.helper.registry().getHolder(ResourceLocation.parse(s)).orElseThrow());
+                    return Either.<TagKey<T>, Holder<T>>right(this.helper.registry().get(Identifier.parse(s)).orElseThrow());
             }).toList();
             this.list.setList(list);
         }

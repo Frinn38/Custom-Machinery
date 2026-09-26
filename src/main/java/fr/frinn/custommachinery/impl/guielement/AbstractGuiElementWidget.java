@@ -6,8 +6,9 @@ import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 
@@ -44,22 +45,22 @@ public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends Ab
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean clicked =  super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        boolean clicked =  super.mouseClicked(event, doubleClick);
         if(clicked)
-            PacketDistributor.sendToServer(new CGuiElementClickPacket(this.screen.getMachine().getGuiElements().indexOf(this.element), (byte)button));
+            ClientPacketDistributor.sendToServer(new CGuiElementClickPacket(this.screen.getMachine().getGuiElements().indexOf(this.element), (byte)event.button()));
         return clicked;
     }
 
     /**
-     * Needed because Forgified Fabric API mixin makes {@link net.minecraft.client.gui.screens.inventory.AbstractContainerScreen#mouseReleased(double, double, int)}
+     * Needed because Forgified Fabric API mixin makes {@link net.minecraft.client.gui.screens.inventory.AbstractContainerScreen#mouseReleased(MouseButtonEvent)}
      * return early in case any of the widgets return true (which they do by default).
      * This cause the slots of the gui (player inventory gui element) to behave weirdly, items can't be placed.
      * Issue open : <a href="https://github.com/Sinytra/ForgifiedFabricAPI/issues/198">here</a>
      */
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        super.mouseReleased(mouseX, mouseY, button);
+    public boolean mouseReleased(MouseButtonEvent event) {
+        super.mouseReleased(event);
         return false;
     }
 }

@@ -9,10 +9,10 @@ import fr.frinn.custommachinery.client.screen.creation.component.IMachineCompone
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -24,7 +24,7 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
 
     @Override
     public MachineComponentType<EnergyMachineComponent> type() {
-        return Registration.ENERGY_MACHINE_COMPONENT.get();
+        return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -33,9 +33,9 @@ public class EnergyComponentBuilder implements IMachineComponentBuilder<EnergyMa
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, int width, int height, Template template) {
-        graphics.renderFakeItem(Items.LANTERN.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.drawString(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+    public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Template template) {
+        graphics.item(Items.LANTERN.getDefaultInstance(), x, y + height / 2 - 8);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
     }
 
     public static class EnergyComponentBuilderPopup extends ComponentBuilderPopup<Template> {

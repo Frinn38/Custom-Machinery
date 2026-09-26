@@ -8,7 +8,7 @@
     "keys": [
         {
             "name": "machine",
-            "type": "custommachinery:rl"
+            "type": "custommachinery:id"
         },
         {
             "name": "output",

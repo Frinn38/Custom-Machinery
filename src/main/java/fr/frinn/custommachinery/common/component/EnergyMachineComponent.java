@@ -13,7 +13,7 @@ import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -24,13 +24,15 @@ import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -39,7 +41,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent, IEnergyStorage {
+public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent, EnergyHandler {
 
     private long energy;
     private long clientCapacity;
@@ -49,8 +51,9 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     private final Supplier<Long> maxOutput;
     private final Supplier<Long> minOutput;
     private final IOSideConfig config;
+    private final EnergyComponentSnapshot snapshot;
     private final Map<Direction, SidedEnergyStorage> sidedStorages = Maps.newEnumMap(Direction.class);
-    private final Map<Direction, BlockCapabilityCache<IEnergyStorage, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
+    private final Map<Direction, BlockCapabilityCache<EnergyHandler, Direction>> neighbourStorages = Maps.newEnumMap(Direction.class);
 
     public EnergyMachineComponent(IMachineComponentManager manager, long capacity, long maxInput, long minInput, long maxOutput, long minOutput, IOSideConfig.Template configTemplate) {
         super(manager, ComponentIOMode.BOTH);
@@ -62,6 +65,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         this.minOutput = this.upgradeableL(minOutput, "min_output", 0, Long.MAX_VALUE);
         this.config = configTemplate.build(manager.facing());
         this.config.setCallback(this::configChanged);
+        this.snapshot = new EnergyComponentSnapshot();
         for(Direction side : Direction.values())
             this.sidedStorages.put(side, new SidedEnergyStorage(side, this));
         this.clientCapacity = capacity;
@@ -102,7 +106,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     public void setEnergy(long energy) {
         this.energy = energy;
-        getManager().markDirty();
+        this.getManager().markDirty();
     }
 
     public void configChanged(RelativeSide side, IOSideMode oldMode, IOSideMode newMode) {
@@ -111,7 +115,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     @Nullable
-    public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
+    public EnergyHandler getEnergyHandler(@Nullable Direction side) {
         if(side == null)
             return this;
         if(!this.config.getDirectionMode(side).isNone())
@@ -131,7 +135,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public MachineComponentType<EnergyMachineComponent> getType() {
-        return Registration.ENERGY_MACHINE_COMPONENT.get();
+        return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -141,9 +145,9 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
                 continue;
 
             if(this.neighbourStorages.get(side) == null)
-                this.neighbourStorages.put(side, BlockCapabilityCache.create(EnergyStorage.BLOCK, (ServerLevel)this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
+                this.neighbourStorages.put(side, BlockCapabilityCache.create(Capabilities.Energy.BLOCK, (ServerLevel)this.getManager().getLevel(), this.getManager().getTile().getBlockPos().relative(side), side.getOpposite(), () -> !this.getManager().getTile().isRemoved(), () -> this.neighbourStorages.remove(side)));
 
-            IEnergyStorage neighbour = this.neighbourStorages.get(side).getCapability();
+            EnergyHandler neighbour = this.neighbourStorages.get(side).getCapability();
 
             if(neighbour == null)
                 continue;
@@ -156,34 +160,33 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         }
     }
 
-    private void move(IEnergyStorage from, IEnergyStorage to) {
-        int maxExtracted = from.extractEnergy(Integer.MAX_VALUE, true);
-        if(maxExtracted > 0) {
-            int maxInserted = to.receiveEnergy(maxExtracted, true);
-            int toTransfer = maxInserted;
-            if(maxInserted != maxExtracted) //Check in case 'from' can not accept to extract a lower value like our 'minOutput'.
-                toTransfer = from.extractEnergy(maxInserted, true);
-            if(toTransfer != maxInserted) //Check in case 'to' can not accept to insert a lower value like out 'minInput'.
-                toTransfer = to.receiveEnergy(toTransfer, true);
-            if(toTransfer > 0) {
-                from.extractEnergy(toTransfer, false);
-                to.receiveEnergy(toTransfer, false);
+    private void move(EnergyHandler from, EnergyHandler to) {
+        try(Transaction tx = Transaction.openRoot()) {
+            int maxExtracted = from.extract(Integer.MAX_VALUE, tx);
+            if(maxExtracted > 0) {
+                int maxInserted = to.insert(maxExtracted, tx);
+                int toTransfer = maxInserted;
+                if(maxInserted != maxExtracted) //Check in case 'from' can not accept to extract a lower value like our 'minOutput'.
+                    toTransfer = from.extract(maxInserted, tx);
+                if(toTransfer != maxInserted) //Check in case 'to' can not accept to insert a lower value like out 'minInput'.
+                    toTransfer = to.insert(toTransfer, tx);
+                if(toTransfer > 0) {
+                    tx.commit();
+                }
             }
         }
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt.putLong("energy", this.energy);
-        nbt.put("config", this.config.serialize());
+    public void serialize(ValueOutput output) {
+        output.putLong("energy", this.energy);
+        this.config.serialize(output.child("config"));
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if(nbt.contains("energy", Tag.TAG_LONG))
-            this.energy = Math.min(nbt.getLong("energy"), this.capacity.get());
-        if(nbt.contains("config"))
-            this.config.deserialize(nbt.getCompound("config"));
+    public void deserialize(ValueInput input) {
+        input.getLong("energy").ifPresent(energy -> this.energy = Math.min(energy, this.capacity.get()));
+        input.child("config").ifPresent(this.config::deserialize);
     }
 
     @Override
@@ -200,7 +203,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     @Override
     public void dump(List<String> ids) {
-        setEnergy(0L);
+        this.setEnergy(0L);
     }
 
     /** Recipe Stuff **/
@@ -223,54 +226,62 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         return energyExtracted;
     }
 
-    /** IEnergyStorage Stuff **/
+    /** EnergyHandler Stuff **/
 
     @Override
-    public int receiveEnergy(int toReceive, boolean simulate) {
-        if(this.getMaxInput() <= 0 || toReceive < this.getMinInput())
+    public long getAmountAsLong() {
+        return this.getEnergy();
+    }
+
+    @Override
+    public long getCapacityAsLong() {
+        return this.getCapacity();
+    }
+
+    @Override
+    public int insert(int amount, TransactionContext transaction) {
+        if(this.getMaxInput() <= 0 || amount < this.getMinInput())
             return 0;
 
-        int energyReceived = (int)Math.min(this.getCapacity() - this.getEnergy(), Math.min(this.getMaxInput(), toReceive));
-        if(!simulate && energyReceived > 0) {
-            this.setEnergy(this.getEnergy() + energyReceived);
-            this.getManager().markDirty();
+        int energyReceived = (int)Math.min(this.getCapacity() - this.getEnergy(), Math.min(this.getMaxInput(), amount));
+        if(energyReceived > 0) {
+            this.snapshot.updateSnapshots(transaction);
+            this.energy += energyReceived;
         }
 
         return energyReceived;
     }
 
     @Override
-    public int extractEnergy(int toExtract, boolean simulate) {
-        if(this.getMaxOutput() <= 0 || toExtract < this.getMinOutput())
+    public int extract(int amount, TransactionContext transaction) {
+        if(this.getMaxOutput() <= 0 || amount < this.getMinOutput())
             return 0;
 
-        long energyExtracted = Math.min(this.getEnergy(), Math.min(this.getMaxOutput(), toExtract));
-        if(!simulate && energyExtracted > 0) {
-            this.setEnergy(this.getEnergy() - energyExtracted);
-            this.getManager().markDirty();
+        long energyExtracted = Math.min(this.getEnergy(), Math.min(this.getMaxOutput(), amount));
+        if(energyExtracted > 0) {
+            this.snapshot.updateSnapshots(transaction);
+            this.energy -= energyExtracted;
         }
 
         return (int)energyExtracted;
     }
 
-    @Override
-    public int getEnergyStored() {
-        return (int)this.getEnergy();
-    }
+    private class EnergyComponentSnapshot extends SnapshotJournal<Long> {
 
-    @Override
-    public int getMaxEnergyStored() {
-        return (int)this.getCapacity();
-    }
+        @Override
+        protected Long createSnapshot() {
+            return EnergyMachineComponent.this.energy;
+        }
 
-    @Override
-    public boolean canExtract() {
-        return this.getEnergy() > 0 && this.getMaxOutput() > 0;
-    }
+        @Override
+        protected void revertToSnapshot(Long snapshot) {
+            EnergyMachineComponent.this.energy = snapshot;
+        }
 
-    @Override
-    public boolean canReceive() {
-        return this.getCapacity() - this.getEnergy() > 0 && this.getMaxInput() > 0;
+        @Override
+        protected void onRootCommit(Long originalState) {
+            EnergyMachineComponent.this.getManager().markDirty();
+        }
     }
 
     public record Template(
@@ -297,7 +308,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         @Override
         public MachineComponentType<EnergyMachineComponent> getType() {
-            return Registration.ENERGY_MACHINE_COMPONENT.get();
+            return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
         }
 
         @Override

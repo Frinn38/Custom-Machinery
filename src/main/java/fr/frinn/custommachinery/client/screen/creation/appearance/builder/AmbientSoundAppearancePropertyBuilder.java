@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.FloatSlider;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.client.screen.widget.SoundEditBox;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.sound.AmbientSound;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -19,7 +19,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 
@@ -36,7 +36,7 @@ public class AmbientSoundAppearancePropertyBuilder implements IAppearancePropert
 
     @Override
     public MachineAppearanceProperty<AmbientSound> type() {
-        return Registration.AMBIENT_SOUND_PROPERTY.get();
+        return CMRegistration.AMBIENT_SOUND_PROPERTY.get();
     }
 
     @Override
@@ -82,8 +82,8 @@ public class AmbientSoundAppearancePropertyBuilder implements IAppearancePropert
             //Sound
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.appearance.ambient_sound.sound"), this.font), title);
             this.sound = row.addChild(new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.ambient_sound.sound")), 2, right);
-            if(!this.supplier.get().sound().getLocation().getPath().isEmpty())
-                this.sound.setValue(this.supplier.get().sound().getLocation().toString());
+            if(!this.supplier.get().sound().location().getPath().isEmpty())
+                this.sound.setValue(this.supplier.get().sound().location().toString());
 
             //Volume
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.volume"), this.font), title);
@@ -95,7 +95,7 @@ public class AmbientSoundAppearancePropertyBuilder implements IAppearancePropert
 
             //Source
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.appearance.ambient_sound.source"), this.font), title);
-            this.source = row.addChild(CycleButton.<SoundSource>builder(source -> Component.translatable("soundCategory." + source.getName())).displayOnlyValue().withValues(SoundSource.values()).withInitialValue(this.supplier.get().source()).create(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.ambient_sound.source")), 2, right);
+            this.source = row.addChild(CycleButton.<SoundSource>builder(source -> Component.translatable("soundCategory." + source.getName()), this.supplier.get().source()).displayOnlyValue().withValues(SoundSource.values()).create(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.ambient_sound.source")), 2, right);
 
             //Loop
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.appearance.ambient_sound.loop"), this.font), title);
@@ -121,8 +121,8 @@ public class AmbientSoundAppearancePropertyBuilder implements IAppearancePropert
 
         @Override
         public void closed() {
-            ResourceLocation soundLoc = ResourceLocation.tryParse(this.sound.getValue());
-            SoundEvent event = SoundEvent.createVariableRangeEvent(Objects.requireNonNullElseGet(soundLoc, () -> ResourceLocation.withDefaultNamespace("")));
+            Identifier soundLoc = Identifier.tryParse(this.sound.getValue());
+            SoundEvent event = SoundEvent.createVariableRangeEvent(Objects.requireNonNullElseGet(soundLoc, () -> Identifier.withDefaultNamespace("")));
             this.consumer.accept(new AmbientSound(event, this.volume.floatValue(), this.pitch.floatValue(), this.source.getValue(), this.loop.selected(), this.attenuation.selected(), this.delay.intValue(), this.relative.selected()));
         }
     }

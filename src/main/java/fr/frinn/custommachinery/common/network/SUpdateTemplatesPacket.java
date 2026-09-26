@@ -13,27 +13,27 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public record SUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, Component>> templates) implements CustomPacketPayload {
+public record SUpdateTemplatesPacket(Map<Identifier, Pair<CustomMachine, Component>> templates) implements CustomPacketPayload {
 
     public static final Type<SUpdateTemplatesPacket> TYPE = new Type<>(CustomMachinery.rl("update_templates"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SUpdateTemplatesPacket> CODEC = new StreamCodec<>() {
         @Override
         public SUpdateTemplatesPacket decode(RegistryFriendlyByteBuf buf) {
-            Map<ResourceLocation, Pair<CustomMachine, Component>> map = new HashMap<>();
+            Map<Identifier, Pair<CustomMachine, Component>> map = new HashMap<>();
             int size = buf.readInt();
             for(int i = 0; i < size; i++) {
                 try {
                     MachineLocation location = MachineLocation.CODEC.fromNetwork(buf);
                     CustomMachine machine;
                     if(buf.readBoolean()) {
-                        ResourceLocation parent = buf.readResourceLocation();
+                        Identifier parent = buf.readIdentifier();
                         machine = UpgradedCustomMachine.makeCodec(map.get(parent).getFirst()).fromNetwork(buf);
                     } else {
                         machine = CustomMachine.CODEC.fromNetwork(buf);
@@ -60,7 +60,7 @@ public record SUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, C
                             MachineLocation.CODEC.toNetwork(machine.getLocation(), buf);
                             if(machine instanceof UpgradedCustomMachine upgradedMachine) {
                                 buf.writeBoolean(true);
-                                buf.writeResourceLocation(upgradedMachine.getParentId());
+                                buf.writeIdentifier(upgradedMachine.getParentId());
                                 UpgradedCustomMachine.makeCodec(packet.templates.get(upgradedMachine.getParentId()).getFirst()).toNetwork(upgradedMachine, buf);
                                 TextComponentUtils.CODEC.toNetwork(packet.templates.get(machine.getId()).getSecond(), buf);
                             } else {

@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -86,21 +86,18 @@ public class IOSideConfig extends SideConfig<IOSideMode> {
     }
 
     @Override
-    public CompoundTag serialize() {
-        CompoundTag nbt = new CompoundTag();
-        this.sides.forEach((side, mode) -> nbt.put(side.name(), ByteTag.valueOf((byte)mode.ordinal())));
-        nbt.putBoolean("input", this.autoInput);
-        nbt.putBoolean("output", this.autoOutput);
-        return nbt;
+    public void serialize(ValueOutput output) {
+        this.sides.forEach((side, mode) -> output.putByte(side.name(), (byte)mode.ordinal()));
+        output.putBoolean("input", this.autoInput);
+        output.putBoolean("output", this.autoOutput);
     }
 
     @Override
-    public void deserialize(CompoundTag nbt) {
+    public void deserialize(ValueInput input) {
         for(RelativeSide side : RelativeSide.values())
-            if(nbt.get(side.name()) instanceof ByteTag byteTag)
-                this.sides.put(side, IOSideMode.values()[byteTag.getAsInt()]);
-        this.autoInput = nbt.getBoolean("input");
-        this.autoOutput = nbt.getBoolean("output");
+            input.getInt(side.name()).ifPresent(index -> this.sides.put(side, IOSideMode.values()[index]));
+        this.autoInput = input.getBooleanOr("input", this.autoInput);
+        this.autoOutput = input.getBooleanOr("output", this.autoOutput);
         this.refreshAutoIO();
     }
 

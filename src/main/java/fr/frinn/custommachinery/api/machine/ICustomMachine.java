@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.api.machine;
 import fr.frinn.custommachinery.api.crafting.IProcessorTemplate;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -17,13 +17,13 @@ public interface ICustomMachine {
     /**
      * @return The id of the machine. Path of the id will be the path of the machine JSON file in the datapack.
      */
-    ResourceLocation getId();
+    Identifier getId();
 
     /**
      * @return The recipe ids supported by this machine.
      * Normal machines just return their id but upgraded machines return both their id and their parent machine id.
      */
-    List<ResourceLocation> getRecipeIds();
+    List<Identifier> getRecipeIds();
 
     /**
      * @return true if the machine is DUMMY, usually indicate that something went wrong, or a machine was not found.

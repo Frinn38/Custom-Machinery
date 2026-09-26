@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.network.CAddUpgradePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -19,10 +19,10 @@ import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -39,12 +39,12 @@ public class CreateUpgradePopup extends PopupScreen {
     }
 
     public void create() {
-        PacketDistributor.sendToServer(new CAddUpgradePacket(this.id.getValue(), this.item.getItem(), this.loader.getValue() == MachineLocation.Loader.KUBEJS));
+        ClientPacketDistributor.sendToServer(new CAddUpgradePacket(this.id.getValue(), this.item.getItem(), this.loader.getValue() == MachineLocation.Loader.KUBEJS));
         this.parent.closePopup(this);
         if(this.loader.getValue() == MachineLocation.Loader.DEFAULT)
             this.parent.openPopup(new InfoPopup(this.parent, 144, 96).text(Component.translatable("custommachinery.gui.creation.upgrade.popup.success.description")));
         else if(this.loader.getValue() == MachineLocation.Loader.KUBEJS)
-            Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(TutorialToast.Icons.MOUSE, Component.translatable("custommachinery.gui.creation.upgrade.popup.success"), null, false), 50);
+            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, TutorialToast.Icons.MOUSE, Component.translatable("custommachinery.gui.creation.upgrade.popup.success"), null, false, 50));
     }
 
     @Override
@@ -61,9 +61,9 @@ public class CreateUpgradePopup extends PopupScreen {
         this.id = row.addChild(new EditBox(this.font, this.x + 10, this.y + 20, this.xSize - 20, 20, Component.literal("upgrade_id")), 2, center);
         this.id.setFilter(s -> {
             if(s.contains(":"))
-                return ResourceLocation.tryParse(s) != null;
+                return Identifier.tryParse(s) != null;
             for(char c : s.toCharArray())
-                if(!ResourceLocation.validPathChar(c))
+                if(!Identifier.validPathChar(c))
                     return false;
             return true;
         });
@@ -74,9 +74,9 @@ public class CreateUpgradePopup extends PopupScreen {
         this.item = row.addChild(new ItemSelectionButton(this.parent, 0, 0, 20, 20), 2, center);
 
         //Loader
-        CycleButton.Builder<MachineLocation.Loader> builder = CycleButton.builder(MachineLocation.Loader::getTranslatedName).withValues(MachineLocation.Loader.DEFAULT).withInitialValue(MachineLocation.Loader.DEFAULT).displayOnlyValue();
+        CycleButton.Builder<MachineLocation.Loader> builder = CycleButton.builder(MachineLocation.Loader::getTranslatedName, MachineLocation.Loader.DEFAULT).withValues(MachineLocation.Loader.DEFAULT).displayOnlyValue();
         if(ModList.get().isLoaded("kubejs"))
-            builder.withValues(MachineLocation.Loader.DEFAULT, MachineLocation.Loader.KUBEJS).withInitialValue(MachineLocation.Loader.KUBEJS);
+            builder = CycleButton.builder(MachineLocation.Loader::getTranslatedName, MachineLocation.Loader.KUBEJS).withValues(MachineLocation.Loader.DEFAULT, MachineLocation.Loader.KUBEJS);
         builder.withTooltip(loader -> Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.create.loader." + loader.name().toLowerCase(Locale.ROOT))));
         this.loader = row.addChild(builder.create(0, 0, this.xSize - 20, 20, Component.empty()), 2, center);
 
@@ -84,7 +84,7 @@ public class CreateUpgradePopup extends PopupScreen {
         this.create = row.addChild(Button.builder(Component.translatable("custommachinery.gui.creation.create").withStyle(ChatFormatting.GREEN), button -> this.create()).bounds(0, 0, 50, 20).build(), center);
 
         //Cancel
-        Button cancel = row.addChild(Button.builder(Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.DARK_RED), button -> this.parent.closePopup(this)).bounds(0, 0, 50, 20).build(), center);
+        row.addChild(Button.builder(Component.translatable("custommachinery.gui.popup.cancel").withStyle(ChatFormatting.DARK_RED), button -> this.parent.closePopup(this)).bounds(0, 0, 50, 20).build(), center);
 
         layout.arrangeElements();
         layout.visitWidgets(this::addRenderableWidget);
@@ -95,7 +95,7 @@ public class CreateUpgradePopup extends PopupScreen {
     public Component canCreate() {
         if(this.id.getValue().isEmpty())
             return Component.translatable("custommachinery.gui.creation.popup.error.id");
-        ResourceLocation id = this.id.getValue().contains(":") ? ResourceLocation.tryParse(this.id.getValue()) : CustomMachinery.rl(this.id.getValue());
+        Identifier id = this.id.getValue().contains(":") ? Identifier.tryParse(this.id.getValue()) : CustomMachinery.rl(this.id.getValue());
         if(id == null)
             return Component.translatable("custommachinery.gui.creation.popup.error.invalid");
         if(CustomMachinery.UPGRADES.getAllUpgrades().keySet().stream().anyMatch(loc -> loc.id().equals(id)))
@@ -106,8 +106,8 @@ public class CreateUpgradePopup extends PopupScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         Component error = this.canCreate();
         this.create.active = error == null;
         this.create.setTooltip(error == null ? null : Tooltip.create(error));

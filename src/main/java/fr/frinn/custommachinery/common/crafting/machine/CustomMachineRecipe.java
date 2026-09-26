@@ -1,17 +1,23 @@
 package fr.frinn.custommachinery.common.crafting.machine;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.MapCodec;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.Comparators;
-import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -24,7 +30,10 @@ import java.util.List;
 
 public class CustomMachineRecipe implements IMachineRecipe {
 
-    private final ResourceLocation machine;
+    public static final MapCodec<CustomMachineRecipe> CODEC = CustomMachineRecipeBuilder.CODEC.mapCodec().xmap(CustomMachineRecipeBuilder::build, CustomMachineRecipeBuilder::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CustomMachineRecipe> STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
+
+    private final Identifier machine;
     private final int time;
     private final List<RecipeRequirement<?, ?>> requirements;
     private final List<RecipeRequirement<?, ?>> jeiRequirements;
@@ -43,7 +52,7 @@ public class CustomMachineRecipe implements IMachineRecipe {
     @Nullable
     private List<IGuiElement> customGuiElements;
 
-    public CustomMachineRecipe(ResourceLocation machine, int time, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance, List<IGuiElement> guiElements, List<Integer> allowedCores, boolean singleCore) {
+    public CustomMachineRecipe(Identifier machine, int time, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean resetOnError, boolean hidden, @Nullable MachineAppearance appearance, List<IGuiElement> guiElements, List<Integer> allowedCores, boolean singleCore) {
         this.machine = machine;
         this.time = time;
         this.requirements = requirements.stream().sorted(Comparators.REQUIREMENT_COMPARATOR).toList();
@@ -59,7 +68,7 @@ public class CustomMachineRecipe implements IMachineRecipe {
     }
 
     @Override
-    public ResourceLocation getMachineId() {
+    public Identifier getMachineId() {
         return this.machine;
     }
 
@@ -113,7 +122,7 @@ public class CustomMachineRecipe implements IMachineRecipe {
 
         ImmutableMap.Builder<MachineAppearanceProperty<?>, Object> properties = ImmutableMap.builder();
 
-        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY) {
+        for(MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY) {
             Object value = this.appearance.getProperty(property);
             if(property.getDefaultValue().equals(value))
                 properties.put(property, baseAppearance.getProperty(property));
@@ -163,18 +172,23 @@ public class CustomMachineRecipe implements IMachineRecipe {
     /** Vanilla Recipe Implementation **/
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return Registration.CUSTOM_MACHINE_RECIPE_SERIALIZER.get();
+    public RecipeSerializer<CustomMachineRecipe> getSerializer() {
+        return CMRegistration.CUSTOM_MACHINE_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return Registration.CUSTOM_MACHINE_RECIPE.get();
+    public RecipeType<CustomMachineRecipe> getType() {
+        return CMRegistration.CUSTOM_MACHINE_RECIPE.get();
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return false;
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override
@@ -183,12 +197,17 @@ public class CustomMachineRecipe implements IMachineRecipe {
     }
 
     @Override
-    public ItemStack assemble(RecipeInput p_345149_, Provider p_346030_) {
+    public ItemStack assemble(RecipeInput recipeInput) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack getResultItem(Provider pRegistries) {
-        return ItemStack.EMPTY;
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "";
     }
 }

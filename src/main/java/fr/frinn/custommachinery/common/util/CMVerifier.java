@@ -10,11 +10,11 @@ import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import org.apache.logging.log4j.Level;
@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class CMVerifier {
 
         //Machine recipes
         builder.pushCategory("Recipes");
-        List<RecipeHolder<CustomMachineRecipe>> machineRecipes = manager.getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get());
+        Collection<RecipeHolder<CustomMachineRecipe>> machineRecipes = manager.recipeMap().byType(CMRegistration.CUSTOM_MACHINE_RECIPE.get());
         builder.info("Found {} custom machine recipes", machineRecipes.size());
         machineRecipes.forEach(holder -> {
             builder.pushCategory(holder.id().toString());
@@ -67,7 +68,7 @@ public class CMVerifier {
         });
 
         //Craft recipes
-        List<RecipeHolder<CustomCraftRecipe>> craftRecipes = manager.getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get());
+        Collection<RecipeHolder<CustomCraftRecipe>> craftRecipes = manager.recipeMap().byType(CMRegistration.CUSTOM_CRAFT_RECIPE.get());
         builder.info("Found {} custom craft recipes", craftRecipes.size());
         craftRecipes.forEach(holder -> {
             builder.pushCategory(holder.id().toString());
@@ -97,24 +98,24 @@ public class CMVerifier {
         for(IGuiElement element : machine.getGuiElements()) {
             if(element instanceof SlotGuiElement slotGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template instanceof ItemMachineComponent.Template && template.getId().equals(slotGuiElement.getComponentId())))
                 builder.error("Slot gui element of id '{}' doesn't have an associated machine component", slotGuiElement.getComponentId());
-            if(element.getType() != Registration.SLOT_GUI_ELEMENT.get() && element instanceof IComponentGuiElement<?> componentGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == componentGuiElement.getComponentType() && template.getId().equals(componentGuiElement.getComponentId())))
+            if(element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get() && element instanceof IComponentGuiElement<?> componentGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == componentGuiElement.getComponentType() && template.getId().equals(componentGuiElement.getComponentId())))
                 builder.error("Gui element of type {} and id '{}' doesn't have an associated machine component", componentGuiElement.getComponentType().getId().toString(), componentGuiElement.getComponentId());
         }
 
         //Checking presence of result item component
-        boolean crafter = machine.getProcessorTemplate().getType() == Registration.CRAFT_PROCESSOR.get();
+        boolean crafter = machine.getProcessorTemplate().getType() == CMRegistration.CRAFT_PROCESSOR.get();
         for(IMachineComponentTemplate<?> template : machine.getComponentTemplates())
-            if(template.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get() && !crafter)
+            if(template.getType() == CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get() && !crafter)
                 builder.error("Found item component of type {} with id '{}' but machine isn't using craft processor !\n" +
-                        "Result item components should only be used for machines with craft processor, consider using item component type {} instead.", template.getType().getId().toString(), template.getId(), Registration.ITEM_MACHINE_COMPONENT.get().getId().toString());
-        if(crafter && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()))
+                        "Result item components should only be used for machines with craft processor, consider using item component type {} instead.", template.getType().getId().toString(), template.getId(), CMRegistration.ITEM_MACHINE_COMPONENT.get().getId().toString());
+        if(crafter && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get()))
             builder.error("No result item machine component found but machine is using craft processor !\n" +
-                    "At least 1 item component of type {} is required for the craft processor to work correctly.", Registration.ITEM_RESULT_MACHINE_COMPONENT.get().getId().toString());
+                    "At least 1 item component of type {} is required for the craft processor to work correctly.", CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get().getId().toString());
     }
 
     private static void verifyUpgrade(ResultBuilder builder, MachineUpgrade upgrade) {
         //Check that machine exists
-        for(ResourceLocation id : upgrade.machines())
+        for(Identifier id : upgrade.machines())
             if(!CustomMachinery.MACHINES.containsKey(id))
                 builder.error("Unknown machine id {} specified for this upgrade", id.toString());
 
@@ -132,7 +133,7 @@ public class CMVerifier {
         }
 
         //Check that the machine has the correct processor
-        if(machine.getProcessorTemplate().getType() != Registration.MACHINE_PROCESSOR.get())
+        if(machine.getProcessorTemplate().getType() != CMRegistration.MACHINE_PROCESSOR.get())
             builder.error("Recipe can't be processed by machine {} as it doesn't use machine processor");
 
         //Check that the recipe has requirements
@@ -154,7 +155,7 @@ public class CMVerifier {
         }
 
         //Check that the machine has the correct processor
-        if(machine.getProcessorTemplate().getType() != Registration.CRAFT_PROCESSOR.get()) {
+        if(machine.getProcessorTemplate().getType() != CMRegistration.CRAFT_PROCESSOR.get()) {
             builder.error("Recipe can't be processed by machine {} as it doesn't use craft processor");
         }
 
@@ -196,7 +197,7 @@ public class CMVerifier {
         }
 
         public void popCategory() {
-            if(this.category == null || this.category.getParents() == null)
+            if(this.category.getParents() == null)
                 throw new IllegalStateException("Popping too much !");
             this.category = this.category.getParents()[0];
         }

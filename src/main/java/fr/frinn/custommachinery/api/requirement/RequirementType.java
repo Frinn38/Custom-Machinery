@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Used for registering custom {@link RequirementType}.
@@ -72,8 +72,8 @@ public class RequirementType<T extends IRequirement<?>> {
         return isWorldRequirement;
     }
 
-    public ResourceLocation getId() {
-        ResourceLocation id = ICustomMachineryAPI.INSTANCE.requirementRegistrar().getKey(this);
+    public Identifier getId() {
+        Identifier id = ICustomMachineryAPI.INSTANCE.requirementRegistrar().getKey(this);
         if(id == null)
             throw new IllegalStateException("Trying to get id for an unregistered processor type");
         return id;

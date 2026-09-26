@@ -9,9 +9,9 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +22,7 @@ public class ChunkloadComponentBuilder implements IMachineComponentBuilder<Chunk
 
     @Override
     public MachineComponentType<ChunkloadMachineComponent> type() {
-        return Registration.CHUNKLOAD_MACHINE_COMPONENT.get();
+        return CMRegistration.CHUNKLOAD_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -31,9 +31,9 @@ public class ChunkloadComponentBuilder implements IMachineComponentBuilder<Chunk
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, int width, int height, Template template) {
-        graphics.renderFakeItem(Items.ENDER_EYE.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.drawString(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+    public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Template template) {
+        graphics.item(Items.ENDER_EYE.getDefaultInstance(), x, y + height / 2 - 8);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
     }
 
     public static class ChunkloadComponentBuilderPopup extends ComponentBuilderPopup<Template> {

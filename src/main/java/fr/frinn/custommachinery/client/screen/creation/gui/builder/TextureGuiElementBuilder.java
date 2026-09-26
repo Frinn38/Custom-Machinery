@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.common.guielement.TextureGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.StringWidget;
@@ -24,7 +24,7 @@ public class TextureGuiElementBuilder implements IGuiElementBuilder<TextureGuiEl
 
     @Override
     public GuiElementType<TextureGuiElement> type() {
-        return Registration.TEXTURE_GUI_ELEMENT.get();
+        return CMRegistration.TEXTURE_GUI_ELEMENT.get();
     }
 
     @Override

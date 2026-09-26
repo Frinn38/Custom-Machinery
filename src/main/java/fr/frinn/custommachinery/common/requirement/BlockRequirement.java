@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.common.component.BlockMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.ComparatorMode;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
@@ -45,12 +45,12 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
 
     @Override
     public RequirementType<?> getType() {
-        return Registration.BLOCK_REQUIREMENT.get();
+        return CMRegistration.BLOCK_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<BlockMachineComponent> getComponentType() {
-        return Registration.BLOCK_MACHINE_COMPONENT.get();
+        return CMRegistration.BLOCK_MACHINE_COMPONENT.get();
     }
 
     @Override

@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.api.guielement;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +22,7 @@ public interface IGuiElement {
     /**
      * A dispatch codec, used to create all {@link IGuiElement} from the machine JSON.
      */
-    NamedCodec<IGuiElement> CODEC = RegistrarCodec.GUI_ELEMENT.dispatch(
+    NamedCodec<IGuiElement> CODEC = RegistryCodecs.GUI_ELEMENT.dispatch(
             IGuiElement::getType,
             GuiElementType::getCodec,
             "Gui Element"

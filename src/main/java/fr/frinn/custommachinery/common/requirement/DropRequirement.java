@@ -11,29 +11,27 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.crafting.CraftingHelper;
 
-import java.util.Arrays;
 import java.util.Locale;
 
-@SuppressWarnings("UnstableApiUsage")
 public record DropRequirement(RequirementIOMode mode, Action action, Ingredient input, boolean whitelist, Item output, int amount, int radius) implements IRequirement<DropMachineComponent> {
 
     public static final NamedCodec<DropRequirement> CODEC = NamedCodec.record(dropRequirementInstance ->
             dropRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
                     Action.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
-                    NamedCodec.of(CraftingHelper.makeIngredientCodec(true)).optionalFieldOf("input", Ingredient.EMPTY).forGetter(requirement -> requirement.input),
+                    DefaultCodecs.INGREDIENT.optionalFieldOf("input", Ingredient.of(Items.AIR)).forGetter(requirement -> requirement.input),
                     NamedCodec.BOOL.optionalFieldOf("whitelist", true).forGetter(requirement -> requirement.whitelist),
-                    RegistrarCodec.ITEM.optionalFieldOf("output", Items.AIR).forGetter(requirement -> requirement.output),
+                    RegistryCodecs.ITEM.optionalFieldOf("output", Items.AIR).forGetter(requirement -> requirement.output),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("radius", 1).forGetter(requirement -> requirement.radius)
             ).apply(dropRequirementInstance, DropRequirement::new), "Drop requirement"
@@ -55,12 +53,12 @@ public record DropRequirement(RequirementIOMode mode, Action action, Ingredient 
 
     @Override
     public RequirementType<DropRequirement> getType() {
-        return Registration.DROP_REQUIREMENT.get();
+        return CMRegistration.DROP_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<DropMachineComponent> getComponentType() {
-        return Registration.DROP_MACHINE_COMPONENT.get();
+        return CMRegistration.DROP_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -109,7 +107,7 @@ public record DropRequirement(RequirementIOMode mode, Action action, Ingredient 
                 ItemStack stack = new ItemStack(this.output, amount);
                 if(component.produceItem(stack))
                     return CraftingResult.success();
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.output", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId(stack)))));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.drop.error.output", Component.literal(amount + "x").append(Component.translatable(this.output.getDescriptionId()))));
             }
             default -> {
                 return CraftingResult.pass();
@@ -123,13 +121,13 @@ public record DropRequirement(RequirementIOMode mode, Action action, Ingredient 
             case CHECK -> {
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.check", this.amount, this.radius));
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                Arrays.stream(this.input.getItems()).forEach(ingredient -> info.addTooltip(ingredient.getDisplayName()));
+                this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
                 info.setItemIcon(Items.OAK_PRESSURE_PLATE);
             }
             case CONSUME -> {
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                Arrays.stream(this.input.getItems()).forEach(ingredient -> info.addTooltip(ingredient.getDisplayName()));
+                this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
                 info.setItemIcon(Items.HOPPER);
             }
             case PRODUCE -> {

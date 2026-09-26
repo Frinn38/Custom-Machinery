@@ -4,8 +4,8 @@ import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Used for registering custom gui elements.
@@ -55,8 +55,8 @@ public class GuiElementType<T extends IGuiElement> {
      * A helper method to get the ID of this {@link GuiElementType}.
      * @return The ID of this {@link GuiElementType}, or null if it is not registered.
      */
-    public ResourceLocation getId() {
-        ResourceLocation id = ICustomMachineryAPI.INSTANCE.guiElementRegistrar().getKey(this);
+    public Identifier getId() {
+        Identifier id = ICustomMachineryAPI.INSTANCE.guiElementRegistrar().getKey(this);
         if(id == null)
             throw new IllegalStateException("Trying to get id for an unregistered processor type");
         return id;

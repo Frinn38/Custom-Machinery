@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
@@ -58,7 +58,7 @@ public record BlockIngredient(boolean not, @Nullable PartialBlockState state, @N
 
         if (reader.peek() == '#') {
             reader.skip();
-            TagKey<Block> tag = TagKey.create(Registries.BLOCK, ResourceLocation.read(reader));
+            TagKey<Block> tag = TagKey.create(Registries.BLOCK, Identifier.read(reader));
             return new BlockIngredient(not, null, tag);
         }
 
@@ -115,7 +115,7 @@ public record BlockIngredient(boolean not, @Nullable PartialBlockState state, @N
             return List.of(this.state);
 
         if(this.tag != null)
-            return BuiltInRegistries.BLOCK.getTag(this.tag).map(named -> named.stream().map(holder -> new PartialBlockState(holder.value())).toList()).orElse(Collections.emptyList());
+            return BuiltInRegistries.BLOCK.get(this.tag).map(named -> named.stream().map(holder -> new PartialBlockState(holder.value())).toList()).orElse(Collections.emptyList());
 
         return Collections.emptyList();
     }

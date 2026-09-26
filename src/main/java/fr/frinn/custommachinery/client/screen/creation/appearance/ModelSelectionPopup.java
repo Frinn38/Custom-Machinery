@@ -8,28 +8,25 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.client.ChunkRenderTypeSet;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
@@ -66,13 +63,13 @@ public class ModelSelectionPopup extends PopupScreen {
         List<String> possibleSuggestions = new ArrayList<>();
 
         if(this.blocks.selected())
-            possibleSuggestions.addAll(BuiltInRegistries.BLOCK.keySet().stream().map(ResourceLocation::toString).toList());
+            possibleSuggestions.addAll(BuiltInRegistries.BLOCK.keySet().stream().map(Identifier::toString).toList());
 
         if(this.items.selected())
-            possibleSuggestions.addAll(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
+            possibleSuggestions.addAll(BuiltInRegistries.ITEM.keySet().stream().map(Identifier::toString).toList());
 
         if(this.models.selected())
-            possibleSuggestions.addAll(ClientHandler.getAllModels().keySet().stream().map(ModelResourceLocation::toString).toList());
+            possibleSuggestions.addAll(ClientHandler.getAllModels().blockStateModels().keySet().stream().map(BlockState::toString).toList());
 
         this.box.addSuggestions(possibleSuggestions);
         this.sortList(possibleSuggestions);
@@ -123,28 +120,29 @@ public class ModelSelectionPopup extends PopupScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, 100);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+        graphics.pose().pushMatrix();
+        graphics.nextStratum();
         renderModel(graphics, this.x + this.xSize / 2F - 8, this.y + 20, this.supplier.get(), 32F);
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
-    public static void renderModel(GuiGraphics graphics, float x, float y, MachineModelLocation loc, float scale) {
+    public static void renderModel(GuiGraphicsExtractor graphics, float x, float y, MachineModelLocation loc, float scale) {
         if(loc.getItem() != null && loc.getItem() != Items.AIR) {
-            graphics.pose().pushPose();
-            graphics.pose().translate(x - 8, y - 8, -200);
-            graphics.renderFakeItem(loc.getItem().getDefaultInstance(), 0, 0);
-            graphics.pose().popPose();
+            graphics.pose().pushMatrix();
+            graphics.pose().translation(x - 8, y - 8);
+            graphics.item(loc.getItem().getDefaultInstance(), 0, 0);
+            graphics.pose().popMatrix();
             return;
         }
 
-        BakedModel model = Minecraft.getInstance().getModelManager().getMissingModel();
+        /*
+        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().missingModel();
         if(loc.getState() != null)
-            model = Minecraft.getInstance().getBlockRenderer().getBlockModel(loc.getState());
+            model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(loc.getState());
         else if(loc.getItem() != null)
-            model = Minecraft.getInstance().getItemRenderer().getModel(loc.getItem().getDefaultInstance(), Minecraft.getInstance().level, Minecraft.getInstance().player, 42);
+            model = Minecraft.getInstance().getModelManager().getItemModel(BuiltInRegistries.ITEM.getKey(loc.getItem()));
         else if(loc.getLoc() != null && loc.getProperties() != null)
             model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(loc.getLoc(), loc.getProperties()));
         else if(loc.getLoc() != null)
@@ -152,8 +150,8 @@ public class ModelSelectionPopup extends PopupScreen {
 
         ChunkRenderTypeSet renderTypes = ChunkRenderTypeSet.all();
 
-        graphics.pose().pushPose();
-        graphics.pose().translate(x, y, 0);
+        graphics.pose().pushMatrix();
+        graphics.pose().translation(x, y, 0);
         graphics.pose().scale(scale, scale, scale);
         model.applyTransform(ItemDisplayContext.GUI, graphics.pose(), false);
         if(loc.getState() != null) {
@@ -162,12 +160,14 @@ public class ModelSelectionPopup extends PopupScreen {
             renderTypes = model.getRenderTypes(loc.getState(), RandomSource.create(42L), ModelData.EMPTY);
             Lighting.setupFor3DItems();
         }
-        graphics.pose().translate(-0.5F, -0.5F, -0.5);
+        graphics.pose().translation(-0.5F, -0.5F, -0.5);
         for(RenderType renderType : renderTypes)
             Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(graphics.pose().last(), graphics.bufferSource().getBuffer(renderType), loc.getState(), model, 1, 1, 1, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
         if(loc.getState() != null)
             Lighting.setupForFlatItems();
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
+
+         */
     }
 
     public static class ModelSelectionList extends AbstractWidget {
@@ -237,28 +237,28 @@ public class ModelSelectionPopup extends PopupScreen {
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             graphics.enableScissor(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight());
-            graphics.pose().pushPose();
-            graphics.pose().translate(this.getX(), this.getY(), 0);
+            graphics.pose().pushMatrix();
+            graphics.pose().translation(this.getX(), this.getY());
             for(int i = 0; i < this.list.size(); i++) {
                 int x = (i % this.maxColumns) * 20;
                 int y = i / this.maxColumns * 20 - (int)this.getScrollAmount();
-                graphics.pose().pushPose();
-                graphics.pose().translate(x, y, 0);
+                graphics.pose().pushMatrix();
+                graphics.pose().translation(x, y);
 
                 MachineModelLocation loc = this.list.get(i);
 
                 if(this.selected == loc)
-                    graphics.fill(0, 0, 20, 20, FastColor.ARGB32.color(255, 255, 0, 0));
+                    graphics.fill(0, 0, 20, 20, ARGB.color(255, 255, 0, 0));
 
-                graphics.pose().translate(0, 0, 100);
+                graphics.nextStratum();
 
                 renderModel(graphics, 10, 10, loc, 16F);
 
-                graphics.pose().popPose();
+                graphics.pose().popMatrix();
             }
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
 
             if(this.getMaxScroll() > 0) {
                 int i = this.getX() + this.getWidth() - 10;
@@ -278,7 +278,7 @@ public class ModelSelectionPopup extends PopupScreen {
 
             MachineModelLocation hovered = this.getElementUnderMouse(mouseX, mouseY);
             if(hovered != null)
-                graphics.renderTooltip(Minecraft.getInstance().font, Component.literal(hovered.toString()), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(Minecraft.getInstance().font, Component.literal(hovered.toString()), mouseX, mouseY);
         }
 
         @Override
@@ -287,26 +287,26 @@ public class ModelSelectionPopup extends PopupScreen {
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            this.updateScrollingState(mouseX, mouseY, button);
-            MachineModelLocation selected = this.getElementUnderMouse(mouseX, mouseY);
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            this.updateScrollingState(event.x(), event.y(), event.button());
+            MachineModelLocation selected = this.getElementUnderMouse(event.x(), event.y());
             if(selected != null) {
                 this.selected = selected;
                 this.responder.accept(selected);
                 return true;
             }
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(event, doubleClick);
         }
 
         @Override
-        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-            if(super.mouseDragged(mouseX, mouseY, button, dragX, dragY))
+        public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+            if(super.mouseDragged(event, dragX, dragY))
                 return true;
-            if (button != 0 || !this.scrolling)
+            if(event.button() != 0 || !this.scrolling)
                 return false;
-            if (mouseY < this.getY()) {
+            if(event.y() < this.getY()) {
                 this.setScrollAmount(0.0);
-            } else if (mouseY > this.getY() + this.getHeight()) {
+            } else if(event.y() > this.getY() + this.getHeight()) {
                 this.setScrollAmount(this.getMaxScroll());
             } else {
                 double d = Math.max(1, this.getMaxScroll());

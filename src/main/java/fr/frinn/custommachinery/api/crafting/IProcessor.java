@@ -1,7 +1,8 @@
 package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Base interface for a crafting processor.
@@ -42,13 +43,13 @@ public interface IProcessor {
 
     /**
      * Will be called when the {@link MachineTile} is written to disk, when the world is saved.
-     * @return A {@link CompoundTag} holding all the data relative to this processor, like the current recipe, error message, progress...
+     * @param output A {@link ValueOutput} holding all the data relative to this processor, like the current recipe, error message, progress...
      */
-    CompoundTag serialize();
+    void serialize(ValueOutput output);
 
     /**
      * Will be called when the {@link MachineTile} is read from disk, when the world is loaded.
-     * @param nbt A {@link CompoundTag} holding all the data relative to this processor, like the current recipe, error message, progress...
+     * @param input A {@link ValueInput} holding all the data relative to this processor, like the current recipe, error message, progress...
      */
-    void deserialize(CompoundTag nbt);
+    void deserialize(ValueInput input);
 }

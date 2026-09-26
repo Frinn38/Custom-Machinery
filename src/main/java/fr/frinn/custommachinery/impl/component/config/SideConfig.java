@@ -9,12 +9,14 @@ import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
 import org.apache.logging.log4j.util.TriConsumer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -31,6 +33,7 @@ public abstract class SideConfig<M extends SideMode> {
     private final Color color;
     //Data used to display the config gui
     private final ConfigGuiData guiData;
+    @Nullable
     private TriConsumer<RelativeSide, M, M> callback;
 
     public SideConfig(Direction facing, Map<RelativeSide, M> defaultConfig, boolean enabled, Color color, ConfigGuiData guiData) {
@@ -55,6 +58,8 @@ public abstract class SideConfig<M extends SideMode> {
 
     public void setSideMode(RelativeSide side, M mode) {
         M oldMode = this.sides.put(side, mode);
+        if(oldMode == null)
+            throw new IllegalStateException("Side mode was null for side: " + side.name());
         if(this.callback != null)
             this.callback.accept(side, oldMode, mode);
     }
@@ -86,9 +91,9 @@ public abstract class SideConfig<M extends SideMode> {
 
     public abstract SideConfig<M> copy();
 
-    public abstract CompoundTag serialize();
+    public abstract void serialize(ValueOutput output);
 
-    public abstract void deserialize(CompoundTag nbt);
+    public abstract void deserialize(ValueInput input);
 
     public interface SideMode {
         Component title();
@@ -163,7 +168,7 @@ public abstract class SideConfig<M extends SideMode> {
         public int width() {
             if(this.width >= 0)
                 return this.width;
-            else if(FMLLoader.getDist() == Dist.CLIENT)
+            else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
                 return TextureSizeHelper.getTextureWidth(this.background.texture());
             else
                 return -1;
@@ -173,7 +178,7 @@ public abstract class SideConfig<M extends SideMode> {
         public int height() {
             if(this.height >= 0)
                 return this.height;
-            else if(FMLLoader.getDist() == Dist.CLIENT)
+            else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
                 return TextureSizeHelper.getTextureHeight(this.background.texture());
             else
                 return -1;
@@ -192,11 +197,11 @@ public abstract class SideConfig<M extends SideMode> {
         );
     }
 
-    public record SpriteData(ResourceLocation texture, ResourceLocation textureHovered) {
+    public record SpriteData(Identifier texture, Identifier textureHovered) {
         public static final NamedCodec<SpriteData> CODEC = NamedCodec.record(spriteDataInstance ->
                 spriteDataInstance.group(
-                        DefaultCodecs.RESOURCE_LOCATION.fieldOf("texture").forGetter(SpriteData::texture),
-                        DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("texture_hovered").forGetter(sprites -> Optional.of(sprites.textureHovered()))
+                        DefaultCodecs.IDENTIFIER.fieldOf("texture").forGetter(SpriteData::texture),
+                        DefaultCodecs.IDENTIFIER.optionalFieldOf("texture_hovered").forGetter(sprites -> Optional.of(sprites.textureHovered()))
                 ).apply(spriteDataInstance, (texture, texture_hovered) -> new SpriteData(texture, texture_hovered.orElse(texture))), "Widget sprites"
         );
     }

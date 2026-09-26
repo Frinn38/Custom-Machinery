@@ -7,11 +7,11 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.function.Consumer;
 
@@ -33,18 +33,17 @@ public class DataMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public MachineComponentType<DataMachineComponent> getType() {
-        return Registration.DATA_MACHINE_COMPONENT.get();
+        return CMRegistration.DATA_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt.put("data_component", this.nbt);
+    public void serialize(ValueOutput output) {
+        output.store("data_component", CompoundTag.CODEC, this.nbt);
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if(nbt.contains("data_component", Tag.TAG_COMPOUND))
-            this.nbt = nbt.getCompound("data_component");
+    public void deserialize(ValueInput input) {
+        input.read("data_component", CompoundTag.CODEC).ifPresent(this::setData);
     }
 
     @Override

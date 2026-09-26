@@ -11,17 +11,18 @@ import fr.frinn.custommachinery.client.screen.widget.ComponentEditBox;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.guielement.ButtonGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +32,7 @@ public class ButtonGuiElementBuilder implements IGuiElementBuilder<ButtonGuiElem
 
     @Override
     public GuiElementType<ButtonGuiElement> type() {
-        return Registration.BUTTON_GUI_ELEMENT.get();
+        return CMRegistration.BUTTON_GUI_ELEMENT.get();
     }
 
     @Override
@@ -66,8 +67,8 @@ public class ButtonGuiElementBuilder implements IGuiElementBuilder<ButtonGuiElem
 
         private ItemStack getItem() {
             try {
-                return BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.item.getValue())).getDefaultInstance();
-            } catch (ResourceLocationException | NullPointerException e) {
+                return BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.item.getValue())).map(Item::getDefaultInstance).orElse(ItemStack.EMPTY);
+            } catch (IdentifierException | NullPointerException e) {
                 return ItemStack.EMPTY;
             }
         }
@@ -99,8 +100,8 @@ public class ButtonGuiElementBuilder implements IGuiElementBuilder<ButtonGuiElem
             this.text = row.addChild(new ComponentEditBox(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.button.text")));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.button.item"), this.font));
             this.item = row.addChild(new SuggestedEditBox(this.font, 0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.button.item"), 5));
-            this.item.setFilter(s -> ResourceLocation.tryParse(s) != null);
-            this.item.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
+            this.item.setFilter(s -> Identifier.tryParse(s) != null);
+            this.item.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(Identifier::toString).toList());
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.button.hold_time"), this.font));
             this.holdTime = row.addChild(IntegerSlider.builder().bounds(1, 40).defaultValue(1).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.button.hold_time")));
             this.holdTime.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.button.hold_time.tooltip")));

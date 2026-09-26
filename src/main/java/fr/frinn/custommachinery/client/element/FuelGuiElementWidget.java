@@ -3,9 +3,10 @@ package fr.frinn.custommachinery.client.element;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
@@ -19,10 +20,10 @@ public class FuelGuiElementWidget extends AbstractGuiElementWidget<FuelGuiElemen
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         double percent = this.getScreen().getTile()
                 .getComponentManager()
-                .getComponent(Registration.FUEL_MACHINE_COMPONENT.get())
+                .getComponent(CMRegistration.FUEL_MACHINE_COMPONENT.get())
                 .map(component -> component.getMaxFuel() == 0 ? 0.0D : component.getFuel() / (double)component.getMaxFuel())
                 .orElse(0.0D);
         if(percent == 0 && this.getScreen().getMachine().isDummy())
@@ -35,13 +36,13 @@ public class FuelGuiElementWidget extends AbstractGuiElementWidget<FuelGuiElemen
         if(!this.getElement().getTooltips().isEmpty())
             return this.getElement().getTooltips();
         return this.getScreen().getTile().getComponentManager()
-                .getComponent(Registration.FUEL_MACHINE_COMPONENT.get())
+                .getComponent(CMRegistration.FUEL_MACHINE_COMPONENT.get())
                 .map(component -> Collections.singletonList((Component)Component.translatable("custommachinery.gui.element.fuel.tooltip", component.getFuel())))
                 .orElse(Collections.emptyList());
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         return false;
     }
 }

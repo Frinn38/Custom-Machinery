@@ -6,7 +6,7 @@ import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.rhino.Context;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeBuilder;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
@@ -50,7 +50,7 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         ChunkloadRequirementJS, WorkingCoreRequirementJS, DataRequirementJS {
 
     public CustomMachineRecipeBuilderJS() {
-        super(Registration.CUSTOM_MACHINE_RECIPE.getId());
+        super(CMRegistration.CUSTOM_MACHINE_RECIPE.getId());
     }
 
     /** APPEARANCE **/

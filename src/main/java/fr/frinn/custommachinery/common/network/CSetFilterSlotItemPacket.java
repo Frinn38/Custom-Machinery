@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -36,10 +36,10 @@ public record CSetFilterSlotItemPacket(ItemStack stack, BlockPos pos, String slo
             context.enqueueWork(() -> {
                 if(player.level().getBlockEntity(packet.pos) instanceof CustomMachineTile machine) {
                     machine.getComponentManager()
-                            .getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                            .getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
                             .flatMap(handler -> handler.getComponentForID(packet.slotId))
                             .ifPresent(component -> {
-                                if(component.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get())
+                                if(component.getType() == CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get())
                                     component.setItemStack(packet.stack);
                             });
                 }

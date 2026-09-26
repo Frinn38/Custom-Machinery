@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 
 public record ButtonRequirement(String id, boolean inverse) implements IRequirement<DataMachineComponent> {
 
@@ -21,12 +21,12 @@ public record ButtonRequirement(String id, boolean inverse) implements IRequirem
 
     @Override
     public RequirementType<ButtonRequirement> getType() {
-        return Registration.BUTTON_REQUIREMENT.get();
+        return CMRegistration.BUTTON_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<DataMachineComponent> getComponentType() {
-        return Registration.DATA_MACHINE_COMPONENT.get();
+        return CMRegistration.DATA_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -36,7 +36,7 @@ public record ButtonRequirement(String id, boolean inverse) implements IRequirem
 
     @Override
     public boolean test(DataMachineComponent component, ICraftingContext context) {
-        return component.getData().getBoolean(this.id) == !this.inverse;
+        return component.getData().getBoolean(this.id).map(toggle -> toggle == !this.inverse).orElse(false);
     }
 
     @Override

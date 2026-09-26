@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.TimeMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -27,12 +27,12 @@ public record TimeRequirement(IntRange range) implements IRequirement<TimeMachin
 
     @Override
     public RequirementType<TimeRequirement> getType() {
-        return Registration.TIME_REQUIREMENT.get();
+        return CMRegistration.TIME_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<TimeMachineComponent> getComponentType() {
-        return Registration.TIME_MACHINE_COMPONENT.get();
+        return CMRegistration.TIME_MACHINE_COMPONENT.get();
     }
 
     @Override

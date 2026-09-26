@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -28,16 +28,16 @@ public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingr
     public static final NamedCodec<FluidRequirement> CODEC = NamedCodec.record(fluidRequirementInstance ->
             fluidRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(FluidRequirement::getMode),
-                    NamedCodec.of(SizedFluidIngredient.FLAT_CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
+                    NamedCodec.of(SizedFluidIngredient.CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
             ).apply(fluidRequirementInstance, FluidRequirement::new), "Fluid requirement"
     );
 
     public FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, String tank) {
         this.mode = mode;
-        if(ingredient.ingredient().hasNoFluids())
+        if(ingredient.ingredient().fluids().isEmpty())
             throw new IllegalArgumentException("Invalid fluid specified for fluid requirement");
-        if(mode == RequirementIOMode.OUTPUT && ingredient.getFluids().length > 1)
+        if(mode == RequirementIOMode.OUTPUT && ingredient.ingredient().fluids().size() > 1)
             throw new IllegalArgumentException("You must specify a single for an Output Fluid Requirement");
         this.ingredient = ingredient;
         this.tank = tank;
@@ -45,12 +45,12 @@ public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingr
 
     @Override
     public RequirementType<FluidRequirement> getType() {
-        return Registration.FLUID_REQUIREMENT.get();
+        return CMRegistration.FLUID_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType getComponentType() {
-        return Registration.FLUID_MACHINE_COMPONENT.get();
+        return CMRegistration.FLUID_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -97,7 +97,7 @@ public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingr
     }
 
     private FluidStack output() {
-        return this.ingredient.getFluids()[0];
+        return new FluidStack(this.ingredient.ingredient().fluids().getFirst().value(), this.ingredient.amount());
     }
 
     @Override

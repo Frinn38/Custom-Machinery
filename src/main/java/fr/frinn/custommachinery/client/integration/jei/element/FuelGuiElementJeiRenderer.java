@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
 import fr.frinn.custommachinery.common.requirement.FuelRequirement;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
 public class FuelGuiElementJeiRenderer implements IJEIElementRenderer<FuelGuiElement> {
 
     @Override
-    public void renderElementInJEI(GuiGraphics graphics, FuelGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
+    public void renderElementInJEI(GuiGraphicsExtractor graphics, FuelGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
         double percent = 1 - (System.currentTimeMillis() % 2000) / 2000.0D;
         ClientHandler.renderOrientedProgressTextures(graphics, element.getEmptyTexture(), element.getFilledTexture(), element.getX(), element.getY(), element.getWidth(), element.getHeight(), percent, element.getOrientation());
     }

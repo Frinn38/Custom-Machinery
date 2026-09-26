@@ -6,12 +6,13 @@ import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 
 import java.util.function.Supplier;
 
@@ -31,14 +32,14 @@ public class SideModeButton extends ImageButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int color = this.modeGetter.get().color();
-        float r = FastColor.ARGB32.red(color) / 255.0F;
-        float g = FastColor.ARGB32.green(color) / 255.0F;
-        float b = FastColor.ARGB32.blue(color) / 255.0F;
-        RenderSystem.setShaderColor(r, g, b, 1);
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        float r = ARGB.red(color) / 255.0F;
+        float g = ARGB.green(color) / 255.0F;
+        float b = ARGB.blue(color) / 255.0F;
+        //RenderSystem.setShaderColor(r, g, b, 1);
+        super.extractContents(graphics, mouseX, mouseY, partialTick);
+        //RenderSystem.setShaderColor(1, 1, 1, 1);
         this.updateTooltips();
     }
 
@@ -51,14 +52,10 @@ public class SideModeButton extends ImageButton {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(!this.clicked(mouseX, mouseY) || Minecraft.getInstance().player == null)
-            return false;
-        playDownSound(Minecraft.getInstance().getSoundManager());
-        if (button == 0)
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        if(event.button() == 0)
             this.leftClick.onPress(this);
         else
             this.rightClick.onPress(this);
-        return true;
     }
 }

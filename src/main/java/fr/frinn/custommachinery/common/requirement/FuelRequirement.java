@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.FuelItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.FuelMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -31,12 +31,12 @@ public record FuelRequirement(int amount) implements IRequirement<FuelMachineCom
 
     @Override
     public RequirementType<FuelRequirement> getType() {
-        return Registration.FUEL_REQUIREMENT.get();
+        return CMRegistration.FUEL_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<FuelMachineComponent> getComponentType() {
-        return Registration.FUEL_MACHINE_COMPONENT.get();
+        return CMRegistration.FUEL_MACHINE_COMPONENT.get();
     }
 
     @Override

@@ -7,10 +7,10 @@ import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class DeleteUpgradePopup extends ConfirmPopup {
 
@@ -27,19 +27,19 @@ public class DeleteUpgradePopup extends ConfirmPopup {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         int itemX = this.x + this.xSize / 2 - 8;
         int itemY = this.y + this.ySize / 2 + 2;
         ItemStack stack = this.upgrade.item().getDefaultInstance();
-        graphics.renderItem(stack, itemX, itemY);
+        graphics.item(stack, itemX, itemY);
         if (this.isMouseOver(mouseX, mouseY) && mouseX >= itemX && mouseX <= itemX + 16 && mouseY >= itemY && mouseY <= itemY + 16)
-            graphics.renderTooltip(Minecraft.getInstance().font, stack, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(Minecraft.getInstance().font, stack, mouseX, mouseY);
     }
 
     @Override
     public void confirm() {
-        PacketDistributor.sendToServer(new CRemoveUpgradePacket(this.location.id()));
+        ClientPacketDistributor.sendToServer(new CRemoveUpgradePacket(this.location.id()));
         super.confirm();
     }
 }

@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.syncable.FluidStackSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
@@ -18,20 +18,22 @@ import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IFluidHandler {
+public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, ResourceHandler<FluidResource> {
 
     private final String id;
     private final Supplier<Integer> capacity;
@@ -62,7 +64,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     @Override
     public MachineComponentType<FluidMachineComponent> getType() {
-        return Registration.FLUID_MACHINE_COMPONENT.get();
+        return CMRegistration.FLUID_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -109,18 +111,16 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void serialize(ValueOutput output) {
         if(!this.fluidStack.isEmpty())
-            nbt.put("stack", this.fluidStack.save(registries));
-        nbt.put("config", this.config.serialize());
+            output.store("stack", FluidStack.CODEC, this.fluidStack);
+        this.config.serialize(output.child("config"));
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if(nbt.contains("stack", Tag.TAG_COMPOUND))
-            this.fluidStack = FluidStack.parse(registries, nbt.getCompound("stack")).orElse(FluidStack.EMPTY);
-        if(nbt.contains("config"))
-            this.config.deserialize(nbt.getCompound("config"));
+    public void deserialize(ValueInput input) {
+        input.read("stack", FluidStack.CODEC).ifPresent(stack -> this.fluidStack = stack);
+        input.child("config").ifPresent(this.config::deserialize);
     }
 
     @Override
@@ -137,108 +137,115 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     /** FLUID HANDLER STUFF **/
 
-    public int fillBypassLimit(FluidStack resource, FluidAction action) {
+    private final FluidComponentSnapshot snapshot = new FluidComponentSnapshot();
+
+    public int insertBypassLimit(FluidResource resource, int amount, TransactionContext tx) {
         this.bypassLimit = true;
-        int filled = this.fill(resource, action);
+        int inserted = this.insert(resource, amount, tx);
         this.bypassLimit = false;
-        return filled;
+        return inserted;
     }
 
-    public FluidStack drainBypassLimit(int amount, FluidAction action) {
+    public int extractBypassLimit(FluidResource resource, int amount, TransactionContext tx) {
         this.bypassLimit = true;
-        FluidStack drained = this.drain(amount, action);
+        int extracted = this.extract(resource, amount, tx);
         this.bypassLimit = false;
-        return drained;
+        return extracted;
     }
 
     @Override
-    public int getTanks() {
+    public int size() {
         return 1;
     }
 
     @Override
-    public FluidStack getFluidInTank(int tank) {
-        validateTankIndex(tank);
-        return this.getFluid();
+    public FluidResource getResource(int index) {
+        return FluidResource.of(this.fluidStack);
     }
 
     @Override
-    public int getTankCapacity(int tank) {
-        validateTankIndex(tank);
-        return this.getCapacity();
+    public long getAmountAsLong(int index) {
+        return this.fluidStack.amount();
     }
 
     @Override
-    public boolean isFluidValid(int tank, FluidStack stack) {
-        validateTankIndex(tank);
+    public long getCapacityAsLong(int index, FluidResource resource) {
+        return isValid(index, resource) ? this.getCapacity() : 0;
+    }
+
+    public boolean isValid(int index, FluidResource resource) {
+
         //Check unique
         if(this.unique && this.fluidStack.isEmpty() && this.getManager()
-                .getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
+                .getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get())
                 .stream()
                 .flatMap(handler -> handler.getComponents().stream())
-                .anyMatch(component -> component != this && FluidStack.isSameFluidSameComponents(component.getFluid(), stack)))
+                .anyMatch(component -> component != this && resource.matches(component.getFluid())))
             return false;
 
         //Check filter
-        if(!this.filter.test(stack.getFluid()))
+        if(!this.filter.test(resource.getFluid()))
             return false;
 
         //Check if same fluid
-        return this.fluidStack.isEmpty() || FluidStack.isSameFluidSameComponents(stack, this.fluidStack);
+        return this.fluidStack.isEmpty() || resource.matches(this.fluidStack);
     }
 
     @Override
-    public int fill(FluidStack resource, FluidAction action) {
-        if (resource.isEmpty() || !this.isFluidValid(0, resource))
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        if (resource.isEmpty() || !this.isValid(0, resource))
             return 0;
 
-        int maxFill = resource.getAmount();
+        int maxInsert = amount;
 
         if(!this.bypassLimit)
-            maxFill = maxFill < this.getMinInput() ? 0 : Math.min(maxFill, this.getMaxInput());
+            maxInsert = maxInsert < this.getMinInput() ? 0 : Math.min(maxInsert, this.getMaxInput());
 
         if(this.fluidStack.isEmpty()) {
-            maxFill = Math.min(maxFill, this.getCapacity());
-            if(action.execute())
-                this.setFluidStack(resource.copyWithAmount(maxFill));
+            maxInsert = Math.min(maxInsert, this.getCapacity());
+            this.snapshot.updateSnapshots(transaction);
+            this.fluidStack = resource.toStack(maxInsert);
         } else {
-            maxFill = Math.min(maxFill, this.getCapacity() - this.getFluid().getAmount());
-            if(action.execute()) {
-                this.fluidStack.grow(maxFill);
-                getManager().markDirty();
-            }
+            maxInsert = Math.min(maxInsert, this.getCapacity() - this.getFluid().getAmount());
+            this.snapshot.updateSnapshots(transaction);
+            this.fluidStack.grow(maxInsert);
         }
-        return maxFill;
+        return maxInsert;
     }
 
     @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
-        if(maxDrain <= 0 || this.fluidStack.isEmpty())
-            return FluidStack.EMPTY;
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        if(amount <= 0 || this.fluidStack.isEmpty())
+            return 0;
+
+        int maxExtract = amount;
 
         if(!this.bypassLimit)
-            maxDrain = maxDrain < this.getMinOutput() ? 0 : Math.min(maxDrain, this.getMaxOutput());
+            maxExtract = maxExtract < this.getMinOutput() ? 0 : Math.min(maxExtract, this.getMaxOutput());
 
-        maxDrain = Math.min(maxDrain, this.fluidStack.getAmount());
+        maxExtract = Math.min(maxExtract, this.fluidStack.getAmount());
 
-        FluidStack removed = this.fluidStack.copyWithAmount(maxDrain);
-        if(action.execute()) {
-            this.fluidStack.shrink(maxDrain);
-            getManager().markDirty();
+        this.snapshot.updateSnapshots(transaction);
+        this.fluidStack.shrink(maxExtract);
+        return maxExtract;
+    }
+
+    private class FluidComponentSnapshot extends SnapshotJournal<FluidStack> {
+
+        @Override
+        protected FluidStack createSnapshot() {
+            return FluidMachineComponent.this.fluidStack;
         }
-        return removed;
-    }
 
-    @Override
-    public FluidStack drain(FluidStack resource, FluidAction action) {
-        if(resource.isEmpty() || this.fluidStack.isEmpty() || !FluidStack.isSameFluidSameComponents(resource, this.fluidStack))
-            return FluidStack.EMPTY;
-        return this.drain(resource.getAmount(), action);
-    }
+        @Override
+        protected void revertToSnapshot(FluidStack snapshot) {
+            FluidMachineComponent.this.fluidStack = snapshot;
+        }
 
-    protected void validateTankIndex(int tank) {
-        if(tank != 0)
-            throw new RuntimeException("Tank " + tank + " not in valid range - [0," + this.getTanks() + ")");
+        @Override
+        protected void onRootCommit(FluidStack originalState) {
+            FluidMachineComponent.this.getManager().markDirty();
+        }
     }
 
     /** Recipe Stuff **/
@@ -303,7 +310,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         @Override
         public MachineComponentType<FluidMachineComponent> getType() {
-            return Registration.FLUID_MACHINE_COMPONENT.get();
+            return CMRegistration.FLUID_MACHINE_COMPONENT.get();
         }
 
         @Override

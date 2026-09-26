@@ -22,6 +22,8 @@ import java.util.List;
 
 public abstract class SyncableContainer extends AbstractContainerMenu {
 
+    //Null on client side
+    @Nullable
     private final ServerPlayer player;
     private final List<ISyncable<?, ?>> stuffToSync = new ArrayList<>();
     private final ISyncableStuff syncableStuff;
@@ -64,8 +66,7 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     public void handleData(IData<?> data) {
         short id = data.getID();
         ISyncable syncable = this.stuffToSync.get(id);
-        if(syncable != null)
-            syncable.set(data.getValue());
+        syncable.set(data.getValue());
     }
 
     @Override
@@ -87,12 +88,14 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
 
     }
 
-    protected Slot addSyncedSlot(Slot slot) {
+    protected void addSyncedSlot(Slot slot) {
         this.stuffToSync.add(ItemStackSyncable.create(slot::getItem, slot::set));
-        return this.addSlot(slot);
+        this.addSlot(slot);
     }
 
     public ServerPlayer getPlayer() {
+        if(this.player == null)
+            throw new IllegalStateException("Trying to get server player from SyncableContainer on client side");
         return this.player;
     }
 }

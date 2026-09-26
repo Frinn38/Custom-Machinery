@@ -3,16 +3,19 @@ package fr.frinn.custommachinery.common.util.transfer;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jetbrains.annotations.Nullable;
 
-public class SidedItemHandler implements IItemHandler {
+public class SidedItemHandler implements ResourceHandler<ItemResource> {
 
-    private final Direction direction;
+    @Nullable
+    private final Direction side;
     private final ItemComponentHandler handler;
 
-    public SidedItemHandler(Direction direction, ItemComponentHandler handler) {
-        this.direction = direction;
+    public SidedItemHandler(@Nullable Direction side, ItemComponentHandler handler) {
+        this.side = side;
         this.handler = handler;
     }
 
@@ -21,38 +24,43 @@ public class SidedItemHandler implements IItemHandler {
     }
 
     @Override
-    public int getSlots() {
-        return this.handler.getSlots();
+    public int size() {
+        return this.handler.getComponents().size();
     }
 
     @Override
-    public ItemStack getStackInSlot(int slot) {
-        return this.handler.getComponents().get(slot).getItemStack();
+    public ItemResource getResource(int index) {
+        return this.handler.getComponents().get(index).getResource(0);
     }
 
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        ItemMachineComponent component = this.handler.getComponents().get(slot);
-        if(!component.getConfig().getDirectionMode(this.direction).isInput())
-            return stack;
-        return component.insertItem(0, stack, simulate);
+    public long getAmountAsLong(int index) {
+        return this.handler.getComponents().get(index).getAmountAsLong(0);
     }
 
     @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        ItemMachineComponent component = this.handler.getComponents().get(slot);
-        if(!component.getConfig().getDirectionMode(this.direction).isOutput() || component.getItemStack().isEmpty())
-            return ItemStack.EMPTY;
-        return component.extractItem(0, amount, simulate);
+    public long getCapacityAsLong(int index, ItemResource resource) {
+        return this.handler.getComponents().get(index).getCapacityAsLong(0, resource);
     }
 
     @Override
-    public int getSlotLimit(int slot) {
-        return this.handler.getSlotLimit(slot);
+    public boolean isValid(int index, ItemResource resource) {
+        return this.handler.getComponents().get(index).isValid(0, resource);
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        return this.handler.isItemValid(slot, stack);
+    public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        ItemMachineComponent component = this.handler.getComponents().get(index);
+        if(this.side == null || component.getConfig().getDirectionMode(this.side).isInput())
+            component.insert(resource, amount, transaction);
+        return 0;
+    }
+
+    @Override
+    public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        ItemMachineComponent component = this.handler.getComponents().get(index);
+        if(this.side == null || component.getConfig().getDirectionMode(this.side).isOutput())
+            component.extract(resource, amount, transaction);
+        return 0;
     }
 }

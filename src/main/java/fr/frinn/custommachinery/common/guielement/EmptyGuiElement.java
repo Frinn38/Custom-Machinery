@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.guielement;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 
 import java.util.Collections;
@@ -21,6 +21,6 @@ public class EmptyGuiElement extends AbstractGuiElement {
 
     @Override
     public GuiElementType<EmptyGuiElement> getType() {
-        return Registration.EMPTY_GUI_ELEMENT.get();
+        return CMRegistration.EMPTY_GUI_ELEMENT.get();
     }
 }

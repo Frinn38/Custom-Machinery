@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
@@ -41,7 +41,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<Identifier, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
         Logger logger = ICustomMachineryAPI.INSTANCE.logger();
         Marker marker = MarkerManager.getMarker("UpgradeLoader");
 
@@ -52,7 +52,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
         map.forEach((id, json) -> {
             String packName;
             try {
-                packName = resourceManager.getResourceOrThrow(ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "upgrades/" + id.getPath() + ".json")).sourcePackId();
+                packName = resourceManager.getResourceOrThrow(Identifier.fromNamespaceAndPath(id.getNamespace(), "upgrades/" + id.getPath() + ".json")).sourcePackId();
             } catch (IOException e) {
                 packName = MAIN_PACKNAME;
             }
@@ -100,8 +100,8 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
         CustomMachinery.UPGRADES.refresh(upgrades);
     }
 
-    private UpgradeLocation getUpgradeLocation(ResourceManager resourceManager, ResourceLocation id) {
-        ResourceLocation path = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "upgrade/" + id.getPath() + ".json");
+    private UpgradeLocation getUpgradeLocation(ResourceManager resourceManager, Identifier id) {
+        Identifier path = Identifier.fromNamespaceAndPath(id.getNamespace(), "upgrade/" + id.getPath() + ".json");
         try {
             Resource res = resourceManager.getResourceOrThrow(path);
             String packName = res.sourcePackId();

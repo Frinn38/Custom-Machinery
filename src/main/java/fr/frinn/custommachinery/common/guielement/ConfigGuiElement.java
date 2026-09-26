@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.guielement;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.network.chat.Component;
@@ -29,6 +29,6 @@ public class ConfigGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<ConfigGuiElement> getType() {
-        return Registration.CONFIG_GUI_ELEMENT.get();
+        return CMRegistration.CONFIG_GUI_ELEMENT.get();
     }
 }

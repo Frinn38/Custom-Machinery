@@ -8,7 +8,8 @@ import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         MachineStatus status = MachineStatus.IDLE;
         if(this.getElement().getCore() == 0)
             status = this.getScreen().getTile().getStatus();
@@ -63,7 +64,7 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         return false;
     }
 }

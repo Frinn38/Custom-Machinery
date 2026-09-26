@@ -13,7 +13,7 @@ public interface FluidRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireFluid(SizedFluidIngredient ingredient, String tank) {
-        if(ingredient.ingredient().hasNoFluids())
+        if(ingredient.ingredient().fluids().isEmpty())
             return this.error("Invalid empty fluid ingredient in fluid input requirement");
         try {
             return this.addRequirement(new FluidRequirement(RequirementIOMode.INPUT, ingredient, tank));
@@ -30,7 +30,7 @@ public interface FluidRequirementJS extends RecipeJSBuilder {
         if(stack.isEmpty())
             return this.error("Invalid empty fluid in fluid output requirement");
         try {
-            return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(stack), tank));
+            return this.addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(stack.getFluid(), stack.amount()), tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }

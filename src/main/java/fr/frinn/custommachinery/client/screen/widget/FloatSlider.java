@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.screen.widget;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
@@ -59,14 +60,14 @@ public class FloatSlider extends AbstractSliderButton {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         float value = this.floatValue();
-        boolean pressed = super.keyPressed(keyCode, scanCode, modifiers);
-        float modifier = Screen.hasShiftDown() ? this.max / 10 : Screen.hasControlDown() ? this.max / 20 : this.decimalsToShow == -1 ? 0.1f : 1.0f/(float)Math.pow(10, this.decimalsToShow);
-        switch(keyCode) {
-            case GLFW.GLFW_KEY_RIGHT -> this.setValue(value + modifier);
-            case GLFW.GLFW_KEY_LEFT -> this.setValue(value - modifier);
-        }
+        boolean pressed = super.keyPressed(event);
+        float modifier = event.hasShiftDown() ? this.max / 10 : event.hasControlDown() ? this.max / 20 : this.decimalsToShow == -1 ? 0.1f : 1.0f/(float)Math.pow(10, this.decimalsToShow);
+        if(event.isRight())
+            this.setValue(value + modifier);
+        else if(event.isLeft())
+            this.setValue(value - modifier);
         return pressed;
     }
 

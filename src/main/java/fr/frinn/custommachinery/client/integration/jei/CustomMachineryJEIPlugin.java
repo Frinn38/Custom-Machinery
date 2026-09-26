@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.client.ClientEvents;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyIngredientHelper;
 import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceIngredientHelper;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
@@ -14,7 +15,7 @@ import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
@@ -31,10 +32,9 @@ import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
-import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.recipe.IFocusFactory;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IModIngredientRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -47,9 +47,10 @@ import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,18 +64,18 @@ import java.util.stream.Collectors;
 @JeiPlugin
 public class CustomMachineryJEIPlugin implements IModPlugin {
 
-    public static final ResourceLocation PLUGIN_ID = ResourceLocation.fromNamespaceAndPath(CustomMachinery.MODID, "jei_plugin");
+    public static final Identifier PLUGIN_ID = Identifier.fromNamespaceAndPath(CustomMachinery.MODID, "jei_plugin");
     public static final List<ItemStack> FUEL_INGREDIENTS = Lists.newArrayList();
-    public static final Map<ResourceLocation, AbstractRecipeCategory<?, ?>> CATEGORIES = new HashMap<>();
+    public static final Map<Identifier, AbstractRecipeCategory<?, ?>> CATEGORIES = new HashMap<>();
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return PLUGIN_ID;
     }
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
-        registration.registerSubtypeInterpreter(Registration.CUSTOM_MACHINE_ITEM.get(), MACHINE_ITEM_INTERPRETER);
+        registration.registerSubtypeInterpreter(CMRegistration.CUSTOM_MACHINE_ITEM.get(), MACHINE_ITEM_INTERPRETER);
     }
 
     @Override
@@ -82,9 +83,9 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         CATEGORIES.clear();
         CustomMachinery.MACHINES.forEach((id, machine) -> {
             AbstractRecipeCategory<?, ?> category = null;
-            if(machine.getProcessorTemplate().getType() == Registration.MACHINE_PROCESSOR.get())
+            if(machine.getProcessorTemplate().getType() == CMRegistration.MACHINE_PROCESSOR.get())
                 category = new CustomMachineRecipeCategory(machine, CMRecipeTypes.createMachine(id), registry.getJeiHelpers());
-            else if(machine.getProcessorTemplate().getType() == Registration.CRAFT_PROCESSOR.get())
+            else if(machine.getProcessorTemplate().getType() == CMRegistration.CRAFT_PROCESSOR.get())
                 category = new CustomCraftRecipeCategory(machine, CMRecipeTypes.createCraft(id), registry.getJeiHelpers());
 
             if(category != null) {
@@ -99,8 +100,8 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         if(Minecraft.getInstance().level == null)
             return;
 
-        Map<ResourceLocation, List<RecipeHolder<CustomMachineRecipe>>> machineRecipes = Minecraft.getInstance().level.getRecipeManager()
-                .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
+        Map<Identifier, List<RecipeHolder<CustomMachineRecipe>>> machineRecipes = ClientEvents.getClientRecipes()
+                .byType(CMRegistration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .filter(CustomMachineRecipe::showInJei)
@@ -108,13 +109,13 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                 .map(this::getHolderForRecipe)
                 .collect(Collectors.groupingBy(holder -> holder.value().getMachineId()));
         machineRecipes.forEach((id, list) -> {
-            RecipeType<RecipeHolder<CustomMachineRecipe>> type = CMRecipeTypes.machine(id);
+            IRecipeType<RecipeHolder<CustomMachineRecipe>> type = CMRecipeTypes.machine(id);
             if(type != null)
                 registry.addRecipes(type, list);
         });
 
-        Map<ResourceLocation, List<RecipeHolder<CustomCraftRecipe>>> craftRecipes = Minecraft.getInstance().level.getRecipeManager()
-                .getAllRecipesFor(Registration.CUSTOM_CRAFT_RECIPE.get())
+        Map<Identifier, List<RecipeHolder<CustomCraftRecipe>>> craftRecipes = ClientEvents.getClientRecipes()
+                .byType(CMRegistration.CUSTOM_CRAFT_RECIPE.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .filter(CustomCraftRecipe::showInJei)
@@ -122,12 +123,15 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
                 .map(this::getHolderForRecipe)
                 .collect(Collectors.groupingBy(holder -> holder.value().getMachineId()));
         craftRecipes.forEach((id, list) -> {
-            RecipeType<RecipeHolder<CustomCraftRecipe>> type = CMRecipeTypes.craft(id);
+            IRecipeType<RecipeHolder<CustomCraftRecipe>> type = CMRecipeTypes.craft(id);
             if(type != null)
                 registry.addRecipes(type, list);
         });
 
-        registry.getIngredientManager().getAllIngredients(VanillaTypes.ITEM_STACK).stream().filter(stack -> stack.getBurnTime(net.minecraft.world.item.crafting.RecipeType.SMELTING) > 0).forEach(FUEL_INGREDIENTS::add);
+        registry.getIngredientManager().getAllIngredients(VanillaTypes.ITEM_STACK)
+                .stream()
+                .filter(stack -> stack.getBurnTime(RecipeType.SMELTING, Minecraft.getInstance().level.fuelValues()) > 0)
+                .forEach(FUEL_INGREDIENTS::add);
     }
 
     @Override
@@ -193,22 +197,22 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         CustomMachinery.MACHINES.forEach((id, machine) ->
             machine.getRecipeIds().forEach(recipeId -> {
-                RecipeType<?> type;
-                if(machine.getProcessorTemplate().getType() == Registration.MACHINE_PROCESSOR.get())
+                IRecipeType<?> type;
+                if(machine.getProcessorTemplate().getType() == CMRegistration.MACHINE_PROCESSOR.get())
                     type = CMRecipeTypes.machine(id);
-                else if(machine.getProcessorTemplate().getType() == Registration.CRAFT_PROCESSOR.get())
+                else if(machine.getProcessorTemplate().getType() == CMRegistration.CRAFT_PROCESSOR.get())
                     type = CMRecipeTypes.craft(id);
                 else
                     type = null;
                 if(type != null) {
-                    List<ResourceLocation> catalysts = machine.getCatalysts();
+                    List<Identifier> catalysts = machine.getCatalysts();
                     if(!catalysts.contains(id))
-                        registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(id), type);
+                        registration.addCraftingStation(type, CustomMachineItem.makeMachineItem(id));
                     machine.getCatalysts().forEach(catalyst -> {
                         if(CustomMachinery.MACHINES.containsKey(catalyst))
-                            registration.addRecipeCatalyst(CustomMachineItem.makeMachineItem(catalyst), type);
+                            registration.addCraftingStation(type, CustomMachineItem.makeMachineItem(catalyst));
                         else if(BuiltInRegistries.ITEM.containsKey(catalyst))
-                            registration.addRecipeCatalyst(BuiltInRegistries.ITEM.get(catalyst).getDefaultInstance(), type);
+                            registration.addCraftingStation(type, BuiltInRegistries.ITEM.getValue(catalyst).getDefaultInstance());
                         else
                             ICustomMachineryAPI.INSTANCE.logger().error("Invalid catalyst '{}' for machine '{}'. Not a machine or item id", catalyst, id);
                     });
@@ -225,7 +229,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         });
     }
 
-    private static IGuiClickableArea createBasic(int xPos, int yPos, int width, int height, ResourceLocation id, boolean showTooltips) {
+    private static IGuiClickableArea createBasic(int xPos, int yPos, int width, int height, Identifier id, boolean showTooltips) {
         Rect2i area = new Rect2i(xPos, yPos, width, height);
         ItemStack stack = CustomMachineItem.makeMachineItem(id);
         return new IGuiClickableArea() {
@@ -236,7 +240,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
             @Override
             public void onClick(IFocusFactory factory, IRecipesGui recipesGui) {
-                recipesGui.show(factory.createFocus(RecipeIngredientRole.CATALYST, VanillaTypes.ITEM_STACK, stack));
+                recipesGui.show(factory.createFocus(RecipeIngredientRole.CRAFTING_STATION, VanillaTypes.ITEM_STACK, stack));
             }
 
             @Override
@@ -246,20 +250,10 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
         };
     }
 
-    public static final ISubtypeInterpreter<ItemStack> MACHINE_ITEM_INTERPRETER = new ISubtypeInterpreter<>() {
-        @Override
-        public Object getSubtypeData(ItemStack ingredient, UidContext context) {
-            return Optional.ofNullable(ingredient.get(Registration.MACHINE_DATA.get())).map(ResourceLocation::toString).orElse("dummy");
-        }
+    public static final ISubtypeInterpreter<ItemStack> MACHINE_ITEM_INTERPRETER = (ingredient, context) ->
+            Optional.ofNullable(ingredient.get(CMRegistration.MACHINE_DATA.get())).map(Identifier::toString).orElse("dummy");
 
-        //Safe to remove
-        @Override
-        public String getLegacyStringSubtypeInfo(ItemStack ingredient, UidContext context) {
-            return Optional.ofNullable(ingredient.get(Registration.MACHINE_DATA.get())).map(ResourceLocation::toString).orElse("dummy");
-        }
-    };
-
-    public static void reloadMachines(Map<ResourceLocation, CustomMachine> machines) {
+    public static void reloadMachines(Map<Identifier, CustomMachine> machines) {
         machines.forEach((id, machine) -> {
             AbstractRecipeCategory<?, ?> category = CATEGORIES.get(id);
             if(category != null)
@@ -271,7 +265,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
     private <T extends IMachineRecipe> RecipeHolder<T> getHolderForRecipe(T recipe) {
         if(Minecraft.getInstance().level == null)
             throw new IllegalStateException("Trying to get recipes from client side when level is null");
-        return Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor((net.minecraft.world.item.crafting.RecipeType<T>)recipe.getType())
+        return ClientEvents.getClientRecipes().byType((net.minecraft.world.item.crafting.RecipeType<T>)recipe.getType())
                 .stream()
                 .filter(holder -> holder.value() == recipe)
                 .findFirst()

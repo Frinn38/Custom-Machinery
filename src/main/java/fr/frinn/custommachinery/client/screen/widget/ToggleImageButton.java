@@ -1,8 +1,10 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 
 public class ToggleImageButton extends ImageButton {
 
@@ -17,13 +19,13 @@ public class ToggleImageButton extends ImageButton {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        super.onClick(event, doubleClick);
         this.toggle = !this.toggle;
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-        graphics.blitSprite(this.sprites.get(this.toggle, this.isHoveredOrFocused()), this.getX(), this.getY(), this.width, this.height);
+    public void extractContents(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.sprites.get(this.toggle, this.isHoveredOrFocused()), this.getX(), this.getY(), this.width, this.height);
     }
 }

@@ -16,9 +16,9 @@ import fr.frinn.custommachinery.common.util.CMVerifier.Result;
 import fr.frinn.custommachinery.common.util.CMVerifier.ResultBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.ImageWidget;
 import net.minecraft.client.gui.components.Tooltip;
@@ -29,7 +29,8 @@ import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
@@ -39,8 +40,8 @@ public class MachineEditScreen extends BaseScreen {
     public static final WidgetSprites SAVE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/save_button"), CustomMachinery.rl("creation/save_button_hovered"));
     public static final WidgetSprites CLOSE_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/close_button"), CustomMachinery.rl("creation/close_button_hovered"));
     public static final WidgetSprites WIKI_SPRITES = new WidgetSprites(CustomMachinery.rl("creation/wiki_button"), CustomMachinery.rl("creation/wiki_button_hovered"));
-    public static final ResourceLocation OK_TEXTURE = CustomMachinery.rl("textures/gui/base_status_running.png");
-    public static final ResourceLocation ERROR_TEXTURE = CustomMachinery.rl("textures/gui/base_status_errored.png");
+    public static final Identifier OK_TEXTURE = CustomMachinery.rl("textures/gui/base_status_running.png");
+    public static final Identifier ERROR_TEXTURE = CustomMachinery.rl("textures/gui/base_status_errored.png");
 
     private final CustomMachineBuilder builder;
 
@@ -73,8 +74,8 @@ public class MachineEditScreen extends BaseScreen {
 
     public void save() {
         this.changed = false;
-        PacketDistributor.sendToServer(new CEditMachinePacket(this.builder.build()));
-        Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.save.toast"), null, false), 50);
+        ClientPacketDistributor.sendToServer(new CEditMachinePacket(this.builder.build()));
+        Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.save.toast"), null, false, 50));
         this.checkErrors();
     }
 
@@ -88,7 +89,7 @@ public class MachineEditScreen extends BaseScreen {
     }
 
     public void wiki() {
-        String[] s = SharedConstants.getCurrentVersion().getName().split("\\.");
+        String[] s = SharedConstants.getCurrentVersion().name().split("\\.");
         String version = "1.19";
         if(s.length >= 2)
             version = "1." + s[1];
@@ -150,8 +151,8 @@ public class MachineEditScreen extends BaseScreen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         //Background
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
         //Buttons

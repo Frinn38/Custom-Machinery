@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 
 import java.util.Map;
 
@@ -55,7 +55,7 @@ public class MachineAppearanceManager {
 
     private static MachineAppearance buildAppearance(Map<MachineAppearanceProperty<?>, Object> defaults, Map<MachineAppearanceProperty<?>, Object> specifics) {
         ImmutableMap.Builder<MachineAppearanceProperty<?>, Object> properties = ImmutableMap.builder();
-        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY) {
+        for(MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY) {
             Object value = specifics.get(property);
             if(value == null || value == property.getDefaultValue())
                 properties.put(property, defaults.get(property));

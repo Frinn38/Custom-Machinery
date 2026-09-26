@@ -7,10 +7,10 @@ import fr.frinn.custommachinery.client.screen.widget.ComponentEditBox;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
@@ -19,6 +19,7 @@ import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -34,9 +35,9 @@ public class MachineBaseInfoTab extends MachineEditTab {
         super(Component.translatable("custommachinery.gui.creation.tab.base_info"), parent);
         final Font font = this.parent.mc.font;
 
-        if(this.parent.getBuilder().getProcessor() instanceof Template template) {
-            this.coresAmount = template.amount();
-            this.recipeCheckCooldown = template.recipeCheckCooldown();
+        if(this.parent.getBuilder().getProcessor() instanceof Template(int templateCoresAmount, int checkCooldown)) {
+            this.coresAmount = templateCoresAmount;
+            this.recipeCheckCooldown = checkCooldown;
         }
 
         //Each row must be the same amount of columns as defined here
@@ -45,7 +46,7 @@ public class MachineBaseInfoTab extends MachineEditTab {
         LayoutSettings middle = row.newCellSettings().alignVerticallyMiddle();
         LayoutSettings right = row.newCellSettings().alignHorizontallyRight();
 
-        //Id (1rst row)
+        //ID (1rst row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.id"), Minecraft.getInstance().font), middle);
         row.addChild(new MachineIdWidget(150, 9, Component.literal(this.parent.getBuilder().getLocation().id().toString()), Minecraft.getInstance().font));
 
@@ -62,19 +63,18 @@ public class MachineBaseInfoTab extends MachineEditTab {
 
         //Processor (3rd row)
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.base_info.processor"), font), middle);
-        row.addChild(CycleButton.<ProcessorType<?>>builder(processor -> Component.literal(processor.getId().getPath()))
-                .withValues(ImmutableList.copyOf(Registration.PROCESSOR_REGISTRY))
-                .withInitialValue(Registration.MACHINE_PROCESSOR.get())
+        row.addChild(CycleButton.<ProcessorType<?>>builder(processor -> Component.literal(processor.getId().getPath()), CMRegistration.MACHINE_PROCESSOR.get())
+                .withValues(ImmutableList.copyOf(CMRegistration.PROCESSOR_REGISTRY))
                 .displayOnlyValue()
                 .create(0, 0, 100, 20, Component.literal("Machine processor"), (button, processor) -> {
                     if(processor == this.parent.getBuilder().getProcessor().getType())
                         return;
-                    if(processor == Registration.MACHINE_PROCESSOR.get())
+                    if(processor == CMRegistration.MACHINE_PROCESSOR.get())
                         this.parent.getBuilder().setProcessor(new Template(this.coresAmount, this.recipeCheckCooldown));
-                    else if(processor == Registration.CRAFT_PROCESSOR.get())
+                    else if(processor == CMRegistration.CRAFT_PROCESSOR.get())
                         this.parent.getBuilder().setProcessor(CraftProcessor.Template.DEFAULT);
                     this.parent.setChanged();
-                    boolean visible = processor == Registration.MACHINE_PROCESSOR.get();
+                    boolean visible = processor == CMRegistration.MACHINE_PROCESSOR.get();
                     this.processorWidgets.forEach(widget -> widget.visible = visible);
                 }),
                 right
@@ -114,14 +114,14 @@ public class MachineBaseInfoTab extends MachineEditTab {
         }
 
         @Override
-        public void onClick(double mouseX, double mouseY, int button) {
+        public void onClick(MouseButtonEvent event, boolean doubleClick) {
             Minecraft.getInstance().keyboardHandler.setClipboard(this.getMessage().getString());
-            Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.base_info.id.copied"), null, false), 50);
+            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.base_info.id.copied"), null, false, 50));
         }
 
         @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            guiGraphics.drawScrollingString(this.getFont(), this.getMessage(), this.getX(), this.getX() + this.getWidth(), this.getY(), this.getColor());
+        public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            graphics.drawScrollingString(graphics.textRenderer(), this.getFont(), this.getMessage(), this.getX(), this.getX() + this.getWidth(), this.getY());
         }
     }
 }

@@ -13,8 +13,9 @@ import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.MachineLootItemFunction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -25,16 +26,16 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
-    private ResourceLocation machineID;
+    private Identifier machineID;
     private boolean occlusion;
 
-    public CustomMachineBlockBuilderJS(ResourceLocation i) {
+    public CustomMachineBlockBuilderJS(Identifier i) {
         super(i);
         this.machineID = id;
         this.occlusion = false;
     }
 
-    public CustomMachineBlockBuilderJS machine(ResourceLocation machineID) {
+    public CustomMachineBlockBuilderJS machine(Identifier machineID) {
         this.machineID = machineID;
         return this;
     }
@@ -78,8 +79,10 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public void generateData(KubeDataGenerator generator) {
+        if(this.object == null)
+            return;
         LootPool.Builder pool = LootPool.lootPool().when(ExplosionCondition.survivesExplosion()).setRolls(ConstantValue.exactly(1)).add(LootItem.lootTableItem(this.object.asItem()).apply(MachineLootItemFunction::new));
         LootTable table = LootTable.lootTable().withPool(pool).build();
-        generator.json(id.withPath(ID.BLOCK_LOOT_TABLE), generator.getRegistries().json().withEncoder(LootTable.CODEC).apply(new Holder.Direct<>(table)).getOrThrow());
+        generator.json(id.withPath(ID.BLOCK_LOOT_TABLE), generator.getRegistries().json().withEncoder(LootTable.CODEC).apply(new Holder.Direct<>(table, DataComponentMap.EMPTY)).getOrThrow());
     }
 }

@@ -19,11 +19,11 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class StructureCreatorItem extends Item {
 
@@ -75,40 +76,40 @@ public class StructureCreatorItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
         int amount = getSelectedBlocks(stack).size();
         if(amount == 0)
-            tooltip.add(Component.translatable("custommachinery.structure_creator.no_blocks").withStyle(ChatFormatting.RED));
+            builder.accept(Component.translatable("custommachinery.structure_creator.no_blocks").withStyle(ChatFormatting.RED));
         else
-            tooltip.add(Component.translatable("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()).withStyle(ChatFormatting.BLUE));
-        tooltip.add(Component.translatable("custommachinery.structure_creator.select").withStyle(ChatFormatting.GREEN));
-        tooltip.add(Component.translatable("custommachinery.box_creator.select_machine").withStyle(ChatFormatting.GREEN));
-        tooltip.add(Component.translatable("custommachinery.structure_creator.reset").withStyle(ChatFormatting.GOLD));
+            builder.accept(Component.translatable("custommachinery.structure_creator.amount", getSelectedBlocks(stack).size()).withStyle(ChatFormatting.BLUE));
+        builder.accept(Component.translatable("custommachinery.structure_creator.select").withStyle(ChatFormatting.GREEN));
+        builder.accept(Component.translatable("custommachinery.box_creator.select_machine").withStyle(ChatFormatting.GREEN));
+        builder.accept(Component.translatable("custommachinery.structure_creator.reset").withStyle(ChatFormatting.GOLD));
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if(player.isCrouching() && player.getItemInHand(hand).getItem() == this) {
             ItemStack stack = player.getItemInHand(hand);
-            stack.remove(Registration.STRUCTURE_CREATOR_DATA);
-            return InteractionResultHolder.success(stack);
+            stack.remove(CMRegistration.STRUCTURE_CREATOR_DATA);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
         }
         return super.use(level, player, hand);
     }
 
     public static List<BlockPos> getSelectedBlocks(ItemStack stack) {
-        return Optional.ofNullable(stack.get(Registration.STRUCTURE_CREATOR_DATA)).orElse(new ArrayList<>());
+        return Optional.ofNullable(stack.get(CMRegistration.STRUCTURE_CREATOR_DATA)).orElse(new ArrayList<>());
     }
 
     public static void addSelectedBlock(ItemStack stack, BlockPos pos) {
-        stack.update(Registration.STRUCTURE_CREATOR_DATA, new ArrayList<>(), list -> {
+        stack.update(CMRegistration.STRUCTURE_CREATOR_DATA, new ArrayList<>(), list -> {
             list.add(pos);
             return list;
         });
     }
 
     public static void removeSelectedBlock(ItemStack stack, BlockPos pos) {
-        stack.update(Registration.STRUCTURE_CREATOR_DATA, new ArrayList<>(), list -> {
+        stack.update(CMRegistration.STRUCTURE_CREATOR_DATA, new ArrayList<>(), list -> {
             list.remove(pos);
             return list;
         });
@@ -163,12 +164,11 @@ public class StructureCreatorItem extends Item {
         JsonObject both = new JsonObject();
         both.add("keys", keysJson);
         both.add("pattern", patternJson);
-        String ctKubeString = ".requireStructure(" + patternJson + ", " + keysJson + ")";
-        Component jsonText = Component.literal("[JSON]").withStyle(style -> style.applyFormats(ChatFormatting.YELLOW).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(both.toString()))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, both.toString())));
-        Component prettyJsonText = Component.literal("[PRETTY JSON]").withStyle(style -> style.applyFormats(ChatFormatting.GOLD).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(GSON.toJson(both)))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, GSON.toJson(both))));
-        Component crafttweakerText = Component.literal("[CRAFTTWEAKER]").withStyle(style -> style.applyFormats(ChatFormatting.AQUA).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
-        Component kubeJSText = Component.literal("[KUBEJS]").withStyle(style -> style.applyFormats(ChatFormatting.DARK_PURPLE).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(ctKubeString))).withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, ctKubeString)));
-        Component message = Component.translatable("custommachinery.structure_creator.message", jsonText, prettyJsonText, crafttweakerText, kubeJSText);
+        String kubeString = ".requireStructure(" + patternJson + ", " + keysJson + ")";
+        Component jsonText = Component.literal("[JSON]").withStyle(style -> style.applyFormats(ChatFormatting.YELLOW).withHoverEvent(new HoverEvent.ShowText(Component.literal(both.toString()))).withClickEvent(new ClickEvent.CopyToClipboard(both.toString())));
+        Component prettyJsonText = Component.literal("[PRETTY JSON]").withStyle(style -> style.applyFormats(ChatFormatting.GOLD).withHoverEvent(new HoverEvent.ShowText(Component.literal(GSON.toJson(both)))).withClickEvent(new ClickEvent.CopyToClipboard(GSON.toJson(both))));
+        Component kubeJSText = Component.literal("[KUBEJS]").withStyle(style -> style.applyFormats(ChatFormatting.DARK_PURPLE).withHoverEvent(new HoverEvent.ShowText(Component.literal(kubeString))).withClickEvent(new ClickEvent.CopyToClipboard(kubeString)));
+        Component message = Component.translatable("custommachinery.structure_creator.message", jsonText, prettyJsonText, kubeJSText);
         player.sendSystemMessage(message);
     }
 

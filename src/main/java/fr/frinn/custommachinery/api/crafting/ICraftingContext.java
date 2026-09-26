@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface ICraftingContext {
     /**
      * @return The id of the {@link IMachineRecipe} currently processed by the machine.
      */
-    ResourceLocation getRecipeId();
+    Identifier getRecipeId();
 
     /**
      * This time is usually in ticks, but may vary depending on what is returned by {@link ICraftingContext#getModifiedSpeed} return.

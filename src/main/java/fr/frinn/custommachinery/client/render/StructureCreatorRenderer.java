@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import fr.frinn.custommachinery.client.RenderTypes;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.StructureCreatorItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -17,7 +17,8 @@ import java.util.List;
 public class StructureCreatorRenderer {
 
     public static void renderSelectedBlocks(PoseStack pose) {
-        if(Minecraft.getInstance().player != null && Minecraft.getInstance().player.getMainHandItem().getItem() == Registration.STRUCTURE_CREATOR_ITEM.get()) {
+        /*
+        if(Minecraft.getInstance().player != null && Minecraft.getInstance().player.getMainHandItem().getItem() == CMRegistration.STRUCTURE_CREATOR_ITEM.get()) {
             MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
             VertexConsumer builder = buffer.getBuffer(RenderTypes.THICK_LINES);
             Vec3 playerPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -31,5 +32,7 @@ public class StructureCreatorRenderer {
             });
             buffer.endBatch(RenderTypes.THICK_LINES);
         }
+
+         */
     }
 }

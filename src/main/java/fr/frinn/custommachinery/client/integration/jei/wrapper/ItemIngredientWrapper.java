@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.ChatFormatting;
@@ -18,7 +18,6 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,12 +42,12 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     @Override
     public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
-        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
+        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get())
             return false;
 
-        List<ItemStack> ingredients = Arrays.stream(this.ingredient.ingredient().getItems()).map(item -> item.copyWithCount(this.ingredient.count())).collect(Collectors.toCollection(ArrayList::new));
+        List<ItemStack> ingredients = this.ingredient.ingredient().getValues().stream().map(item -> item.value().getDefaultInstance().copyWithCount(this.ingredient.count())).collect(Collectors.toCollection(ArrayList::new));
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t.getType() != Registration.ITEM_FILTER_MACHINE_COMPONENT.get() && t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
+        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t.getType() != CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get() && t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
             int slotY = element.getY() + (element.getHeight() - 16) / 2;
             builder.addSlot(roleFromMode(this.mode), slotX - xOffset, slotY - yOffset)

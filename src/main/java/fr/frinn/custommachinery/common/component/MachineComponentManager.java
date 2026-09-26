@@ -14,15 +14,15 @@ import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.upgrade.UpgradeableComponentValue;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -64,12 +64,12 @@ public class MachineComponentManager implements IMachineComponentManager {
             if(component.getType().isSingle())
                 components.put(component.getType(), component);
             else if(component instanceof ItemMachineComponent)
-                handlers.computeIfAbsent(Registration.ITEM_MACHINE_COMPONENT.get(), type -> new ArrayList<>()).add(component);
+                handlers.computeIfAbsent(CMRegistration.ITEM_MACHINE_COMPONENT.get(), type -> new ArrayList<>()).add(component);
             else
                 handlers.computeIfAbsent(component.getType(), type -> new ArrayList<>()).add(component);
         });
         handlers.forEach((type, list) -> components.put(type, type.getHandler(this, (List)Collections.unmodifiableList(list))));
-        StreamSupport.stream(Registration.MACHINE_COMPONENT_TYPE_REGISTRY.spliterator(), false).filter(type -> type.isDefaultComponent() && components.values().stream().noneMatch(component -> component.getType() == type)).forEach(type -> components.put(type, type.getDefaultComponentBuilder().apply(this)));
+        StreamSupport.stream(CMRegistration.MACHINE_COMPONENT_TYPE_REGISTRY.spliterator(), false).filter(type -> type.isDefaultComponent() && components.values().stream().noneMatch(component -> component.getType() == type)).forEach(type -> components.put(type, type.getDefaultComponentBuilder().apply(this)));
         this.components = Collections.unmodifiableMap(components);
         this.serializableComponents = this.components.values().stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).toList();
         this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).toList();
@@ -211,13 +211,11 @@ public class MachineComponentManager implements IMachineComponentManager {
         this.getTile().getProcessor().setMachineInventoryChanged();
     }
 
-    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
-        CompoundTag nbt = new CompoundTag();
-        getSerializableComponents().forEach(component -> component.serialize(nbt, registries));
-        return nbt;
+    public void serialize(ValueOutput output) {
+        getSerializableComponents().forEach(component -> component.serialize(output));
     }
 
-    public void deserializeNBT(CompoundTag nbt, HolderLookup.Provider registries) {
-        getSerializableComponents().forEach(component -> component.deserialize(nbt, registries));
+    public void deserialize(ValueInput input) {
+        getSerializableComponents().forEach(component -> component.deserialize(input));
     }
 }

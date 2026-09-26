@@ -34,8 +34,7 @@ public record SUpdateContainerPacket(int windowId, List<IData<?>> data) implemen
         short size = buf.readShort();
         for(short i = 0; i < size; i++) {
             IData<?> data = IData.readData(buf);
-            if(data != null)
-                dataList.add(data);
+            dataList.add(data);
         }
         return new SUpdateContainerPacket(windowId, dataList);
     }

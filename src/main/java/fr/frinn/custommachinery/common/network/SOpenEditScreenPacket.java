@@ -5,14 +5,14 @@ import fr.frinn.custommachinery.client.ClientPacketHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record SOpenEditScreenPacket(ResourceLocation machine) implements CustomPacketPayload {
+public record SOpenEditScreenPacket(Identifier machine) implements CustomPacketPayload {
 
     public static final Type<SOpenEditScreenPacket> TYPE = new Type<>(CustomMachinery.rl("open_edit_screen"));
 
-    public static final StreamCodec<ByteBuf, SOpenEditScreenPacket> CODEC = ResourceLocation.STREAM_CODEC.map(SOpenEditScreenPacket::new, SOpenEditScreenPacket::machine);
+    public static final StreamCodec<ByteBuf, SOpenEditScreenPacket> CODEC = Identifier.STREAM_CODEC.map(SOpenEditScreenPacket::new, SOpenEditScreenPacket::machine);
 
     @Override
     public Type<SOpenEditScreenPacket> type() {

@@ -11,9 +11,9 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.EffectMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.RomanNumber;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -32,11 +32,11 @@ public record EffectRequirement(Holder<MobEffect> effect, int time, int level, i
 
     public static final NamedCodec<EffectRequirement> CODEC = NamedCodec.record(effectRequirementInstance ->
             effectRequirementInstance.group(
-                    RegistrarCodec.EFFECT.fieldOf("effect").forGetter(requirement -> requirement.effect.value()),
+                    RegistryCodecs.EFFECT.fieldOf("effect").forGetter(requirement -> requirement.effect.value()),
                     NamedCodec.INT.fieldOf("time").forGetter(requirement -> requirement.time),
                     NamedCodec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
                     NamedCodec.INT.optionalFieldOf("level", 1).forGetter(requirement -> requirement.level),
-                    RegistrarCodec.ENTITY.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
+                    RegistryCodecs.ENTITY.listOf().optionalFieldOf("filter", new ArrayList<>()).forGetter(requirement -> requirement.filter),
                     NamedCodec.BOOL.optionalFieldOf("finish", false).forGetter(requirement -> requirement.applyAtEnd)
             ).apply(effectRequirementInstance, (effect, time, radius, level, filter, finish) ->
                     new EffectRequirement(Holder.direct(effect), time, radius, level, filter, finish)), "Effect requirement"
@@ -44,12 +44,12 @@ public record EffectRequirement(Holder<MobEffect> effect, int time, int level, i
 
     @Override
     public RequirementType<EffectRequirement> getType() {
-        return Registration.EFFECT_REQUIREMENT.get();
+        return CMRegistration.EFFECT_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<EffectMachineComponent> getComponentType() {
-        return Registration.EFFECT_MACHINE_COMPONENT.get();
+        return CMRegistration.EFFECT_MACHINE_COMPONENT.get();
     }
 
     @Override

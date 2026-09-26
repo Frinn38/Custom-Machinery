@@ -9,15 +9,14 @@ import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.util.ExperienceUtils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Collections;
 import java.util.List;
@@ -110,21 +109,19 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
     @Override
     public MachineComponentType<?> getType() {
-        return Registration.EXPERIENCE_MACHINE_COMPONENT.get();
+        return CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt.putInt("xp", this.xp);
-        nbt.putInt("levels", this.xpLevels);
+    public void serialize(ValueOutput output) {
+        output.putInt("xp", this.xp);
+        output.putInt("levels", this.xpLevels);
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if (nbt.contains("xp", Tag.TAG_INT))
-            this.xp = nbt.getInt("xp");
-        if (nbt.contains("levels", Tag.TAG_INT))
-            this.xpLevels = Math.min(nbt.getInt("levels"), this.getCapacityLevels());
+    public void deserialize(ValueInput input) {
+        input.getInt("xp").ifPresent(xp -> this.xp = xp);
+        input.getInt("levels").ifPresent(levels -> this.xpLevels = Math.min(levels, this.getCapacityLevels()));
     }
 
     @Override
@@ -184,7 +181,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
 
         @Override
         public MachineComponentType<ExperienceMachineComponent> getType() {
-            return Registration.EXPERIENCE_MACHINE_COMPONENT.get();
+            return CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get();
         }
 
         @Override

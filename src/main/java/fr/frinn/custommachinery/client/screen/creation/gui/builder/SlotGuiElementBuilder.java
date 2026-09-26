@@ -1,6 +1,5 @@
 package fr.frinn.custommachinery.client.screen.creation.gui.builder;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.client.ClientHandler;
@@ -14,24 +13,26 @@ import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
-import fr.frinn.custommachinery.impl.util.FakeItemRenderer;
 import net.minecraft.ChatFormatting;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +42,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
 
     @Override
     public GuiElementType<SlotGuiElement> type() {
-        return Registration.SLOT_GUI_ELEMENT.get();
+        return CMRegistration.SLOT_GUI_ELEMENT.get();
     }
 
     @Override
@@ -100,7 +101,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
             super(0, 0, 100, 60, Component.empty());
             this.items = this.addWidget(new SuggestedEditBox(Minecraft.getInstance().font, 0, 0, 100, 20, Component.empty(), 5));
             this.items.setMaxLength(Integer.MAX_VALUE);
-            this.items.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
+            this.items.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(Identifier::toString).toList());
             this.alwaysVisible = this.addWidget(Checkbox.builder(Component.empty(), Minecraft.getInstance().font).pos(80, 22).selected(false).build());
             this.alwaysVisible.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.slot.ghost.alwaysVisible")));
             this.transparency = this.addWidget(IntegerSlider.builder().displayOnlyValue().bounds(0, 100).defaultValue(100).setResponder(value -> this.color = Color.fromColors((int)(value * 2.55f), this.color.getRed(), this.color.getGreen(), this.color.getBlue())).create(0, 43, 100, 20, Component.translatable("custommachinery.gui.creation.gui.slot.ghost.transparency", 100)));
@@ -117,33 +118,32 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
         }
 
         public void setGhost(GhostItem ghost) {
-            if(ghost.ingredient().getItems().length != 0)
-                this.items.setValue(BuiltInRegistries.ITEM.getKey(ghost.ingredient().getItems()[0].getItem()).toString());
+            if(ghost.ingredient().getValues().size() != 0)
+                this.items.setValue(BuiltInRegistries.ITEM.getKey(ghost.ingredient().getValues().get(0).value()).toString());
             this.items.hideSuggestions();
             if(ghost.alwaysRender() != this.alwaysVisible.selected())
-                this.alwaysVisible.onPress();
+                this.alwaysVisible.onPress(new MouseButtonEvent(Double.MAX_VALUE, Double.MAX_VALUE, new MouseButtonInfo(0, 0)));
             this.transparency.setValue((int)(ghost.color().getAlpha() / 255f * 100));
             this.color = ghost.color();
         }
 
         public GhostItem getGhost() {
             try {
-                return new GhostItem(Ingredient.of(BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.items.getValue()))), this.color, this.alwaysVisible.selected());
-            } catch (ResourceLocationException | NullPointerException e) {
+                return new GhostItem(Ingredient.of(BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.items.getValue())).orElse(Items.AIR)), this.color, this.alwaysVisible.selected());
+            } catch (IdentifierException | NullPointerException e) {
                 return GhostItem.EMPTY;
             }
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             ClientHandler.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX() - 20, this.getY(), 18, 18);
             try {
-                FakeItemRenderer.render(graphics, BuiltInRegistries.ITEM.get(ResourceLocation.parse(this.items.getValue())).getDefaultInstance(), this.getX() - 19, this.getY() + 1, this.color.getARGB());
-            } catch (ResourceLocationException | NullPointerException ignored) {
+                //TODO FakeItemRenderer.render(graphics, BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.items.getValue())).map(Item::getDefaultInstance).orElse(ItemStack.EMPTY), this.getX() - 19, this.getY() + 1, this.color.getARGB());
+            } catch (IdentifierException | NullPointerException ignored) {
 
             }
-            RenderSystem.enableDepthTest();
-            super.renderWidget(graphics, mouseX, mouseY, partialTick);
+            super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
         }
     }
 }

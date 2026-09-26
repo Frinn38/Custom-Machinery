@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +28,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
     public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(ItemRequirement::getMode),
-                    NamedCodec.of(SizedIngredient.FLAT_CODEC).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
+                    NamedCodec.of(SizedIngredient.NESTED_CODEC).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot),
                     NamedCodec.BOOL.optionalFieldOf("consume_on_end", false).forGetter(requirement -> requirement.consumeOnEnd)
             ).apply(itemRequirementInstance, ItemRequirement::new), "Item requirement"
@@ -36,7 +36,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     public ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot, boolean consumeOnEnd) {
         this.mode = mode;
-        if(mode == RequirementIOMode.OUTPUT && ingredient.getItems().length > 1)
+        if(mode == RequirementIOMode.OUTPUT && ingredient.ingredient().getValues().size() > 1)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.ingredient = ingredient;
         this.slot = slot;
@@ -45,13 +45,13 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     @Override
     public RequirementType<ItemRequirement> getType() {
-        return Registration.ITEM_REQUIREMENT.get();
+        return CMRegistration.ITEM_REQUIREMENT.get();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public MachineComponentType getComponentType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -65,8 +65,8 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
         if(getMode() == RequirementIOMode.INPUT) {
             return component.getIngredientAmount(this.slot, this.ingredient.ingredient()) >= amount;
         } else {
-            if(this.ingredient.getItems().length > 0)
-                return component.getSpaceForItem(this.slot, this.ingredient.getItems()[0]) >= amount;
+            if(this.ingredient.ingredient().getValues().size() > 0)
+                return component.getSpaceForItem(this.slot, this.ingredient.ingredient().getValues().get(0).value().getDefaultInstance()) >= amount;
             else throw new IllegalStateException("Can't use output empty item");
         }
     }
@@ -105,8 +105,8 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     private CraftingResult processOutputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        if(this.ingredient.getItems().length > 0) {
-            ItemStack item = this.ingredient.getItems()[0];
+        if(this.ingredient.ingredient().getValues().size() > 0) {
+            ItemStack item = this.ingredient.ingredient().getValues().get(0).value().getDefaultInstance();
             int canInsert = component.getSpaceForItem(this.slot, item);
             if(canInsert >= amount) {
                 component.addToOutputs(this.slot, item.copy(), amount);

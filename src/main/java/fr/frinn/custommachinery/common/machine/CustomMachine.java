@@ -16,7 +16,7 @@ import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.util.Collections;
@@ -25,7 +25,8 @@ import java.util.List;
 
 public class CustomMachine implements ICustomMachine {
 
-    public static final ResourceLocation DUMMY_ID = CustomMachinery.rl("dummy");
+    public static final Identifier DUMMY_ID = CustomMachinery.rl("dummy");
+    public static final MachineLocation DUMMY_LOCATION = MachineLocation.fromDefault(DUMMY_ID, "");
 
     public static final NamedCodec<CustomMachine> CODEC = NamedCodec.record(machineCodec ->
         machineCodec.group(
@@ -34,7 +35,7 @@ public class CustomMachine implements ICustomMachine {
                 TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltips", Collections.emptyList()).forGetter(CustomMachine::getTooltips),
                 IGuiElement.CODEC.listOf().optionalFieldOf("gui", Collections.emptyList()).forGetter(CustomMachine::getGuiElements),
                 IGuiElement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(CustomMachine::getJeiElements),
-                DefaultCodecs.RESOURCE_LOCATION.listOf().optionalFieldOf("catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
+                DefaultCodecs.IDENTIFIER.listOf().optionalFieldOf("catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
                 IMachineComponentTemplate.CODEC.listOf().validate(CustomMachine::validateComponents).optionalFieldOf("components", Collections.emptyList()).forGetter(CustomMachine::getComponentTemplates),
                 IProcessorTemplate.CODEC.optionalFieldOf("processor", MachineProcessor.Template.DEFAULT).forGetter(CustomMachine::getProcessorTemplate)
         ).apply(machineCodec, CustomMachine::new),
@@ -43,8 +44,7 @@ public class CustomMachine implements ICustomMachine {
 
     public static final CustomMachine DUMMY = new CustomMachineBuilder()
             .setName(Component.literal("Dummy"))
-            .setLocation(MachineLocation.fromDefault(DUMMY_ID, ""))
-            .setId(DUMMY_ID)
+            .setLocation(DUMMY_LOCATION)
             .build();
 
     private final Component name;
@@ -52,13 +52,13 @@ public class CustomMachine implements ICustomMachine {
     private final List<Component> tooltips;
     private final List<IGuiElement> guiElements;
     private final List<IGuiElement> jeiElements;
-    private final List<ResourceLocation> catalysts;
+    private final List<Identifier> catalysts;
     private final List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates;
     private final IProcessorTemplate<? extends IProcessor> processorTemplate;
-    private MachineLocation location;
+    private MachineLocation location = DUMMY_LOCATION;
 
 
-    public CustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates, IProcessorTemplate<? extends IProcessor> processorTemplate) {
+    public CustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<Identifier> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates, IProcessorTemplate<? extends IProcessor> processorTemplate) {
         this.name = name;
         this.appearance = appearance;
         this.tooltips = tooltips;
@@ -70,12 +70,12 @@ public class CustomMachine implements ICustomMachine {
     }
 
     @Override
-    public ResourceLocation getId() {
+    public Identifier getId() {
         return this.location.id();
     }
 
     @Override
-    public List<ResourceLocation> getRecipeIds() {
+    public List<Identifier> getRecipeIds() {
         return Collections.singletonList(this.getId());
     }
 
@@ -115,7 +115,7 @@ public class CustomMachine implements ICustomMachine {
         return this.jeiElements;
     }
 
-    public List<ResourceLocation> getCatalysts() {
+    public List<Identifier> getCatalysts() {
         return this.catalysts;
     }
 

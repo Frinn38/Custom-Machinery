@@ -17,13 +17,16 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage;
-import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities.Energy;
+import net.neoforged.neoforge.capabilities.Capabilities.Fluid;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +57,7 @@ public class CustomMachineContainer extends SyncableContainer {
     private final List<SlotItemComponent> inputSlotComponents = new ArrayList<>();
 
     public CustomMachineContainer(int id, Inventory playerInv, CustomMachineTile tile) {
-        super(Registration.CUSTOM_MACHINE_CONTAINER.get(), id, tile, playerInv.player);
+        super(CMRegistration.CUSTOM_MACHINE_CONTAINER.get(), id, tile, playerInv.player);
         this.playerInv = playerInv;
         this.tile = tile;
         this.init();
@@ -78,7 +81,7 @@ public class CustomMachineContainer extends SyncableContainer {
 
         this.tile.getGuiElements()
             .stream()
-            .filter(element -> element.getType() == Registration.PLAYER_INVENTORY_GUI_ELEMENT.get())
+            .filter(element -> element.getType() == CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get())
             .findFirst()
             .ifPresent(element -> {
                 this.hasPlayerInventory = true;
@@ -99,10 +102,10 @@ public class CustomMachineContainer extends SyncableContainer {
 
         this.tile.getGuiElements()
             .stream()
-            .filter(element -> element.getType() == Registration.SLOT_GUI_ELEMENT.get())
+            .filter(element -> element.getType() == CMRegistration.SLOT_GUI_ELEMENT.get())
             .map(element -> (SlotGuiElement)element)
             .forEach(element ->
-                this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(itemHandler -> itemHandler.getComponentForID(element.getComponentId())).ifPresent(component -> {
+                this.tile.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get()).flatMap(itemHandler -> itemHandler.getComponentForID(element.getComponentId())).ifPresent(component -> {
                     int x = element.getX();
                     int y = element.getY();
                     int width = element.getWidth();
@@ -111,7 +114,7 @@ public class CustomMachineContainer extends SyncableContainer {
                     int slotY = y + (height - 16) / 2;
                     SlotItemComponent slotComponent = component.makeSlot(slotIndex.getAndIncrement(), slotX, slotY);
                     this.addSlot(slotComponent);
-                    if(component.getType() != Registration.ITEM_MACHINE_COMPONENT.get() || component.getMode().isInput())
+                    if(component.getType() != CMRegistration.ITEM_MACHINE_COMPONENT.get() || component.getMode().isInput())
                         this.inputSlotComponents.add(slotComponent);
                 })
             );
@@ -122,9 +125,9 @@ public class CustomMachineContainer extends SyncableContainer {
     }
 
     @Override
-    public void clicked(int slotId, int dragType, ClickType clickTypeIn, Player player) {
-        if (slotId >= 0 && slotId < this.slots.size() && this.slots.get(slotId) instanceof SlotItemComponent slot && !slot.getItem().isEmpty()) {
-            tile.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get()).ifPresent(
+    public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
+        if (slotIndex >= 0 && slotIndex < this.slots.size() && this.slots.get(slotIndex) instanceof SlotItemComponent slot && !slot.getItem().isEmpty()) {
+            tile.getComponentManager().getComponent(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get()).ifPresent(
                 component -> {
                     if (component.canRetrieveFromSlots()) {
                         if (component.slotsFromCanRetrieve().isEmpty()) {
@@ -143,7 +146,7 @@ public class CustomMachineContainer extends SyncableContainer {
             );
         }
         this.tile.setChanged();
-        super.clicked(slotId, dragType, clickTypeIn, player);
+        super.clicked(slotIndex, buttonNum, containerInput, player);
     }
 
     @Override
@@ -159,21 +162,24 @@ public class CustomMachineContainer extends SyncableContainer {
             ItemStack stack = clickedSlot.getItem().copy();
             List<SlotItemComponent> components;
             if(!CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(stack.getItem(), this.tile.getId()).isEmpty())
-                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
-            else if(stack.getBurnTime(RecipeType.SMELTING) > 0)
-                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
-            else if(stack.getCapability(EnergyStorage.ITEM) != null)
-                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_ENERGY_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
-            else if(stack.getCapability(FluidHandler.ITEM) != null)
-                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == Registration.ITEM_FLUID_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == CMRegistration.ITEM_UPGRADE_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
+            else if(stack.getBurnTime(RecipeType.SMELTING, player.level().fuelValues()) > 0)
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == CMRegistration.ITEM_FUEL_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
+            else if(stack.getCapability(Energy.ITEM, ItemAccess.forPlayerCursor(player, this)) != null)
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == CMRegistration.ITEM_ENERGY_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
+            else if(stack.getCapability(Fluid.ITEM, ItemAccess.forPlayerCursor(player, this)) != null)
+                components = this.inputSlotComponents.stream().sorted(Comparator.comparingInt(slot -> slot.getComponent().getType() == CMRegistration.ITEM_FLUID_MACHINE_COMPONENT.get() ? -1 : 1)).toList();
             else
                 components = this.inputSlotComponents;
             for (SlotItemComponent slotComponent : components) {
                 if(slotComponent.getComponent().isLocked())
                     continue;
-                stack = slotComponent.getComponent().insertItemBypassLimit(stack, false);
-                if(stack.isEmpty())
-                    break;
+                try(Transaction transaction = Transaction.openRoot()) {
+                    stack.shrink(slotComponent.getComponent().insertBypassLimit(ItemResource.of(stack), stack.count(), transaction));
+                    transaction.commit();
+                    if(stack.isEmpty())
+                        break;
+                }
             }
             if(stack.isEmpty())
                 clickedSlot.remove(clickedSlot.getItem().getCount());
@@ -183,7 +189,7 @@ public class CustomMachineContainer extends SyncableContainer {
             if (!(clickedSlot instanceof SlotItemComponent slotComponent) || slotComponent.getComponent().isLocked())
                 return ItemStack.EMPTY;
 
-            if(slotComponent instanceof ResultSlotItemComponent resultSlot && this.tile.getProcessor() instanceof CraftProcessor processor) {
+            if(slotComponent instanceof ResultSlotItemComponent && this.tile.getProcessor() instanceof CraftProcessor processor) {
                 ItemStack removed = slotComponent.getItem().copy();
                 if(!this.playerInv.add(removed))
                     return ItemStack.EMPTY;

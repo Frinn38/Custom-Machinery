@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.guielement;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
@@ -50,6 +50,6 @@ public class BackgroundGuiElement extends AbstractGuiElement {
 
     @Override
     public GuiElementType<BackgroundGuiElement> getType() {
-        return Registration.BACKGROUND_GUI_ELEMENT.get();
+        return CMRegistration.BACKGROUND_GUI_ELEMENT.get();
     }
 }

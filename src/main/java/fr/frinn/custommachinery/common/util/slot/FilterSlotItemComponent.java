@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.network.CSetFilterSlotItemPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.Optional;
 
@@ -17,7 +17,7 @@ public class FilterSlotItemComponent extends SlotItemComponent {
     public void setFromClient(ItemStack stack) {
         ItemStack copy = stack.copy();
         copy.setCount(1);
-        PacketDistributor.sendToServer(new CSetFilterSlotItemPacket(copy, this.getComponent().getManager().getTile().getBlockPos(), this.getComponent().getId()));
+        ClientPacketDistributor.sendToServer(new CSetFilterSlotItemPacket(copy, this.getComponent().getManager().getTile().getBlockPos(), this.getComponent().getId()));
     }
 
     @Override

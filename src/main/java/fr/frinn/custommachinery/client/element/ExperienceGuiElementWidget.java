@@ -4,13 +4,14 @@ import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.component.ExperienceMachineComponent;
 import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.ExperienceUtils;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -24,16 +25,16 @@ public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<Experie
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         if (!this.getElement().getMode().isDisplayBar())
-            super.renderWidget(graphics, mouseX, mouseY, partialTicks);
+            super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
         else {
-            Optional<ExperienceMachineComponent> component = getScreen().getTile().getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get());
+            Optional<ExperienceMachineComponent> component = getScreen().getTile().getComponentManager().getComponent(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get());
             int level = component.map(ExperienceMachineComponent::getLevels).orElse(0);
             int xp = component.map(ExperienceMachineComponent::getXp).orElse(0);
             String levels = "" + level;
             int xPos = this.getX() + this.width / 2 - Minecraft.getInstance().font.width(levels) / 2;
-            graphics.drawString(Minecraft.getInstance().font, levels, xPos, this.getY(), 0x80FF20, true);
+            graphics.text(Minecraft.getInstance().font, levels, xPos, this.getY(), 0x80FF20, true);
             graphics.fill(this.getX(), this.getY() + 9, this.getX() + this.width, this.getY() + 12, 0xFF000000);
             int xpDiff = xp - ExperienceUtils.getXpFromLevel(level);
             if (xpDiff > 0) {
@@ -47,7 +48,7 @@ public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<Experie
     public List<Component> getTooltips() {
         List<Component> tooltips = Lists.newArrayList();
         getScreen().getTile().getComponentManager()
-                .getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
+                .getComponent(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get())
                 .ifPresent(component -> {
                     if (getElement().getMode().isDisplay()) {
                         tooltips.add(TITLE);
@@ -100,7 +101,7 @@ public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<Experie
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
-        return !this.getElement().getMode().isDisplay() && super.clicked(mouseX, mouseY);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return !this.getElement().getMode().isDisplay() && super.mouseClicked(event, doubleClick);
     }
 }

@@ -33,7 +33,7 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
     public int getWidth() {
         if(super.getWidth() >= 0)
             return super.getWidth();
-        else if(FMLLoader.getDist() == Dist.CLIENT)
+        else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
             return TextureSizeHelper.getTextureWidth(this.getTexture().texture());
         else
             return -1;
@@ -43,7 +43,7 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
     public int getHeight() {
         if(super.getHeight() >= 0)
             return super.getHeight();
-        else if(FMLLoader.getDist() == Dist.CLIENT)
+        else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
             return TextureSizeHelper.getTextureHeight(this.getTexture().texture());
         else
             return -1;

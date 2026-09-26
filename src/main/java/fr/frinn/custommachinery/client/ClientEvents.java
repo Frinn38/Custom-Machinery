@@ -9,14 +9,15 @@ import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
@@ -36,9 +37,9 @@ public class ClientEvents {
                 .forEach(upgrade -> {
                     event.getToolTip().addAll(upgrade.tooltips());
 
-                    if(Screen.hasControlDown() || Screen.hasShiftDown()) {
+                    if(event.getFlags().hasControlDown() || event.getFlags().hasShiftDown()) {
                         MutableComponent machines = Component.empty();
-                        for(Iterator<ResourceLocation> iterator = upgrade.machines().iterator(); iterator.hasNext();) {
+                        for(Iterator<Identifier> iterator = upgrade.machines().iterator(); iterator.hasNext();) {
                             CustomMachine machine = CustomMachinery.MACHINES.get(iterator.next());
                             if(machine == null)
                                 continue;
@@ -56,11 +57,9 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public static void renderLevel(final RenderLevelStageEvent event) {
-        if(event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            BoxCreatorRenderer.renderSelectedBlocks(event.getPoseStack());
-            StructureCreatorRenderer.renderSelectedBlocks(event.getPoseStack());
-        }
+    public static void renderLevel(final RenderLevelStageEvent.AfterTranslucentParticles event) {
+        BoxCreatorRenderer.renderSelectedBlocks(event.getPoseStack());
+        StructureCreatorRenderer.renderSelectedBlocks(event.getPoseStack());
     }
 
     //If for some reason the game is stopped (crash, alt+F4...) and the machine editor is currently opened
@@ -69,5 +68,16 @@ public class ClientEvents {
     public static void playerLoggedOut(final ClientPlayerNetworkEvent.LoggingOut event) {
         if(event.getPlayer() != null && Minecraft.getInstance().screen instanceof MachineEditScreen screen && screen.isChanged())
             FileUtils.writeTempMachineJson(Minecraft.getInstance().gameDirectory, screen.getBuilder());
+    }
+
+    private static RecipeMap clientRecipes = RecipeMap.EMPTY;
+
+    @SubscribeEvent
+    public static void receiveClientRecipe(final RecipesReceivedEvent event) {
+        clientRecipes = event.getRecipeMap();
+    }
+
+    public static RecipeMap getClientRecipes() {
+        return clientRecipes;
     }
 }

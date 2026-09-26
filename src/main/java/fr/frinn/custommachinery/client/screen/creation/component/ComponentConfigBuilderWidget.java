@@ -16,7 +16,7 @@ import fr.frinn.custommachinery.impl.component.config.SideConfig.Template;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideConfig;
 import fr.frinn.custommachinery.impl.component.config.ToggleSideMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ComponentConfigBuilderWidget extends Button {
+public class ComponentConfigBuilderWidget extends Button.Plain {
 
     @SuppressWarnings("unchecked")
     public static <T extends Template<?>> ComponentConfigBuilderWidget make(int x, int y, int width, int height, Component message, BaseScreen parent, Supplier<T> baseConfig, Consumer<T> onFinish) {
@@ -84,10 +84,10 @@ public class ComponentConfigBuilderWidget extends Button {
         }
 
         @Override
-        public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-            super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+        public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+            super.extractBackground(graphics, mouseX, mouseY, partialTicks);
             graphics.blit(this.template.guiData().background().texture(), this.x, this.y, this.template.guiData().background().u(), this.template.guiData().background().v(), this.template.guiData().width(), this.template.guiData().height(), this.template.guiData().background().width(), this.template.guiData().background().height());
-            graphics.drawString(Minecraft.getInstance().font, this.template.guiData().title(), (int)(this.x + this.template.guiData().width() / 2F - font.width(this.template.guiData().title()) / 2F), this.y + 5, 0, false);
+            graphics.text(Minecraft.getInstance().font, this.template.guiData().title(), (int)(this.x + this.template.guiData().width() / 2F - font.width(this.template.guiData().title()) / 2F), this.y + 5, 0, false);
         }
 
         @Override

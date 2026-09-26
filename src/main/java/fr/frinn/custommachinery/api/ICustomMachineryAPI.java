@@ -6,9 +6,9 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
@@ -29,12 +29,12 @@ public interface ICustomMachineryAPI {
     String modid();
 
     /**
-     * Create a {@link ResourceLocation} for the specified path under the Custom Machinery namespace.
+     * Create a {@link Identifier} for the specified path under the Custom Machinery namespace.
      * This is equivalent of doing <pre>new ResourceLocation("custommachinery", path);</pre>
      * @param path The path of the resource.
-     * @return A {@link ResourceLocation} for the specified path under the Custom Machinery namespace.
+     * @return A {@link Identifier} for the specified path under the Custom Machinery namespace.
      */
-    ResourceLocation rl(String path);
+    Identifier rl(String path);
 
     /**
      * Use this logger to write something to the custommachinery.log file.

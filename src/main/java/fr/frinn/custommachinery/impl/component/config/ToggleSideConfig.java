@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.ByteTag;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -33,17 +33,14 @@ public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
     }
 
     @Override
-    public CompoundTag serialize() {
-        CompoundTag nbt = new CompoundTag();
-        this.sides.forEach((side, mode) -> nbt.put(side.name(), ByteTag.valueOf(mode.isEnabled())));
-        return nbt;
+    public void serialize(ValueOutput output) {
+        this.sides.forEach((side, mode) -> output.putByte(side.name(), (byte)mode.ordinal()));
     }
 
     @Override
-    public void deserialize(CompoundTag nbt) {
+    public void deserialize(ValueInput input) {
         for(RelativeSide side : RelativeSide.values())
-            if(nbt.get(side.name()) instanceof ByteTag byteTag)
-                this.sides.put(side, byteTag == ByteTag.ONE ? ToggleSideMode.ENABLED : ToggleSideMode.DISABLED);
+            input.getInt(side.name()).ifPresent(index -> this.sides.put(side, ToggleSideMode.values()[index]));
     }
 
     @Override

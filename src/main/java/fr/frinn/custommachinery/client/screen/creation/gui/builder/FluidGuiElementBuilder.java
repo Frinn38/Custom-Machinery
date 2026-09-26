@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
@@ -24,7 +24,7 @@ public class FluidGuiElementBuilder implements IGuiElementBuilder<FluidGuiElemen
 
     @Override
     public GuiElementType<FluidGuiElement> type() {
-        return Registration.FLUID_GUI_ELEMENT.get();
+        return CMRegistration.FLUID_GUI_ELEMENT.get();
     }
 
     @Override
@@ -69,7 +69,7 @@ public class FluidGuiElementBuilder implements IGuiElementBuilder<FluidGuiElemen
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font));
             this.highlight = row.addChild(Checkbox.builder(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font).selected(this.baseElement == null || this.baseElement.highlight()).build());
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.bar.orientation"), this.font));
-            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.name())).withValues(Orientation.values()).withInitialValue(this.baseElement != null ? this.baseElement.orientation() : Orientation.TOP).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
+            this.orientation = row.addChild(CycleButton.builder(orientation -> Component.literal(orientation.name()), this.baseElement != null ? this.baseElement.orientation() : Orientation.TOP).withValues(Orientation.values()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
         }
     }
 }

@@ -3,21 +3,21 @@ package fr.frinn.custommachinery.impl.crafting;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.crafting.IRecipeBuilder;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements IRecipeBuilder<T> {
 
-    private final ResourceLocation machine;
+    private final Identifier machine;
     private List<RecipeRequirement<?, ?>> requirements = new ArrayList<>();
     private List<RecipeRequirement<?, ?>> jeiRequirements = new ArrayList<>();
     private int priority = 0;
     private int jeiPriority = 0;
     private boolean hidden = false;
 
-    public AbstractRecipeBuilder(ResourceLocation machine) {
+    public AbstractRecipeBuilder(Identifier machine) {
         this.machine = machine;
     }
 
@@ -30,7 +30,7 @@ public abstract class AbstractRecipeBuilder<T extends IMachineRecipe> implements
         this.hidden = !recipe.showInJei();
     }
 
-    public ResourceLocation getMachine() {
+    public Identifier getMachine() {
         return this.machine;
     }
 

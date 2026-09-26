@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ComponentEditBox;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement;
 import fr.frinn.custommachinery.common.guielement.TextGuiElement.Alignment;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
@@ -25,7 +25,7 @@ public class TextGuiElementBuilder implements IGuiElementBuilder<TextGuiElement>
 
     @Override
     public GuiElementType<TextGuiElement> type() {
-        return Registration.TEXT_GUI_ELEMENT.get();
+        return CMRegistration.TEXT_GUI_ELEMENT.get();
     }
 
     @Override
@@ -63,7 +63,7 @@ public class TextGuiElementBuilder implements IGuiElementBuilder<TextGuiElement>
             if(this.baseElement != null)
                 this.text.setComponent(this.baseElement.getText());
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.text.alignment"), this.font));
-            this.alignment = row.addChild(CycleButton.<Alignment>builder(alignment -> Component.literal(alignment.toString())).withValues(Alignment.values()).withInitialValue(this.baseElement == null ? Alignment.LEFT : this.baseElement.getAlignment()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.text.alignment")));
+            this.alignment = row.addChild(CycleButton.builder(alignment -> Component.literal(alignment.toString()), this.baseElement == null ? Alignment.LEFT : this.baseElement.getAlignment()).withValues(Alignment.values()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.text.alignment")));
             this.addPriority(row);
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.text.jei"), this.font));
             this.showInJei = row.addChild(Checkbox.builder(Component.translatable("custommachinery.gui.creation.gui.text.jei"), this.font).selected(this.baseElement != null && this.baseElement.showInJei()).build());

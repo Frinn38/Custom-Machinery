@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.guielement;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
@@ -46,14 +46,14 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<ProgressBarGuiElement> getType() {
-        return Registration.PROGRESS_GUI_ELEMENT.get();
+        return CMRegistration.PROGRESS_GUI_ELEMENT.get();
     }
 
     @Override
     public int getWidth() {
         if(this.getProperties().width() >= 0)
             return this.getProperties().width();
-        else if(FMLLoader.getDist() == Dist.CLIENT)
+        else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
             if(this.getTexture().equals(BASE_EMPTY_TEXTURE))
                 return switch (this.orientation) {
                     case TOP, BOTTOM -> TextureSizeHelper.getTextureHeight(this.getTexture().texture());
@@ -69,7 +69,7 @@ public class ProgressBarGuiElement extends AbstractTexturedGuiElement {
     public int getHeight() {
         if(this.getProperties().height() >= 0)
             return this.getProperties().height();
-        else if(FMLLoader.getDist() == Dist.CLIENT)
+        else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
             if(this.getTexture().equals(BASE_EMPTY_TEXTURE))
                 return switch (this.orientation) {
                     case TOP, BOTTOM -> TextureSizeHelper.getTextureWidth(this.getTexture().texture());

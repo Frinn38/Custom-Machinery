@@ -9,10 +9,10 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import mezz.jei.api.helpers.IJeiHelpers;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraftRecipe, RecipeHolder<CustomCraftRecipe>> {
 
-    public CustomCraftRecipeCategory(CustomMachine machine, RecipeType<RecipeHolder<CustomCraftRecipe>> type, IJeiHelpers helpers) {
+    public CustomCraftRecipeCategory(CustomMachine machine, IRecipeType<RecipeHolder<CustomCraftRecipe>> type, IJeiHelpers helpers) {
         super(machine, type, helpers);
 
         this.wrapperCache = CacheBuilder.newBuilder().build(new CacheLoader<>() {
@@ -30,12 +30,12 @@ public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraf
                 ImmutableList.Builder<IJEIIngredientWrapper<?>> wrappers = ImmutableList.builder();
                 recipe.getDisplayInfoRequirements().forEach(requirement -> wrappers.addAll(requirement.getJeiIngredientWrappers(recipe)));
                 String resultSlot = machine.getComponentTemplates().stream()
-                        .filter(template -> template instanceof ItemMachineComponent.Template slotTemplate && slotTemplate.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get())
+                        .filter(template -> template instanceof ItemMachineComponent.Template slotTemplate && slotTemplate.getType() == CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get())
                         .findFirst()
                         .map(IMachineComponentTemplate::getId)
                         .orElse("");
 
-                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(recipe.getOutput()), recipe.getOutput().getCount()), 1.0, false, resultSlot, false));
+                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(recipe.getOutput().getItem()), recipe.getOutput().getCount()), 1.0, false, resultSlot, false));
                 return wrappers.build();
             }
         });

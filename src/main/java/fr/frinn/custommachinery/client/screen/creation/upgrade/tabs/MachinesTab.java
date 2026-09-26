@@ -6,14 +6,15 @@ import fr.frinn.custommachinery.client.screen.widget.GridListWidget;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -51,7 +52,7 @@ public class MachinesTab extends UpgradeEditTab {
 
     private static class MachineSelectionList extends GridListWidget<MachineSelectionList.MachineEntry> {
 
-        public MachineSelectionList(int x, int y, int width, int height, Consumer<ResourceLocation> onClick) {
+        public MachineSelectionList(int x, int y, int width, int height, Consumer<Identifier> onClick) {
             super(x, y, width, height);
             CustomMachinery.MACHINES.keySet().forEach(id -> this.addEntry(new MachineEntry(id, onClick)));
         }
@@ -61,26 +62,26 @@ public class MachinesTab extends UpgradeEditTab {
             private static final Component SELECT = Component.translatable("custommachinery.gui.creation.upgrade.machines.select").withStyle(ChatFormatting.DARK_RED);
             private static final Component UNSELECT = Component.translatable("custommachinery.gui.creation.upgrade.machines.unselect").withStyle(ChatFormatting.DARK_RED);
 
-            private final ResourceLocation machine;
+            private final Identifier machine;
             private final ItemStack machineStack;
-            private final Consumer<ResourceLocation> onClick;
+            private final Consumer<Identifier> onClick;
             private boolean selected = false;
 
-            private MachineEntry(ResourceLocation machine, Consumer<ResourceLocation> onClick) {
+            private MachineEntry(Identifier machine, Consumer<Identifier> onClick) {
                 this.machine = machine;
                 this.machineStack = CustomMachineItem.makeMachineItem(machine);
                 this.onClick = onClick;
             }
 
             @Override
-            public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
                 if(this.selected)
-                    graphics.fill(0, 0, 18, 18, FastColor.ARGB32.color(255, 255, 0, 0));
-                graphics.renderItem(this.machineStack, 1, 1);
+                    graphics.fill(0, 0, 18, 18, ARGB.color(255, 255, 0, 0));
+                graphics.item(this.machineStack, 1, 1);
             }
 
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
                 this.selected = !this.selected;
                 this.onClick.accept(this.machine);
                 return true;

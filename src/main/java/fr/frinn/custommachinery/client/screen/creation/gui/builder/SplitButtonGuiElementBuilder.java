@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.SplitButtonGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.EditBox;
@@ -28,7 +28,7 @@ public class SplitButtonGuiElementBuilder implements IGuiElementBuilder<SplitBut
 
     @Override
     public GuiElementType<SplitButtonGuiElement> type() {
-        return Registration.SPLIT_GUI_ELEMENT.get();
+        return CMRegistration.SPLIT_GUI_ELEMENT.get();
     }
 
     @Override

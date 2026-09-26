@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -25,8 +26,8 @@ public class ComponentEditBox extends GroupWidget {
     public ComponentEditBox(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message);
         this.editBox = this.addWidget(new EditBox(Minecraft.getInstance().font, x, y, width - 20, height, message));
-        this.editBox.setFormatter((value, pos) -> FormattedCharSequence.forward(value, this.style));
-        ImageButton button1 = this.addWidget(new ImageButton(x + width - 20, y, 20, 20, BUTTON_TEXTURE, button -> this.button()));
+        this.editBox.addFormatter((value, pos) -> FormattedCharSequence.forward(value, this.style));
+        this.addWidget(new ImageButton(x + width - 20, y, 20, 20, BUTTON_TEXTURE, button -> this.button()));
     }
 
     private void button() {
@@ -76,7 +77,7 @@ public class ComponentEditBox extends GroupWidget {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return this.editBox.keyPressed(keyCode, scanCode, modifiers);
+    public boolean keyPressed(KeyEvent event) {
+        return this.editBox.keyPressed(event);
     }
 }

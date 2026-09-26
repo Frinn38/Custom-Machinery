@@ -5,10 +5,10 @@ import fr.frinn.custommachinery.client.screen.creation.AppearanceListWidget.Appe
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.appearance.IAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.builder.MachineAppearanceBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 
@@ -31,7 +31,7 @@ public class AppearanceListWidget extends ListWidget<AppearanceEntry> {
 
     public void init() {
         this.clear();
-        for(MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY) {
+        for(MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY) {
             IAppearancePropertyBuilder<?> propertyBuilder = AppearancePropertyBuilderRegistry.getBuilder(property);
             if(propertyBuilder == null)
                 continue;
@@ -59,8 +59,8 @@ public class AppearanceListWidget extends ListWidget<AppearanceEntry> {
         }
 
         @Override
-        public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-            graphics.drawString(Minecraft.getInstance().font, this.builder.title(), x, y + this.widget.getHeight() / 2 - 2, 0, false);
+        public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+            graphics.text(Minecraft.getInstance().font, this.builder.title(), x, y + this.widget.getHeight() / 2 - 2, 0, false);
             this.widget.setPosition(x + width - this.widget.getWidth() - 10, y);
         }
 

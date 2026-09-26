@@ -3,8 +3,9 @@ package fr.frinn.custommachinery.common.crafting.machine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
 import fr.frinn.custommachinery.common.crafting.RecipeChecker;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Comparators;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
@@ -19,8 +20,8 @@ public class MachineRecipeFinder {
     private final int baseCooldown;
     private final MutableCraftingContext mutableCraftingContext;
     private final int core;
-    private List<RecipeChecker<CustomMachineRecipe>> recipes;
-    private List<RecipeChecker<CustomMachineRecipe>> okToCheck;
+    private final List<RecipeChecker<CustomMachineRecipe>> recipes = new ArrayList<>();
+    private final List<RecipeChecker<CustomMachineRecipe>> okToCheck = new ArrayList<>();
     private boolean inventoryChanged = true;
 
     private int recipeCheckCooldown;
@@ -34,17 +35,16 @@ public class MachineRecipeFinder {
     }
 
     public void init() {
-        if(tile.getLevel() == null)
+        if(!(this.tile.getLevel() instanceof ServerLevel level))
             throw new IllegalStateException("Broken machine " + tile.getMachine().getId() + "doesn't have a world");
-        this.recipes = tile.getLevel().getRecipeManager()
-                .getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
+        level.recipeAccess().recipeMap()
+                .byType(CMRegistration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .filter(recipe -> tile.getMachine().getRecipeIds().contains(recipe.value().getMachineId()))
                 .sorted((holder1, holder2) -> Comparators.RECIPE_PRIORITY_COMPARATOR.reversed().compare(holder1.value(), holder2.value()))
                 .map(RecipeChecker::new)
-                .toList();
-        this.okToCheck = new ArrayList<>();
-        this.recipeCheckCooldown = tile.getLevel().random.nextInt(this.baseCooldown);
+                .forEach(this.recipes::add);
+        this.recipeCheckCooldown = level.getRandom().nextInt(this.baseCooldown);
     }
 
     public Optional<RecipeHolder<CustomMachineRecipe>> findRecipe(boolean immediately) {

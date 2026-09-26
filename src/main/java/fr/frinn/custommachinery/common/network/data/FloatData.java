@@ -1,12 +1,12 @@
 package fr.frinn.custommachinery.common.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public class FloatData extends Data<Float> {
   public FloatData(short id, Float value) {
-    super(Registration.FLOAT_DATA.get(), id, value);
+    super(CMRegistration.FLOAT_DATA.get(), id, value);
   }
 
   public FloatData(short id, RegistryFriendlyByteBuf buffer) {

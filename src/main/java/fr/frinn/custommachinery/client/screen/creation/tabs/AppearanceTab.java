@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.client.screen.creation.MachineTabManager;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.client.screen.widget.tabs.EditTabNavigationBar;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -17,8 +17,9 @@ import net.minecraft.client.gui.components.tabs.TabManager;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class AppearanceTab extends MachineEditTab {
 
     private static class SeparationWidget extends AbstractWidget {
 
-        private final ResourceLocation texture;
+        private final Identifier texture;
 
         public SeparationWidget(int width, int height) {
             super(0, 0, width, height, Component.empty());
@@ -112,8 +113,8 @@ public class AppearanceTab extends MachineEditTab {
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.blitSprite(this.texture, this.getX(), this.getY(), -1, this.getWidth(), this.getHeight());
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.texture, this.getX(), this.getY(), -1, this.getWidth(), this.getHeight());
         }
 
         @Override

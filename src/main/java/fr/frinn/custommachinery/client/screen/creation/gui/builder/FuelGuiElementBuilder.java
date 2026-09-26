@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.CycleButton;
@@ -24,7 +24,7 @@ public class FuelGuiElementBuilder implements IGuiElementBuilder<FuelGuiElement>
 
     @Override
     public GuiElementType<FuelGuiElement> type() {
-        return Registration.FUEL_GUI_ELEMENT.get();
+        return CMRegistration.FUEL_GUI_ELEMENT.get();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class FuelGuiElementBuilder implements IGuiElementBuilder<FuelGuiElement>
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.filled"), texture -> this.textureFilled = texture, this.textureFilled);
             this.addPriority(row);
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.bar.orientation"), this.font));
-            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.name())).withValues(Orientation.values()).withInitialValue(this.baseElement != null ? this.baseElement.getOrientation() : Orientation.TOP).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
+            this.orientation = row.addChild(CycleButton.builder(orientation -> Component.literal(orientation.name()), this.baseElement != null ? this.baseElement.getOrientation() : Orientation.TOP).withValues(Orientation.values()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
         }
     }
 }

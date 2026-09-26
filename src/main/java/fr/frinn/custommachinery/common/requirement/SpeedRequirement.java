@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 
 public class SpeedRequirement implements IRequirement<AbstractMachineComponent> {
@@ -16,7 +16,7 @@ public class SpeedRequirement implements IRequirement<AbstractMachineComponent> 
 
     @Override
     public RequirementType<SpeedRequirement> getType() {
-        return Registration.SPEED_REQUIREMENT.get();
+        return CMRegistration.SPEED_REQUIREMENT.get();
     }
 
     @Override

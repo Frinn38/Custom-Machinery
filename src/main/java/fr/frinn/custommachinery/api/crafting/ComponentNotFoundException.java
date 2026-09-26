@@ -2,18 +2,18 @@ package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Thrown by the machine {@link IProcessor} in case the machine doesn't have an {@link fr.frinn.custommachinery.api.component.IMachineComponent} required by the {@link fr.frinn.custommachinery.api.requirement.IRequirement} currently checked.
  */
 public class ComponentNotFoundException extends RuntimeException {
 
-    private final ResourceLocation recipeId;
+    private final Identifier recipeId;
     private final ICustomMachine machine;
     private final RequirementType<?> requirementType;
 
-    public ComponentNotFoundException(ResourceLocation recipeId, ICustomMachine machine, RequirementType<?> requirementType) {
+    public ComponentNotFoundException(Identifier recipeId, ICustomMachine machine, RequirementType<?> requirementType) {
         this.recipeId = recipeId;
         this.machine = machine;
         this.requirementType = requirementType;

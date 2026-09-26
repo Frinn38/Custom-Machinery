@@ -11,12 +11,12 @@ import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
@@ -80,13 +80,13 @@ public class UpgradeListWidget extends ListWidget<UpgradeEntry> {
         }
 
         @Override
-        protected void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+        protected void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
             //Item
-            graphics.renderItem(this.upgrade.item().getDefaultInstance(), x + 2, y + height / 2 - 8);
+            graphics.item(this.upgrade.item().getDefaultInstance(), x + 2, y + height / 2 - 8);
 
             //Machines
             MutableComponent machines = Component.empty();
-            for(Iterator<ResourceLocation> iterator = this.upgrade.machines().iterator(); iterator.hasNext();) {
+            for(Iterator<Identifier> iterator = this.upgrade.machines().iterator(); iterator.hasNext();) {
                 machines.append(CustomMachinery.MACHINES.getOrDefault(iterator.next(), CustomMachine.DUMMY).getName());
                 if(iterator.hasNext())
                     machines.append(", ");

@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.requirement.data.StringDataRequirement.Comparator;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.nbt.CompoundTag;
@@ -30,12 +30,12 @@ public record NBTDataRequirement(RequirementIOMode mode, String id, CompoundTag 
 
     @Override
     public RequirementType<NBTDataRequirement> getType() {
-        return Registration.NBT_DATA_REQUIREMENT.get();
+        return CMRegistration.NBT_DATA_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<DataMachineComponent> getComponentType() {
-        return Registration.DATA_MACHINE_COMPONENT.get();
+        return CMRegistration.DATA_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -63,7 +63,7 @@ public record NBTDataRequirement(RequirementIOMode mode, String id, CompoundTag 
                     if(this.comparator == Comparator.EXACT ? this.value.equals(compoundTag) : this.containsAll(compoundTag, this.value))
                         return CraftingResult.success();
                 }
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.value, tag == null ? "not found" : tag.getAsString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.value, tag == null ? "not found" : tag.toString()));
             });
         else
             list.processOnEnd((component, context) -> {
@@ -75,8 +75,8 @@ public record NBTDataRequirement(RequirementIOMode mode, String id, CompoundTag 
                 else {
                     CompoundTag tag = component.getData();
                     for(int i = 0; i < path.length - 1; i++) {
-                        if(tag.contains(path[i], Tag.TAG_COMPOUND))
-                            tag = tag.getCompound(path[i]);
+                        if(tag.contains(path[i]) && tag.getCompound(path[i]).isPresent())
+                            tag = tag.getCompound(path[i]).get();
                         else {
                             CompoundTag newTag = new CompoundTag();
                             tag.put(path[i], newTag);
@@ -107,13 +107,11 @@ public record NBTDataRequirement(RequirementIOMode mode, String id, CompoundTag 
 
     //Check if tag1 contains at least all values from tag2
     private boolean containsAll(CompoundTag tag1, CompoundTag tag2) {
-        for(String key : tag2.getAllKeys()) {
+        for(String key : tag2.keySet()) {
             if(!tag1.contains(key))
                 return false;
             Tag tag = tag1.get(key);
             if(tag == null)
-                return false;
-            if(tag1.getTagType(key) != tag2.getTagType(key))
                 return false;
             if(!tag.equals(tag2.get(key)))
                 return false;

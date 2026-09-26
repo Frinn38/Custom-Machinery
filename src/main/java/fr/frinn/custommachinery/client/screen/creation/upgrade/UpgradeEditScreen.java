@@ -17,9 +17,8 @@ import fr.frinn.custommachinery.common.upgrade.MachineUpgradeBuilder;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -31,6 +30,8 @@ import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
@@ -77,8 +78,8 @@ public class UpgradeEditScreen extends BaseScreen {
 
     public void save() {
         this.changed = false;
-        PacketDistributor.sendToServer(new CEditUpgradePacket(this.location, this.builder.build()));
-        Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.upgrade.save.toast"), null, false), 50);
+        ClientPacketDistributor.sendToServer(new CEditUpgradePacket(this.location, this.builder.build()));
+        Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.upgrade.save.toast"), null, false, 50));
     }
 
     public void cancel() {
@@ -91,15 +92,11 @@ public class UpgradeEditScreen extends BaseScreen {
     }
 
     public void wiki() {
-        String[] s = SharedConstants.getCurrentVersion().getName().split("\\.");
-        String version = "1.19";
+        String[] s = SharedConstants.getCurrentVersion().name().split("\\.");
+        String version = "1.21";
         if(s.length >= 2)
             version = "1." + s[1];
         Util.getPlatform().openUri("https://frinn.gitbook.io/custom-machinery-" + version);
-    }
-
-    public TabManager getTabManager() {
-        return this.tabManager;
     }
 
     @Override
@@ -143,8 +140,8 @@ public class UpgradeEditScreen extends BaseScreen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         blankBackground(graphics, this.x, this.y, this.xSize, this.ySize);
 
         blankBackground(graphics, this.x - 33, this.y, 30, 80);

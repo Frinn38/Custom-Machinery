@@ -8,31 +8,32 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 
 public interface CustomMachineryRecipeComponents {
 
-    RecipeComponentType<ResourceLocation> RESOURCE_LOCATION = RecipeComponentType.unit(CustomMachinery.rl("rl"), new RecipeComponent<>() {
+    RecipeComponent<Identifier> RESOURCE_LOCATION = new RecipeComponent<>() {
         @Override
-        public RecipeComponentType<ResourceLocation> type() {
-            return RESOURCE_LOCATION;
+        public ResourceKey<RecipeComponentType<?>> type() {
+            return RecipeComponentType.key(CustomMachinery.rl("id"));
         }
 
         @Override
-        public Codec<ResourceLocation> codec() {
-            return ResourceLocation.CODEC;
+        public Codec<Identifier> codec() {
+            return Identifier.CODEC;
         }
 
         @Override
         public TypeInfo typeInfo() {
-            return TypeInfo.of(ResourceLocation.class);
+            return TypeInfo.of(Identifier.class);
         }
-    });
+    };
 
-    RecipeComponentType<RecipeRequirement<?, ?>> REQUIREMENT_COMPONENT = RecipeComponentType.unit(CustomMachinery.rl("requirements"), new RecipeComponent<>() {
+    RecipeComponent<RecipeRequirement<?, ?>> REQUIREMENT_COMPONENT = new RecipeComponent<>() {
         @Override
-        public RecipeComponentType<RecipeRequirement<?, ?>> type() {
-            return REQUIREMENT_COMPONENT;
+        public ResourceKey<RecipeComponentType<?>> type() {
+            return RecipeComponentType.key(CustomMachinery.rl("requirements"));
         }
 
         @Override
@@ -44,12 +45,12 @@ public interface CustomMachineryRecipeComponents {
         public TypeInfo typeInfo() {
             return TypeInfo.of(RecipeRequirement.class);
         }
-    });
+    };
 
-    RecipeComponentType<MachineAppearance> CUSTOM_APPEARANCE = RecipeComponentType.unit(CustomMachinery.rl("appearance"), new RecipeComponent<>() {
+    RecipeComponent<MachineAppearance> CUSTOM_APPEARANCE = new RecipeComponent<>() {
         @Override
-        public RecipeComponentType<MachineAppearance> type() {
-            return CUSTOM_APPEARANCE;
+        public ResourceKey<RecipeComponentType<?>> type() {
+            return RecipeComponentType.key(CustomMachinery.rl("appearance"));
         }
 
         @Override
@@ -61,12 +62,12 @@ public interface CustomMachineryRecipeComponents {
         public TypeInfo typeInfo() {
             return TypeInfo.of(MachineAppearance.class);
         }
-    });
+    };
 
-    RecipeComponentType<IGuiElement> CUSTOM_GUI_ELEMENTS = RecipeComponentType.unit(CustomMachinery.rl("gui_element"), new RecipeComponent<>() {
+    RecipeComponent<IGuiElement> CUSTOM_GUI_ELEMENTS = new RecipeComponent<>() {
         @Override
-        public RecipeComponentType<IGuiElement> type() {
-            return CUSTOM_GUI_ELEMENTS;
+        public ResourceKey<RecipeComponentType<?>> type() {
+            return RecipeComponentType.key(CustomMachinery.rl("gui_element"));
         }
 
         @Override
@@ -78,5 +79,5 @@ public interface CustomMachineryRecipeComponents {
         public TypeInfo typeInfo() {
             return TypeInfo.of(IGuiElement.class);
         }
-    });
+    };
 }

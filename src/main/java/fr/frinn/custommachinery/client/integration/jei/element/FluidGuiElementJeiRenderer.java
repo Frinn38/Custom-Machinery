@@ -4,12 +4,12 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class FluidGuiElementJeiRenderer implements IJEIElementRenderer<FluidGuiElement> {
 
     @Override
-    public void renderElementInJEI(GuiGraphics graphics, FluidGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
+    public void renderElementInJEI(GuiGraphicsExtractor graphics, FluidGuiElement element, IMachineRecipe recipe, int mouseX, int mouseY) {
         int posX = element.getX();
         int posY = element.getY();
         int width = element.getWidth();

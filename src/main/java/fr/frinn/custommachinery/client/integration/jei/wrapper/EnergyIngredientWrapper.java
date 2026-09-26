@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.client.integration.jei.energy.EnergyJEIIngredientRenderer;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
@@ -27,12 +27,12 @@ public class EnergyIngredientWrapper implements IJEIIngredientWrapper<Energy> {
 
     @Override
     public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
-        if(!(element instanceof EnergyGuiElement energyElement) || element.getType() != Registration.ENERGY_GUI_ELEMENT.get())
+        if(!(element instanceof EnergyGuiElement energyElement) || element.getType() != CMRegistration.ENERGY_GUI_ELEMENT.get())
             return false;
 
         builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                 .setCustomRenderer(CustomIngredientTypes.ENERGY, new EnergyJEIIngredientRenderer(energyElement))
-                .addIngredient(CustomIngredientTypes.ENERGY, this.energy)
+                .add(CustomIngredientTypes.ENERGY, this.energy)
                 .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                     Component component;
                     String amount = Utils.format(this.energy.amount());

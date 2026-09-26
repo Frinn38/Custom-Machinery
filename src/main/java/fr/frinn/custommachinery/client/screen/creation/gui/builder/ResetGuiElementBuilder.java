@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.ResetGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,7 @@ public class ResetGuiElementBuilder implements IGuiElementBuilder<ResetGuiElemen
 
     @Override
     public GuiElementType<ResetGuiElement> type() {
-        return Registration.RESET_GUI_ELEMENT.get();
+        return CMRegistration.RESET_GUI_ELEMENT.get();
     }
 
     @Override

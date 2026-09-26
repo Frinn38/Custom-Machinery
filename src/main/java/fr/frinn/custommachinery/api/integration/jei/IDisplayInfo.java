@@ -5,9 +5,10 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.impl.codec.FieldCodec;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +44,7 @@ public interface IDisplayInfo {
      * @param texture The location of the texture, the path must start from the "textures" folder and include the extension ".png".
      * @return Itself, to chain calls.
      */
-    default IDisplayInfo setTextureIcon(ResourceLocation texture) {
+    default IDisplayInfo setTextureIcon(Identifier texture) {
         return setTextureIcon(texture, 16, 16, 0, 0);
     }
 
@@ -55,7 +56,7 @@ public interface IDisplayInfo {
      * @param height The partial height of the texture you want to display.
      * @return Itself, to chain calls.
      */
-    default IDisplayInfo setTextureIcon(ResourceLocation texture, int width, int height) {
+    default IDisplayInfo setTextureIcon(Identifier texture, int width, int height) {
         return setTextureIcon(texture, width, height, 0, 0);
     }
 
@@ -69,7 +70,7 @@ public interface IDisplayInfo {
      * @param v The vertical coordinate you want to start drawing the texture, from top to bottom.
      * @return Itself, to chain calls.
      */
-    IDisplayInfo setTextureIcon(ResourceLocation texture, int width, int height, int u, int v);
+    IDisplayInfo setTextureIcon(Identifier texture, int width, int height, int u, int v);
 
     /**
      * Set an already loaded and stitched {@link TextureAtlasSprite} as the requirement icon in the jei recipe screen.
@@ -78,7 +79,7 @@ public interface IDisplayInfo {
      * @param sprite The location of sprite to display in the atlas, can be animated.
      * @return Itself, to chain calls.
      */
-    IDisplayInfo setSpriteIcon(ResourceLocation atlas, ResourceLocation sprite);
+    IDisplayInfo setSpriteIcon(Identifier atlas, Identifier sprite);
 
     /**
      * Set an {@link Item} as the requirement icon in the jei recipe screen.
@@ -111,9 +112,9 @@ public interface IDisplayInfo {
         /**
          * @param machine The machine that will process the recipe.
          * @param recipe The recipe that contain this requirement.
-         * @param mouseButton The mouse button that was pressed: 0 = left, 1 = right, 2 = middle.
+         * @param inputWithModifiers The mouse button that was pressed: 0 = left, 1 = right, 2 = middle + any other modifiers (ctrl, shift, alt).
          */
-        void handleClick(ICustomMachine machine, IMachineRecipe recipe, int mouseButton);
+        void handleClick(ICustomMachine machine, IMachineRecipe recipe, InputWithModifiers inputWithModifiers);
     }
 
     /**

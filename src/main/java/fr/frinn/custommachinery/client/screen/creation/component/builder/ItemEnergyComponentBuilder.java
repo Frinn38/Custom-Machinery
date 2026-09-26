@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.item.EnergyItemMachineComponent;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -16,7 +16,7 @@ public class ItemEnergyComponentBuilder extends ItemComponentBuilder {
 
     @Override
     public MachineComponentType<ItemMachineComponent> type() {
-        return Registration.ITEM_ENERGY_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_ENERGY_MACHINE_COMPONENT.get();
     }
 
     @Override

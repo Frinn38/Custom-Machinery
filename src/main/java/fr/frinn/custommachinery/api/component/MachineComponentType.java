@@ -8,8 +8,8 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -153,8 +153,8 @@ public class MachineComponentType<T extends IMachineComponent> {
      * A helper method to get the ID of this {@link MachineComponentType}.
      * @return The ID of this {@link MachineComponentType}, or null if it is not registered.
      */
-    public ResourceLocation getId() {
-        ResourceLocation id = ICustomMachineryAPI.INSTANCE.componentRegistrar().getKey(this);
+    public Identifier getId() {
+        Identifier id = ICustomMachineryAPI.INSTANCE.componentRegistrar().getKey(this);
         if(id == null)
             throw new IllegalStateException("Trying to get id for an unregistered machine component type");
         return id;

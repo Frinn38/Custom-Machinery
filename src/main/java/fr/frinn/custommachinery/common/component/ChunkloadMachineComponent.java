@@ -7,19 +7,17 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.TaskDelayer;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.function.Supplier;
 
@@ -42,7 +40,7 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
 
     @Override
     public MachineComponentType<ChunkloadMachineComponent> getType() {
-        return Registration.CHUNKLOAD_MACHINE_COMPONENT.get();
+        return CMRegistration.CHUNKLOAD_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -54,9 +52,9 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
     @Override
     public void init() {
         if(this.active && getManager().getLevel() instanceof ServerLevel level) {
-            ChunkPos pos = new ChunkPos(getManager().getTile().getBlockPos());
+            ChunkPos pos = ChunkPos.containing(getManager().getTile().getBlockPos());
             int radius = Math.max(this.currentRadius, this.defaultRadius.get());
-            if(level.getChunk(pos.x, pos.z, ChunkStatus.EMPTY, false) instanceof LevelChunk)
+            if(level.getChunk(pos.x(), pos.z(), ChunkStatus.EMPTY, false) instanceof LevelChunk)
                 this.setActive(radius);
             else
                 TaskDelayer.enqueue(1, () -> this.setActive(radius));
@@ -70,22 +68,18 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt.putBoolean("active", this.active);
-        nbt.putInt("radius", this.currentRadius);
+    public void serialize(ValueOutput output) {
+        output.putBoolean("active", this.active);
+        output.putInt("radius", this.currentRadius);
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if(nbt.contains("active", CompoundTag.TAG_BYTE))
-            this.active = nbt.getBoolean("active");
-        if(nbt.contains("radius", CompoundTag.TAG_INT))
-            this.currentRadius = nbt.getInt("radius");
+    public void deserialize(ValueInput input) {
+        this.active = input.getBooleanOr("active", this.active);
+        this.currentRadius = input.getIntOr("radius", this.currentRadius);
     }
 
     /** ChunkLoader stuff **/
-
-    private static final TicketType<BlockPos> MACHINE_CHUNKLOAD = TicketType.create("custom_machine", Vec3i::compareTo, 0);
 
     public void setActive(int radius) {
         if(getManager().getLevel() instanceof ServerLevel level) {
@@ -96,9 +90,9 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
             this.currentRadius = radius;
 
             BlockPos machinePos = getManager().getTile().getBlockPos();
-            ChunkPos chunk = new ChunkPos(machinePos);
-            level.setChunkForced(chunk.x, chunk.z, true);
-            level.getChunkSource().addRegionTicket(MACHINE_CHUNKLOAD, chunk, radius + 1, machinePos);
+            ChunkPos chunk = ChunkPos.containing(machinePos);
+            level.setChunkForced(chunk.x(), chunk.z(), true);
+            level.getChunkSource().addTicketWithRadius(CMRegistration.MACHINE_TICKET_TYPE.get(), chunk, radius + 1);
         }
     }
 
@@ -112,10 +106,10 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
         this.active = false;
 
         BlockPos machinePos = getManager().getTile().getBlockPos();
-        ChunkPos chunk = new ChunkPos(machinePos);
+        ChunkPos chunk = ChunkPos.containing(machinePos);
         if(MachineList.findInSameChunk(getManager().getTile()).isEmpty())
-            level.setChunkForced(chunk.x, chunk.z, false);
-        level.getChunkSource().removeRegionTicket(MACHINE_CHUNKLOAD, chunk, this.currentRadius + 1, machinePos);
+            level.setChunkForced(chunk.x(), chunk.z(), false);
+        level.getChunkSource().removeTicketWithRadius(CMRegistration.MACHINE_TICKET_TYPE.get(), chunk, this.currentRadius + 1);
     }
 
     public boolean isActive() {
@@ -138,7 +132,7 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
 
         @Override
         public MachineComponentType<ChunkloadMachineComponent> getType() {
-            return Registration.CHUNKLOAD_MACHINE_COMPONENT.get();
+            return CMRegistration.CHUNKLOAD_MACHINE_COMPONENT.get();
         }
 
         @Override

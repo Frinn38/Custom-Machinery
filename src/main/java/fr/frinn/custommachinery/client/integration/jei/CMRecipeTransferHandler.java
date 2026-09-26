@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.client.integration.jei;
 
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.CTransferRecipePacket;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
@@ -10,17 +10,18 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.transfer.IRecipeTransferContext;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,11 +32,11 @@ import java.util.Optional;
 
 public class CMRecipeTransferHandler implements IRecipeTransferHandler<CustomMachineContainer, RecipeHolder<IMachineRecipe>> {
 
-    private final RecipeType<RecipeHolder<IMachineRecipe>> type;
+    private final IRecipeType<RecipeHolder<IMachineRecipe>> type;
     private final IRecipeTransferHandlerHelper transferHelper;
     private final IStackHelper stackHelper;
 
-    public CMRecipeTransferHandler(RecipeType<RecipeHolder<IMachineRecipe>> type, IRecipeTransferHandlerHelper transferHelper, IStackHelper stackHelper) {
+    public CMRecipeTransferHandler(IRecipeType<RecipeHolder<IMachineRecipe>> type, IRecipeTransferHandlerHelper transferHelper, IStackHelper stackHelper) {
         this.type = type;
         this.transferHelper = transferHelper;
         this.stackHelper = stackHelper;
@@ -48,24 +49,24 @@ public class CMRecipeTransferHandler implements IRecipeTransferHandler<CustomMac
 
     @Override
     public Optional<MenuType<CustomMachineContainer>> getMenuType() {
-        return Optional.of(Registration.CUSTOM_MACHINE_CONTAINER.get());
+        return Optional.of(CMRegistration.CUSTOM_MACHINE_CONTAINER.get());
     }
 
     @Override
-    public RecipeType<RecipeHolder<IMachineRecipe>> getRecipeType() {
+    public IRecipeType<RecipeHolder<IMachineRecipe>> getRecipeType() {
         return this.type;
     }
 
     @Nullable
     @Override
-    public IRecipeTransferError transferRecipe(CustomMachineContainer container, RecipeHolder<IMachineRecipe> recipe, IRecipeSlotsView slots, Player player, boolean maxTransfer, boolean doTransfer) {
+    public IRecipeTransferError transferRecipe(IRecipeTransferContext<RecipeHolder<IMachineRecipe>, CustomMachineContainer> context, boolean doTransfer) {
         //List of required items
-        List<IRecipeSlotView> inputItemSlots = slots.getSlotViews(RecipeIngredientRole.INPUT).stream().filter(view -> view.getItemStacks().findAny().isPresent()).toList();
+        List<IRecipeSlotView> inputItemSlots = context.getRecipeSlots().getSlotViews(RecipeIngredientRole.INPUT).stream().filter(view -> view.getItemStacks().findAny().isPresent()).toList();
         if(inputItemSlots.isEmpty())
             return this.transferHelper.createInternalError();
 
-        List<SlotItemComponent> inputSlots = container.inputSlots();
-        List<Slot> inventorySlots = container.inventorySlots();
+        List<SlotItemComponent> inputSlots = context.getContainer().inputSlots();
+        List<Slot> inventorySlots = context.getContainer().inventorySlots();
 
         //From - To - Amount
         List<Triple<Integer, Integer, Integer>> operations = new ArrayList<>();
@@ -88,7 +89,15 @@ public class CMRecipeTransferHandler implements IRecipeTransferHandler<CustomMac
             operations.add(Triple.of(inventorySlotContainingIngredient.index, machineSlot.index, view.getItemStacks().filter(stack -> this.stackHelper.isEquivalent(stack, inventorySlotContainingIngredient.getItem(), UidContext.Ingredient)).findFirst().map(ItemStack::getCount).orElseThrow()));
         }
         if(doTransfer)
-            PacketDistributor.sendToServer(new CTransferRecipePacket(container.containerId, operations, maxTransfer));
+            ClientPacketDistributor.sendToServer(new CTransferRecipePacket(context.getContainer().containerId, operations, context.isMaxTransfer()));
+        return null;
+    }
+
+    //SAFE TO REMOVE
+    @SuppressWarnings("removal")
+    @Nullable
+    @Override
+    public IRecipeTransferError transferRecipe(CustomMachineContainer container, RecipeHolder<IMachineRecipe> recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
         return null;
     }
 }

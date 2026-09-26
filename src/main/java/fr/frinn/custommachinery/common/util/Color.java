@@ -4,7 +4,7 @@ import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.ChatFormatting;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
 import java.util.Arrays;
@@ -47,7 +47,7 @@ public class Color {
     private final int blue;
 
     public static Color fromARGB(int colorARGB) {
-        return new Color(FastColor.ARGB32.alpha(colorARGB), FastColor.ARGB32.red(colorARGB), FastColor.ARGB32.green(colorARGB), FastColor.ARGB32.blue(colorARGB));
+        return new Color(ARGB.alpha(colorARGB), ARGB.red(colorARGB), ARGB.green(colorARGB), ARGB.blue(colorARGB));
     }
 
     public static Color fromColors(int alpha, int red, int green, int blue) {
@@ -86,7 +86,7 @@ public class Color {
     }
 
     public int getARGB() {
-        return FastColor.ARGB32.color(this.alpha, this.red, this.green, this.blue);
+        return ARGB.color(this.alpha, this.red, this.green, this.blue);
     }
 
     public Color mul(double factor) {

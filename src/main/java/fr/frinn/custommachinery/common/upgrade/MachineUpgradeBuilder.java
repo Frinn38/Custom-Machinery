@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.common.upgrade;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.api.upgrade.Operation;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class MachineUpgradeBuilder {
 
     private Item item;
-    private final List<ResourceLocation> machines;
+    private final List<Identifier> machines;
     private final List<RecipeModifierBuilder> recipeModifiers;
     private final List<ComponentModifier> componentModifiers;
     @Nullable
@@ -56,7 +56,7 @@ public class MachineUpgradeBuilder {
         this.item = item;
     }
 
-    public List<ResourceLocation> getMachines() {
+    public List<Identifier> getMachines() {
         return this.machines;
     }
 
@@ -112,7 +112,7 @@ public class MachineUpgradeBuilder {
         private Component tooltip;
 
         public RecipeModifierBuilder() {
-            this.requirementType = Registration.ENERGY_REQUIREMENT.get();
+            this.requirementType = CMRegistration.ENERGY_REQUIREMENT.get();
             this.mode = RequirementIOMode.INPUT;
             this.target = "";
             this.operation = Operation.ADDITION;

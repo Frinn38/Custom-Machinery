@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.api.crafting;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Used for registering custom {@link ProcessorType}.
@@ -49,8 +49,8 @@ public class ProcessorType<T extends IProcessor> {
      * A helper method to get the ID of this {@link ProcessorType}.
      * @return The ID of this {@link ProcessorType}, or null if it is not registered.
      */
-    public ResourceLocation getId() {
-        ResourceLocation id = ICustomMachineryAPI.INSTANCE.processorRegistrar().getKey(this);
+    public Identifier getId() {
+        Identifier id = ICustomMachineryAPI.INSTANCE.processorRegistrar().getKey(this);
         if(id == null)
             throw new IllegalStateException("Trying to get id for an unregistered processor type");
         return id;

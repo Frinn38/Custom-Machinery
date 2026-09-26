@@ -7,9 +7,9 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.network.CRemoveMachinePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class DeleteMachinePopup extends ConfirmPopup {
 
@@ -23,18 +23,18 @@ public class DeleteMachinePopup extends ConfirmPopup {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         int itemX = this.x + this.xSize / 2 - 8;
         int itemY = this.y + this.ySize / 2 + 2;
-        graphics.renderItem(CustomMachineItem.makeMachineItem(this.machine.getId()), itemX, itemY);
+        graphics.item(CustomMachineItem.makeMachineItem(this.machine.getId()), itemX, itemY);
         if(this.isMouseOver(mouseX, mouseY) && mouseX >= itemX && mouseX <= itemX + 16 && mouseY >= itemY && mouseY <= itemY + 16)
-            graphics.renderTooltip(Minecraft.getInstance().font, this.machine.getName(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(Minecraft.getInstance().font, this.machine.getName(), mouseX, mouseY);
     }
 
     @Override
     public void confirm() {
-        PacketDistributor.sendToServer(new CRemoveMachinePacket(this.machine.getId()));
+        ClientPacketDistributor.sendToServer(new CRemoveMachinePacket(this.machine.getId()));
         super.confirm();
     }
 }

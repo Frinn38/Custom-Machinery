@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
@@ -31,7 +31,7 @@ public class SlotGuiElement extends AbstractTexturedGuiElement implements ICompo
 
     @Override
     public GuiElementType<SlotGuiElement> getType() {
-        return Registration.SLOT_GUI_ELEMENT.get();
+        return CMRegistration.SLOT_GUI_ELEMENT.get();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class SlotGuiElement extends AbstractTexturedGuiElement implements ICompo
 
     @Override
     public MachineComponentType<ItemMachineComponent> getComponentType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     public GhostItem getGhost() {

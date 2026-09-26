@@ -7,7 +7,8 @@ import fr.frinn.custommachinery.client.screen.MachineConfigScreen;
 import fr.frinn.custommachinery.common.guielement.ConfigGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiElement> {
@@ -19,7 +20,7 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int i, int j, float f) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int i, int j, float f) {
         if(!this.isHovered())
             ClientHandler.blit(graphics, this.getElement().getTexture(), this.getX(), this.getY(), this.width, this.height);
         else
@@ -27,7 +28,8 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         Minecraft.getInstance().setScreen(new MachineConfigScreen((CustomMachineScreen) this.getScreen()));
+        return true;
     }
 }

@@ -15,23 +15,25 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xmaxerrs" << "9999"
+        options.compilerArgs << "-Xmaxwarns" << "9999"
+    }
+}
+
 base {
     archivesName = mod_artifact_name
     version = "${minecraft_version}-${mod_version}"
 }
 
-// Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+// Mojang ships Java 25 to end users in 26.1.2, so mods should target Java 25.
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 java.withSourcesJar()
 
 neoForge {
     // Specify the version of NeoForge to use.
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
@@ -41,7 +43,6 @@ neoForge {
     runs {
         client {
             client()
-
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
@@ -61,8 +62,7 @@ neoForge {
         }
 
         data {
-            data()
-
+            clientData()
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')
 
@@ -155,14 +155,9 @@ repositories {
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${neo_version}"
-
     // JEI
     compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
     localRuntime("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
-
-    // Craft tweaker
-    localRuntime compileOnly("com.blamejared.crafttweaker:CraftTweaker-neoforge-${minecraft_version}:${ct_version}")
 
     // KubeJS
     localRuntime compileOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}")
@@ -172,12 +167,6 @@ dependencies {
 
     // The one probe
     localRuntime compileOnly("mcjty.theoneprobe:theoneprobe:${top_version}") {transitive = false}
-
-    // Mekanism
-    localRuntime("mekanism:Mekanism:${mekanism_version}")
-
-    //Applied
-    localRuntime("org.appliedenergistics:appliedenergistics2:${ae2_version}")
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -188,14 +177,14 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             minecraft_version_range: minecraft_version_range,
             neo_version            : neo_version,
             neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,
             mod_version            : mod_version,
             mod_authors            : mod_authors,
             mod_description        : mod_description,
-            mod_url                : mod_url
+            mod_url                : mod_url,
+            mod_issues             : mod_issues
     ]
     inputs.properties replaceProperties
     expand replaceProperties
@@ -208,12 +197,11 @@ sourceSets.main.resources.srcDir generateModMetadata
 // To avoid having to run "generateModMetadata" manually, make it run on every project reload
 neoForge.ideSyncTask generateModMetadata
 
-// Example configuration to allow publishing using the maven-publish plugin
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
             groupId = mod_group_id
-            artifactId = archivesBaseName
+            artifactId = project.base.archivesName
             version = project.version
             from components.java
 
@@ -275,7 +263,7 @@ unifiedPublishing {
         if(rootProject.file("CHANGELOG.md").exists()) {
             changelog = rootProject.file("CHANGELOG.md").text
         }
-        gameVersions = ["${minecraft_version}", "1.21"]
+        gameVersions = ["${minecraft_version}", "26.1"]
         gameLoaders = ["neoforge"]
         mainPublication jar
 
@@ -284,10 +272,9 @@ unifiedPublishing {
             curseforge {
                 token = CURSE_API_KEY
                 id = "457017"
-                gameVersions.addAll "Java 21"
+                gameVersions.addAll "Java 25"
                 relations {
                     optional "kubejs"
-                    optional "crafttweaker"
                     optional "jei"
                     optional "the-one-probe"
                     optional "jade"
@@ -302,7 +289,6 @@ unifiedPublishing {
                 id = "OrB5XFtI"
                 relations {
                     optional "kubejs"
-                    optional "crafttweaker"
                     optional "jei"
                     optional "the-one-probe"
                     optional "jade"

@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.client.screen.creation.component;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
@@ -64,8 +64,8 @@ public abstract class ComponentBuilderPopup<T extends IMachineComponentTemplate<
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         Component canCreate = this.canCreate();
         if(canCreate.getString().isEmpty())
@@ -73,7 +73,7 @@ public abstract class ComponentBuilderPopup<T extends IMachineComponentTemplate<
         else {
             this.confirm.active = false;
             if(this.confirm.isHovered())
-                graphics.renderTooltip(this.font, canCreate, mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, canCreate, mouseX, mouseY);
         }
     }
 

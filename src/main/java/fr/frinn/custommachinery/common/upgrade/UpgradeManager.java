@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.UpgradedCustomMachine;
 
 import java.util.ArrayList;
@@ -79,10 +79,10 @@ public class UpgradeManager implements IMachineUpgradeManager {
 
     @Override
     public Stream<Pair<MachineUpgrade, Integer>> getCurrentUpgrades() {
-        return this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+        return this.tile.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
                 .stream()
                 .flatMap(handler -> handler.getComponents().stream())
-                .filter(slot -> slot.getType() == Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get() && !slot.getItemStack().isEmpty())
+                .filter(slot -> slot.getType() == CMRegistration.ITEM_UPGRADE_MACHINE_COMPONENT.get() && !slot.getItemStack().isEmpty())
                 .flatMap(slot -> CustomMachinery.UPGRADES.getUpgradesForItemAndMachine(slot.getItemStack().getItem(), this.tile.getMachine().getId())
                         .stream()
                         .map(upgrade -> Pair.of(upgrade, Math.min(slot.getItemStack().getCount(), upgrade.max())))

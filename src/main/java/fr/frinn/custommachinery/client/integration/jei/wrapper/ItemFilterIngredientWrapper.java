@@ -6,14 +6,15 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
+import net.minecraft.core.Holder;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,12 +30,12 @@ public class ItemFilterIngredientWrapper implements IJEIIngredientWrapper<ItemSt
 
     @Override
     public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
-        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
+        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get())
             return false;
 
-        List<ItemStack> ingredients = Arrays.stream(this.ingredient.getItems()).toList();
+        List<ItemStack> ingredients = this.ingredient.getValues().stream().map(Holder::value).map(Item::getDefaultInstance).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get() && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
+        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getType() == CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get() && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
             int slotY = element.getY() + (element.getHeight() - 16) / 2;
             builder.addSlot(RecipeIngredientRole.INPUT, slotX - xOffset, slotY - yOffset)

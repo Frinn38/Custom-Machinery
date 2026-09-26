@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +27,7 @@ public class UpgradedCustomMachine extends CustomMachine {
                                 TextComponentUtils.CODEC.listOf().optionalFieldOf("tooltips", parent.getTooltips()).forGetter(CustomMachine::getTooltips),
                                 IGuiElement.CODEC.listOf().optionalFieldOf("gui", parent.getGuiElements()).forGetter(CustomMachine::getGuiElements),
                                 IGuiElement.CODEC.listOf().optionalFieldOf("jei", parent.getJeiElements()).forGetter(CustomMachine::getJeiElements),
-                                DefaultCodecs.RESOURCE_LOCATION.listOf().optionalFieldOf("catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
+                                DefaultCodecs.IDENTIFIER.listOf().optionalFieldOf("catalysts", Collections.emptyList()).forGetter(CustomMachine::getCatalysts),
                                 IMachineComponentTemplate.CODEC.listOf().optionalFieldOf("components", parent.getComponentTemplates()).forGetter(CustomMachine::getComponentTemplates),
                                 IProcessorTemplate.CODEC.optionalFieldOf("processor", parent.getProcessorTemplate()).forGetter(CustomMachine::getProcessorTemplate),
                                 RecipeModifier.CODEC.listOf().optionalFieldOf("recipeModifiers", Collections.emptyList()).forGetter(UpgradedCustomMachine::getModifiers),
@@ -39,10 +39,10 @@ public class UpgradedCustomMachine extends CustomMachine {
     }
 
     private final List<RecipeModifier> modifiers;
-    private final ResourceLocation parentId;
+    private final Identifier parentId;
     private final boolean canMakeParentRecipes;
 
-    public UpgradedCustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<ResourceLocation> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates, IProcessorTemplate<? extends IProcessor> processorTemplate, List<RecipeModifier> modifiers, ResourceLocation parentId, boolean canMakeParentRecipes) {
+    public UpgradedCustomMachine(Component name, MachineAppearanceManager appearance, List<Component> tooltips, List<IGuiElement> guiElements, List<IGuiElement> jeiElements, List<Identifier> catalysts, List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates, IProcessorTemplate<? extends IProcessor> processorTemplate, List<RecipeModifier> modifiers, Identifier parentId, boolean canMakeParentRecipes) {
         super(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates, processorTemplate);
         this.modifiers = modifiers;
         this.parentId = parentId;
@@ -53,14 +53,14 @@ public class UpgradedCustomMachine extends CustomMachine {
         return this.modifiers;
     }
 
-    public ResourceLocation getParentId() {
+    public Identifier getParentId() {
         return this.parentId;
     }
 
     @Override
-    public List<ResourceLocation> getRecipeIds() {
+    public List<Identifier> getRecipeIds() {
         if(this.canMakeParentRecipes)
-            return Lists.asList(this.getId(), CustomMachinery.MACHINES.get(this.parentId).getRecipeIds().toArray(new ResourceLocation[]{}));
+            return Lists.asList(this.getId(), CustomMachinery.MACHINES.get(this.parentId).getRecipeIds().toArray(new Identifier[]{}));
         return Collections.singletonList(this.getId());
     }
 }

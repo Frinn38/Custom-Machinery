@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -29,12 +29,12 @@ public record StringDataRequirement(RequirementIOMode mode, String id, String va
 
     @Override
     public RequirementType<StringDataRequirement> getType() {
-        return Registration.STRING_DATA_REQUIREMENT.get();
+        return CMRegistration.STRING_DATA_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<DataMachineComponent> getComponentType() {
-        return Registration.DATA_MACHINE_COMPONENT.get();
+        return CMRegistration.DATA_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -47,8 +47,8 @@ public record StringDataRequirement(RequirementIOMode mode, String id, String va
         if(this.mode == RequirementIOMode.OUTPUT)
             return true;
 
-        if(getTag(this.id, component.getData()) instanceof StringTag stringTag)
-            return this.comparator == Comparator.EXACT ? this.value.equals(stringTag.getAsString()) : stringTag.getAsString().contains(this.value);
+        if(getTag(this.id, component.getData()) instanceof StringTag(String stringValue))
+            return this.comparator == Comparator.EXACT ? this.value.equals(stringValue) : stringValue.contains(this.value);
 
         return false;
     }
@@ -58,11 +58,11 @@ public record StringDataRequirement(RequirementIOMode mode, String id, String va
         if(this.mode == RequirementIOMode.INPUT)
             list.worldCondition((component, context) -> {
                 Tag tag = getTag(this.id, component.getData());
-                if(tag instanceof StringTag stringTag) {
-                    if(this.comparator == Comparator.EXACT ? this.value.equals(stringTag.getAsString()) : stringTag.getAsString().contains(this.value))
+                if(tag instanceof StringTag(String stringValue)) {
+                    if(this.comparator == Comparator.EXACT ? this.value.equals(stringValue) : stringValue.contains(this.value))
                         return CraftingResult.success();
                 }
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.value, tag == null ? "not found" : tag.getAsString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.value, tag == null ? "not found" : tag.toString()));
             });
         else
             list.processOnEnd((component, context) -> {
@@ -71,21 +71,26 @@ public record StringDataRequirement(RequirementIOMode mode, String id, String va
                     component.getData().putString(this.id, this.value);
                 }
                 else {
-                    CompoundTag tag = component.getData();
-                    for(int i = 0; i < path.length - 1; i++) {
-                        if(tag.contains(path[i], Tag.TAG_COMPOUND))
-                            tag = tag.getCompound(path[i]);
-                        else {
-                            CompoundTag newTag = new CompoundTag();
-                            tag.put(path[i], newTag);
-                            tag = newTag;
-                        }
-                    }
+                    CompoundTag tag = getTag(component, path);
                     String tagId = path[path.length - 1];
                     tag.putString(tagId, this.value);
                 }
                 return CraftingResult.success();
             });
+    }
+
+    private static CompoundTag getTag(DataMachineComponent component, String[] path) {
+        CompoundTag tag = component.getData();
+        for(int i = 0; i < path.length - 1; i++) {
+            if(tag.contains(path[i]) && tag.getCompound(path[i]).isPresent())
+                tag = tag.getCompound(path[i]).get();
+            else {
+                CompoundTag newTag = new CompoundTag();
+                tag.put(path[i], newTag);
+                tag = newTag;
+            }
+        }
+        return tag;
     }
 
     @Nullable

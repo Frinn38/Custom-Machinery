@@ -69,7 +69,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
 
     public static PartialBlockState of(String s) throws CommandSyntaxException{
         StringReader reader = new StringReader(s);
-        BlockResult result = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), reader, true);
+        BlockResult result = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK, reader, true);
         return new PartialBlockState(result.blockState(), Lists.newArrayList(result.properties().keySet()), result.nbt());
     }
 

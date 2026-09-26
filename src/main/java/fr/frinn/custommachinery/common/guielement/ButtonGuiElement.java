@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.TaskDelayer;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
@@ -53,7 +53,7 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<ButtonGuiElement> getType() {
-        return Registration.BUTTON_GUI_ELEMENT.get();
+        return CMRegistration.BUTTON_GUI_ELEMENT.get();
     }
 
     public TextureInfo getTextureToggle() {
@@ -85,10 +85,10 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
         if(this.holdTime <= 0)
             return;
         tile.getComponentManager()
-                .getComponent(Registration.DATA_MACHINE_COMPONENT.get())
+                .getComponent(CMRegistration.DATA_MACHINE_COMPONENT.get())
                 .ifPresent(component -> {
                     if(this.toggle)
-                        component.getData().putBoolean(this.getId(), !component.getData().getBoolean(this.getId()));
+                        component.getData().putBoolean(this.getId(), !component.getData().getBooleanOr(this.getId(), false));
                     else {
                         component.getData().putBoolean(this.getId(), true);
                         TaskDelayer.enqueue(this.holdTime, () -> {

@@ -6,11 +6,12 @@ import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.client.integration.jei.CustomMachineryJEIPlugin;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -27,18 +28,18 @@ public class FuelItemIngredientWrapper implements IJEIIngredientWrapper<ItemStac
 
     @Override
     public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
-        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
+        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get())
             return false;
 
         return helper.getComponentForElement(slotElement).map(t -> {
-            if(t instanceof ItemMachineComponent.Template template && template.getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get()) {
+            if(t instanceof ItemMachineComponent.Template template && template.getType() == CMRegistration.ITEM_FUEL_MACHINE_COMPONENT.get()) {
                 List<ItemStack> ingredients = CustomMachineryJEIPlugin.FUEL_INGREDIENTS.stream().filter(stack -> template.canAccept(stack, true, helper.getDummyManager())).toList();
                 builder.addSlot(RecipeIngredientRole.INPUT, element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .addRichTooltipCallback((view, tooltips) ->
                         view.getDisplayedIngredient(VanillaTypes.ITEM_STACK).ifPresent(stack -> {
                                     tooltips.add(Component.translatable("custommachinery.jei.ingredient.fuel.amount", this.amount).withStyle(ChatFormatting.GOLD));
-                                    tooltips.add(Component.translatable("custommachinery.jei.ingredient.fuel.burntime", stack.getBurnTime(RecipeType.SMELTING)).withStyle(ChatFormatting.GRAY));
+                                    tooltips.add(Component.translatable("custommachinery.jei.ingredient.fuel.burntime", stack.getBurnTime(RecipeType.SMELTING, Minecraft.getInstance().level.fuelValues())).withStyle(ChatFormatting.GRAY));
                                 }
                         )
                     );

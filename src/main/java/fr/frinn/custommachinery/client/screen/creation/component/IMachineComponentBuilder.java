@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -31,5 +31,5 @@ public interface IMachineComponentBuilder<C extends IMachineComponent, T extends
      * Can be used to render infos in the components list gui.
      * Do not render things outside the bounds, or it will get cropped.
      */
-    void render(GuiGraphics graphics, int x, int y, int width, int height, T template);
+    void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, T template);
 }

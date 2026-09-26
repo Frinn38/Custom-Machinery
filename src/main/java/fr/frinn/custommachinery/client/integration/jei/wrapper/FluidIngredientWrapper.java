@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import net.minecraft.ChatFormatting;
@@ -15,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,10 +36,10 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
 
     @Override
     public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
-        if(!(element instanceof FluidGuiElement fluidElement) || element.getType() != Registration.FLUID_GUI_ELEMENT.get())
+        if(!(element instanceof FluidGuiElement fluidElement) || element.getType() != CMRegistration.FLUID_GUI_ELEMENT.get())
             return false;
 
-        List<FluidStack> ingredients = Arrays.stream(this.ingredient.getFluids()).map(fluid -> fluid.copyWithAmount(this.ingredient.amount())).toList();
+        List<FluidStack> ingredients = this.ingredient.ingredient().fluids().stream().map(fluid -> new FluidStack(fluid, this.ingredient.amount())).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
         if(fluidElement.getComponentId().equals(this.tank) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
             builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)

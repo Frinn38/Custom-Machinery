@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NumericTag;
@@ -31,12 +31,12 @@ public record IntegerDataRequirement(RequirementIOMode mode, String id, IntRange
 
     @Override
     public RequirementType<IntegerDataRequirement> getType() {
-        return Registration.INTEGER_DATA_REQUIREMENT.get();
+        return CMRegistration.INTEGER_DATA_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<DataMachineComponent> getComponentType() {
-        return Registration.DATA_MACHINE_COMPONENT.get();
+        return CMRegistration.DATA_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -50,7 +50,7 @@ public record IntegerDataRequirement(RequirementIOMode mode, String id, IntRange
             return true;
 
         if(getTag(this.id, component.getData()) instanceof NumericTag numericTag)
-            return this.range.contains(numericTag.getAsInt());
+            return numericTag.asInt().map(this.range::contains).orElse(false);
 
         return false;
     }
@@ -61,27 +61,27 @@ public record IntegerDataRequirement(RequirementIOMode mode, String id, IntRange
             list.worldCondition((component, context) -> {
                 Tag tag = getTag(this.id, component.getData());
                 if(tag instanceof NumericTag numericTag) {
-                    if(this.range.contains(numericTag.getAsInt()))
+                    if(numericTag.asInt().map(this.range::contains).orElse(false))
                         return CraftingResult.success();
                 }
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.range.toString(), tag == null ? "not found" : tag.getAsString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.range.toString(), tag == null ? "not found" : tag.asString()));
             });
         else
             list.processOnEnd((component, context) -> {
                 String[] path = this.id.split("/");
                 if(path.length == 1) {
-                    if(this.operation == Operation.SET || component.getData().getInt(this.id) == 0)
+                    if(this.operation == Operation.SET || component.getData().getIntOr(this.id, 0) == 0)
                         component.getData().putInt(this.id, this.value);
                     else if(this.operation == Operation.ADD)
-                        component.getData().putInt(this.id, component.getData().getInt(this.id) + this.value);
+                        component.getData().putInt(this.id, component.getData().getIntOr(this.id, 0) + this.value);
                     else if(this.operation == Operation.MUL)
-                        component.getData().putInt(this.id, component.getData().getInt(this.id) * this.value);
+                        component.getData().putInt(this.id, component.getData().getIntOr(this.id, 0) * this.value);
                 }
                 else {
                     CompoundTag tag = component.getData();
                     for(int i = 0; i < path.length - 1; i++) {
-                        if(tag.contains(path[i], Tag.TAG_COMPOUND))
-                            tag = tag.getCompound(path[i]);
+                        if(tag.contains(path[i]))
+                            tag = tag.getCompound(path[i]).orElse(new CompoundTag());
                         else {
                             CompoundTag newTag = new CompoundTag();
                             tag.put(path[i], newTag);
@@ -89,12 +89,12 @@ public record IntegerDataRequirement(RequirementIOMode mode, String id, IntRange
                         }
                     }
                     String tagId = path[path.length - 1];
-                    if(this.operation == Operation.SET || tag.getInt(tagId) == 0)
+                    if(this.operation == Operation.SET || tag.getIntOr(tagId, 0) == 0)
                         tag.putInt(tagId, this.value);
                     else if(this.operation == Operation.ADD)
-                        tag.putInt(tagId, tag.getInt(tagId) + this.value);
+                        tag.putInt(tagId, tag.getIntOr(tagId, 0) + this.value);
                     else if(this.operation == Operation.MUL)
-                        tag.putInt(tagId, tag.getInt(tagId) * this.value);
+                        tag.putInt(tagId, tag.getIntOr(tagId, 0) * this.value);
                 }
                 return CraftingResult.success();
             });

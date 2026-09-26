@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Recipe;
 import org.slf4j.helpers.MessageFormatter;
 
@@ -24,12 +24,12 @@ import java.util.function.Consumer;
 
 public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends Recipe<?>>> extends KubeRecipe implements RecipeJSBuilder {
 
-    public static final Map<ResourceLocation, Map<ResourceLocation, Integer>> IDS = Collections.synchronizedMap(new HashMap<>());
-    public final ResourceLocation typeID;
+    public static final Map<Identifier, Map<Identifier, Integer>> IDS = Collections.synchronizedMap(new HashMap<>());
+    public final Identifier typeID;
     private RecipeRequirement<?, ?> lastRequirement;
     public boolean jei = false;
 
-    public AbstractRecipeJSBuilder(ResourceLocation typeID) {
+    public AbstractRecipeJSBuilder(Identifier typeID) {
         this.typeID = typeID;
     }
 
@@ -104,14 +104,14 @@ public abstract class AbstractRecipeJSBuilder<B extends IRecipeBuilder<? extends
 
     @HideFromJS
     @Override
-    public ResourceLocation getOrCreateId() {
+    public Identifier getOrCreateId() {
         if(this.id == null) {
-            ResourceLocation machine = (ResourceLocation) this.get("machine");
+            Identifier machine = (Identifier) this.get("machine");
             if(machine == null)
                 return super.getOrCreateId();
             int uniqueID = IDS.computeIfAbsent(this.typeID, id -> Collections.synchronizedMap(new HashMap<>())).computeIfAbsent(machine, m -> 0);
             IDS.get(this.typeID).put(machine, uniqueID + 1);
-            this.id = ResourceLocation.fromNamespaceAndPath("kubejs", this.typeID.getPath() + "/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID);
+            this.id = Identifier.fromNamespaceAndPath("kubejs", this.typeID.getPath() + "/" + machine.getNamespace() + "/" + machine.getPath() + "/" + uniqueID);
         }
         return this.id;
     }

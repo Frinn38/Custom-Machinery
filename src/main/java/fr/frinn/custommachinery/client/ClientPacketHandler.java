@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.client.screen.creation.MachineCreationScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.upgrade.UpgradeCreationScreen;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
@@ -22,7 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab.ItemDisplayParameters;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -45,7 +45,7 @@ public class ClientPacketHandler {
         }
     }
 
-    public static void handleRefreshCustomMachineTilePacket(BlockPos pos, ResourceLocation machine) {
+    public static void handleRefreshCustomMachineTilePacket(BlockPos pos, Identifier machine) {
         if(Minecraft.getInstance().level != null) {
             BlockEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);
             if(tile instanceof CustomMachineTile machineTile) {
@@ -63,14 +63,14 @@ public class ClientPacketHandler {
         }
     }
 
-    public static void handleUpdateMachinesPacket(Map<ResourceLocation, CustomMachine> machines) {
+    public static void handleUpdateMachinesPacket(Map<Identifier, CustomMachine> machines) {
         CustomMachinery.MACHINES.clear();
         CustomMachinery.MACHINES.putAll(machines);
         Minecraft mc = Minecraft.getInstance();
         if(mc.player == null || mc.level == null)
             return;
         ItemDisplayParameters params = new ItemDisplayParameters(mc.player.connection.enabledFeatures(), mc.player.canUseGameMasterBlocks() && mc.options.operatorItemsTab().get(), mc.level.registryAccess());
-        Registration.CUSTOM_MACHINE_TAB.get().buildContents(params);
+        CMRegistration.CUSTOM_MACHINE_TAB.get().buildContents(params);
         if(Minecraft.getInstance().screen instanceof MachineCreationScreen creationScreen)
             creationScreen.reloadList();
         if(ModList.get().isLoaded("jei"))
@@ -83,7 +83,7 @@ public class ClientPacketHandler {
             creationScreen.reloadList();
     }
 
-    public static void handleUpdateTemplatesPacket(Map<ResourceLocation, Pair<CustomMachine, Component>> templates) {
+    public static void handleUpdateTemplatesPacket(Map<Identifier, Pair<CustomMachine, Component>> templates) {
         CustomMachinery.TEMPLATES.clear();
         CustomMachinery.TEMPLATES.putAll(templates);
     }
@@ -106,7 +106,7 @@ public class ClientPacketHandler {
             if(tile instanceof CustomMachineTile machineTile) {
                 machineTile.setCustomGuiElements(elements);
                 if(mc.screen instanceof CustomMachineScreen screen) {
-                    screen.resize(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+                    screen.resize(mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
                     screen.getMenu().init();
                 }
             }
@@ -121,9 +121,9 @@ public class ClientPacketHandler {
         Minecraft.getInstance().setScreen(new UpgradeCreationScreen());
     }
 
-    public static void handleOpenEditScreenPacket(ResourceLocation machineId) {
+    public static void handleOpenEditScreenPacket(Identifier machineId) {
         CustomMachine machine = CustomMachinery.MACHINES.get(machineId);
-        if(machine == null)
+        if(machine == null && CustomMachinery.TEMPLATES.containsKey(machineId))
             machine = CustomMachinery.TEMPLATES.get(machineId).getFirst();
         if(machine != null)
             Minecraft.getInstance().setScreen(new MachineEditScreen(new MachineCreationScreen(), 288, 210, new CustomMachineBuilder(machine)));

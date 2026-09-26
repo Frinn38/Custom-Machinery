@@ -23,7 +23,7 @@ import mcjty.theoneprobe.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -60,7 +60,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
     }
 
     @Override
-    public ResourceLocation getID() {
+    public Identifier getID() {
         return CustomMachinery.rl("machine_info_provider");
     }
 
@@ -93,7 +93,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
             });
         }
     }
-    private static final ResourceLocation ICONS = ResourceLocation.fromNamespaceAndPath("theoneprobe", "textures/gui/icons.png");
+    private static final Identifier ICONS = Identifier.fromNamespaceAndPath("theoneprobe", "textures/gui/icons.png");
 
     private static void showHarvestInfo(IProbeInfo probeInfo, MachineAppearance appearance, boolean harvestable) {
         List<String> tools = appearance.getTool().stream().map(TagKey::location).map(TOPInfoProvider::getTool).toList();
@@ -114,7 +114,7 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         }
     }
 
-    private static String getTool(ResourceLocation tool) {
+    private static String getTool(Identifier tool) {
         if(Config.getTooltypeTags().containsKey(tool))
             return Config.getTooltypeTags().get(tool);
 

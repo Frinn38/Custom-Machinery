@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.FluidPerTickRequirement;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.crafting.DataComponentFluidIngredient;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
@@ -13,7 +14,7 @@ public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireFluidPerTick(SizedFluidIngredient ingredient, String tank) {
-        if(ingredient.ingredient().hasNoFluids())
+        if(ingredient.ingredient().fluids().isEmpty())
             return this.error("Invalid empty fluid ingredient in fluid input requirement");
         try {
             return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, ingredient, tank));
@@ -30,7 +31,7 @@ public interface FluidPerTickRequirementJS extends RecipeJSBuilder {
         if(stack.isEmpty())
             return this.error("Invalid empty fluid in fluid output requirement");
         try {
-            return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(stack), tank));
+            return this.addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, new SizedFluidIngredient(DataComponentFluidIngredient.of(false, stack), stack.amount()), tank));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }

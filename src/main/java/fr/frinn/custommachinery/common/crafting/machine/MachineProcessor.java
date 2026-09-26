@@ -11,19 +11,20 @@ import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.upgrade.CoreModifier;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueOutput.ValueOutputList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -90,7 +91,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         if(this.tile.getStatus() != MachineStatus.IDLE && this.cores.stream().noneMatch(core -> core.getCurrentRecipe() != null)) {
             this.tile.setStatus(MachineStatus.IDLE);
             this.tile.setCustomAppearance(null);
-            this.tile.setCustomGuiElements(null);
+            this.tile.setCustomGuiElements(Collections.emptyList());
         }
     }
 
@@ -121,7 +122,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
             this.tile.setStatus(MachineStatus.ERRORED, message);
         if(this.cores.size() == 1) {
             this.tile.setCustomAppearance(null);
-            this.tile.setCustomGuiElements(null);
+            this.tile.setCustomGuiElements(Collections.emptyList());
         }
     }
 
@@ -130,7 +131,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         this.cores.forEach(MachineProcessorCore::reset);
         this.tile.setStatus(MachineStatus.IDLE);
         this.tile.setCustomAppearance(null);
-        this.tile.setCustomGuiElements(null);
+        this.tile.setCustomGuiElements(Collections.emptyList());
     }
 
     public MachineTile tile() {
@@ -139,29 +140,24 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
     @Override
     public ProcessorType<MachineProcessor> getType() {
-        return Registration.MACHINE_PROCESSOR.get();
+        return CMRegistration.MACHINE_PROCESSOR.get();
     }
 
     @Override
-    public CompoundTag serialize() {
-        CompoundTag nbt = new CompoundTag();
-        nbt.putString("type", getType().getId().toString());
-        ListTag cores = new ListTag();
-        this.cores.forEach(core -> cores.add(core.serialize()));
-        nbt.put("cores", cores);
-        return nbt;
+    public void serialize(ValueOutput output) {
+        output.putString("type", getType().getId().toString());
+        ValueOutputList cores = output.childrenList("cores");
+        this.cores.forEach(core -> core.serialize(cores.addChild()));
     }
 
     @Override
-    public void deserialize(CompoundTag nbt) {
-        if(nbt.contains("type", Tag.TAG_STRING) && !nbt.getString("type").equals(getType().getId().toString()))
+    public void deserialize(ValueInput input) {
+        if(!input.getStringOr("type", "").equals(getType().getId().toString()))
             return;
-        if(nbt.contains("cores", Tag.TAG_LIST)) {
-            ListTag cores = nbt.getList("cores", Tag.TAG_COMPOUND);
-            if(this.cores.size() == cores.size()) {
-                for(int i = 0; i < this.cores.size(); i++)
-                    this.cores.get(i).deserialize(cores.getCompound(i));
-            }
+        List<ValueInput> cores = input.childrenListOrEmpty("cores").stream().toList();
+        if(this.cores.size() == cores.size()) {
+            for(int i = 0; i < this.cores.size(); i++)
+                this.cores.get(i).deserialize(cores.get(i));
         }
     }
 
@@ -194,7 +190,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
 
         @Override
         public ProcessorType<MachineProcessor> getType() {
-            return Registration.MACHINE_PROCESSOR.get();
+            return CMRegistration.MACHINE_PROCESSOR.get();
         }
 
         @Override

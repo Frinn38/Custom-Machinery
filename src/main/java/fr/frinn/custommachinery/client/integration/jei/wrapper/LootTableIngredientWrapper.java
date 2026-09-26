@@ -6,14 +6,14 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.common.util.LootTableHelper.LootData;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
@@ -23,15 +23,15 @@ import java.util.Optional;
 
 public class LootTableIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
-    private final ResourceLocation lootTable;
+    private final Identifier lootTable;
 
-    public LootTableIngredientWrapper(ResourceLocation lootTable) {
+    public LootTableIngredientWrapper(Identifier lootTable) {
         this.lootTable = lootTable;
     }
 
     @Override
     public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
-        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != Registration.SLOT_GUI_ELEMENT.get())
+        if(!(element instanceof SlotGuiElement slotElement) || element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get())
             return false;
 
         List<LootData> loots = LootTableHelper.getLootsForTable(this.lootTable);

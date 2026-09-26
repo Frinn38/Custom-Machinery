@@ -4,14 +4,14 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -26,14 +26,14 @@ import java.util.stream.DoubleStream;
 
 public class DefaultCodecs {
 
-    public static final NamedCodec<ResourceLocation> RESOURCE_LOCATION = NamedCodec.STRING.comapFlatMap(DefaultCodecs::decodeResourceLocation, ResourceLocation::toString, "Resource location");
+    public static final NamedCodec<Identifier> IDENTIFIER = NamedCodec.STRING.comapFlatMap(DefaultCodecs::decodeResourceLocation, Identifier::toString, "Resource location");
     public static final NamedCodec<Character> CHARACTER = NamedCodec.STRING.comapFlatMap(DefaultCodecs::decodeCharacter, Object::toString, "Character");
 
-    public static final NamedCodec<SoundEvent> SOUND_EVENT = RESOURCE_LOCATION.xmap(SoundEvent::createVariableRangeEvent, SoundEvent::getLocation, "Sound event");
+    public static final NamedCodec<SoundEvent> SOUND_EVENT = IDENTIFIER.xmap(SoundEvent::createVariableRangeEvent, SoundEvent::location, "Sound event");
 
     public static final NamedCodec<Direction> DIRECTION = NamedCodec.enumCodec(Direction.class);
 
-    public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistrarCodec.ITEM, NamedCodec.of(ItemStack.OPTIONAL_CODEC), "ItemStack").xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
+    public static final NamedCodec<ItemStack> ITEM_OR_STACK = NamedCodec.either(RegistryCodecs.ITEM, NamedCodec.of(ItemStack.OPTIONAL_CODEC), "ItemStack").xmap(either -> either.map(Item::getDefaultInstance, Function.identity()), Either::right, "Item Stack");
 
     public static final NamedCodec<Ingredient> INGREDIENT = NamedCodec.of(Ingredient.CODEC, "Ingredient");
 
@@ -50,35 +50,35 @@ public class DefaultCodecs {
     public static final NamedCodec<CompoundTag> NBT = NamedCodec.of(CompoundTag.CODEC, "Compound tag");
 
     public static <T> NamedCodec<TagKey<T>> tagKey(ResourceKey<Registry<T>> registry) {
-        return RESOURCE_LOCATION.xmap(rl -> TagKey.create(registry, rl), TagKey::location, "Tag: " + registry.location());
+        return IDENTIFIER.xmap(rl -> TagKey.create(registry, rl), TagKey::location, "Tag: " + registry.identifier());
     }
 
     public static <T> NamedCodec<Either<TagKey<T>, Holder<T>>> registryValueOrTag(Registry<T> registry) {
         return NamedCodec.STRING.comapFlatMap(s -> {
             if(s.startsWith("#")) {
                 try {
-                    TagKey<T> key = TagKey.create(registry.key(), ResourceLocation.parse(s.substring(1)));
+                    TagKey<T> key = TagKey.create(registry.key(), Identifier.parse(s.substring(1)));
                     if(CustomMachineJsonReloadListener.context != null && CustomMachineJsonReloadListener.context.getTag(key).isEmpty())
                         return DataResult.error(() -> "Invalid tag: " + s);
-                    return DataResult.success(Either.<TagKey<T>, Holder<T>>left(key));
-                } catch (ResourceLocationException e) {
+                    return DataResult.success(Either.left(key));
+                } catch (IdentifierException e) {
                     return DataResult.error(e::getMessage);
                 }
             } else {
                 try {
-                    Optional<Reference<T>> ref = registry.getHolder(ResourceLocation.parse(s));
+                    Optional<Reference<T>> ref = registry.get(Identifier.parse(s));
                     return ref.map(reference -> DataResult.success(Either.<TagKey<T>, Holder<T>>right(reference))).orElse(DataResult.error(() -> "Invalid item: " + s));
-                } catch (ResourceLocationException e) {
+                } catch (IdentifierException e) {
                     return DataResult.error(e::getMessage);
                 }
             }
-        }, either -> either.map(key -> "#" + key.location(), holder -> holder.getKey().location().toString()), "Value or Tag: " + registry.key().location());
+        }, either -> either.map(key -> "#" + key.location(), Holder::getRegisteredName), "Value or Tag: " + registry.key().identifier());
     }
 
-    private static DataResult<ResourceLocation> decodeResourceLocation(String encoded) {
+    private static DataResult<Identifier> decodeResourceLocation(String encoded) {
         try {
-            return DataResult.success(ResourceLocation.parse(encoded));
-        } catch (ResourceLocationException e) {
+            return DataResult.success(Identifier.parse(encoded));
+        } catch (IdentifierException e) {
             return DataResult.error(e::getMessage);
         }
     }

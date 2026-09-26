@@ -8,10 +8,10 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.CMLogger;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.Logger;
 
 public class CustomMachineryAPI implements ICustomMachineryAPI {
@@ -22,8 +22,8 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
     }
 
     @Override
-    public ResourceLocation rl(String path) {
-        return ResourceLocation.tryParse(modid() + ":" + path);
+    public Identifier rl(String path) {
+        return Identifier.tryParse(modid() + ":" + path);
     }
 
     @Override
@@ -33,31 +33,31 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
 
     @Override
     public Registry<MachineComponentType<?>> componentRegistrar() {
-        return Registration.MACHINE_COMPONENT_TYPE_REGISTRY;
+        return CMRegistration.MACHINE_COMPONENT_TYPE_REGISTRY;
     }
 
     @Override
     public Registry<GuiElementType<?>> guiElementRegistrar() {
-        return Registration.GUI_ELEMENT_TYPE_REGISTRY;
+        return CMRegistration.GUI_ELEMENT_TYPE_REGISTRY;
     }
 
     @Override
     public Registry<RequirementType<?>> requirementRegistrar() {
-        return Registration.REQUIREMENT_TYPE_REGISTRY;
+        return CMRegistration.REQUIREMENT_TYPE_REGISTRY;
     }
 
     @Override
     public Registry<MachineAppearanceProperty<?>> appearancePropertyRegistrar() {
-        return Registration.APPEARANCE_PROPERTY_REGISTRY;
+        return CMRegistration.APPEARANCE_PROPERTY_REGISTRY;
     }
 
     @Override
     public Registry<DataType<?, ?>> dataRegistrar() {
-        return Registration.DATA_REGISTRY;
+        return CMRegistration.DATA_REGISTRY;
     }
 
     @Override
     public Registry<ProcessorType<?>> processorRegistrar() {
-        return Registration.PROCESSOR_REGISTRY;
+        return CMRegistration.PROCESSOR_REGISTRY;
     }
 }

@@ -2,14 +2,15 @@ package fr.frinn.custommachinery.client.screen.widget;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +28,7 @@ public class SoundEditBox extends GroupWidget {
         this.editBox = this.addWidget(new SuggestedEditBox(this.font, x, y, width - 20, height, message, 5));
         this.editBox.setAnchorToBottom();
         this.editBox.setMaxLength(Integer.MAX_VALUE);
-        this.editBox.addSuggestions(this.mc.getSoundManager().getAvailableSounds().stream().map(ResourceLocation::toString).toList());
+        this.editBox.addSuggestions(this.mc.getSoundManager().getAvailableSounds().stream().map(Identifier::toString).toList());
         WidgetSprites sprites = new WidgetSprites(CustomMachinery.rl("creation/play_button"), CustomMachinery.rl("creation/play_button_disabled"), CustomMachinery.rl("creation/play_button_hovered"));
         this.playButton = this.addWidget(new ImageButton(x + width - 20, y, 20, 20, sprites, button -> {
             if(this.currentSound != null) {
@@ -40,10 +41,10 @@ public class SoundEditBox extends GroupWidget {
             }
         }) {
             @Override
-            public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
                 if(this.active && this.visible) {
-                    if (this.isValidClickButton(pButton) && this.clicked(pMouseX, pMouseY)) {
-                        this.onClick(pMouseX, pMouseY, pButton);
+                    if (this.isValidClickButton(event.buttonInfo())) {
+                        this.onClick(event, doubleClick);
                         return true;
                     }
                 }
@@ -67,13 +68,13 @@ public class SoundEditBox extends GroupWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation soundLoc = ResourceLocation.tryParse(this.editBox.getValue());
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        Identifier soundLoc = Identifier.tryParse(this.editBox.getValue());
         if(soundLoc != null && Minecraft.getInstance().getSoundManager().getAvailableSounds().contains(soundLoc))
             this.currentSound = SimpleSoundInstance.forUI(SoundEvent.createVariableRangeEvent(soundLoc), 1f);
         else
             this.currentSound = null;
         this.playButton.active = this.currentSound != null;
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
     }
 }

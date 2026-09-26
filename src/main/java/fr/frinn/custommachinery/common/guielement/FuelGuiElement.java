@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 
@@ -35,7 +35,7 @@ public class FuelGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<FuelGuiElement> getType() {
-        return Registration.FUEL_GUI_ELEMENT.get();
+        return CMRegistration.FUEL_GUI_ELEMENT.get();
     }
 
     public TextureInfo getEmptyTexture() {

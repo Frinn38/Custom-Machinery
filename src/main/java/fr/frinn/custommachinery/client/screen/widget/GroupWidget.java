@@ -3,13 +3,16 @@ package fr.frinn.custommachinery.client.screen.widget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent.ArrowNavigation;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,8 +44,8 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.children.forEach(children -> children.render(graphics, mouseX, mouseY, partialTick));
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        this.children.forEach(children -> children.extractRenderState(graphics, mouseX, mouseY, partialTick));
     }
 
     @Override
@@ -65,9 +68,9 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         for(AbstractWidget children : this.children) {
-            if(children.mouseClicked(mouseX, mouseY, button)) {
+            if(children.mouseClicked(event, doubleClick)) {
                 if(this.focused != null)
                     this.focused.setFocused(false);
                 this.focused = children;
@@ -79,9 +82,9 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         for(AbstractWidget children : this.children) {
-            if(children.mouseReleased(mouseX, mouseY, button))
+            if(children.mouseReleased(event))
                 return true;
         }
         return false;
@@ -97,9 +100,9 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if(this.focused != null)
-            return this.focused.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            return this.focused.mouseDragged(event, dragX, dragY);
         return false;
     }
 
@@ -109,27 +112,27 @@ public class GroupWidget extends AbstractWidget implements ContainerEventHandler
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         for(AbstractWidget children : this.children) {
-            if(children.keyPressed(keyCode, scanCode, modifiers))
+            if(children.keyPressed(event))
                 return true;
         }
         return false;
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    public boolean keyReleased(KeyEvent event) {
         for(AbstractWidget children : this.children) {
-            if(children.keyReleased(keyCode, scanCode, modifiers))
+            if(children.keyReleased(event))
                 return true;
         }
         return false;
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
+    public boolean charTyped(CharacterEvent event) {
         for(AbstractWidget children : this.children) {
-            if(children.charTyped(codePoint, modifiers))
+            if(children.charTyped(event))
                 return true;
         }
         return false;

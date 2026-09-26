@@ -4,10 +4,10 @@ import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
@@ -20,10 +20,10 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         double percent = this.getScreen().getTile()
                         .getComponentManager()
-                        .getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
+                        .getComponent(CMRegistration.ENERGY_MACHINE_COMPONENT.get())
                         .map(EnergyMachineComponent::getFillPercent)
                         .orElse(0.0D);
         ClientHandler.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getX(), this.getY(), this.width, this.height, percent, this.getElement().getOrientation());
@@ -36,7 +36,7 @@ public class EnergyGuiElementWidget extends TexturedGuiElementWidget<EnergyGuiEl
         if(!this.getElement().getTooltips().isEmpty())
             return this.getElement().getTooltips();
         return this.getScreen().getTile().getComponentManager()
-                .getComponent(Registration.ENERGY_MACHINE_COMPONENT.get())
+                .getComponent(CMRegistration.ENERGY_MACHINE_COMPONENT.get())
                 .map(component -> Collections.singletonList((Component)
                         Component.translatable(
                                 "custommachinery.gui.element.energy.tooltip",

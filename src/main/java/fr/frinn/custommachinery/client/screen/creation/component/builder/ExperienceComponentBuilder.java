@@ -8,9 +8,9 @@ import fr.frinn.custommachinery.client.screen.creation.component.IMachineCompone
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.ExperienceMachineComponent;
 import fr.frinn.custommachinery.common.component.ExperienceMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
@@ -27,7 +27,7 @@ public class ExperienceComponentBuilder implements IMachineComponentBuilder<Expe
 
     @Override
     public MachineComponentType<ExperienceMachineComponent> type() {
-        return Registration.EXPERIENCE_MACHINE_COMPONENT.get();
+        return CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -36,9 +36,9 @@ public class ExperienceComponentBuilder implements IMachineComponentBuilder<Expe
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, int width, int height, Template template) {
-        graphics.renderFakeItem(Items.EXPERIENCE_BOTTLE.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.drawString(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+    public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Template template) {
+        graphics.item(Items.EXPERIENCE_BOTTLE.getDefaultInstance(), x, y + height / 2 - 8);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
     }
 
     public static class ExperienceComponentBuilderPopup extends ComponentBuilderPopup<Template> {
@@ -67,10 +67,8 @@ public class ExperienceComponentBuilder implements IMachineComponentBuilder<Expe
             this.baseTemplate().ifPresentOrElse(template -> this.capacity.setValue("" + template.capacity()), () -> this.capacity.setValue("10000"));
 
             //Retrieve
-            this.retrieve = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.experience.retrieve"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.experience.retrieve"), this.font).selected(false).build());
+            this.retrieve = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.experience.retrieve"), Checkbox.builder(Component.translatable("custommachinery.gui.creation.components.experience.retrieve"), this.font).selected(this.baseTemplate().map(Template::retrieve).orElse(false)).build());
             this.retrieve.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.components.experience.retrieve.tooltip")));
-            if(this.baseTemplate().map(Template::retrieve).orElse(false) != this.retrieve.selected())
-                this.retrieve.onPress();
 
             //Slots
             this.slots = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.experience.slots"), new EditBox(this.font, 0, 0, 160, 20, Component.translatable("custommachinery.gui.creation.components.experience.slots")));

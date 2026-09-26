@@ -5,7 +5,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.ChatFormatting;
@@ -33,7 +33,7 @@ public class ResetGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<ResetGuiElement> getType() {
-        return Registration.RESET_GUI_ELEMENT.get();
+        return CMRegistration.RESET_GUI_ELEMENT.get();
     }
 
     @Override

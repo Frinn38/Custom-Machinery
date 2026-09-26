@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemFilterIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -34,12 +34,12 @@ public record ItemFilterRequirement(Ingredient ingredient, String slot) implemen
 
     @Override
     public RequirementType<ItemFilterRequirement> getType() {
-        return Registration.ITEM_FILTER_REQUIREMENT.get();
+        return CMRegistration.ITEM_FILTER_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType getComponentType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -50,7 +50,7 @@ public record ItemFilterRequirement(Ingredient ingredient, String slot) implemen
     @Override
     public boolean test(ItemComponentHandler handler, ICraftingContext context) {
         return handler.getComponents().stream()
-                .filter(component -> component.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get())
+                .filter(component -> component.getType() == CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get())
                 .anyMatch(component -> this.ingredient.test(component.getItemStack()));
     }
 

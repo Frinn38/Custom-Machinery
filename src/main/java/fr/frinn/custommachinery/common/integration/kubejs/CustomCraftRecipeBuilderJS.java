@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeBuilder;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
@@ -36,6 +36,6 @@ public class CustomCraftRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomCr
         ExperienceRequirementJS {
 
     public CustomCraftRecipeBuilderJS() {
-        super(Registration.CUSTOM_CRAFT_RECIPE.getId());
+        super(CMRegistration.CUSTOM_CRAFT_RECIPE.getId());
     }
 }

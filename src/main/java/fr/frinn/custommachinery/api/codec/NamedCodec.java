@@ -25,7 +25,7 @@ import fr.frinn.custommachinery.impl.codec.NamedRecordCodec.Mu;
 import fr.frinn.custommachinery.impl.codec.NumberCodec;
 import fr.frinn.custommachinery.impl.codec.OptionalFieldCodec;
 import fr.frinn.custommachinery.impl.codec.PairCodec;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import fr.frinn.custommachinery.impl.codec.UnboundedMapCodec;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
@@ -114,7 +114,7 @@ public interface NamedCodec<A> {
     }
 
     static <A> NamedCodec<A> registrar(Registry<A> registrar) {
-        return RegistrarCodec.of(registrar, false);
+        return RegistryCodecs.of(registrar, false);
     }
 
     static <K extends Enum<K>, V> NamedMapCodec<Map<K, V>> enumMap(Class<K> keyEnumClass, NamedCodec<V> valueCodec) {

@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.api.component;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Used to store various data about the component inside the machine tile nbt tag.
@@ -10,15 +10,13 @@ public interface ISerializableComponent extends IMachineComponent {
 
     /**
      * This Method is called by the {@link fr.frinn.custommachinery.api.component.IMachineComponentManager} when the CustomMachineTile data is stored to disk (mostly on chunk unload).
-     * @param nbt The CompoundNBT that will be saved inside the machine tile nbt.
-     * @param registries A lookup for registry based values.
+     * @param output An abstraction of NBT system, which takes all data that needs to be serialized.
      */
-    void serialize(CompoundTag nbt, HolderLookup.Provider registries);
+    void serialize(ValueOutput output);
 
     /**
      * This Method is called by the {@link fr.frinn.custommachinery.api.component.IMachineComponentManager} when the {@link fr.frinn.custommachinery.api.machine.MachineTile} data is read from disk, directly after the components are created.
-     * @param nbt The component CompoundNBT that was serialized in the above method.
-     * @param registries A lookup for registry based values.
+     * @param input An abstraction of NBT system, which gives all data that were serialized.
      */
-    void deserialize(CompoundTag nbt, HolderLookup.Provider registries);
+    void deserialize(ValueInput input);
 }

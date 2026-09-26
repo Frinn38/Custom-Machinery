@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.SkyMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
@@ -21,12 +21,12 @@ public class SkyRequirement implements IRequirement<SkyMachineComponent> {
 
     @Override
     public RequirementType<SkyRequirement> getType() {
-        return Registration.SKY_REQUIREMENT.get();
+        return CMRegistration.SKY_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<SkyMachineComponent> getComponentType() {
-        return Registration.SKY_MACHINE_COMPONENT.get();
+        return CMRegistration.SKY_MACHINE_COMPONENT.get();
     }
 
     @Override

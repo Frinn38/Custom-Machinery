@@ -8,14 +8,14 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.function.Consumer;
 
@@ -30,21 +30,19 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public MachineComponentType<FuelMachineComponent> getType() {
-        return Registration.FUEL_MACHINE_COMPONENT.get();
+        return CMRegistration.FUEL_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt.putInt("fuel", this.fuel);
-        nbt.putInt("maxFuel", this.maxFuel);
+    public void serialize(ValueOutput output) {
+        output.putInt("fuel", this.fuel);
+        output.putInt("maxFuel", this.maxFuel);
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if(nbt.contains("fuel", Tag.TAG_INT))
-            this.fuel = nbt.getInt("fuel");
-        if(nbt.contains("maxFuel", Tag.TAG_INT))
-            this.maxFuel = nbt.getInt("maxFuel");
+    public void deserialize(ValueInput input) {
+        input.getInt("fuel").ifPresent(fuel -> this.fuel = fuel);
+        input.getInt("maxFuel").ifPresent(maxFuel -> this.maxFuel = maxFuel);
     }
 
     @Override
@@ -101,26 +99,26 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     public boolean canStartRecipe(int amount) {
         if(this.fuel >= amount)
             return true;
-        return getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
+        return getManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
                     handler.getComponents().stream()
-                        .filter(component -> component.getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get() && component.getItemStack().getBurnTime(RecipeType.SMELTING) > 0)
+                        .filter(component -> component.getType() == CMRegistration.ITEM_FUEL_MACHINE_COMPONENT.get() && component.getItemStack().getBurnTime(RecipeType.SMELTING, getManager().getLevel().fuelValues()) > 0)
                         .findFirst()
                 ).isPresent();
     }
 
     private void tryBurnItem() {
-        getManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
+        getManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler ->
                 handler.getComponents().stream()
-                        .filter(component -> component.getType() == Registration.ITEM_FUEL_MACHINE_COMPONENT.get() && !component.getItemStack().isEmpty())
+                        .filter(component -> component.getType() == CMRegistration.ITEM_FUEL_MACHINE_COMPONENT.get() && !component.getItemStack().isEmpty())
                         .findFirst()
         ).ifPresent(component -> {
-            int fuel = component.getItemStack().getBurnTime(RecipeType.SMELTING);
+            int fuel = component.getItemStack().getBurnTime(RecipeType.SMELTING, getManager().getLevel().fuelValues());
             this.addFuel(fuel);
             ItemStack stack = component.getItemStack();
-            if(stack.hasCraftingRemainingItem())
-                component.setItemStack(stack.getCraftingRemainingItem());
+            if(stack.getCraftingRemainder() != null)
+                component.setItemStack(stack.getCraftingRemainder().create());
             else
-                component.extractItemBypassLimit(1, false);
+                component.setItemStack(stack.copyWithCount(stack.count() - 1));
         });
     }
 }

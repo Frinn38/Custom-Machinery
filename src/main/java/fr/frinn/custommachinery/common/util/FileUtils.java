@@ -14,8 +14,8 @@ import fr.frinn.custommachinery.common.network.SUpdateMachinesPacket;
 import fr.frinn.custommachinery.common.network.SUpdateUpgradesPacket;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
-import net.minecraft.Util;
-import net.minecraft.Util.OS;
+import net.minecraft.util.Util;
+import net.minecraft.util.Util.OS;
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
@@ -50,7 +50,7 @@ public class FileUtils {
         if(result.result().isPresent()) {
             JsonElement json = result.result().get();
             String root = server.getServerDirectory().toFile().getAbsolutePath();
-            if(!FMLLoader.isProduction())
+            if(!FMLLoader.getCurrent().isProduction())
                 root = root.substring(0, root.length() - 2);
             if(kubejs)
                 root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + machine.getId().getNamespace() + File.separator + "machine";
@@ -161,7 +161,7 @@ public class FileUtils {
         if(result.result().isPresent()) {
             JsonElement json = result.result().get();
             String root = server.getServerDirectory().toFile().getAbsolutePath();
-            if(!FMLLoader.isProduction())
+            if(!FMLLoader.getCurrent().isProduction())
                 root = root.substring(0, root.length() - 2);
             if(kubejs)
                 root = root + File.separator + "kubejs" + File.separator + "data" + File.separator + location.id().getNamespace() + File.separator + "upgrade";

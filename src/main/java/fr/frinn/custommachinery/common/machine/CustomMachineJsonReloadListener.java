@@ -11,9 +11,9 @@ import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.requirement.FunctionRequirement;
 import fr.frinn.custommachinery.common.util.CustomJsonReloadListener;
 import fr.frinn.custommachinery.common.util.MachineList;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
@@ -27,6 +27,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.jetbrains.annotations.Nullable;
 import oshi.util.tuples.Triplet;
 
 import java.io.File;
@@ -43,6 +44,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
     private static final String MAIN_PACKNAME = "main";
 
+    @Nullable
     public static IContext context;
 
     public CustomMachineJsonReloadListener() {
@@ -50,7 +52,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<Identifier, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
         Logger logger = ICustomMachineryAPI.INSTANCE.logger();
         Marker marker = MarkerManager.getMarker("MachineLoader");
         logger.info(marker, "Reading Custom Machinery Machines...");
@@ -61,7 +63,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
         //Keep upgraded machines here until all other machines finished loading
         //List<Triplet<ParentID, ID, MachineJson>>
-        List<Triplet<ResourceLocation, ResourceLocation, JsonObject>> upgradedMachines = new ArrayList<>();
+        List<Triplet<Identifier, Identifier, JsonObject>> upgradedMachines = new ArrayList<>();
 
         map.forEach((id, json) -> {
             MachineLocation location = getMachineLocation(resourceManager, id);
@@ -86,13 +88,13 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
             if(jsonObject.has("parent") && jsonObject.get("parent").isJsonPrimitive() && jsonObject.getAsJsonPrimitive("parent").isString()) {
                 String parent = jsonObject.getAsJsonPrimitive("parent").getAsString();
                 try {
-                    ResourceLocation parentID = ResourceLocation.parse(parent);
+                    Identifier parentID = Identifier.parse(parent);
                     if(map.containsKey(parentID))
                         upgradedMachines.add(new Triplet<>(parentID, id, jsonObject));
                     else
                         logger.error(marker, "Upgraded machine '{}' reference parent machine '{}' which doesn't exist, skipping", id, parentID);
                     return;
-                } catch (ResourceLocationException e) {
+                } catch (IdentifierException e) {
                     logger.error(marker, "Invalid parent ID '{}' in machine json '{}', skipping...\n{}", parent, id, e.getMessage());
                     return;
                 }
@@ -121,9 +123,9 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
 
         //Process upgraded machines
         while(!upgradedMachines.isEmpty()) {
-            Iterator<Triplet<ResourceLocation, ResourceLocation, JsonObject>> iterator = upgradedMachines.iterator();
+            Iterator<Triplet<Identifier, Identifier, JsonObject>> iterator = upgradedMachines.iterator();
             while(iterator.hasNext()) {
-                Triplet<ResourceLocation, ResourceLocation, JsonObject> triplet = iterator.next();
+                Triplet<Identifier, Identifier, JsonObject> triplet = iterator.next();
                 CustomMachine parent = CustomMachinery.MACHINES.get(triplet.getA());
                 if(parent == null) {
                     //Check if the parent is in our waiting list
@@ -140,7 +142,7 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
                     continue;
                 }
 
-                ResourceLocation id = triplet.getB();
+                Identifier id = triplet.getB();
                 DataResult<UpgradedCustomMachine> result = UpgradedCustomMachine.makeCodec(parent).read(JsonOps.INSTANCE, triplet.getC());
                 if(result.result().isPresent()) {
                     CustomMachine machine = result.result().get();
@@ -164,8 +166,8 @@ public class CustomMachineJsonReloadListener extends CustomJsonReloadListener {
         FunctionRequirement.errors.clear();
     }
 
-    private MachineLocation getMachineLocation(ResourceManager resourceManager, ResourceLocation id) {
-        ResourceLocation path = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "machine/" + id.getPath() + ".json");
+    private MachineLocation getMachineLocation(ResourceManager resourceManager, Identifier id) {
+        Identifier path = Identifier.fromNamespaceAndPath(id.getNamespace(), "machine/" + id.getPath() + ".json");
         try {
             Resource res = resourceManager.getResourceOrThrow(path);
             String packName = res.sourcePackId();

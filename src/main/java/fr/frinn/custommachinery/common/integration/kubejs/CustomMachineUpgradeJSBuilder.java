@@ -12,11 +12,11 @@ import fr.frinn.custommachinery.common.upgrade.CoreModifier;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.RecipeModifier;
 import net.minecraft.ChatFormatting;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,9 +27,10 @@ public class CustomMachineUpgradeJSBuilder {
 
     private final Item item;
     private List<Component> tooltips;
-    private final List<ResourceLocation> machines;
+    private final List<Identifier> machines;
     private final List<RecipeModifier> recipeModifiers;
     private final List<ComponentModifier> componentModifiers;
+    @Nullable
     private CoreModifier coreModifier = null;
     private final int maxAmount;
 
@@ -50,16 +51,8 @@ public class CustomMachineUpgradeJSBuilder {
         return new MachineUpgrade(this.item, this.machines, this.recipeModifiers, this.componentModifiers, Optional.ofNullable(this.coreModifier), this.tooltips, this.maxAmount);
     }
 
-    public CustomMachineUpgradeJSBuilder machine(String... string) {
-        for(String s : string) {
-            final ResourceLocation machine;
-            try {
-                machine = ResourceLocation.parse(s);
-            } catch (ResourceLocationException e) {
-                throw new IllegalArgumentException("Invalid Machine ID: " + s + "\n" + e.getMessage());
-            }
-            this.machines.add(machine);
-        }
+    public CustomMachineUpgradeJSBuilder machine(List<Identifier> machines) {
+        this.machines.addAll(machines);
         return this;
     }
 
@@ -212,7 +205,7 @@ public class CustomMachineUpgradeJSBuilder {
         }
 
         private ComponentModifier build() {
-            if(this.target == null || this.target.isEmpty())
+            if(this.target.isEmpty())
                 throw new KubeRuntimeException("Invalid CM upgrade component modifier for component: " + this.type.getId() + " target not specified");
             return new ComponentModifier(this.type, this.id, this.target, this.operation, this.modifier, this.max, this.min, this.tooltip);
         }
@@ -224,7 +217,7 @@ public class CustomMachineUpgradeJSBuilder {
         private final double modifier;
         private int max = 32;
         private int min = 1;
-        private Component tooltip = null;
+        private Component tooltip = Component.empty();
 
         private JSCoreModifierBuilder(Operation operation, double modifier) {
             this.operation = operation;

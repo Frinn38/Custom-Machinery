@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.common.util.CycleTimer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.StringWidget;
@@ -67,10 +67,8 @@ public class GuiTab extends MachineEditTab {
         else
             this.guiEditor = row.addChild(new GuiEditorWidget(parent, parent.x, parent.y, 256, 192, parent.getBuilder().getGuiElements()), 2, row.newCellSettings().alignHorizontallyCenter());
         this.empty = row.addChild(new StringWidget(this.guiEditor.getWidth(), 192 - this.guiEditor.getHeight(), Component.empty(), Minecraft.getInstance().font), 2);
-        HintWidget hintWidget = row.addChild(new HintWidget(150));
-        hintWidget.alignLeft();
-        MousePosWidget mousePosWidget = row.addChild(new MousePosWidget(48), row.newCellSettings().alignHorizontallyRight());
-        mousePosWidget.alignRight();
+        row.addChild(new HintWidget(150));
+        row.addChild(new MousePosWidget(48), row.newCellSettings().alignHorizontallyRight());
     }
 
     public void setSize(int width, int height) {
@@ -185,15 +183,15 @@ public class GuiTab extends MachineEditTab {
         }
 
         @Override
-        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             this.hintsTimer.onDraw();
             Font font = Minecraft.getInstance().font;
             Component hint = this.getMessage();
             float scale = Math.clamp(this.getWidth() / (float)(font.width(hint) - 50), 0.5F, 1.0F);
-            graphics.pose().pushPose();
-            graphics.pose().scale(scale, scale, 1F);
-            graphics.drawString(Minecraft.getInstance().font, this.getMessage(), (int)(this.getX() / scale), (int)((this.getY() + 1) / scale), 0, false);
-            graphics.pose().popPose();
+            graphics.pose().pushMatrix();
+            graphics.pose().scale(scale, scale);
+            graphics.text(Minecraft.getInstance().font, this.getMessage(), (int)(this.getX() / scale), (int)((this.getY() + 1) / scale), 0, false);
+            graphics.pose().popMatrix();
         }
     }
 

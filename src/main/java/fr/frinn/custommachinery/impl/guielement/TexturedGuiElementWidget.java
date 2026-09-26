@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.impl.guielement;
 
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 public class TexturedGuiElementWidget<T extends AbstractTexturedGuiElement> extends AbstractGuiElementWidget<T> {
@@ -12,7 +12,7 @@ public class TexturedGuiElementWidget<T extends AbstractTexturedGuiElement> exte
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         if(this.getElement().getTextureHovered() != null && this.isHovered())
             ClientHandler.blit(graphics, this.getElement().getTextureHovered(), this.getX(), this.getY(), this.width, this.height);
         else

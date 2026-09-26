@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.util;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -38,7 +38,7 @@ public class MachineList {
         needRefresh = true;
     }
 
-    public static Optional<MachineTile> findNearest(Player player, @Nullable ResourceLocation machine, int radius) {
+    public static Optional<MachineTile> findNearest(Player player, @Nullable Identifier machine, int radius) {
         return getLoadedMachines().stream()
                 .filter(tile -> tile.getLevel() == player.level() && tile.getBlockPos().closerThan(player.blockPosition(), radius) && (machine == null || machine.equals(tile.getMachine().getId())))
                 .min(Comparator.comparingInt(tile -> tile.getBlockPos().distManhattan(player.blockPosition())));
@@ -46,7 +46,7 @@ public class MachineList {
 
     public static Optional<MachineTile> findInSameChunk(MachineTile machine) {
         return getLoadedMachines().stream()
-                .filter(tile -> tile != machine && tile.getLevel() == machine.getLevel() && new ChunkPos(tile.getBlockPos()).equals(new ChunkPos(machine.getBlockPos())))
+                .filter(tile -> tile != machine && tile.getLevel() == machine.getLevel() && ChunkPos.containing(tile.getBlockPos()).equals(ChunkPos.containing(machine.getBlockPos())))
                 .findFirst();
     }
 

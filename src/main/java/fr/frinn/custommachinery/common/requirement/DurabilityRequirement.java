@@ -14,24 +14,21 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.neoforged.neoforge.common.crafting.CraftingHelper;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class DurabilityRequirement implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<DurabilityRequirement> CODEC = NamedCodec.record(durabilityRequirementInstance ->
             durabilityRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(DurabilityRequirement::getMode),
-                    NamedCodec.of(CraftingHelper.makeIngredientCodec(true)).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.item),
+                    NamedCodec.of(Ingredient.CODEC).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
                     NamedCodec.BOOL.optionalFieldOf("break", false).forGetter(requirement -> requirement.canBreak),
                     NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
@@ -39,14 +36,14 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
     );
 
     private final RequirementIOMode mode;
-    private final Ingredient item;
+    private final Ingredient ingredient;
     private final int amount;
     private final String slot;
     private final boolean canBreak;
 
-    public DurabilityRequirement(RequirementIOMode mode, Ingredient item, int amount, boolean canBreak, String slot) {
+    public DurabilityRequirement(RequirementIOMode mode, Ingredient ingredient, int amount, boolean canBreak, String slot) {
         this.mode = mode;
-        this.item = item;
+        this.ingredient = ingredient;
         this.amount = amount;
         this.canBreak = canBreak;
         this.slot = slot;
@@ -54,12 +51,12 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
 
     @Override
     public RequirementType<DurabilityRequirement> getType() {
-        return Registration.DURABILITY_REQUIREMENT.get();
+        return CMRegistration.DURABILITY_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType getComponentType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -71,9 +68,9 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT)
-            return Arrays.stream(this.item.getItems()).mapToInt(item -> component.getDurabilityAmount(this.slot, item)).sum() >= amount;
+            return component.getDurabilityAmount(this.slot, this.ingredient) >= amount;
         else
-            return Arrays.stream(this.item.getItems()).mapToInt(item -> component.getSpaceForDurability(this.slot, item)).sum() >= amount;
+            return component.getSpaceForDurability(this.slot, this.ingredient) >= amount;
     }
 
     @Override
@@ -86,44 +83,26 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
 
     public CraftingResult processInputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
-        int maxRemove = Arrays.stream(this.item.getItems()).mapToInt(item -> component.getDurabilityAmount(this.slot, item)).sum();
+        int maxRemove = component.getDurabilityAmount(this.slot, this.ingredient);
         if(maxRemove >= amount) {
-            int toDamage = amount;
-            for (ItemStack item : this.item.getItems()) {
-                int canDamage = component.getDurabilityAmount(this.slot, item);
-                if(canDamage > 0) {
-                    canDamage = Math.min(canDamage, toDamage);
-                    component.removeDurability(this.slot, item, canDamage, this.canBreak);
-                    toDamage -= canDamage;
-                    if(toDamage == 0)
-                        return CraftingResult.success();
-                }
-            }
+            component.removeDurability(this.slot, this.ingredient, amount, this.canBreak);
+            return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.input", amount, maxRemove));
     }
 
     public CraftingResult processOutputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
-        int maxRepair = Arrays.stream(this.item.getItems()).mapToInt(item -> component.getSpaceForDurability(this.slot, item)).sum();
+        int maxRepair = component.getSpaceForDurability(this.slot, this.ingredient);
         if(maxRepair >= amount) {
-            int toRepair = amount;
-            for (ItemStack item : this.item.getItems()) {
-                int canRepair = component.getSpaceForDurability(this.slot, item);
-                if(canRepair > 0) {
-                    canRepair = Math.min(canRepair, toRepair);
-                    component.repairItem(this.slot, item, canRepair);
-                    toRepair -= canRepair;
-                    if(toRepair == 0)
-                        return CraftingResult.success();
-                }
-            }
+            component.repairItem(this.slot, this.ingredient, amount);
+            return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.output", amount, maxRepair));
     }
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), new SizedIngredient(this.item, this.amount), requirement.chance(), true, this.slot, true));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), new SizedIngredient(this.ingredient, this.amount), requirement.chance(), true, this.slot, true));
     }
 }

@@ -13,6 +13,7 @@ import dev.latvian.mods.kubejs.registry.BuilderTypeRegistry;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
 import dev.latvian.mods.kubejs.script.ScriptManager;
 import dev.latvian.mods.kubejs.script.TypeWrapperRegistry;
+import dev.latvian.mods.kubejs.script.TypeWrapperRegistry.RegistriesFromFunction;
 import dev.latvian.mods.kubejs.util.RegistryAccessContainer;
 import dev.latvian.mods.rhino.type.TypeInfo;
 import fr.frinn.custommachinery.CustomMachinery;
@@ -30,8 +31,8 @@ import fr.frinn.custommachinery.impl.util.IntRange;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
@@ -51,10 +52,10 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
     @Override
     public void registerRecipeComponents(RecipeComponentTypeRegistry registry) {
-        registry.register(CustomMachineryRecipeComponents.RESOURCE_LOCATION);
-        registry.register(CustomMachineryRecipeComponents.REQUIREMENT_COMPONENT);
-        registry.register(CustomMachineryRecipeComponents.CUSTOM_APPEARANCE);
-        registry.register(CustomMachineryRecipeComponents.CUSTOM_GUI_ELEMENTS);
+        registry.unit(CustomMachineryRecipeComponents.RESOURCE_LOCATION);
+        registry.unit(CustomMachineryRecipeComponents.REQUIREMENT_COMPONENT);
+        registry.unit(CustomMachineryRecipeComponents.CUSTOM_APPEARANCE);
+        registry.unit(CustomMachineryRecipeComponents.CUSTOM_GUI_ELEMENTS);
     }
 
     @Override
@@ -77,6 +78,7 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
         registry.add("TooltipPredicate", TooltipPredicate.class);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void registerTypeWrappers(TypeWrapperRegistry registry) {
         registry.register(IntRange.class, IntRange::of);
@@ -112,6 +114,6 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
     @SuppressWarnings("rawtypes")
     private static <T> TypeWrapperRegistry.RegistriesFromFunction registryWrapper(ResourceKey<Registry<T>> registry) {
-        return (access, o) -> ((RegistryAccessContainer)access).access().registryOrThrow(registry).get(ResourceLocation.parse(o.toString()));
+        return (access, o) -> ((RegistryAccessContainer)access).registryAccess().lookupOrThrow(registry).get(Identifier.parse(o.toString()));
     }
 }

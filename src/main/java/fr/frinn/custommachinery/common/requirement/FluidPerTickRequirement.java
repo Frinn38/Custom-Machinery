@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.FluidIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -28,33 +28,33 @@ public record FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredie
     public static final NamedCodec<FluidPerTickRequirement> CODEC = NamedCodec.record(fluidPerTickRequirementInstance ->
             fluidPerTickRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
-                    NamedCodec.of(SizedFluidIngredient.FLAT_CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
+                    NamedCodec.of(SizedFluidIngredient.CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
             ).apply(fluidPerTickRequirementInstance, FluidPerTickRequirement::new), "Fluid per tick requirement"
     );
 
     public FluidPerTickRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, String tank) {
         this.mode = mode;
-        if(ingredient.ingredient().hasNoFluids())
+        if(ingredient.ingredient().fluids().isEmpty())
             throw new IllegalArgumentException("Invalid fluid specified for fluid requirement");
-        if(mode == RequirementIOMode.OUTPUT && ingredient.getFluids().length > 1)
+        if(mode == RequirementIOMode.OUTPUT && ingredient.ingredient().fluids().size() > 1)
                 throw new IllegalArgumentException("You must specify a single for an Output Fluid Requirement");
         this.ingredient = ingredient;
         this.tank = tank;
     }
 
     private FluidStack output() {
-        return this.ingredient.getFluids()[0];
+        return new FluidStack(this.ingredient.ingredient().fluids().getFirst().value(), this.ingredient.amount());
     }
 
     @Override
     public RequirementType<FluidPerTickRequirement> getType() {
-        return Registration.FLUID_PER_TICK_REQUIREMENT.get();
+        return CMRegistration.FLUID_PER_TICK_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType getComponentType() {
-        return Registration.FLUID_MACHINE_COMPONENT.get();
+        return CMRegistration.FLUID_MACHINE_COMPONENT.get();
     }
 
     @Override

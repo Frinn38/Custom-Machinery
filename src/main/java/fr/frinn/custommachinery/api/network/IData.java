@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.api.network;
 
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Used to sync any kind of {@link Object} from server to client.
@@ -31,7 +31,7 @@ public interface IData<T> {
      * @param buffer The PacketBuffer that will be sent to the client.
      */
     default void writeData(RegistryFriendlyByteBuf buffer) {
-        buffer.writeResourceLocation(getType().getId());
+        buffer.writeIdentifier(getType().getId());
         buffer.writeShort(getID());
     }
 
@@ -40,10 +40,8 @@ public interface IData<T> {
      * Don't touch this.
      */
     static IData<?> readData(RegistryFriendlyByteBuf buffer) {
-        ResourceLocation typeId = buffer.readResourceLocation();
-        DataType<?, ?> type = ICustomMachineryAPI.INSTANCE.dataRegistrar().get(typeId);
-        if(type == null)
-            throw new IllegalStateException("Attempting to read invalid IData : " + typeId + " is not a valid registered DataType !");
+        Identifier typeId = buffer.readIdentifier();
+        DataType<?, ?> type = ICustomMachineryAPI.INSTANCE.dataRegistrar().get(typeId).orElseThrow(() -> new IllegalStateException("Attempting to read invalid IData : " + typeId + " is not a valid registered DataType !")).value();
         short id = buffer.readShort();
         return type.readData(id, buffer);
     }

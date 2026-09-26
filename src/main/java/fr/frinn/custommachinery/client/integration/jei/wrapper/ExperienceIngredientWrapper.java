@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.client.integration.jei.experience.ExperienceJEIIngredientRenderer;
 import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.impl.integration.jei.Experience;
@@ -28,14 +28,14 @@ public class ExperienceIngredientWrapper implements IJEIIngredientWrapper<Experi
   public boolean setupRecipe(IRecipeLayoutBuilder builder, int xOffset, int yOffset, IGuiElement element, IRecipeHelper helper) {
     if (
       !(element instanceof ExperienceGuiElement experienceElement)
-      || element.getType() != Registration.EXPERIENCE_GUI_ELEMENT.get()
+      || element.getType() != CMRegistration.EXPERIENCE_GUI_ELEMENT.get()
       || !experienceElement.getMode().isDisplay()
     )
       return false;
 
     builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
       .setCustomRenderer(CustomIngredientTypes.EXPERIENCE, new ExperienceJEIIngredientRenderer(experienceElement))
-      .addIngredient(CustomIngredientTypes.EXPERIENCE, this.experience)
+      .add(CustomIngredientTypes.EXPERIENCE, this.experience)
       .addRichTooltipCallback((recipeSlotView, tooltip) -> {
         Component component;
         String amount = Utils.format(this.experience.xp());

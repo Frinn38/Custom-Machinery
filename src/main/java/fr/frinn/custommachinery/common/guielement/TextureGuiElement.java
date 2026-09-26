@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.guielement;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 
 public class TextureGuiElement extends AbstractTexturedGuiElement {
@@ -27,7 +27,7 @@ public class TextureGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<TextureGuiElement> getType() {
-        return Registration.TEXTURE_GUI_ELEMENT.get();
+        return CMRegistration.TEXTURE_GUI_ELEMENT.get();
     }
 
     @Override

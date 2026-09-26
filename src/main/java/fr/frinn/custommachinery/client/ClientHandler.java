@@ -1,11 +1,10 @@
 package fr.frinn.custommachinery.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendererEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterWidgetToJeiIngredientGetterEvent;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.element.BarGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ConfigGuiElementWidget;
@@ -32,7 +31,6 @@ import fr.frinn.custommachinery.client.integration.jei.element.ProgressGuiElemen
 import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
-import fr.frinn.custommachinery.client.model.CustomMachineModelLoader;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineTooltipComponent;
@@ -80,35 +78,32 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.SplitButtonGu
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.StatusGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
-import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SpriteData;
 import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.resources.model.ModelBakery.BakingResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -119,22 +114,24 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.ModelEvent.BakingCompleted;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.util.Map;
+import java.util.Collections;
 
 @Mod(value = CustomMachinery.MODID, dist = Dist.CLIENT)
 public class ClientHandler {
 
-    private static Map<ModelResourceLocation, BakedModel> models;
+    @Nullable
+    private static BakingResult models;
+
+    public static final ModelProperty<MachineAppearance> APPEARANCE = new ModelProperty<>();
+    public static final ModelProperty<MachineStatus> STATUS = new ModelProperty<>();
 
     public ClientHandler(final ModContainer CONTAINER, final IEventBus MOD_BUS) {
         CONTAINER.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
@@ -149,12 +146,8 @@ public class ClientHandler {
         MOD_BUS.addListener(this::registerMachineComponentBuilders);
         MOD_BUS.addListener(this::registerGuiElementBuilders);
         MOD_BUS.addListener(this::registerBlockColors);
-        MOD_BUS.addListener(this::registerItemColors);
-        MOD_BUS.addListener(this::registerModelLoader);
-        MOD_BUS.addListener(this::registerAdditionalModels);
         MOD_BUS.addListener(this::onBackingCompleted);
         MOD_BUS.addListener(this::registerClientTooltipComponents);
-        MOD_BUS.addListener(this::registerShaders);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
@@ -170,127 +163,109 @@ public class ClientHandler {
     }
 
     private void registerMenuScreens(final RegisterMenuScreensEvent event) {
-        event.register(Registration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
+        event.register(CMRegistration.CUSTOM_MACHINE_CONTAINER.get(), CustomMachineScreen::new);
     }
 
     private void registerBlockEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
+        event.registerBlockEntityRenderer(CMRegistration.CUSTOM_MACHINE_TILE.get(), CustomMachineRenderer::new);
     }
 
     private void registerGuiElementWidgets(final RegisterGuiElementWidgetSupplierEvent event) {
-        event.register(Registration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
-        event.register(Registration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
-        event.register(Registration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
-        event.register(Registration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
-        event.register(Registration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
-        event.register(Registration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementWidget::new);
-        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
-        event.register(Registration.FLUID_GUI_ELEMENT.get(), FluidGuiElementWidget::new);
-        event.register(Registration.FUEL_GUI_ELEMENT.get(), FuelGuiElementWidget::new);
-        event.register(Registration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementWidget::new);
-        event.register(Registration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementWidget::new);
-        event.register(Registration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
-        event.register(Registration.SLOT_GUI_ELEMENT.get(), SlotGuiElementWidget::new);
-        event.register(Registration.SPLIT_GUI_ELEMENT.get(), SplitButtonGuiElementWidget::new);
-        event.register(Registration.STATUS_GUI_ELEMENT.get(), StatusGuiElementWidget::new);
-        event.register(Registration.TEXT_GUI_ELEMENT.get(), TextGuiElementWidget::new);
-        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
+        event.register(CMRegistration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
+        event.register(CMRegistration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
+        event.register(CMRegistration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
+        event.register(CMRegistration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
+        event.register(CMRegistration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
+        event.register(CMRegistration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementWidget::new);
+        event.register(CMRegistration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
+        event.register(CMRegistration.FLUID_GUI_ELEMENT.get(), FluidGuiElementWidget::new);
+        event.register(CMRegistration.FUEL_GUI_ELEMENT.get(), FuelGuiElementWidget::new);
+        event.register(CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementWidget::new);
+        event.register(CMRegistration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementWidget::new);
+        event.register(CMRegistration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
+        event.register(CMRegistration.SLOT_GUI_ELEMENT.get(), SlotGuiElementWidget::new);
+        event.register(CMRegistration.SPLIT_GUI_ELEMENT.get(), SplitButtonGuiElementWidget::new);
+        event.register(CMRegistration.STATUS_GUI_ELEMENT.get(), StatusGuiElementWidget::new);
+        event.register(CMRegistration.TEXT_GUI_ELEMENT.get(), TextGuiElementWidget::new);
+        event.register(CMRegistration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
     }
 
     private void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {
-        event.register(Registration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementJeiRenderer());
-        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementJeiRenderer());
-        event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementJeiRenderer());
-        event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementJeiRenderer());
-        event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressGuiElementJeiRenderer());
-        event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementJeiRenderer());
-        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementJeiRenderer());
-        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementJeiRenderer());
+        event.register(CMRegistration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementJeiRenderer());
+        event.register(CMRegistration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementJeiRenderer());
+        event.register(CMRegistration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementJeiRenderer());
+        event.register(CMRegistration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementJeiRenderer());
+        event.register(CMRegistration.PROGRESS_GUI_ELEMENT.get(), new ProgressGuiElementJeiRenderer());
+        event.register(CMRegistration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementJeiRenderer());
+        event.register(CMRegistration.TEXT_GUI_ELEMENT.get(), new TextGuiElementJeiRenderer());
+        event.register(CMRegistration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementJeiRenderer());
     }
 
     private void registerWidgetToJeiIngredientGetters(final RegisterWidgetToJeiIngredientGetterEvent event) {
-        event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidIngredientGetter());
+        event.register(CMRegistration.FLUID_GUI_ELEMENT.get(), new FluidIngredientGetter());
     }
 
     private void registerAppearancePropertyBuilders(final RegisterAppearancePropertyBuilderEvent event) {
-        event.register(Registration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSoundAppearancePropertyBuilder());
-        event.register(Registration.BLOCK_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.block"), Registration.BLOCK_MODEL_PROPERTY.get()));
-        event.register(Registration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());
-        event.register(Registration.HARDNESS_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.hardness"), Registration.HARDNESS_PROPERTY.get(), -1F, 100F, Component.translatable("custommachinery.gui.creation.appearance.hardness.tooltip")));
-        event.register(Registration.INTERACTION_SOUND_PROPERTY.get(), new InteractionSoundAppearancePropertyBuilder());
-        event.register(Registration.ITEM_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.item"), Registration.ITEM_MODEL_PROPERTY.get()));
-        event.register(Registration.KEEP_INVENTORY_PROPERTY.get(), new BooleanAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.keep_inventory"), Registration.KEEP_INVENTORY_PROPERTY.get(), Component.translatable("custommachinery.gui.creation.appearance.keep_inventory.tooltip")));
-        event.register(Registration.LIGHT_PROPERTY.get(), new IntegerAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.light"), Registration.LIGHT_PROPERTY.get(), 0, 15, Component.translatable("custommachinery.gui.creation.appearance.light.tooltip")));
-        event.register(Registration.MINING_LEVEL_PROPERTY.get(), new MiningLevelAppearancePropertyBuilder());
-        event.register(Registration.REQUIRES_TOOL.get(), new BooleanAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.requires_tool"), Registration.REQUIRES_TOOL.get(), Component.translatable("custommachinery.gui.creation.appearance.requires_tool.tooltip")));
-        event.register(Registration.RESISTANCE_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.resistance"), Registration.RESISTANCE_PROPERTY.get(), 0F, 2000F, Component.translatable("custommachinery.gui.creation.appearance.resistance.tooltip")));
-        event.register(Registration.TOOL_TYPE_PROPERTY.get(), new ToolTypeAppearancePropertyBuilder());
+        event.register(CMRegistration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSoundAppearancePropertyBuilder());
+        event.register(CMRegistration.BLOCK_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.block"), CMRegistration.BLOCK_MODEL_PROPERTY.get()));
+        event.register(CMRegistration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());
+        event.register(CMRegistration.HARDNESS_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.hardness"), CMRegistration.HARDNESS_PROPERTY.get(), -1F, 100F, Component.translatable("custommachinery.gui.creation.appearance.hardness.tooltip")));
+        event.register(CMRegistration.INTERACTION_SOUND_PROPERTY.get(), new InteractionSoundAppearancePropertyBuilder());
+        event.register(CMRegistration.ITEM_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.item"), CMRegistration.ITEM_MODEL_PROPERTY.get()));
+        event.register(CMRegistration.KEEP_INVENTORY_PROPERTY.get(), new BooleanAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.keep_inventory"), CMRegistration.KEEP_INVENTORY_PROPERTY.get(), Component.translatable("custommachinery.gui.creation.appearance.keep_inventory.tooltip")));
+        event.register(CMRegistration.LIGHT_PROPERTY.get(), new IntegerAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.light"), CMRegistration.LIGHT_PROPERTY.get(), 0, 15, Component.translatable("custommachinery.gui.creation.appearance.light.tooltip")));
+        event.register(CMRegistration.MINING_LEVEL_PROPERTY.get(), new MiningLevelAppearancePropertyBuilder());
+        event.register(CMRegistration.REQUIRES_TOOL.get(), new BooleanAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.requires_tool"), CMRegistration.REQUIRES_TOOL.get(), Component.translatable("custommachinery.gui.creation.appearance.requires_tool.tooltip")));
+        event.register(CMRegistration.RESISTANCE_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.resistance"), CMRegistration.RESISTANCE_PROPERTY.get(), 0F, 2000F, Component.translatable("custommachinery.gui.creation.appearance.resistance.tooltip")));
+        event.register(CMRegistration.TOOL_TYPE_PROPERTY.get(), new ToolTypeAppearancePropertyBuilder());
     }
 
     private void registerMachineComponentBuilders(final RegisterComponentBuilderEvent event) {
-        event.register(Registration.CHUNKLOAD_MACHINE_COMPONENT.get(), new ChunkloadComponentBuilder());
-        event.register(Registration.ENERGY_MACHINE_COMPONENT.get(), new EnergyComponentBuilder());
-        event.register(Registration.EXPERIENCE_MACHINE_COMPONENT.get(), new ExperienceComponentBuilder());
-        event.register(Registration.FLUID_MACHINE_COMPONENT.get(), new FluidComponentBuilder());
-        event.register(Registration.ITEM_MACHINE_COMPONENT.get(), new ItemComponentBuilder());
-        event.register(Registration.ITEM_FLUID_MACHINE_COMPONENT.get(), new ItemFluidComponentBuilder());
-        event.register(Registration.ITEM_FILTER_MACHINE_COMPONENT.get(), new ItemFilterComponentBuilder());
-        event.register(Registration.ITEM_ENERGY_MACHINE_COMPONENT.get(), new ItemEnergyComponentBuilder());
-        event.register(Registration.ITEM_UPGRADE_MACHINE_COMPONENT.get(), new ItemUpgradeComponentBuilder());
-        event.register(Registration.ITEM_RESULT_MACHINE_COMPONENT.get(), new ItemResultComponentBuilder());
-        event.register(Registration.ITEM_FUEL_MACHINE_COMPONENT.get(), new ItemFuelComponentBuilder());
-        event.register(Registration.REDSTONE_MACHINE_COMPONENT.get(), new RedstoneComponentBuilder());
+        event.register(CMRegistration.CHUNKLOAD_MACHINE_COMPONENT.get(), new ChunkloadComponentBuilder());
+        event.register(CMRegistration.ENERGY_MACHINE_COMPONENT.get(), new EnergyComponentBuilder());
+        event.register(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get(), new ExperienceComponentBuilder());
+        event.register(CMRegistration.FLUID_MACHINE_COMPONENT.get(), new FluidComponentBuilder());
+        event.register(CMRegistration.ITEM_MACHINE_COMPONENT.get(), new ItemComponentBuilder());
+        event.register(CMRegistration.ITEM_FLUID_MACHINE_COMPONENT.get(), new ItemFluidComponentBuilder());
+        event.register(CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get(), new ItemFilterComponentBuilder());
+        event.register(CMRegistration.ITEM_ENERGY_MACHINE_COMPONENT.get(), new ItemEnergyComponentBuilder());
+        event.register(CMRegistration.ITEM_UPGRADE_MACHINE_COMPONENT.get(), new ItemUpgradeComponentBuilder());
+        event.register(CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get(), new ItemResultComponentBuilder());
+        event.register(CMRegistration.ITEM_FUEL_MACHINE_COMPONENT.get(), new ItemFuelComponentBuilder());
+        event.register(CMRegistration.REDSTONE_MACHINE_COMPONENT.get(), new RedstoneComponentBuilder());
     }
 
     private void registerGuiElementBuilders(final RegisterGuiElementBuilderEvent event) {
-        event.register(Registration.BAR_GUI_ELEMENT.get(), new BarGuiElementBuilder());
-        event.register(Registration.BUTTON_GUI_ELEMENT.get(), new ButtonGuiElementBuilder());
-        event.register(Registration.CONFIG_GUI_ELEMENT.get(), new ConfigGuiElementBuilder());
-        event.register(Registration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementBuilder());
-        event.register(Registration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementBuilder());
-        event.register(Registration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementBuilder());
-        event.register(Registration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementBuilder());
-        event.register(Registration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementBuilder());
-        event.register(Registration.PLAYER_INVENTORY_GUI_ELEMENT.get(), new PlayerInventoryGuiElementBuilder());
-        event.register(Registration.PROGRESS_GUI_ELEMENT.get(), new ProgressBarGuiElementBuilder());
-        event.register(Registration.RESET_GUI_ELEMENT.get(), new ResetGuiElementBuilder());
-        event.register(Registration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementBuilder());
-        event.register(Registration.SPLIT_GUI_ELEMENT.get(), new SplitButtonGuiElementBuilder());
-        event.register(Registration.STATUS_GUI_ELEMENT.get(), new StatusGuiElementBuilder());
-        event.register(Registration.TEXT_GUI_ELEMENT.get(), new TextGuiElementBuilder());
-        event.register(Registration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementBuilder());
+        event.register(CMRegistration.BAR_GUI_ELEMENT.get(), new BarGuiElementBuilder());
+        event.register(CMRegistration.BUTTON_GUI_ELEMENT.get(), new ButtonGuiElementBuilder());
+        event.register(CMRegistration.CONFIG_GUI_ELEMENT.get(), new ConfigGuiElementBuilder());
+        event.register(CMRegistration.DUMP_GUI_ELEMENT.get(), new DumpGuiElementBuilder());
+        event.register(CMRegistration.ENERGY_GUI_ELEMENT.get(), new EnergyGuiElementBuilder());
+        event.register(CMRegistration.EXPERIENCE_GUI_ELEMENT.get(), new ExperienceGuiElementBuilder());
+        event.register(CMRegistration.FLUID_GUI_ELEMENT.get(), new FluidGuiElementBuilder());
+        event.register(CMRegistration.FUEL_GUI_ELEMENT.get(), new FuelGuiElementBuilder());
+        event.register(CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get(), new PlayerInventoryGuiElementBuilder());
+        event.register(CMRegistration.PROGRESS_GUI_ELEMENT.get(), new ProgressBarGuiElementBuilder());
+        event.register(CMRegistration.RESET_GUI_ELEMENT.get(), new ResetGuiElementBuilder());
+        event.register(CMRegistration.SLOT_GUI_ELEMENT.get(), new SlotGuiElementBuilder());
+        event.register(CMRegistration.SPLIT_GUI_ELEMENT.get(), new SplitButtonGuiElementBuilder());
+        event.register(CMRegistration.STATUS_GUI_ELEMENT.get(), new StatusGuiElementBuilder());
+        event.register(CMRegistration.TEXT_GUI_ELEMENT.get(), new TextGuiElementBuilder());
+        event.register(CMRegistration.TEXTURE_GUI_ELEMENT.get(), new TextureGuiElementBuilder());
     }
 
-    private void registerBlockColors(final RegisterColorHandlersEvent.Block event) {
-        event.register(ClientHandler::blockColor, Registration.CUSTOM_MACHINE_BLOCK.get());
-        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> event.register(ClientHandler::blockColor, block));
+    private void registerBlockColors(final RegisterColorHandlersEvent.BlockTintSources event) {
+        event.register(Collections.singletonList(ClientHandler.blockColor()), CMRegistration.CUSTOM_MACHINE_BLOCK.get());
+        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> event.register(Collections.singletonList(ClientHandler.blockColor()), block));
     }
 
-    private void registerItemColors(final RegisterColorHandlersEvent.Item event) {
-        event.register(ClientHandler::itemColor, Registration.CUSTOM_MACHINE_ITEM::get);
-        CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> event.register(ClientHandler::itemColor, block));
+    private void onBackingCompleted(final ModelEvent.BakingCompleted event) {
+        models = event.getBakingResult();
     }
 
-    private void registerModelLoader(final ModelEvent.RegisterGeometryLoaders event) {
-        event.register(CustomMachinery.rl("custom_machine"), CustomMachineModelLoader.INSTANCE);
-    }
-
-    private void registerAdditionalModels(final ModelEvent.RegisterAdditional event) {
-        event.register(ModelResourceLocation.standalone(CustomMachinery.rl("block/nope")));
-        event.register(ModelResourceLocation.standalone(CustomMachinery.rl("default/custom_machine_default")));
-        for(String folder : CMConfig.CONFIG.modelFolders.get()) {
-            Minecraft.getInstance().getResourceManager().listResources("models/" + folder, s -> s.getPath().endsWith(".json")).forEach((rl, resource) -> {
-                ResourceLocation modelRL = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().substring(7).replace(".json", ""));
-                event.register(ModelResourceLocation.standalone(modelRL));
-            });
-        }
-    }
-
-    private void onBackingCompleted(final BakingCompleted event) {
-        models = event.getModels();
-    }
-
-    public static Map<ModelResourceLocation, BakedModel> getAllModels() {
+    public static BakingResult getAllModels() {
+        if(models == null)
+            throw new IllegalStateException("Trying to get models before baking completed");
         return models;
     }
 
@@ -298,43 +273,27 @@ public class ClientHandler {
         event.register(MachineTooltipComponent.class, ClientMachineTooltipComponent::new);
     }
 
-    public static ShaderInstance RADIAL_FILL_SHADER;
+    private static BlockTintSource blockColor() {
+        return new BlockTintSource() {
+            @Override
+            public int color(BlockState blockState) {
+                return 0;
+            }
 
-    private void registerShaders(final RegisterShadersEvent event) {
-        try {
-            event.registerShader(new ShaderInstance(event.getResourceProvider(), CustomMachinery.rl("radial_fill"), DefaultVertexFormat.POSITION_TEX), shader -> RADIAL_FILL_SHADER = shader);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static int blockColor(BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int tintIndex) {
-        if(level == null || pos == null)
-            return 0;
-        switch (tintIndex) {
-            case 1:
-                return level.getBlockTint(pos, BiomeColors.WATER_COLOR_RESOLVER);
-            case 2:
-                return level.getBlockTint(pos, BiomeColors.GRASS_COLOR_RESOLVER);
-            case 3:
-                return level.getBlockTint(pos, BiomeColors.FOLIAGE_COLOR_RESOLVER);
-            case 4:
+            @Override
+            public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
                 BlockEntity tile = level.getBlockEntity(pos);
                 if(tile instanceof CustomMachineTile machineTile) {
-                    return machineTile.getAppearance().getColor();
+                    return switch (machineTile.getAppearance().getColor()) {
+                        case "water" -> level.getBlockTint(pos, BiomeColors.WATER_COLOR_RESOLVER);
+                        case "grass" -> level.getBlockTint(pos, BiomeColors.GRASS_COLOR_RESOLVER);
+                        case "foliage" -> level.getBlockTint(pos, BiomeColors.FOLIAGE_COLOR_RESOLVER);
+                        default -> Integer.parseInt(machineTile.getAppearance().getColor());
+                    };
                 }
-            default:
-                return 0xFFFFFF;
-        }
-    }
-
-    private static int itemColor(ItemStack stack, int tintIndex) {
-        BlockState state = Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState();
-        Level level = Minecraft.getInstance().level;
-        if(Minecraft.getInstance().player == null)
-            return 0;
-        BlockPos pos = Minecraft.getInstance().player.blockPosition();
-        return Minecraft.getInstance().getBlockColors().getColor(state, level, pos, tintIndex);
+                return this.color(state);
+            }
+        };
     }
 
     public static CustomMachineTile getClientSideCustomMachineTile(BlockPos pos) {
@@ -346,20 +305,8 @@ public class ClientHandler {
         throw new IllegalStateException("Trying to open a Custom Machine container without clicking on a Custom Machine block");
     }
 
-    public static void renderSlotHighlight(GuiGraphics graphics, int x, int y, int width, int height) {
-        RenderSystem.disableDepthTest();
-        RenderSystem.colorMask(true, true, true, false);
-        graphics.pose().pushPose();
-        //Translate to z=110 because fluid texture render at z=100 (See FluidRenderer)
-        graphics.pose().translate(0, 0, 110);
-        graphics.fill(x, y, x + width, y + height, -2130706433);
-        graphics.pose().popPose();
-        RenderSystem.colorMask(true, true, true, true);
-        RenderSystem.enableDepthTest();
-    }
-
-    public static boolean isShiftKeyDown() {
-        return Screen.hasShiftDown();
+    public static void renderSlotHighlight(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot_highlight_back"), x, y, width, height);
     }
 
     public static int getLineHeight() {
@@ -370,7 +317,7 @@ public class ClientHandler {
         return Minecraft.getInstance().font.width(text);
     }
 
-    public static void renderOrientedProgressTextures(GuiGraphics graphics, TextureInfo emptyTexture, TextureInfo filledTexture, int x, int y, int width, int height, double percent, Orientation orientation) {
+    public static void renderOrientedProgressTextures(GuiGraphicsExtractor graphics, TextureInfo emptyTexture, TextureInfo filledTexture, int x, int y, int width, int height, double percent, Orientation orientation) {
         int filledWidth = (int)(width * Mth.clamp(percent, 0.0D, 1.0D));
         int filledHeight = (int)(height * Mth.clamp(percent, 0.0D, 1.0D));
 
@@ -383,7 +330,7 @@ public class ClientHandler {
         }
     }
 
-    public static void blit(GuiGraphics graphics, TextureInfo texture, int x, int y, int width, int height) {
+    public static void blit(GuiGraphicsExtractor graphics, TextureInfo texture, int x, int y, int width, int height) {
         graphics.blit(texture.texture(), x, y, texture.u(), texture.v(), width, height, width, height);
     }
 
@@ -391,14 +338,14 @@ public class ClientHandler {
         return first.getX() <= second.getX() + second.getWidth() && first.getX() + first.getWidth() >= second.getX() && first.getY() <= second.getY() + second.getHeight() && first.getY() + first.getHeight() >= second.getY();
     }
 
-    public static void drawDottedRect(GuiGraphics g, int x, int y, int width, int height, int color, int dashLength, int gapLength, int offset) {
+    public static void drawDottedRect(GuiGraphicsExtractor g, int x, int y, int width, int height, int color, int dashLength, int gapLength, int offset) {
         drawDottedLine(g, x, y, x + width, y, color, dashLength, gapLength, offset); // top
         drawDottedLine(g, x + width, y, x + width, y + height, color, dashLength, gapLength, offset); // right
         drawDottedLine(g, x + width, y + height, x, y + height, color, dashLength, gapLength, offset); // bottom
         drawDottedLine(g, x, y + height, x, y, color, dashLength, gapLength, offset); // left
     }
 
-    public static void drawDottedLine(GuiGraphics g, int x1, int y1, int x2, int y2, int argb, int dashLen, int gapLen, int offset) {
+    public static void drawDottedLine(GuiGraphicsExtractor g, int x1, int y1, int x2, int y2, int argb, int dashLen, int gapLen, int offset) {
         int total = dashLen + gapLen;
 
         if (y1 == y2) { // horizontal
@@ -431,7 +378,7 @@ public class ClientHandler {
             container.init();
     }
 
-    public static void renderScrollingStringNoShadow(GuiGraphics guiGraphics, Font font, Component text, int minX, int maxX, int y, int color) {
+    public static void renderScrollingStringNoShadow(GuiGraphicsExtractor guiGraphics, Font font, Component text, int minX, int maxX, int y, int color) {
         int width = font.width(text);
         int maxWidth = maxX - minX;
         if (width > maxWidth) {
@@ -441,11 +388,11 @@ public class ClientHandler {
             double d2 = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * d0 / d1)) / 2.0 + 0.5;
             double d3 = Mth.lerp(d2, 0.0, l);
             guiGraphics.enableScissor(minX, y, maxX, y + font.lineHeight);
-            guiGraphics.drawString(font, text, minX - (int)d3, y, color, false);
+            guiGraphics.text(font, text, minX - (int)d3, y, color, false);
             guiGraphics.disableScissor();
         } else {
             int i1 = Mth.clamp(minX, minX + width / 2, maxX - width / 2);
-            guiGraphics.drawString(font, text, i1 - font.width(text) / 2, y, color, false);
+            guiGraphics.text(font, text, i1 - font.width(text) / 2, y, color, false);
         }
     }
 

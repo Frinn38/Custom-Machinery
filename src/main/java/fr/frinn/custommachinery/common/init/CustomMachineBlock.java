@@ -13,12 +13,13 @@ import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -26,7 +27,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockAndLightGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Explosion;
@@ -48,13 +49,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -81,19 +82,19 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile machine) {
-            if (player.getItemInHand(hand).is(Registration.CONFIGURATION_CARD_ITEM.get()))
+            if (player.getItemInHand(hand).is(CMRegistration.CONFIGURATION_CARD_ITEM.get()))
                 return ConfigurationCardItem.pasteConfiguration(level, player, machine, player.getItemInHand(hand));
 
-            if(machine.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, fluidHandler.interactionFluidHandler)).orElse(false))
-                return ItemInteractionResult.SUCCESS;
+            if(machine.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).map(h -> (FluidComponentHandler)h).map(fluidHandler -> FluidUtil.interactWithFluidHandler(player, hand, pos, fluidHandler.interactionFluidHandler, null)).orElse(false))
+                return InteractionResult.SUCCESS;
 
             if(!machine.getGuiElements().isEmpty()) {
                 if(player instanceof ServerPlayer serverPlayer)
                     CustomMachineContainer.open(serverPlayer, machine);
-                return ItemInteractionResult.sidedSuccess(level.isClientSide());
+                return InteractionResult.SUCCESS;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
@@ -108,14 +109,14 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                 machineTile.setId(machine.getId());
                 if(placer != null)
                     machineTile.setOwner(placer);
-                CompoundTag inventory = stack.get(Registration.MACHINE_INVENTORY_DATA);
+                CompoundTag inventory = stack.get(CMRegistration.MACHINE_INVENTORY_DATA);
                 if(inventory != null) {
                     CompoundTag components = new CompoundTag();
                     components.put("componentManager", inventory);
-                    machineTile.loadAdditional(components, level.registryAccess());
+                    machineTile.loadAdditional(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), components));
                 }
                 if(level instanceof ServerLevel serverLevel && placer != null && placer.getItemInHand(InteractionHand.OFF_HAND) == stack)
-                    level.getServer().tell(new TickTask(1, () -> PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pos), new SRefreshCustomMachineTilePacket(pos, machine.getId()))));
+                    level.getServer().submit(new TickTask(1, () -> PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(pos), new SRefreshCustomMachineTilePacket(pos, machine.getId())))).join();
             }
         });
     }
@@ -125,7 +126,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         if(oldState.getBlock() == state.getBlock())
             return;
-        ResourceLocation id = CustomMachinery.CUSTOM_BLOCK_MACHINES.inverse().get(this);
+        Identifier id = CustomMachinery.CUSTOM_BLOCK_MACHINES.inverse().get(this);
         if(id != null && level.getBlockEntity(pos) instanceof CustomMachineTile machineTile)
             machineTile.refreshMachine(id);
     }
@@ -139,10 +140,10 @@ public class CustomMachineBlock extends Block implements EntityBlock {
 
     //Drop the machine's inventory when broken
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if(!state.is(newState.getBlock()) && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof CustomMachineTile machine && !machine.getAppearance().shouldKeepInventory()) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        if(!state.is(state.getBlock()) && level.getBlockEntity(pos) instanceof CustomMachineTile machine && !machine.getAppearance().shouldKeepInventory()) {
             //Drop items
-            machine.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+            machine.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
                     .map(handler -> handler.getComponents().stream()
                             .filter(ItemMachineComponent::shouldDrop)
                             .map(component -> component.getItemStack().copy())
@@ -151,11 +152,11 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                     ).orElse(Collections.emptyList())
                     .forEach(stack -> Block.popResource(level, pos, stack));
             //Drop xp
-            machine.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
+            machine.getComponentManager().getComponent(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get())
                     .filter(component -> component.getXp() > 0)
-                    .ifPresent(component -> ExperienceOrb.award(serverLevel, Vec3.atCenterOf(pos), component.getXp()));
+                    .ifPresent(component -> ExperienceOrb.award(level, Vec3.atCenterOf(pos), component.getXp()));
         }
-        super.onRemove(state, level, pos, newState, movedByPiston);
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
 
     @Override
@@ -185,9 +186,9 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if(level.isClientSide())
-            return Utils.createTickerHelper(type, Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineTile::clientTick);
+            return Utils.createTickerHelper(type, CMRegistration.CUSTOM_MACHINE_TILE.get(), CustomMachineTile::clientTick);
         else
-            return Utils.createTickerHelper(type, Registration.CUSTOM_MACHINE_TILE.get(), CustomMachineTile::serverTick);
+            return Utils.createTickerHelper(type, CMRegistration.CUSTOM_MACHINE_TILE.get(), CustomMachineTile::serverTick);
     }
 
     @Override
@@ -201,10 +202,10 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile machine)
-            return machine.getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getComparatorInput).orElse(0);
+            return machine.getComponentManager().getComponent(CMRegistration.REDSTONE_MACHINE_COMPONENT.get()).map(RedstoneMachineComponent::getComparatorInput).orElse(0);
         return 0;
     }
 
@@ -212,7 +213,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile machine)
-            return machine.getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(component -> component.getPowerOutput(side.getOpposite())).orElse(0);
+            return machine.getComponentManager().getComponent(CMRegistration.REDSTONE_MACHINE_COMPONENT.get()).map(component -> component.getPowerOutput(side.getOpposite())).orElse(0);
         return 0;
     }
 
@@ -220,7 +221,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile machine)
-            return machine.getComponentManager().getComponent(Registration.REDSTONE_MACHINE_COMPONENT.get()).map(component -> component.getPowerOutput(side.getOpposite())).orElse(0);
+            return machine.getComponentManager().getComponent(CMRegistration.REDSTONE_MACHINE_COMPONENT.get()).map(component -> component.getPowerOutput(side.getOpposite())).orElse(0);
         return 0;
     }
 
@@ -250,14 +251,15 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                 .orElse(super.getShape(state, level, pos, context));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult result, LevelReader level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile customMachineTile) {
             CustomMachine machine = customMachineTile.getMachine();
             return CustomMachineItem.makeMachineItem(machine.getId());
         }
-        return super.getCloneItemStack(state, result, level, pos, player);
+        return super.getCloneItemStack(level, pos, state, includeData);
     }
 
     @Override
@@ -285,13 +287,13 @@ public class CustomMachineBlock extends Block implements EntityBlock {
         BlockEntity tile = level.getBlockEntity(pos);
         if(tile instanceof CustomMachineTile) {
             IMachineComponentManager manager = ((CustomMachineTile) tile).getComponentManager();
-            return manager.getComponent(Registration.LIGHT_MACHINE_COMPONENT.get()).map(LightMachineComponent::getMachineLight).orElse(0);
+            return manager.getComponent(CMRegistration.LIGHT_MACHINE_COMPONENT.get()).map(LightMachineComponent::getMachineLight).orElse(0);
         }
         return 0;
     }
 
     @Override
-    public boolean shouldDisplayFluidOverlay(BlockState state, BlockAndTintGetter level, BlockPos pos, FluidState fluidState) {
+    public boolean shouldDisplayFluidOverlay(BlockState state, BlockAndLightGetter level, BlockPos pos, FluidState fluidState) {
         return true;
     }
 

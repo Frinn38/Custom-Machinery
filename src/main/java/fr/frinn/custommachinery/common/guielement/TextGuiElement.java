@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.ClientHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.network.chat.Component;
@@ -37,14 +37,14 @@ public class TextGuiElement extends AbstractGuiElement {
 
     @Override
     public GuiElementType<TextGuiElement> getType() {
-        return Registration.TEXT_GUI_ELEMENT.get();
+        return CMRegistration.TEXT_GUI_ELEMENT.get();
     }
 
     @Override
     public int getWidth() {
         if(this.getProperties().width() != -1)
             return this.getProperties().width();
-        else if(FMLLoader.getDist() == Dist.CLIENT)
+        else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
             return ClientHandler.textWidth(this.text);
         return -1;
     }
@@ -53,7 +53,7 @@ public class TextGuiElement extends AbstractGuiElement {
     public int getHeight() {
         if(this.getProperties().height() != -1)
             return this.getProperties().height();
-        else if(FMLLoader.getDist() == Dist.CLIENT)
+        else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
             return ClientHandler.getLineHeight();
         return -1;
     }

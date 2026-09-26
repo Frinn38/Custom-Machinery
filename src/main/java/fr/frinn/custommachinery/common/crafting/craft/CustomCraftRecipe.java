@@ -3,15 +3,21 @@ package fr.frinn.custommachinery.common.crafting.craft;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -21,13 +27,16 @@ import java.util.List;
 
 public class CustomCraftRecipe implements IMachineRecipe {
 
+    public static final MapCodec<CustomCraftRecipe> CODEC = CustomCraftRecipeBuilder.CODEC.mapCodec().xmap(CustomCraftRecipeBuilder::build, CustomCraftRecipeBuilder::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CustomCraftRecipe> STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
+
     public static final List<RequirementType<?>> FORBIDDEN_REQUIREMENTS = Lists.newArrayList(
-            Registration.ENERGY_PER_TICK_REQUIREMENT.get(),
-            Registration.FLUID_PER_TICK_REQUIREMENT.get(),
-            Registration.EXPERIENCE_PER_TICK_REQUIREMENT.get()
+            CMRegistration.ENERGY_PER_TICK_REQUIREMENT.get(),
+            CMRegistration.FLUID_PER_TICK_REQUIREMENT.get(),
+            CMRegistration.EXPERIENCE_PER_TICK_REQUIREMENT.get()
     );
 
-    private final ResourceLocation machine;
+    private final Identifier machine;
     private final ItemStack output;
     private final List<RecipeRequirement<?, ?>> requirements;
     private final List<RecipeRequirement<?, ?>> jeiRequirements;
@@ -35,7 +44,7 @@ public class CustomCraftRecipe implements IMachineRecipe {
     private final int jeiPriority;
     private final boolean hidden;
 
-    public CustomCraftRecipe(ResourceLocation machine, ItemStack output, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean hidden) {
+    public CustomCraftRecipe(Identifier machine, ItemStack output, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean hidden) {
         this.machine = machine;
         this.output = output;
         this.requirements = validateRequirements(requirements);
@@ -46,7 +55,7 @@ public class CustomCraftRecipe implements IMachineRecipe {
     }
 
     @Override
-    public ResourceLocation getMachineId() {
+    public Identifier getMachineId() {
         return this.machine;
     }
 
@@ -106,27 +115,37 @@ public class CustomCraftRecipe implements IMachineRecipe {
     }
 
     @Override
-    public ItemStack assemble(RecipeInput p_345149_, Provider p_346030_) {
+    public ItemStack assemble(RecipeInput recipeInput) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int j) {
+    public boolean showNotification() {
         return false;
     }
 
     @Override
-    public ItemStack getResultItem(Provider pRegistries) {
-        return ItemStack.EMPTY;
+    public String group() {
+        return "";
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return Registration.CUSTOM_CRAFT_RECIPE_SERIALIZER.get();
+    public RecipeSerializer<CustomCraftRecipe> getSerializer() {
+        return CMRegistration.CUSTOM_CRAFT_RECIPE_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return Registration.CUSTOM_CRAFT_RECIPE.get();
+    public RecipeType<CustomCraftRecipe> getType() {
+        return CMRegistration.CUSTOM_CRAFT_RECIPE.get();
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 }

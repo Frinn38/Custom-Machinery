@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.CommandMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
@@ -29,12 +29,12 @@ public record CommandRequirement(String command, int permissionLevel, boolean lo
 
     @Override
     public RequirementType<CommandRequirement> getType() {
-        return Registration.COMMAND_REQUIREMENT.get();
+        return CMRegistration.COMMAND_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<CommandMachineComponent> getComponentType() {
-        return Registration.COMMAND_MACHINE_COMPONENT.get();
+        return CMRegistration.COMMAND_MACHINE_COMPONENT.get();
     }
 
     @Override

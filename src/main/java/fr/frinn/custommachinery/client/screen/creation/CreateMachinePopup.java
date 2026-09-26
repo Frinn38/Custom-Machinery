@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.common.machine.MachineLocation.Loader;
 import fr.frinn.custommachinery.common.network.CAddMachinePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -20,9 +20,9 @@ import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -40,13 +40,13 @@ public class CreateMachinePopup extends PopupScreen {
     }
 
     public void create() {
-        ResourceLocation template = this.template.getTemplate() == null ? CAddMachinePacket.EMPTY_TEMPLATE : this.template.getTemplate().getId();
-        PacketDistributor.sendToServer(new CAddMachinePacket(this.id.getValue(), this.name.getComponent(), this.loader.getValue() == Loader.KUBEJS, template));
+        Identifier template = this.template.getTemplate() == null ? CAddMachinePacket.EMPTY_TEMPLATE : this.template.getTemplate().getId();
+        ClientPacketDistributor.sendToServer(new CAddMachinePacket(this.id.getValue(), this.name.getComponent(), this.loader.getValue() == Loader.KUBEJS, template));
         this.parent.closePopup(this);
         if(this.loader.getValue() == Loader.DEFAULT)
             this.parent.openPopup(new InfoPopup(this.parent, 144, 96).text(Component.translatable("custommachinery.gui.creation.popup.create.success.description")));
         else if(this.loader.getValue() == Loader.KUBEJS)
-            Minecraft.getInstance().getTutorial().addTimedToast(new TutorialToast(Icons.MOUSE, Component.translatable("custommachinery.gui.creation.popup.create.success"), null, false), 50);
+            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.popup.create.success"), null, false, 50));
     }
 
     @Override
@@ -63,9 +63,9 @@ public class CreateMachinePopup extends PopupScreen {
         this.id = row.addChild(new EditBox(this.font, this.x + 10, this.y + 20, this.xSize - 20, 20, Component.literal("machine_id")), 2, center);
         this.id.setFilter(s -> {
             if(s.contains(":"))
-                return ResourceLocation.tryParse(s) != null;
+                return Identifier.tryParse(s) != null;
             for(char c : s.toCharArray())
-                if(!ResourceLocation.validPathChar(c))
+                if(!Identifier.validPathChar(c))
                     return false;
             return true;
         });
@@ -78,9 +78,9 @@ public class CreateMachinePopup extends PopupScreen {
         this.name.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.create.name.tooltip")));
 
         //Loader
-        CycleButton.Builder<Loader> builder = CycleButton.builder(Loader::getTranslatedName).withValues(Loader.DEFAULT).withInitialValue(Loader.DEFAULT).displayOnlyValue();
+        CycleButton.Builder<Loader> builder = CycleButton.builder(Loader::getTranslatedName, Loader.DEFAULT).withValues(Loader.DEFAULT).displayOnlyValue();
         if(ModList.get().isLoaded("kubejs"))
-            builder.withValues(Loader.DEFAULT, Loader.KUBEJS).withInitialValue(Loader.KUBEJS);
+            builder = CycleButton.builder(Loader::getTranslatedName, Loader.KUBEJS).withValues(Loader.DEFAULT, Loader.KUBEJS);
         builder.withTooltip(loader -> Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.create.loader." + loader.name().toLowerCase(Locale.ROOT))));
         this.loader = row.addChild(builder.create(0, 0, this.xSize - 20, 20, Component.empty()), 2, center);
 
@@ -105,7 +105,7 @@ public class CreateMachinePopup extends PopupScreen {
             return Component.translatable("custommachinery.gui.creation.popup.error.id");
         if(this.name.getValue().isEmpty())
             return Component.translatable("custommachinery.gui.creation.popup.error.name");
-        ResourceLocation id = this.id.getValue().contains(":") ? ResourceLocation.tryParse(this.id.getValue()) : CustomMachinery.rl(this.id.getValue());
+        Identifier id = this.id.getValue().contains(":") ? Identifier.tryParse(this.id.getValue()) : CustomMachinery.rl(this.id.getValue());
         if(id == null)
             return Component.translatable("custommachinery.gui.creation.popup.error.invalid");
         if(CustomMachinery.MACHINES.containsKey(id) || CustomMachinery.TEMPLATES.containsKey(id))
@@ -114,8 +114,8 @@ public class CreateMachinePopup extends PopupScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         Component error = this.canCreate();
         this.create.active = error == null;
         this.create.setTooltip(error == null ? null : Tooltip.create(error));

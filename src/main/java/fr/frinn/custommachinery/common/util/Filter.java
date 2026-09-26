@@ -35,9 +35,9 @@ public record Filter<T>(List<Either<TagKey<T>, Holder<T>>> whitelist, List<Eithe
 
     @SuppressWarnings("unchecked")
     private Stream<T> valuesFromTag(TagKey<T> key) {
-        Registry<T> registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(key.registry().location());
+        Registry<T> registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(key.registry().identifier()).orElse((null));
         if(registry == null)
             return Stream.empty();
-        return registry.getTag(key).map(set -> set.stream().map(Holder::value)).orElse(Stream.empty());
+        return registry.get(key).map(set -> set.stream().map(Holder::value)).orElse(Stream.empty());
     }
 }

@@ -7,7 +7,7 @@ import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class ExperienceIngredientHelper implements IIngredientHelper<Experience> {
@@ -19,12 +19,11 @@ public class ExperienceIngredientHelper implements IIngredientHelper<Experience>
 
   @Override
   public String getDisplayName(Experience xp) {
-    return Component.translatable("custommachinery.jei.ingredient.xp", xp.xp()).getString();
+    return Component.translatable("custommachinery.jei.ingredient.xp.point", xp.xp()).getString();
   }
 
-  @SuppressWarnings("removal")
   @Override
-  public String getUniqueId(Experience xp, UidContext context) {
+  public String getUid(Experience xp, UidContext context) {
     return "" + xp.xp() + xp.chance() + xp.isPerTick() + xp.type();
   }
 
@@ -39,7 +38,7 @@ public class ExperienceIngredientHelper implements IIngredientHelper<Experience>
   }
 
   @Override
-  public ResourceLocation getResourceLocation(Experience ingredient) {
+  public Identifier getIdentifier(Experience ingredient) {
     return CustomMachinery.rl("experience");
   }
 }

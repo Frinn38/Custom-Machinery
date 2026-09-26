@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.client.screen.creation.tabs.ComponentTab;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.util.Utils;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -102,7 +102,7 @@ public class MachineComponentListWidget extends ListWidget<MachineComponentEntry
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
-        public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+        public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
             ((IMachineComponentBuilder)this.builder).render(graphics, x, y, width, height, this.template);
         }
 

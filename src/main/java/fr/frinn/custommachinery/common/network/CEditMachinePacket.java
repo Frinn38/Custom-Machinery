@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -38,9 +39,9 @@ public record CEditMachinePacket(CustomMachine machine) implements CustomPacketP
     }
 
     public static void handle(CEditMachinePacket packet, IPayloadContext context) {
-        if(context.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+        if(context.player() instanceof ServerPlayer player && player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
             context.enqueueWork(() -> {
-                FileUtils.writeMachineJson(player.server, packet.machine);
+                FileUtils.writeMachineJson(player.level().getServer(), packet.machine);
                 CustomMachinery.MACHINES.replace(packet.machine.getId(), packet.machine);
                 MachineList.refreshAllMachines();
                 PacketDistributor.sendToAllPlayers(new SUpdateMachinesPacket(CustomMachinery.MACHINES));

@@ -22,7 +22,7 @@ public class SoundManager {
     public boolean isCurrentlyPlaying(AmbientSound sound) {
         return this.sound != DEFAULT
                 && this.sound.getSound() != null //Needed as that can be null in some weird cases
-                && this.sound.getLocation().equals(sound.sound().getLocation())
+                && this.sound.getIdentifier().equals(sound.sound().location())
                 && this.sound.getVolume() == sound.volume()
                 && this.sound.getPitch() == sound.pitch()
                 && this.sound.getSource() == sound.source()
@@ -40,7 +40,7 @@ public class SoundManager {
             return;
         }
 
-        this.sound = new SimpleSoundInstance(sound.sound().getLocation(), sound.source(), sound.volume(), sound.pitch(), RandomSource.create(), sound.loop(), sound.delay(), sound.attenuation() ? Attenuation.LINEAR : Attenuation.NONE, this.pos.getX(), this.pos.getY(), this.pos.getZ(), sound.relative());
+        this.sound = new SimpleSoundInstance(sound.sound().location(), sound.source(), sound.volume(), sound.pitch(), RandomSource.create(), sound.loop(), sound.delay(), sound.attenuation() ? Attenuation.LINEAR : Attenuation.NONE, this.pos.getX(), this.pos.getY(), this.pos.getZ(), sound.relative());
         play();
     }
 

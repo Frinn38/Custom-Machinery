@@ -14,13 +14,13 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.LootTableIngredientWrapper;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.LootTableHelper;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -36,16 +36,16 @@ public class LootTableRequirement implements IRequirement<ItemComponentHandler>,
 
     public static final NamedCodec<LootTableRequirement> CODEC = NamedCodec.record(lootTableRequirementInstance ->
             lootTableRequirementInstance.group(
-                    DefaultCodecs.RESOURCE_LOCATION.fieldOf("table").forGetter(requirement -> requirement.lootTable),
+                    DefaultCodecs.IDENTIFIER.fieldOf("table").forGetter(requirement -> requirement.lootTable),
                     NamedCodec.FLOAT.optionalFieldOf("luck", 0.0F).forGetter(requirement -> requirement.luck)
             ).apply(lootTableRequirementInstance, LootTableRequirement::new), "Loottable requirement"
     );
 
-    private final ResourceLocation lootTable;
+    private final Identifier lootTable;
     private final float luck;
     private List<ItemStack> toOutput = Collections.emptyList();
 
-    public LootTableRequirement(ResourceLocation lootTable, float luck) {
+    public LootTableRequirement(Identifier lootTable, float luck) {
         this.lootTable = lootTable;
         this.luck = luck;
         LootTableHelper.addTable(lootTable);
@@ -53,13 +53,13 @@ public class LootTableRequirement implements IRequirement<ItemComponentHandler>,
 
     @Override
     public RequirementType<LootTableRequirement> getType() {
-        return Registration.LOOT_TABLE_REQUIREMENT.get();
+        return CMRegistration.LOOT_TABLE_REQUIREMENT.get();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public MachineComponentType getComponentType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -87,7 +87,7 @@ public class LootTableRequirement implements IRequirement<ItemComponentHandler>,
                     .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(context.getMachineTile().getBlockPos()))
                     .withParameter(LootContextParams.BLOCK_ENTITY, context.getMachineTile())
                     .withLuck((float) context.getModifiedValue(this.luck, this, "luck"))
-                    .create(Registration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
+                    .create(CMRegistration.CUSTOM_MACHINE_LOOT_PARAMETER_SET);
             toOutput = table.getRandomItems(params);
         }
 
@@ -95,7 +95,7 @@ public class LootTableRequirement implements IRequirement<ItemComponentHandler>,
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
             if(component.getSpaceForItem("", stack) < stack.getCount())
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", stack.getCount(), Component.translatable(stack.getDescriptionId())));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", stack.getCount(), Component.translatable(stack.getItem().getDescriptionId())));
             component.addToOutputs("", stack, stack.getCount());
             iterator.remove();
         }

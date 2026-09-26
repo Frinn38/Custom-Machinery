@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.network.data;
 
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigGuiData;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class ToggleSideConfigData extends Data<ToggleSideConfig> {
 
     public ToggleSideConfigData(Short id, ToggleSideConfig value) {
-        super(Registration.TOGGLE_SIDE_CONFIG_DATA.get(), id, value);
+        super(CMRegistration.TOGGLE_SIDE_CONFIG_DATA.get(), id, value);
     }
 
     public static ToggleSideConfigData readData(short id, RegistryFriendlyByteBuf buffer) {

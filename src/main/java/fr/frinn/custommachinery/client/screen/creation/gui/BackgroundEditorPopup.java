@@ -19,7 +19,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class BackgroundEditorPopup extends PopupScreen {
@@ -57,7 +57,7 @@ public class BackgroundEditorPopup extends PopupScreen {
 
         //Mode
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.mode"), this.font), middle);
-        this.mode = row.addChild(CycleButton.builder(Mode::title).displayOnlyValue().withValues(Mode.values()).withInitialValue(mode).create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.mode"), (button, value) -> this.texture.setEditable(value == Mode.CUSTOM)));
+        this.mode = row.addChild(CycleButton.builder(Mode::title, mode).displayOnlyValue().withValues(Mode.values()).create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.background.mode"), (button, value) -> this.texture.setEditable(value == Mode.CUSTOM)));
 
         //Texture
         row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.background.texture"), this.font), middle);
@@ -67,7 +67,7 @@ public class BackgroundEditorPopup extends PopupScreen {
             this.texture.setValue(this.background.getTexture().texture().toString());
             this.texture.hideSuggestions();
         }
-        this.texture.addSuggestions(Minecraft.getInstance().getResourceManager().listResources("textures", id -> true).keySet().stream().map(ResourceLocation::toString).toList());
+        this.texture.addSuggestions(Minecraft.getInstance().getResourceManager().listResources("textures", id -> true).keySet().stream().map(Identifier::toString).toList());
         this.texture.setEditable(mode == Mode.CUSTOM);
 
         //Width
@@ -125,7 +125,7 @@ public class BackgroundEditorPopup extends PopupScreen {
         TextureInfo texture = switch (this.mode.getValue()) {
             case DEFAULT -> BackgroundGuiElement.BASE_BACKGROUND;
             case CUSTOM -> {
-                ResourceLocation loc = ResourceLocation.tryParse(this.texture.getValue());
+                Identifier loc = Identifier.tryParse(this.texture.getValue());
                 yield loc == null ? CustomMachinery.texture("textures/gui/base_empty.png") : new TextureInfo(loc);
             }
             case NO_BACKGROUND -> CustomMachinery.texture("textures/gui/base_empty.png");

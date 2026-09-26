@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.client.screen.widget.IntegerEditBox;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
@@ -16,7 +16,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 
 public class ElementConfigWidget extends GroupWidget {
 
@@ -101,10 +101,10 @@ public class ElementConfigWidget extends GroupWidget {
             widget.refreshWidget(null);
             this.parent.setChanged();
             if(this.parent.getWidgets(widget.getBuilder().type(), id).size() > 1) {
-                this.id.setTextColor(FastColor.ARGB32.color(255, 255, 0, 0));
+                this.id.setTextColor(ARGB.color(255, 255, 0, 0));
                 this.id.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.gui.id.duplicate", id)));
             } else {
-                this.id.setTextColor(FastColor.ARGB32.color(255, 255, 255, 255));
+                this.id.setTextColor(ARGB.color(255, 255, 255, 255));
                 this.id.setTooltip(null);
             }
         });
@@ -152,10 +152,10 @@ public class ElementConfigWidget extends GroupWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if(!this.visible)
             return;
         BaseScreen.blankBackground(graphics, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
     }
 }

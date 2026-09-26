@@ -7,10 +7,10 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.FloatSlider;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.client.screen.widget.SoundEditBox;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.sound.CMSoundType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -20,7 +20,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 
@@ -37,7 +37,7 @@ public class InteractionSoundAppearancePropertyBuilder implements IAppearancePro
 
     @Override
     public MachineAppearanceProperty<CMSoundType> type() {
-        return Registration.INTERACTION_SOUND_PROPERTY.get();
+        return CMRegistration.INTERACTION_SOUND_PROPERTY.get();
     }
 
     @Override
@@ -90,38 +90,38 @@ public class InteractionSoundAppearancePropertyBuilder implements IAppearancePro
 
             //Break
             this.breakSound = list.addWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.break"), new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.break")));
-            if(!this.supplier.get().getBreakSound().getLocation().getPath().isEmpty())
-                this.breakSound.setValue(this.supplier.get().getBreakSound().getLocation().toString());
+            if(!this.supplier.get().getBreakSound().location().getPath().isEmpty())
+                this.breakSound.setValue(this.supplier.get().getBreakSound().location().toString());
 
             //Step
             this.stepSound = list.addWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.step"), new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.step")));
-            if(!this.supplier.get().getStepSound().getLocation().getPath().isEmpty())
-                this.stepSound.setValue(this.supplier.get().getStepSound().getLocation().toString());
+            if(!this.supplier.get().getStepSound().location().getPath().isEmpty())
+                this.stepSound.setValue(this.supplier.get().getStepSound().location().toString());
 
             //Place
             this.placeSound = list.addWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.place"), new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.place")));
-            if(!this.supplier.get().getPlaceSound().getLocation().getPath().isEmpty())
-                this.placeSound.setValue(this.supplier.get().getPlaceSound().getLocation().toString());
+            if(!this.supplier.get().getPlaceSound().location().getPath().isEmpty())
+                this.placeSound.setValue(this.supplier.get().getPlaceSound().location().toString());
 
             //Hit
             this.hitSound = list.addWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.hit"), new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.hit")));
-            if(!this.supplier.get().getHitSound().getLocation().getPath().isEmpty())
-                this.hitSound.setValue(this.supplier.get().getHitSound().getLocation().toString());
+            if(!this.supplier.get().getHitSound().location().getPath().isEmpty())
+                this.hitSound.setValue(this.supplier.get().getHitSound().location().toString());
 
             //Fall
             this.fallSound = list.addWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.fall"), new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.fall")));
-            if(!this.supplier.get().getFallSound().getLocation().getPath().isEmpty())
-             this.fallSound.setValue(this.supplier.get().getFallSound().getLocation().toString());
+            if(!this.supplier.get().getFallSound().location().getPath().isEmpty())
+             this.fallSound.setValue(this.supplier.get().getFallSound().location().toString());
 
             //Open
             this.openSound = list.addWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.open"), new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.open")));
-            if(!this.supplier.get().getOpenSound().getLocation().equals(SoundEvents.EMPTY.getLocation()))
-                this.openSound.setValue(this.supplier.get().getOpenSound().getLocation().toString());
+            if(!this.supplier.get().getOpenSound().location().equals(SoundEvents.EMPTY.location()))
+                this.openSound.setValue(this.supplier.get().getOpenSound().location().toString());
 
             //Fall
             this.closeSound = list.addWidget(Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.close"), new SoundEditBox(0, 0, 120, 20, Component.translatable("custommachinery.gui.creation.appearance.interaction_sound.close")));
-            if(!this.supplier.get().getCloseSound().getLocation().equals(SoundEvents.EMPTY.getLocation()))
-                this.closeSound.setValue(this.supplier.get().getCloseSound().getLocation().toString());
+            if(!this.supplier.get().getCloseSound().location().equals(SoundEvents.EMPTY.location()))
+                this.closeSound.setValue(this.supplier.get().getCloseSound().location().toString());
 
             row.addChild(Button.builder(Component.translatable("custommachinery.gui.config.close"), button -> this.parent.closePopup(this)).size(50, 20).build(), center);
 
@@ -137,8 +137,8 @@ public class InteractionSoundAppearancePropertyBuilder implements IAppearancePro
         private static SoundEvent getSound(SoundEditBox editBox) {
             if(editBox.getValue().isEmpty())
                 return SoundEvents.EMPTY;
-            ResourceLocation soundLoc = ResourceLocation.tryParse(editBox.getValue());
-            return SoundEvent.createVariableRangeEvent(Objects.requireNonNullElseGet(soundLoc, () -> ResourceLocation.withDefaultNamespace("")));
+            Identifier soundLoc = Identifier.tryParse(editBox.getValue());
+            return SoundEvent.createVariableRangeEvent(Objects.requireNonNullElseGet(soundLoc, () -> Identifier.withDefaultNamespace("")));
         }
 
         public static class InteractionSoundBuilderList extends ListWidget<InteractionSoundBuilderList.InteractionSoundBuilderEntry> {
@@ -163,8 +163,8 @@ public class InteractionSoundAppearancePropertyBuilder implements IAppearancePro
                 }
 
                 @Override
-                protected void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-                    graphics.drawString(Minecraft.getInstance().font, this.title, x, y + height / 2 - Minecraft.getInstance().font.lineHeight, 0xFFFFFFFF);
+                protected void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+                    graphics.text(Minecraft.getInstance().font, this.title, x, y + height / 2 - Minecraft.getInstance().font.lineHeight, 0xFFFFFFFF);
                     this.widget.setPosition(x + width - this.widget.getWidth() - 10, y);
                 }
 

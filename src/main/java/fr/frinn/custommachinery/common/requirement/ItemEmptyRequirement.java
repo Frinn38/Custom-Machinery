@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 
 public record ItemEmptyRequirement(String slot) implements IRequirement<ItemComponentHandler> {
 
@@ -20,13 +20,13 @@ public record ItemEmptyRequirement(String slot) implements IRequirement<ItemComp
 
     @Override
     public RequirementType<ItemEmptyRequirement> getType() {
-        return Registration.ITEM_EMPTY_REQUIREMENT.get();
+        return CMRegistration.ITEM_EMPTY_REQUIREMENT.get();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public MachineComponentType getComponentType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     @Override

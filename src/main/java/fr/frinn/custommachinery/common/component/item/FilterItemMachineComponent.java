@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.common.util.slot.FilterSlotItemComponent;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
@@ -19,7 +19,7 @@ public class FilterItemMachineComponent extends ItemMachineComponent {
 
     @Override
     public MachineComponentType<ItemMachineComponent> getType() {
-        return Registration.ITEM_FILTER_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class FilterItemMachineComponent extends ItemMachineComponent {
 
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
-            return Registration.ITEM_FILTER_MACHINE_COMPONENT.get();
+            return CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get();
         }
 
         @Override

@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.client.model.CustomMachineBakedModel;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.component.DummyComponentManager;
 import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.crafting.DummyProcessor;
@@ -24,22 +24,28 @@ import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.upgrade.UpgradeManager;
 import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.sound.SoundManager;
+import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,14 +61,16 @@ import java.util.function.Consumer;
 
 public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
-    public static final ResourceLocation DUMMY = ResourceLocation.fromNamespaceAndPath(CustomMachinery.MODID, "dummy");
+    public static final Identifier DUMMY = Identifier.fromNamespaceAndPath(CustomMachinery.MODID, "dummy");
 
-    private ResourceLocation id = DUMMY;
+    private Identifier id = DUMMY;
     private boolean paused = false;
 
     private IProcessor processor = new DummyProcessor(this);
     private MachineComponentManager componentManager = new DummyComponentManager(this);
     private final UpgradeManager upgradeManager = new UpgradeManager(this);
+
+    @Nullable
     private SoundManager soundManager;
 
     private MachineStatus status = MachineStatus.IDLE;
@@ -71,8 +79,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     //Set by recipes when processing
     @Nullable
     private MachineAppearance customAppearance = null;
-    @Nullable
-    private List<IGuiElement> customGuiElements = null;
+    private List<IGuiElement> customGuiElements = Collections.emptyList();
 
     //Owner values
     @Nullable
@@ -84,10 +91,10 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     private final List<WeakReference<ServerPlayer>> players = new ArrayList<>();
 
     public CustomMachineTile(BlockPos pos, BlockState state) {
-        super(Registration.CUSTOM_MACHINE_TILE.get(), pos, state);
+        super(CMRegistration.CUSTOM_MACHINE_TILE.get(), pos, state);
     }
 
-    public void setId(ResourceLocation id) {
+    public void setId(Identifier id) {
         this.id = id;
         this.processor = getMachine().getProcessorTemplate().build(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
@@ -99,7 +106,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     /** MachineTile Implementation **/
 
     @Override
-    public ResourceLocation getId() {
+    public Identifier getId() {
         return this.id;
     }
 
@@ -131,21 +138,24 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
             if(this.getLevel() instanceof ServerLevel serverLevel) {
                 BlockPos pos = this.getBlockPos();
                 serverLevel.updateNeighborsAt(pos, this.getBlockState().getBlock());
-                PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pos), new SUpdateMachineStatusPacket(pos, this.status));
+                PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(pos), new SUpdateMachineStatusPacket(pos, this.status));
             }
         }
     }
 
     @Override
-    public void refreshMachine(@Nullable ResourceLocation id) {
+    public void refreshMachine(@Nullable Identifier id) {
         if(!(this.getLevel() instanceof ServerLevel serverLevel))
             return;
 
         //Reset the old processor before creating a new one, for clearing result slot in case of craft processor.
         this.processor.reset();
 
-        CompoundTag craftingManagerNBT = this.processor.serialize();
-        CompoundTag componentManagerNBT = this.componentManager.serializeNBT(this.getLevel().registryAccess());
+        TagValueOutput craftingManagerOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, serverLevel.registryAccess());
+        this.processor.serialize(craftingManagerOutput);
+
+        TagValueOutput componentManagerOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, serverLevel.registryAccess());
+        this.componentManager.serialize(componentManagerOutput);
 
         //For invalidating caps on Forge
         this.invalidateCapabilities();
@@ -156,12 +166,12 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
         this.processor = getMachine().getProcessorTemplate().build(this);
         this.componentManager = new MachineComponentManager(getMachine().getComponentTemplates(), this);
-        this.processor.deserialize(craftingManagerNBT);
-        this.componentManager.deserializeNBT(componentManagerNBT, this.getLevel().registryAccess());
+        this.processor.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, serverLevel.registryAccess(), craftingManagerOutput.buildResult()));
+        this.componentManager.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, serverLevel.registryAccess(), componentManagerOutput.buildResult()));
         this.componentManager.getComponents().values().forEach(IMachineComponent::init);
         this.upgradeManager.refresh();
 
-        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(this.worldPosition), new SRefreshCustomMachineTilePacket(this.worldPosition, id));
+        PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(this.worldPosition), new SRefreshCustomMachineTilePacket(this.worldPosition, id));
     }
 
     @Override
@@ -211,25 +221,25 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         this.customAppearance = (MachineAppearance) customAppearance;
         if(this.getLevel() instanceof ServerLevel serverLevel) {
             BlockPos pos = this.getBlockPos();
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pos), new SUpdateMachineAppearancePacket(pos, this.customAppearance));
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(pos), new SUpdateMachineAppearancePacket(pos, this.customAppearance));
         }
     }
 
     @Override
     public List<IGuiElement> getGuiElements() {
-        if(this.customGuiElements != null && !this.customGuiElements.isEmpty())
+        if(!this.customGuiElements.isEmpty())
             return this.customGuiElements;
         return this.getMachine().getGuiElements();
     }
 
     @Override
-    public void setCustomGuiElements(@Nullable List<IGuiElement> customGuiElements) {
-        if(this.customGuiElements == customGuiElements || (this.customGuiElements != null && customGuiElements != null && !customGuiElements.isEmpty() && new HashSet<>(this.customGuiElements).containsAll(customGuiElements)))
+    public void setCustomGuiElements(List<IGuiElement> customGuiElements) {
+        if(this.customGuiElements == customGuiElements || (!customGuiElements.isEmpty() && new HashSet<>(this.customGuiElements).containsAll(customGuiElements)))
             return;
         this.customGuiElements = customGuiElements;
         if(this.getLevel() instanceof ServerLevel serverLevel) {
             BlockPos pos = this.getBlockPos();
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(pos), new SUpdateMachineGuiElementsPacket(pos, this.customGuiElements));
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(pos), new SUpdateMachineGuiElementsPacket(pos, this.customGuiElements));
             this.refreshMachineContainer();
         }
     }
@@ -268,36 +278,28 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     /** TileEntity Stuff **/
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CustomMachineTile tile) {
-        if(tile.componentManager == null || tile.processor == null)
-            return;
 
-        level.getProfiler().push("Component tick");
         tile.componentManager.serverTick();
-        level.getProfiler().pop();
 
         if(tile.isPaused())
             return;
 
-        level.getProfiler().push("Crafting Manager tick");
         try {
             tile.processor.tick();
         } catch (ComponentNotFoundException e) {
             CustomMachinery.LOGGER.error(e.getMessage());
             tile.setPaused(true);
         }
-        level.getProfiler().pop();
     }
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, CustomMachineTile tile) {
-        if(tile.componentManager == null || tile.processor == null)
-            return;
 
         tile.componentManager.clientTick();
 
         if(tile.soundManager == null)
             tile.soundManager = new SoundManager(pos);
         if(!tile.soundManager.isCurrentlyPlaying(tile.getAppearance().getAmbientSound())) {
-            if(tile.getAppearance().getAmbientSound() == Registration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue())
+            if(tile.getAppearance().getAmbientSound() == CMRegistration.AMBIENT_SOUND_PROPERTY.get().getDefaultValue())
                 tile.soundManager.setSound(null);
             else
                 tile.soundManager.setSound(tile.getAppearance().getAmbientSound());
@@ -333,48 +335,32 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.saveAdditional(nbt, registries);
-        nbt.putString("machineID", this.id.toString());
-        nbt.put("craftingManager", this.processor.serialize());
-        nbt.put("componentManager", this.componentManager.serializeNBT(registries));
-        nbt.putString("status", this.status.toString());
-        nbt.putString("message", Component.Serializer.toJson(this.errorMessage, registries));
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putString("machineID", this.id.toString());
+        this.processor.serialize(output.child("craftingManager"));
+        this.componentManager.serialize(output.child("componentManager"));
+        output.putString("status", this.status.toString());
+        output.store("message", ComponentSerialization.CODEC, this.errorMessage);
         if(this.ownerID != null)
-            nbt.putString("ownerID", this.ownerID.toString());
-        if(this.ownerName != null)
-            nbt.putString("ownerName", Component.Serializer.toJson(this.ownerName, registries));
+            output.putString("ownerID", this.ownerID.toString());
+        output.storeNullable("ownerName", ComponentSerialization.CODEC, this.ownerName);
     }
 
     @Override
-    public void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
-        if(nbt.contains("machineID", Tag.TAG_STRING) && getMachine() == CustomMachine.DUMMY)
-            this.setId(ResourceLocation.parse(nbt.getString("machineID")));
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        if(getMachine() == CustomMachine.DUMMY)
+            input.getString("machineID").ifPresent(id -> this.setId(Identifier.parse(id)));
+        input.child("craftingManager").ifPresent(this.processor::deserialize);
+        input.child("componentManager").ifPresent(this.componentManager::deserialize);
+        input.getString("status").ifPresent(status -> this.setStatus(MachineStatus.value(status)));
+        this.errorMessage = input.read("message", ComponentSerialization.CODEC).orElse(Component.empty());
+        this.ownerID = input.getString("ownerID").map(UUID::fromString).orElse(null);
+        this.ownerName = input.read("ownerName", ComponentSerialization.CODEC).orElse(null);
 
-        if(nbt.contains("craftingManager", Tag.TAG_COMPOUND))
-            this.processor.deserialize(nbt.getCompound("craftingManager"));
-
-        if(nbt.contains("componentManager", Tag.TAG_COMPOUND))
-            this.componentManager.deserializeNBT(nbt.getCompound("componentManager"), registries);
-
-        if(nbt.contains("status", Tag.TAG_STRING))
-            this.setStatus(MachineStatus.value(nbt.getString("status")));
-
-        if(nbt.contains("message", Tag.TAG_STRING))
-            this.errorMessage = Component.Serializer.fromJson(nbt.getString("message"), registries);
-
-        if(nbt.contains("ownerID", Tag.TAG_STRING))
-            this.ownerID = UUID.fromString(nbt.getString("ownerID"));
-
-        if(nbt.contains("ownerName", Tag.TAG_STRING))
-            this.ownerName = Component.Serializer.fromJson(nbt.getString("ownerName"), registries);
-
-        if(nbt.contains("appearance", Tag.TAG_COMPOUND))
-            this.customAppearance = MachineAppearance.CODEC.read(NbtOps.INSTANCE, nbt.getCompound("appearance")).result().map(MachineAppearance::new).orElse(null);
-
-        if(nbt.contains("gui", Tag.TAG_LIST))
-            this.customGuiElements = IGuiElement.CODEC.listOf().read(NbtOps.INSTANCE, nbt.getList("gui", Tag.TAG_COMPOUND)).result().orElse(Collections.emptyList());
+        this.customAppearance = input.read("appearance", MachineAppearance.CODEC.codec()).map(MachineAppearance::new).orElse(null);
+        this.customGuiElements = input.read("gui", IGuiElement.CODEC.listOf().codec()).orElse(Collections.emptyList());
     }
 
     //Needed for multiplayer sync
@@ -383,14 +369,14 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         CompoundTag nbt = super.getUpdateTag(registries);
         nbt.putString("machineID", getId().toString());
         nbt.putString("status", this.status.toString());
-        nbt.putString("message", Component.Serializer.toJson(this.errorMessage, registries));
+        nbt.putString("message", TextComponentUtils.toJSON(this.errorMessage));
         if(this.ownerID != null)
             nbt.putString("ownerID", this.ownerID.toString());
         if(this.ownerName != null)
-            nbt.putString("ownerName", Component.Serializer.toJson(this.ownerName, registries));
+            nbt.putString("ownerName", TextComponentUtils.toJSON(this.ownerName));
         if(this.customAppearance != null)
             MachineAppearance.CODEC.encodeStart(NbtOps.INSTANCE, this.customAppearance.properties()).result().ifPresent(appearance -> nbt.put("appearance", appearance));
-        if(this.customGuiElements != null && !this.customGuiElements.isEmpty())
+        if(!this.customGuiElements.isEmpty())
             IGuiElement.CODEC.listOf().encodeStart(NbtOps.INSTANCE, this.customGuiElements).result().ifPresent(elements -> nbt.put("gui", elements));
         return nbt;
     }
@@ -408,15 +394,15 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        this.loadAdditional(tag, registries);
+    public void handleUpdateTag(ValueInput input) {
+        this.loadAdditional(input);
     }
 
     @Override
     public ModelData getModelData() {
         return ModelData.builder()
-                .with(CustomMachineBakedModel.APPEARANCE, getAppearance().copy())
-                .with(CustomMachineBakedModel.STATUS, getStatus())
+                .with(ClientHandler.APPEARANCE, getAppearance().copy())
+                .with(ClientHandler.STATUS, getStatus())
                 .build();
     }
 
@@ -443,7 +429,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         RegistryAccess registries = this.getLevel().registryAccess();
         this.componentManager.getStuffToSync(container);
         container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = MachineStatus.value(status)));
-        container.accept(StringSyncable.create(() -> Component.Serializer.toJson(this.errorMessage, registries), errorMessage -> this.errorMessage = Component.Serializer.fromJson(errorMessage, registries)));
+        container.accept(StringSyncable.create(() -> TextComponentUtils.toJSON(this.errorMessage), errorMessage -> this.errorMessage = TextComponentUtils.fromJSON(errorMessage)));
     }
 
     public void startInteracting(ServerPlayer player) {

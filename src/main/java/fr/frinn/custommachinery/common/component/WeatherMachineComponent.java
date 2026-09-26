@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -21,30 +21,30 @@ public class WeatherMachineComponent extends AbstractMachineComponent {
 
     @Override
     public MachineComponentType<WeatherMachineComponent> getType() {
-        return Registration.WEATHER_MACHINE_COMPONENT.get();
+        return CMRegistration.WEATHER_MACHINE_COMPONENT.get();
     }
 
     public boolean hasWeather(WeatherType weather, boolean onTile) {
-        Level world = this.getManager().getLevel();
+        Level level = this.getManager().getLevel();
         BlockPos pos = this.getManager().getTile().getBlockPos();
         if(onTile) {
             if(weather == WeatherType.RAIN)
-                return world.isRainingAt(pos.above());
+                return level.isRainingAt(pos.above());
             else if(weather == WeatherType.SNOW)
-                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().coldEnoughToSnow(pos.above());
+                return level.isRaining() && level.canSeeSky(pos.above()) && level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && level.getBiome(pos).value().coldEnoughToSnow(pos.above(), level.getSeaLevel());
             else if(weather == WeatherType.THUNDER)
-                return world.isRainingAt(pos.above()) && world.isThundering();
+                return level.isRainingAt(pos.above()) && level.isThundering();
             else if(weather == WeatherType.CLEAR)
-                return !world.isRaining();
+                return !level.isRaining();
         } else {
             if(weather == WeatherType.RAIN)
-                return world.isRaining();
+                return level.isRaining();
             else if(weather == WeatherType.SNOW)
-                return world.isRaining() && world.canSeeSky(pos.above()) && world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && world.getBiome(pos).value().coldEnoughToSnow(pos.above());
+                return level.isRaining() && level.canSeeSky(pos.above()) && level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos.above()).getY() > pos.above().getY() && level.getBiome(pos).value().coldEnoughToSnow(pos.above(), level.getSeaLevel());
             else if(weather == WeatherType.THUNDER)
-                return world.isThundering();
+                return level.isThundering();
             else if(weather == WeatherType.CLEAR)
-                return !world.isRaining();
+                return !level.isRaining();
         }
         return false;
     }

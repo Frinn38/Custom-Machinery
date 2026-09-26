@@ -5,11 +5,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -24,7 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
 
-public abstract class CustomJsonReloadListener extends SimplePreparableReloadListener<Map<ResourceLocation, JsonElement>> {
+public abstract class CustomJsonReloadListener extends SimplePreparableReloadListener<Map<Identifier, JsonElement>> {
 
     private static final Gson GSON = new GsonBuilder().create();
     private static final int PATH_SUFFIX_LENGTH = ".json".length();
@@ -37,7 +38,7 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
     }
 
     @Override
-    protected Map<ResourceLocation, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
+    protected Map<Identifier, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
         Logger logger = ICustomMachineryAPI.INSTANCE.logger();
         Marker marker = MarkerManager.getMarker("FileLoader");
         //Checking if any files are in legacy directory
@@ -48,16 +49,16 @@ public abstract class CustomJsonReloadListener extends SimplePreparableReloadLis
         }
 
         logger.info(marker, "Parsing all .json files in {} folder.", this.directory);
-        Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
+        Map<Identifier, JsonElement> map = Maps.newHashMap();
         int i = this.directory.length() + 1;
 
-        for(Map.Entry<ResourceLocation, Resource> entry : manager.listResources(this.directory, loc -> loc.getPath().endsWith(".json")).entrySet()) {
-            ResourceLocation loc = entry.getKey();
+        for(Map.Entry<Identifier, Resource> entry : manager.listResources(this.directory, loc -> loc.getPath().endsWith(".json")).entrySet()) {
+            Identifier loc = entry.getKey();
             String path = loc.getPath();
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), path.substring(i, path.length() - PATH_SUFFIX_LENGTH));
+            Identifier id = Identifier.fromNamespaceAndPath(loc.getNamespace(), path.substring(i, path.length() - PATH_SUFFIX_LENGTH));
 
             try(Reader reader = entry.getValue().openAsReader()) {
-                JsonElement jsonElement = GsonHelper.fromNullableJson(GSON, reader, JsonElement.class, false);
+                JsonElement jsonElement = GsonHelper.fromNullableJson(GSON, reader, TypeToken.get(JsonElement.class));
                 if(jsonElement != null) {
                     JsonElement replaced = map.put(id, jsonElement);
                     if(replaced != null)

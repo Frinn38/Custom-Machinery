@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
 import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Filter;
@@ -19,30 +19,32 @@ import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IItemHandlerModifiable {
+public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, ResourceHandler<ItemResource> {
 
     private final String id;
     private final Supplier<Integer> capacity;
     private final Supplier<Integer> maxInput;
     private final Supplier<Integer> maxOutput;
     private final Filter<Item> filter;
-    private ItemStack stack = ItemStack.EMPTY;
     private final IOSideConfig config;
+    private ItemStack stack = ItemStack.EMPTY;
     private boolean locked;
     private boolean bypassLimit = false;
 
@@ -62,7 +64,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     @Override
     public MachineComponentType<ItemMachineComponent> getType() {
-        return Registration.ITEM_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     public String getId() {
@@ -96,16 +98,16 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return true;
     }
 
-    public ItemStack insertItemBypassLimit(ItemStack stack, boolean simulate) {
+    public int insertBypassLimit(ItemResource resource, int amount, TransactionContext transaction) {
         this.bypassLimit = true;
-        ItemStack remainder = this.insertItem(0, stack, simulate);
+        int inserted = this.insert(0, resource, amount, transaction);
         this.bypassLimit = false;
-        return remainder;
+        return inserted;
     }
 
-    public ItemStack extractItemBypassLimit(int amount, boolean simulate) {
+    public int extractBypassLimit(ItemResource resource, int amount, TransactionContext transaction) {
         this.bypassLimit = true;
-        ItemStack extracted = this.extractItem(0, amount, simulate);
+        int extracted = this.extract(0, resource, amount, transaction);
         this.bypassLimit = false;
         return extracted;
     }
@@ -123,18 +125,16 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public void serialize(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void serialize(ValueOutput output) {
         if(!this.stack.isEmpty())
-            nbt.put("item", this.stack.save(registries, new CompoundTag()));
-        nbt.put("config", this.config.serialize());
+            output.store("item", ItemStack.CODEC, this.stack);
+        this.config.serialize(output.child("config"));
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, HolderLookup.Provider registries) {
-        if(nbt.contains("item", Tag.TAG_COMPOUND))
-            this.setItemStack(ItemStack.parseOptional(registries, nbt.getCompound("item")));
-        if(nbt.contains("config"))
-            this.config.deserialize(nbt.getCompound("config"));
+    public void deserialize(ValueInput input) {
+        input.read("item", ItemStack.CODEC).ifPresent(this::setItemStack);
+        input.child("config").ifPresent(this.config::deserialize);
     }
 
     @Override
@@ -148,37 +148,66 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return AbstractContainerMenu.getRedstoneSignalFromContainer(new SimpleContainer(this.stack));
     }
 
+    // ResourceHandler stuff
+
+    private final SnapshotJournal<ItemStack> snapshot = new SnapshotJournal<ItemStack>() {
+        @Override
+        protected ItemStack createSnapshot() {
+            return ItemMachineComponent.this.stack.copy();
+        }
+
+        @Override
+        protected void revertToSnapshot(ItemStack snapshot) {
+            ItemMachineComponent.this.stack = snapshot.copy();
+        }
+
+        @Override
+        protected void onRootCommit(ItemStack originalState) {
+            ItemMachineComponent.this.getManager().markDirty();
+        }
+    };
+
     @Override
-    public int getSlots() {
+    public int size() {
         return 1;
     }
 
     @Override
-    public ItemStack getStackInSlot(int slot) {
-        return this.stack;
+    public ItemResource getResource(int index) {
+        return ItemResource.of(this.stack);
     }
 
     @Override
-    public void setStackInSlot(int slot, ItemStack stack) {
-        this.setItemStack(stack);
+    public long getAmountAsLong(int index) {
+        return this.stack.getCount();
     }
 
     @Override
-    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        if(slot != 0)
-            throw new IllegalArgumentException("Can't get capacity for slot " + slot + ", ItemMachineComponent only has slot 0");
+    public long getCapacityAsLong(int index, ItemResource resource) {
+        return this.getCapacity();
+    }
 
-        if(stack.isEmpty() || !isItemValid(0, stack) || (!this.stack.isEmpty() && !ItemStack.isSameItemSameComponents(this.stack, stack)))
-            return stack;
+    @Override
+    public boolean isValid(int index, ItemResource resource) {
+        return this.filter.test(resource.getItem());
+    }
 
-        int amountToInsert = stack.getCount();
+    @Override
+    public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        if(index != 0)
+            throw new IllegalArgumentException("Can't get capacity for slot " + index + ", ItemMachineComponent only has slot 0");
+
+        if(resource.isEmpty() || !isValid(0, resource) || (!this.stack.isEmpty() && !resource.matches(this.stack)))
+            return 0;
+
+        int amountToInsert = amount;
 
         //Check the per-tick limit
         if(!this.bypassLimit)
             amountToInsert = Math.min(amountToInsert, this.maxInput.get());
 
         //Check the inserted stack max size, in case a mod like AE2 try to insert a stack of non-stackable items
-        amountToInsert = Math.min(amountToInsert, stack.getMaxStackSize());
+        amountToInsert = Math.min(amountToInsert, resource.getMaxStackSize());
 
         //Check the current stack limit (if not empty stack)
         if(!this.stack.isEmpty())
@@ -187,37 +216,29 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         //Check the slot capacity
         amountToInsert = Math.min(amountToInsert, this.capacity.get() - this.stack.getCount());
 
-        //If nothing can be inserted return input
+        //If nothing can be inserted return nothing
         if(amountToInsert <= 0)
-            return stack;
+            return 0;
 
         //If this slot is empty copy the input and insert the max amount
         if(this.stack.isEmpty()) {
-            if(!simulate) {
-                this.setItemStack(stack.copyWithCount(amountToInsert));
-                getManager().markDirty();
-            }
+            this.snapshot.updateSnapshots(transaction);
+            this.stack = resource.toStack(amountToInsert);
         } else {//If this slot is not empty simply grow the contained stack
-            if(!simulate) {
-                this.setItemStack(this.stack.copyWithCount(this.stack.getCount() + amountToInsert));
-                getManager().markDirty();
-            }
+            this.snapshot.updateSnapshots(transaction);
+            this.stack.grow(amountToInsert);
         }
 
-        //If everything from input was inserted return empty, else copy input and return remainder
-        if(amountToInsert == stack.getCount())
-            return ItemStack.EMPTY;
-        else
-            return stack.copyWithCount(stack.getCount() - amountToInsert);
+        return amountToInsert;
     }
 
     @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if(slot != 0)
-            throw new IllegalArgumentException("Can't get capacity for slot " + slot + ", ItemMachineComponent only has slot 0");
+    public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        if(index != 0)
+            throw new IllegalArgumentException("Can't get capacity for slot " + index + ", ItemMachineComponent only has slot 0");
 
         if(amount <= 0 || this.stack.isEmpty() || !this.canOutput())
-            return ItemStack.EMPTY;
+            return 0;
 
         //Check output limit
         if(!this.bypassLimit)
@@ -226,27 +247,12 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         //Check current stack size
         amount = Math.min(amount, this.stack.getCount());
 
-        ItemStack extracted = this.stack.copyWithCount(amount);
+        this.snapshot.updateSnapshots(transaction);
 
-        if(!simulate) {
-            this.setItemStack(this.stack.copyWithCount(this.stack.getCount() - amount));
-            getManager().markDirty();
-        }
-        return extracted;
+        this.stack.shrink(amount);
+
+        return amount;
     }
-
-    @Override
-    public int getSlotLimit(int slot) {
-        if(slot == 0)
-            return this.capacity.get();
-        throw new IllegalArgumentException("Can't get capacity for slot " + slot + ", ItemMachineComponent only has slot 0");
-    }
-
-    @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        return this.filter.test(stack.getItem());
-    }
-
 
     public static class Template implements IMachineComponentTemplate<ItemMachineComponent> {
 
@@ -293,7 +299,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
-            return Registration.ITEM_MACHINE_COMPONENT.get();
+            return CMRegistration.ITEM_MACHINE_COMPONENT.get();
         }
 
         @Override

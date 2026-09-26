@@ -5,12 +5,13 @@ import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import fr.frinn.custommachinery.impl.integration.jei.CustomIngredientTypes;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
-import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.ingredients.IIngredientType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -36,15 +37,15 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     }
 
     @Override
-    public void render(GuiGraphics graphics, @Nullable Energy ingredient) {
+    public void render(GuiGraphicsExtractor graphics, @Nullable Energy ingredient) {
         int width = this.element.getWidth();
         int height = this.element.getHeight();
 
-        graphics.pose().pushPose();
+        graphics.pose().pushMatrix();
         //Translate to make sure the filled texture is rendered on top of empty texture.
-        graphics.pose().translate(0, 0, 10);
+        graphics.nextStratum();
         ClientHandler.blit(graphics, this.element.getFilledTexture(), -1, -1, width, height);
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
     //Safe to remove
@@ -55,7 +56,7 @@ public class EnergyJEIIngredientRenderer extends JEIIngredientRenderer<Energy, E
     }
 
     @Override
-    public void getTooltip(ITooltipBuilder builder, Energy ingredient, TooltipFlag tooltipFlag) {
-
+    public List<Component> getTooltip(Energy ingredient, TooltipContext tooltipContext, @Nullable Player player, TooltipFlag tooltipFlag) {
+        return super.getTooltip(ingredient, tooltipContext, player, tooltipFlag);
     }
 }

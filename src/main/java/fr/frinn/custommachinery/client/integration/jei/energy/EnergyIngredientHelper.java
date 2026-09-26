@@ -7,7 +7,7 @@ import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
@@ -20,13 +20,6 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
     @Override
     public String getDisplayName(Energy energy) {
         return Component.translatable("custommachinery.jei.ingredient.energy", energy.amount()).getString();
-    }
-
-    //Safe to remove
-    @SuppressWarnings("removal")
-    @Override
-    public String getUniqueId(Energy energy, UidContext context) {
-        return "" + energy.amount() + energy.chance() + energy.isPerTick();
     }
 
     @Override
@@ -45,7 +38,7 @@ public class EnergyIngredientHelper implements IIngredientHelper<Energy> {
     }
 
     @Override
-    public ResourceLocation getResourceLocation(Energy ingredient) {
+    public Identifier getIdentifier(Energy ingredient) {
         return CustomMachinery.rl("energy");
     }
 }

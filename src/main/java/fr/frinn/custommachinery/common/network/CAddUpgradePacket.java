@@ -11,7 +11,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -39,13 +39,13 @@ public record CAddUpgradePacket(String id, Item item, boolean kubejs) implements
     }
 
     public static void handle(CAddUpgradePacket packet, IPayloadContext context) {
-        if (context.player() instanceof ServerPlayer player && player.getServer() != null && Utils.canPlayerManageMachines(player)) {
+        if (context.player() instanceof ServerPlayer player && Utils.canPlayerManageMachines(player)) {
             context.enqueueWork(() -> {
-                ResourceLocation loc = packet.id.contains(":") ? ResourceLocation.parse(packet.id) : CustomMachinery.rl(packet.id);
+                Identifier loc = packet.id.contains(":") ? Identifier.parse(packet.id) : CustomMachinery.rl(packet.id);
                 CustomMachinery.LOGGER.info("Player: {} added new upgrade: {}", player.getName().getString(), loc);
                 UpgradeLocation location = UpgradeLocation.fromLoader(packet.kubejs ? MachineLocation.Loader.KUBEJS : MachineLocation.Loader.DEFAULT, loc, "", null, null);
                 MachineUpgrade newUpgrade = new MachineUpgrade(packet.item, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Optional.empty(), Collections.singletonList(MachineUpgrade.DEFAULT_TOOLTIP), 64);
-                FileUtils.writeNewUpgradeJson(player.getServer(), location, newUpgrade, packet.kubejs);
+                FileUtils.writeNewUpgradeJson(player.level().getServer(), location, newUpgrade, packet.kubejs);
             });
         }
     }

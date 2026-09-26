@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement;
 import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement.DisplayMode;
 import fr.frinn.custommachinery.common.guielement.ExperienceGuiElement.Mode;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
@@ -24,7 +24,7 @@ public class ExperienceGuiElementBuilder implements IGuiElementBuilder<Experienc
 
     @Override
     public GuiElementType<ExperienceGuiElement> type() {
-        return Registration.EXPERIENCE_GUI_ELEMENT.get();
+        return CMRegistration.EXPERIENCE_GUI_ELEMENT.get();
     }
 
     @Override
@@ -60,9 +60,9 @@ public class ExperienceGuiElementBuilder implements IGuiElementBuilder<Experienc
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.texture_hovered"), this.properties::setTextureHovered, this.baseElement != null ? this.baseElement.getTextureHovered() : ExperienceGuiElement.BASE_TEXTURE_HOVERED);
             this.addPriority(row);
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.experience.display_mode"), this.font));
-            this.displayMode = row.addChild(CycleButton.<DisplayMode>builder(display -> Component.literal(display.name())).withValues(DisplayMode.values()).withInitialValue(this.baseElement != null ? this.baseElement.getDisplayMode() : DisplayMode.LEVEL).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.experience.display_mode")));
+            this.displayMode = row.addChild(CycleButton.builder(display -> Component.literal(display.name()), this.baseElement != null ? this.baseElement.getDisplayMode() : DisplayMode.LEVEL).withValues(DisplayMode.values()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.experience.display_mode")));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.experience.mode"), this.font));
-            this.mode = row.addChild(CycleButton.<Mode>builder(mode -> Component.literal(mode.name())).withValues(Mode.values()).withInitialValue(this.baseElement != null ? this.baseElement.getMode() : Mode.DISPLAY_BAR).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.experience.mode")));
+            this.mode = row.addChild(CycleButton.builder(mode -> Component.literal(mode.name()), this.baseElement != null ? this.baseElement.getMode() : Mode.DISPLAY_BAR).withValues(Mode.values()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.experience.mode")));
         }
     }
 }

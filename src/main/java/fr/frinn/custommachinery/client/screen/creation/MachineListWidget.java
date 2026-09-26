@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.common.util.CMVerifier;
 import fr.frinn.custommachinery.common.util.CMVerifier.ResultBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 
@@ -70,11 +70,11 @@ public class MachineListWidget extends ListWidget<MachineEntry> {
         }
 
         @Override
-        public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+        public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
             //Item
-            graphics.renderItem(CustomMachineItem.makeMachineItem(this.machine.getId()), x + 2, y + height / 2 - 8);
+            graphics.item(CustomMachineItem.makeMachineItem(this.machine.getId()), x + 2, y + height / 2 - 8);
             //Name
-            graphics.drawString(this.mc.font, this.machine.getName(), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0, false);
+            graphics.text(this.mc.font, this.machine.getName(), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0, false);
             //Id
             BaseScreen.drawScaledString(graphics, this.mc.font, Component.literal(this.machine.getId().toString()).withStyle(ChatFormatting.DARK_GRAY), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.8f, 0, false);
             //Loader

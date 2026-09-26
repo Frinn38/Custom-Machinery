@@ -8,6 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -42,13 +43,13 @@ public record CEditUpgradePacket(UpgradeLocation location, MachineUpgrade upgrad
     }
 
     public static void handle(CEditUpgradePacket packet, IPayloadContext context) {
-        if(context.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
+        if(context.player() instanceof ServerPlayer player && player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
             context.enqueueWork(() -> {
-                FileUtils.writeUpgradeJson(player.server, packet.location, packet.upgrade);
+                FileUtils.writeUpgradeJson(player.level().getServer(), packet.location, packet.upgrade);
                 CustomMachinery.UPGRADES.removeUpgrade(packet.location.id());
                 UpgradeLocation location = packet.location;
                 try {
-                    File upgradeJson = location.getFile(player.server);
+                    File upgradeJson = location.getFile(player.level().getServer());
                     if(upgradeJson != null && upgradeJson.exists()) {
                         BasicFileAttributes attributes = Files.getFileAttributeView(upgradeJson.toPath(), BasicFileAttributeView.class).readAttributes();
                         location = UpgradeLocation.fromLoader(location.loader(), location.id(), location.packName(), attributes.creationTime(), attributes.lastModifiedTime());

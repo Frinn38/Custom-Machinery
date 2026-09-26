@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.MachineShape;
 import fr.frinn.custommachinery.common.util.sound.AmbientSound;
 import fr.frinn.custommachinery.common.util.sound.CMSoundType;
@@ -34,14 +34,14 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
     public static final NamedMapCodec<Map<MachineAppearanceProperty<?>, Object>> CODEC = new NamedMapCodec<>() {
         @Override
         public <T> Stream<T> keys(DynamicOps<T> ops) {
-            return Registration.APPEARANCE_PROPERTY_REGISTRY.keys(ops);
+            return CMRegistration.APPEARANCE_PROPERTY_REGISTRY.keys(ops);
         }
 
         @Override
         public <T> DataResult<Map<MachineAppearanceProperty<?>, Object>> decode(DynamicOps<T> ops, MapLike<T> input) {
             Builder<MachineAppearanceProperty<?>, Object> properties = ImmutableMap.builder();
 
-            for (MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY) {
+            for (MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY) {
                 if (property.getId() != null && input.get(property.getId().toString()) != null) {
                     DataResult<?> result = property.getCodec().read(ops, input.get(property.getId().toString()));
                     if (result.result().isPresent())
@@ -94,67 +94,67 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
 
     @Override
     public IMachineModelLocation getBlockModel() {
-        return getProperty(Registration.BLOCK_MODEL_PROPERTY.get());
+        return getProperty(CMRegistration.BLOCK_MODEL_PROPERTY.get());
     }
 
     @Override
     public IMachineModelLocation getItemModel() {
-        return getProperty(Registration.ITEM_MODEL_PROPERTY.get());
+        return getProperty(CMRegistration.ITEM_MODEL_PROPERTY.get());
     }
 
     @Override
     public AmbientSound getAmbientSound() {
-        return getProperty(Registration.AMBIENT_SOUND_PROPERTY.get());
+        return getProperty(CMRegistration.AMBIENT_SOUND_PROPERTY.get());
     }
 
     @Override
     public CMSoundType getInteractionSound() {
-        return getProperty(Registration.INTERACTION_SOUND_PROPERTY.get());
+        return getProperty(CMRegistration.INTERACTION_SOUND_PROPERTY.get());
     }
 
     @Override
     public int getLightLevel() {
-        return getProperty(Registration.LIGHT_PROPERTY.get());
+        return getProperty(CMRegistration.LIGHT_PROPERTY.get());
     }
 
     @Override
-    public int getColor() {
-        return getProperty(Registration.COLOR_PROPERTY.get());
+    public String getColor() {
+        return getProperty(CMRegistration.COLOR_PROPERTY.get());
     }
 
     @Override
     public float getHardness() {
-        return getProperty(Registration.HARDNESS_PROPERTY.get());
+        return getProperty(CMRegistration.HARDNESS_PROPERTY.get());
     }
 
     @Override
     public float getResistance() {
-        return getProperty(Registration.RESISTANCE_PROPERTY.get());
+        return getProperty(CMRegistration.RESISTANCE_PROPERTY.get());
     }
 
     @Override
     public List<TagKey<Block>> getTool() {
-        return getProperty(Registration.TOOL_TYPE_PROPERTY.get());
+        return getProperty(CMRegistration.TOOL_TYPE_PROPERTY.get());
     }
 
     @Override
     public TagKey<Block> getMiningLevel() {
-        return getProperty(Registration.MINING_LEVEL_PROPERTY.get());
+        return getProperty(CMRegistration.MINING_LEVEL_PROPERTY.get());
     }
 
     @Override
     public boolean requiresCorrectToolForDrops() {
-        return getProperty(Registration.REQUIRES_TOOL.get());
+        return getProperty(CMRegistration.REQUIRES_TOOL.get());
     }
 
     @Override
     public MachineShape getShape() {
-        return getProperty(Registration.SHAPE_PROPERTY.get());
+        return getProperty(CMRegistration.SHAPE_PROPERTY.get());
     }
 
     @Override
     public Function<Direction, VoxelShape> getCollisionShape() {
-        MachineShape collisionShape = getProperty(Registration.SHAPE_COLLISION_PROPERTY.get());
+        MachineShape collisionShape = getProperty(CMRegistration.SHAPE_COLLISION_PROPERTY.get());
         if (collisionShape == MachineShape.DEFAULT_COLLISION)
             return getShape();
         return collisionShape;
@@ -162,7 +162,7 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
 
     @Override
     public boolean shouldKeepInventory() {
-        return getProperty(Registration.KEEP_INVENTORY_PROPERTY.get());
+        return getProperty(CMRegistration.KEEP_INVENTORY_PROPERTY.get());
     }
 
     @Override
@@ -173,7 +173,7 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
     public static Map<MachineAppearanceProperty<?>, Object> defaultProperties() {
         Map<MachineAppearanceProperty<?>, Object> map = new HashMap<>();
 
-        for (MachineAppearanceProperty<?> property : Registration.APPEARANCE_PROPERTY_REGISTRY)
+        for (MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY)
             map.put(property, property.getDefaultValue());
 
         return map;

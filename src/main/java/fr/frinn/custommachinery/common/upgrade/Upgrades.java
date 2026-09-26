@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.common.upgrade;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 import java.util.Collections;
@@ -14,7 +14,7 @@ public class Upgrades {
 
     private Map<UpgradeLocation, MachineUpgrade> upgrades;
     private Map<Item, List<MachineUpgrade>> upgradesByItem = Collections.emptyMap();
-    private Map<ResourceLocation, List<MachineUpgrade>> upgradesByMachine = Collections.emptyMap();
+    private Map<Identifier, List<MachineUpgrade>> upgradesByMachine = Collections.emptyMap();
 
     public void refresh(Map<UpgradeLocation, MachineUpgrade> upgrades) {
         this.upgrades = Collections.unmodifiableMap(upgrades);
@@ -29,7 +29,7 @@ public class Upgrades {
         refresh(upgrades);
     }
 
-    public void removeUpgrade(ResourceLocation id) {
+    public void removeUpgrade(Identifier id) {
         UpgradeLocation location = this.upgrades.keySet().stream().filter(loc -> loc.id().equals(id)).findFirst().orElse(null);
         if(location != null) {
             Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>(this.upgrades);
@@ -46,11 +46,11 @@ public class Upgrades {
         return this.upgradesByItem.getOrDefault(item, Collections.emptyList());
     }
 
-    public List<MachineUpgrade> getUpgradesForMachine(ResourceLocation machineID) {
+    public List<MachineUpgrade> getUpgradesForMachine(Identifier machineID) {
         return this.upgradesByMachine.getOrDefault(machineID, Collections.emptyList());
     }
 
-    public List<MachineUpgrade> getUpgradesForItemAndMachine(Item item, ResourceLocation machineID) {
+    public List<MachineUpgrade> getUpgradesForItemAndMachine(Item item, Identifier machineID) {
         return getUpgradesForItem(item).stream().filter(upgrade -> getUpgradesForMachine(machineID).contains(upgrade)).toList();
     }
 }

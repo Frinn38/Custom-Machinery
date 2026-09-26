@@ -56,7 +56,7 @@ public interface IMachineAppearance {
     /**
      * @return A hex color that will be used when rendering the machine model for quads that have a tint index of 4.
      */
-    int getColor();
+    String getColor();
 
     /**
      * @return A float that represent the block hardness of the machine, used to calculate the player breaking speed.

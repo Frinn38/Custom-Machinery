@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.requirement.data.IntegerDataRequirement.Operation;
 import fr.frinn.custommachinery.impl.util.DoubleRange;
 import net.minecraft.nbt.CompoundTag;
@@ -32,12 +32,12 @@ public record DoubleDataRequirement(RequirementIOMode mode, String id, DoubleRan
 
     @Override
     public RequirementType<DoubleDataRequirement> getType() {
-        return Registration.DOUBLE_DATA_REQUIREMENT.get();
+        return CMRegistration.DOUBLE_DATA_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<DataMachineComponent> getComponentType() {
-        return Registration.DATA_MACHINE_COMPONENT.get();
+        return CMRegistration.DATA_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -51,7 +51,7 @@ public record DoubleDataRequirement(RequirementIOMode mode, String id, DoubleRan
             return true;
 
         if(getTag(this.id, component.getData()) instanceof NumericTag numericTag)
-            return this.range.contains(numericTag.getAsDouble());
+            return this.range.contains(numericTag.doubleValue());
 
         return false;
     }
@@ -62,43 +62,48 @@ public record DoubleDataRequirement(RequirementIOMode mode, String id, DoubleRan
             list.worldCondition((component, context) -> {
                 Tag tag = getTag(this.id, component.getData());
                 if(tag instanceof NumericTag numericTag) {
-                    if(this.range.contains(numericTag.getAsDouble()))
+                    if(this.range.contains(numericTag.doubleValue()))
                         return CraftingResult.success();
                 }
-                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.range.toString(), tag == null ? "not found" : tag.getAsString()));
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.data.error", this.id, this.range.toString(), tag == null ? "not found" : tag.toString()));
             });
         else
             list.processOnEnd((component, context) -> {
                 String[] path = this.id.split("/");
                 if(path.length == 1) {
-                    if(this.operation == Operation.SET || component.getData().getDouble(this.id) == 0)
+                    if(this.operation == Operation.SET || component.getData().getDoubleOr(this.id, 0) == 0)
                         component.getData().putDouble(this.id, this.value);
                     else if(this.operation == Operation.ADD)
-                        component.getData().putDouble(this.id, component.getData().getDouble(this.id) + this.value);
+                        component.getData().putDouble(this.id, component.getData().getDoubleOr(this.id, 0) + this.value);
                     else if(this.operation == Operation.MUL)
-                        component.getData().putDouble(this.id, component.getData().getDouble(this.id) * this.value);
+                        component.getData().putDouble(this.id, component.getData().getDoubleOr(this.id, 0) * this.value);
                 }
                 else {
-                    CompoundTag tag = component.getData();
-                    for(int i = 0; i < path.length - 1; i++) {
-                        if(tag.contains(path[i], Tag.TAG_COMPOUND))
-                            tag = tag.getCompound(path[i]);
-                        else {
-                            CompoundTag newTag = new CompoundTag();
-                            tag.put(path[i], newTag);
-                            tag = newTag;
-                        }
-                    }
+                    CompoundTag tag = getTag(component, path);
                     String tagId = path[path.length - 1];
-                    if(this.operation == Operation.SET || tag.getDouble(tagId) == 0)
+                    if(this.operation == Operation.SET || tag.getDoubleOr(tagId, 0) == 0)
                         tag.putDouble(tagId, this.value);
                     else if(this.operation == Operation.ADD)
-                        tag.putDouble(tagId, tag.getDouble(tagId) + this.value);
+                        tag.putDouble(tagId, tag.getDoubleOr(tagId, 0) + this.value);
                     else if(this.operation == Operation.MUL)
-                        tag.putDouble(tagId, tag.getDouble(tagId) * this.value);
+                        tag.putDouble(tagId, tag.getDoubleOr(tagId, 0) * this.value);
                 }
                 return CraftingResult.success();
             });
+    }
+
+    private static CompoundTag getTag(DataMachineComponent component, String[] path) {
+        CompoundTag tag = component.getData();
+        for(int i = 0; i < path.length - 1; i++) {
+            if(tag.contains(path[i]) && tag.getCompound(path[i]).isPresent())
+                tag = tag.getCompound(path[i]).get();
+            else {
+                CompoundTag newTag = new CompoundTag();
+                tag.put(path[i], newTag);
+                tag = newTag;
+            }
+        }
+        return tag;
     }
 
     @Nullable

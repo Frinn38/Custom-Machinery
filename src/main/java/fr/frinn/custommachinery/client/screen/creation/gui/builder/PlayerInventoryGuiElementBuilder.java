@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,7 @@ public class PlayerInventoryGuiElementBuilder implements IGuiElementBuilder<Play
 
     @Override
     public GuiElementType<PlayerInventoryGuiElement> type() {
-        return Registration.PLAYER_INVENTORY_GUI_ELEMENT.get();
+        return CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get();
     }
 
     @Override

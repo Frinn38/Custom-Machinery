@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.DumpGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -31,7 +31,7 @@ public class DumpGuiElementWidget extends TexturedGuiElementWidget<DumpGuiElemen
         Iterator<MachineComponentType<?>> iterator = types.iterator();
         while(iterator.hasNext()) {
             MachineComponentType<?> type = iterator.next();
-            builder.append(Objects.requireNonNull(Registration.MACHINE_COMPONENT_TYPE_REGISTRY.getKey(type)).getPath());
+            builder.append(Objects.requireNonNull(CMRegistration.MACHINE_COMPONENT_TYPE_REGISTRY.getKey(type)).getPath());
             if(iterator.hasNext())
                 builder.append(Component.literal(", "));
         }

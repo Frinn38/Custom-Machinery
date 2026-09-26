@@ -3,9 +3,10 @@ package fr.frinn.custommachinery.common.component;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -14,7 +15,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,11 +26,11 @@ public class DropMachineComponent extends AbstractMachineComponent {
 
     @Override
     public MachineComponentType<DropMachineComponent> getType() {
-        return Registration.DROP_MACHINE_COMPONENT.get();
+        return CMRegistration.DROP_MACHINE_COMPONENT.get();
     }
 
     public int getItemAmount(Ingredient ingredient, int radius, boolean whitelist) {
-        List<Item> filter = Arrays.stream(ingredient.getItems()).map(ItemStack::getItem).toList();
+        List<Item> filter = ingredient.getValues().stream().map(Holder::value).toList();
         BlockPos from = getManager().getTile().getBlockPos().offset(radius, radius, radius);
         BlockPos to = getManager().getTile().getBlockPos().offset(-radius, -radius, -radius);
         AABB box = new AABB(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
@@ -42,7 +42,7 @@ public class DropMachineComponent extends AbstractMachineComponent {
     }
 
     public void consumeItem(Ingredient ingredient, int amount, int radius, boolean whitelist) {
-        List<Item> filter = Arrays.stream(ingredient.getItems()).map(ItemStack::getItem).toList();
+        List<Item> filter = ingredient.getValues().stream().map(Holder::value).toList();
         AtomicInteger toRemove = new AtomicInteger(amount);
         BlockPos from = getManager().getTile().getBlockPos().offset(radius, radius, radius);
         BlockPos to = getManager().getTile().getBlockPos().offset(-radius, -radius, -radius);

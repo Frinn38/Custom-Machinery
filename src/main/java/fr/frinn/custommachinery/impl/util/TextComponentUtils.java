@@ -1,25 +1,28 @@
 package fr.frinn.custommachinery.impl.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.KeybindContents;
 import net.minecraft.network.chat.contents.NbtContents;
+import net.minecraft.network.chat.contents.ObjectContents;
 import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.network.chat.contents.PlainTextContents.LiteralContents;
 import net.minecraft.network.chat.contents.ScoreContents;
 import net.minecraft.network.chat.contents.SelectorContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.util.InsertingContents;
+import net.minecraft.util.ExtraCodecs;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -37,7 +40,7 @@ public class TextComponentUtils {
                     NamedCodec.BOOL.optionalFieldOf("strikethrough", false).forGetter(Style::isStrikethrough),
                     NamedCodec.BOOL.optionalFieldOf("obfuscated", false).forGetter(Style::isObfuscated),
                     COLOR_CODEC.optionalFieldOf("color").forGetter(style -> Optional.ofNullable(style.getColor())),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("font", ResourceLocation.withDefaultNamespace("default")).forGetter(Style::getFont)
+                    NamedCodec.of(FontDescription.CODEC).optionalFieldOf("font", FontDescription.DEFAULT).forGetter(Style::getFont)
             ).apply(styleInstance, (bold, italic, underlined, strikethrough, obfuscated, color, font) ->
                     Style.EMPTY
                     .withBold(bold)
@@ -55,11 +58,11 @@ public class TextComponentUtils {
             iTextComponentInstance.group(
                     NamedCodec.either(NamedCodec.STRING, getComponentContentsCodec()).fieldOf("text").forGetter(component -> Either.right(component.getContents())),
                     STYLE_CODEC.forGetter(Component::getStyle),
-                    NamedCodec.lazy(TextComponentUtils::getCodec, "Text component").listOf().optionalFieldOf("childrens", Collections.emptyList()).forGetter(Component::getSiblings)
-            ).apply(iTextComponentInstance, (text, style, childrens) -> {
+                    NamedCodec.lazy(TextComponentUtils::getCodec, "Text component").listOf().optionalFieldOf("children", Collections.emptyList()).forGetter(Component::getSiblings)
+            ).apply(iTextComponentInstance, (text, style, children) -> {
                             MutableComponent component = text.map(Component::translatable, MutableComponent::create);
                             component.setStyle(style);
-                            childrens.forEach(component::append);
+                            children.forEach(component::append);
                             return component;
                     }
             ),
@@ -75,16 +78,30 @@ public class TextComponentUtils {
 
     public static String getString(Component component) {
         ComponentContents contents = component.getContents();
-        if(contents instanceof LiteralContents literal)
-            return literal.text();
+        if(contents instanceof LiteralContents(String text))
+            return text;
         else if(contents instanceof TranslatableContents translatable)
             return translatable.getKey();
         return component.getString();
     }
 
-    @SuppressWarnings("unchecked")
     private static NamedCodec<ComponentContents> getComponentContentsCodec() {
-        ComponentContents.Type<?>[] type = new ComponentContents.Type[]{PlainTextContents.TYPE, TranslatableContents.TYPE, KeybindContents.TYPE, ScoreContents.TYPE, SelectorContents.TYPE, NbtContents.TYPE, InsertingContents.TYPE};
-        return NamedCodec.of(((MapCodec<ComponentContents>)ComponentSerialization.createLegacyComponentMatcher(type, ComponentContents.Type::codec, ComponentContents::type, "type")).codec(), "Component contents");
+        ExtraCodecs.LateBoundIdMapper<String, MapCodec<? extends ComponentContents>> contentTypes = new ExtraCodecs.LateBoundIdMapper<>();
+        contentTypes.put("text", PlainTextContents.MAP_CODEC);
+        contentTypes.put("translatable", TranslatableContents.MAP_CODEC);
+        contentTypes.put("keybind", KeybindContents.MAP_CODEC);
+        contentTypes.put("score", ScoreContents.MAP_CODEC);
+        contentTypes.put("selector", SelectorContents.MAP_CODEC);
+        contentTypes.put("nbt", NbtContents.MAP_CODEC);
+        contentTypes.put("object", ObjectContents.MAP_CODEC);
+        return NamedCodec.of(ComponentSerialization.createLegacyComponentMatcher(contentTypes, ComponentContents::codec, "type").codec(), "Component contents");
+    }
+
+    public static String toJSON(Component component) {
+        return ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, component).result().map(json -> new Gson().toJson(json)).orElse("");
+    }
+
+    public static Component fromJSON(String json) {
+        return ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, new Gson().fromJson(json, JsonElement.class)).result().orElse(Component.empty());
     }
 }

@@ -11,8 +11,8 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.EntityMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -30,19 +30,19 @@ public record EntityRequirement(RequirementIOMode mode, ACTION action, int amoun
                     ACTION.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
                     NamedCodec.INT.fieldOf("amount").forGetter(requirement -> requirement.amount),
                     NamedCodec.INT.fieldOf("radius").forGetter(requirement -> requirement.radius),
-                    RegistrarCodec.ENTITY.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
+                    RegistryCodecs.ENTITY.listOf().optionalFieldOf("filter", Collections.emptyList()).forGetter(requirement -> requirement.filter),
                     NamedCodec.BOOL.optionalFieldOf("whitelist", false).forGetter(requirement -> requirement.whitelist)
             ).apply(entityRequirementInstance, EntityRequirement::new), "Entity requirement"
     );
 
     @Override
     public RequirementType<EntityRequirement> getType() {
-        return Registration.ENTITY_REQUIREMENT.get();
+        return CMRegistration.ENTITY_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<EntityMachineComponent> getComponentType() {
-        return Registration.ENTITY_MACHINE_COMPONENT.get();
+        return CMRegistration.ENTITY_MACHINE_COMPONENT.get();
     }
 
     @Override

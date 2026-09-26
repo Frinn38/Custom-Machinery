@@ -7,7 +7,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.component.item.FluidHandlerItemMachineComponent;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -22,7 +22,7 @@ public class ItemFluidComponentBuilder extends ItemComponentBuilder {
 
     @Override
     public MachineComponentType<ItemMachineComponent> type() {
-        return Registration.ITEM_FLUID_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_FLUID_MACHINE_COMPONENT.get();
     }
 
     @Override

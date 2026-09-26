@@ -24,7 +24,7 @@ public record CoreModifier(Operation operation, double modifier, int max, int mi
         this.modifier = modifier;
         this.max = max;
         this.min = min;
-        this.tooltip = tooltip != null && !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
+        this.tooltip = !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
     }
 
     public double apply(double original, int upgradeAmount) {

@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,7 +44,7 @@ public class SplitButtonGuiElement extends AbstractTexturedGuiElement {
 
     @Override
     public GuiElementType<SplitButtonGuiElement> getType() {
-        return Registration.SPLIT_GUI_ELEMENT.get();
+        return CMRegistration.SPLIT_GUI_ELEMENT.get();
     }
 
     public TextureInfo getTextureToggle() {
@@ -62,19 +62,19 @@ public class SplitButtonGuiElement extends AbstractTexturedGuiElement {
     @Override
     public void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {
         tile.getComponentManager()
-                .getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
                 .filter(handler -> handler instanceof ItemComponentHandler)
                 .map(handler -> (ItemComponentHandler)handler)
                 .ifPresent(handler -> {
                     if(handler.getSplitters().contains(this.getId()))
                         handler.removeSplitter(this.getId());
                     else if(this.slots.isEmpty())
-                        handler.addSplitter(this.getId(), handler.getComponents().stream().filter(component -> component.getMode().isInput() && component.getType() == Registration.ITEM_MACHINE_COMPONENT.get()).map(ItemMachineComponent::getId).toList());
+                        handler.addSplitter(this.getId(), handler.getComponents().stream().filter(component -> component.getMode().isInput() && component.getType() == CMRegistration.ITEM_MACHINE_COMPONENT.get()).map(ItemMachineComponent::getId).toList());
                     else
                         handler.addSplitter(this.getId(), this.slots);
                 });
         tile.getComponentManager()
-                .getComponent(Registration.DATA_MACHINE_COMPONENT.get())
-                .ifPresent(component -> component.getData().putBoolean(this.getId(), !component.getData().getBoolean(this.getId())));
+                .getComponent(CMRegistration.DATA_MACHINE_COMPONENT.get())
+                .ifPresent(component -> component.getData().getBoolean(this.getId()).ifPresent(data -> component.getData().putBoolean(this.getId(), !data)));
     }
 }

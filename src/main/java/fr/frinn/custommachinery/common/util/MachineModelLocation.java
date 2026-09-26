@@ -6,10 +6,10 @@ import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +21,7 @@ public class MachineModelLocation implements IMachineModelLocation {
     public static final NamedCodec<MachineModelLocation> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         try {
             return DataResult.success(MachineModelLocation.of(s));
-        } catch (ResourceLocationException e) {
+        } catch (IdentifierException e) {
             return DataResult.error(e::getMessage);
         }
     }, MachineModelLocation::toString, "Model location");
@@ -32,31 +32,31 @@ public class MachineModelLocation implements IMachineModelLocation {
     @Nullable
     private final Item item;
     @Nullable
-    private final ResourceLocation id;
+    private final Identifier id;
     @Nullable
     private final String properties;
 
     public static MachineModelLocation of(String loc) {
         BlockState state = null;
         try {
-            state = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(loc), false).blockState();
+            state = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK, new StringReader(loc), false).blockState();
         } catch (CommandSyntaxException ignored) {}
-        ResourceLocation id = null;
+        Identifier id = null;
         String properties = null;
         if(loc.contains("#")) {
-            id = ResourceLocation.parse(loc.substring(0, loc.indexOf("#")));
+            id = Identifier.parse(loc.substring(0, loc.indexOf("#")));
             properties = loc.substring(loc.indexOf("#") + 1);
         } else if(state == null)
-            id = ResourceLocation.parse(loc);
+            id = Identifier.parse(loc);
 
         Item item = null;
         if(id != null && BuiltInRegistries.ITEM.containsKey(id))
-            item = BuiltInRegistries.ITEM.get(id);
+            item = BuiltInRegistries.ITEM.getOptional(id).orElse(null);
 
         return new MachineModelLocation(loc, state, item, id, properties);
     }
 
-    private MachineModelLocation(String loc, @Nullable BlockState state, @Nullable Item item, @Nullable ResourceLocation id, @Nullable String properties) {
+    private MachineModelLocation(String loc, @Nullable BlockState state, @Nullable Item item, @Nullable Identifier id, @Nullable String properties) {
         this.loc = loc;
         this.state = state;
         this.item = item;
@@ -78,7 +78,7 @@ public class MachineModelLocation implements IMachineModelLocation {
 
     @Override
     @Nullable
-    public ResourceLocation getLoc() {
+    public Identifier getLoc() {
         return this.id;
     }
 

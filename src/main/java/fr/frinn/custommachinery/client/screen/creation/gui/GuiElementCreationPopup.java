@@ -7,10 +7,10 @@ import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementCreationPop
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -72,7 +72,7 @@ public class GuiElementCreationPopup extends PopupScreen {
             super(x, y, width, height, 20, Component.empty());
             this.setRenderSelection();
 
-            for(GuiElementType<?> type : Registration.GUI_ELEMENT_TYPE_REGISTRY.entrySet().stream().sorted(Comparator.comparing(entry -> entry.getKey().location())).map(Map.Entry::getValue).toList()) {
+            for(GuiElementType<?> type : CMRegistration.GUI_ELEMENT_TYPE_REGISTRY.entrySet().stream().sorted(Comparator.comparing(entry -> entry.getKey().identifier())).map(Map.Entry::getValue).toList()) {
                 IGuiElementBuilder<?> builder = GuiElementBuilderRegistry.getBuilder(type);
                 if(builder != null)
                     this.addEntry(new GuiElementCreationListWidget.GuiElementCreationListEntry(builder));
@@ -90,8 +90,8 @@ public class GuiElementCreationPopup extends PopupScreen {
             }
 
             @Override
-            public void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-                graphics.drawString(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), x + 5, y + 5, 0, false);
+            public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
+                graphics.text(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), x + 5, y + 5, 0, false);
             }
 
             @Override

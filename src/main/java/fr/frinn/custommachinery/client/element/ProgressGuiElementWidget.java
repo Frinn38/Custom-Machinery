@@ -6,7 +6,8 @@ import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessorCore;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressBarGuiElement> {
@@ -16,7 +17,7 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         ProgressArrowRenderer.renderProgressArrow(graphics, this.getElement(), this.getX(), this.getY(), this.getRecipeProgressPercent());
     }
 
@@ -34,7 +35,7 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
     }
 
     @Override
-    protected boolean clicked(double mouseX, double mouseY) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         return false;
     }
 }

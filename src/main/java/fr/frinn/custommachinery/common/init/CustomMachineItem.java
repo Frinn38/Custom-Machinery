@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.TooltipFlag.Default;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,15 +26,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class CustomMachineItem extends BlockItem {
 
-    public static final TooltipFlag NO_TOOLTIP = new Default(true, true);
-
     @Nullable
-    private final ResourceLocation machineID;
+    private final Identifier machineID;
 
-    public CustomMachineItem(Block block, Item.Properties properties, @Nullable ResourceLocation machineID) {
+    public CustomMachineItem(Block block, Item.Properties properties, @Nullable Identifier machineID) {
         super(block, properties);
         this.machineID = machineID;
     }
@@ -43,15 +42,15 @@ public class CustomMachineItem extends BlockItem {
         if(stack.getItem() instanceof CustomMachineItem customMachineItem && customMachineItem.machineID != null)
             return Optional.ofNullable(CustomMachinery.MACHINES.get(customMachineItem.machineID));
         else
-            return Optional.ofNullable(stack.get(Registration.MACHINE_DATA)).flatMap(id -> Optional.ofNullable(CustomMachinery.MACHINES.get(id))).or(() -> Optional.of(CustomMachine.DUMMY));
+            return Optional.ofNullable(stack.get(CMRegistration.MACHINE_DATA)).flatMap(id -> Optional.ofNullable(CustomMachinery.MACHINES.get(id))).or(() -> Optional.of(CustomMachine.DUMMY));
     }
 
-    public static ItemStack makeMachineItem(ResourceLocation machineId) {
+    public static ItemStack makeMachineItem(Identifier machineId) {
         if(CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(machineId))
             return CustomMachinery.CUSTOM_BLOCK_MACHINES.get(machineId).asItem().getDefaultInstance();
 
-        ItemStack stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
-        stack.set(Registration.MACHINE_DATA, machineId);
+        ItemStack stack = CMRegistration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
+        stack.set(CMRegistration.MACHINE_DATA, machineId);
         return stack;
     }
 
@@ -62,11 +61,11 @@ public class CustomMachineItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
         if(flag instanceof EditorTooltipFlag(List<Component> tooltips))
-            tooltip.addAll(tooltips);
+            tooltips.forEach(builder);
         else
-            getMachine(stack).map(CustomMachine::getTooltips).ifPresent(tooltip::addAll);
+            getMachine(stack).map(CustomMachine::getTooltips).ifPresent(tooltips -> tooltips.forEach(builder));
     }
 
     @Override
@@ -107,7 +106,7 @@ public class CustomMachineItem extends BlockItem {
                         itemStack.shrink(1);
                     }
 
-                    return InteractionResult.sidedSuccess(level.isClientSide);
+                    return InteractionResult.SUCCESS;
                 }
             }
         }

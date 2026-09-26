@@ -12,7 +12,7 @@ import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearanceManager;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class CustomMachineBuilder {
     private final List<Component> tooltips;
     private final List<IGuiElement> guiElements;
     private final List<IGuiElement> jeiElements;
-    private final List<ResourceLocation> catalysts;
+    private final List<Identifier> catalysts;
     private final List<IMachineComponentTemplate<?>> components;
     private MachineLocation location;
     private IProcessorTemplate<?> processor;
@@ -112,7 +112,7 @@ public class CustomMachineBuilder {
         this.processor = template;
     }
 
-    public CustomMachineBuilder setId(ResourceLocation id) {
+    public CustomMachineBuilder setId(Identifier id) {
         this.location = MachineLocation.fromLoader(this.location.loader(), id, this.location.packName(), this.location.created(), this.location.modified());
         return this;
     }
@@ -132,7 +132,7 @@ public class CustomMachineBuilder {
         List<Component> tooltips = this.tooltips == null ? ImmutableList.of() : ImmutableList.copyOf(this.tooltips);
         List<IGuiElement> guiElements = this.guiElements == null ? ImmutableList.of() : this.guiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId() + ":" + element.getId())).toList();
         List<IGuiElement> jeiElements = this.jeiElements == null ? ImmutableList.of() : this.jeiElements.stream().sorted(Comparator.comparing(element -> element.getType().getId() + ":" + element.getId())).toList();
-        List<ResourceLocation> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);
+        List<Identifier> catalysts = this.catalysts == null ? ImmutableList.of() : ImmutableList.copyOf(this.catalysts);
         List<IMachineComponentTemplate<? extends IMachineComponent>> componentTemplates = this.components == null ? ImmutableList.of() : this.components.stream().sorted(Comparator.comparing(component -> component.getType().getId() + ":" + component.getId())).toList();
         return new CustomMachine(name, appearance, tooltips, guiElements, jeiElements, catalysts, componentTemplates, this.processor).setLocation(this.location);
     }

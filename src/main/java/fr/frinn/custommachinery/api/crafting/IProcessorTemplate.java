@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.api.crafting;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 
 /**
  * A template for a specific {@link ProcessorType}.
@@ -18,7 +18,7 @@ public interface IProcessorTemplate<T extends IProcessor> {
      * The dispatch codec will read the "type" property inside the processor JSON and find the proper {@link ProcessorType} for this type.
      * The codec passed to the {@link ProcessorType} on registration will then be used to deserialize the processor JSON into the template.
      */
-    NamedCodec<IProcessorTemplate<? extends IProcessor>> CODEC = RegistrarCodec.CRAFTING_PROCESSOR.dispatch(
+    NamedCodec<IProcessorTemplate<? extends IProcessor>> CODEC = RegistryCodecs.CRAFTING_PROCESSOR.dispatch(
             IProcessorTemplate::getType,
             ProcessorType::getCodec,
             "Crafting Processor"

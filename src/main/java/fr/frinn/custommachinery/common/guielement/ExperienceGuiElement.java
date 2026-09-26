@@ -4,7 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.network.chat.Component;
@@ -38,13 +38,13 @@ public class ExperienceGuiElement extends AbstractTexturedGuiElement {
 
   @Override
   public GuiElementType<ExperienceGuiElement> getType() {
-    return Registration.EXPERIENCE_GUI_ELEMENT.get();
+    return CMRegistration.EXPERIENCE_GUI_ELEMENT.get();
   }
 
   @Override
   public void handleClick(byte button, MachineTile tile, AbstractContainerMenu container, ServerPlayer player) {
     super.handleClick(button, tile, container, player);
-    tile.getComponentManager().getComponent(Registration.EXPERIENCE_MACHINE_COMPONENT.get())
+    tile.getComponentManager().getComponent(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get())
         .ifPresent(component -> {
           switch(mode) {
             case INPUT_ONE -> component.addLevelToPlayer(-1, player);

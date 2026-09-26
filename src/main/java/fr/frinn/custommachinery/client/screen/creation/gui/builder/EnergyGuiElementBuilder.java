@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.components.Checkbox;
@@ -25,7 +25,7 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
 
     @Override
     public GuiElementType<EnergyGuiElement> type() {
-        return Registration.ENERGY_GUI_ELEMENT.get();
+        return CMRegistration.ENERGY_GUI_ELEMENT.get();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class EnergyGuiElementBuilder implements IGuiElementBuilder<EnergyGuiElem
             this.addTexture(row, Component.translatable("custommachinery.gui.creation.gui.filled"), texture -> this.textureFilled = texture, this.textureFilled);
             this.addPriority(row);
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.bar.orientation"), this.font));
-            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.name())).withValues(Orientation.values()).withInitialValue(this.baseElement != null ? this.baseElement.getOrientation() : Orientation.TOP).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
+            this.orientation = row.addChild(CycleButton.builder(orientation -> Component.literal(orientation.name()), this.baseElement != null ? this.baseElement.getOrientation() : Orientation.TOP).withValues(Orientation.values()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.bar.orientation")));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font));
             this.highlight = row.addChild(Checkbox.builder(Component.translatable("custommachinery.gui.creation.gui.highlight"), this.font).selected(this.baseElement == null || this.baseElement.highlight()).build());
         }

@@ -26,7 +26,7 @@
   "custommachinery.structure_creator.no_blocks": "No blocks are selected",
   "custommachinery.structure_creator.amount": "%s blocks selected",
   "custommachinery.structure_creator.select": "Right click a block to add or remove it",
-  "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s %s",
+  "custommachinery.structure_creator.message": "Structure generated, click to copy : %s %s %s",
   "custommachinery.structure_creator.reset": "Right click in the air while crouching to reset",
 
   "custommachinery.configuration_card.copy": "Sneak and right click the machine block to copy configuration",

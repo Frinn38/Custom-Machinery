@@ -12,11 +12,11 @@ import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigGuiData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class ComponentConfigPopup extends PopupScreen {
 
@@ -61,20 +61,20 @@ public class ComponentConfigPopup extends PopupScreen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         graphics.blit(this.guiData.background().texture(), this.x, this.y, this.guiData.background().u(), this.guiData.background().v(), this.xSize, this.ySize, this.xSize, this.ySize);
-        graphics.drawString(Minecraft.getInstance().font, this.guiData.title(), (int)(this.x + this.xSize / 2F - this.font.width(this.guiData.title()) / 2F), this.y + 5, 0, false);
+        graphics.text(Minecraft.getInstance().font, this.guiData.title(), (int)(this.x + this.xSize / 2F - this.font.width(this.guiData.title()) / 2F), this.y + 5, 0, false);
     }
 
     private void setSide(int side, boolean next) {
         if(Minecraft.getInstance().player == null)
             return;
-        PacketDistributor.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId(), (byte) side, next));
+        ClientPacketDistributor.sendToServer(new CChangeSideModePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId(), (byte) side, next));
     }
 
     private void setAllNone() {
         if(Minecraft.getInstance().player != null)
-            PacketDistributor.sendToServer(new CAllSidesNonePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId()));
+            ClientPacketDistributor.sendToServer(new CAllSidesNonePacket(Minecraft.getInstance().player.containerMenu.containerId, getComponentId()));
     }
 
     private String getComponentId() {

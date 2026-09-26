@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.impl.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,9 +19,9 @@ import java.util.Map;
 public class TextureSizeHelper {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Map<ResourceLocation, Pair<Integer, Integer>> SIZES = new HashMap<>();
+    private static final Map<Identifier, Pair<Integer, Integer>> SIZES = new HashMap<>();
 
-    public static int getTextureWidth(@Nullable ResourceLocation texture) {
+    public static int getTextureWidth(@Nullable Identifier texture) {
         if(texture == null)
             return 0;
         else if(SIZES.containsKey(texture))
@@ -41,7 +41,7 @@ public class TextureSizeHelper {
         }
     }
 
-    public static int getTextureHeight(@Nullable ResourceLocation texture) {
+    public static int getTextureHeight(@Nullable Identifier texture) {
         if(texture == null)
             return 0;
         else if(SIZES.containsKey(texture))

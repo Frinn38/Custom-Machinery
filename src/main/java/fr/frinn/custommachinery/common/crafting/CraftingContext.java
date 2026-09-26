@@ -4,8 +4,8 @@ import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
-import fr.frinn.custommachinery.common.init.Registration;
-import net.minecraft.resources.ResourceLocation;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.function.Supplier;
@@ -41,8 +41,8 @@ public class CraftingContext implements ICraftingContext {
     }
 
     @Override
-    public ResourceLocation getRecipeId() {
-        return this.recipe.id();
+    public Identifier getRecipeId() {
+        return this.recipe.id().identifier();
     }
 
     @Override
@@ -63,7 +63,7 @@ public class CraftingContext implements ICraftingContext {
     @Override
     public double getModifiedSpeed() {
         int baseTime = getRecipe().getRecipeTime();
-        double modifiedTime = getModifiedValue(baseTime, Registration.SPEED_REQUIREMENT.get(), null, RequirementIOMode.INPUT);
+        double modifiedTime = getModifiedValue(baseTime, CMRegistration.SPEED_REQUIREMENT.get(), null, RequirementIOMode.INPUT);
         double speed = baseTime * this.baseSpeed / modifiedTime;
         return Math.max(0.01, speed);
     }

@@ -11,9 +11,10 @@ import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
+import fr.frinn.custommachinery.client.ClientEvents;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
 import fr.frinn.custommachinery.common.init.CustomMachineItem;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
@@ -29,10 +30,10 @@ import mezz.jei.api.gui.widgets.IRecipeWidget;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
@@ -48,7 +49,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
     protected static final int ICON_SIZE = 10;
 
     protected CustomMachine machine;
-    protected final RecipeType<H> recipeType;
+    protected final IRecipeType<H> recipeType;
     protected final IGuiHelper guiHelper;
     protected final RecipeHelper recipeHelper;
     protected final LoadingCache<RecipeRequirement<?, ?>, RequirementDisplayInfo> infoCache;
@@ -61,7 +62,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
     protected int rowY;
     protected int maxIconPerRow;
 
-    public AbstractRecipeCategory(CustomMachine machine, RecipeType<H> type, IJeiHelpers helpers) {
+    public AbstractRecipeCategory(CustomMachine machine, IRecipeType<H> type, IJeiHelpers helpers) {
         this.machine = machine;
         this.recipeType = type;
         this.guiHelper = helpers.getGuiHelper();
@@ -118,7 +119,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
         this.offsetY = Math.max(minY, 0);
         this.width = Math.max(maxX - minX, 20);
         this.maxIconPerRow = this.width / (ICON_SIZE + 2);
-        long maxDisplayRequirement = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(Registration.CUSTOM_MACHINE_RECIPE.get())
+        long maxDisplayRequirement = ClientEvents.getClientRecipes().byType(CMRegistration.CUSTOM_MACHINE_RECIPE.get())
                 .stream()
                 .map(RecipeHolder::value)
                 .filter(recipe -> recipe.getMachineId().equals(this.machine.getId()) && recipe.showInJei())
@@ -136,7 +137,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
     }
 
     @Override
-    public RecipeType<H> getRecipeType() {
+    public IRecipeType<H> getRecipeType() {
         return this.recipeType;
     }
 
@@ -186,7 +187,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
     }
 
     @Override
-    public void draw(H holder, IRecipeSlotsView slotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+    public void draw(H holder, IRecipeSlotsView slotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         //Draw background
         this.guiHelper.createBlankDrawable(this.width, this.height).draw(graphics);
 
@@ -201,10 +202,10 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
                 .forEach(element -> {
                     IJEIElementRenderer<IGuiElement> renderer = GuiElementJEIRendererRegistry.getJEIRenderer(element.getType());
-                    graphics.pose().pushPose();
-                    graphics.pose().translate(-this.offsetX, -this.offsetY, 0);
+                    graphics.pose().pushMatrix();
+                    graphics.pose().translation(-this.offsetX, -this.offsetY);
                     renderer.renderElementInJEI(graphics, element, recipe, (int)mouseX, (int)mouseY);
-                    graphics.pose().popPose();
+                    graphics.pose().popMatrix();
                 });
 
         //Render the line between the gui elements and the requirements icons
@@ -275,7 +276,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
         }
 
         @Override
-        public void drawWidget(GuiGraphics graphics, double mouseX, double mouseY) {
+        public void drawWidget(GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
             this.info.renderIcon(graphics, ICON_SIZE);
         }
 
@@ -300,7 +301,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
                 return false;
             if (input.isSimulate())
                 return true;
-            return input.getKey().getValue() == 0 && this.info.handleClick(AbstractRecipeCategory.this.machine, this.recipe, input.getKey().getValue());
+            return input.getKey().getValue() == 0 && this.info.handleClick(AbstractRecipeCategory.this.machine, this.recipe, input.getInputWithModifiers());
         }
     }
 }

@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -66,7 +66,7 @@ public abstract class AbstractGuiElement implements IGuiElement {
         return makePropertiesCodec((TextureInfo) null);
     }
 
-    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture) {
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable Identifier defaultTexture) {
         return makePropertiesCodec(defaultTexture, null, Collections.emptyList());
     }
 
@@ -74,7 +74,7 @@ public abstract class AbstractGuiElement implements IGuiElement {
         return makePropertiesCodec(defaultTexture, null, Collections.emptyList());
     }
 
-    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture, @Nullable ResourceLocation defaultTextureHovered) {
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable Identifier defaultTexture, @Nullable Identifier defaultTextureHovered) {
         return makePropertiesCodec(defaultTexture, defaultTextureHovered, Collections.emptyList());
     }
 
@@ -82,7 +82,7 @@ public abstract class AbstractGuiElement implements IGuiElement {
         return makePropertiesCodec(defaultTexture, defaultTextureHovered, Collections.emptyList());
     }
 
-    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable ResourceLocation defaultTexture, @Nullable ResourceLocation defaultTextureHovered, List<Component> defaultTooltips) {
+    public static NamedMapCodec<Properties> makePropertiesCodec(@Nullable Identifier defaultTexture, @Nullable Identifier defaultTextureHovered, List<Component> defaultTooltips) {
         return makePropertiesCodec(defaultTexture == null ? null : new TextureInfo(defaultTexture), defaultTextureHovered == null ? null : new TextureInfo(defaultTextureHovered), defaultTooltips);
     }
 

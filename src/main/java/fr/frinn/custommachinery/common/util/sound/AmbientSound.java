@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.util.sound;
 import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 
@@ -11,7 +11,7 @@ import java.util.function.Function;
 
 public record AmbientSound(SoundEvent sound, float volume, float pitch, SoundSource source, boolean loop, boolean attenuation, int delay, boolean relative) {
 
-    public static final AmbientSound DEFAULT = makeDefault(SoundEvent.createVariableRangeEvent(ResourceLocation.parse("")));
+    public static final AmbientSound DEFAULT = makeDefault(SoundEvent.createVariableRangeEvent(Identifier.parse("")));
 
     public static final NamedCodec<AmbientSound> FULL_CODEC = NamedCodec.record(ambientSoundInstance ->
             ambientSoundInstance.group(

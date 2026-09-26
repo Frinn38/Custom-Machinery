@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen.popup;
 
 import fr.frinn.custommachinery.client.screen.BaseScreen;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -30,14 +30,14 @@ public class InfoPopup extends PopupScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         List<FormattedCharSequence> list = this.text.stream().flatMap(component -> font.split(component, this.xSize - 20).stream()).toList();
         for(int i = 0; i < list.size(); i++) {
             FormattedCharSequence text = list.get(i);
             int width = font.width(text);
             int x = (this.xSize - width) / 2 + this.x;
-            graphics.drawString(font, text, x, this.y + i * font.lineHeight + 5, 0, false);
+            graphics.text(font, text, x, this.y + i * font.lineHeight + 5, 0, false);
         }
     }
 }

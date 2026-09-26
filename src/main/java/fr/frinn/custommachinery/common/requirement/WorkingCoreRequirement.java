@@ -8,30 +8,30 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.WorkingCoreMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public record WorkingCoreRequirement(int core, @Nullable ResourceLocation recipe) implements IRequirement<WorkingCoreMachineComponent> {
+public record WorkingCoreRequirement(int core, @Nullable Identifier recipe) implements IRequirement<WorkingCoreMachineComponent> {
 
     public static final NamedCodec<WorkingCoreRequirement> CODEC = NamedCodec.record(workingCoreRequirementInstance ->
             workingCoreRequirementInstance.group(
                     NamedCodec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("core", 0).forGetter(WorkingCoreRequirement::core),
-                    DefaultCodecs.RESOURCE_LOCATION.optionalFieldOf("recipe").forGetter(requirement -> Optional.ofNullable(requirement.recipe))
+                    DefaultCodecs.IDENTIFIER.optionalFieldOf("recipe").forGetter(requirement -> Optional.ofNullable(requirement.recipe))
             ).apply(workingCoreRequirementInstance, (core, recipe) -> new WorkingCoreRequirement(core, recipe.orElse(null))), "Working core requirement"
     );
 
     @Override
     public RequirementType<WorkingCoreRequirement> getType() {
-        return Registration.WORKING_CORE_REQUIREMENT.get();
+        return CMRegistration.WORKING_CORE_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<WorkingCoreMachineComponent> getComponentType() {
-        return Registration.WORKING_CORE_MACHINE_COMPONENT.get();
+        return CMRegistration.WORKING_CORE_MACHINE_COMPONENT.get();
     }
 
     @Override

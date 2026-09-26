@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.client.screen.widget.ListWidget.Entry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
@@ -16,8 +16,10 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent.ArrowNavigation;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -137,7 +139,7 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         this.renderSelection = true;
     }
 
-    protected void renderList(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderList(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         for (int index = 0; index < this.entries.size(); index++) {
             int entryTop = this.getY() + 4 - (int)this.getScrollAmount() + index * this.itemHeight;
             int entryBottom = entryTop + this.itemHeight;
@@ -147,19 +149,19 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         }
     }
 
-    protected void renderItem(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, int index, int left, int top, int width, int height) {
+    protected void renderItem(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, int index, int left, int top, int width, int height) {
         E entry = this.entries.get(index);
         entry.renderBackground(graphics, index, left, top, width, height, mouseX, mouseY, partialTick);
         if(this.renderSelection && this.selected == entry)
-            this.renderSelection(graphics, top, width - 8, height, FastColor.ARGB32.color(255, 0, 0, 0), FastColor.ARGB32.color(255, 198, 198, 198));
+            this.renderSelection(graphics, top, width - 8, height, ARGB.color(255, 0, 0, 0), ARGB.color(255, 198, 198, 198));
         entry.render(graphics, index, left, top, width, height, mouseX, mouseY, partialTick);
         for(Object children : entry.children())
             if(children instanceof Renderable renderable)
-                renderable.render(graphics, mouseX, mouseY, partialTick);
+                renderable.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int barLeft = this.getScrollbarPosition();
         int barRight = barLeft + 6;
 
@@ -179,11 +181,9 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
             graphics.fill(barLeft, o, barRight, o + n, -8355712);
             graphics.fill(barLeft, o, barRight - 1, o + n - 1, -4144960);
         }
-
-        RenderSystem.disableBlend();
     }
 
-    protected void renderSelection(GuiGraphics guiGraphics, int top, int width, int height, int outerColor, int innerColor) {
+    protected void renderSelection(GuiGraphicsExtractor guiGraphics, int top, int width, int height, int outerColor, int innerColor) {
         guiGraphics.fill(this.getX(), top - 2, this.getX() + width, top + height + 2, outerColor);
         guiGraphics.fill(this.getX() + 1, top - 1, this.getX() + width - 1, top + height + 1, innerColor);
     }
@@ -196,21 +196,21 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        this.updateScrollingState(mouseX, mouseY, button);
-        if(!this.isMouseOver(mouseX, mouseY))
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        this.updateScrollingState(event.x(), event.y(), event.button());
+        if(!this.isMouseOver(event.x(), event.y()))
             return false;
 
         //Needed in case the focused element is bigger than the entry it's in like SuggestedEditBox
-        if(this.getFocused() != null && this.getFocused().mouseClicked(mouseX, mouseY, button))
+        if(this.getFocused() != null && this.getFocused().mouseClicked(event, doubleClick))
             return true;
 
-        E entry = this.getEntryAtPosition(mouseX, mouseY);
+        E entry = this.getEntryAtPosition(event.x(), event.y());
         if(entry != null) {
             GuiEventListener focused = this.getFocused();
             if(focused != entry && focused instanceof ContainerEventHandler container)
                 container.setFocused(null);
-            entry.mouseClicked(mouseX, mouseY, button);
+            entry.mouseClicked(event, doubleClick);
             this.setFocused(entry);
             this.setDragging(true);
             return true;
@@ -219,25 +219,25 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         if(this.getFocused() != null)
-            this.getFocused().mouseReleased(mouseX, mouseY, button);
+            this.getFocused().mouseReleased(event);
         return false;
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        super.mouseDragged(event, dragX, dragY);
 
         if (this.getFocused() != null)
-            this.getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            this.getFocused().mouseDragged(event, dragX, dragY);
 
-        if(button != 0 || !this.scrolling)
+        if(event.button() != 0 || !this.scrolling)
             return false;
 
-        if(mouseY < this.getY()) {
+        if(event.y() < this.getY()) {
             this.setScrollAmount(0.0);
-        } else if(mouseY > this.getY() + this.height) {
+        } else if(event.y() > this.getY() + this.height) {
             this.setScrollAmount(this.getMaxScroll());
         } else {
             double d = Math.max(1, this.getMaxScroll());
@@ -335,11 +335,11 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         private GuiEventListener focused;
         private boolean dragging;
 
-        protected void renderBackground(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+        protected void renderBackground(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
 
         }
 
-        protected abstract void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
+        protected abstract void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks);
 
         @Override
         public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
@@ -388,7 +388,7 @@ public class ListWidget<E extends Entry> extends AbstractWidget implements Conta
         @Override
         @Nullable
         public ComponentPath nextFocusPath(FocusNavigationEvent event) {
-            if (event instanceof ArrowNavigation(ScreenDirection direction)) {
+            if (event instanceof ArrowNavigation(ScreenDirection direction, @Nullable ScreenRectangle previousFocus)) {
                 int i = direction == ScreenDirection.RIGHT ? 1 : 0;
                 if (i == 0)
                     return null;

@@ -5,20 +5,23 @@ import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -51,28 +54,29 @@ public class ItemSelectionButton extends Button {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.pose().pushPose();
-        graphics.pose().translate(this.getX(), this.getY(), 0);
-        graphics.blit(SlotGuiElement.BASE_TEXTURE.texture(), 0, 0, this.width, this.height, 0, 0, 18, 18, 18, 18);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.pose().pushMatrix();
+        graphics.pose().translation(this.getX(), this.getY());
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SlotGuiElement.BASE_TEXTURE.texture(), 0, 0, this.width, this.height, 0, 0, 18, 18, 18, 18);
 
-        graphics.pose().pushPose();
-        graphics.pose().scale(this.width / 18.0f, this.height / 18.0f, 1.0f);
-        graphics.renderItem(this.item.getDefaultInstance(), 1, 1);
-        graphics.pose().popPose();
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(this.width / 18.0f, this.height / 18.0f);
+        graphics.item(this.item.getDefaultInstance(), 1, 1);
+        graphics.pose().popMatrix();
 
-        graphics.pose().translate(0, 0, 100);
+        graphics.nextStratum();
+
         if(this.isMouseOver(mouseX, mouseY))
             ClientHandler.renderSlotHighlight(graphics, 1, 1, this.width - 2, this.height - 2);
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
 
         //Tooltip
         if(this.isMouseOver(mouseX, mouseY))
-            graphics.renderTooltip(Minecraft.getInstance().font, this.item.getDefaultInstance(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(Minecraft.getInstance().font, this.item.getDefaultInstance(), mouseX, mouseY);
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers inputWithModifiers) {
         this.parent.openPopup(new ItemSelectionPopup(this.parent, this::setItem), "choose item");
     }
 
@@ -135,14 +139,15 @@ public class ItemSelectionButton extends Button {
 
         private void refreshBoxSuggestions() {
             this.box.clearSuggestions();
-            this.box.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(ResourceLocation::toString).toList());
+            this.box.addSuggestions(BuiltInRegistries.ITEM.keySet().stream().map(Identifier::toString).toList());
             this.refreshList();
         }
 
         public void refreshList() {
             List<String> suggestions = this.box.getPossibleSuggestions();
             String input = this.box.getValue();
-            List<Item> list = suggestions.stream().sorted(Comparator.comparingInt(s -> {
+            List<Item> list = new ArrayList<>();
+            suggestions.stream().sorted(Comparator.comparingInt(s -> {
                 if(s.equals(input))
                     return -1000;
                 else if(s.startsWith(input))
@@ -154,7 +159,11 @@ public class ItemSelectionButton extends Button {
                     if(s.contains("" + c))
                         matchingChars++;
                 return -matchingChars;
-            })).limit(100).map(s -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(s))).toList();
+            })).limit(100).forEach(s -> {
+                Identifier id = Identifier.tryParse(s);
+                if(id != null)
+                    BuiltInRegistries.ITEM.get(id).ifPresent(item -> list.add(item.value()));
+            });
             this.list.setList(list);
         }
     }
@@ -179,8 +188,8 @@ public class ItemSelectionButton extends Button {
             }
 
             @Override
-            public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-                graphics.renderItem(this.item.getDefaultInstance(), 2, 2);
+            public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+                graphics.item(this.item.getDefaultInstance(), 2, 2);
             }
 
             @Override

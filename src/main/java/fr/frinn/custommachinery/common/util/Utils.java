@@ -5,13 +5,12 @@ import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.ChatFormatting;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -31,7 +30,6 @@ import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,7 +40,7 @@ public class Utils {
     private static final NumberFormat NUMBER_FORMAT = new DecimalFormat("#,###");
 
     public static boolean canPlayerManageMachines(Player player) {
-        return player.hasPermissions(Objects.requireNonNull(player.getServer()).getOperatorUserPermissionLevel());
+        return player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
     }
 
     public static Vec3 vec3dFromBlockPos(BlockPos pos) {
@@ -62,20 +60,11 @@ public class Utils {
         };
     }
 
-    public static boolean isResourceNameValid(String resourceLocation) {
-        try {
-            ResourceLocation location = ResourceLocation.parse(resourceLocation);
-            return true;
-        } catch (ResourceLocationException e) {
-            return false;
-        }
-    }
-
     public static float getMachineBreakSpeed(MachineAppearance appearance, BlockGetter level, BlockPos pos, Player player) {
         float hardness = appearance.getHardness();
         if(hardness <= 0)
             return 0.0F;
-        float digSpeed = player.getDigSpeed(MachineBlockState.CACHE.getUnchecked(appearance), pos);
+        float digSpeed = player.getDestroySpeed(MachineBlockState.CACHE.getUnchecked(appearance), pos);
         float canHarvest = EventHooks.doPlayerHarvestCheck(player, MachineBlockState.CACHE.getUnchecked(appearance), level, pos) ? 30 : 100;
         return digSpeed / hardness / canHarvest;
     }
@@ -112,8 +101,8 @@ public class Utils {
             BlockIngredient blockIngredient = iterator.next();
             PartialBlockState partialBlockState = blockIngredient.state();
             if(partialBlockState != null) {
-                if (partialBlockState.getBlockState().getBlock() instanceof CustomMachineBlock && partialBlockState.getNbt() != null && partialBlockState.getNbt().contains("machineID", Tag.TAG_STRING)) {
-                    ResourceLocation machineID = ResourceLocation.tryParse(partialBlockState.getNbt().getString("machineID"));
+                if (partialBlockState.getBlockState().getBlock() instanceof CustomMachineBlock && partialBlockState.getNbt() != null && partialBlockState.getNbt().contains("machineID")) {
+                    Identifier machineID = Identifier.tryParse(partialBlockState.getNbt().getStringOr("machineID", ""));
                     if (machineID != null) {
                         CustomMachine machine = CustomMachinery.MACHINES.get(machineID);
                         if (machine != null)
@@ -139,20 +128,20 @@ public class Utils {
     }
 
     public static Component itemIngredientName(SizedIngredient ingredient) {
-        if(ingredient.getItems().length == 0)
-            return Items.AIR.getDescription();
+        if(ingredient.ingredient().getValues().size() == 0)
+            return Component.translatable(Items.AIR.getDescriptionId());
         else
-            return ingredient.getItems()[0].getHoverName();
+            return ingredient.ingredient().getValues().get(0).value().getDefaultInstance().getDisplayName();
     }
 
     public static Component fluidIngredientName(SizedFluidIngredient ingredient) {
-        if(ingredient.getFluids().length == 0)
+        if(ingredient.ingredient().fluids().isEmpty())
             return Fluids.EMPTY.getFluidType().getDescription();
         else
-            return ingredient.getFluids()[0].getHoverName();
+            return ingredient.ingredient().fluids().getFirst().value().getFluidType().getDescription();
     }
 
-    public static String incrementLastNumber(String input) {
+    public static String incrementLastNumber(@Nullable String input) {
         if(input == null || input.isEmpty())
             return "";
 

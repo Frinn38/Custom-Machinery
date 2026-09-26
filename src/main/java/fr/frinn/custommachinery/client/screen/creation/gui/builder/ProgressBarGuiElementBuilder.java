@@ -11,7 +11,7 @@ import fr.frinn.custommachinery.client.screen.widget.DoubleSlider;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement.Properties;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
@@ -27,7 +27,7 @@ public class ProgressBarGuiElementBuilder implements IGuiElementBuilder<Progress
 
     @Override
     public GuiElementType<ProgressBarGuiElement> type() {
-        return Registration.PROGRESS_GUI_ELEMENT.get();
+        return CMRegistration.PROGRESS_GUI_ELEMENT.get();
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ProgressBarGuiElementBuilder implements IGuiElementBuilder<Progress
             this.addPriority(row);
             this.baseOrientation = this.baseElement == null ? Orientation.RIGHT : this.baseElement.getDirection();
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.orientation"), this.font));
-            this.orientation = row.addChild(CycleButton.<Orientation>builder(orientation -> Component.literal(orientation.toString())).withValues(Orientation.values()).withInitialValue(this.baseOrientation).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.progress.orientation"), this::changeOrientation));
+            this.orientation = row.addChild(CycleButton.builder(orientation -> Component.literal(orientation.toString()), this.baseOrientation).withValues(Orientation.values()).displayOnlyValue().create(0, 0, 100, 20, Component.translatable("custommachinery.gui.creation.gui.progress.orientation"), this::changeOrientation));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.start"), this.font));
             row.addChild(DoubleSlider.builder().bounds(-1, 1).defaultValue(this.start).displayOnlyValue().setResponder(value -> this.start = value.floatValue()).create(0, 0, 100, 20, Component.empty()));
             row.addChild(new StringWidget(Component.translatable("custommachinery.gui.creation.gui.progress.end"), this.font));

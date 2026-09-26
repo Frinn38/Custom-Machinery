@@ -8,7 +8,7 @@ import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -16,9 +16,10 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -48,7 +49,13 @@ public class TemplateSelectionButton extends AbstractButton {
     }
 
     @Override
-    public void onPress() {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        this.extractDefaultSprite(graphics);
+        this.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
+    }
+
+    @Override
+    public void onPress(InputWithModifiers inputWithModifiers) {
         this.parent.openPopup(new TemplateSelectionPopup(this.parent), "Template selection");
     }
 
@@ -101,11 +108,11 @@ public class TemplateSelectionButton extends AbstractButton {
         }
 
         @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
             TemplateEntry entry = this.getEntryAtPosition(mouseX, mouseY);
             if(entry != null && entry.template != null)
-                graphics.renderTooltip(Minecraft.getInstance().font, Collections.singletonList(CustomMachinery.TEMPLATES.get(entry.template.getId()).getSecond()), Optional.of(new MachineTooltipComponent(entry.template)), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(Minecraft.getInstance().font, Collections.singletonList(CustomMachinery.TEMPLATES.get(entry.template.getId()).getSecond()), Optional.of(new MachineTooltipComponent(entry.template)), mouseX, mouseY);
         }
 
         public class TemplateEntry extends ListWidget.Entry {
@@ -113,16 +120,16 @@ public class TemplateSelectionButton extends AbstractButton {
             @Nullable
             private final CustomMachine template;
 
-            public TemplateEntry(ResourceLocation id) {
+            public TemplateEntry(Identifier id) {
                 this.template = CustomMachinery.TEMPLATES.get(id) == null ? null : CustomMachinery.TEMPLATES.get(id).getFirst();
             }
 
             @Override
-            protected void render(GuiGraphics graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+            protected void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
                 if(TemplateSelectionList.this.getSelected() == this)
-                    ClientHandler.drawDottedRect(graphics, x, y, width - 1, height, FastColor.ARGB32.color(255, 255, 0, 0), 5, 5, 1);
+                    ClientHandler.drawDottedRect(graphics, x, y, width - 1, height, ARGB.color(255, 255, 0, 0), 5, 5, 1);
                 Component name = this.template == null ? Component.translatable("custommachinery.gui.creation.template.empty") : this.template.getName();
-                graphics.drawScrollingString(Minecraft.getInstance().font, name, x + 5, x + width - 5, y + 5, FastColor.ARGB32.color(255, 255, 255, 255));
+                graphics.drawScrollingString(graphics.textRenderer(), Minecraft.getInstance().font, name, x + 5, x + width - 5, y + 5);
             }
 
             @Override

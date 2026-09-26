@@ -6,20 +6,18 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 public class FakeItemRenderer {
 
-    public static void render(GuiGraphics graphics, ItemStack stack, int x, int y, int color) {
+    /*
+    public static void render(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y, int color) {
         if(stack.isEmpty())
             return;
 
@@ -76,7 +74,7 @@ public class FakeItemRenderer {
 
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            this.wrapped.setColor(red * FastColor.ARGB32.red(this.color) / 255, green * FastColor.ARGB32.green(this.color) / 255, blue * FastColor.ARGB32.blue(this.color) / 255, alpha * FastColor.ARGB32.alpha(this.color) / 255);
+            this.wrapped.setColor(red * ARGB.red(this.color) / 255, green * ARGB.green(this.color) / 255, blue * ARGB.blue(this.color) / 255, alpha * ARGB.alpha(this.color) / 255);
             return this;
         }
 
@@ -104,4 +102,6 @@ public class FakeItemRenderer {
             return this;
         }
     }
+
+     */
 }

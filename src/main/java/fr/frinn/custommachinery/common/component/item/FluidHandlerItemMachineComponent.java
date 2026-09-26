@@ -6,17 +6,21 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,26 +38,26 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
 
     @Override
     public MachineComponentType<ItemMachineComponent> getType() {
-        return Registration.ITEM_FLUID_MACHINE_COMPONENT.get();
+        return CMRegistration.ITEM_FLUID_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        return super.isItemValid(slot, stack) && stack.getCapability(FluidHandler.ITEM) != null;
+    public boolean isValid(int index, ItemResource resource) {
+        return super.isValid(index, resource) && resource.toStack().getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(resource.toStack())) != null;
     }
 
     @Override
     public void serverTick() {
         ItemStack stack = this.getItemStack();
-        if(stack.getCapability(FluidHandler.ITEM) == null)
+        if(stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forHandlerIndexStrict(this, 0)) == null)
             return;
 
         List<FluidMachineComponent> tanks = new ArrayList<>();
         if(this.tanks.isEmpty())
-            tanks.addAll(this.getManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).map(handler -> handler.getComponents().stream().filter(component -> component.getMode().isInput() || component.getMode().isOutput() == this.getMode().isOutput()).toList()).orElse(Collections.emptyList()));
+            tanks.addAll(this.getManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).map(handler -> handler.getComponents().stream().filter(component -> component.getMode().isInput() || component.getMode().isOutput() == this.getMode().isOutput()).toList()).orElse(Collections.emptyList()));
         else {
             for(String tank : this.tanks) {
-                this.getManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).ifPresent(tanks::add);
+                this.getManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).ifPresent(tanks::add);
             }
         }
         if(this.getMode().isInput()) {
@@ -68,31 +72,27 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
         if(stack.isEmpty())
             return;
 
-        IFluidHandlerItem handlerItem =  stack.getCapability(FluidHandler.ITEM);
-        if(handlerItem == null)
+        ResourceHandler<FluidResource> fluidHandler =  stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forHandlerIndexStrict(slot, 0));
+        if(fluidHandler == null)
             return;
 
-        for(FluidMachineComponent component : tanks) {
-            FluidStack maxExtract;
-            if(component.getFluid().isEmpty())
-                maxExtract = handlerItem.drain(Integer.MAX_VALUE, FluidAction.SIMULATE);
-            else
-                maxExtract = handlerItem.drain(new FluidStack(component.getFluid().getFluid(), Integer.MAX_VALUE), FluidAction.SIMULATE);
+        FluidStack fluidStack = FluidUtil.getFirstStackContained(stack);
+        if(fluidStack.isEmpty())
+            return;
 
-            if(maxExtract.isEmpty())
-                continue;
+        FluidResource resource = FluidResource.of(fluidStack);
 
-            int maxInsert = component.fillBypassLimit(maxExtract, FluidAction.SIMULATE);
+        try(Transaction transaction = Transaction.openRoot()) {
+            for(FluidMachineComponent component : tanks) {
+                int extracted = fluidHandler.extract(resource, Integer.MAX_VALUE, transaction);
 
-            if(maxInsert <= 0)
-                continue;
+                if(extracted == 0)
+                    continue;
 
-            FluidStack extracted = handlerItem.drain(new FluidStack(maxExtract.getFluid(), maxInsert), FluidAction.EXECUTE);
-
-            if(extracted.getAmount() > 0)
-                component.fillBypassLimit(extracted, FluidAction.EXECUTE);
+                component.insertBypassLimit(resource, extracted, transaction);
+            }
+            transaction.commit();
         }
-        slot.setItemStack(handlerItem.getContainer());
     }
 
     public static void fillStackFromTanks(ItemMachineComponent slot, List<FluidMachineComponent> tanks) {
@@ -100,31 +100,30 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
         if(stack.isEmpty())
             return;
 
-        IFluidHandlerItem handlerItem = stack.getCapability(FluidHandler.ITEM);
-        if(handlerItem == null)
+        ResourceHandler<FluidResource> fluidHandler = stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forHandlerIndexStrict(slot, 0));
+        if(fluidHandler == null)
             return;
 
-        for(FluidMachineComponent component : tanks) {
-            for(int i = 0; i < handlerItem.getTanks(); i++) {
-                if(handlerItem.getFluidInTank(i).isEmpty() || FluidStack.isSameFluidSameComponents(handlerItem.getFluidInTank(i), component.getFluid())) {
-                    FluidStack maxExtract = component.drainBypassLimit(Integer.MAX_VALUE, FluidAction.SIMULATE);
+        try(Transaction transaction = Transaction.openRoot()) {
+            for(FluidMachineComponent component : tanks) {
+                for(int i = 0; i < fluidHandler.size(); i++) {
+                    if(fluidHandler.getResource(i).isEmpty() || fluidHandler.getResource(i).matches(component.getFluid())) {
+                        FluidResource resource = component.getResource(0);
 
-                    if(maxExtract.isEmpty())
-                        continue;
+                        if(resource.isEmpty())
+                            continue;
 
-                    int maxInsert = handlerItem.fill(maxExtract, FluidAction.SIMULATE);
+                        int maxExtract = component.extractBypassLimit(resource, Integer.MAX_VALUE, transaction);
 
-                    if(maxInsert <= 0)
-                        continue;
+                        if(maxExtract == 0)
+                            continue;
 
-                    FluidStack extracted = component.drainBypassLimit(maxInsert, FluidAction.EXECUTE);
-
-                    if(extracted.getAmount() > 0)
-                        handlerItem.fill(extracted, FluidAction.EXECUTE);
+                        fluidHandler.insert(resource, maxExtract, transaction);
+                    }
                 }
             }
+            transaction.commit();
         }
-        slot.setItemStack(handlerItem.getContainer());
     }
 
     public static class Template extends ItemMachineComponent.Template {
@@ -152,12 +151,12 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
 
         @Override
         public boolean isItemValid(IMachineComponentManager manager, ItemStack stack) {
-            return stack.getCapability(FluidHandler.ITEM) != null;
+            return stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(stack)) != null;
         }
 
         @Override
         public MachineComponentType<ItemMachineComponent> getType() {
-            return Registration.ITEM_FLUID_MACHINE_COMPONENT.get();
+            return CMRegistration.ITEM_FLUID_MACHINE_COMPONENT.get();
         }
 
         @Override

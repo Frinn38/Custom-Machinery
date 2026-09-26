@@ -1,20 +1,18 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import org.joml.Matrix4f;
 
 public record MachineTooltipComponent(CustomMachine machine) implements TooltipComponent {
 
@@ -29,37 +27,37 @@ public record MachineTooltipComponent(CustomMachine machine) implements TooltipC
                 throw new IllegalStateException();
             Inventory playerInv = Minecraft.getInstance().player.getInventory();
             this.screen = new TemplateMachineScreen(new CustomMachineContainer(0, playerInv, new TemplateMachineTile()), playerInv, Component.empty());
-            this.screen.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
+            this.screen.init(Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
         }
 
         @Override
-        public int getHeight() {
-            return this.screen.getYSize() / 2;
+        public int getHeight(Font font) {
+            return this.screen.getImageHeight() / 2;
         }
 
         @Override
         public int getWidth(Font font) {
-            return this.screen.getXSize() / 2;
+            return this.screen.getImageWidth() / 2;
         }
 
         @Override
-        public void renderText(Font font, int mouseX, int mouseY, Matrix4f matrix, BufferSource bufferSource) {
-            font.drawInBatch(Component.empty(), (float)mouseX, (float)mouseY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
+        public void extractText(GuiGraphicsExtractor graphics, Font font, int mouseX, int mouseY) {
+
         }
 
         @Override
-        public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
-            graphics.pose().pushPose();
-            graphics.pose().scale(1/2f, 1/2f, 1f);
-            graphics.pose().translate(x * 2 - this.screen.getX(), y * 2 - this.screen.getY(), 0);
-            this.screen.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, 0);
-            graphics.pose().popPose();
+        public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor graphics) {
+            graphics.pose().pushMatrix();
+            graphics.pose().scale(1/2f, 1/2f);
+            graphics.pose().translation(x * 2 - this.screen.getX(), y * 2 - this.screen.getY());
+            this.screen.extractRenderState(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, 0);
+            graphics.pose().popMatrix();
         }
 
         private class TemplateMachineTile extends CustomMachineTile {
 
             public TemplateMachineTile() {
-                super(BlockPos.ZERO, Registration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
+                super(BlockPos.ZERO, CMRegistration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState());
             }
 
             @Override
@@ -75,7 +73,7 @@ public record MachineTooltipComponent(CustomMachine machine) implements TooltipC
             }
 
             @Override
-            public void renderTransparentBackground(GuiGraphics graphics) {
+            public void extractTransparentBackground(GuiGraphicsExtractor graphics) {
 
             }
         }

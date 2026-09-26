@@ -10,32 +10,32 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.PositionMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
-public record DimensionRequirement(List<ResourceLocation> filter, boolean blacklist) implements IRequirement<PositionMachineComponent> {
+public record DimensionRequirement(List<Identifier> filter, boolean blacklist) implements IRequirement<PositionMachineComponent> {
 
     public static final NamedCodec<DimensionRequirement> CODEC = NamedCodec.record(dimensionRequirementInstance ->
             dimensionRequirementInstance.group(
-                    DefaultCodecs.RESOURCE_LOCATION.listOf().fieldOf("filter").forGetter(requirement -> requirement.filter),
+                    DefaultCodecs.IDENTIFIER.listOf().fieldOf("filter").forGetter(requirement -> requirement.filter),
                     NamedCodec.BOOL.optionalFieldOf("blacklist", false).forGetter(requirement -> requirement.blacklist)
             ).apply(dimensionRequirementInstance, DimensionRequirement::new), "Dimension requirement"
     );
 
     @Override
     public RequirementType<DimensionRequirement> getType() {
-        return Registration.DIMENSION_REQUIREMENT.get();
+        return CMRegistration.DIMENSION_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<PositionMachineComponent> getComponentType() {
-        return Registration.POSITION_MACHINE_COMPONENT.get();
+        return CMRegistration.POSITION_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -45,7 +45,7 @@ public record DimensionRequirement(List<ResourceLocation> filter, boolean blackl
 
     @Override
     public boolean test(PositionMachineComponent component, ICraftingContext context) {
-        return this.filter.contains(component.getDimension().location()) != this.blacklist;
+        return this.filter.contains(component.getDimension().identifier()) != this.blacklist;
     }
 
     @Override
@@ -62,6 +62,6 @@ public record DimensionRequirement(List<ResourceLocation> filter, boolean blackl
                 info.addTooltip(Component.translatable("custommachinery.requirements.position.info.dimension.whitelist").withStyle(ChatFormatting.DARK_GREEN));
             this.filter.forEach(dimension -> info.addTooltip(Component.literal("* " + dimension)));
         }
-        info.setSpriteIcon(InventoryMenu.BLOCK_ATLAS, ResourceLocation.withDefaultNamespace("block/nether_portal"));
+        info.setSpriteIcon(AtlasIds.BLOCKS, Identifier.withDefaultNamespace("block/nether_portal"));
     }
 }

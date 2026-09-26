@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 
 /**
  * The base interface to declare an IRequirement.
@@ -28,7 +28,7 @@ public interface IRequirement<C extends IMachineComponent> {
     /**
      * A dispatch codec, used by the {@link IMachineRecipe} main codec to parse all requirements from JSON using the "type" property of the requirement.
      */
-    NamedMapCodec<IRequirement<?>> CODEC = RegistrarCodec.REQUIREMENT.dispatch(IRequirement::getType, RequirementType::getCodec, "Requirement");
+    NamedMapCodec<IRequirement<?>> CODEC = RegistryCodecs.REQUIREMENT.dispatch(IRequirement::getType, RequirementType::getCodec, "Requirement");
 
     /**
      * Used by the requirement dispatch codec to serialize an IRequirement.

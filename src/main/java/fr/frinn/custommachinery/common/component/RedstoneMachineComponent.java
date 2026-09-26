@@ -8,9 +8,9 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.impl.codec.RegistrarCodec;
+import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
@@ -44,12 +44,12 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public RedstoneMachineComponent(IMachineComponentManager manager) {
-        this(manager, 999, 0, 0, 0, 0, Registration.ENERGY_MACHINE_COMPONENT.get(), "", IOSideConfig.Template.DEFAULT_ALL_BOTH);
+        this(manager, 999, 0, 0, 0, 0, CMRegistration.ENERGY_MACHINE_COMPONENT.get(), "", IOSideConfig.Template.DEFAULT_ALL_BOTH);
     }
 
     @Override
     public MachineComponentType<RedstoneMachineComponent> getType() {
-        return Registration.REDSTONE_MACHINE_COMPONENT.get();
+        return CMRegistration.REDSTONE_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -131,7 +131,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
                         NamedCodec.INT.optionalFieldOf("idlePowerOutput", 0).forGetter(template -> template.idlePowerOutput),
                         NamedCodec.INT.optionalFieldOf("erroredPowerOutput", 0).forGetter(template -> template.erroredPowerOutput),
                         NamedCodec.INT.optionalFieldOf("pausedPowerOutput", 0).forGetter(template -> template.pausedPowerOutput),
-                        RegistrarCodec.MACHINE_COMPONENT.optionalFieldOf("comparatorInputType", Registration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
+                        RegistryCodecs.MACHINE_COMPONENT.optionalFieldOf("comparatorInputType", CMRegistration.ENERGY_MACHINE_COMPONENT.get()).forGetter(template -> template.comparatorInputType),
                         NamedCodec.STRING.optionalFieldOf("comparatorInputId", "").forGetter(template -> template.comparatorInputId),
                         IOSideConfig.Template.CODEC.optionalFieldOf("config", IOSideConfig.Template.DEFAULT_ALL_BOTH).forGetter(template -> template.config)
                 ).apply(templateInstance, Template::new), "Redstone machine component"
@@ -139,7 +139,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
 
         @Override
         public MachineComponentType<RedstoneMachineComponent> getType() {
-            return Registration.REDSTONE_MACHINE_COMPONENT.get();
+            return CMRegistration.REDSTONE_MACHINE_COMPONENT.get();
         }
 
         @Override

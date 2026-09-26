@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.integration.jei.wrapper.EnergyIngredientWrapper;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
 import net.minecraft.network.chat.Component;
 
@@ -32,12 +32,12 @@ public record EnergyPerTickRequirement(RequirementIOMode mode, int amount) imple
 
     @Override
     public RequirementType<EnergyPerTickRequirement> getType() {
-        return Registration.ENERGY_PER_TICK_REQUIREMENT.get();
+        return CMRegistration.ENERGY_PER_TICK_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<EnergyMachineComponent> getComponentType() {
-        return Registration.ENERGY_MACHINE_COMPONENT.get();
+        return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
     }
 
     @Override

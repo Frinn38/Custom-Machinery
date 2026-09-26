@@ -1,14 +1,14 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.MachineModelLocation;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.sound.AmbientSound;
 import fr.frinn.custommachinery.common.util.sound.CMSoundType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -27,13 +27,13 @@ public class MachineAppearanceBuilderJS {
 
     }
 
-    public MachineAppearanceBuilderJS block(ResourceLocation block) {
-        this.put(Registration.BLOCK_MODEL_PROPERTY.get(), MachineModelLocation.of(block.toString()));
+    public MachineAppearanceBuilderJS block(Identifier block) {
+        this.put(CMRegistration.BLOCK_MODEL_PROPERTY.get(), MachineModelLocation.of(block.toString()));
         return this;
     }
 
-    public MachineAppearanceBuilderJS item(ResourceLocation item) {
-        this.put(Registration.ITEM_MODEL_PROPERTY.get(), MachineModelLocation.of(item.toString()));
+    public MachineAppearanceBuilderJS item(Identifier item) {
+        this.put(CMRegistration.ITEM_MODEL_PROPERTY.get(), MachineModelLocation.of(item.toString()));
         return this;
     }
 
@@ -42,54 +42,54 @@ public class MachineAppearanceBuilderJS {
     }
 
     public MachineAppearanceBuilderJS ambientSound(SoundEvent sound, float volume, float pitch) {
-        this.put(Registration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSound(sound, volume, pitch, SoundSource.BLOCKS, true, true, 0, false));
+        this.put(CMRegistration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSound(sound, volume, pitch, SoundSource.BLOCKS, true, true, 0, false));
         return this;
     }
 
     public MachineAppearanceBuilderJS ambientSound(SoundEvent sound, float volume, float pitch, SoundSource source, boolean loop, boolean attenuation, int delay, boolean relative) {
-        this.put(Registration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSound(sound, volume, pitch, source, loop, attenuation, delay, relative));
+        this.put(CMRegistration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSound(sound, volume, pitch, source, loop, attenuation, delay, relative));
         return this;
     }
 
     public MachineAppearanceBuilderJS interactionSound(Block sound) {
-        this.put(Registration.INTERACTION_SOUND_PROPERTY.get(), new CMSoundType(new PartialBlockState(sound)));
+        this.put(CMRegistration.INTERACTION_SOUND_PROPERTY.get(), new CMSoundType(new PartialBlockState(sound)));
         return this;
     }
 
     public MachineAppearanceBuilderJS light(int light) {
-        this.put(Registration.LIGHT_PROPERTY.get(), Mth.clamp(light, 0, 15));
+        this.put(CMRegistration.LIGHT_PROPERTY.get(), Mth.clamp(light, 0, 15));
         return this;
     }
 
-    public MachineAppearanceBuilderJS color(int color) {
-        this.put(Registration.COLOR_PROPERTY.get(), color);
+    public MachineAppearanceBuilderJS color(String color) {
+        this.put(CMRegistration.COLOR_PROPERTY.get(), color);
         return this;
     }
 
     public MachineAppearanceBuilderJS hardness(float hardness) {
-        this.put(Registration.HARDNESS_PROPERTY.get(), hardness);
+        this.put(CMRegistration.HARDNESS_PROPERTY.get(), hardness);
         return this;
     }
 
     public MachineAppearanceBuilderJS resistance(float resistance) {
-        this.put(Registration.RESISTANCE_PROPERTY.get(), resistance);
+        this.put(CMRegistration.RESISTANCE_PROPERTY.get(), resistance);
         return this;
     }
 
-    public MachineAppearanceBuilderJS toolType(ResourceLocation[] tools) {
+    public MachineAppearanceBuilderJS toolType(Identifier[] tools) {
         List<TagKey<Block>> list = Arrays.stream(tools).map(key -> TagKey.create(Registries.BLOCK, key)).toList();
-        this.put(Registration.TOOL_TYPE_PROPERTY.get(), list);
+        this.put(CMRegistration.TOOL_TYPE_PROPERTY.get(), list);
         return this;
     }
 
-    public MachineAppearanceBuilderJS miningLevel(ResourceLocation key) {
+    public MachineAppearanceBuilderJS miningLevel(Identifier key) {
         TagKey<Block> level = TagKey.create(Registries.BLOCK, key);
-        this.put(Registration.MINING_LEVEL_PROPERTY.get(), level);
+        this.put(CMRegistration.MINING_LEVEL_PROPERTY.get(), level);
         return this;
     }
 
     public MachineAppearanceBuilderJS requiresTool(boolean requires) {
-        this.put(Registration.REQUIRES_TOOL.get(), requires);
+        this.put(CMRegistration.REQUIRES_TOOL.get(), requires);
         return this;
     }
 

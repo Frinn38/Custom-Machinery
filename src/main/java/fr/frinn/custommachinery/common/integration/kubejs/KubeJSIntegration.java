@@ -14,7 +14,7 @@ import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class KubeJSIntegration {
 
-    public static MachineLocation getMachineLocation(Resource resource, String packName, ResourceLocation id) {
+    public static MachineLocation getMachineLocation(Resource resource, String packName, Identifier id) {
         try(PackResources pack = resource.source()) {
             if(pack instanceof KubeFileResourcePack) {
                 if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
@@ -56,7 +56,7 @@ public class KubeJSIntegration {
         }
     }
 
-    public static UpgradeLocation getUpgradeLocation(Resource resource, String packName, ResourceLocation id) {
+    public static UpgradeLocation getUpgradeLocation(Resource resource, String packName, Identifier id) {
         try(PackResources pack = resource.source()) {
             if(pack instanceof KubeFileResourcePack) {
                 if(ServerLifecycleHooks.getCurrentServer() instanceof MinecraftServer server) {
@@ -97,11 +97,11 @@ public class KubeJSIntegration {
 
         Map<UpgradeLocation, MachineUpgrade> upgradeMap = new HashMap<>();
         upgrades.stream().collect(Collectors.groupingBy(MachineUpgrade::item)).forEach((item, upgradeList) -> {
-            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+            Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
             if(upgradeList.size() == 1)
-                upgradeMap.put(UpgradeLocation.fromKubeJSScript(ResourceLocation.fromNamespaceAndPath(KubeJS.MOD_ID, itemId.getNamespace() + "/" + itemId.getPath()), ""), upgradeList.getFirst());
+                upgradeMap.put(UpgradeLocation.fromKubeJSScript(Identifier.fromNamespaceAndPath(KubeJS.MOD_ID, itemId.getNamespace() + "/" + itemId.getPath()), ""), upgradeList.getFirst());
             else
-                upgradeList.forEach(u -> upgradeMap.put(UpgradeLocation.fromKubeJSScript(ResourceLocation.fromNamespaceAndPath(KubeJS.MOD_ID, itemId.getNamespace() + "/" + itemId.getPath() + "/" + upgradeList.indexOf(u)), ""), u));
+                upgradeList.forEach(u -> upgradeMap.put(UpgradeLocation.fromKubeJSScript(Identifier.fromNamespaceAndPath(KubeJS.MOD_ID, itemId.getNamespace() + "/" + itemId.getPath() + "/" + upgradeList.indexOf(u)), ""), u));
         });
         return upgradeMap;
     }

@@ -3,8 +3,8 @@ package fr.frinn.custommachinery.api.machine;
 import fr.frinn.custommachinery.api.ICustomMachineryAPI;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 /**
  * Used for registering custom {@link MachineAppearanceProperty}.
@@ -59,8 +59,8 @@ public class MachineAppearanceProperty<T> {
      * A helper method to get the ID of this {@link MachineAppearanceProperty}.
      * @return The ID of this {@link MachineAppearanceProperty}, or null if it is not registered.
      */
-    public ResourceLocation getId() {
-        ResourceLocation id = ICustomMachineryAPI.INSTANCE.appearancePropertyRegistrar().getKey(this);
+    public Identifier getId() {
+        Identifier id = ICustomMachineryAPI.INSTANCE.appearancePropertyRegistrar().getKey(this);
         if(id == null)
             throw new IllegalStateException("Trying to get id for an unregistered appearance property");
         return id;

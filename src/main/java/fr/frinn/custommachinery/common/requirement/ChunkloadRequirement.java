@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 
 public record ChunkloadRequirement(int radius) implements IRequirement<ChunkloadMachineComponent> {
 
@@ -21,12 +21,12 @@ public record ChunkloadRequirement(int radius) implements IRequirement<Chunkload
 
     @Override
     public RequirementType<ChunkloadRequirement> getType() {
-        return Registration.CHUNKLOAD_REQUIREMENT.get();
+        return CMRegistration.CHUNKLOAD_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<ChunkloadMachineComponent> getComponentType() {
-        return Registration.CHUNKLOAD_MACHINE_COMPONENT.get();
+        return CMRegistration.CHUNKLOAD_MACHINE_COMPONENT.get();
     }
 
     @Override

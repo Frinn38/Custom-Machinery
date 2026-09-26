@@ -18,6 +18,7 @@ public class ConfirmPopup extends PopupScreen {
 
     private final Runnable onConfirm;
     private final List<Component> text = new ArrayList<>();
+    @Nullable
     private Component title;
     @Nullable
     private Runnable onCancel;
@@ -62,7 +63,7 @@ public class ConfirmPopup extends PopupScreen {
         row.defaultCellSetting().paddingTop(5);
 
         if(this.title != null)
-            row.addChild(new StringWidget(this.xSize, 10, this.title, Minecraft.getInstance().font).alignCenter(), 2);
+            row.addChild(new StringWidget(this.xSize, 10, this.title, Minecraft.getInstance().font), 2);
 
         if(!this.text.isEmpty()) {
             MutableComponent text = Component.empty();

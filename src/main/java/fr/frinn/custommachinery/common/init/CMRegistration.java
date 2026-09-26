@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.init;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
@@ -46,9 +47,7 @@ import fr.frinn.custommachinery.common.component.item.UpgradeItemMachineComponen
 import fr.frinn.custommachinery.common.crafting.DummyProcessor;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
-import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipeSerializer;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
-import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipeSerializer;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.guielement.BarGuiElement;
@@ -143,9 +142,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -154,8 +155,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -172,9 +172,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
-public class Registration {
+public class CMRegistration {
 
-    public static final LootContextParamSet CUSTOM_MACHINE_LOOT_PARAMETER_SET = LootContextParamSets.register("custom_machine", builder ->
+    public static final ContextKeySet CUSTOM_MACHINE_LOOT_PARAMETER_SET = LootContextParamSets.register("custom_machine", builder ->
             builder.optional(LootContextParams.ORIGIN).optional(LootContextParams.BLOCK_ENTITY)
     );
 
@@ -185,13 +185,14 @@ public class Registration {
     public static final DeferredRegister<DataType<?, ?>>                                    DATAS                 = DeferredRegister.create(DataType.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister.Items                                              ITEMS                 = DeferredRegister.createItems(CustomMachinery.MODID);
     public static final DeferredRegister<GuiElementType<? extends IGuiElement>>             GUI_ELEMENTS          = DeferredRegister.create(GuiElementType.REGISTRY_KEY, CustomMachinery.MODID);
-    public static final DeferredRegister<LootItemFunctionType<?>>                           LOOT_ITEM_FUNCTIONS   = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, CustomMachinery.MODID);
+    public static final DeferredRegister<MapCodec<? extends LootItemFunction>>              LOOT_ITEM_FUNCTIONS   = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, CustomMachinery.MODID);
     public static final DeferredRegister<MachineComponentType<? extends IMachineComponent>> MACHINE_COMPONENTS    = DeferredRegister.create(MachineComponentType.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister<MenuType<?>>                                       MENUS                 = DeferredRegister.create(Registries.MENU, CustomMachinery.MODID);
     public static final DeferredRegister<ProcessorType<?>>                                  PROCESSORS            = DeferredRegister.create(ProcessorType.REGISTRY_KEY, CustomMachinery.MODID);
     public static final DeferredRegister<RecipeSerializer<?>>                               RECIPE_SERIALIZERS    = DeferredRegister.create(Registries.RECIPE_SERIALIZER, CustomMachinery.MODID);
     public static final DeferredRegister<RecipeType<?>>                                     RECIPE_TYPES          = DeferredRegister.create(Registries.RECIPE_TYPE, CustomMachinery.MODID);
     public static final DeferredRegister<RequirementType<? extends IRequirement<?>>>        REQUIREMENTS          = DeferredRegister.create(RequirementType.REGISTRY_KEY, CustomMachinery.MODID);
+    public static final DeferredRegister<TicketType>                                        TICKET_TYPES          = DeferredRegister.create(Registries.TICKET_TYPE, CustomMachinery.MODID);
     public static final DeferredRegister<BlockEntityType<?>>                                TILE_ENTITIES         = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, CustomMachinery.MODID);
 
     public static final Registry<GuiElementType<? extends IGuiElement>>             GUI_ELEMENT_TYPE_REGISTRY       = GUI_ELEMENTS.makeRegistry(builder -> {});
@@ -213,9 +214,9 @@ public class Registration {
             .networkSynchronized(BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()))
             .build()
     );
-    public static final Supplier<DataComponentType<ResourceLocation>> MACHINE_DATA = DATA_COMPONENTS.register("machine", () -> DataComponentType.<ResourceLocation>builder()
-            .persistent(ResourceLocation.CODEC)
-            .networkSynchronized(ResourceLocation.STREAM_CODEC)
+    public static final Supplier<DataComponentType<Identifier>> MACHINE_DATA = DATA_COMPONENTS.register("machine", () -> DataComponentType.<Identifier>builder()
+            .persistent(Identifier.CODEC)
+            .networkSynchronized(Identifier.STREAM_CODEC)
             .build()
     );
     public static final Supplier<DataComponentType<ConfigurationCardData>> CONFIGURATION_CARD_DATA = DATA_COMPONENTS.register("configuration_card", () -> DataComponentType.<ConfigurationCardData>builder()
@@ -235,12 +236,12 @@ public class Registration {
     public static final DeferredItem<StructureCreatorItem>  STRUCTURE_CREATOR_ITEM  = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<ConfigurationCardItem> CONFIGURATION_CARD_ITEM = ITEMS.register("configuration_card", () -> new ConfigurationCardItem(new Item.Properties().stacksTo(1)));
 
-    public static final Supplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(CustomMachineTile::new, validMachineBlocks(), null));
+    public static final Supplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(CustomMachineTile::new, validMachineBlocks()));
 
     public static final Supplier<MenuType<CustomMachineContainer>> CUSTOM_MACHINE_CONTAINER = MENUS.register("custom_machine_container", () -> IMenuTypeExtension.create(CustomMachineContainer::new));
 
-    public static final Supplier<CustomMachineRecipeSerializer> CUSTOM_MACHINE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_machine", CustomMachineRecipeSerializer::new);
-    public static final Supplier<CustomCraftRecipeSerializer> CUSTOM_CRAFT_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_craft", CustomCraftRecipeSerializer::new);
+    public static final Supplier<RecipeSerializer<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register("custom_machine", () -> new RecipeSerializer<>(CustomMachineRecipe.CODEC, CustomMachineRecipe.STREAM_CODEC));
+    public static final Supplier<RecipeSerializer<CustomCraftRecipe>>   CUSTOM_CRAFT_RECIPE_SERIALIZER   = RECIPE_SERIALIZERS.register("custom_craft", () -> new RecipeSerializer<>(CustomCraftRecipe.CODEC, CustomCraftRecipe.STREAM_CODEC));
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<CustomMachineRecipe>> CUSTOM_MACHINE_RECIPE = RECIPE_TYPES.register("custom_machine", () -> new RecipeType<>() {});
     public static final DeferredHolder<RecipeType<?>, RecipeType<CustomCraftRecipe>> CUSTOM_CRAFT_RECIPE = RECIPE_TYPES.register("custom_craft", () -> new RecipeType<>() {});
@@ -261,7 +262,9 @@ public class Registration {
         }).build()
     );
 
-    public static final Supplier<LootItemFunctionType<MachineLootItemFunction>> MACHINE_LOOT_ITEM_FUNCTION = LOOT_ITEM_FUNCTIONS.register("machine_loot_item_function", () -> new LootItemFunctionType<>(MachineLootItemFunction.CODEC));
+    public static final Supplier<MapCodec<MachineLootItemFunction>> MACHINE_LOOT_ITEM_FUNCTION = LOOT_ITEM_FUNCTIONS.register("machine_loot_item_function", () -> MachineLootItemFunction.CODEC);
+
+    public static final Supplier<TicketType> MACHINE_TICKET_TYPE = TICKET_TYPES.register("custom_machine_ticket", () -> new TicketType(0, 15, true));
 
     public static final Supplier<GuiElementType<BackgroundGuiElement>>      BACKGROUND_GUI_ELEMENT       = GUI_ELEMENTS.register("background", () -> GuiElementType.create(BackgroundGuiElement.CODEC));
     public static final Supplier<GuiElementType<BarGuiElement>>             BAR_GUI_ELEMENT              = GUI_ELEMENTS.register("bar", () -> GuiElementType.create(BarGuiElement.CODEC));
@@ -349,7 +352,7 @@ public class Registration {
 
     public static final Supplier<MachineAppearanceProperty<AmbientSound>>         AMBIENT_SOUND_PROPERTY     = APPEARANCE_PROPERTIES.register("ambient_sound", () -> MachineAppearanceProperty.create(AmbientSound.CODEC, AmbientSound.DEFAULT));
     public static final Supplier<MachineAppearanceProperty<MachineModelLocation>> BLOCK_MODEL_PROPERTY       = APPEARANCE_PROPERTIES.register("block", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.DEFAULT));
-    public static final Supplier<MachineAppearanceProperty<Integer>>              COLOR_PROPERTY             = APPEARANCE_PROPERTIES.register("color", () -> MachineAppearanceProperty.create(NamedCodec.INT, 0xFFFFFF));
+    public static final Supplier<MachineAppearanceProperty<String>>               COLOR_PROPERTY             = APPEARANCE_PROPERTIES.register("color", () -> MachineAppearanceProperty.create(NamedCodec.STRING, ""));
     public static final Supplier<MachineAppearanceProperty<Float>>                HARDNESS_PROPERTY          = APPEARANCE_PROPERTIES.register("hardness", () -> MachineAppearanceProperty.create(NamedCodec.floatRange(-1.0F, Float.MAX_VALUE), 3.5F));
     public static final Supplier<MachineAppearanceProperty<CMSoundType>>          INTERACTION_SOUND_PROPERTY = APPEARANCE_PROPERTIES.register("interaction_sound", () -> MachineAppearanceProperty.create(CMSoundType.CODEC, CMSoundType.DEFAULT));
     public static final Supplier<MachineAppearanceProperty<MachineModelLocation>> ITEM_MODEL_PROPERTY        = APPEARANCE_PROPERTIES.register("item", () -> MachineAppearanceProperty.create(MachineModelLocation.CODEC, MachineModelLocation.DEFAULT));

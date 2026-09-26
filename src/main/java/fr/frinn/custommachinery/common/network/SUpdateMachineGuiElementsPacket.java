@@ -25,7 +25,7 @@ public record SUpdateMachineGuiElementsPacket(BlockPos pos, List<IGuiElement> el
 
     public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(this.pos);
-        if(this.elements == null || this.elements.isEmpty())
+        if(this.elements.isEmpty())
             buf.writeBoolean(true);
         else {
             buf.writeBoolean(false);

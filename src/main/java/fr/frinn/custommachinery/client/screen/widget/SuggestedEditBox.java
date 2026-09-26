@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.client.screen.widget;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -10,15 +10,16 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
-import org.lwjgl.glfw.GLFW;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class SuggestedEditBox extends EditBox {
 
     private final List<String> possibleSuggestions = new ArrayList<>();
     private final int suggestionLineLimit;
+    @Nullable
     private SuggestionsList suggestionsList;
     private Suggestions suggestions;
     private boolean anchorToBottom = false;
@@ -67,7 +69,7 @@ public class SuggestedEditBox extends EditBox {
     }
 
     public void showSuggestions(boolean narrateFirstSuggestion) {
-        if (this.suggestions != null && !this.suggestions.isEmpty()) {
+        if(!this.suggestions.isEmpty()) {
             int i = 0;
             for (Suggestion suggestion : this.suggestions.getList()) {
                 i = Math.max(i, Minecraft.getInstance().font.width(suggestion.getText()));
@@ -148,31 +150,31 @@ public class SuggestedEditBox extends EditBox {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if(this.suggestionsList != null) {
-            graphics.pose().pushPose();
-            graphics.pose().translate(0, 0, 110);
+            graphics.pose().pushMatrix();
+            graphics.nextStratum();
             boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
             if(scissor)
                 GlStateManager._disableScissorTest();
             this.suggestionsList.render(graphics, mouseX, mouseY);
             if(scissor)
                 GlStateManager._enableScissorTest();
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
         }
-        super.renderWidget(graphics, mouseX, mouseY, partialTick);
+        super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.suggestionsList != null && this.suggestionsList.keyPressed(keyCode, scanCode, modifiers)) {
+    public boolean keyPressed(KeyEvent event) {
+        if (this.suggestionsList != null && this.suggestionsList.keyPressed(event)) {
             return true;
         }
-        if (Minecraft.getInstance().screen != null && Minecraft.getInstance().screen.getFocused() == this && keyCode == 258) {
+        if (Minecraft.getInstance().screen != null && Minecraft.getInstance().screen.getFocused() == this && event.isCycleFocus()) {
             this.showSuggestions(true);
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
@@ -183,10 +185,10 @@ public class SuggestedEditBox extends EditBox {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
-        if(this.suggestionsList != null && this.suggestionsList.mouseClicked((int)mouseX, (int)mouseY, mouseButton))
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if(this.suggestionsList != null && this.suggestionsList.mouseClicked(event))
             return true;
-        return super.mouseClicked(mouseX, mouseY, mouseButton);
+        return super.mouseClicked(event, doubleClick);
     }
 
     public class SuggestionsList {
@@ -214,8 +216,8 @@ public class SuggestedEditBox extends EditBox {
             this.select(0);
         }
 
-        public void render(GuiGraphics graphics, int mouseX, int mouseY) {
-            graphics.pose().pushPose();
+        public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+            graphics.pose().pushMatrix();
             Message message;
             boolean bl4;
             int i = Math.min(this.suggestionList.size(), this.suggestionLineLimit);
@@ -255,19 +257,19 @@ public class SuggestedEditBox extends EditBox {
                     }
                     bl52 = true;
                 }
-                graphics.drawString(this.font, suggestion.getText(), this.rect.getX() + 1, this.rect.getY() + 2 + 12 * l, l + this.offset == this.current ? -256 : -5592406);
+                graphics.text(this.font, suggestion.getText(), this.rect.getX() + 1, this.rect.getY() + 2 + 12 * l, l + this.offset == this.current ? -256 : -5592406);
             }
             if (bl52 && (message = this.suggestionList.get(this.current).getTooltip()) != null) {
-                graphics.renderTooltip(this.font, ComponentUtils.fromMessage(message), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, ComponentUtils.fromMessage(message), mouseX, mouseY);
             }
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
         }
 
-        public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-            if (!this.rect.contains(mouseX, mouseY)) {
+        public boolean mouseClicked(MouseButtonEvent event) {
+            if (!this.rect.contains((int)event.x(), (int)event.y())) {
                 return false;
             }
-            int i = (mouseY - this.rect.getY()) / 12 + this.offset;
+            int i = ((int)event.y() - this.rect.getY()) / 12 + this.offset;
             if (i >= 0 && i < this.suggestionList.size()) {
                 this.select(i);
                 this.useSuggestion();
@@ -284,35 +286,30 @@ public class SuggestedEditBox extends EditBox {
             return false;
         }
 
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            return switch (keyCode) {
-                case GLFW.GLFW_KEY_UP -> {
-                    this.cycle(-1);
-                    this.tabCycles = false;
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_DOWN -> {
-                    this.cycle(1);
-                    this.tabCycles = false;
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_TAB -> {
-                    if (this.tabCycles)
-                        this.cycle(Screen.hasShiftDown() ? -1 : 1);
-                    this.useSuggestion();
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_ESCAPE -> {
-                    SuggestedEditBox.this.hideSuggestions();
-                    yield true;
-                }
-                case GLFW.GLFW_KEY_ENTER -> {
-                    this.useSuggestion();
-                    SuggestedEditBox.this.hideSuggestions();
-                    yield true;
-                }
-                default -> false;
-            };
+        public boolean keyPressed(KeyEvent event) {
+            if(event.isUp()) {
+                this.cycle(-1);
+                this.tabCycles = false;
+                return true;
+            } else if(event.isDown()) {
+                this.cycle(1);
+                this.tabCycles = false;
+                return true;
+            } else if(event.isCycleFocus()) { //TAB
+                if (this.tabCycles)
+                    this.cycle(event.hasShiftDown() ? -1 : 1);
+                this.useSuggestion();
+                return true;
+            } else if(event.isEscape()) {
+                SuggestedEditBox.this.hideSuggestions();
+                return true;
+            } else if(event.isConfirmation()) {
+                this.useSuggestion();
+                SuggestedEditBox.this.hideSuggestions();
+                return true;
+            } else {
+                return false;
+            }
         }
 
         public void cycle(int change) {
@@ -339,12 +336,12 @@ public class SuggestedEditBox extends EditBox {
             }
             Suggestion suggestion = this.suggestionList.get(this.current);
             if (this.lastNarratedEntry != this.current) {
-                Minecraft.getInstance().getNarrator().sayNow(this.getNarrationMessage());
+                Minecraft.getInstance().getNarrator().saySystemNow(this.getNarrationMessage());
             }
         }
 
         public void useSuggestion() {
-            if(this.suggestionList == null || this.suggestionList.isEmpty() || this.current > this.suggestionList.size() + 1)
+            if(this.suggestionList.isEmpty() || this.current > this.suggestionList.size() + 1)
                 return;
             Suggestion suggestion = this.suggestionList.get(this.current);
             SuggestedEditBox.this.setValue(suggestion.apply(this.originalContents));

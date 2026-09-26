@@ -6,7 +6,7 @@ import fr.frinn.custommachinery.common.util.LRU;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -15,8 +15,12 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent.ArrowNavigation;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent.TabNavigation;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -26,7 +30,7 @@ import java.util.Map;
 
 public abstract class BaseScreen extends Screen {
 
-    private static final ResourceLocation BLANK_BACKGROUND = CustomMachinery.rl("background");
+    private static final Identifier BLANK_BACKGROUND = CustomMachinery.rl("background");
 
     public final Minecraft mc = Minecraft.getInstance();
 
@@ -53,7 +57,7 @@ public abstract class BaseScreen extends Screen {
             return;
         this.setFocused(null);
         this.popups.add(popup);
-        popup.init(Minecraft.getInstance(), this.width, this.height);
+        popup.init(this.width, this.height);
     }
 
     //Prevents opening another popup with same id
@@ -102,7 +106,7 @@ public abstract class BaseScreen extends Screen {
     protected void init() {
         this.x = (this.width - this.xSize) / 2;
         this.y = (this.height - this.ySize) / 2;
-        this.popups.forEach(popup -> popup.init(Minecraft.getInstance(), this.width, this.height));
+        this.popups.forEach(popup -> popup.init(this.width, this.height));
     }
 
     @Override
@@ -113,74 +117,73 @@ public abstract class BaseScreen extends Screen {
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(int width, int height) {
         this.x = (width - this.xSize) / 2;
         this.y = (height - this.ySize) / 2;
-        super.resize(minecraft, width, height);
+        super.resize(width, height);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         PopupScreen hoveredPopup = this.getPopupUnderMouse(mouseX, mouseY);
 
-        graphics.pose().pushPose();
+        graphics.pose().pushMatrix();
 
         if(hoveredPopup != null)
-            super.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
+            super.extractRenderState(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
         else
-            super.render(graphics, mouseX, mouseY, partialTicks);
+            super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
 
         for(Iterator<PopupScreen> iterator = this.popups.descendingIterator(); iterator.hasNext();) {
-            graphics.pose().translate(0, 0, 165); //Items are rendered at z=150, tooltips z=400
+            graphics.nextStratum();
             PopupScreen popup = iterator.next();
             if(hoveredPopup == popup)
-                popup.renderWithTooltip(graphics, mouseX, mouseY, partialTicks);
+                popup.extractRenderStateWithTooltipAndSubtitles(graphics, mouseX, mouseY, partialTicks);
             else
-                popup.render(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
+                popup.extractRenderStateWithTooltipAndSubtitles(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
         }
 
-        graphics.pose().popPose();
+        graphics.pose().popMatrix();
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         for(PopupScreen popup : this.popups) {
-            if(popup.isMouseOver(mouseX, mouseY)) {
-                boolean clicked = popup.mouseClicked(mouseX, mouseY, button);
+            if(popup.isMouseOver(event.x(), event.y())) {
+                boolean clicked = popup.mouseClicked(event, doubleClick);
                 if(this.freezePopupsTicks <= 0)
                     this.popups.moveUp(popup);
                 return clicked;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         for(PopupScreen popup : this.popups) {
-            if(popup.isMouseOver(mouseX, mouseY)) {
-                boolean released = popup.mouseReleased(mouseX, mouseY, button);
+            if(popup.isMouseOver(event.x(), event.y())) {
+                boolean released = popup.mouseReleased(event);
                 if(this.freezePopupsTicks <= 0)
                     this.popups.moveUp(popup);
                 return released;
             }
         }
         this.setDragging(false);
-        if(this.getFocused() != null && this.getFocused().mouseReleased(mouseX, mouseY, button))
+        if(this.getFocused() != null && this.getFocused().mouseReleased(event))
             return true;
-        return this.getChildAt(mouseX, mouseY).filter(guiEventListener -> guiEventListener.mouseReleased(mouseX, mouseY, button)).isPresent();
+        return this.getChildAt(event.x(), event.y()).filter(guiEventListener -> guiEventListener.mouseReleased(event)).isPresent();
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         for(PopupScreen popup : this.popups) {
-            boolean dragged = popup.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            boolean dragged = popup.mouseDragged(event, dragX, dragY);
             if(this.freezePopupsTicks <= 0)
                 this.popups.moveUp(popup);
             return dragged;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
@@ -197,8 +200,8 @@ public abstract class BaseScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if(keyCode == GLFW.GLFW_KEY_ESCAPE) {
+    public boolean keyPressed(KeyEvent event) {
+        if(event.isEscape()) {
             if(!this.popups.isEmpty()) {
                 PopupScreen toClose = this.getPopupUnderMouse(Minecraft.getInstance().mouseHandler.xpos(), Minecraft.getInstance().mouseHandler.ypos());
                 if(toClose == null)
@@ -206,36 +209,36 @@ public abstract class BaseScreen extends Screen {
                 this.closePopup(toClose);
                 return true;
             }
-            if(this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers))
+            if(this.getFocused() != null && this.getFocused().keyPressed(event))
                 return true;
             this.onClose();
             return true;
         }
 
         for(PopupScreen popup : this.popups) {
-            if(popup.keyPressed(keyCode, scanCode, modifiers))
+            if(popup.keyPressed(event))
                 return true;
         }
 
-        if(this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers))
+        if(this.getFocused() != null && this.getFocused().keyPressed(event))
             return true;
 
-        FocusNavigationEvent event = switch (keyCode) {
+        FocusNavigationEvent focusEvent = switch (event.input()) {
             case GLFW.GLFW_KEY_LEFT -> new ArrowNavigation(ScreenDirection.LEFT);
             case GLFW.GLFW_KEY_RIGHT -> new ArrowNavigation(ScreenDirection.RIGHT);
             case GLFW.GLFW_KEY_UP -> new ArrowNavigation(ScreenDirection.UP);
             case GLFW.GLFW_KEY_DOWN -> new ArrowNavigation(ScreenDirection.DOWN);
-            case GLFW.GLFW_KEY_TAB -> new TabNavigation(!Screen.hasShiftDown());
+            case GLFW.GLFW_KEY_TAB -> new TabNavigation(!event.hasShiftDown());
             default -> null;
         };
 
-        if(event != null) {
-            ComponentPath path = this.popups.stream().findFirst().map(popup -> popup.nextFocusPath(event)).orElse(this.nextFocusPath(event));
-            if (path == null && event instanceof FocusNavigationEvent.TabNavigation) {
+        if(focusEvent != null) {
+            ComponentPath path = this.popups.stream().findFirst().map(popup -> popup.nextFocusPath(focusEvent)).orElse(this.nextFocusPath(focusEvent));
+            if (path == null && focusEvent instanceof FocusNavigationEvent.TabNavigation) {
                 ComponentPath componentPath = this.getCurrentFocusPath();
                 if (componentPath != null)
                     componentPath.applyFocus(false);
-                path = super.nextFocusPath(event);
+                path = super.nextFocusPath(focusEvent);
             }
 
             if (path != null)
@@ -244,25 +247,25 @@ public abstract class BaseScreen extends Screen {
             return true;
         }
 
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    public boolean keyReleased(KeyEvent event) {
         for(PopupScreen popup : this.popups) {
-            if(popup.keyReleased(keyCode, scanCode, modifiers))
+            if(popup.keyReleased(event))
                 return true;
         }
-        return super.keyReleased(keyCode, scanCode, modifiers);
+        return super.keyReleased(event);
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
+    public boolean charTyped(CharacterEvent event) {
         for(PopupScreen popup : this.popups) {
-            if(popup.charTyped(codePoint, modifiers))
+            if(popup.charTyped(event))
                 return true;
         }
-        return super.charTyped(codePoint, modifiers);
+        return super.charTyped(event);
     }
 
     @Override
@@ -285,28 +288,28 @@ public abstract class BaseScreen extends Screen {
         return false;
     }
 
-    public static void blankBackground(GuiGraphics graphics, int x, int y, int width, int height) {
-        graphics.blitSprite(BLANK_BACKGROUND, x, y, width, height);
+    public static void blankBackground(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA, BLANK_BACKGROUND, x, y, width, height);
     }
 
-    public static void drawCenteredScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, 0);
-        graphics.drawString(font, text, (int)((x - (font.width(text) * scale) / 2) / scale), (int)((y - font.lineHeight / 2.0f) / scale), color, shadow);
-        graphics.pose().popPose();
+    public static void drawCenteredScaledString(GuiGraphicsExtractor graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(scale, scale);
+        graphics.text(font, text, (int)((x - (font.width(text) * scale) / 2) / scale), (int)((y - font.lineHeight / 2.0f) / scale), color, shadow);
+        graphics.pose().popMatrix();
     }
 
-    public static void drawScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, 0);
-        graphics.drawString(font, text, (int)(x / scale), (int)(y / scale), color, shadow);
-        graphics.pose().popPose();
+    public static void drawScaledString(GuiGraphicsExtractor graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(scale, scale);
+        graphics.text(font, text, (int)(x / scale), (int)(y / scale), color, shadow);
+        graphics.pose().popMatrix();
     }
 
-    public static void drawRightAlignedScaledString(GuiGraphics graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, 0);
-        graphics.drawString(font, text, (int)((x - font.width(text) * scale) / scale), (int)(y / scale), color, shadow);
-        graphics.pose().popPose();
+    public static void drawRightAlignedScaledString(GuiGraphicsExtractor graphics, Font font, Component text, int x, int y, float scale, int color, boolean shadow) {
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(scale, scale);
+        graphics.text(font, text, (int)((x - font.width(text) * scale) / scale), (int)(y / scale), color, shadow);
+        graphics.pose().popMatrix();
     }
 }
