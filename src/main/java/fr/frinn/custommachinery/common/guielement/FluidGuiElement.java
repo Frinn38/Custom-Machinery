@@ -13,9 +13,9 @@ import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities.FluidHandler;
-import net.neoforged.neoforge.common.Tags.Items;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
@@ -75,7 +75,7 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
         if(carried.isEmpty() || fluidHandlerItem == null)
             return;
 
-        int testDrainAmount = carried.is(Items.BUCKETS) ? 1000 : 1;
+        int testDrainAmount = carried.getItem() instanceof BucketItem ? 1000 : 1;
 
         tile.getComponentManager().getComponentHandler(Registration.FLUID_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponentForID(this.getId()))
