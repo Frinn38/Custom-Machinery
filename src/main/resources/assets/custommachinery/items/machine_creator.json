@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "custommachinery:item/machine_creator"
+  }
+}
