@@ -528,6 +528,7 @@
   "custommachinery.requirements.drop.info.produce": "Drop %s",
   "custommachinery.requirements.drop.info.whitelist": "Accepted items :",
   "custommachinery.requirements.drop.info.blacklist": "Denied items :",
+  "custommachinery.requirements.drop.info.any": "Anything",
   "custommachinery.requirements.item_transform.error": "Not enough %s, %s needed !",
   "custommachinery.requirements.sky.error": "Must see sky",
   "custommachinery.requirements.item_filter.error": "Missing item in filter slot !",

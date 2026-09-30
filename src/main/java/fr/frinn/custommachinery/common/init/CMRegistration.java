@@ -149,7 +149,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -202,7 +201,7 @@ public class CMRegistration {
     public static final Registry<DataType<?, ?>>                                    DATA_REGISTRY                   = DATAS.makeRegistry(builder -> {});
     public static final Registry<ProcessorType<?>>                                  PROCESSOR_REGISTRY              = PROCESSORS.makeRegistry(builder -> {});
 
-    public static final DeferredBlock<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.register("custom_machine_block", () -> new CustomMachineBlock(false));
+    public static final DeferredBlock<CustomMachineBlock> CUSTOM_MACHINE_BLOCK = BLOCKS.registerBlock("custom_machine_block", CustomMachineBlock::new, () -> CustomMachineBlock.makeProperties(false));
 
     public static final Supplier<DataComponentType<Pair<BlockPos, BlockPos>>> BOX_CREATOR_DATA = DATA_COMPONENTS.register("box_creator", () -> DataComponentType.<Pair<BlockPos, BlockPos>>builder()
             .persistent(RecordCodecBuilder.create(pair -> pair.group(BlockPos.CODEC.fieldOf("first").forGetter(Pair::getFirst), BlockPos.CODEC.fieldOf("second").forGetter(Pair::getSecond)).apply(pair, Pair::of)))
@@ -230,11 +229,11 @@ public class CMRegistration {
             .build()
     );
 
-    public static final DeferredItem<CustomMachineItem>     CUSTOM_MACHINE_ITEM     = ITEMS.register("custom_machine_item", () -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), new Item.Properties().component(MACHINE_DATA, CustomMachine.DUMMY_ID), null));
-    public static final DeferredItem<MachineCreatorItem>    MACHINE_CREATOR_ITEM    = ITEMS.register("machine_creator", () -> new MachineCreatorItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<BoxCreatorItem>        BOX_CREATOR_ITEM        = ITEMS.register("box_creator", () -> new BoxCreatorItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<StructureCreatorItem>  STRUCTURE_CREATOR_ITEM  = ITEMS.register("structure_creator", () -> new StructureCreatorItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<ConfigurationCardItem> CONFIGURATION_CARD_ITEM = ITEMS.register("configuration_card", () -> new ConfigurationCardItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<CustomMachineItem>     CUSTOM_MACHINE_ITEM     = ITEMS.registerItem("custom_machine_item", properties -> new CustomMachineItem(CUSTOM_MACHINE_BLOCK.get(), properties, null), properties ->  properties.component(MACHINE_DATA, CustomMachine.DUMMY_ID));
+    public static final DeferredItem<MachineCreatorItem>    MACHINE_CREATOR_ITEM    = ITEMS.registerItem("machine_creator", MachineCreatorItem::new, properties -> properties.stacksTo(1));
+    public static final DeferredItem<BoxCreatorItem>        BOX_CREATOR_ITEM        = ITEMS.registerItem("box_creator", BoxCreatorItem::new, properties -> properties.stacksTo(1));
+    public static final DeferredItem<StructureCreatorItem>  STRUCTURE_CREATOR_ITEM  = ITEMS.registerItem("structure_creator", StructureCreatorItem::new, properties -> properties.stacksTo(1));
+    public static final DeferredItem<ConfigurationCardItem> CONFIGURATION_CARD_ITEM = ITEMS.registerItem("configuration_card", ConfigurationCardItem::new, properties -> properties.stacksTo(1));
 
     public static final Supplier<BlockEntityType<CustomMachineTile>> CUSTOM_MACHINE_TILE = TILE_ENTITIES.register("custom_machine_tile", () -> new BlockEntityType<>(CustomMachineTile::new, validMachineBlocks()));
 

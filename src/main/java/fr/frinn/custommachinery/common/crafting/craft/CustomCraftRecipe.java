@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery.common.crafting.craft;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
@@ -30,11 +32,11 @@ public class CustomCraftRecipe implements IMachineRecipe {
     public static final MapCodec<CustomCraftRecipe> CODEC = CustomCraftRecipeBuilder.CODEC.mapCodec().xmap(CustomCraftRecipeBuilder::build, CustomCraftRecipeBuilder::new);
     public static final StreamCodec<RegistryFriendlyByteBuf, CustomCraftRecipe> STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
 
-    public static final List<RequirementType<?>> FORBIDDEN_REQUIREMENTS = Lists.newArrayList(
+    public static final Supplier<List<RequirementType<?>>> FORBIDDEN_REQUIREMENTS = Suppliers.memoize(() ->  Lists.newArrayList(
             CMRegistration.ENERGY_PER_TICK_REQUIREMENT.get(),
             CMRegistration.FLUID_PER_TICK_REQUIREMENT.get(),
             CMRegistration.EXPERIENCE_PER_TICK_REQUIREMENT.get()
-    );
+    ));
 
     private final Identifier machine;
     private final ItemStack output;
@@ -65,7 +67,7 @@ public class CustomCraftRecipe implements IMachineRecipe {
 
     private List<RecipeRequirement<?, ?>> validateRequirements(List<RecipeRequirement<?, ?>> requirements) {
         return requirements.stream().filter(requirement -> {
-            if(!FORBIDDEN_REQUIREMENTS.contains(requirement.requirement().getType()))
+            if(!FORBIDDEN_REQUIREMENTS.get().contains(requirement.requirement().getType()))
                 return true;
             ICustomMachineryAPI.INSTANCE.logger().error("Invalid requirement: {} in craft recipe", IRequirement.CODEC.encodeStart(JsonOps.INSTANCE, requirement.requirement()).result().map(JsonElement::toString).orElse(requirement.requirement().getType().toString()));
             return false;

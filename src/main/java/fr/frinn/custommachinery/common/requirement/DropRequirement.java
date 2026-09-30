@@ -1,5 +1,7 @@
 package fr.frinn.custommachinery.common.requirement;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
@@ -15,21 +17,26 @@ import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.registries.holdersets.AnyHolderSet;
 
 import java.util.Locale;
 
 public record DropRequirement(RequirementIOMode mode, Action action, Ingredient input, boolean whitelist, Item output, int amount, int radius) implements IRequirement<DropMachineComponent> {
 
+    //Use a supplier here because item registry  is empty when this class is loaded statically
+    public static final Supplier<Ingredient> ANY = Suppliers.memoize(() -> Ingredient.of(new AnyHolderSet<>(BuiltInRegistries.ITEM)));
+
     public static final NamedCodec<DropRequirement> CODEC = NamedCodec.record(dropRequirementInstance ->
             dropRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(IRequirement::getMode),
                     Action.CODEC.fieldOf("action").forGetter(requirement -> requirement.action),
-                    DefaultCodecs.INGREDIENT.optionalFieldOf("input", Ingredient.of(Items.AIR)).forGetter(requirement -> requirement.input),
+                    DefaultCodecs.INGREDIENT.optionalFieldOf("input", ANY).forGetter(requirement -> requirement.input),
                     NamedCodec.BOOL.optionalFieldOf("whitelist", true).forGetter(requirement -> requirement.whitelist),
                     RegistryCodecs.ITEM.optionalFieldOf("output", Items.AIR).forGetter(requirement -> requirement.output),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(requirement -> requirement.amount),
@@ -121,13 +128,19 @@ public record DropRequirement(RequirementIOMode mode, Action action, Ingredient 
             case CHECK -> {
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.check", this.amount, this.radius));
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
+                if(this.input == ANY.get())
+                    info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.any"));
+                else
+                    this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
                 info.setItemIcon(Items.OAK_PRESSURE_PLATE);
             }
             case CONSUME -> {
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.consume", this.amount, this.radius));
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info." + (this.whitelist ? "whitelist" : "blacklist")).withStyle(this.whitelist ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED));
-                this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
+                if(this.input == ANY.get())
+                    info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.any"));
+                else
+                    this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
                 info.setItemIcon(Items.HOPPER);
             }
             case PRODUCE -> {

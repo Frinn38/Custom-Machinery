@@ -72,8 +72,8 @@ public class CustomMachineBlock extends Block implements EntityBlock {
             return Properties.ofFullCopy(Blocks.STONE).requiresCorrectToolForDrops().strength(3.5F).forceSolidOn().noOcclusion().dynamicShape().isValidSpawn(spawnPredicate);
     }
 
-    public CustomMachineBlock(boolean occlusion) {
-        super(makeProperties(occlusion));
+    public CustomMachineBlock(Properties properties) {
+        super(properties);
     }
 
     @Override

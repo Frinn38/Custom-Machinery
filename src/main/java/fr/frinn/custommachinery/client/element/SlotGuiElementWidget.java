@@ -9,9 +9,8 @@ import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -28,9 +27,9 @@ public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElemen
         super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
 
         GhostItem ghost = this.getElement().getGhost();
-        if(ghost != GhostItem.EMPTY && ghost.ingredient().getValues().size() != 0 && (ghost.alwaysRender() || this.isSlotEmpty())) {
+        if(ghost != GhostItem.EMPTY && !ghost.items().isEmpty() && (ghost.alwaysRender() || this.isSlotEmpty())) {
             timer.onDraw();
-            List<Item> items = ghost.ingredient().getValues().stream().map(Holder::value).toList();
+            List<ItemStack> items = ghost.items();
             //TODO FakeItemRenderer.render(graphics, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), this.getX() + 1, this.getY() + 1, ghost.color().getARGB());
         }
     }

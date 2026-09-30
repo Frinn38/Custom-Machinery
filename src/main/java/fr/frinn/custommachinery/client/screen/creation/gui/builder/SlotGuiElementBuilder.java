@@ -32,10 +32,12 @@ import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement> {
@@ -118,8 +120,8 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
         }
 
         public void setGhost(GhostItem ghost) {
-            if(ghost.ingredient().getValues().size() != 0)
-                this.items.setValue(BuiltInRegistries.ITEM.getKey(ghost.ingredient().getValues().get(0).value()).toString());
+            if(!ghost.items().isEmpty())
+                this.items.setValue(BuiltInRegistries.ITEM.getKey(ghost.items().getFirst().getItem()).toString());
             this.items.hideSuggestions();
             if(ghost.alwaysRender() != this.alwaysVisible.selected())
                 this.alwaysVisible.onPress(new MouseButtonEvent(Double.MAX_VALUE, Double.MAX_VALUE, new MouseButtonInfo(0, 0)));
@@ -129,7 +131,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
 
         public GhostItem getGhost() {
             try {
-                return new GhostItem(Ingredient.of(BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.items.getValue())).orElse(Items.AIR)), this.color, this.alwaysVisible.selected());
+                return new GhostItem(List.of(BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.items.getValue())).orElse(Items.AIR).getDefaultInstance()), this.color, this.alwaysVisible.selected());
             } catch (IdentifierException | NullPointerException e) {
                 return GhostItem.EMPTY;
             }

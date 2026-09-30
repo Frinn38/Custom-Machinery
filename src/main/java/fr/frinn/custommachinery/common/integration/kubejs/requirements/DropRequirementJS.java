@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.DropRequirement;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 public interface DropRequirementJS extends RecipeJSBuilder {
@@ -15,7 +14,7 @@ public interface DropRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder checkAnyDrop(int amount, int radius) {
-        return checkDrops(SizedIngredient.of(Items.AIR, amount), radius, false);
+        return checkDrops(new SizedIngredient(DropRequirement.ANY.get(), amount), radius, false);
     }
 
     default RecipeJSBuilder checkDrops(SizedIngredient ingredient, int radius) {
@@ -31,7 +30,7 @@ public interface DropRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder consumeAnyDropOnStart(int amount, int radius) {
-        return consumeDropsOnStart(SizedIngredient.of(Items.AIR, amount), radius, false);
+        return consumeDropsOnStart(new SizedIngredient(DropRequirement.ANY.get(), amount), radius, false);
     }
 
     default RecipeJSBuilder consumeDropsOnStart(SizedIngredient ingredient, int radius) {
@@ -47,7 +46,7 @@ public interface DropRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder consumeAnyDropOnEnd(int amount, int radius) {
-        return consumeDropsOnEnd(SizedIngredient.of(Items.AIR, amount), radius, false);
+        return consumeDropsOnEnd(new SizedIngredient(DropRequirement.ANY.get(), amount), radius, false);
     }
 
     default RecipeJSBuilder consumeDropsOnEnd(SizedIngredient ingredient, int radius) {
@@ -59,10 +58,10 @@ public interface DropRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder dropItemOnStart(ItemStack stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, Ingredient.of(Items.AIR), true, stack.getItem(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.INPUT, DropRequirement.Action.PRODUCE, DropRequirement.ANY.get(), true, stack.getItem(), stack.getCount(), 1));
     }
 
     default RecipeJSBuilder dropItemOnEnd(ItemStack stack) {
-        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, Ingredient.of(Items.AIR), true, stack.getItem(), stack.getCount(), 1));
+        return addRequirement(new DropRequirement(RequirementIOMode.OUTPUT, DropRequirement.Action.PRODUCE, DropRequirement.ANY.get(), true, stack.getItem(), stack.getCount(), 1));
     }
 }

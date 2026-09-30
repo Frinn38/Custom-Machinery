@@ -16,6 +16,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -47,7 +48,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
     @Override
     public Block createObject() {
-        CustomMachineBlock block = new CustomMachineBlock(this.occlusion);
+        CustomMachineBlock block = new CustomMachineBlock(CustomMachineBlock.makeProperties(this.occlusion).setId(ResourceKey.create(Registries.BLOCK, this.id)));
         CustomMachinery.CUSTOM_BLOCK_MACHINES.put(this.machineID, block);
         return block;
     }
@@ -57,7 +58,7 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
         registry.add(Registries.ITEM, new ItemBuilder(this.id) {
             @Override
             public Item createObject() {
-                return new CustomMachineItem(CustomMachineBlockBuilderJS.this.get(), new Item.Properties(), CustomMachineBlockBuilderJS.this.machineID);
+                return new CustomMachineItem(CustomMachineBlockBuilderJS.this.get(), new Item.Properties().setId(ResourceKey.create(Registries.ITEM, this.id)), CustomMachineBlockBuilderJS.this.machineID);
             }
 
             @Override
