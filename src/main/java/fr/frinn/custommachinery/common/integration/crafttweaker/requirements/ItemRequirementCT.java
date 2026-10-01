@@ -14,19 +14,21 @@ import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import java.util.Collections;
+
 @ZenRegister
 @Name(CTConstants.REQUIREMENT_ITEM)
 public interface ItemRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T requireItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), slot, false));
+        return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), Collections.singletonList(slot), false));
     }
 
     @Method
     default T requireItemIngredient(IIngredient ingredient, @OptionalInt(1) int amount, @OptionalString String slot) {
         try {
-            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(ingredient.asVanillaIngredient(), amount), slot, false));
+            return addRequirement(new ItemRequirement(RequirementIOMode.INPUT, new SizedIngredient(ingredient.asVanillaIngredient(), amount), Collections.singletonList(slot), false));
         } catch (IllegalArgumentException e) {
             return error(e.getMessage());
         }
@@ -34,6 +36,6 @@ public interface ItemRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T produceItem(IItemStack stack, @OptionalString String slot) {
-        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), slot, false));
+        return addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(stack.getInternal()), stack.amount()), Collections.singletonList(slot), false));
     }
 }

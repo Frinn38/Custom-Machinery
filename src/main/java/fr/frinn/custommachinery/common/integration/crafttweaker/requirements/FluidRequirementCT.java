@@ -11,17 +11,19 @@ import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import java.util.Collections;
+
 @ZenRegister
 @Name(CTConstants.REQUIREMENT_FLUID)
 public interface FluidRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T requireFluid(IFluidStack fluid, @OptionalString String tank) {
-        return addRequirement(new FluidRequirement(RequirementIOMode.INPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), tank));
+        return addRequirement(new FluidRequirement(RequirementIOMode.INPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), Collections.singletonList(tank)));
     }
 
     @Method
     default T produceFluid(IFluidStack fluid, @OptionalString String tank) {
-        return addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), tank));
+        return addRequirement(new FluidRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), Collections.singletonList(tank)));
     }
 }

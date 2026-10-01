@@ -7,17 +7,19 @@ import fr.frinn.custommachinery.common.requirement.ButtonRequirement;
 import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 
+import java.util.Collections;
+
 @ZenRegister
 @Name(CTConstants.REQUIREMENT_BUTTON)
 public interface ButtonRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T requireButtonPressed(String id) {
-        return addRequirement(new ButtonRequirement(id, false));
+        return addRequirement(new ButtonRequirement(Collections.singletonList(id), false));
     }
 
     @Method
     default T requireButtonReleased(String id) {
-        return addRequirement(new ButtonRequirement(id, true));
+        return addRequirement(new ButtonRequirement(Collections.singletonList(id), true));
     }
 }

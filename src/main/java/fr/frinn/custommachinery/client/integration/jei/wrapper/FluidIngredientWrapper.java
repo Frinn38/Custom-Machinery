@@ -25,14 +25,14 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
     private final SizedFluidIngredient ingredient;
     private final double chance;
     private final boolean isPerTick;
-    private final String tank;
+    private final List<String> tanks;
 
-    public FluidIngredientWrapper(RequirementIOMode mode, SizedFluidIngredient ingredient, double chance, boolean isPerTick, String tank) {
+    public FluidIngredientWrapper(RequirementIOMode mode, SizedFluidIngredient ingredient, double chance, boolean isPerTick, List<String> tanks) {
         this.mode = mode;
         this.ingredient = ingredient;
         this.chance = chance;
         this.isPerTick = isPerTick;
-        this.tank = tank;
+        this.tanks = tanks;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
 
         List<FluidStack> ingredients = Arrays.stream(this.ingredient.getFluids()).map(fluid -> fluid.copyWithAmount(this.ingredient.amount())).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(fluidElement);
-        if(fluidElement.getComponentId().equals(this.tank) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tank.isEmpty() || t.getId().equals(this.tank))).orElse(false)) {
+        if(this.tanks.contains(fluidElement.getComponentId()) || template.map(t -> t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.tanks.isEmpty() || this.tanks.contains(t.getId()))).orElse(false)) {
             builder.addSlot(roleFromMode(this.mode), element.getX() - xOffset + 1, element.getY() - yOffset + 1)
                     .setFluidRenderer(this.ingredient.amount(), false, element.getWidth() - 2, element.getHeight() - 2)
                     .addIngredients(NeoForgeTypes.FLUID_STACK, ingredients)
@@ -55,7 +55,7 @@ public class FluidIngredientWrapper implements IJEIIngredientWrapper<FluidStack>
                         else if(this.chance != 1.0)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", (int)(this.chance * 100)));
 
-                        if(!this.tank.isEmpty() && Minecraft.getInstance().options.advancedItemTooltips)
+                        if(!this.tanks.isEmpty() && this.tanks.contains(fluidElement.getComponentId())  && Minecraft.getInstance().options.advancedItemTooltips)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.fluid.specificTank").withStyle(ChatFormatting.DARK_RED));
                     });
             return true;

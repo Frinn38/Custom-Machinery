@@ -10,11 +10,13 @@ import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 
-public record ButtonRequirement(String id, boolean inverse) implements IRequirement<DataMachineComponent> {
+import java.util.List;
+
+public record ButtonRequirement(List<String> ids, boolean inverse) implements IRequirement<DataMachineComponent> {
 
     public static final NamedCodec<ButtonRequirement> CODEC = NamedCodec.record(buttonRequirementInstance ->
             buttonRequirementInstance.group(
-                    NamedCodec.STRING.fieldOf("id").forGetter(requirement -> requirement.id),
+                    NamedCodec.STRING.listOf().fieldOf("ids").aliases("id").forGetter(requirement -> requirement.ids),
                     NamedCodec.BOOL.optionalFieldOf("inverse", false).forGetter(requirement -> requirement.inverse)
             ).apply(buttonRequirementInstance, ButtonRequirement::new), "Button requirement"
     );
@@ -36,7 +38,7 @@ public record ButtonRequirement(String id, boolean inverse) implements IRequirem
 
     @Override
     public boolean test(DataMachineComponent component, ICraftingContext context) {
-        return component.getData().getBoolean(this.id) == !this.inverse;
+        return this.ids.stream().anyMatch(id -> component.getData().getBoolean(id) == !this.inverse);
     }
 
     @Override

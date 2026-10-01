@@ -6,19 +6,21 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 public interface ItemTransformRequirementJS extends RecipeJSBuilder {
 
     default RecipeJSBuilder transformItem(SizedIngredient input, ItemStack output) {
-        return transformItem(input, output, "", "");
+        return transformItem(input, output, Collections.emptyList(), Collections.emptyList());
     }
 
-    default RecipeJSBuilder transformItem(SizedIngredient input, ItemStack output, String inputSlot, String outputSlot) {
-        return transformItem(input, output, inputSlot, outputSlot, null);
+    default RecipeJSBuilder transformItem(SizedIngredient input, ItemStack output, List<String> inputSlots, List<String> outputSlots) {
+        return transformItem(input, output, inputSlots, outputSlots, null);
     }
 
-    default RecipeJSBuilder transformItem(SizedIngredient input, ItemStack output, String inputSlot, String outputSlot, @Nullable Function<ItemStack, ItemStack> function) {
-        return this.addRequirement(new ItemTransformRequirement(input.ingredient(), input.count(), inputSlot, output, output.getCount(), outputSlot, true, function));
+    default RecipeJSBuilder transformItem(SizedIngredient input, ItemStack output, List<String> inputSlots, List<String> outputSlots, @Nullable Function<ItemStack, ItemStack> function) {
+        return this.addRequirement(new ItemTransformRequirement(input.ingredient(), input.count(), inputSlots, output, output.getCount(), outputSlots, true, function));
     }
 }

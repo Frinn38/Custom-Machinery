@@ -11,17 +11,19 @@ import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import java.util.Collections;
+
 @ZenRegister
 @Name(CTConstants.REQUIREMENT_FLUID_PER_TICK)
 public interface FluidPerTickRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T requireFluidPerTick(IFluidStack fluid, @OptionalString String tank) {
-        return addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), tank));
+        return addRequirement(new FluidPerTickRequirement(RequirementIOMode.INPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), Collections.singletonList(tank)));
     }
 
     @Method
     default T produceFluidPerTick(IFluidStack fluid, @OptionalString String tank) {
-        return addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), tank));
+        return addRequirement(new FluidPerTickRequirement(RequirementIOMode.OUTPUT, SizedFluidIngredient.of(fluid.getImmutableInternal()), Collections.singletonList(tank)));
     }
 }

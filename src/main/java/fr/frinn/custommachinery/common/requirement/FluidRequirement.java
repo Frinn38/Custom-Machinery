@@ -23,24 +23,24 @@ import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import java.util.Collections;
 import java.util.List;
 
-public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, String tank) implements IRequirement<FluidComponentHandler>, IJEIIngredientRequirement<FluidStack> {
+public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, List<String> tanks) implements IRequirement<FluidComponentHandler>, IJEIIngredientRequirement<FluidStack> {
 
     public static final NamedCodec<FluidRequirement> CODEC = NamedCodec.record(fluidRequirementInstance ->
             fluidRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(FluidRequirement::getMode),
                     NamedCodec.of(SizedFluidIngredient.FLAT_CODEC).fieldOf("ingredient").forGetter(requirement -> requirement.ingredient),
-                    NamedCodec.STRING.optionalFieldOf("tank", "").forGetter(requirement -> requirement.tank)
+                    NamedCodec.STRING.listOf().optionalFieldOf("tanks", Collections.emptyList()).aliases("tank").forGetter(requirement -> requirement.tanks)
             ).apply(fluidRequirementInstance, FluidRequirement::new), "Fluid requirement"
     );
 
-    public FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, String tank) {
+    public FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingredient, List<String> tanks) {
         this.mode = mode;
         if(ingredient.ingredient().hasNoFluids())
             throw new IllegalArgumentException("Invalid fluid specified for fluid requirement");
         if(mode == RequirementIOMode.OUTPUT && ingredient.getFluids().length > 1)
             throw new IllegalArgumentException("You must specify a single for an Output Fluid Requirement");
         this.ingredient = ingredient;
-        this.tank = tank;
+        this.tanks = tanks;
     }
 
     @Override
@@ -62,10 +62,10 @@ public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingr
     public boolean test(FluidComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            return component.getIngredientAmount(this.tank, this.ingredient.ingredient()) >= amount;
+            return component.getIngredientAmount(this.tanks, this.ingredient.ingredient()) >= amount;
         }
         else
-            return component.getSpaceForFluid(this.tank, this.output()) >= amount;
+            return component.getSpaceForFluid(this.tanks, this.output()) >= amount;
     }
 
     @Override
@@ -78,9 +78,9 @@ public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingr
 
     private CraftingResult processInputs(FluidComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
-        int maxExtract = component.getIngredientAmount(this.tank, this.ingredient.ingredient());
+        int maxExtract = component.getIngredientAmount(this.tanks, this.ingredient.ingredient());
         if(maxExtract >= amount) {
-            component.removeFromInputs(this.tank, this.ingredient.ingredient(), amount);
+            component.removeFromInputs(this.tanks, this.ingredient.ingredient(), amount);
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.input", Utils.fluidIngredientName(this.ingredient), amount, maxExtract));
@@ -88,9 +88,9 @@ public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingr
 
     private CraftingResult processOutputs(FluidComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.amount(), this, null);
-        int canFill =  component.getSpaceForFluid(this.tank, this.output());
+        int canFill =  component.getSpaceForFluid(this.tanks, this.output());
         if(canFill >= amount) {
-            component.addToOutputs(this.tank, this.output().copyWithAmount(amount));
+            component.addToOutputs(this.tanks, this.output().copyWithAmount(amount));
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.fluid.error.output", amount, this.output().getHoverName()));
@@ -102,6 +102,6 @@ public record FluidRequirement(RequirementIOMode mode, SizedFluidIngredient ingr
 
     @Override
     public List<IJEIIngredientWrapper<FluidStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
-        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.ingredient, requirement.chance(), false, this.tank));
+        return Collections.singletonList(new FluidIngredientWrapper(this.getMode(), this.ingredient, requirement.chance(), false, this.tanks));
     }
 }

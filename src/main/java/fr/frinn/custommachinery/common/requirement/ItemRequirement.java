@@ -23,23 +23,23 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import java.util.Collections;
 import java.util.List;
 
-public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot, boolean consumeOnEnd) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, List<String> slots, boolean consumeOnEnd) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(ItemRequirement::getMode),
                     NamedCodec.of(SizedIngredient.FLAT_CODEC).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
-                    NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot),
+                    NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(requirement -> requirement.slots),
                     NamedCodec.BOOL.optionalFieldOf("consume_on_end", false).forGetter(requirement -> requirement.consumeOnEnd)
             ).apply(itemRequirementInstance, ItemRequirement::new), "Item requirement"
     );
 
-    public ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, String slot, boolean consumeOnEnd) {
+    public ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, List<String> slots, boolean consumeOnEnd) {
         this.mode = mode;
         if(mode == RequirementIOMode.OUTPUT && ingredient.getItems().length > 1)
             throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
         this.ingredient = ingredient;
-        this.slot = slot;
+        this.slots = slots;
         this.consumeOnEnd = consumeOnEnd;
     }
 
@@ -63,10 +63,10 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
         if(getMode() == RequirementIOMode.INPUT) {
-            return component.getIngredientAmount(this.slot, this.ingredient.ingredient()) >= amount;
+            return component.getIngredientAmount(this.slots, this.ingredient.ingredient()) >= amount;
         } else {
             if(this.ingredient.getItems().length > 0)
-                return component.getSpaceForItem(this.slot, this.ingredient.getItems()[0]) >= amount;
+                return component.getSpaceForItem(this.slots, this.ingredient.getItems()[0]) >= amount;
             else throw new IllegalStateException("Can't use output empty item");
         }
     }
@@ -86,7 +86,7 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     private CraftingResult checkInputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        int maxExtract = component.getIngredientAmount(this.slot, this.ingredient.ingredient());
+        int maxExtract = component.getIngredientAmount(this.slots, this.ingredient.ingredient());
         if(maxExtract >= amount) {
             return CraftingResult.success();
         }
@@ -95,9 +95,9 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     private CraftingResult processInputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        int maxExtract = component.getIngredientAmount(this.slot, this.ingredient.ingredient());
+        int maxExtract = component.getIngredientAmount(this.slots, this.ingredient.ingredient());
         if(maxExtract >= amount) {
-            component.removeFromInputs(this.slot, this.ingredient.ingredient(), amount);
+            component.removeFromInputs(this.slots, this.ingredient.ingredient(), amount);
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
@@ -107,9 +107,9 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
         int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
         if(this.ingredient.getItems().length > 0) {
             ItemStack item = this.ingredient.getItems()[0];
-            int canInsert = component.getSpaceForItem(this.slot, item);
+            int canInsert = component.getSpaceForItem(this.slots, item);
             if(canInsert >= amount) {
-                component.addToOutputs(this.slot, item.copy(), amount);
+                component.addToOutputs(this.slots, item.copy(), amount);
                 return CraftingResult.success();
             }
             return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, item.getHoverName()));
@@ -118,6 +118,6 @@ public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.ingredient, requirement.chance(), false, this.slot, true));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.ingredient, requirement.chance(), false, this.slots, true));
     }
 }

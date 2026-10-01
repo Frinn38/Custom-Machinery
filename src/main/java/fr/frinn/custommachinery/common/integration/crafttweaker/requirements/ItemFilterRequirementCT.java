@@ -9,12 +9,14 @@ import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import java.util.Collections;
+
 @ZenRegister
 @Name(CTConstants.REQUIREMENT_ITEM_FILTER)
 public interface ItemFilterRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T requireItemFilter(IIngredient stack, @OptionalString String slot) {
-        return addRequirement(new ItemFilterRequirement(stack.asVanillaIngredient(), slot));
+        return addRequirement(new ItemFilterRequirement(stack.asVanillaIngredient(), Collections.singletonList(slot)));
     }
 }

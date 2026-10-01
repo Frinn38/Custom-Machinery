@@ -17,6 +17,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
+import java.util.Collections;
 import java.util.List;
 
 public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraftRecipe, RecipeHolder<CustomCraftRecipe>> {
@@ -35,7 +36,7 @@ public class CustomCraftRecipeCategory extends AbstractRecipeCategory<CustomCraf
                         .map(IMachineComponentTemplate::getId)
                         .orElse("");
 
-                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(recipe.getOutput()), recipe.getOutput().getCount()), 1.0, false, resultSlot, false));
+                wrappers.add(new ItemIngredientWrapper(RequirementIOMode.OUTPUT, new SizedIngredient(Ingredient.of(recipe.getOutput()), recipe.getOutput().getCount()), 1.0, false, Collections.singletonList(resultSlot), false));
                 return wrappers.build();
             }
         });

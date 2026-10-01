@@ -20,11 +20,11 @@ import java.util.Optional;
 public class ItemFilterIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     private final Ingredient ingredient;
-    private final String slot;
+    private final List<String> slots;
 
-    public ItemFilterIngredientWrapper(Ingredient ingredient, String slot) {
+    public ItemFilterIngredientWrapper(Ingredient ingredient, List<String> slots) {
         this.ingredient = ingredient;
-        this.slot = slot;
+        this.slots = slots;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ItemFilterIngredientWrapper implements IJEIIngredientWrapper<ItemSt
 
         List<ItemStack> ingredients = Arrays.stream(this.ingredient.getItems()).toList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get() && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
+        if(this.slots.contains(slotElement.getComponentId()) || template.map(t -> t instanceof ItemMachineComponent.Template itemComponentTemplate && itemComponentTemplate.getType() == Registration.ITEM_FILTER_MACHINE_COMPONENT.get() && (this.slots.isEmpty() || this.slots.contains(t.getId()))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
             int slotY = element.getY() + (element.getHeight() - 16) / 2;
             builder.addSlot(RecipeIngredientRole.INPUT, slotX - xOffset, slotY - yOffset)

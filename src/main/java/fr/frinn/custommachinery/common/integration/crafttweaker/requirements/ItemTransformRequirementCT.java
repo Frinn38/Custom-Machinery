@@ -14,6 +14,7 @@ import org.openzen.zencode.java.ZenCodeType.Optional;
 import org.openzen.zencode.java.ZenCodeType.OptionalInt;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import java.util.Collections;
 import java.util.function.Function;
 
 @ZenRegister
@@ -22,7 +23,7 @@ public interface ItemTransformRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T transformItem(IIngredient ingredient, @OptionalInt(1) int amount, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<IItemStack, IItemStack> nbt) {
-        return addRequirement(new ItemTransformRequirement(ingredient.asVanillaIngredient(), amount, inputSlot, output.getInternal(), output.getInternal().getCount(), outputSlot, true, new NbtTransformer(nbt)));
+        return addRequirement(new ItemTransformRequirement(ingredient.asVanillaIngredient(), amount, Collections.singletonList(inputSlot), output.getInternal(), output.getInternal().getCount(), Collections.singletonList(outputSlot), true, new NbtTransformer(nbt)));
     }
 
     class NbtTransformer implements Function<ItemStack, ItemStack> {

@@ -149,25 +149,25 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     private final List<FluidMachineComponent> inputs = new ArrayList<>();
     private final List<FluidMachineComponent> outputs = new ArrayList<>();
 
-    public int getIngredientAmount(String tank, FluidIngredient ingredient) {
-        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+    public int getIngredientAmount(List<String> tanks, FluidIngredient ingredient) {
+        Predicate<FluidMachineComponent> tankPredicate = component -> tanks.isEmpty() || tanks.contains(component.getId());
         return this.inputs.stream()
                 .filter(component -> ingredient.test(component.getFluid()) && tankPredicate.test(component))
                 .mapToInt(component -> component.getFluid().getAmount())
                 .sum();
     }
 
-    public int getSpaceForFluid(String tank, FluidStack stack) {
-        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+    public int getSpaceForFluid(List<String> tanks, FluidStack stack) {
+        Predicate<FluidMachineComponent> tankPredicate = component -> tanks.isEmpty() || tanks.contains(component.getId());
         return this.outputs.stream()
                 .filter(component -> component.isFluidValid(0, stack) && tankPredicate.test(component))
                 .mapToInt(FluidMachineComponent::getRecipeRemainingSpace)
                 .sum();
     }
 
-    public void removeFromInputs(String tank, FluidIngredient ingredient, int amount) {
+    public void removeFromInputs(List<String> tanks, FluidIngredient ingredient, int amount) {
         AtomicInteger toRemove = new AtomicInteger(amount);
-        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+        Predicate<FluidMachineComponent> tankPredicate = component -> tanks.isEmpty() || tanks.contains(component.getId());
         this.inputs.stream().filter(component -> ingredient.test(component.getFluid()) && tankPredicate.test(component)).forEach(component -> {
             int maxExtract = Math.min(component.getFluid().getAmount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
@@ -175,9 +175,9 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
         });
     }
 
-    public void addToOutputs(String tank, FluidStack stack) {
+    public void addToOutputs(List<String> tanks, FluidStack stack) {
         AtomicInteger toAdd = new AtomicInteger(stack.getAmount());
-        Predicate<FluidMachineComponent> tankPredicate = component -> tank.isEmpty() || component.getId().equals(tank);
+        Predicate<FluidMachineComponent> tankPredicate = component -> tanks.isEmpty() || tanks.contains(component.getId());
         this.outputs.stream()
                 .filter(component -> component.isFluidValid(0, stack) && tankPredicate.test(component))
                 .sorted(Comparator.comparingInt(component -> FluidStack.isSameFluidSameComponents(component.getFluid(), stack) ? -1 : 1))

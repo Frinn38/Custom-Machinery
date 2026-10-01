@@ -23,12 +23,12 @@ import net.minecraft.world.item.crafting.Ingredient;
 import java.util.Collections;
 import java.util.List;
 
-public record ItemFilterRequirement(Ingredient ingredient, String slot) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public record ItemFilterRequirement(Ingredient ingredient, List<String> slots) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemFilterRequirement> CODEC = NamedCodec.record(itemFilterRequirementInstance ->
             itemFilterRequirementInstance.group(
                     DefaultCodecs.INGREDIENT.fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
-                    NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
+                    NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).forGetter(requirement -> requirement.slots)
             ).apply(itemFilterRequirementInstance, ItemFilterRequirement::new), "Item filter requirement"
     );
 
@@ -67,6 +67,6 @@ public record ItemFilterRequirement(Ingredient ingredient, String slot) implemen
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
-        return Collections.singletonList(new ItemFilterIngredientWrapper(this.ingredient, this.slot));
+        return Collections.singletonList(new ItemFilterIngredientWrapper(this.ingredient, this.slots));
     }
 }

@@ -29,15 +29,15 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     private final SizedIngredient ingredient;
     private final double chance;
     private final boolean useDurability;
-    private final String slot;
+    private final List<String> slots;
     private final boolean showRequireSlot;
 
-    public ItemIngredientWrapper(RequirementIOMode mode, SizedIngredient ingredient, double chance, boolean useDurability, String slot, boolean showRequireSlot) {
+    public ItemIngredientWrapper(RequirementIOMode mode, SizedIngredient ingredient, double chance, boolean useDurability, List<String> slots, boolean showRequireSlot) {
         this.mode = mode;
         this.ingredient = ingredient;
         this.chance = chance;
         this.useDurability = useDurability;
-        this.slot = slot;
+        this.slots = slots;
         this.showRequireSlot = showRequireSlot;
     }
 
@@ -48,7 +48,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
         List<ItemStack> ingredients = Arrays.stream(this.ingredient.ingredient().getItems()).map(item -> item.copyWithCount(this.ingredient.count())).collect(Collectors.toCollection(ArrayList::new));
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(slotElement.getComponentId().equals(this.slot) || template.map(t -> t.getType() != Registration.ITEM_FILTER_MACHINE_COMPONENT.get() && t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slot.isEmpty() || t.getId().equals(this.slot))).orElse(false)) {
+        if(this.slots.contains(slotElement.getComponentId()) || template.map(t -> t.getType() != Registration.ITEM_FILTER_MACHINE_COMPONENT.get() && t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slots.isEmpty() || this.slots.contains(t.getId()))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
             int slotY = element.getY() + (element.getHeight() - 16) / 2;
             builder.addSlot(roleFromMode(this.mode), slotX - xOffset, slotY - yOffset)
@@ -74,7 +74,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
                                     tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
                             }
                         }
-                        if(!this.slot.isEmpty() && this.showRequireSlot && Minecraft.getInstance().options.advancedItemTooltips)
+                        if(!this.slots.isEmpty() && this.slots.contains(slotElement.getComponentId()) && this.showRequireSlot && Minecraft.getInstance().options.advancedItemTooltips)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
                     });
             return true;

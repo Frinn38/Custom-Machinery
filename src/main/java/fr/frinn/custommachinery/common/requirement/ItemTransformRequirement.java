@@ -27,25 +27,26 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
-public record ItemTransformRequirement(Ingredient input, int inputAmount, String inputSlot, ItemStack output, int outputAmount, String outputSlot, boolean copyNbt, @Nullable Function<ItemStack, ItemStack> function) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public record ItemTransformRequirement(Ingredient input, int inputAmount, List<String> inputSlots, ItemStack output, int outputAmount, List<String> outputSlots, boolean copyNbt, @Nullable Function<ItemStack, ItemStack> function) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemTransformRequirement> CODEC = NamedCodec.record(itemTransformRequirementInstance ->
             itemTransformRequirementInstance.group(
                     NamedCodec.of(CraftingHelper.makeIngredientCodec(false)).fieldOf("input").forGetter(requirement -> requirement.input),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("input_amount", 1).forGetter(requirement -> requirement.inputAmount),
-                    NamedCodec.STRING.optionalFieldOf("input_slot", "").forGetter(requirement -> requirement.inputSlot),
+                    NamedCodec.STRING.listOf().optionalFieldOf("input_slots", Collections.emptyList()).aliases("input_slot").forGetter(requirement -> requirement.inputSlots),
                     DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("output", ItemStack.EMPTY).forGetter(requirement -> requirement.output),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("output_amount", 1).forGetter(requirement -> requirement.outputAmount),
-                    NamedCodec.STRING.optionalFieldOf("output_slot", "").forGetter(requirement -> requirement.outputSlot),
+                    NamedCodec.STRING.listOf().optionalFieldOf("output_slots", Collections.emptyList()).aliases("output_slot").forGetter(requirement -> requirement.outputSlots),
                     NamedCodec.BOOL.optionalFieldOf("copy_nbt", true).forGetter(requirement -> requirement.copyNbt)
-            ).apply(itemTransformRequirementInstance, (input, inputAmount, inputSlot, output, outputAmount, outputSlot, copyNBT) ->
-                    new ItemTransformRequirement(input, inputAmount, inputSlot, output, outputAmount, outputSlot, copyNBT, null)), "Item transform requirement"
+            ).apply(itemTransformRequirementInstance, (input, inputAmount, inputSlots, output, outputAmount, outputSlots, copyNBT) ->
+                    new ItemTransformRequirement(input, inputAmount, inputSlots, output, outputAmount, outputSlots, copyNBT, null)), "Item transform requirement"
     );
 
     @Override
@@ -67,7 +68,7 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
     @Override
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         return Arrays.stream(this.input.getItems()).anyMatch(item -> {
-            if(component.getIngredientAmount(this.inputSlot, Ingredient.of(item)) < this.inputAmount)
+            if(component.getIngredientAmount(this.inputSlots, Ingredient.of(item)) < this.inputAmount)
                 return false;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
             ItemStack output = this.output.copyWithCount(this.outputAmount);
@@ -79,7 +80,7 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
                         this.setDataComponent(output, entry.getKey(), entry.getValue().get());
                 }
             }
-            return component.getSpaceForItem(this.outputSlot, output) >= this.outputAmount;
+            return component.getSpaceForItem(this.outputSlots, output) >= this.outputAmount;
         });
     }
 
@@ -91,7 +92,7 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
     private CraftingResult processTransform(ItemComponentHandler component, ICraftingContext context) {
         for(ItemStack item : this.input.getItems()) {
             Ingredient ingredient = Ingredient.of(item);
-            if(component.getIngredientAmount(this.inputSlot, ingredient) < this.inputAmount)
+            if(component.getIngredientAmount(this.inputSlots, ingredient) < this.inputAmount)
                 continue;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
             ItemStack output = this.output.copyWithCount(this.outputAmount);
@@ -103,10 +104,10 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
                         this.setDataComponent(output, entry.getKey(), entry.getValue().get());
                 }
             }
-            if(component.getSpaceForItem(this.outputSlot, output) < this.outputAmount)
+            if(component.getSpaceForItem(this.outputSlots, output) < this.outputAmount)
                 continue;
-            component.removeFromInputs(this.inputSlot, ingredient, this.inputAmount);
-            component.addToOutputs(this.outputSlot, output, this.outputAmount);
+            component.removeFromInputs(this.inputSlots, ingredient, this.inputAmount);
+            component.addToOutputs(this.outputSlots, output, this.outputAmount);
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.item_transform.error", this.input.toString(), this.inputAmount));
@@ -115,8 +116,8 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, String
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
         return Lists.newArrayList(
-                new ItemIngredientWrapper(RequirementIOMode.INPUT, new SizedIngredient(this.input, this.inputAmount), requirement.chance(), false, this.inputSlot, true),
-                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == ItemStack.EMPTY ? new SizedIngredient(this.input, this.inputAmount) : new SizedIngredient(Ingredient.of(this.output), this.outputAmount), requirement.chance(), false, this.outputSlot, true)
+                new ItemIngredientWrapper(RequirementIOMode.INPUT, new SizedIngredient(this.input, this.inputAmount), requirement.chance(), false, this.inputSlots, true),
+                new ItemIngredientWrapper(RequirementIOMode.OUTPUT, this.output == ItemStack.EMPTY ? new SizedIngredient(this.input, this.inputAmount) : new SizedIngredient(Ingredient.of(this.output), this.outputAmount), requirement.chance(), false, this.outputSlots, true)
         );
     }
 

@@ -10,22 +10,24 @@ import org.openzen.zencode.java.ZenCodeType.Method;
 import org.openzen.zencode.java.ZenCodeType.Name;
 import org.openzen.zencode.java.ZenCodeType.OptionalString;
 
+import java.util.Collections;
+
 @ZenRegister
 @Name(CTConstants.REQUIREMENT_DURABILITY)
 public interface DurabilityRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T damageItem(IIngredient ingredient, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ingredient.asVanillaIngredient(), amount, true, slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ingredient.asVanillaIngredient(), amount, true, Collections.singletonList(slot)));
     }
 
     @Method
     default T damageItemNoBreak(IIngredient ingredient, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ingredient.asVanillaIngredient(), amount, false, slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.INPUT, ingredient.asVanillaIngredient(), amount, false, Collections.singletonList(slot)));
     }
 
     @Method
     default T repairItem(IIngredient ingredient, int amount, @OptionalString String slot) {
-        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ingredient.asVanillaIngredient(), amount, false, slot));
+        return addRequirement(new DurabilityRequirement(RequirementIOMode.OUTPUT, ingredient.asVanillaIngredient(), amount, false, Collections.singletonList(slot)));
     }
 }

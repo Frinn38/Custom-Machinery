@@ -258,22 +258,22 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     private final List<ItemMachineComponent> inputs = new ArrayList<>();
     private final List<ItemMachineComponent> outputs = new ArrayList<>();
 
-    public int getIngredientAmount(String slot, Ingredient ingredient) {
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
+    public int getIngredientAmount(List<String> slots, Ingredient ingredient) {
+        Predicate<ItemMachineComponent> slotPredicate = component -> slots.isEmpty() || slots.contains(component.getId());
         return this.inputs.stream().filter(component -> ingredient.test(component.getItemStack()) && slotPredicate.test(component))
                 .mapToInt(component -> component.getItemStack().getCount())
                 .sum();
     }
 
-    public int getDurabilityAmount(String slot, ItemStack stack) {
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
+    public int getDurabilityAmount(List<String> slots, ItemStack stack) {
+        Predicate<ItemMachineComponent> slotPredicate = component -> slots.isEmpty() || slots.contains(component.getId());
         return this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component))
                 .mapToInt(component -> component.getItemStack().getMaxDamage() - component.getItemStack().getDamageValue())
                 .sum();
     }
 
-    public int getSpaceForItem(String slot, ItemStack stack) {
-        return this.outputs.stream().filter(component -> canPlaceOutput(component, slot, stack))
+    public int getSpaceForItem(List<String> slots, ItemStack stack) {
+        return this.outputs.stream().filter(component -> canPlaceOutput(component, slots, stack))
                 .mapToInt(component -> {
                     if(component.getItemStack().isEmpty())
                         return Math.min(component.getCapacity(), stack.getMaxStackSize());
@@ -283,9 +283,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
                 .sum();
     }
 
-    private boolean canPlaceOutput(ItemMachineComponent component, @Nullable String slot, ItemStack stack) {
+    private boolean canPlaceOutput(ItemMachineComponent component, List<String> slots, ItemStack stack) {
         //Not the specified slot
-        if(slot != null && !slot.isEmpty() && !component.getId().equals(slot))
+        if(!slots.isEmpty() && !slots.contains(component.getId()))
             return false;
 
         //Check component filter and variant
@@ -304,16 +304,16 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         return component.getItemStack().getCount() < Math.min(stack.getMaxStackSize(), component.getCapacity());
     }
 
-    public int getSpaceForDurability(String slot, ItemStack stack) {
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
+    public int getSpaceForDurability(List<String> slots, ItemStack stack) {
+        Predicate<ItemMachineComponent> slotPredicate = component -> slots.isEmpty() || slots.contains(component.getId());
         return this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component))
                 .mapToInt(component -> component.getItemStack().getDamageValue())
                 .sum();
     }
 
-    public void removeFromInputs(String slot, Ingredient ingredient, int amount) {
+    public void removeFromInputs(List<String> slots, Ingredient ingredient, int amount) {
         AtomicInteger toRemove = new AtomicInteger(amount);
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
+        Predicate<ItemMachineComponent> slotPredicate = component -> slots.isEmpty() || slots.contains(component.getId());
         this.inputs.stream().filter(component -> ingredient.test(component.getItemStack()) && slotPredicate.test(component)).forEach(component -> {
             int maxExtract = Math.min(component.getItemStack().getCount(), toRemove.get());
             toRemove.addAndGet(-maxExtract);
@@ -322,9 +322,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
-    public void removeDurability(String slot, ItemStack input, int amount, boolean canBreak) {
+    public void removeDurability(List<String> slots, ItemStack input, int amount, boolean canBreak) {
         AtomicInteger toRemove = new AtomicInteger(amount);
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
+        Predicate<ItemMachineComponent> slotPredicate = component -> slots.isEmpty() || slots.contains(component.getId());
         this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), input) && component.getItemStack().isDamageableItem() && slotPredicate.test(component)).forEach(component -> {
             int maxRemove = Math.min(component.getItemStack().getMaxDamage() - component.getItemStack().getDamageValue(), toRemove.get());
             ItemStack stack = component.getItemStack();
@@ -343,9 +343,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
-    public void addToOutputs(String slot, ItemStack stack, int amount) {
+    public void addToOutputs(List<String> slots, ItemStack stack, int amount) {
         AtomicInteger toAdd = new AtomicInteger(amount);
-        this.outputs.stream().filter(component -> canPlaceOutput(component, slot, stack)).forEach(component -> {
+        this.outputs.stream().filter(component -> canPlaceOutput(component, slots, stack)).forEach(component -> {
             int maxInsert = toAdd.get() - component.insertItemBypassLimit(stack, true).getCount();
             toAdd.addAndGet(-maxInsert);
             component.insertItemBypassLimit(stack.copyWithCount(maxInsert), false);
@@ -353,9 +353,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         getManager().markDirty();
     }
 
-    public void repairItem(String slot, ItemStack stack, int amount) {
+    public void repairItem(List<String> slots, ItemStack stack, int amount) {
         AtomicInteger toRepair = new AtomicInteger(amount);
-        Predicate<ItemMachineComponent> slotPredicate = component -> slot.isEmpty() || component.getId().equals(slot);
+        Predicate<ItemMachineComponent> slotPredicate = component -> slots.isEmpty() || slots.contains(component.getId());
         this.inputs.stream().filter(component -> isSameItem(component.getItemStack(), stack) && component.getItemStack().isDamageableItem() && slotPredicate.test(component)).forEach(component -> {
             int maxRepair = Math.min(component.getItemStack().getDamageValue(), toRepair.get());
             toRepair.addAndGet(-maxRepair);
