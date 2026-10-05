@@ -9,12 +9,14 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.crafting.RequirementList;
 import fr.frinn.custommachinery.impl.crafting.RequirementList.RequirementWithFunction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -109,7 +111,12 @@ public class CraftProcessor implements IProcessor {
         this.currentContext = new CraftingContext(this.tile, recipe, () -> 0.0, 0);
         this.tile.getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == Registration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
-                .ifPresent(component -> component.setItemStack(recipe.value().getOutput().copy()));
+                .ifPresent(component -> {
+                    ItemStack result = recipe.value().getOutput().copy();
+                    if(!recipe.value().getTransform().isEmpty() && ModList.get().isLoaded("kubejs"))
+                        result = KubeJSIntegration.sendItemTransformEvent(recipe.value().getTransform(), this.currentContext, result);
+                    component.setItemStack(result);
+                });
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

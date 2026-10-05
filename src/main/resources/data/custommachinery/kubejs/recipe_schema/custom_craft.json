@@ -52,6 +52,12 @@
             "type": "boolean",
             "optional": false,
             "excluded": true
+        },
+        {
+            "name": "transform",
+            "type": "optional_string",
+            "optional": "",
+            "excluded": true
         }
     ],
     "functions": {

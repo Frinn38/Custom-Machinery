@@ -20,6 +20,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.integration.kubejs.CustomMachineUpgradeJSBuilder.UpgradeKubeEvent;
+import fr.frinn.custommachinery.common.integration.kubejs.craft.CraftResultTransformKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.FunctionKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.MachineJS;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
@@ -32,12 +33,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
     public static final EventGroup CM_EVENTS = EventGroup.of("CustomMachineryEvents");
     public static final EventHandler UPGRADES = CM_EVENTS.server("upgrades", () -> UpgradeKubeEvent.class);
     public static final TargetedEventHandler<String> FUNCTIONS = CM_EVENTS.server("recipeFunction", () -> FunctionKubeEvent.class).hasResult(TypeInfo.of(Component.class)).requiredTarget(EventTargetType.STRING);
+    public static final TargetedEventHandler<String> CRAFT_RESULT_TRANSFORM = CM_EVENTS.server("transformCraftResult", () -> CraftResultTransformKubeEvent.class).hasResult(TypeInfo.of(ItemStack.class)).requiredTarget(EventTargetType.STRING);
 
     @Override
     public void registerBuilderTypes(BuilderTypeRegistry registry) {

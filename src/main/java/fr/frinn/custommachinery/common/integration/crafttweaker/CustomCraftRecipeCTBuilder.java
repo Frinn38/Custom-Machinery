@@ -71,7 +71,7 @@ public class CustomCraftRecipeCTBuilder implements EnergyRequirementCT<CustomCra
     @Method
     public static CustomCraftRecipeCTBuilder create(String machine, IItemStack output) {
         try {
-            return new CustomCraftRecipeCTBuilder(new CustomCraftRecipeBuilder(ResourceLocation.parse(machine), output.getImmutableInternal()));
+            return new CustomCraftRecipeCTBuilder(new CustomCraftRecipeBuilder(ResourceLocation.parse(machine), output.getImmutableInternal(), ""));
         } catch (ResourceLocationException e) {
             throw new IllegalArgumentException("Invalid Machine name: " + machine + "\n" + e.getMessage());
         }

@@ -34,8 +34,9 @@ public class CustomCraftRecipe implements IMachineRecipe {
     private final int priority;
     private final int jeiPriority;
     private final boolean hidden;
+    private final String transform;
 
-    public CustomCraftRecipe(ResourceLocation machine, ItemStack output, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean hidden) {
+    public CustomCraftRecipe(ResourceLocation machine, ItemStack output, List<RecipeRequirement<?, ?>> requirements, List<RecipeRequirement<?, ?>> jeiRequirements, int priority, int jeiPriority, boolean hidden, String transform) {
         this.machine = machine;
         this.output = output;
         this.requirements = validateRequirements(requirements);
@@ -43,6 +44,7 @@ public class CustomCraftRecipe implements IMachineRecipe {
         this.priority = priority;
         this.jeiPriority = jeiPriority;
         this.hidden = hidden;
+        this.transform = transform;
     }
 
     @Override
@@ -52,6 +54,10 @@ public class CustomCraftRecipe implements IMachineRecipe {
 
     public ItemStack getOutput() {
         return this.output;
+    }
+
+    public String getTransform() {
+        return this.transform;
     }
 
     private List<RecipeRequirement<?, ?>> validateRequirements(List<RecipeRequirement<?, ?>> requirements) {

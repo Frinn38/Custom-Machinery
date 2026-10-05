@@ -20,9 +20,10 @@ public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftR
                     RecipeRequirement.CODEC.listOf().optionalFieldOf("jei", Collections.emptyList()).forGetter(AbstractRecipeBuilder::getJeiRequirements),
                     NamedCodec.INT.optionalFieldOf("priority", 0).forGetter(AbstractRecipeBuilder::getPriority),
                     NamedCodec.INT.optionalFieldOf("jeiPriority", 0).forGetter(AbstractRecipeBuilder::getJeiPriority),
-                    NamedCodec.BOOL.optionalFieldOf("hidden", false).forGetter(AbstractRecipeBuilder::isHidden)
-            ).apply(builderInstance, (machine, output, requirements, jeiRequirements, priority, jeiPriority, hidden) -> {
-                    CustomCraftRecipeBuilder builder = new CustomCraftRecipeBuilder(machine, output);
+                    NamedCodec.BOOL.optionalFieldOf("hidden", false).forGetter(AbstractRecipeBuilder::isHidden),
+                    NamedCodec.STRING.optionalFieldOf("transform", "").forGetter(builder -> builder.transform)
+            ).apply(builderInstance, (machine, output, requirements, jeiRequirements, priority, jeiPriority, hidden, transform) -> {
+                    CustomCraftRecipeBuilder builder = new CustomCraftRecipeBuilder(machine, output, transform);
                     requirements.forEach(builder::withRequirement);
                     jeiRequirements.forEach(builder::withJeiRequirement);
                     builder.withPriority(priority);
@@ -34,19 +35,22 @@ public class CustomCraftRecipeBuilder extends AbstractRecipeBuilder<CustomCraftR
     );
 
     private final ItemStack output;
+    private final String transform;
 
-    public CustomCraftRecipeBuilder(ResourceLocation machine, ItemStack output) {
+    public CustomCraftRecipeBuilder(ResourceLocation machine, ItemStack output, String transform) {
         super(machine);
         this.output = output;
+        this.transform = transform;
     }
 
     public CustomCraftRecipeBuilder(CustomCraftRecipe recipe) {
         super(recipe);
         this.output = recipe.getOutput();
+        this.transform = recipe.getTransform();
     }
 
     @Override
     public CustomCraftRecipe build() {
-        return new CustomCraftRecipe(this.getMachine(), this.output, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority(), this.isHidden());
+        return new CustomCraftRecipe(this.getMachine(), this.output, this.getRequirements(), this.getJeiRequirements(), this.getPriority(), this.getJeiPriority(), this.isHidden(), this.transform);
     }
 }
