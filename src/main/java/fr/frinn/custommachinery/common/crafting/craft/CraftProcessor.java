@@ -116,7 +116,7 @@ public class CraftProcessor implements IProcessor {
                 .ifPresent(component -> {
                     ItemStack result = recipe.value().getOutput().copy();
                     if(!recipe.value().getTransform().isEmpty() && ModList.get().isLoaded("kubejs"))
-                        result = KubeJSIntegration.sendItemTransformEvent(recipe.value().getTransform(), this.currentContext, result);
+                        result = KubeJSIntegration.sendCraftResultTransformEvent(recipe.value().getTransform(), this.currentContext, result);
                     component.setItemStack(result);
                 });
     }

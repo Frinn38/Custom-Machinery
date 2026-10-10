@@ -11,6 +11,7 @@ import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.common.integration.kubejs.CustomMachineUpgradeJSBuilder.UpgradeKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.craft.CraftResultTransformKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.FunctionKubeEvent;
+import fr.frinn.custommachinery.common.integration.kubejs.transform.ItemTransformKubeEvent;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
@@ -127,7 +128,7 @@ public class KubeJSIntegration {
         ScriptType.SERVER.console.error("Error while processing function requirement: ", error);
     }
 
-    public static ItemStack sendItemTransformEvent(String id, ICraftingContext context, ItemStack originalResult) {
+    public static ItemStack sendCraftResultTransformEvent(String id, ICraftingContext context, ItemStack originalResult) {
         if(!CustomMachineryKubeJSPlugin.CRAFT_RESULT_TRANSFORM.hasListeners(id))
             return originalResult;
         EventResult result = CustomMachineryKubeJSPlugin.CRAFT_RESULT_TRANSFORM.post(new CraftResultTransformKubeEvent(context, originalResult), id);
@@ -136,5 +137,16 @@ public class KubeJSIntegration {
         else if((result.interruptTrue() || result.interruptDefault()) && result.value() != null)
             return ItemWrapper.wrap(result.cx(), result.value());
         return originalResult;
+    }
+
+    public static ItemStack sendItemTransformEvent(String id, ICraftingContext context, ItemStack input, ItemStack originalOutput) {
+        if(!CustomMachineryKubeJSPlugin.ITEM_TRANSFORM.hasListeners(id))
+            return originalOutput;
+        EventResult result = CustomMachineryKubeJSPlugin.ITEM_TRANSFORM.post(new ItemTransformKubeEvent(context, input, originalOutput), id);
+        if(result.value() instanceof ItemStack stack)
+            return stack;
+        else if((result.interruptTrue() || result.interruptDefault()) && result.value() != null)
+            return ItemWrapper.wrap(result.cx(), result.value());
+        return originalOutput;
     }
 }

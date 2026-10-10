@@ -17,36 +17,36 @@ import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWra
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.crafting.CraftingHelper;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
 
 @SuppressWarnings("UnstableApiUsage")
-public record ItemTransformRequirement(Ingredient input, int inputAmount, List<String> inputSlots, ItemStack output, int outputAmount, List<String> outputSlots, boolean copyNbt, @Nullable Function<ItemStack, ItemStack> function) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public record ItemTransformRequirement(Ingredient input, int inputAmount, List<String> inputSlots, ItemStack output, int outputAmount, List<String> outputSlots, boolean copyNbt, String transform) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
     public static final NamedCodec<ItemTransformRequirement> CODEC = NamedCodec.record(itemTransformRequirementInstance ->
             itemTransformRequirementInstance.group(
-                    NamedCodec.of(CraftingHelper.makeIngredientCodec(false)).fieldOf("input").forGetter(requirement -> requirement.input),
-                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("input_amount", 1).forGetter(requirement -> requirement.inputAmount),
-                    NamedCodec.STRING.listOf().optionalFieldOf("input_slots", Collections.emptyList()).aliases("input_slot").forGetter(requirement -> requirement.inputSlots),
-                    DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("output", ItemStack.EMPTY).forGetter(requirement -> requirement.output),
-                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("output_amount", 1).forGetter(requirement -> requirement.outputAmount),
-                    NamedCodec.STRING.listOf().optionalFieldOf("output_slots", Collections.emptyList()).aliases("output_slot").forGetter(requirement -> requirement.outputSlots),
-                    NamedCodec.BOOL.optionalFieldOf("copy_nbt", true).forGetter(requirement -> requirement.copyNbt)
-            ).apply(itemTransformRequirementInstance, (input, inputAmount, inputSlots, output, outputAmount, outputSlots, copyNBT) ->
-                    new ItemTransformRequirement(input, inputAmount, inputSlots, output, outputAmount, outputSlots, copyNBT, null)), "Item transform requirement"
+                    NamedCodec.of(CraftingHelper.makeIngredientCodec(false)).fieldOf("input").forGetter(ItemTransformRequirement::input),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("input_amount", 1).forGetter(ItemTransformRequirement::inputAmount),
+                    NamedCodec.STRING.listOf().optionalFieldOf("input_slots", Collections.emptyList()).aliases("input_slot").forGetter(ItemTransformRequirement::inputSlots),
+                    DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("output", ItemStack.EMPTY).forGetter(ItemTransformRequirement::output),
+                    NamedCodec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("output_amount", 1).forGetter(ItemTransformRequirement::outputAmount),
+                    NamedCodec.STRING.listOf().optionalFieldOf("output_slots", Collections.emptyList()).aliases("output_slot").forGetter(ItemTransformRequirement::outputSlots),
+                    NamedCodec.BOOL.optionalFieldOf("copy_nbt", true).forGetter(ItemTransformRequirement::copyNbt),
+                    NamedCodec.STRING.optionalFieldOf("transform", "").forGetter(ItemTransformRequirement::transform)
+            ).apply(itemTransformRequirementInstance, ItemTransformRequirement::new), "Item transform requirement"
     );
 
     @Override
@@ -72,15 +72,15 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, List<S
                 return false;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
             ItemStack output = this.output.copyWithCount(this.outputAmount);
-            if(this.function != null)
-                output = this.function.apply(input.copy());
+            if(!this.transform.isEmpty() && ModList.get().isLoaded("kubejs"))
+                output = KubeJSIntegration.sendItemTransformEvent(this.transform, context, input, output);
             else if(this.copyNbt && this.output != ItemStack.EMPTY) {
                 for(Entry<DataComponentType<?>, Optional<?>> entry : input.getComponentsPatch().entrySet()) {
                     if(entry.getValue().isPresent())
                         this.setDataComponent(output, entry.getKey(), entry.getValue().get());
                 }
             }
-            return component.getSpaceForItem(this.outputSlots, output) >= this.outputAmount;
+            return component.getSpaceForItem(this.outputSlots, output) >= output.getCount();
         });
     }
 
@@ -96,18 +96,18 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, List<S
                 continue;
             ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
             ItemStack output = this.output.copyWithCount(this.outputAmount);
-            if(this.function != null)
-                output = this.function.apply(input.copy());
+            if(!this.transform.isEmpty() && ModList.get().isLoaded("kubejs"))
+                output = KubeJSIntegration.sendItemTransformEvent(this.transform, context, input, output);
             else if(this.copyNbt && this.output != ItemStack.EMPTY) {
                 for(Entry<DataComponentType<?>, Optional<?>> entry : input.getComponentsPatch().entrySet()) {
                     if(entry.getValue().isPresent())
                         this.setDataComponent(output, entry.getKey(), entry.getValue().get());
                 }
             }
-            if(component.getSpaceForItem(this.outputSlots, output) < this.outputAmount)
+            if(component.getSpaceForItem(this.outputSlots, output) < output.getCount())
                 continue;
-            component.removeFromInputs(this.inputSlots, ingredient, this.inputAmount);
-            component.addToOutputs(this.outputSlots, output, this.outputAmount);
+            component.removeFromInputs(this.inputSlots, ingredient, input.getCount());
+            component.addToOutputs(this.outputSlots, output, output.getCount());
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.item_transform.error", this.input.toString(), this.inputAmount));

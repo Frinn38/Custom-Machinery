@@ -23,7 +23,7 @@ public interface ItemTransformRequirementCT<T> extends RecipeCTBuilder<T> {
 
     @Method
     default T transformItem(IIngredient ingredient, @OptionalInt(1) int amount, @Optional IItemStack output, @OptionalString String inputSlot, @OptionalString String outputSlot, @Optional Function<IItemStack, IItemStack> nbt) {
-        return addRequirement(new ItemTransformRequirement(ingredient.asVanillaIngredient(), amount, Collections.singletonList(inputSlot), output.getInternal(), output.getInternal().getCount(), Collections.singletonList(outputSlot), true, new NbtTransformer(nbt)));
+        return addRequirement(new ItemTransformRequirement(ingredient.asVanillaIngredient(), amount, Collections.singletonList(inputSlot), output.getInternal(), output.getInternal().getCount(), Collections.singletonList(outputSlot), true, ""));
     }
 
     class NbtTransformer implements Function<ItemStack, ItemStack> {
