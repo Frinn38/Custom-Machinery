@@ -66,6 +66,8 @@ public class CraftProcessor implements IProcessor {
             this.recipeCheckCooldown = 20;
             if(!this.checkRecipe(this.currentRecipe, this.currentContext))
                 this.reset();
+            else
+                this.setCurrentRecipe(this.currentRecipe);
         }
 
         this.shouldCheck = false;
