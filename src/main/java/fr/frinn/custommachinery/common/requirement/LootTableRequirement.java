@@ -94,9 +94,9 @@ public class LootTableRequirement implements IRequirement<ItemComponentHandler>,
         Iterator<ItemStack> iterator = toOutput.iterator();
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
-            if(component.getSpaceForItem(Collections.singletonList(""), stack) < stack.getCount())
+            if(component.getSpaceForItem(Collections.emptyList(), stack) < stack.getCount())
                 return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", stack.getCount(), Component.translatable(stack.getDescriptionId())));
-            component.addToOutputs(Collections.singletonList(""), stack, stack.getCount());
+            component.addToOutputs(Collections.emptyList(), stack, stack.getCount());
             iterator.remove();
         }
         return CraftingResult.success();

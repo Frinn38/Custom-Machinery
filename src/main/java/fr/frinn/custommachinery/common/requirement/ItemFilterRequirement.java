@@ -28,7 +28,7 @@ public record ItemFilterRequirement(Ingredient ingredient, List<String> slots) i
     public static final NamedCodec<ItemFilterRequirement> CODEC = NamedCodec.record(itemFilterRequirementInstance ->
             itemFilterRequirementInstance.group(
                     DefaultCodecs.INGREDIENT.fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
-                    NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).forGetter(requirement -> requirement.slots)
+                    NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(requirement -> requirement.slots)
             ).apply(itemFilterRequirementInstance, ItemFilterRequirement::new), "Item filter requirement"
     );
 
