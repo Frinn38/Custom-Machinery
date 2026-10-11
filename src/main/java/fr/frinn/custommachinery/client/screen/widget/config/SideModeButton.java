@@ -1,17 +1,17 @@
 package fr.frinn.custommachinery.client.screen.widget.config;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.ConfigButtonData;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 
 import java.util.function.Supplier;
@@ -34,12 +34,10 @@ public class SideModeButton extends ImageButton {
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         int color = this.modeGetter.get().color();
-        float r = ARGB.red(color) / 255.0F;
-        float g = ARGB.green(color) / 255.0F;
-        float b = ARGB.blue(color) / 255.0F;
-        //RenderSystem.setShaderColor(r, g, b, 1);
-        super.extractContents(graphics, mouseX, mouseY, partialTick);
-        //RenderSystem.setShaderColor(1, 1, 1, 1);
+        if(ARGB.alpha(color) == 0)
+            color = ARGB.white(1.0f);
+        Identifier sprite = this.sprites.get(this.isActive(), this.isHoveredOrFocused());
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.width, this.height, color);
         this.updateTooltips();
     }
 

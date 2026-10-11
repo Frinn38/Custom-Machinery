@@ -1,7 +1,8 @@
-package fr.frinn.custommachinery.impl.guielement;
+package fr.frinn.custommachinery.impl.client;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 

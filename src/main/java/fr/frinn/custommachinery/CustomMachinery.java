@@ -8,8 +8,8 @@ import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.BoxCreatorItem;
-import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.integration.theoneprobe.TOPInfoProvider;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.machine.CustomMachineJsonReloadListener;
@@ -103,6 +103,7 @@ public class CustomMachinery {
         GAME_BUS.addListener(this::registerCommands);
         GAME_BUS.addListener(this::boxRendererLeftClick);
         GAME_BUS.addListener(this::onReloadStart);
+        GAME_BUS.addListener(this::onDatapackSync);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -214,6 +215,11 @@ public class CustomMachinery {
     private void onReloadStart(final CommandEvent event) {
         if(event.getParseResults().getReader().getString().equals("reload") && event.getParseResults().getContext().getSource().permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
             CMLogger.reset();
+    }
+
+    private void onDatapackSync(final OnDatapackSyncEvent event)  {
+        event.sendRecipes(CMRegistration.CUSTOM_MACHINE_RECIPE.get());
+        event.sendRecipes(CMRegistration.CUSTOM_CRAFT_RECIPE.get());
     }
 
     public static Identifier rl(String path) {

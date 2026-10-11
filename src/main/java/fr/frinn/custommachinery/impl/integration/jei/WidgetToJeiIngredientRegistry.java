@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.impl.integration.jei;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.RegisterWidgetToJeiIngredientGetterEvent;
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.runtime.IClickableIngredient;
 import net.neoforged.fml.ModLoader;

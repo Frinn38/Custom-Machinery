@@ -1,22 +1,20 @@
 package fr.frinn.custommachinery.client.element;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.BarGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BarGuiElementWidget extends AbstractGuiElementWidget<BarGuiElement> {
+public class BarGuiElementRenderable extends AbstractGuiElementRenderable<BarGuiElement> {
 
-    private static final Component TITLE = Component.literal("Bar");
-
-    public BarGuiElementWidget(BarGuiElement element, IMachineScreen screen) {
-        super(element, screen, TITLE);
+    public BarGuiElementRenderable(BarGuiElement element, IMachineScreen screen) {
+        super(element, screen);
     }
 
     @Override
@@ -29,10 +27,10 @@ public class BarGuiElementWidget extends AbstractGuiElementWidget<BarGuiElement>
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        ClientHandler.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getX(), this.getY(), this.width, this.height, this.getFillingPercent(), this.getElement().getOrientation());
-        if(this.isHovered() && this.getElement().isHighlight())
-            ClientHandler.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2);
+    public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        ClientHandler.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight(), this.getFillingPercent(), this.getElement().getOrientation());
+        if(this.isHovered(mouseX, mouseY) && this.getElement().isHighlight())
+            ClientHandler.renderSlotHighlight(graphics, this.getElement().getX() + 1, this.getElement().getY() + 1, this.getElement().getWidth() - 2, this.getElement().getHeight() - 2);
     }
 
     private double getFillingPercent() {

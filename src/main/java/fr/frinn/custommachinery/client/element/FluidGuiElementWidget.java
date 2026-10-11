@@ -1,12 +1,12 @@
 package fr.frinn.custommachinery.client.element;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.render.FluidRenderer;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.TexturedGuiElementWidget;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 

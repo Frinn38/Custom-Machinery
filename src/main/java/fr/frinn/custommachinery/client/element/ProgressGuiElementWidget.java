@@ -1,24 +1,22 @@
 package fr.frinn.custommachinery.client.element;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.client.render.ProgressArrowRenderer;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessorCore;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.network.chat.Component;
 
-public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressBarGuiElement> {
+public class ProgressGuiElementWidget extends AbstractGuiElementRenderable<ProgressBarGuiElement> {
 
     public ProgressGuiElementWidget(ProgressBarGuiElement element, IMachineScreen screen) {
-        super(element, screen, Component.literal("Progress Bar"));
+        super(element, screen);
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        ProgressArrowRenderer.renderProgressArrow(graphics, this.getElement(), this.getX(), this.getY(), this.getRecipeProgressPercent());
+    public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        ProgressArrowRenderer.renderProgressArrow(graphics, this.getElement(), this.getElement().getX(), this.getElement().getY(), this.getRecipeProgressPercent());
     }
 
     public double getRecipeProgressPercent() {
@@ -32,10 +30,5 @@ public class ProgressGuiElementWidget extends AbstractGuiElementWidget<ProgressB
             return (System.currentTimeMillis() % 2000) / 2000.0D;
         else
             return 0;
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        return false;
     }
 }

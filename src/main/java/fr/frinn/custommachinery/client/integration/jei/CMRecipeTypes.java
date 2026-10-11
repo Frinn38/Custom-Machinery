@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.client.integration.jei;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.common.crafting.craft.CustomCraftRecipe;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
-import fr.frinn.custommachinery.common.init.CMRegistration;
 import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -30,14 +29,16 @@ public class CMRecipeTypes {
         return CRAFT_TYPES.get(id);
     }
 
+    @SuppressWarnings("unchecked")
     public static IRecipeType<RecipeHolder<CustomMachineRecipe>> createMachine(Identifier id) {
-        IRecipeType<RecipeHolder<CustomMachineRecipe>> type = IRecipeType.create(CMRegistration.CUSTOM_MACHINE_RECIPE.get());
+        IRecipeType<RecipeHolder<CustomMachineRecipe>> type = IRecipeType.create(id, (Class<? extends RecipeHolder<CustomMachineRecipe>>) (Object) RecipeHolder.class);
         MACHINE_TYPES.put(id, type);
         return type;
     }
 
+    @SuppressWarnings("unchecked")
     public static IRecipeType<RecipeHolder<CustomCraftRecipe>> createCraft(Identifier id) {
-        IRecipeType<RecipeHolder<CustomCraftRecipe>> type = IRecipeType.create(CMRegistration.CUSTOM_CRAFT_RECIPE.get());
+        IRecipeType<RecipeHolder<CustomCraftRecipe>> type = IRecipeType.create(id,  (Class<? extends RecipeHolder<CustomCraftRecipe>>) (Object) RecipeHolder.class);
         CRAFT_TYPES.put(id, type);
         return type;
     }

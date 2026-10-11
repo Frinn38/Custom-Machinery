@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
@@ -74,28 +75,28 @@ public class MachineListWidget extends ListWidget<MachineEntry> {
             //Item
             graphics.item(CustomMachineItem.makeMachineItem(this.machine.getId()), x + 2, y + height / 2 - 8);
             //Name
-            graphics.text(this.mc.font, this.machine.getName(), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0, false);
+            graphics.text(this.mc.font, this.machine.getName(), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, ARGB.black(1.0f), false);
             //Id
-            BaseScreen.drawScaledString(graphics, this.mc.font, Component.literal(this.machine.getId().toString()).withStyle(ChatFormatting.DARK_GRAY), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.8f, 0, false);
+            BaseScreen.drawScaledString(graphics, this.mc.font, Component.literal(this.machine.getId().toString()).withStyle(ChatFormatting.DARK_GRAY), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.8f, ARGB.black(1.0f), false);
             //Loader
-            BaseScreen.drawScaledString(graphics, this.mc.font, this.machine.getLocation().loader().getTranslatedName().withStyle(ChatFormatting.ITALIC), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.7f, 0, false);
+            BaseScreen.drawScaledString(graphics, this.mc.font, this.machine.getLocation().loader().getTranslatedName().withStyle(ChatFormatting.ITALIC), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.7f, ARGB.black(1.0f), false);
             //Creation time
             if(this.machine.getLocation().created().toMillis() != 0) {
                 String creationTime = new SimpleDateFormat("dd/MM/yy HH:mm").format(this.machine.getLocation().created().toMillis());
                 Component creation = Component.translatable("custommachinery.gui.creation.time.created", creationTime).withStyle(ChatFormatting.DARK_GRAY);
-                BaseScreen.drawScaledString(graphics, this.mc.font, creation, x + width - this.mc.font.width(creation) / 2 - 10, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.5f, 0, false);
+                BaseScreen.drawScaledString(graphics, this.mc.font, creation, x + width - this.mc.font.width(creation) / 2 - 10, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.5f, ARGB.black(1.0f), false);
             }
             //Modification time
             if(this.machine.getLocation().modified().toMillis() != 0) {
                 String modificationTime = new SimpleDateFormat("dd/MM/yy HH:mm").format(this.machine.getLocation().modified().toMillis());
                 Component modification = Component.translatable("custommachinery.gui.creation.time.modified", modificationTime).withStyle(ChatFormatting.DARK_GRAY);
-                BaseScreen.drawScaledString(graphics, this.mc.font, modification, x + width - this.mc.font.width(modification) / 2 - 11, y + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.5f, 0, false);
+                BaseScreen.drawScaledString(graphics, this.mc.font, modification, x + width - this.mc.font.width(modification) / 2 - 11, y + height / 2 - this.mc.font.lineHeight / 2 + 9, 0.5f, ARGB.black(1.0f), false);
             }
             //Warning
             switch (this.errors) {
-                case 0 -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.ok"), x + width - 10, y + 3, 0.7f, 43520, false);
-                case 1 -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.error"), x + width - 10, y + 3, 0.7f, 11141120, false);
-                default -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.errors", this.errors), x + width - 10, y + 3, 0.7f, 11141120, false);
+                case 0 -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.ok"), x + width - 10, y + 3, 0.7f, ARGB.color(255, 0, 170, 0), false);
+                case 1 -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.error"), x + width - 10, y + 3, 0.7f, ARGB.color(255, 170, 0, 0), false);
+                default -> BaseScreen.drawRightAlignedScaledString(graphics, this.mc.font, Component.translatable("custommachinery.gui.creation.warning.errors", this.errors), x + width - 10, y + 3, 0.7f, ARGB.color(255, 170, 0, 0), false);
             }
         }
 

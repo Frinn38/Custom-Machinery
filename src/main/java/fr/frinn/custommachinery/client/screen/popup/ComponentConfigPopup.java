@@ -15,7 +15,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class ComponentConfigPopup extends PopupScreen {
@@ -62,8 +64,8 @@ public class ComponentConfigPopup extends PopupScreen {
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        graphics.blit(this.guiData.background().texture(), this.x, this.y, this.guiData.background().u(), this.guiData.background().v(), this.xSize, this.ySize, this.xSize, this.ySize);
-        graphics.text(Minecraft.getInstance().font, this.guiData.title(), (int)(this.x + this.xSize / 2F - this.font.width(this.guiData.title()) / 2F), this.y + 5, 0, false);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, this.guiData.background().texture(), this.x, this.y, this.guiData.background().u(), this.guiData.background().v(), this.xSize, this.ySize, this.xSize, this.ySize);
+        graphics.text(Minecraft.getInstance().font, this.guiData.title(), (int)(this.x + this.xSize / 2F - this.font.width(this.guiData.title()) / 2F), this.y + 5, this.guiData.title().getStyle().getColor() == null ? ARGB.black(1.0f) : this.guiData.title().getStyle().getColor().getValue(), false);
     }
 
     private void setSide(int side, boolean next) {

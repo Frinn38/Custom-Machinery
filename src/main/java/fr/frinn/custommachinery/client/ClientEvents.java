@@ -77,6 +77,11 @@ public class ClientEvents {
         clientRecipes = event.getRecipeMap();
     }
 
+    @SubscribeEvent
+    public static void clientDisconnect(final ClientPlayerNetworkEvent.LoggingOut event) {
+        clientRecipes  = RecipeMap.EMPTY;
+    }
+
     public static RecipeMap getClientRecipes() {
         return clientRecipes;
     }

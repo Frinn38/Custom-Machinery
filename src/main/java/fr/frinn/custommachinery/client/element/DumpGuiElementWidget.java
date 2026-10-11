@@ -1,11 +1,11 @@
 package fr.frinn.custommachinery.client.element;
 
 import com.google.common.collect.Lists;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.DumpGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
-import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.TexturedGuiElementWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 

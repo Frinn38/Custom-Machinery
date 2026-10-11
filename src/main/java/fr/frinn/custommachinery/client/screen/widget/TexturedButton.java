@@ -1,23 +1,24 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
+import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class TexturedButton extends Button {
 
-    public static Builder builder(Component message, Identifier texture, OnPress onPress) {
+    public static Builder builder(Component message, TextureInfo texture, OnPress onPress) {
         return new Builder(message, texture, onPress);
     }
 
-    private final Identifier texture;
+    private final TextureInfo texture;
     @Nullable
-    private final Identifier textureHovered;
+    private final TextureInfo textureHovered;
 
-    private TexturedButton(int x, int y, int width, int height, Identifier texture, @Nullable Identifier textureHovered, OnPress onPress, Component message, CreateNarration narration) {
+    private TexturedButton(int x, int y, int width, int height, TextureInfo texture, @Nullable TextureInfo textureHovered, OnPress onPress, Component message, CreateNarration narration) {
         super(x, y, width, height, message, onPress, narration);
         this.texture = texture;
         this.textureHovered = textureHovered;
@@ -26,15 +27,15 @@ public class TexturedButton extends Button {
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if(this.isHovered() && this.textureHovered != null)
-            graphics.blit(this.textureHovered, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+            ClientHandler.blit(graphics, this.textureHovered, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         else
-            graphics.blit(this.texture, this.getX(), this.getY(), 0, 0, this.getWidth(), this.getHeight(), this.getWidth(), this.getHeight());
+            ClientHandler.blit(graphics, this.texture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     public static class Builder {
         private final Component message;
         private final OnPress onPress;
-        private final Identifier texture;
+        private final TextureInfo texture;
         @Nullable
         private Tooltip tooltip;
         private int x;
@@ -42,9 +43,9 @@ public class TexturedButton extends Button {
         private int width = 150;
         private int height = 20;
         @Nullable
-        private Identifier textureHovered;
+        private TextureInfo textureHovered;
 
-        private Builder(Component message, Identifier texture, OnPress onPress) {
+        private Builder(Component message, TextureInfo texture, OnPress onPress) {
             this.message = message;
             this.texture = texture;
             this.onPress = onPress;
@@ -71,7 +72,7 @@ public class TexturedButton extends Button {
             return this.pos(x, y).size(width, height);
         }
 
-        public Builder hovered(Identifier textureHovered) {
+        public Builder hovered(@Nullable TextureInfo textureHovered) {
             this.textureHovered = textureHovered;
             return this;
         }

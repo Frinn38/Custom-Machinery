@@ -6,8 +6,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 
 import java.util.function.Supplier;
@@ -35,16 +37,12 @@ public class AutoIOModeButton extends ImageButton {
             color = ARGB.color(255, 255, 85, 85);
         else if(!this.input && this.enabled.get())
             color = ARGB.color(255, 85, 85, 255);
-        float r = ARGB.red(color) / 255.0F;
-        float g = ARGB.green(color) / 255.0F;
-        float b = ARGB.blue(color) / 255.0F;
-        //RenderSystem.setShaderColor(r, g, b, 1);
-        super.extractContents(graphics, mouseX, mouseY, partialTick);
-        //RenderSystem.setShaderColor(1, 1, 1, 1);
-        this.updateTooltip();
+        Identifier sprite = this.sprites.get(this.isActive(), this.isHoveredOrFocused());
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.width, this.height, color);
+        this.updateTooltips();
     }
 
-    private void updateTooltip() {
+    private void updateTooltips() {
         MutableComponent tooltip = (this.input ? INPUT : OUTPUT).copy();
         tooltip.append("\n");
         if(this.enabled.get())

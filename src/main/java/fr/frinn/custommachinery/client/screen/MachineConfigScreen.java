@@ -81,9 +81,9 @@ public class MachineConfigScreen extends BaseScreen {
                 .findFirst()
                 .map(element -> (ConfigGuiElement)element)
                 .ifPresent(element -> this.addRenderableWidget(
-                        TexturedButton.builder(Component.translatable("custommachinery.gui.config.exit"), element.getTexture().texture(), button -> Minecraft.getInstance().setScreen(this.parent))
+                        TexturedButton.builder(Component.translatable("custommachinery.gui.config.exit"), element.getTexture(), button -> Minecraft.getInstance().setScreen(this.parent))
                                 .bounds(this.x + element.getX(), this.y + element.getY(), element.getWidth(), element.getHeight())
-                                .hovered(element.getTextureHovered().texture())
+                                .hovered(element.getTextureHovered())
                                 .tooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.exit")))
                                 .build()
                 ));
@@ -92,7 +92,7 @@ public class MachineConfigScreen extends BaseScreen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         graphics.pose().pushMatrix();
-        this.parent.extractRenderState(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
+        this.parent.extractRenderStateWithTooltipAndSubtitles(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTicks);
         graphics.nextStratum();
         super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         graphics.pose().popMatrix();

@@ -1,15 +1,16 @@
 package fr.frinn.custommachinery.client.screen;
 
-import fr.frinn.custommachinery.api.guielement.IGuiElementWidgetSupplier;
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IGuiElementRenderableSupplier;
+import fr.frinn.custommachinery.api.client.IGuiElementWidgetSupplier;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Comparators;
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
-import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.GuiElementWidgetSupplierRegistry;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -50,20 +51,25 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
         this.tile.getGuiElements().stream()
-                .filter(element -> GuiElementWidgetSupplierRegistry.hasWidgetSupplier(element.getType()))
+                .filter(element -> GuiElementWidgetSupplierRegistry.hasSupplier(element.getType()))
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
                 .forEach(element -> {
                     IGuiElementWidgetSupplier widgetSupplier = GuiElementWidgetSupplierRegistry.getWidgetSupplier(element.getType());
-                    if(widgetSupplier != null) {
+                    if(widgetSupplier != null)
                         this.addRenderableWidget(widgetSupplier.get(element, this));
+                    else {
+                        IGuiElementRenderableSupplier renderableSupplier = GuiElementWidgetSupplierRegistry.getRenderableSupplier(element.getType());
+                        if(renderableSupplier != null)
+                            this.addRenderableOnly(renderableSupplier.get(element, this));
                     }
                 });
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        if(this.background != null && this.background.getTexture() != null)
+        if(this.background != null && this.background.getTexture() != null) {
             ClientHandler.blit(graphics, this.background.getTexture(), this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
+        }
     }
 
     @Override
@@ -73,11 +79,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        this.children().stream()
-                .filter(widget -> widget instanceof AbstractGuiElementWidget<?> element && element.isMouseOver(mouseX, mouseY) && !element.getTooltips().isEmpty())
-                .map(widget -> (AbstractGuiElementWidget<?>) widget)
-                .min((w1, w2) -> Comparators.GUI_ELEMENTS_COMPARATOR.compare(w1.getElement(), w2.getElement()))
-                .ifPresent(element -> graphics.setTooltipForNextFrame(this.font, element.getTooltips().stream().flatMap(tooltip -> this.font.split(tooltip, 1000).stream()).toList(), mouseX - this.leftPos, mouseY - this.topPos));
+        //Empty to not render default title and inventory text
     }
 
     @Override

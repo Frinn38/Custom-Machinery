@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.api.guielement;
+package fr.frinn.custommachinery.api.client;
 
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;

@@ -1,18 +1,17 @@
 package fr.frinn.custommachinery.client.element;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.EmptyGuiElement;
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.network.chat.Component;
 
-public class EmptyGuiElementWidget extends AbstractGuiElementWidget<EmptyGuiElement> {
+public class EmptyGuiElementWidget extends AbstractGuiElementRenderable<EmptyGuiElement> {
     public EmptyGuiElementWidget(EmptyGuiElement element, IMachineScreen screen) {
-        super(element, screen, Component.empty());
+        super(element, screen);
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 
     }
 }

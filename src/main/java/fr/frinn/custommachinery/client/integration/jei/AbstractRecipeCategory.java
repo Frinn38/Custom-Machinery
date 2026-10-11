@@ -13,8 +13,8 @@ import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.client.ClientEvents;
 import fr.frinn.custommachinery.common.crafting.machine.CustomMachineRecipe;
-import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.init.CustomMachineItem;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
@@ -203,7 +203,7 @@ public abstract class AbstractRecipeCategory<R extends IMachineRecipe, H extends
                 .forEach(element -> {
                     IJEIElementRenderer<IGuiElement> renderer = GuiElementJEIRendererRegistry.getJEIRenderer(element.getType());
                     graphics.pose().pushMatrix();
-                    graphics.pose().translation(-this.offsetX, -this.offsetY);
+                    graphics.pose().translate(-this.offsetX, -this.offsetY);
                     renderer.renderElementInJEI(graphics, element, recipe, (int)mouseX, (int)mouseY);
                     graphics.pose().popMatrix();
                 });

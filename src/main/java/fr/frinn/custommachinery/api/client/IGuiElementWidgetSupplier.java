@@ -1,11 +1,13 @@
-package fr.frinn.custommachinery.api.guielement;
+package fr.frinn.custommachinery.api.client;
 
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.api.guielement.IGuiElement;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
 
 /**
  * A supplier to get a new {@link AbstractGuiElementWidget} for a specific {@link IGuiElement}.
  * @param <T> The {@link IGuiElement} which hold all the data used by the widget to display on the machine screen.
  */
+@FunctionalInterface
 public interface IGuiElementWidgetSupplier<T extends IGuiElement> {
 
     /**

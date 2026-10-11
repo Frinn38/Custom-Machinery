@@ -1,10 +1,10 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import fr.frinn.custommachinery.api.client.IGuiElementWidgetSupplier;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.api.guielement.IGuiElementWidgetSupplier;
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.client.ClientHandler;
@@ -12,12 +12,12 @@ import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.tabs.GuiTab;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
-import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.GuiElementWidgetSupplierRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

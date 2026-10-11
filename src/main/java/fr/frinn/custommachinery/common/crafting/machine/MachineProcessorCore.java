@@ -21,7 +21,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
@@ -288,9 +287,7 @@ public class MachineProcessorCore implements ISyncableStuff {
         container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
         container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
         container.accept(IntegerSyncable.create(() -> this.status.ordinal(), index -> this.status = MachineStatus.values()[index]));
-        Level level = this.processor.tile().getLevel();
-        if(level != null)
-            container.accept(StringSyncable.create(() -> TextComponentUtils.toJSON(this.getError() == null ? Component.empty() : this.getError()), errorMessage -> this.error = TextComponentUtils.fromJSON(errorMessage)));
+        container.accept(StringSyncable.create(() -> TextComponentUtils.toJSON(this.getError() == null ? Component.empty() : this.getError()), errorMessage -> this.error = TextComponentUtils.fromJSON(errorMessage)));
     }
 
     @SuppressWarnings("unchecked")

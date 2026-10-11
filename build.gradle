@@ -15,13 +15,6 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xmaxerrs" << "9999"
-        options.compilerArgs << "-Xmaxwarns" << "9999"
-    }
-}
-
 base {
     archivesName = mod_artifact_name
     version = "${minecraft_version}-${mod_version}"

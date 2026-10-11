@@ -61,7 +61,8 @@ public class CustomMachineContainer extends SyncableContainer {
         this.playerInv = playerInv;
         this.tile = tile;
         this.init();
-        tile.startInteracting(getPlayer());
+        if(playerInv.player instanceof ServerPlayer serverPlayer)
+            tile.startInteracting(serverPlayer);
         SoundEvent openSound = tile.getAppearance().getInteractionSound().getOpenSound();
         if(openSound != SoundEvents.EMPTY)
             playerInv.player.playSound(openSound, 0.5F, 1.0F);
@@ -232,7 +233,10 @@ public class CustomMachineContainer extends SyncableContainer {
     public void elementClicked(int element, byte button) {
         if(element < 0 || element >= this.tile.getGuiElements().size())
             throw new IllegalArgumentException("Invalid gui element ID: " + element);
-        this.tile.getGuiElements().get(element).handleClick(button, this.tile, this, this.getPlayer());
+        if(this.player != null)
+            this.tile.getGuiElements().get(element).handleClick(button, this.tile, this, this.player);
+        else
+            throw new IllegalStateException("Trying to click machine container element on client side");
     }
 
     public List<SlotItemComponent> inputSlots() {

@@ -1,11 +1,11 @@
 package fr.frinn.custommachinery.client;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.guielement.RegisterGuiElementWidgetSupplierEvent;
+import fr.frinn.custommachinery.api.client.RegisterGuiElementWidgetSupplierEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterGuiElementJEIRendererEvent;
 import fr.frinn.custommachinery.api.integration.jei.RegisterWidgetToJeiIngredientGetterEvent;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.client.element.BarGuiElementWidget;
+import fr.frinn.custommachinery.client.element.BarGuiElementRenderable;
 import fr.frinn.custommachinery.client.element.ButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ConfigGuiElementWidget;
 import fr.frinn.custommachinery.client.element.DumpGuiElementWidget;
@@ -79,12 +79,12 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.StatusGuiElem
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
-import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.impl.client.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SpriteData;
-import fr.frinn.custommachinery.impl.guielement.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
@@ -100,6 +100,7 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.resources.model.ModelBakery.BakingResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
@@ -123,6 +124,8 @@ import net.neoforged.neoforge.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 @Mod(value = CustomMachinery.MODID, dist = Dist.CLIENT)
 public class ClientHandler {
@@ -171,23 +174,26 @@ public class ClientHandler {
     }
 
     private void registerGuiElementWidgets(final RegisterGuiElementWidgetSupplierEvent event) {
-        event.register(CMRegistration.BAR_GUI_ELEMENT.get(), BarGuiElementWidget::new);
-        event.register(CMRegistration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
-        event.register(CMRegistration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
-        event.register(CMRegistration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
-        event.register(CMRegistration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
-        event.register(CMRegistration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementWidget::new);
-        event.register(CMRegistration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
-        event.register(CMRegistration.FLUID_GUI_ELEMENT.get(), FluidGuiElementWidget::new);
-        event.register(CMRegistration.FUEL_GUI_ELEMENT.get(), FuelGuiElementWidget::new);
-        event.register(CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementWidget::new);
-        event.register(CMRegistration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementWidget::new);
-        event.register(CMRegistration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
-        event.register(CMRegistration.SLOT_GUI_ELEMENT.get(), SlotGuiElementWidget::new);
-        event.register(CMRegistration.SPLIT_GUI_ELEMENT.get(), SplitButtonGuiElementWidget::new);
-        event.register(CMRegistration.STATUS_GUI_ELEMENT.get(), StatusGuiElementWidget::new);
-        event.register(CMRegistration.TEXT_GUI_ELEMENT.get(), TextGuiElementWidget::new);
-        event.register(CMRegistration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
+        //Widgets
+        event.registerWidget(CMRegistration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
+        event.registerWidget(CMRegistration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
+        event.registerWidget(CMRegistration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
+        event.registerWidget(CMRegistration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
+        event.registerWidget(CMRegistration.FLUID_GUI_ELEMENT.get(), FluidGuiElementWidget::new);
+        event.registerWidget(CMRegistration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
+        event.registerWidget(CMRegistration.SPLIT_GUI_ELEMENT.get(), SplitButtonGuiElementWidget::new);
+
+        //Renderables
+        event.registerRenderable(CMRegistration.BAR_GUI_ELEMENT.get(), BarGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.FUEL_GUI_ELEMENT.get(), FuelGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.SLOT_GUI_ELEMENT.get(), SlotGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.STATUS_GUI_ELEMENT.get(), StatusGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.TEXT_GUI_ELEMENT.get(), TextGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
     }
 
     private void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {
@@ -306,7 +312,7 @@ public class ClientHandler {
     }
 
     public static void renderSlotHighlight(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot_highlight_back"), x, y, width, height);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.withDefaultNamespace("container/slot_highlight_back"), x - 4, y - 4, width + 8, height + 8);
     }
 
     public static int getLineHeight() {
@@ -321,17 +327,17 @@ public class ClientHandler {
         int filledWidth = (int)(width * Mth.clamp(percent, 0.0D, 1.0D));
         int filledHeight = (int)(height * Mth.clamp(percent, 0.0D, 1.0D));
 
-        graphics.blit(emptyTexture.texture(), x, y, emptyTexture.u(), emptyTexture.v(), width, height, width, height);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, emptyTexture.texture(), x, y, emptyTexture.u(), emptyTexture.v(), width, height, emptyTexture.width(), emptyTexture.height());
         switch (orientation) {
-            case RIGHT -> graphics.blit(filledTexture.texture(), x, y, filledTexture.u(), filledTexture.v(), filledWidth, height, width, height);
-            case LEFT -> graphics.blit(filledTexture.texture(), x + width - filledWidth, y, filledTexture.u() + width - filledWidth, filledTexture.v(), filledWidth, height, width, height);
-            case BOTTOM -> graphics.blit(filledTexture.texture(), x, y, filledTexture.u(), filledTexture.v(), width, filledHeight, width, height);
-            case TOP -> graphics.blit(filledTexture.texture(), x, y + height - filledHeight, filledTexture.u(), filledTexture.v() + height - filledHeight, width, filledHeight, width, height);
+            case RIGHT -> graphics.blit(RenderPipelines.GUI_TEXTURED, filledTexture.texture(), x, y, filledTexture.u(), filledTexture.v(), filledWidth, height, width, height);
+            case LEFT -> graphics.blit(RenderPipelines.GUI_TEXTURED, filledTexture.texture(), x + width - filledWidth, y, filledTexture.u() + width - filledWidth, filledTexture.v(), filledWidth, height, width, height);
+            case BOTTOM -> graphics.blit(RenderPipelines.GUI_TEXTURED, filledTexture.texture(), x, y, filledTexture.u(), filledTexture.v(), width, filledHeight, width, height);
+            case TOP -> graphics.blit(RenderPipelines.GUI_TEXTURED, filledTexture.texture(), x, y + height - filledHeight, filledTexture.u(), filledTexture.v() + height - filledHeight, width, filledHeight, width, height);
         }
     }
 
     public static void blit(GuiGraphicsExtractor graphics, TextureInfo texture, int x, int y, int width, int height) {
-        graphics.blit(texture.texture(), x, y, texture.u(), texture.v(), width, height, width, height);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture.texture(), x, y, texture.u(), texture.v(), width, height, texture.width(), texture.height());
     }
 
     public static boolean isOverlapping(Rect2i first, Rect2i second) {
@@ -398,5 +404,15 @@ public class ClientHandler {
 
     public static WidgetSprites dataToSprite(SpriteData data) {
         return new WidgetSprites(data.texture(), data.textureHovered());
+    }
+
+    public static Component merge(List<Component> list) {
+        MutableComponent main = Component.empty();
+        for(Iterator<Component> iterator = list.iterator(); iterator.hasNext();) {
+            main.append(iterator.next());
+            if(iterator.hasNext())
+                main.append("\n");
+        }
+        return main;
     }
 }

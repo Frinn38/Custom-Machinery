@@ -1,30 +1,28 @@
 package fr.frinn.custommachinery.client.element;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.GhostItem;
-import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.TexturedGuiElementRenderable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElement> {
+public class SlotGuiElementWidget extends TexturedGuiElementRenderable<SlotGuiElement> {
 
     private static final CycleTimer timer = new CycleTimer(CMConfig.CONFIG.itemSlotCycleTime);
 
     public SlotGuiElementWidget(SlotGuiElement element, IMachineScreen screen) {
-        super(element, screen, Component.literal("Slot"));
+        super(element, screen);
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderableRenderState(graphics, mouseX, mouseY, partialTicks);
 
         GhostItem ghost = this.getElement().getGhost();
         if(ghost != GhostItem.EMPTY && !ghost.items().isEmpty() && (ghost.alwaysRender() || this.isSlotEmpty())) {
@@ -32,11 +30,6 @@ public class SlotGuiElementWidget extends TexturedGuiElementWidget<SlotGuiElemen
             List<ItemStack> items = ghost.items();
             //TODO FakeItemRenderer.render(graphics, timer.getOrDefault(items, Items.AIR).getDefaultInstance(), this.getX() + 1, this.getY() + 1, ghost.color().getARGB());
         }
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        return false;
     }
 
     private boolean isSlotEmpty() {

@@ -55,7 +55,6 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
         this.cores.clear();
         for(int i = 0; i < count; i++) {
             MachineProcessorCore core = new MachineProcessorCore(this, this.tile, this.recipeCheckCooldown, i + 1);
-            core.init();
             this.cores.add(core);
         }
         ClientHandler.refreshMachineContainer();

@@ -13,7 +13,6 @@ import dev.latvian.mods.kubejs.registry.BuilderTypeRegistry;
 import dev.latvian.mods.kubejs.script.BindingRegistry;
 import dev.latvian.mods.kubejs.script.ScriptManager;
 import dev.latvian.mods.kubejs.script.TypeWrapperRegistry;
-import dev.latvian.mods.kubejs.script.TypeWrapperRegistry.RegistriesFromFunction;
 import dev.latvian.mods.kubejs.util.RegistryAccessContainer;
 import dev.latvian.mods.rhino.type.TypeInfo;
 import fr.frinn.custommachinery.CustomMachinery;
@@ -114,6 +113,6 @@ public class CustomMachineryKubeJSPlugin implements KubeJSPlugin {
 
     @SuppressWarnings("rawtypes")
     private static <T> TypeWrapperRegistry.RegistriesFromFunction registryWrapper(ResourceKey<Registry<T>> registry) {
-        return (access, o) -> ((RegistryAccessContainer)access).registryAccess().lookupOrThrow(registry).get(Identifier.parse(o.toString()));
+        return (access, o) -> ((RegistryAccessContainer)access).registryAccess().lookupOrThrow(registry).getOptional(Identifier.parse(o.toString())).orElse(null);
     }
 }

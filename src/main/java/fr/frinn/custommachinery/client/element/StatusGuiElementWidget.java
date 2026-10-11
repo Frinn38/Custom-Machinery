@@ -1,29 +1,28 @@
 package fr.frinn.custommachinery.client.element;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
-import fr.frinn.custommachinery.impl.guielement.AbstractGuiElementWidget;
+import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiElement> {
+public class StatusGuiElementWidget extends AbstractGuiElementRenderable<StatusGuiElement> {
 
     public StatusGuiElementWidget(StatusGuiElement element, IMachineScreen screen) {
-        super(element, screen, Component.literal("Status"));
+        super(element, screen);
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         MachineStatus status = MachineStatus.IDLE;
         if(this.getElement().getCore() == 0)
             status = this.getScreen().getTile().getStatus();
@@ -34,7 +33,7 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
             case ERRORED -> this.getElement().getErroredTexture();
             default -> this.getElement().getIdleTexture();
         };
-        ClientHandler.blit(graphics, texture, this.getX(), this.getY(), this.width, this.height);
+        ClientHandler.blit(graphics, texture, this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight());
     }
 
     @Override
@@ -61,10 +60,5 @@ public class StatusGuiElementWidget extends AbstractGuiElementWidget<StatusGuiEl
                 tooltips.add(this.getScreen().getTile().getMessage());
         }
         return tooltips;
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        return false;
     }
 }

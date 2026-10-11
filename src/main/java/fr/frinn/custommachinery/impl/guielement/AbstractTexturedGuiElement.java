@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.impl.util.TextureInfo;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
 
@@ -25,6 +26,7 @@ public abstract class AbstractTexturedGuiElement extends AbstractGuiElement {
         return this.texture;
     }
 
+    @Nullable
     public TextureInfo getTextureHovered() {
         return this.getProperties().textureHovered();
     }

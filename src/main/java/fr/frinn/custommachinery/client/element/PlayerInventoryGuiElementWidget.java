@@ -1,19 +1,12 @@
 package fr.frinn.custommachinery.client.element;
 
-import fr.frinn.custommachinery.api.guielement.IMachineScreen;
+import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
-import fr.frinn.custommachinery.impl.guielement.TexturedGuiElementWidget;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.network.chat.Component;
+import fr.frinn.custommachinery.impl.client.TexturedGuiElementRenderable;
 
-public class PlayerInventoryGuiElementWidget extends TexturedGuiElementWidget<PlayerInventoryGuiElement> {
+public class PlayerInventoryGuiElementWidget extends TexturedGuiElementRenderable<PlayerInventoryGuiElement> {
 
     public PlayerInventoryGuiElementWidget(PlayerInventoryGuiElement element, IMachineScreen screen) {
-        super(element, screen, Component.literal("Player Inventory"));
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        return false;
+        super(element, screen);
     }
 }

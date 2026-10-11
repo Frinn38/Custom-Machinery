@@ -51,8 +51,8 @@ public class CustomMachineUpgradeJSBuilder {
         return new MachineUpgrade(this.item, this.machines, this.recipeModifiers, this.componentModifiers, Optional.ofNullable(this.coreModifier), this.tooltips, this.maxAmount);
     }
 
-    public CustomMachineUpgradeJSBuilder machine(List<Identifier> machines) {
-        this.machines.addAll(machines);
+    public CustomMachineUpgradeJSBuilder machine(Identifier... machines) {
+        this.machines.addAll(List.of(machines));
         return this;
     }
 
