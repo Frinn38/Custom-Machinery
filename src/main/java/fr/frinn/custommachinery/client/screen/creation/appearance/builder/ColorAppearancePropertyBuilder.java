@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ColorAppearancePropertyBuilder implements IAppearancePropertyBuilder<String> {
+public class ColorAppearancePropertyBuilder implements IAppearancePropertyBuilder<Integer> {
 
     @Override
     public Component title() {
@@ -19,12 +19,12 @@ public class ColorAppearancePropertyBuilder implements IAppearancePropertyBuilde
     }
 
     @Override
-    public MachineAppearanceProperty<String> type() {
+    public MachineAppearanceProperty<Integer> type() {
         return CMRegistration.COLOR_PROPERTY.get();
     }
 
     @Override
-    public AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<String> supplier, Consumer<String> consumer) {
+    public AbstractWidget makeWidget(BaseScreen parent, int x, int y, int width, int height, Supplier<Integer> supplier, Consumer<Integer> consumer) {
         return new ColorWidget(x, y, width, height, title(), supplier, consumer, false);
     }
 }

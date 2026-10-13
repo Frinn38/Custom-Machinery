@@ -1,6 +1,0 @@
-{
-  "loader": "custommachinery:custom_machine",
-  "defaults": {
-    "": "custommachinery:default/custom_machine_default"
-  }
-}

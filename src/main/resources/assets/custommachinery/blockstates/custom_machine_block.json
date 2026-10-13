@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "custommachinery:block/custom_machine_block"
+      "type": "custommachinery:custom_machine_model"
     }
   }
 }

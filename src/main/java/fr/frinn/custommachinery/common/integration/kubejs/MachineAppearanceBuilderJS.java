@@ -1,9 +1,11 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
+import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.util.MachineModelLocation;
+import fr.frinn.custommachinery.common.util.MachineModelLocation.MachineBlockModelLocation;
+import fr.frinn.custommachinery.common.util.MachineModelLocation.MachineItemModelLocation;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.sound.AmbientSound;
 import fr.frinn.custommachinery.common.util.sound.CMSoundType;
@@ -13,7 +15,9 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,13 +31,23 @@ public class MachineAppearanceBuilderJS {
 
     }
 
-    public MachineAppearanceBuilderJS block(Identifier block) {
-        this.put(CMRegistration.BLOCK_MODEL_PROPERTY.get(), MachineModelLocation.of(block.toString()));
+    public MachineAppearanceBuilderJS block(Identifier id) {
+        this.put(CMRegistration.BLOCK_MODEL_PROPERTY.get(), new MachineBlockModelLocation(Either.right(id)));
         return this;
     }
 
-    public MachineAppearanceBuilderJS item(Identifier item) {
-        this.put(CMRegistration.ITEM_MODEL_PROPERTY.get(), MachineModelLocation.of(item.toString()));
+    public MachineAppearanceBuilderJS block(BlockState blockState) {
+        this.put(CMRegistration.BLOCK_MODEL_PROPERTY.get(), new MachineBlockModelLocation(Either.left(blockState)));
+        return this;
+    }
+
+    public MachineAppearanceBuilderJS item(Identifier id) {
+        this.put(CMRegistration.ITEM_MODEL_PROPERTY.get(), new MachineItemModelLocation(Either.right(id)));
+        return this;
+    }
+
+    public MachineAppearanceBuilderJS item(ItemStack item) {
+        this.put(CMRegistration.ITEM_MODEL_PROPERTY.get(), new MachineItemModelLocation(Either.left(item)));
         return this;
     }
 
@@ -61,7 +75,7 @@ public class MachineAppearanceBuilderJS {
         return this;
     }
 
-    public MachineAppearanceBuilderJS color(String color) {
+    public MachineAppearanceBuilderJS color(int color) {
         this.put(CMRegistration.COLOR_PROPERTY.get(), color);
         return this;
     }

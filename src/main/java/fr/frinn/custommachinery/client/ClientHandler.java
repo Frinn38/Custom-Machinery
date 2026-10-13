@@ -31,6 +31,8 @@ import fr.frinn.custommachinery.client.integration.jei.element.ProgressGuiElemen
 import fr.frinn.custommachinery.client.integration.jei.element.SlotGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.TextureGuiElementJeiRenderer;
+import fr.frinn.custommachinery.client.model.CustomMachineBlockStateModel;
+import fr.frinn.custommachinery.client.model.CustomMachineItemModel;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineTooltipComponent;
@@ -38,11 +40,12 @@ import fr.frinn.custommachinery.client.screen.creation.MachineTooltipComponent.C
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.AmbientSoundAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.BlockModelAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.BooleanAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ColorAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.InteractionSoundAppearancePropertyBuilder;
+import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ItemModelAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.MiningLevelAppearancePropertyBuilder;
-import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ModelAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.FloatAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.NumberAppearancePropertyBuilder.IntegerAppearancePropertyBuilder;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ToolTypeAppearancePropertyBuilder;
@@ -78,6 +81,9 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.SplitButtonGu
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.StatusGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
+import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer;
+import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer.BlockStateRenderState;
+import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
@@ -93,10 +99,10 @@ import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBakery.BakingResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -115,17 +121,25 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.ModelEvent.RegisterStandalone;
+import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import net.neoforged.neoforge.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 @Mod(value = CustomMachinery.MODID, dist = Dist.CLIENT)
 public class ClientHandler {
@@ -151,6 +165,10 @@ public class ClientHandler {
         MOD_BUS.addListener(this::registerBlockColors);
         MOD_BUS.addListener(this::onBackingCompleted);
         MOD_BUS.addListener(this::registerClientTooltipComponents);
+        MOD_BUS.addListener(this::registerBlockStateModels);
+        MOD_BUS.addListener(this::registerItemModels);
+        MOD_BUS.addListener(this::registerStandaloneModels);
+        MOD_BUS.addListener(this::registerPIPRenderers);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
@@ -213,11 +231,11 @@ public class ClientHandler {
 
     private void registerAppearancePropertyBuilders(final RegisterAppearancePropertyBuilderEvent event) {
         event.register(CMRegistration.AMBIENT_SOUND_PROPERTY.get(), new AmbientSoundAppearancePropertyBuilder());
-        event.register(CMRegistration.BLOCK_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.block"), CMRegistration.BLOCK_MODEL_PROPERTY.get()));
+        event.register(CMRegistration.BLOCK_MODEL_PROPERTY.get(), new BlockModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.block"), CMRegistration.BLOCK_MODEL_PROPERTY.get()));
         event.register(CMRegistration.COLOR_PROPERTY.get(), new ColorAppearancePropertyBuilder());
         event.register(CMRegistration.HARDNESS_PROPERTY.get(), new FloatAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.hardness"), CMRegistration.HARDNESS_PROPERTY.get(), -1F, 100F, Component.translatable("custommachinery.gui.creation.appearance.hardness.tooltip")));
         event.register(CMRegistration.INTERACTION_SOUND_PROPERTY.get(), new InteractionSoundAppearancePropertyBuilder());
-        event.register(CMRegistration.ITEM_MODEL_PROPERTY.get(), new ModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.item"), CMRegistration.ITEM_MODEL_PROPERTY.get()));
+        event.register(CMRegistration.ITEM_MODEL_PROPERTY.get(), new ItemModelAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.item"), CMRegistration.ITEM_MODEL_PROPERTY.get()));
         event.register(CMRegistration.KEEP_INVENTORY_PROPERTY.get(), new BooleanAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.keep_inventory"), CMRegistration.KEEP_INVENTORY_PROPERTY.get(), Component.translatable("custommachinery.gui.creation.appearance.keep_inventory.tooltip")));
         event.register(CMRegistration.LIGHT_PROPERTY.get(), new IntegerAppearancePropertyBuilder(Component.translatable("custommachinery.gui.creation.appearance.light"), CMRegistration.LIGHT_PROPERTY.get(), 0, 15, Component.translatable("custommachinery.gui.creation.appearance.light.tooltip")));
         event.register(CMRegistration.MINING_LEVEL_PROPERTY.get(), new MiningLevelAppearancePropertyBuilder());
@@ -279,6 +297,42 @@ public class ClientHandler {
         event.register(MachineTooltipComponent.class, ClientMachineTooltipComponent::new);
     }
 
+    private void registerBlockStateModels(final RegisterBlockStateModels event) {
+        event.registerModel(CustomMachineBlockStateModel.Unbaked.ID, CustomMachineBlockStateModel.Unbaked.CODEC);
+    }
+
+    private void registerItemModels(final RegisterItemModelsEvent event) {
+        event.register(CustomMachineItemModel.Unbaked.ID, CustomMachineItemModel.Unbaked.CODEC);
+    }
+
+    private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> standaloneModels = new HashMap<>();
+
+    @Nullable
+    public static BlockStateModel getStandaloneModel(Identifier id) {
+        if(!standaloneModels.containsKey(id))
+            return null;
+        return Minecraft.getInstance().getModelManager().getStandaloneModel(standaloneModels.get(id));
+    }
+
+    private void registerStandaloneModels(final RegisterStandalone event) {
+        standaloneModels.clear();
+        for(String folder : CMConfig.CONFIG.modelFolders.get()) {
+            Minecraft.getInstance().getResourceManager().listResources("models/" + folder, s -> s.getPath().endsWith(".json")).forEach((id, _) -> {
+                Identifier modelId = Identifier.fromNamespaceAndPath(id.getNamespace(), id.getPath().substring(7).replace(".json", ""));
+                if(!standaloneModels.containsKey(modelId)) {
+                    StandaloneModelKey<BlockStateModel> key = new StandaloneModelKey<>(modelId::toString);
+                    event.register(key, SimpleUnbakedStandaloneModel.blockStateModel(modelId));
+                    standaloneModels.put(modelId, key);
+                }
+
+            });
+        }
+    }
+
+    private void registerPIPRenderers(final RegisterPictureInPictureRenderersEvent event) {
+        event.register(BlockStateRenderState.class, BlockStatePIPRenderer::new);
+    }
+
     private static BlockTintSource blockColor() {
         return new BlockTintSource() {
             @Override
@@ -289,14 +343,8 @@ public class ClientHandler {
             @Override
             public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
                 BlockEntity tile = level.getBlockEntity(pos);
-                if(tile instanceof CustomMachineTile machineTile) {
-                    return switch (machineTile.getAppearance().getColor()) {
-                        case "water" -> level.getBlockTint(pos, BiomeColors.WATER_COLOR_RESOLVER);
-                        case "grass" -> level.getBlockTint(pos, BiomeColors.GRASS_COLOR_RESOLVER);
-                        case "foliage" -> level.getBlockTint(pos, BiomeColors.FOLIAGE_COLOR_RESOLVER);
-                        default -> Integer.parseInt(machineTile.getAppearance().getColor());
-                    };
-                }
+                if(tile instanceof CustomMachineTile machineTile)
+                    return machineTile.getAppearance().getColor();
                 return this.color(state);
             }
         };

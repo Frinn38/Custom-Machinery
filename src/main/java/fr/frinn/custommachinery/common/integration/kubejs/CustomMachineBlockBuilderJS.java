@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import dev.latvian.mods.kubejs.generator.KubeAssetGenerator;
 import dev.latvian.mods.kubejs.generator.KubeDataGenerator;
 import dev.latvian.mods.kubejs.item.ItemBuilder;
@@ -63,19 +62,26 @@ public class CustomMachineBlockBuilderJS extends BuilderBase<Block> {
 
             @Override
             public void generateAssets(KubeAssetGenerator generator) {
+                JsonObject model = new JsonObject();
+                model.addProperty("type", "custommachinery:custom_machine_model");
                 JsonObject json = new JsonObject();
-                json.add("parent", new JsonPrimitive("custommachinery:block/custom_machine_block"));
-                JsonObject defaultJson = new JsonObject();
-                defaultJson.add("", new JsonPrimitive("custommachinery:default/custom_machine_default"));
-                json.add("defaults", defaultJson);
-                generator.json(this.id.withPath(ID.ITEM_MODEL), json);
+                json.add("model", model);
+
+                generator.json(this.id.withPath(ID.ITEM_DEFINITION), json);
             }
         });
     }
 
     @Override
     public void generateAssets(KubeAssetGenerator generator) {
-        generator.blockState(this.id, stateGenerator -> stateGenerator.simpleVariant("", CustomMachinery.rl("block/custom_machine_block")));
+        JsonObject all = new JsonObject();
+        all.addProperty("type", "custommachinery:custom_machine_model");
+        JsonObject variants = new JsonObject();
+        variants.add("", all);
+        JsonObject json = new JsonObject();
+        json.add("variants", variants);
+
+        generator.json(this.id.withPath(ID.BLOCKSTATE), json);
     }
 
     @Override

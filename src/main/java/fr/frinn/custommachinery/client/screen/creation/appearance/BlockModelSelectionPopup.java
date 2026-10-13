@@ -1,12 +1,13 @@
 package fr.frinn.custommachinery.client.screen.creation.appearance;
 
-import com.mojang.blaze3d.platform.Lighting;
+import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.JsonOps;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
-import fr.frinn.custommachinery.common.util.MachineModelLocation;
+import fr.frinn.custommachinery.common.util.MachineModelLocation.MachineBlockModelLocation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -16,19 +17,13 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,21 +31,21 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ModelSelectionPopup extends PopupScreen {
+public class BlockModelSelectionPopup extends PopupScreen {
 
     private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
 
-    private final Supplier<MachineModelLocation> supplier;
-    private final Consumer<MachineModelLocation> consumer;
+    private final Supplier<MachineBlockModelLocation> supplier;
+    private final Consumer<MachineBlockModelLocation> consumer;
     private final boolean isBlock;
 
     private SuggestedEditBox box;
-    private ModelSelectionList selectionList;
+    private BlockModelSelectionList selectionList;
     private Checkbox blocks;
     private Checkbox items;
     private Checkbox models;
 
-    public ModelSelectionPopup(BaseScreen parent, Supplier<MachineModelLocation> supplier, Consumer<MachineModelLocation> consumer, boolean isBlock) {
+    public BlockModelSelectionPopup(BaseScreen parent, Supplier<MachineBlockModelLocation> supplier, Consumer<MachineBlockModelLocation> consumer, boolean isBlock) {
         super(parent, 200, 230);
         this.supplier = supplier;
         this.consumer = consumer;
@@ -77,7 +72,7 @@ public class ModelSelectionPopup extends PopupScreen {
 
     public void sortList(List<String> possibleSuggestions) {
         String input = this.box.getValue();
-        List<MachineModelLocation> suggestions = possibleSuggestions.stream().sorted(Comparator.comparingInt(s -> {
+        List<MachineBlockModelLocation> suggestions = possibleSuggestions.stream().sorted(Comparator.comparingInt(s -> {
             if(s.equals(input))
                 return -1000;
             else if(s.startsWith(input))
@@ -89,7 +84,7 @@ public class ModelSelectionPopup extends PopupScreen {
                 if(s.contains("" + c))
                     matchingChars++;
             return -matchingChars;
-        })).limit(100).map(MachineModelLocation::of).toList();
+        })).limit(100).map(s -> MachineBlockModelLocation.CODEC.read(JsonOps.INSTANCE, new JsonPrimitive(s)).getOrThrow()).toList();
         this.selectionList.setList(suggestions);
     }
 
@@ -102,9 +97,9 @@ public class ModelSelectionPopup extends PopupScreen {
         exit.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.close")));
 
         //Buttons
-        this.blocks = this.addRenderableWidget(Checkbox.builder(Component.literal("Blocks"), this.font).pos(this.x + 5, this.y + 45).selected(this.isBlock).onValueChange((checkbox, value) -> ModelSelectionPopup.this.refreshBoxSuggestions()).build());
-        this.items = this.addRenderableWidget(Checkbox.builder(Component.literal("Items"), this.font).pos(this.x + 65, this.y + 45).selected(!this.isBlock).onValueChange((checkbox, value) -> ModelSelectionPopup.this.refreshBoxSuggestions()).build());
-        this.models = this.addRenderableWidget(Checkbox.builder(Component.literal("Models"), this.font).pos(this.x + 125, this.y + 45).selected(false).onValueChange((checkbox, value) -> ModelSelectionPopup.this.refreshBoxSuggestions()).build());
+        this.blocks = this.addRenderableWidget(Checkbox.builder(Component.literal("Blocks"), this.font).pos(this.x + 5, this.y + 45).selected(this.isBlock).onValueChange((checkbox, value) -> BlockModelSelectionPopup.this.refreshBoxSuggestions()).build());
+        this.items = this.addRenderableWidget(Checkbox.builder(Component.literal("Items"), this.font).pos(this.x + 65, this.y + 45).selected(!this.isBlock).onValueChange((checkbox, value) -> BlockModelSelectionPopup.this.refreshBoxSuggestions()).build());
+        this.models = this.addRenderableWidget(Checkbox.builder(Component.literal("Models"), this.font).pos(this.x + 125, this.y + 45).selected(false).onValueChange((checkbox, value) -> BlockModelSelectionPopup.this.refreshBoxSuggestions()).build());
 
         //Search box
         this.box = this.addRenderableWidget(new SuggestedEditBox(Minecraft.getInstance().font, this.x + 5, this.y + 70, this.xSize - 10, 20, this.title, 5));
@@ -113,7 +108,7 @@ public class ModelSelectionPopup extends PopupScreen {
         this.box.moveCursorToStart(false);
 
         //List
-        this.selectionList = this.addRenderableWidget(new ModelSelectionList(this.x + 5, this.y + 90, this.xSize - 10, this.ySize - 95));
+        this.selectionList = this.addRenderableWidget(new BlockModelSelectionList(this.x + 5, this.y + 90, this.xSize - 10, this.ySize - 95));
         this.selectionList.setResponder(this.consumer);
         this.box.setResponder(value -> this.sortList(this.box.getPossibleSuggestions()));
         this.refreshBoxSuggestions();
@@ -128,74 +123,41 @@ public class ModelSelectionPopup extends PopupScreen {
         graphics.pose().popMatrix();
     }
 
-    public static void renderModel(GuiGraphicsExtractor graphics, float x, float y, MachineModelLocation loc, float scale) {
-        if(loc.getItem() != null && loc.getItem() != Items.AIR) {
-            graphics.pose().pushMatrix();
-            graphics.pose().translation(x - 8, y - 8);
-            graphics.item(loc.getItem().getDefaultInstance(), 0, 0);
-            graphics.pose().popMatrix();
-            return;
-        }
+    public static void renderModel(GuiGraphicsExtractor graphics, float x, float y, MachineBlockModelLocation loc, float scale) {
+        loc.location().ifLeft(state -> {
 
-        /*
-        BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().missingModel();
-        if(loc.getState() != null)
-            model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(loc.getState());
-        else if(loc.getItem() != null)
-            model = Minecraft.getInstance().getModelManager().getItemModel(BuiltInRegistries.ITEM.getKey(loc.getItem()));
-        else if(loc.getLoc() != null && loc.getProperties() != null)
-            model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(loc.getLoc(), loc.getProperties()));
-        else if(loc.getLoc() != null)
-            model = ClientHandler.getAllModels().getOrDefault(ModelResourceLocation.standalone(loc.getLoc()), model);
+        });
+        loc.location().ifRight(id -> {
 
-        ChunkRenderTypeSet renderTypes = ChunkRenderTypeSet.all();
-
-        graphics.pose().pushMatrix();
-        graphics.pose().translation(x, y, 0);
-        graphics.pose().scale(scale, scale, scale);
-        model.applyTransform(ItemDisplayContext.GUI, graphics.pose(), false);
-        if(loc.getState() != null) {
-            graphics.pose().mulPose(new Quaternionf().fromAxisAngleDeg(0, 1, 0, 270));
-            graphics.pose().mulPose(new Quaternionf().fromAxisAngleDeg(1, 0, 0, 180));
-            renderTypes = model.getRenderTypes(loc.getState(), RandomSource.create(42L), ModelData.EMPTY);
-            Lighting.setupFor3DItems();
-        }
-        graphics.pose().translation(-0.5F, -0.5F, -0.5);
-        for(RenderType renderType : renderTypes)
-            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(graphics.pose().last(), graphics.bufferSource().getBuffer(renderType), loc.getState(), model, 1, 1, 1, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, renderType);
-        if(loc.getState() != null)
-            Lighting.setupForFlatItems();
-        graphics.pose().popMatrix();
-
-         */
+        });
     }
 
-    public static class ModelSelectionList extends AbstractWidget {
+    public static class BlockModelSelectionList extends AbstractWidget {
 
-        private final List<MachineModelLocation> list = new ArrayList<>();
+        private final List<MachineBlockModelLocation> list = new ArrayList<>();
         private final int maxColumns;
 
-        private Consumer<MachineModelLocation> responder;
-        private MachineModelLocation selected;
+        private Consumer<MachineBlockModelLocation> responder;
+        private MachineBlockModelLocation selected;
         private double scrollAmount;
         private boolean scrolling = false;
 
-        public ModelSelectionList(int x, int y, int width, int height) {
+        public BlockModelSelectionList(int x, int y, int width, int height) {
             super(x, y, width, height, Component.empty());
             this.maxColumns = width / 20;
         }
 
-        public void setList(List<MachineModelLocation> list) {
+        public void setList(List<MachineBlockModelLocation> list) {
             this.list.clear();
             this.list.addAll(list);
         }
 
-        public void setResponder(Consumer<MachineModelLocation> responder) {
+        public void setResponder(Consumer<MachineBlockModelLocation> responder) {
             this.responder = responder;
         }
 
         @Nullable
-        public MachineModelLocation getElementUnderMouse(double mouseX, double mouseY) {
+        public MachineBlockModelLocation getElementUnderMouse(double mouseX, double mouseY) {
             if(mouseX < this.getX() || mouseX > this.getX() + this.maxColumns * 20 || mouseY < this.getY() || mouseY > this.getY() + this.getHeight())
                 return null;
             int index = (int)((mouseY - this.getY() + this.scrollAmount) / 20) * this.maxColumns + (int)((mouseX - this.getX()) / 20);
@@ -247,7 +209,7 @@ public class ModelSelectionPopup extends PopupScreen {
                 graphics.pose().pushMatrix();
                 graphics.pose().translation(x, y);
 
-                MachineModelLocation loc = this.list.get(i);
+                MachineBlockModelLocation loc = this.list.get(i);
 
                 if(this.selected == loc)
                     graphics.fill(0, 0, 20, 20, ARGB.color(255, 255, 0, 0));
@@ -276,7 +238,7 @@ public class ModelSelectionPopup extends PopupScreen {
 
             graphics.disableScissor();
 
-            MachineModelLocation hovered = this.getElementUnderMouse(mouseX, mouseY);
+            MachineBlockModelLocation hovered = this.getElementUnderMouse(mouseX, mouseY);
             if(hovered != null)
                 graphics.setTooltipForNextFrame(Minecraft.getInstance().font, Component.literal(hovered.toString()), mouseX, mouseY);
         }
@@ -289,7 +251,7 @@ public class ModelSelectionPopup extends PopupScreen {
         @Override
         public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
             this.updateScrollingState(event.x(), event.y(), event.button());
-            MachineModelLocation selected = this.getElementUnderMouse(event.x(), event.y());
+            MachineBlockModelLocation selected = this.getElementUnderMouse(event.x(), event.y());
             if(selected != null) {
                 this.selected = selected;
                 this.responder.accept(selected);

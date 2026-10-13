@@ -31,12 +31,12 @@ public interface IMachineAppearance {
     /**
      * @return The location of the model of the machine block.
      */
-    IMachineModelLocation getBlockModel();
+    IMachineModelLocation.Block getBlockModel();
 
     /**
      * @return The location of the model of the machine item.
      */
-    IMachineModelLocation getItemModel();
+    IMachineModelLocation.Item getItemModel();
 
     /**
      * @return The sound that the machine will emit.
@@ -54,9 +54,9 @@ public interface IMachineAppearance {
     int getLightLevel();
 
     /**
-     * @return A hex color that will be used when rendering the machine model for quads that have a tint index of 4.
+     * @return A hex color that will be used when rendering the machine model for quads that have a tint index.
      */
-    String getColor();
+    int getColor();
 
     /**
      * @return A float that represent the block hardness of the machine, used to calculate the player breaking speed.

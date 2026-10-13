@@ -88,6 +88,7 @@ public class CustomMachinery {
         CMRegistration.RECIPE_SERIALIZERS.register(MOD_BUS);
         CMRegistration.RECIPE_TYPES.register(MOD_BUS);
         CMRegistration.REQUIREMENTS.register(MOD_BUS);
+        CMRegistration.TICKET_TYPES.register(MOD_BUS);
         CMRegistration.TILE_ENTITIES.register(MOD_BUS);
 
         MOD_BUS.addListener(this::commonSetup);

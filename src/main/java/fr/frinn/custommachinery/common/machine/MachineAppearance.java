@@ -41,21 +41,25 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
         public <T> DataResult<Map<MachineAppearanceProperty<?>, Object>> decode(DynamicOps<T> ops, MapLike<T> input) {
             Builder<MachineAppearanceProperty<?>, Object> properties = ImmutableMap.builder();
 
-            for (MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY) {
-                if (property.getId() != null && input.get(property.getId().toString()) != null) {
-                    DataResult<?> result = property.getCodec().read(ops, input.get(property.getId().toString()));
-                    if (result.result().isPresent())
+            for(MachineAppearanceProperty<?> property : CMRegistration.APPEARANCE_PROPERTY_REGISTRY) {
+                T value = input.get(property.getId().toString());
+                if(value != null) {
+                    DataResult<?> result = property.getCodec().read(ops, value);
+                    if(result.result().isPresent())
                         properties.put(property, result.result().get());
-                    else if (result.error().isPresent()) {
-                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property: {}, invalid value: {}, error: {}, using default value instead.", property.getId(), input.get(property.getId().toString()), result.error().get().message());
+                    else if(result.error().isPresent()) {
+                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property with id: {}, invalid value: {}, error: {}, using default value instead.", property.getId(), value, result.error().get().message());
                         properties.put(property, property.getDefaultValue());
                     }
-                } else if (property.getId() != null && input.get(property.getId().getPath()) != null) {
-                    DataResult<?> result = property.getCodec().read(ops, input.get(property.getId().getPath()));
-                    if (result.result().isPresent())
+                    continue;
+                }
+                value = input.get(property.getId().getPath());
+                if(value != null) {
+                    DataResult<?> result = property.getCodec().read(ops, value);
+                    if(result.result().isPresent())
                         properties.put(property, result.result().get());
-                    else if (result.error().isPresent()) {
-                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property: {}, invalid value: {}, error: {}, using default value instead.", property.getId(), input.get(property.getId().getPath()), result.error().get().message());
+                    else if(result.error().isPresent()) {
+                        ICustomMachineryAPI.INSTANCE.logger().warn("Couldn't deserialize appearance property: {}, invalid value: {}, error: {}, using default value instead.", property.getId().getPath(), value, result.error().get().message());
                         properties.put(property, property.getDefaultValue());
                     }
                 } else {
@@ -70,7 +74,7 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
         @Override
         public <T> RecordBuilder<T> encode(Map<MachineAppearanceProperty<?>, Object> input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
             for (Entry<MachineAppearanceProperty<?>, Object> entry : input.entrySet()) {
-                if (!Objects.equals(entry.getValue(), entry.getKey().getDefaultValue()) && entry.getKey().getId() != null)
+                if (!Objects.equals(entry.getValue(), entry.getKey().getDefaultValue()))
                     prefix.add(entry.getKey().getId().toString(), ((NamedCodec<Object>) entry.getKey().getCodec()).encodeStart(ops, entry.getValue()));
             }
             return prefix;
@@ -93,12 +97,12 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
     }
 
     @Override
-    public IMachineModelLocation getBlockModel() {
+    public IMachineModelLocation.Block getBlockModel() {
         return getProperty(CMRegistration.BLOCK_MODEL_PROPERTY.get());
     }
 
     @Override
-    public IMachineModelLocation getItemModel() {
+    public IMachineModelLocation.Item getItemModel() {
         return getProperty(CMRegistration.ITEM_MODEL_PROPERTY.get());
     }
 
@@ -118,7 +122,7 @@ public record MachineAppearance(Map<MachineAppearanceProperty<?>, Object> proper
     }
 
     @Override
-    public String getColor() {
+    public int getColor() {
         return getProperty(CMRegistration.COLOR_PROPERTY.get());
     }
 

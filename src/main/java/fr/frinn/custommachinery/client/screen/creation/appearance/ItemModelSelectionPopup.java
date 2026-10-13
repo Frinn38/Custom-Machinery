@@ -1,0 +1,289 @@
+package fr.frinn.custommachinery.client.screen.creation.appearance;
+
+import com.google.gson.JsonPrimitive;
+import com.mojang.serialization.JsonOps;
+import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.BaseScreen;
+import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
+import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
+import fr.frinn.custommachinery.common.util.MachineModelLocation.MachineItemModelLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+public class ItemModelSelectionPopup extends PopupScreen {
+
+    private static final WidgetSprites EXIT_SPRITES = new WidgetSprites(CustomMachinery.rl("config/exit_button"), CustomMachinery.rl("config/exit_button_hovered"));
+
+    private final Supplier<MachineItemModelLocation> supplier;
+    private final Consumer<MachineItemModelLocation> consumer;
+    private final boolean isBlock;
+
+    private SuggestedEditBox box;
+    private ItemModelSelectionList selectionList;
+    private Checkbox blocks;
+    private Checkbox items;
+    private Checkbox models;
+
+    public ItemModelSelectionPopup(BaseScreen parent, Supplier<MachineItemModelLocation> supplier, Consumer<MachineItemModelLocation> consumer, boolean isBlock) {
+        super(parent, 200, 230);
+        this.supplier = supplier;
+        this.consumer = consumer;
+        this.isBlock = isBlock;
+    }
+
+    public void refreshBoxSuggestions() {
+        this.box.clearSuggestions();
+
+        List<String> possibleSuggestions = new ArrayList<>();
+
+        if(this.blocks.selected())
+            possibleSuggestions.addAll(BuiltInRegistries.BLOCK.keySet().stream().map(Identifier::toString).toList());
+
+        if(this.items.selected())
+            possibleSuggestions.addAll(BuiltInRegistries.ITEM.keySet().stream().map(Identifier::toString).toList());
+
+        if(this.models.selected())
+            possibleSuggestions.addAll(ClientHandler.getAllModels().blockStateModels().keySet().stream().map(BlockState::toString).toList());
+
+        this.box.addSuggestions(possibleSuggestions);
+        this.sortList(possibleSuggestions);
+    }
+
+    public void sortList(List<String> possibleSuggestions) {
+        String input = this.box.getValue();
+        List<MachineItemModelLocation> suggestions = possibleSuggestions.stream().sorted(Comparator.comparingInt(s -> {
+            if(s.equals(input))
+                return -1000;
+            else if(s.startsWith(input))
+                return -100;
+            else if(s.contains(input))
+                return -10;
+            int matchingChars = 0;
+            for(char c : input.toCharArray())
+                if(s.contains("" + c))
+                    matchingChars++;
+            return -matchingChars;
+        })).limit(100).map(s -> MachineItemModelLocation.CODEC.read(JsonOps.INSTANCE, new JsonPrimitive(s)).getOrThrow()).toList();
+        this.selectionList.setList(suggestions);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        //Exit
+        ImageButton exit = this.addRenderableWidget(new ImageButton(this.x + 5, this.y + 5, 9, 9, EXIT_SPRITES, button -> this.parent.closePopup(this)));
+        exit.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.creation.popup.close")));
+
+        //Buttons
+        this.blocks = this.addRenderableWidget(Checkbox.builder(Component.literal("Blocks"), this.font).pos(this.x + 5, this.y + 45).selected(this.isBlock).onValueChange((checkbox, value) -> ItemModelSelectionPopup.this.refreshBoxSuggestions()).build());
+        this.items = this.addRenderableWidget(Checkbox.builder(Component.literal("Items"), this.font).pos(this.x + 65, this.y + 45).selected(!this.isBlock).onValueChange((checkbox, value) -> ItemModelSelectionPopup.this.refreshBoxSuggestions()).build());
+        this.models = this.addRenderableWidget(Checkbox.builder(Component.literal("Models"), this.font).pos(this.x + 125, this.y + 45).selected(false).onValueChange((checkbox, value) -> ItemModelSelectionPopup.this.refreshBoxSuggestions()).build());
+
+        //Search box
+        this.box = this.addRenderableWidget(new SuggestedEditBox(Minecraft.getInstance().font, this.x + 5, this.y + 70, this.xSize - 10, 20, this.title, 5));
+        this.box.setMaxLength(Integer.MAX_VALUE);
+        this.box.setValue(supplier.get().toString());
+        this.box.moveCursorToStart(false);
+
+        //List
+        this.selectionList = this.addRenderableWidget(new ItemModelSelectionList(this.x + 5, this.y + 90, this.xSize - 10, this.ySize - 95));
+        this.selectionList.setResponder(this.consumer);
+        this.box.setResponder(value -> this.sortList(this.box.getPossibleSuggestions()));
+        this.refreshBoxSuggestions();
+    }
+
+    @Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+        graphics.pose().pushMatrix();
+        graphics.nextStratum();
+        renderModel(graphics, this.x + this.xSize / 2F - 8, this.y + 20, this.supplier.get(), 32F);
+        graphics.pose().popMatrix();
+    }
+
+    public static void renderModel(GuiGraphicsExtractor graphics, float x, float y, MachineItemModelLocation loc, float scale) {
+        loc.location().ifLeft(state -> {
+
+        });
+        loc.location().ifRight(id -> {
+
+        });
+    }
+
+    public static class ItemModelSelectionList extends AbstractWidget {
+
+        private final List<MachineItemModelLocation> list = new ArrayList<>();
+        private final int maxColumns;
+
+        private Consumer<MachineItemModelLocation> responder;
+        private MachineItemModelLocation selected;
+        private double scrollAmount;
+        private boolean scrolling = false;
+
+        public ItemModelSelectionList(int x, int y, int width, int height) {
+            super(x, y, width, height, Component.empty());
+            this.maxColumns = width / 20;
+        }
+
+        public void setList(List<MachineItemModelLocation> list) {
+            this.list.clear();
+            this.list.addAll(list);
+        }
+
+        public void setResponder(Consumer<MachineItemModelLocation> responder) {
+            this.responder = responder;
+        }
+
+        @Nullable
+        public MachineItemModelLocation getElementUnderMouse(double mouseX, double mouseY) {
+            if(mouseX < this.getX() || mouseX > this.getX() + this.maxColumns * 20 || mouseY < this.getY() || mouseY > this.getY() + this.getHeight())
+                return null;
+            int index = (int)((mouseY - this.getY() + this.scrollAmount) / 20) * this.maxColumns + (int)((mouseX - this.getX()) / 20);
+            if(index < 0 || index >= this.list.size())
+                return null;
+            return this.list.get(index);
+        }
+
+        private void scroll(int scroll) {
+            this.setScrollAmount(this.getScrollAmount() + (double)scroll);
+        }
+
+        public double getScrollAmount() {
+            return this.scrollAmount;
+        }
+
+        public void setScrollAmount(double scroll) {
+            this.scrollAmount = Mth.clamp(scroll, 0.0, this.getMaxScroll());
+        }
+
+        public int getMaxScroll() {
+            return Math.max(0, this.getMaxPosition() - this.getHeight() - 4);
+        }
+
+        protected int getMaxPosition() {
+            return this.list.size() / this.maxColumns * 20;
+        }
+
+        public int getScrollBottom() {
+            return (int)this.getScrollAmount() - this.getHeight();
+        }
+
+        protected void updateScrollingState(double mouseX, double mouseY, int button) {
+            this.scrolling = button == 0 && mouseX >= this.getScrollbarPosition() && mouseX < this.getScrollbarPosition() + 6;
+        }
+
+        protected int getScrollbarPosition() {
+            return this.width / 2 + 124;
+        }
+
+        @Override
+        protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            graphics.enableScissor(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight());
+            graphics.pose().pushMatrix();
+            graphics.pose().translation(this.getX(), this.getY());
+            for(int i = 0; i < this.list.size(); i++) {
+                int x = (i % this.maxColumns) * 20;
+                int y = i / this.maxColumns * 20 - (int)this.getScrollAmount();
+                graphics.pose().pushMatrix();
+                graphics.pose().translation(x, y);
+
+                MachineItemModelLocation loc = this.list.get(i);
+
+                if(this.selected == loc)
+                    graphics.fill(0, 0, 20, 20, ARGB.color(255, 255, 0, 0));
+
+                graphics.nextStratum();
+
+                renderModel(graphics, 10, 10, loc, 16F);
+
+                graphics.pose().popMatrix();
+            }
+            graphics.pose().popMatrix();
+
+            if(this.getMaxScroll() > 0) {
+                int i = this.getX() + this.getWidth() - 10;
+                int j = i + 6;
+                int n = (this.getHeight() * this.getHeight()) / this.getMaxPosition();
+                n = Mth.clamp(n, 32, this.getHeight() - 8);
+                int o = (int)this.getScrollAmount() * (this.getHeight() - n) / this.getMaxScroll() + this.getY();
+                if (o < this.getY()) {
+                    o = this.getY();
+                }
+                graphics.fill(i, this.getY(), j, this.getY() + this.getHeight(), -16777216);
+                graphics.fill(i, o, j, o + n, -8355712);
+                graphics.fill(i, o, j - 1, o + n - 1, -4144960);
+            }
+
+            graphics.disableScissor();
+
+            MachineItemModelLocation hovered = this.getElementUnderMouse(mouseX, mouseY);
+            if(hovered != null)
+                graphics.setTooltipForNextFrame(Minecraft.getInstance().font, Component.literal(hovered.toString()), mouseX, mouseY);
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+
+        }
+
+        @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            this.updateScrollingState(event.x(), event.y(), event.button());
+            MachineItemModelLocation selected = this.getElementUnderMouse(event.x(), event.y());
+            if(selected != null) {
+                this.selected = selected;
+                this.responder.accept(selected);
+                return true;
+            }
+            return super.mouseClicked(event, doubleClick);
+        }
+
+        @Override
+        public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+            if(super.mouseDragged(event, dragX, dragY))
+                return true;
+            if(event.button() != 0 || !this.scrolling)
+                return false;
+            if(event.y() < this.getY()) {
+                this.setScrollAmount(0.0);
+            } else if(event.y() > this.getY() + this.getHeight()) {
+                this.setScrollAmount(this.getMaxScroll());
+            } else {
+                double d = Math.max(1, this.getMaxScroll());
+                int i = this.getHeight();
+                int j = Mth.clamp((int)((float)(i * i) / (float)this.getMaxPosition()), 32, i - 8);
+                double e = Math.max(1.0, d / (double)(i - j));
+                this.setScrollAmount(this.getScrollAmount() + dragY * e);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+            this.setScrollAmount(this.getScrollAmount() - scrollY * 10);
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+    }
+}
