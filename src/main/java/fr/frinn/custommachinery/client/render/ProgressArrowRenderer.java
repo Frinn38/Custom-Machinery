@@ -1,23 +1,13 @@
 package fr.frinn.custommachinery.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import fr.frinn.custommachinery.client.CMRenderPipelines;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.state.gui.BlitRenderState;
 import net.minecraft.util.Mth;
 import org.joml.Math;
 import org.joml.Matrix3x2fStack;
-import org.joml.Matrix4f;
 
 public class ProgressArrowRenderer {
 
@@ -43,12 +33,12 @@ public class ProgressArrowRenderer {
             }
             rotate(graphics.pose(), element.getDirection(), x, y, width, height);
 
-            ClientHandler.blit(graphics, element.getEmptyTexture(), 0, 0, width, height);
+            ScreenUtils.blit(graphics, element.getEmptyTexture(), 0, 0, width, height);
             graphics.blit(element.getFilledTexture().texture(), 0, 0, element.getFilledTexture().u(), element.getFilledTexture().v(), filledWidth, height, width, height);
 
             graphics.pose().popMatrix();
         } else {
-            ClientHandler.blit(graphics, element.getEmptyTexture(), x, y, width, height);
+            ScreenUtils.blit(graphics, element.getEmptyTexture(), x, y, width, height);
             TextureInfo filled = element.getFilledTexture();
             switch (element.getDirection()) {
                 case RIGHT -> graphics.blit(filled.texture(), x, y, filled.u(), filled.v(), filledWidth, height, width, height);
@@ -81,7 +71,7 @@ public class ProgressArrowRenderer {
         int width = element.getWidth();
         int height = element.getHeight();
 
-        ClientHandler.blit(graphics, element.getEmptyTexture(), x, y, width, height);
+        ScreenUtils.blit(graphics, element.getEmptyTexture(), x, y, width, height);
         TextureInfo filled = element.getFilledTexture();
 
         /*

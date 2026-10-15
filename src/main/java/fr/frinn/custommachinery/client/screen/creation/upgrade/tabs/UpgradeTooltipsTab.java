@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.upgrade.tabs;
 
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.creation.tabs.TooltipsTab;
 import fr.frinn.custommachinery.client.screen.creation.upgrade.UpgradeEditScreen;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
@@ -61,10 +61,10 @@ public class UpgradeTooltipsTab extends UpgradeEditTab {
 
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            ClientHandler.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX(), this.getY(), this.width, this.height);
+            ScreenUtils.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX(), this.getY(), this.width, this.height);
             graphics.item(UpgradeTooltipsTab.this.parent.getBuilder().getItem().getDefaultInstance(), this.getX() + 1, this.getY() + 1);
             if(mouseX >= this.getX() + 1 && mouseX <= this.getX() + 16 && mouseY >= this.getY() + 1 && mouseY <= this.getY() + 16) {
-                ClientHandler.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, 16, 16);
+                ScreenUtils.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, 16, 16);
                 graphics.setTooltipForNextFrame(Minecraft.getInstance().font, this.getTooltips(), Optional.empty(), mouseX, mouseY);
             }
         }

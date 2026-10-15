@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget.Entry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;

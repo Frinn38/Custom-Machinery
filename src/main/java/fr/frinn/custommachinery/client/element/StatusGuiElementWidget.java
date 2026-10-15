@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
@@ -33,7 +33,7 @@ public class StatusGuiElementWidget extends AbstractGuiElementRenderable<StatusG
             case ERRORED -> this.getElement().getErroredTexture();
             default -> this.getElement().getIdleTexture();
         };
-        ClientHandler.blit(graphics, texture, this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight());
+        ScreenUtils.blit(graphics, texture, this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight());
     }
 
     @Override

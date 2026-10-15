@@ -14,9 +14,7 @@ import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.IDisplayHelper;
-import snownee.jade.impl.ui.BoxElementImpl;
 
 public class CustomMachineComponentProvider implements IBlockComponentProvider {
 

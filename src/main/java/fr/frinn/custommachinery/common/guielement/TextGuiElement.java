@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.guielement;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractGuiElement;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
@@ -45,7 +45,7 @@ public class TextGuiElement extends AbstractGuiElement {
         if(this.getProperties().width() != -1)
             return this.getProperties().width();
         else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
-            return ClientHandler.textWidth(this.text);
+            return ScreenUtils.textWidth(this.text);
         return -1;
     }
 
@@ -54,7 +54,7 @@ public class TextGuiElement extends AbstractGuiElement {
         if(this.getProperties().height() != -1)
             return this.getProperties().height();
         else if(FMLLoader.getCurrent().getDist() == Dist.CLIENT)
-            return ClientHandler.getLineHeight();
+            return ScreenUtils.getLineHeight();
         return -1;
     }
 

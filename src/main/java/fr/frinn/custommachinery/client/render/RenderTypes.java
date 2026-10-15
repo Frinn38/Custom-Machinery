@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client;
+package fr.frinn.custommachinery.client.render;
 
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;

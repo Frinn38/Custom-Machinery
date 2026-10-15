@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.client.IMachineScreen;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.render.FluidRenderer;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -26,7 +26,7 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
             FluidRenderer.renderFluid(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2, component.getFluid(), component.getClientCapacity(), this.getElement().orientation())
         );
         if(this.isHovered() && this.getElement().highlight())
-            ClientHandler.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2);
+            ScreenUtils.renderSlotHighlight(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2);
     }
 
     @Override

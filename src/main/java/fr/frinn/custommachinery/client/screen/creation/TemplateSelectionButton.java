@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.creation.TemplateSelectionButton.TemplateSelectionList.TemplateEntry;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
@@ -127,7 +127,7 @@ public class TemplateSelectionButton extends AbstractButton {
             @Override
             protected void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
                 if(TemplateSelectionList.this.getSelected() == this)
-                    ClientHandler.drawDottedRect(graphics, x, y, width - 1, height, ARGB.color(255, 255, 0, 0), 5, 5, 1);
+                    ScreenUtils.drawDottedRect(graphics, x, y, width - 1, height, ARGB.color(255, 255, 0, 0), 5, 5, 1);
                 Component name = this.template == null ? Component.translatable("custommachinery.gui.creation.template.empty") : this.template.getName();
                 graphics.drawScrollingString(graphics.textRenderer(), Minecraft.getInstance().font, name, x + 5, x + width - 5, y + 5);
             }

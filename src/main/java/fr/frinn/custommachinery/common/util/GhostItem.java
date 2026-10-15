@@ -3,16 +3,11 @@ package fr.frinn.custommachinery.common.util;
 import com.mojang.datafixers.util.Either;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import net.minecraft.core.HolderSet;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public record GhostItem(List<ItemStack> items, Color color, boolean alwaysRender) {
 

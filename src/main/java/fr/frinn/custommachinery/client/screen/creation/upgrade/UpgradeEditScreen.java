@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation.upgrade;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineTabManager;
 import fr.frinn.custommachinery.client.screen.creation.upgrade.tabs.ComponentModifiersTab;
@@ -25,14 +26,11 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.TabManager;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
-import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -79,7 +77,7 @@ public class UpgradeEditScreen extends BaseScreen {
     public void save() {
         this.changed = false;
         ClientPacketDistributor.sendToServer(new CEditUpgradePacket(this.location, this.builder.build()));
-        Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.upgrade.save.toast"), null, false, 50));
+        ClientUtils.addToast(Component.translatable("custommachinery.gui.creation.upgrade.save.toast"));
     }
 
     public void cancel() {

@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

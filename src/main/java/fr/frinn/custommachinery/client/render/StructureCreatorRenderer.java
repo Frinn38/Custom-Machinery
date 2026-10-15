@@ -1,18 +1,6 @@
 package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import fr.frinn.custommachinery.client.RenderTypes;
-import fr.frinn.custommachinery.common.init.CMRegistration;
-import fr.frinn.custommachinery.common.init.StructureCreatorItem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-
-import java.util.List;
 
 public class StructureCreatorRenderer {
 

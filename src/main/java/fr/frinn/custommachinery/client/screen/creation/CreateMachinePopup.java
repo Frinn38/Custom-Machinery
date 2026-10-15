@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.InfoPopup;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
@@ -8,15 +9,12 @@ import fr.frinn.custommachinery.client.screen.widget.ComponentEditBox;
 import fr.frinn.custommachinery.common.machine.MachineLocation.Loader;
 import fr.frinn.custommachinery.common.network.CAddMachinePacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
-import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
@@ -46,7 +44,7 @@ public class CreateMachinePopup extends PopupScreen {
         if(this.loader.getValue() == Loader.DEFAULT)
             this.parent.openPopup(new InfoPopup(this.parent, 144, 96).text(Component.translatable("custommachinery.gui.creation.popup.create.success.description")));
         else if(this.loader.getValue() == Loader.KUBEJS)
-            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.popup.create.success"), null, false, 50));
+            ClientUtils.addToast(Component.translatable("custommachinery.gui.creation.popup.create.success"));
     }
 
     @Override

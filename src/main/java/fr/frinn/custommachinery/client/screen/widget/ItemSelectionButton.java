@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import net.minecraft.client.Minecraft;
@@ -67,7 +67,7 @@ public class ItemSelectionButton extends Button {
         graphics.nextStratum();
 
         if(this.isMouseOver(mouseX, mouseY))
-            ClientHandler.renderSlotHighlight(graphics, 1, 1, this.width - 2, this.height - 2);
+            ScreenUtils.renderSlotHighlight(graphics, 1, 1, this.width - 2, this.height - 2);
         graphics.pose().popMatrix();
 
         //Tooltip

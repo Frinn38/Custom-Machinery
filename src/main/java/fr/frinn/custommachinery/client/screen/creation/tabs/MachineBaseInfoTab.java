@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.client.screen.creation.tabs;
 
 import com.google.common.collect.ImmutableList;
 import fr.frinn.custommachinery.api.crafting.ProcessorType;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.widget.ComponentEditBox;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
@@ -15,8 +16,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
-import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -116,7 +115,7 @@ public class MachineBaseInfoTab extends MachineEditTab {
         @Override
         public void onClick(MouseButtonEvent event, boolean doubleClick) {
             Minecraft.getInstance().keyboardHandler.setClipboard(this.getMessage().getString());
-            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.base_info.id.copied"), null, false, 50));
+            ClientUtils.addToast(Component.translatable("custommachinery.gui.creation.base_info.id.copied"));
         }
 
         @Override

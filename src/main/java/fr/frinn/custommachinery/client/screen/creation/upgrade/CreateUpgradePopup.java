@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation.upgrade;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.popup.InfoPopup;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
@@ -8,14 +9,12 @@ import fr.frinn.custommachinery.client.screen.widget.ItemSelectionButton;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.network.CAddUpgradePacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
@@ -44,7 +43,7 @@ public class CreateUpgradePopup extends PopupScreen {
         if(this.loader.getValue() == MachineLocation.Loader.DEFAULT)
             this.parent.openPopup(new InfoPopup(this.parent, 144, 96).text(Component.translatable("custommachinery.gui.creation.upgrade.popup.success.description")));
         else if(this.loader.getValue() == MachineLocation.Loader.KUBEJS)
-            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, TutorialToast.Icons.MOUSE, Component.translatable("custommachinery.gui.creation.upgrade.popup.success"), null, false, 50));
+            ClientUtils.addToast(Component.translatable("custommachinery.gui.creation.upgrade.popup.success"));
     }
 
     @Override

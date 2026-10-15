@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
 import fr.frinn.custommachinery.common.util.FileUtils;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.network.FriendlyByteBuf;

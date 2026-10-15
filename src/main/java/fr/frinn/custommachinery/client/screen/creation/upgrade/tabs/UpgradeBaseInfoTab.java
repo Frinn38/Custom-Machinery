@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.upgrade.tabs;
 
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.client.screen.creation.upgrade.UpgradeEditScreen;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
 import fr.frinn.custommachinery.client.screen.widget.ItemSelectionButton;
@@ -8,8 +9,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
-import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -59,7 +58,7 @@ public class UpgradeBaseInfoTab extends UpgradeEditTab {
         @Override
         public void onClick(MouseButtonEvent event, boolean doubleClick) {
             Minecraft.getInstance().keyboardHandler.setClipboard(this.getMessage().getString());
-            Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.base_info.id.copied"), null, false, 50));
+            ClientUtils.addToast(Component.translatable("custommachinery.gui.creation.base_info.id.copied"));
         }
 
         @Override

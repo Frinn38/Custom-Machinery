@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.client.screen.creation.upgrade;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
-import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -13,6 +12,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 
 import java.io.File;
 import java.util.Objects;

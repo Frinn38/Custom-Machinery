@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -27,9 +27,9 @@ public class TexturedButton extends Button {
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         if(this.isHovered() && this.textureHovered != null)
-            ClientHandler.blit(graphics, this.textureHovered, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ScreenUtils.blit(graphics, this.textureHovered, this.getX(), this.getY(), this.getWidth(), this.getHeight());
         else
-            ClientHandler.blit(graphics, this.texture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            ScreenUtils.blit(graphics, this.texture, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     public static class Builder {

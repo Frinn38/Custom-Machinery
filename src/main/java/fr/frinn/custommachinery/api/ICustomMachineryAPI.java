@@ -6,9 +6,9 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineAppearanceProperty;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
-import net.minecraft.util.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;

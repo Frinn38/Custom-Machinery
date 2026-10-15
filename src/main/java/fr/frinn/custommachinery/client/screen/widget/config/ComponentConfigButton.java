@@ -1,6 +1,6 @@
 package fr.frinn.custommachinery.client.screen.widget.config;
 
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.popup.ComponentConfigPopup;
 import fr.frinn.custommachinery.common.util.Color;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -28,7 +28,7 @@ public class ComponentConfigButton extends Button {
         graphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.color.getARGB());
         if(this.popup.parent.popups().getFirst() == this.popup) {
             int offset = (int)(System.currentTimeMillis() / 100 % 100);
-            ClientHandler.drawDottedRect(graphics, this.getX() - 1, this.getY() - 1, this.width + 1, this.height + 1, this.color.mul(0.5).getARGB(), 4, 2, offset);
+            ScreenUtils.drawDottedRect(graphics, this.getX() - 1, this.getY() - 1, this.width + 1, this.height + 1, this.color.mul(0.5).getARGB(), 4, 2, offset);
         }
     }
 }

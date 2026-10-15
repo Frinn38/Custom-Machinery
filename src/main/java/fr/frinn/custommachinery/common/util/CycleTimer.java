@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

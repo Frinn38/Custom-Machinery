@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.client.screen.creation.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import fr.frinn.custommachinery.api.client.IGuiElementWidgetSupplier;
 import fr.frinn.custommachinery.api.client.IMachineScreen;
@@ -7,7 +8,7 @@ import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.tabs.GuiTab;
 import fr.frinn.custommachinery.client.screen.popup.ConfirmPopup;
@@ -25,17 +26,16 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -334,7 +334,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         if(this.shouldShowBackground()) {
             BackgroundGuiElement background = this.parent.getBuilder().getGuiElements().stream().filter(element -> element instanceof BackgroundGuiElement).map(element -> (BackgroundGuiElement)element).findFirst().orElse(null);
             if(background != null && background.getTexture() != null)
-                ClientHandler.blit(graphics, background.getTexture(), this.getX(), this.getY(), this.width, this.height);
+                ScreenUtils.blit(graphics, background.getTexture(), this.getX(), this.getY(), this.width, this.height);
         }
 
         //Grid
@@ -488,9 +488,9 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             return true;
         }
         if(this.selectionBoxStart != null) {
-            Rect2i selectionBox = new Rect2i((int)Math.min(this.selectionBoxStart.x(), event.x()), (int)Math.min(this.selectionBoxStart.y(), event.y()), (int)Math.abs(this.selectionBoxStart.x() - event.x()), (int)Math.abs(this.selectionBoxStart.y() - event.y()));
+            ScreenRectangle selectionBox = new ScreenRectangle((int)Math.min(this.selectionBoxStart.x(), event.x()), (int)Math.min(this.selectionBoxStart.y(), event.y()), (int)Math.abs(this.selectionBoxStart.x() - event.x()), (int)Math.abs(this.selectionBoxStart.y() - event.y()));
             this.widgets.stream()
-                    .filter(widget -> ClientHandler.isOverlapping(selectionBox, new Rect2i(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight())))
+                    .filter(widget -> selectionBox.intersects(new ScreenRectangle(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight())))
                     .sorted(Comparator.comparingInt(widget -> widget.getX() * 1000 + widget.getY()))
                     .forEach(this.selected::add);
             this.selectionBoxStart = null;
@@ -538,13 +538,13 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        String key = GLFW.glfwGetKeyName(event.key(), event.scancode());
-        if(key != null && event.hasControlDown()) {
+        if(event.hasControlDown()) {
+            String key = InputConstants.getKey(event).getDisplayName().getString();
             switch(key) {
-                case "z" -> this.revertChange();
-                case "c" -> this.copy();
-                case "v" -> this.paste();
-                case "a" -> this.selectAll();
+                case "Z" -> this.revertChange();
+                case "C" -> this.copy();
+                case "V" -> this.paste();
+                case "A" -> this.selectAll();
             }
             return true;
         }
@@ -553,31 +553,23 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             int move = event.hasShiftDown() ? 5 : event.hasControlDown() ? 10 : 1;
             GroupWidgetChange change = new GroupWidgetChange();
             for(WidgetEditorWidget<?> widget : this.selected) {
-                boolean moved =  switch (event.key()) {
-                    case GLFW.GLFW_KEY_LEFT -> {
-                        change.add(widget);
-                        widget.setX(Math.max(widget.getX() - move, this.getX()));
-                        yield true;
-                    }
-                    case GLFW.GLFW_KEY_RIGHT -> {
-                        change.add(widget);
-                        widget.setX(Math.min(widget.getX() + move, this.getX() + this.getWidth()));
-                        yield true;
-                    }
-                    case GLFW.GLFW_KEY_UP -> {
-                        change.add(widget);
-                        widget.setY(Math.max(widget.getY() - move, this.getY()));
-                        yield true;
-                    }
-                    case GLFW.GLFW_KEY_DOWN -> {
-                        change.add(widget);
-                        widget.setY(Math.min(widget.getY() + move, this.getY() + this.getHeight()));
-                        yield true;
-                    }
-                    default -> false;
-                };
-                if(moved)
+                if(event.isLeft()) {
+                    change.add(widget);
+                    widget.setX(Math.max(widget.getX() - move, this.getX()));
                     GuiEditorWidget.this.setChanged();
+                } else if(event.isRight()) {
+                    change.add(widget);
+                    widget.setX(Math.min(widget.getX() + move, this.getX() + this.getWidth()));
+                    GuiEditorWidget.this.setChanged();
+                } else if(event.isUp()) {
+                    change.add(widget);
+                    widget.setY(Math.max(widget.getY() - move, this.getY()));
+                    GuiEditorWidget.this.setChanged();
+                } else if(event.isDown()) {
+                    change.add(widget);
+                    widget.setY(Math.min(widget.getY() + move, this.getY() + this.getHeight()));
+                    GuiEditorWidget.this.setChanged();
+                }
             }
             if(event.key() == 261)
                 this.delete();
@@ -736,9 +728,9 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
             if(GuiEditorWidget.this.copied.contains(this)) {
                 int offset = (int)(System.currentTimeMillis() / 100 % 100);
                 if(highlighted)
-                    ClientHandler.drawDottedRect(graphics, this.getX() - 2, this.getY() - 2, this.getWidth() + 3, this.getHeight() + 3, ARGB.color(255, 0, 255, 0), 4, 4, offset);
+                    ScreenUtils.drawDottedRect(graphics, this.getX() - 2, this.getY() - 2, this.getWidth() + 3, this.getHeight() + 3, ARGB.color(255, 0, 255, 0), 4, 4, offset);
                 else
-                    ClientHandler.drawDottedRect(graphics, this.getX() - 1, this.getY() - 1, this.getWidth() + 1, this.getHeight() + 1, ARGB.color(255, 0, 255, 0), 4, 4, offset);
+                    ScreenUtils.drawDottedRect(graphics, this.getX() - 1, this.getY() - 1, this.getWidth() + 1, this.getHeight() + 1, ARGB.color(255, 0, 255, 0), 4, 4, offset);
             }
             graphics.pose().popMatrix();
         }

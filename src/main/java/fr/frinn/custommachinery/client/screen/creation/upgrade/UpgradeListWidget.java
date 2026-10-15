@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.screen.creation.upgrade;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.creation.upgrade.UpgradeListWidget.UpgradeEntry;
 import fr.frinn.custommachinery.client.screen.widget.ListWidget;
 import fr.frinn.custommachinery.common.config.CMConfig;
@@ -91,7 +91,7 @@ public class UpgradeListWidget extends ListWidget<UpgradeEntry> {
                 if(iterator.hasNext())
                     machines.append(", ");
             }
-            ClientHandler.renderScrollingStringNoShadow(graphics, this.mc.font, machines, x + 20, x + width - 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0);
+            ScreenUtils.renderScrollingStringNoShadow(graphics, this.mc.font, machines, x + 20, x + width - 20, y + height / 2 - this.mc.font.lineHeight / 2 - 6, 0);
 
             //Id
             BaseScreen.drawScaledString(graphics, this.mc.font, Component.literal(this.location.id().toString()).withStyle(ChatFormatting.DARK_GRAY), x + 20, y + height / 2 - this.mc.font.lineHeight / 2 + 2, 0.8f, 0, false);

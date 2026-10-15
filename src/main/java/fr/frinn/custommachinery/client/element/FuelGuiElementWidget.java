@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.client.IMachineScreen;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.guielement.FuelGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
@@ -27,7 +27,7 @@ public class FuelGuiElementWidget extends AbstractGuiElementRenderable<FuelGuiEl
                 .orElse(0.0D);
         if(percent == 0 && this.getScreen().getMachine().isDummy())
             percent = 1 - (System.currentTimeMillis() % 2000) / 2000.0D;
-        ClientHandler.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight(), percent, this.getElement().getOrientation());
+        ScreenUtils.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight(), percent, this.getElement().getOrientation());
     }
 
     @Override

@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.impl.client;
 
 import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -50,7 +50,7 @@ public abstract class AbstractGuiElementRenderable<T extends IGuiElement> implem
         graphics.pose().pushMatrix();
         graphics.pose().translate(this.screen.getX(), this.screen.getY());
         this.extractRenderableRenderState(graphics, mouseX, mouseY, partialTicks);
-        this.tooltip.set(Tooltip.create(ClientHandler.merge(this.getTooltips())));
+        this.tooltip.set(Tooltip.create(ScreenUtils.merge(this.getTooltips())));
         this.tooltip.refreshTooltipForNextRenderPass(graphics, mouseX, mouseY, this.isHovered(mouseX, mouseY), false, this.rectangle);
         graphics.pose().popMatrix();
     }

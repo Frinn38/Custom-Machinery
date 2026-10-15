@@ -2,8 +2,8 @@ package fr.frinn.custommachinery.client.screen.creation.gui.builder;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementBuilderPopup;
 import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
@@ -32,9 +32,7 @@ import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -139,7 +137,7 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
 
         @Override
         protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            ClientHandler.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX() - 20, this.getY(), 18, 18);
+            ScreenUtils.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX() - 20, this.getY(), 18, 18);
             try {
                 //TODO FakeItemRenderer.render(graphics, BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.items.getValue())).map(Item::getDefaultInstance).orElse(ItemStack.EMPTY), this.getX() - 19, this.getY() + 1, this.color.getARGB());
             } catch (IdentifierException | NullPointerException ignored) {

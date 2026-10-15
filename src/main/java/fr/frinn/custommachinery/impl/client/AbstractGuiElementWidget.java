@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.impl.client;
 
 import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
@@ -22,7 +22,7 @@ public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends Ab
         super(element.getX() + screen.getX(), element.getY() + screen.getY(), element.getWidth(), element.getHeight(), title);
         this.element = element;
         this.screen = screen;
-        this.setTooltip(Tooltip.create(ClientHandler.merge(this.getTooltips())));
+        this.setTooltip(Tooltip.create(ScreenUtils.merge(this.getTooltips())));
     }
 
     public List<Component> getTooltips() {

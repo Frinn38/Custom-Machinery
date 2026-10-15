@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.upgrade.IMachineUpgradeManager;
 import fr.frinn.custommachinery.api.upgrade.IRecipeModifier;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
-import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.UpgradedCustomMachine;
 
 import java.util.ArrayList;

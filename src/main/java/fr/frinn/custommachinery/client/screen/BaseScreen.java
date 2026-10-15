@@ -22,7 +22,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -223,14 +222,20 @@ public abstract class BaseScreen extends Screen {
         if(this.getFocused() != null && this.getFocused().keyPressed(event))
             return true;
 
-        FocusNavigationEvent focusEvent = switch (event.input()) {
-            case GLFW.GLFW_KEY_LEFT -> new ArrowNavigation(ScreenDirection.LEFT);
-            case GLFW.GLFW_KEY_RIGHT -> new ArrowNavigation(ScreenDirection.RIGHT);
-            case GLFW.GLFW_KEY_UP -> new ArrowNavigation(ScreenDirection.UP);
-            case GLFW.GLFW_KEY_DOWN -> new ArrowNavigation(ScreenDirection.DOWN);
-            case GLFW.GLFW_KEY_TAB -> new TabNavigation(!event.hasShiftDown());
-            default -> null;
-        };
+        FocusNavigationEvent focusEvent;
+
+        if(event.isLeft())
+            focusEvent = new ArrowNavigation(ScreenDirection.LEFT);
+        else if(event.isRight())
+            focusEvent = new ArrowNavigation(ScreenDirection.RIGHT);
+        else if(event.isUp())
+            focusEvent = new ArrowNavigation(ScreenDirection.UP);
+        else if(event.isDown())
+            focusEvent = new ArrowNavigation(ScreenDirection.DOWN);
+        else if(event.isCycleFocus())
+            focusEvent = new TabNavigation(!event.hasShiftDown());
+        else
+            focusEvent = null;
 
         if(focusEvent != null) {
             ComponentPath path = this.popups.stream().findFirst().map(popup -> popup.nextFocusPath(focusEvent)).orElse(this.nextFocusPath(focusEvent));

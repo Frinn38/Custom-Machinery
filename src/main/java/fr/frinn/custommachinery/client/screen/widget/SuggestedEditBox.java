@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.client.screen.widget;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -12,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
@@ -20,7 +20,6 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -154,12 +153,12 @@ public class SuggestedEditBox extends EditBox {
         if(this.suggestionsList != null) {
             graphics.pose().pushMatrix();
             graphics.nextStratum();
-            boolean scissor = GL11.glIsEnabled(GL11.GL_SCISSOR_TEST);
-            if(scissor)
-                GlStateManager._disableScissorTest();
+            ScreenRectangle scissor = graphics.peekScissorStack();
+            if(scissor != null)
+                graphics.disableScissor();
             this.suggestionsList.render(graphics, mouseX, mouseY);
-            if(scissor)
-                GlStateManager._enableScissorTest();
+            if(scissor != null)
+                graphics.enableScissor(scissor.left(), scissor.top(), scissor.right(), scissor.bottom());
             graphics.pose().popMatrix();
         }
         super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTick);

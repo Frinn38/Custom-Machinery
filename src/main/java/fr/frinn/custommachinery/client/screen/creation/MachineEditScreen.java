@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
 import fr.frinn.custommachinery.client.screen.creation.tabs.AppearanceTab;
 import fr.frinn.custommachinery.client.screen.creation.tabs.ComponentTab;
@@ -16,7 +17,6 @@ import fr.frinn.custommachinery.common.util.CMVerifier.Result;
 import fr.frinn.custommachinery.common.util.CMVerifier.ResultBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
-import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ImageButton;
@@ -24,14 +24,12 @@ import net.minecraft.client.gui.components.ImageWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.tabs.TabManager;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
-import net.minecraft.client.gui.components.toasts.TutorialToast.Icons;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -75,7 +73,7 @@ public class MachineEditScreen extends BaseScreen {
     public void save() {
         this.changed = false;
         ClientPacketDistributor.sendToServer(new CEditMachinePacket(this.builder.build()));
-        Minecraft.getInstance().getToastManager().addToast(new TutorialToast(Minecraft.getInstance().font, Icons.MOUSE, Component.translatable("custommachinery.gui.creation.save.toast"), null, false, 50));
+        ClientUtils.addToast(Component.translatable("custommachinery.gui.creation.save.toast"));
         this.checkErrors();
     }
 

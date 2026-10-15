@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.client.integration.jei.element;
 
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IJEIElementRenderer;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.guielement.EnergyGuiElement;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
@@ -15,6 +15,6 @@ public class EnergyGuiElementJeiRenderer implements IJEIElementRenderer<EnergyGu
         int width = element.getWidth();
         int height = element.getHeight();
 
-        ClientHandler.blit(graphics, element.getEmptyTexture(), posX, posY, width, height);
+        ScreenUtils.blit(graphics, element.getEmptyTexture(), posX, posY, width, height);
     }
 }

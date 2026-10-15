@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.client;
+package fr.frinn.custommachinery.client.render;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import fr.frinn.custommachinery.CustomMachinery;

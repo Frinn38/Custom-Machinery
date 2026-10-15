@@ -1,11 +1,9 @@
 package fr.frinn.custommachinery.client.screen.widget;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import org.lwjgl.glfw.GLFW;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

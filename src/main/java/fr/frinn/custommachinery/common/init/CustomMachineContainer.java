@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.common.crafting.craft.CraftProcessor;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
@@ -69,7 +69,7 @@ public class CustomMachineContainer extends SyncableContainer {
     }
 
     public CustomMachineContainer(int id, Inventory playerInv, FriendlyByteBuf extraData) {
-        this(id, playerInv, ClientHandler.getClientSideCustomMachineTile(extraData.readBlockPos()));
+        this(id, playerInv, ClientUtils.getClientSideCustomMachineTile(extraData.readBlockPos()));
     }
 
     @Override

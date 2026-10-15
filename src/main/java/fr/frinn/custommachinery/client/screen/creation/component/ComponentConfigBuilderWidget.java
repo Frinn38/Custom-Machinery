@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen.creation.component;
 
-import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.client.screen.BaseScreen;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
 import fr.frinn.custommachinery.client.screen.widget.config.AutoIOModeButton;
@@ -73,11 +73,11 @@ public class ComponentConfigBuilderWidget extends Button.Plain {
             }
             //All sides none
             ConfigButtonData noneData = this.template.guiData().none();
-            ImageButton allNone = guiConfig.addWidget(new ImageButton(this.x + noneData.x(), this.y + noneData.y(), noneData.width(), noneData.height(), ClientHandler.dataToSprite(noneData.sprites()), button -> this.setAllNone()));
+            ImageButton allNone = guiConfig.addWidget(new ImageButton(this.x + noneData.x(), this.y + noneData.y(), noneData.width(), noneData.height(), ScreenUtils.dataToSprite(noneData.sprites()), button -> this.setAllNone()));
             allNone.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.all_none")));
             //EXIT
             ConfigButtonData exitData = this.template.guiData().exit();
-            ImageButton close = guiConfig.addWidget(new ImageButton(this.x + exitData.x(), this.y + exitData.y(), exitData.width(), exitData.height(), ClientHandler.dataToSprite(exitData.sprites()), button -> this.parent.closePopup(this)));
+            ImageButton close = guiConfig.addWidget(new ImageButton(this.x + exitData.x(), this.y + exitData.y(), exitData.width(), exitData.height(), ScreenUtils.dataToSprite(exitData.sprites()), button -> this.parent.closePopup(this)));
             close.setTooltip(Tooltip.create(Component.translatable("custommachinery.gui.config.close")));
 
             guiConfig.setPosition(this.x, this.y);

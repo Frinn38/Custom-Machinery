@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.element;
 
 import fr.frinn.custommachinery.api.client.IMachineScreen;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.guielement.BarGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
@@ -28,9 +28,9 @@ public class BarGuiElementRenderable extends AbstractGuiElementRenderable<BarGui
 
     @Override
     public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        ClientHandler.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight(), this.getFillingPercent(), this.getElement().getOrientation());
+        ScreenUtils.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight(), this.getFillingPercent(), this.getElement().getOrientation());
         if(this.isHovered(mouseX, mouseY) && this.getElement().isHighlight())
-            ClientHandler.renderSlotHighlight(graphics, this.getElement().getX() + 1, this.getElement().getY() + 1, this.getElement().getWidth() - 2, this.getElement().getHeight() - 2);
+            ScreenUtils.renderSlotHighlight(graphics, this.getElement().getX() + 1, this.getElement().getY() + 1, this.getElement().getWidth() - 2, this.getElement().getHeight() - 2);
     }
 
     private double getFillingPercent() {

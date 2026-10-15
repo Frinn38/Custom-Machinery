@@ -1,8 +1,8 @@
 package fr.frinn.custommachinery.client.integration.jei;
 
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
-import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.init.CustomMachineContainer;
 import fr.frinn.custommachinery.common.network.CTransferRecipePacket;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;

@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.client.ClientHandler;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
@@ -57,7 +57,7 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
             MachineProcessorCore core = new MachineProcessorCore(this, this.tile, this.recipeCheckCooldown, i + 1);
             this.cores.add(core);
         }
-        ClientHandler.refreshMachineContainer();
+        ClientUtils.refreshMachineContainer();
     }
 
     public void refreshCoreCount(Stream<Pair<CoreModifier, Integer>> modifiers) {
