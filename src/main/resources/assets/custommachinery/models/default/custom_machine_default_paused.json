@@ -1,0 +1,6 @@
+{
+  "parent": "custommachinery:default/custom_machine_default_running",
+  "textures": {
+    "overlay": "custommachinery:block/custom_machine_overlay_paused"
+  }
+}

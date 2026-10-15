@@ -1,8 +1,0 @@
-{
-  "parent": "block/orientable",
-  "textures": {
-    "side": "custommachinery:block/custom_machine_side",
-    "front": "custommachinery:block/custom_machine_front",
-    "top": "custommachinery:block/custom_machine_side"
-  }
-}

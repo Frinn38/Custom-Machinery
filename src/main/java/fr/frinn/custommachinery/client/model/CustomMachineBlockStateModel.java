@@ -1,12 +1,12 @@
 package fr.frinn.custommachinery.client.model;
 
 import com.mojang.math.Axis;
-import com.mojang.math.OctahedralGroup;
 import com.mojang.math.Transformation;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
+import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.util.MachineModelLocation.MachineBlockModelLocation;
 import fr.frinn.custommachinery.impl.util.IMachineModelLocation;
@@ -29,22 +29,23 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
 import net.neoforged.neoforge.client.model.block.CustomUnbakedBlockStateModel;
 import net.neoforged.neoforge.model.data.ModelData;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record CustomMachineBlockStateModel(BlockStateModelPart defaultNorth, BlockStateModelPart defaultEast, BlockStateModelPart defaultSouth, BlockStateModelPart defaultWest) implements DynamicBlockStateModel {
+public record CustomMachineBlockStateModel(BlockStateModelPart defaultIdle, BlockStateModelPart defaultRunning, BlockStateModelPart defaultErrored, BlockStateModelPart defaultPaused) implements DynamicBlockStateModel {
 
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> parts) {
         ModelData data = level.getModelData(pos);
         IMachineAppearance appearance = data.get(ClientHandler.APPEARANCE);
         if(appearance == null || appearance.getBlockModel() == MachineBlockModelLocation.DEFAULT) {
-            BlockStateModelPart defaultModel = this.getDefaultModel(state);
-            if(defaultModel != null)
-                parts.add(defaultModel);
+            MachineStatus status = data.get(ClientHandler.STATUS);
+            if(status == null)
+                status = MachineStatus.IDLE;
+            BlockStateModelPart defaultModel = this.getDefaultModel(status);
+            parts.addAll(this.rotate(List.of(defaultModel), state));
         } else {
             IMachineModelLocation.Block blockModel = appearance.getBlockModel();
             blockModel.location().ifLeft(mimicState -> {
@@ -94,7 +95,7 @@ public record CustomMachineBlockStateModel(BlockStateModelPart defaultNorth, Blo
         ModelData data = level.getModelData(pos);
         IMachineAppearance appearance = data.get(ClientHandler.APPEARANCE);
         if(appearance == null) {
-            return this.defaultNorth.particleMaterial();
+            return this.defaultIdle.particleMaterial();
         } else {
             IMachineModelLocation.Block blockModel = appearance.getBlockModel();
             return blockModel.location().map(
@@ -104,7 +105,7 @@ public record CustomMachineBlockStateModel(BlockStateModelPart defaultNorth, Blo
                         if(model != null)
                             return model.particleMaterial(level, pos, state);
                         else
-                            return this.defaultNorth.particleMaterial();
+                            return this.defaultIdle.particleMaterial();
                     }
             );
         }
@@ -116,7 +117,7 @@ public record CustomMachineBlockStateModel(BlockStateModelPart defaultNorth, Blo
         ModelData data = level.getModelData(pos);
         IMachineAppearance appearance = data.get(ClientHandler.APPEARANCE);
         if(appearance == null) {
-            return this.defaultNorth.materialFlags();
+            return this.defaultIdle.materialFlags();
         } else {
             IMachineModelLocation.Block blockModel = appearance.getBlockModel();
             return blockModel.location().map(
@@ -126,42 +127,43 @@ public record CustomMachineBlockStateModel(BlockStateModelPart defaultNorth, Blo
                         if(model != null)
                             return model.materialFlags(level, pos, state);
                         else
-                            return this.defaultNorth.materialFlags();
+                            return this.defaultIdle.materialFlags();
                     }
             );
         }
     }
 
-    @Nullable
-    private BlockStateModelPart getDefaultModel(BlockState state) {
-        return switch (state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
-            case NORTH -> this.defaultNorth;
-            case EAST -> this.defaultEast;
-            case SOUTH -> this.defaultSouth;
-            case WEST -> this.defaultWest;
-            default -> null;
+    private BlockStateModelPart getDefaultModel(MachineStatus status) {
+        return switch (status) {
+            case IDLE -> this.defaultIdle;
+            case RUNNING -> this.defaultRunning;
+            case ERRORED -> this.defaultErrored;
+            case PAUSED -> this.defaultPaused;
         };
     }
 
     //Unused
     @Override
     public Baked particleMaterial() {
-        return this.defaultNorth.particleMaterial();
+        return this.defaultIdle.particleMaterial();
     }
 
     //Unused
     @Override
     @MaterialFlags
     public int materialFlags() {
-        return this.defaultNorth.materialFlags();
+        return this.defaultIdle.materialFlags();
     }
 
-    public record Unbaked(Identifier defaultModel) implements CustomUnbakedBlockStateModel {
+    public record Unbaked(Identifier idle, Identifier running, Identifier errored, Identifier paused) implements CustomUnbakedBlockStateModel {
 
         public static final Identifier ID = CustomMachinery.rl("custom_machine_model");
         public static final MapCodec<Unbaked> CODEC = RecordCodecBuilder.mapCodec(builder ->
                 builder.group(
-                        Identifier.CODEC.optionalFieldOf("default", CustomMachinery.rl("default/custom_machine_default")).forGetter(Unbaked::defaultModel)
+                        Identifier.CODEC.optionalFieldOf("idle", CustomMachinery.rl("default/custom_machine_default_idle")).forGetter(Unbaked::idle),
+                        Identifier.CODEC.optionalFieldOf("running", CustomMachinery.rl("default/custom_machine_default_running")).forGetter(Unbaked::running),
+                        Identifier.CODEC.optionalFieldOf("errored", CustomMachinery.rl("default/custom_machine_default_errored")).forGetter(Unbaked::errored),
+                        Identifier.CODEC.optionalFieldOf("paused", CustomMachinery.rl("default/custom_machine_default_paused")).forGetter(Unbaked::paused)
                 ).apply(builder, Unbaked::new)
         );
 
@@ -173,16 +175,19 @@ public record CustomMachineBlockStateModel(BlockStateModelPart defaultNorth, Blo
         @Override
         public BlockStateModel bake(ModelBaker baker) {
             return new CustomMachineBlockStateModel(
-                    SimpleModelWrapper.bake(baker, this.defaultModel, BlockModelRotation.IDENTITY),
-                    SimpleModelWrapper.bake(baker, this.defaultModel, BlockModelRotation.get(OctahedralGroup.BLOCK_ROT_Y_90)),
-                    SimpleModelWrapper.bake(baker, this.defaultModel, BlockModelRotation.get(OctahedralGroup.BLOCK_ROT_Y_180)),
-                    SimpleModelWrapper.bake(baker, this.defaultModel, BlockModelRotation.get(OctahedralGroup.BLOCK_ROT_Y_270))
+                    SimpleModelWrapper.bake(baker, this.idle, BlockModelRotation.IDENTITY),
+                    SimpleModelWrapper.bake(baker, this.running, BlockModelRotation.IDENTITY),
+                    SimpleModelWrapper.bake(baker, this.errored, BlockModelRotation.IDENTITY),
+                    SimpleModelWrapper.bake(baker, this.paused, BlockModelRotation.IDENTITY)
             );
         }
 
         @Override
         public void resolveDependencies(Resolver resolver) {
-            resolver.markDependency(this.defaultModel);
+            resolver.markDependency(this.idle);
+            resolver.markDependency(this.running);
+            resolver.markDependency(this.errored);
+            resolver.markDependency(this.paused);
         }
     }
 }

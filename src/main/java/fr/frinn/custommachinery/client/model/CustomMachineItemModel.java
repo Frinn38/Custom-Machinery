@@ -28,6 +28,7 @@ import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -55,12 +56,12 @@ public record CustomMachineItemModel(QuadCollection defaultModel, ItemTransforms
 
         MachineAppearance appearance = CustomMachineItem.getMachine(stack).map(machine -> machine.getAppearance(MachineStatus.IDLE)).orElse(null);
         if(appearance == null) {
-            this.useDefaultModel(output, layer, context);
+            this.useDefaultModel(output, layer, context, ARGB.white(1.0F));
         } else {
             IMachineModelLocation.Item loc = appearance.getItemModel();
             if(loc == MachineItemModelLocation.DEFAULT) {
                 if(appearance.getBlockModel() == MachineBlockModelLocation.DEFAULT)
-                    this.useDefaultModel(output, layer, context);
+                    this.useDefaultModel(output, layer, context, appearance.getColor());
                 else {
                     appearance.getBlockModel().location().ifLeft(mimicState ->
                         resolver.appendItemLayers(output, mimicState.getBlock().asItem().getDefaultInstance(), context, level, owner, seed)
@@ -76,10 +77,11 @@ public record CustomMachineItemModel(QuadCollection defaultModel, ItemTransforms
         }
     }
 
-    private void useDefaultModel(ItemStackRenderState output, ItemStackRenderState.LayerRenderState layer, ItemDisplayContext context) {
+    private void useDefaultModel(ItemStackRenderState output, ItemStackRenderState.LayerRenderState layer, ItemDisplayContext context, int tint) {
         output.appendModelIdentityElement(output);
         layer.setItemTransform(this.defaultTransform.getTransform(context));
         layer.prepareQuadList().addAll(this.defaultModel.getAll());
+        layer.tintLayers().add(tint);
         if(this.defaultModel.hasMaterialFlag(2))
             output.setAnimated();
     }
@@ -104,7 +106,7 @@ public record CustomMachineItemModel(QuadCollection defaultModel, ItemTransforms
         public static final Identifier ID = CustomMachinery.rl("custom_machine_model");
         public static final MapCodec<Unbaked> CODEC = RecordCodecBuilder.mapCodec(builder ->
                 builder.group(
-                        Identifier.CODEC.optionalFieldOf("default", CustomMachinery.rl("default/custom_machine_default")).forGetter(Unbaked::defaultModel)
+                        Identifier.CODEC.optionalFieldOf("default", CustomMachinery.rl("default/custom_machine_default_idle")).forGetter(Unbaked::defaultModel)
                 ).apply(builder, Unbaked::new)
         );
 

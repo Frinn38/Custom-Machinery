@@ -64,7 +64,6 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     public static final Identifier DUMMY = Identifier.fromNamespaceAndPath(CustomMachinery.MODID, "dummy");
 
     private Identifier id = DUMMY;
-    private boolean paused = false;
 
     private IProcessor processor = new DummyProcessor(this);
     private MachineComponentManager componentManager = new DummyComponentManager(this);
@@ -74,6 +73,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     private SoundManager soundManager;
 
     private MachineStatus status = MachineStatus.IDLE;
+    private MachineStatus prevStatus = MachineStatus.IDLE;
     private Component errorMessage = Component.empty();
 
     //Set by recipes when processing
@@ -118,8 +118,6 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     @Override
     public MachineStatus getStatus() {
-        if(this.isPaused())
-            return MachineStatus.PAUSED;
         return this.status;
     }
 
@@ -157,7 +155,7 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         TagValueOutput componentManagerOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, serverLevel.registryAccess());
         this.componentManager.serialize(componentManagerOutput);
 
-        //For invalidating caps on Forge
+        //For invalidating caps
         this.invalidateCapabilities();
 
         if(id == null)
@@ -176,12 +174,16 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     @Override
     public void setPaused(boolean paused) {
-        this.paused = paused;
+        if(paused) {
+            this.prevStatus = this.status;
+            this.setStatus(MachineStatus.PAUSED);
+        } else
+            this.setStatus(this.prevStatus);
     }
 
     @Override
     public boolean isPaused() {
-        return this.paused;
+        return this.status == MachineStatus.PAUSED;
     }
 
     @Override
