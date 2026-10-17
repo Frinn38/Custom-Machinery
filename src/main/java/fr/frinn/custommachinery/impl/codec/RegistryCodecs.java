@@ -48,7 +48,7 @@ public class RegistryCodecs {
     public static final NamedCodec<RequirementType<?>> REQUIREMENT = of(ICustomMachineryAPI.INSTANCE.requirementRegistrar(), true);
     public static final NamedCodec<GuiElementType<?>> GUI_ELEMENT = of(ICustomMachineryAPI.INSTANCE.guiElementRegistrar(), true);
     public static final NamedCodec<MachineAppearanceProperty<?>> APPEARANCE_PROPERTY = of(ICustomMachineryAPI.INSTANCE.appearancePropertyRegistrar(), true);
-    public static final NamedCodec<DataType<?, ?>> DATA = of(ICustomMachineryAPI.INSTANCE.dataRegistrar(), true);
+    public static final NamedCodec<DataType<?>> DATA = of(ICustomMachineryAPI.INSTANCE.dataRegistrar(), true);
     public static final NamedCodec<ProcessorType<?>> CRAFTING_PROCESSOR = of(ICustomMachineryAPI.INSTANCE.processorRegistrar(), true);
 
     public static <V> NamedCodec<V> of(Registry<V> registry, boolean isCM) {

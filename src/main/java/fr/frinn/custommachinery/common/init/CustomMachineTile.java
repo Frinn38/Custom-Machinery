@@ -8,7 +8,6 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.IMachineAppearance;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.component.manager.DummyComponentManager;
@@ -20,14 +19,13 @@ import fr.frinn.custommachinery.common.network.SRefreshCustomMachineTilePacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineAppearancePacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineGuiElementsPacket;
 import fr.frinn.custommachinery.common.network.SUpdateMachineStatusPacket;
-import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.upgrade.UpgradeManager;
 import fr.frinn.custommachinery.common.util.MachineList;
 import fr.frinn.custommachinery.common.util.sound.SoundManager;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -57,7 +55,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
@@ -423,15 +420,14 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
     /**CONTAINER STUFF**/
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+    public void getStuffToSync(SyncableList list) {
         if(this.getLevel() == null)
             return;
         if(this.processor instanceof ISyncableStuff syncableProcessor)
-            syncableProcessor.getStuffToSync(container);
-        RegistryAccess registries = this.getLevel().registryAccess();
-        this.componentManager.getStuffToSync(container);
-        container.accept(StringSyncable.create(() -> this.status.toString(), status -> this.status = MachineStatus.value(status)));
-        container.accept(StringSyncable.create(() -> TextComponentUtils.toJSON(this.errorMessage), errorMessage -> this.errorMessage = TextComponentUtils.fromJSON(errorMessage)));
+            syncableProcessor.getStuffToSync(list);
+        this.componentManager.getStuffToSync(list);
+        list.syncString(() -> this.status.toString(), status -> this.status = MachineStatus.value(status));
+        list.syncComponent(() -> this.errorMessage, errorMessage -> this.errorMessage = errorMessage);
     }
 
     public void startInteracting(ServerPlayer player) {

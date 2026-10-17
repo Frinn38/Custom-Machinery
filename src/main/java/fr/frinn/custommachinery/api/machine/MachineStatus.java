@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.api.machine;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
@@ -14,27 +15,33 @@ public enum MachineStatus implements StringRepresentable {
     /**
      * The machine search for a recipe it can process.
      */
-    IDLE,
+    IDLE(ChatFormatting.GOLD),
     /**
      * The machine is processing a recipe.
      */
-    RUNNING,
+    RUNNING(ChatFormatting.GREEN),
     /**
      * The machine encountered an error when processing a recipe, usually either a missing input or not space for output.
      */
-    ERRORED,
+    ERRORED(ChatFormatting.DARK_RED),
     /**
      * The machine is paused.
      */
-    PAUSED;
+    PAUSED(ChatFormatting.GOLD);
+
+    private final ChatFormatting formatting;
+
+    MachineStatus(ChatFormatting formatting) {
+        this.formatting = formatting;
+    }
 
     public static MachineStatus value(String string) {
-        return valueOf(string.toUpperCase(Locale.ENGLISH));
+        return valueOf(string.toUpperCase(Locale.ROOT));
     }
 
     @Override
     public String toString() {
-        return super.toString().toLowerCase(Locale.ENGLISH);
+        return super.toString().toLowerCase(Locale.ROOT);
     }
 
     @Override
@@ -43,6 +50,10 @@ public enum MachineStatus implements StringRepresentable {
     }
 
     public MutableComponent getTranslatedName() {
-        return Component.translatable("custommachinery.craftingstatus." + this);
+        return Component.translatable("custommachinery.craftingstatus." + this).withStyle(this.formatting);
+    }
+
+    public ChatFormatting getFormatting() {
+        return this.formatting;
     }
 }

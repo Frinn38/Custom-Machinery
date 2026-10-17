@@ -1,10 +1,13 @@
 package fr.frinn.custommachinery.impl.component.config;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultStreamCodecs;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ARGB;
 
 public enum IOSideMode implements SideMode {
@@ -15,6 +18,7 @@ public enum IOSideMode implements SideMode {
     NONE(false, false, Component.translatable("custommachinery.side.none").withStyle(ChatFormatting.GRAY), ARGB.color(0, 255, 255, 255));
 
     public static final NamedCodec<IOSideMode> CODEC = EnumCodec.of(IOSideMode.class);
+    public static final StreamCodec<ByteBuf, IOSideMode> STREAM_CODEC = DefaultStreamCodecs.forEnum(IOSideMode.class);
 
     private final boolean isInput;
     private final boolean isOutput;

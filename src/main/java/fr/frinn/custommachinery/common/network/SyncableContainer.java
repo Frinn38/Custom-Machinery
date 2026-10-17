@@ -1,11 +1,10 @@
 package fr.frinn.custommachinery.common.network;
 
-import fr.frinn.custommachinery.api.network.DataType;
-import fr.frinn.custommachinery.api.network.IData;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
-import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
+import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.impl.network.Data;
+import fr.frinn.custommachinery.impl.network.Syncable;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -25,7 +24,7 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     //Null on client side
     @Nullable
     protected final ServerPlayer player;
-    private final List<ISyncable<?, ?>> stuffToSync = new ArrayList<>();
+    private final List<Syncable<?>> stuffToSync = new ArrayList<>();
     private final ISyncableStuff syncableStuff;
 
     public SyncableContainer(@Nullable MenuType<?> type, int id, ISyncableStuff syncableStuff, Player player) {
@@ -36,8 +35,9 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
 
     public void init() {
         this.stuffToSync.clear();
-        this.stuffToSync.add(DataType.createSyncable(ItemStack.class, this::getCarried, this::setCarried));
-        this.syncableStuff.getStuffToSync(this.stuffToSync::add);
+        SyncableList list = new SyncableList(this.stuffToSync);
+        list.syncItemStack(this::getCarried, this::setCarried);
+        this.syncableStuff.getStuffToSync(list);
     }
 
     public abstract boolean needFullSync();
@@ -46,16 +46,16 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     public void broadcastChanges() {
         if(this.player != null) {
             if(this.needFullSync()) {
-                List<IData<?>> toSync = new ArrayList<>();
+                List<Data<?>> toSync = new ArrayList<>();
                 for(short id = 0; id < this.stuffToSync.size(); id++)
-                    toSync.add(this.stuffToSync.get(id).getData(id));
+                    toSync.add(this.stuffToSync.get(id).makeData(id));
                 PacketDistributor.sendToPlayer(this.player, new SUpdateContainerPacket(this.containerId, toSync));
                 return;
             }
-            List<IData<?>> toSync = new ArrayList<>();
+            List<Data<?>> toSync = new ArrayList<>();
             for(short id = 0; id < this.stuffToSync.size(); id++) {
                 if(this.stuffToSync.get(id).needSync())
-                    toSync.add(this.stuffToSync.get(id).getData(id));
+                    toSync.add(this.stuffToSync.get(id).makeData(id));
             }
             if(!toSync.isEmpty())
                 PacketDistributor.sendToPlayer(this.player, new SUpdateContainerPacket(this.containerId, toSync));
@@ -63,15 +63,15 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void handleData(IData<?> data) {
-        short id = data.getID();
-        ISyncable syncable = this.stuffToSync.get(id);
-        syncable.set(data.getValue());
+    public void handleData(Data<?> data) {
+        short id = data.id();
+        Syncable syncable = this.stuffToSync.get(id);
+        syncable.set(data.value());
     }
 
     @Override
     protected DataSlot addDataSlot(DataSlot intReferenceHolder) {
-        this.stuffToSync.add(IntegerSyncable.create(intReferenceHolder::get, intReferenceHolder::set));
+        this.stuffToSync.add(CMRegistration.INTEGER_DATA.get().createSyncable(intReferenceHolder::get, intReferenceHolder::set));
         return intReferenceHolder;
     }
 
@@ -79,7 +79,7 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     protected void addDataSlots(ContainerData array) {
         for(int i = 0; i < array.getCount(); i++) {
             int index = i;
-            this.stuffToSync.add(IntegerSyncable.create(() -> array.get(index), integer -> array.set(index, integer)));
+            this.stuffToSync.add(CMRegistration.INTEGER_DATA.get().createSyncable(() -> array.get(index), integer -> array.set(index, integer)));
         }
     }
 
@@ -89,7 +89,7 @@ public abstract class SyncableContainer extends AbstractContainerMenu {
     }
 
     protected void addSyncedSlot(Slot slot) {
-        this.stuffToSync.add(ItemStackSyncable.create(slot::getItem, slot::set));
+        this.stuffToSync.add(CMRegistration.ITEMSTACK_DATA.get().createSyncable(slot::getItem, slot::set));
         this.addSlot(slot);
     }
 }

@@ -11,13 +11,13 @@ import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.upgrade.UpgradeableComponentValue;
 import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
@@ -148,8 +148,8 @@ public class MachineComponentManager implements IMachineComponentManager {
         return this.components.get(type) != null;
     }
 
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        getSyncableComponents().forEach(syncableComponent -> syncableComponent.getStuffToSync(container));
+    public void getStuffToSync(SyncableList list) {
+        getSyncableComponents().forEach(syncableComponent -> syncableComponent.getStuffToSync(list));
     }
 
     //ID is 'component_type_registry_name:id'

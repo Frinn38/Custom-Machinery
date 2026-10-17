@@ -1,9 +1,12 @@
 package fr.frinn.custommachinery.impl.component.config;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultStreamCodecs;
 import fr.frinn.custommachinery.impl.codec.EnumCodec;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Locale;
 
@@ -21,6 +24,7 @@ public enum RelativeSide {
     LEFT;
 
     public static final NamedCodec<RelativeSide> CODEC = EnumCodec.of(RelativeSide.class);
+    public static final StreamCodec<ByteBuf, RelativeSide> STREAM_CODEC = DefaultStreamCodecs.forEnum(RelativeSide.class);
 
     public Component getTranslationName() {
         return Component.translatable("custommachinery.side." + name().toLowerCase(Locale.ROOT));

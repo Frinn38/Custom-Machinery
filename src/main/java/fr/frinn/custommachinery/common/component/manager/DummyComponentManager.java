@@ -7,9 +7,9 @@ import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class DummyComponentManager extends MachineComponentManager {
 
@@ -72,7 +71,7 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
+    public void getStuffToSync(SyncableList list) {
 
     }
 

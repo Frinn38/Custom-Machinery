@@ -4,17 +4,13 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
-import fr.frinn.custommachinery.common.network.syncable.DoubleSyncable;
-import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
-import fr.frinn.custommachinery.common.network.syncable.StringSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.crafting.RequirementList;
 import fr.frinn.custommachinery.impl.crafting.RequirementList.RequirementWithFunction;
-import fr.frinn.custommachinery.impl.util.TextComponentUtils;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -30,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Consumer;
 
 public class MachineProcessorCore implements ISyncableStuff {
 
@@ -283,11 +278,11 @@ public class MachineProcessorCore implements ISyncableStuff {
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(DoubleSyncable.create(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime));
-        container.accept(IntegerSyncable.create(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime));
-        container.accept(IntegerSyncable.create(() -> this.status.ordinal(), index -> this.status = MachineStatus.values()[index]));
-        container.accept(StringSyncable.create(() -> TextComponentUtils.toJSON(this.getError() == null ? Component.empty() : this.getError()), errorMessage -> this.error = TextComponentUtils.fromJSON(errorMessage)));
+    public void getStuffToSync(SyncableList list) {
+        list.syncDouble(() -> this.recipeProgressTime, recipeProgressTime -> this.recipeProgressTime = recipeProgressTime);
+        list.syncInt(() -> this.recipeTotalTime, recipeTotalTime -> this.recipeTotalTime = recipeTotalTime);
+        list.syncInt(() -> this.status.ordinal(), index -> this.status = MachineStatus.values()[index]);
+        list.syncComponent(() -> this.getError() == null ? Component.empty() : this.getError(), errorMessage -> this.error = errorMessage);
     }
 
     @SuppressWarnings("unchecked")

@@ -23,7 +23,7 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
 
     @Override
     public Identifier rl(String path) {
-        return Identifier.tryParse(modid() + ":" + path);
+        return CustomMachinery.rl(path);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class CustomMachineryAPI implements ICustomMachineryAPI {
     }
 
     @Override
-    public Registry<DataType<?, ?>> dataRegistrar() {
+    public Registry<DataType<?>> dataRegistrar() {
         return CMRegistration.DATA_REGISTRY;
     }
 

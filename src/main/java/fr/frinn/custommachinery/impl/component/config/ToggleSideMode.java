@@ -1,9 +1,12 @@
 package fr.frinn.custommachinery.impl.component.config;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.impl.codec.DefaultStreamCodecs;
 import fr.frinn.custommachinery.impl.component.config.SideConfig.SideMode;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ARGB;
 
 public enum ToggleSideMode implements SideMode {
@@ -12,6 +15,7 @@ public enum ToggleSideMode implements SideMode {
     DISABLED(Component.translatable("custommachinery.side.disabled").withStyle(ChatFormatting.GRAY), ARGB.color(0, 255, 255, 255));
 
     public static final NamedCodec<ToggleSideMode> CODEC = NamedCodec.enumCodec(ToggleSideMode.class);
+    public static final StreamCodec<ByteBuf, ToggleSideMode> STREAM_CODEC = DefaultStreamCodecs.forEnum(ToggleSideMode.class);
 
     private final Component title;
     private final int color;

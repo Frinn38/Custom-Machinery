@@ -8,12 +8,11 @@ import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CMRegistration;
-import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.util.ExperienceUtils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.ValueInput;
@@ -21,7 +20,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ExperienceMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff {
@@ -131,11 +129,11 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(IntegerSyncable.create(() -> this.xp, xp -> this.xp = xp));
-        container.accept(IntegerSyncable.create(() -> this.xpLevels, xpLevels -> this.xpLevels = xpLevels));
-        container.accept(IntegerSyncable.create(this.capacity, capacity -> this.clientCapacity = capacity));
-        container.accept(IntegerSyncable.create(this::getCapacityLevels, capacityLevels -> this.capacityLevels = capacityLevels));
+    public void getStuffToSync(SyncableList list) {
+        list.syncInt(() -> this.xp, xp -> this.xp = xp);
+        list.syncInt(() -> this.xpLevels, xpLevels -> this.xpLevels = xpLevels);
+        list.syncInt(this.capacity, capacity -> this.clientCapacity = capacity);
+        list.syncInt(this::getCapacityLevels, capacityLevels -> this.capacityLevels = capacityLevels);
     }
 
     public boolean canRetrieveFromSlots() {

@@ -4,15 +4,37 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class IOSideConfig extends SideConfig<IOSideMode> {
+
+    public static final StreamCodec<ByteBuf, IOSideConfig> STREAM_CODEC = StreamCodec.composite(
+            Direction.STREAM_CODEC,
+            IOSideConfig::getFacing,
+            ByteBufCodecs.map(HashMap::new, RelativeSide.STREAM_CODEC, IOSideMode.STREAM_CODEC),
+            config -> config.sides,
+            ByteBufCodecs.BOOL,
+            IOSideConfig::isAutoInput,
+            ByteBufCodecs.BOOL,
+            IOSideConfig::isAutoOutput,
+            ByteBufCodecs.BOOL,
+            IOSideConfig::isEnabled,
+            ByteBufCodecs.VAR_INT.map(Color::fromARGB, Color::getARGB),
+            IOSideConfig::getColor,
+            ByteBufCodecs.fromCodec(ConfigGuiData.CODEC.codec()),
+            IOSideConfig::getGuiData,
+            IOSideConfig::new
+    );
 
     private boolean autoInput;
     private boolean autoOutput;

@@ -1,32 +1,12 @@
 package fr.frinn.custommachinery.impl.network;
 
 import fr.frinn.custommachinery.api.network.DataType;
-import fr.frinn.custommachinery.api.network.IData;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-public abstract class Data<T> implements IData<T> {
+public record Data<T>(DataType<T> type, short id, T value) {
 
-    private final DataType<?, T> type;
-    private final short id;
-    private final T value;
+    public static final StreamCodec<RegistryFriendlyByteBuf, Data<?>> STREAM_CODEC = ByteBufCodecs.registry(DataType.REGISTRY_KEY).dispatch(Data::type, DataType::streamCodec);
 
-    public Data(DataType<?, T> type, short id, T value) {
-        this.type = type;
-        this.id = id;
-        this.value = value;
-    }
-
-    @Override
-    public short getID() {
-        return this.id;
-    }
-
-    @Override
-    public DataType<?, T> getType() {
-        return this.type;
-    }
-
-    @Override
-    public T getValue() {
-        return this.value;
-    }
 }

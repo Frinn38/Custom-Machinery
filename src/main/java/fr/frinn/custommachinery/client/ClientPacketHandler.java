@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.client.integration.jei.CustomMachineryJEIPlugin;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
 import fr.frinn.custommachinery.client.screen.creation.MachineCreationScreen;
@@ -18,6 +17,7 @@ import fr.frinn.custommachinery.common.machine.builder.CustomMachineBuilder;
 import fr.frinn.custommachinery.common.network.SyncableContainer;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
+import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -56,7 +56,7 @@ public class ClientPacketHandler {
         }
     }
 
-    public static void handleUpdateContainerPacket(int windowId, List<IData<?>> data) {
+    public static void handleUpdateContainerPacket(int windowId, List<Data<?>> data) {
         LocalPlayer player = Minecraft.getInstance().player;
         if(player != null && player.containerMenu instanceof SyncableContainer container && player.containerMenu.containerId == windowId) {
             data.forEach(container::handleData);

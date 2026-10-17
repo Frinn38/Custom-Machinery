@@ -7,13 +7,11 @@ import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.guielement.StatusGuiElement;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class StatusGuiElementWidget extends AbstractGuiElementRenderable<StatusGuiElement> {
 
@@ -45,18 +43,19 @@ public class StatusGuiElementWidget extends AbstractGuiElementRenderable<StatusG
             processor.getCores().forEach(core -> {
                 int index = processor.getCores().indexOf(core);
                 if(core.getStatus() == MachineStatus.RUNNING)
-                    tooltips.add(Component.empty().append(Component.literal("✓ ").withStyle(ChatFormatting.GREEN)).append(Component.literal("Core " + index + ": ")).append(Component.translatable("custommachinery.craftingstatus.running")));
+                    tooltips.add(Component.empty().append(Component.literal("✓ ").withStyle(core.getStatus().getFormatting())).append(Component.literal("Core " + index + ": ")).append(core.getStatus().getTranslatedName()));
                 else if(core.getStatus() == MachineStatus.IDLE)
-                    tooltips.add(Component.empty().append(Component.literal("|| ").withStyle(ChatFormatting.GOLD)).append(Component.literal("Core " + index + ": ")).append(Component.translatable("custommachinery.craftingstatus.idle")));
+                    tooltips.add(Component.empty().append(Component.literal("|| ").withStyle(core.getStatus().getFormatting())).append(Component.literal("Core " + index + ": ")).append(core.getStatus().getTranslatedName()));
                 if(core.getStatus() == MachineStatus.ERRORED) {
-                    tooltips.add(Component.empty().append(Component.literal("X ").withStyle(ChatFormatting.DARK_RED)).append(Component.literal("Core " + index + ": ")).append(Component.translatable("custommachinery.craftingstatus.errored")));
+                    tooltips.add(Component.empty().append(Component.literal("X ").withStyle(core.getStatus().getFormatting())).append(Component.literal("Core " + index + ": ")).append(core.getStatus().getTranslatedName()));
                     if(core.getError() != null)
                         tooltips.add(Component.literal("  - ").append(core.getError()));
                 }
             });
         } else {
-            tooltips.add(Component.translatable("custommachinery.craftingstatus." + this.getScreen().getTile().getStatus().toString().toLowerCase(Locale.ROOT)));
-            if(this.getScreen().getTile().getStatus() == MachineStatus.ERRORED)
+            MachineStatus status = this.getScreen().getTile().getStatus();
+            tooltips.add(status.getTranslatedName());
+            if(status == MachineStatus.ERRORED)
                 tooltips.add(this.getScreen().getTile().getMessage());
         }
         return tooltips;

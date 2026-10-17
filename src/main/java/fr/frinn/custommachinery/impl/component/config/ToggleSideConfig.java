@@ -4,14 +4,32 @@ import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.common.util.Color;
 import fr.frinn.custommachinery.impl.codec.EnumMapCodec;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ToggleSideConfig extends SideConfig<ToggleSideMode> {
+
+    public static final StreamCodec<ByteBuf, ToggleSideConfig> STREAM_CODEC = StreamCodec.composite(
+            Direction.STREAM_CODEC,
+            ToggleSideConfig::getFacing,
+            ByteBufCodecs.map(HashMap::new, RelativeSide.STREAM_CODEC, ToggleSideMode.STREAM_CODEC),
+            config -> config.sides,
+            ByteBufCodecs.BOOL,
+            ToggleSideConfig::isEnabled,
+            ByteBufCodecs.VAR_INT.map(Color::fromARGB, Color::getARGB),
+            ToggleSideConfig::getColor,
+            ByteBufCodecs.fromCodec(ConfigGuiData.CODEC.codec()),
+            ToggleSideConfig::getGuiData,
+            ToggleSideConfig::new
+    );
 
     public ToggleSideConfig(Direction facing, Map<RelativeSide, ToggleSideMode> defaultConfig, boolean enabled, Color color, ConfigGuiData guiData) {
         super(facing, defaultConfig, enabled, color, guiData);

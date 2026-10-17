@@ -5,16 +5,13 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.network.DataType;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-
-import java.util.function.Consumer;
 
 public class DataMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff {
 
@@ -53,7 +50,7 @@ public class DataMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(DataType.createSyncable(CompoundTag.class, this::getData, this::setData));
+    public void getStuffToSync(SyncableList list) {
+        list.syncNBT(this::getData, this::setData);
     }
 }

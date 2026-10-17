@@ -7,17 +7,14 @@ import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CMRegistration;
-import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-
-import java.util.function.Consumer;
 
 public class FuelMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ITickableComponent, ISyncableStuff {
 
@@ -59,9 +56,9 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(IntegerSyncable.create(() -> this.fuel, fuel -> this.fuel = fuel));
-        container.accept(IntegerSyncable.create(() -> this.maxFuel, maxFuel -> this.maxFuel = maxFuel));
+    public void getStuffToSync(SyncableList list) {
+        list.syncInt(() -> this.fuel, fuel -> this.fuel = fuel);
+        list.syncInt(() -> this.maxFuel, maxFuel -> this.maxFuel = maxFuel);
     }
 
     public int getFuel() {

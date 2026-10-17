@@ -12,11 +12,8 @@ import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CMRegistration;
-import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
-import fr.frinn.custommachinery.common.network.syncable.LongSyncable;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.common.util.transfer.SidedEnergyStorage;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -24,6 +21,7 @@ import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
 import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import fr.frinn.custommachinery.impl.integration.jei.Energy;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.storage.ValueInput;
@@ -39,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class EnergyMachineComponent extends AbstractMachineComponent implements ITickableComponent, ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, IDumpComponent, EnergyHandler {
@@ -191,10 +188,10 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(LongSyncable.create(() -> this.energy, energy -> this.energy = energy));
-        container.accept(LongSyncable.create(this.capacity, capacity -> this.clientCapacity = capacity));
-        container.accept(IOSideConfigSyncable.create(this::getConfig, this.config::set));
+    public void getStuffToSync(SyncableList list) {
+        list.syncLong(() -> this.energy, energy -> this.energy = energy);
+        list.syncLong(this.capacity, capacity -> this.clientCapacity = capacity);
+        list.syncIOSideConfig(this::getConfig, this.config::set);
     }
 
     @Override

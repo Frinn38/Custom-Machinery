@@ -1,42 +1,31 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.network.IData;
 import fr.frinn.custommachinery.client.ClientPacketHandler;
+import fr.frinn.custommachinery.impl.network.Data;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public record SUpdateContainerPacket(int windowId, List<IData<?>> data) implements CustomPacketPayload {
+public record SUpdateContainerPacket(int windowId, List<Data<?>> data) implements CustomPacketPayload {
 
     public static final Type<SUpdateContainerPacket> TYPE = new Type<>(CustomMachinery.rl("update_container"));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, SUpdateContainerPacket> CODEC = StreamCodec.ofMember(SUpdateContainerPacket::write, SUpdateContainerPacket::read);
+    public static final StreamCodec<RegistryFriendlyByteBuf, SUpdateContainerPacket> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT,
+            SUpdateContainerPacket::windowId,
+            Data.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            SUpdateContainerPacket::data,
+            SUpdateContainerPacket::new
+    );
 
     @Override
     public Type<SUpdateContainerPacket> type() {
         return TYPE;
-    }
-
-    public void write(RegistryFriendlyByteBuf buf) {
-        buf.writeInt(this.windowId);
-        buf.writeShort(this.data.size());
-        this.data.forEach(data -> data.writeData(buf));
-    }
-
-    public static SUpdateContainerPacket read(RegistryFriendlyByteBuf buf) {
-        int windowId = buf.readInt();
-        List<IData<?>> dataList = new ArrayList<>();
-        short size = buf.readShort();
-        for(short i = 0; i < size; i++) {
-            IData<?> data = IData.readData(buf);
-            dataList.add(data);
-        }
-        return new SUpdateContainerPacket(windowId, dataList);
     }
 
     public static void handle(SUpdateContainerPacket packet, IPayloadContext context) {

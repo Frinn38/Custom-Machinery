@@ -8,13 +8,12 @@ import fr.frinn.custommachinery.api.crafting.ProcessorType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.machine.MachineTile;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
-import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.upgrade.CoreModifier;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class MachineProcessor implements IProcessor, ISyncableStuff {
@@ -161,9 +159,9 @@ public class MachineProcessor implements IProcessor, ISyncableStuff {
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(IntegerSyncable.create(this.cores::size, this::setClientCoreCount));
-        this.cores.forEach(core -> core.getStuffToSync(container));
+    public void getStuffToSync(SyncableList list) {
+        list.syncInt(this.cores::size, this::setClientCoreCount);
+        this.cores.forEach(core -> core.getStuffToSync(list));
     }
 
     @Override

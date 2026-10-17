@@ -10,16 +10,14 @@ import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.init.CMRegistration;
-import fr.frinn.custommachinery.common.network.syncable.IOSideConfigSyncable;
-import fr.frinn.custommachinery.common.network.syncable.ItemStackSyncable;
 import fr.frinn.custommachinery.common.util.Filter;
 import fr.frinn.custommachinery.common.util.slot.SlotItemComponent;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import fr.frinn.custommachinery.impl.component.config.IOSideConfig;
+import fr.frinn.custommachinery.impl.network.SyncableList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -34,7 +32,6 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, ResourceHandler<ItemResource> {
@@ -140,9 +137,9 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(ItemStackSyncable.create(() -> this.stack, stack -> this.stack = stack));
-        container.accept(IOSideConfigSyncable.create(this::getConfig, this.config::set));
+    public void getStuffToSync(SyncableList list) {
+        list.syncItemStack(() -> this.stack, stack -> this.stack = stack);
+        list.syncIOSideConfig(this::getConfig, this.config::set);
     }
 
     @Override

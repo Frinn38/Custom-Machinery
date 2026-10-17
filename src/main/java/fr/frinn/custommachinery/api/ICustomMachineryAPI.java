@@ -75,7 +75,7 @@ public interface ICustomMachineryAPI {
      * Do not use this for creating a {@link net.neoforged.neoforge.registries.DeferredRegister}, it will throw an exception if queried before the registry is created.
      * Instead, use {@code DeferredRegister.create(modid, MachineComponentType.REGISTRY_KEY);}
      */
-    Registry<DataType<?, ?>> dataRegistrar();
+    Registry<DataType<?>> dataRegistrar();
 
     /**
      * @return The registrar for crafting processor types.
