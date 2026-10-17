@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.guielement;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
@@ -63,12 +63,7 @@ public class EnergyGuiElement extends AbstractTexturedGuiElement implements ICom
     }
 
     @Override
-    public MachineComponentType<EnergyMachineComponent> getComponentType() {
-        return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public String getComponentId() {
-        return "";
+    public MachineComponentId<EnergyMachineComponent> getComponentId() {
+        return CMRegistration.ENERGY_MACHINE_COMPONENT.get().componentId("");
     }
 }

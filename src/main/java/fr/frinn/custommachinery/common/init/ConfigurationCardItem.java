@@ -84,7 +84,7 @@ public class ConfigurationCardItem extends Item {
             for(ISideConfigComponent component : machine.getComponentManager().getConfigComponents()) {
                 TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, Provider.create(level.registryAccess().listRegistries()));
                 component.getConfig().serialize(output);
-                data.configs().put(component.getId(), output.buildResult());
+                data.configs().put(component.getId().id().toString(), output.buildResult());
             }
 
             stack.set(CMRegistration.CONFIGURATION_CARD_DATA, data);
@@ -119,8 +119,8 @@ public class ConfigurationCardItem extends Item {
 
     private static void deserializeSideConfig(ItemStack stack, ISideConfigComponent component) {
         ConfigurationCardData data = stack.get(CMRegistration.CONFIGURATION_CARD_DATA);
-        if(data != null && data.configs().containsKey(component.getId()))
-            component.getConfig().deserialize(TagValueInput.create(ProblemReporter.DISCARDING, component.getManager().getLevel().registryAccess(), data.configs().get(component.getId())));
+        if(data != null && data.configs().containsKey(component.getId().id().toString()))
+            component.getConfig().deserialize(TagValueInput.create(ProblemReporter.DISCARDING, component.getManager().getLevel().registryAccess(), data.configs().get(component.getId().id().toString())));
     }
 
     public record ConfigurationCardData(Identifier machineId, Map<String, CompoundTag> configs) {

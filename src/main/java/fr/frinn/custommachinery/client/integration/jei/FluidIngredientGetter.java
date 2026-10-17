@@ -2,7 +2,6 @@ package fr.frinn.custommachinery.client.integration.jei;
 
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
-import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry.IngredientGetter;
 import mezz.jei.api.helpers.IJeiHelpers;
@@ -19,7 +18,7 @@ public class FluidIngredientGetter implements IngredientGetter<FluidGuiElement, 
     @Override
     @Nullable
     public IClickableIngredient<FluidStack> getIngredient(AbstractGuiElementWidget<FluidGuiElement> widget, double mouseX, double mouseY, IJeiHelpers helpers) {
-        FluidMachineComponent component = widget.getScreen().getTile().getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(widget.getElement().getComponentId())).orElse(null);
+        FluidMachineComponent component = widget.getScreen().getTile().getComponentManager().getComponent(widget.getElement().getComponentId()).orElse(null);
         if (component == null)
             return null;
         IIngredientManager manager = helpers.getIngredientManager();

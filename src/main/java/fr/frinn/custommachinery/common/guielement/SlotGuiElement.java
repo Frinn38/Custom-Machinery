@@ -2,7 +2,7 @@ package fr.frinn.custommachinery.common.guielement;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
@@ -35,13 +35,8 @@ public class SlotGuiElement extends AbstractTexturedGuiElement implements ICompo
     }
 
     @Override
-    public String getComponentId() {
-        return this.getId();
-    }
-
-    @Override
-    public MachineComponentType<ItemMachineComponent> getComponentType() {
-        return CMRegistration.ITEM_MACHINE_COMPONENT.get();
+    public MachineComponentId<ItemMachineComponent> getComponentId() {
+        return CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(this.getId());
     }
 
     public GhostItem getGhost() {

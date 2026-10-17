@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -38,7 +39,7 @@ import java.util.function.Supplier;
 
 public class ItemMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, ResourceHandler<ItemResource> {
 
-    private final String id;
+    private final MachineComponentId<ItemMachineComponent> id;
     private final Supplier<Integer> capacity;
     private final Supplier<Integer> maxInput;
     private final Supplier<Integer> maxOutput;
@@ -50,7 +51,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     public ItemMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int maxOutput, Filter<Item> filter, IOSideConfig.Template configTemplate, boolean locked) {
         super(manager, mode);
-        this.id = id;
+        this.id = this.getType().componentId(id);
         this.capacity = this.upgradeableI(capacity, "capacity", 1, Integer.MAX_VALUE, value -> {
             if(this.stack.getCount() > value)
                 this.setItemStack(this.stack.copyWithCount(value));
@@ -67,7 +68,8 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
         return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
-    public String getId() {
+    @Override
+    public MachineComponentId<ItemMachineComponent> getId() {
         return this.id;
     }
 
@@ -87,7 +89,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
     //Should be used to set the stored ItemStack as it refresh upgrades
     public void setItemStack(ItemStack stack) {
         this.stack = stack;
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public boolean canOutput() {
@@ -150,7 +152,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
     // ResourceHandler stuff
 
-    private final SnapshotJournal<ItemStack> snapshot = new SnapshotJournal<ItemStack>() {
+    private final SnapshotJournal<ItemStack> snapshot = new SnapshotJournal<>() {
         @Override
         protected ItemStack createSnapshot() {
             return ItemMachineComponent.this.stack.copy();
@@ -163,7 +165,7 @@ public class ItemMachineComponent extends AbstractMachineComponent implements IS
 
         @Override
         protected void onRootCommit(ItemStack originalState) {
-            ItemMachineComponent.this.getManager().markDirty();
+            ItemMachineComponent.this.getManager().setChanged();
         }
     };
 

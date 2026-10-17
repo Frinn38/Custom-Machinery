@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -33,6 +34,11 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     }
 
     @Override
+    public MachineComponentId<FuelMachineComponent> getId() {
+        return this.getType().componentId("");
+    }
+
+    @Override
     public void serialize(ValueOutput output) {
         output.putInt("fuel", this.fuel);
         output.putInt("maxFuel", this.maxFuel);
@@ -48,7 +54,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     public void serverTick() {
         if(this.fuel > 0 && getManager().getTile().getStatus() != MachineStatus.RUNNING) {
             this.fuel--;
-            getManager().markDirty();
+            getManager().setChanged();
         }
     }
 
@@ -69,7 +75,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
     public void addFuel(int fuel) {
         this.fuel += fuel;
         this.maxFuel = fuel;
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     //Return true if the component successfully burned the required fuel amount
@@ -77,7 +83,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
         //If the machine have sufficient fuel, just burn it and return true
         if(this.fuel >= amount) {
             this.fuel -= amount;
-            getManager().markDirty();
+            getManager().setChanged();
             return true;
         }
 
@@ -87,7 +93,7 @@ public class FuelMachineComponent extends AbstractMachineComponent implements IS
         //Then we check again
         if(this.fuel >= amount) {
             this.fuel -= amount;
-            getManager().markDirty();
+            getManager().setChanged();
             return true;
         }
 

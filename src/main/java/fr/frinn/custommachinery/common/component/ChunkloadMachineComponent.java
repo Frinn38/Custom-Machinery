@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.MachineList;
@@ -41,6 +42,11 @@ public class ChunkloadMachineComponent extends AbstractMachineComponent implemen
     @Override
     public MachineComponentType<ChunkloadMachineComponent> getType() {
         return CMRegistration.CHUNKLOAD_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<ChunkloadMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     @Override

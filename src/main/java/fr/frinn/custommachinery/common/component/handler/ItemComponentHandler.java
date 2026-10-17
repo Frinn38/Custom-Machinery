@@ -8,9 +8,8 @@ import fr.frinn.custommachinery.api.component.IDumpComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.network.ISyncable;
-import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.guielement.SplitButtonGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
@@ -26,7 +25,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.storage.ValueOutput.TypedOutputList;
-import net.minecraft.world.level.storage.ValueOutput.ValueOutputList;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -43,14 +41,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ISerializableComponent, ITickableComponent, ISyncableStuff, IDumpComponent {
+public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineComponent> implements ISerializableComponent, ITickableComponent, IDumpComponent {
 
     private final SidedItemHandler generalHandler = new SidedItemHandler(null, this);
     private final Map<Direction, SidedItemHandler> sidedHandlers = Maps.newEnumMap(Direction.class);
@@ -91,25 +87,18 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     @Override
-    public Optional<ItemMachineComponent> getComponentForID(String id) {
-        return this.getComponents().stream().filter(component -> component.getId().equals(id)).findFirst();
+    public MachineComponentId<ItemMachineComponent> getId() {
+        return this.getType().componentId("handler");
     }
 
     @Override
     public void serialize(ValueOutput output) {
-        ValueOutputList list = output.childrenList("items");
-        this.getComponents().forEach(component -> {
-            ValueOutput child = list.addChild();
-            component.serialize(child);
-            child.putString("id", component.getId());
-        });
         TypedOutputList<String> splitters = output.list("splitters", Codec.STRING);
         this.slotSplitters.forEach((id, slots) -> splitters.add(id));
     }
 
     @Override
     public void deserialize(ValueInput input) {
-        input.childrenList("items").ifPresent(list -> list.forEach(child -> child.getString("id").flatMap(this::getComponentForID).ifPresent(component -> component.deserialize(child))));
         input.listOrEmpty("splitters", Codec.STRING)
                 .forEach(splitter -> this.getManager().getTile().getMachine().getGuiElements().stream()
                     .filter(element -> element instanceof SplitButtonGuiElement && element.getId().equals(splitter))
@@ -120,8 +109,6 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
 
     @Override
     public void serverTick() {
-        //Tick each component
-        super.serverTick();
 
         //Sort slots
         Set<String> sortedSlots = new HashSet<>();
@@ -212,14 +199,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        this.getComponents().forEach(component -> component.getStuffToSync(container));
-    }
-
-    @Override
     public void dump(List<String> ids) {
         this.getComponents().stream()
-                .filter(component -> ids.contains(component.getId()))
+                .filter(component -> ids.contains(component.getId().toString()))
                 .forEach(component -> component.setItemStack(ItemStack.EMPTY));
     }
 
@@ -303,7 +285,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             toRemove.addAndGet(-maxExtract);
             component.getItemStack().shrink(maxExtract);
         });
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public void removeDurability(String slot, Ingredient ingredient, int amount, boolean canBreak) {
@@ -324,7 +306,7 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             if(stack.getDamageValue() >= stack.getMaxDamage() && canBreak)
                 stack.shrink(1);
         });
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public void addToOutputs(String slot, ItemStack stack, int amount) {
@@ -346,10 +328,10 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
             toRepair.addAndGet(-maxRepair);
             component.getItemStack().setDamageValue(component.getItemStack().getDamageValue() - maxRepair);
         });
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public boolean isInputSlotEmpty(String slot) {
-        return this.inputs.stream().anyMatch(component -> component.getItemStack().isEmpty() && (slot.isEmpty() || slot.equals(component.getId())));
+        return this.inputs.stream().anyMatch(component -> component.getItemStack().isEmpty() && (slot.isEmpty() || slot.equals(component.getId().uniqueId())));
     }
 }

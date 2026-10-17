@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.component;
 
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
@@ -28,6 +29,11 @@ public class StructureMachineComponent extends AbstractMachineComponent {
     @Override
     public MachineComponentType<StructureMachineComponent> getType() {
         return CMRegistration.STRUCTURE_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<StructureMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     public boolean checkStructure(BlockStructure pattern) {

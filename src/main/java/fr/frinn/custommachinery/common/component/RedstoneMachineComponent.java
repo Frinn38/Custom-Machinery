@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
@@ -26,8 +27,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     private final int idlePowerOutput;
     private final int erroredPowerOutput;
     private final int pausedPowerOutput;
-    private final MachineComponentType<?> comparatorInputType;
-    private final String comparatorInputID;
+    private final MachineComponentId<?> comparatorId;
     private final IOSideConfig config;
     private int checkRedstoneCooldown = Utils.RAND.nextInt(20);
 
@@ -38,8 +38,7 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
         this.idlePowerOutput = idlePowerOutput;
         this.erroredPowerOutput = erroredPowerOutput;
         this.pausedPowerOutput = pausedPowerOutput;
-        this.comparatorInputType = comparatorInputType;
-        this.comparatorInputID = comparatorInputID;
+        this.comparatorId = comparatorInputType.componentId(comparatorInputID);
         this.config = config.build(manager.facing());
     }
 
@@ -50,6 +49,11 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     @Override
     public MachineComponentType<RedstoneMachineComponent> getType() {
         return CMRegistration.REDSTONE_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<RedstoneMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     @Override
@@ -65,11 +69,6 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     @Override
     public SideConfig<IOSideMode> getConfig() {
         return this.config;
-    }
-
-    @Override
-    public String getId() {
-        return "Redstone";
     }
 
     private boolean shouldPauseMachine() {
@@ -92,17 +91,8 @@ public class RedstoneMachineComponent extends AbstractMachineComponent implement
     }
 
     public int getComparatorInput() {
-        if(this.comparatorInputType.isSingle())
-            return this.getManager().getComparatorInputComponents().stream()
-                    .filter(component -> component.getType() == this.comparatorInputType)
-                    .findAny()
-                    .map(IComparatorInputComponent::getComparatorInput)
-                    .orElse(0);
-        else
-            return this.getManager().getComponentHandler(this.comparatorInputType)
-                    .flatMap(handler -> handler.getComponentForID(this.comparatorInputID))
-                    .map(component -> component instanceof IComparatorInputComponent cic ? cic.getComparatorInput() : 0)
-                    .orElse(0);
+        IComparatorInputComponent component = this.getManager().getComparatorInputComponents().get(this.comparatorId);
+        return component == null ? 0 : component.getComparatorInput();
     }
 
     public int getMachinePower() {

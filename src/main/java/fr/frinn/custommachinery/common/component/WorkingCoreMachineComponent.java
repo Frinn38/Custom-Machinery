@@ -2,6 +2,7 @@ package fr.frinn.custommachinery.common.component;
 
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
@@ -23,12 +24,17 @@ public class WorkingCoreMachineComponent extends AbstractMachineComponent {
         return CMRegistration.WORKING_CORE_MACHINE_COMPONENT.get();
     }
 
+    @Override
+    public MachineComponentId<WorkingCoreMachineComponent> getId() {
+        return this.getType().componentId("");
+    }
+
     public CraftingResult isCoreWorking(int coreId, @Nullable Identifier recipe, int currentCore) {
         if(this.getManager().getTile().getProcessor() instanceof MachineProcessor processor) {
             if(coreId == 0) {
                 if(recipe == null && processor.getCores().stream().noneMatch(core -> processor.getCores().indexOf(core) != currentCore && core.getCurrentRecipe() != null && core.getError() == null))
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.working_core.all_idle"));
-                else if(recipe != null && processor.getCores().stream().noneMatch(core -> processor.getCores().indexOf(core) != currentCore && core.getCurrentRecipe() != null && core.getCurrentRecipe().id().equals(recipe)))
+                else if(recipe != null && processor.getCores().stream().noneMatch(core -> processor.getCores().indexOf(core) != currentCore && core.getCurrentRecipe() != null && core.getCurrentRecipe().id().identifier().equals(recipe)))
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.working_core.all_bad", recipe.toString()));
                 else
                     return CraftingResult.success();
@@ -38,7 +44,7 @@ public class WorkingCoreMachineComponent extends AbstractMachineComponent {
                 MachineProcessorCore core = processor.getCores().get(coreId - 1);
                 if(core.getCurrentRecipe() == null || core.getError() != null)
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.working_core.idle", coreId));
-                else if(recipe != null && !core.getCurrentRecipe().id().equals(recipe))
+                else if(recipe != null && !core.getCurrentRecipe().id().identifier().equals(recipe))
                     return CraftingResult.error(Component.translatable("custommachinery.requirements.working_core.bad_recipe", coreId, recipe.toString()));
                 else
                     return CraftingResult.success();

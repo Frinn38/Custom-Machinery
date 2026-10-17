@@ -25,6 +25,13 @@ public interface IMachineComponent {
     ComponentIOMode getMode();
 
     /**
+     * A unique identifier for this component.
+     * For unique components it should be the same id as their {@link MachineComponentType}. Example: "custommachinery:energy"
+     * For handled components (items, fluids) it should include their unique id (defined in the machine JSON). Example: "custommachinery:item/input1"
+     */
+    MachineComponentId<?> getId();
+
+    /**
      * @return The {@link IMachineComponentManager} that hold this {@link IMachineComponent}.
      * You can use that to access the {@link MachineTile} directly or other components.
      */

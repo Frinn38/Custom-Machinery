@@ -7,6 +7,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -35,7 +36,7 @@ import java.util.function.Supplier;
 
 public class FluidMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff, IComparatorInputComponent, ISideConfigComponent, ResourceHandler<FluidResource> {
 
-    private final String id;
+    private final MachineComponentId<FluidMachineComponent> id;
     private final Supplier<Integer> capacity;
     private int clientCapacity;
     private final Supplier<Integer> maxInput;
@@ -51,7 +52,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
     public FluidMachineComponent(IMachineComponentManager manager, ComponentIOMode mode, String id, int capacity, int maxInput, int minInput, int maxOutput, int minOutput, Filter<Fluid> filter, IOSideConfig.Template configTemplate, boolean unique) {
         super(manager, mode);
-        this.id = id;
+        this.id = this.getType().componentId(id);
         this.capacity = this.upgradeableI(capacity, "capacity", 1, Integer.MAX_VALUE, value -> this.setFluidStack(this.fluidStack.copyWithAmount(Math.min(this.fluidStack.getAmount(), value))));
         this.maxInput = this.upgradeableI(maxInput, "max_input", 0, Integer.MAX_VALUE);
         this.minInput = this.upgradeableI(minInput, "min_input", 0, Integer.MAX_VALUE);
@@ -67,18 +68,13 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
         return CMRegistration.FLUID_MACHINE_COMPONENT.get();
     }
 
-    @Override
-    public String getId() {
-        return this.id;
-    }
-
     public FluidStack getFluid() {
         return this.fluidStack;
     }
 
     public void setFluidStack(FluidStack fluidStack) {
         this.fluidStack = fluidStack.copy();
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public int getCapacity() {
@@ -111,15 +107,20 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
     }
 
     @Override
+    public MachineComponentId<FluidMachineComponent> getId() {
+        return this.id;
+    }
+
+    @Override
     public void serialize(ValueOutput output) {
         if(!this.fluidStack.isEmpty())
-            output.store("stack", FluidStack.CODEC, this.fluidStack);
+            output.store("fluid", FluidStack.CODEC, this.fluidStack);
         this.config.serialize(output.child("config"));
     }
 
     @Override
     public void deserialize(ValueInput input) {
-        input.read("stack", FluidStack.CODEC).ifPresent(stack -> this.fluidStack = stack);
+        input.read("fluid", FluidStack.CODEC).ifPresent(stack -> this.fluidStack = stack);
         input.child("config").ifPresent(this.config::deserialize);
     }
 
@@ -244,7 +245,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         @Override
         protected void onRootCommit(FluidStack originalState) {
-            FluidMachineComponent.this.getManager().markDirty();
+            FluidMachineComponent.this.getManager().setChanged();
         }
     }
 
@@ -266,7 +267,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
             amount = Math.clamp(amount, 0, getRecipeRemainingSpace());
             this.fluidStack.grow(amount);
         }
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public void recipeExtract(int amount) {
@@ -275,7 +276,7 @@ public class FluidMachineComponent extends AbstractMachineComponent implements I
 
         amount = Math.clamp(amount, 0, this.fluidStack.getAmount());
         this.fluidStack.shrink(amount);
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public record Template(

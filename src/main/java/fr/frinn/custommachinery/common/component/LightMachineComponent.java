@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.component;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -19,6 +20,11 @@ public class LightMachineComponent extends AbstractMachineComponent implements I
     @Override
     public MachineComponentType<LightMachineComponent> getType() {
         return CMRegistration.LIGHT_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<LightMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     @Override

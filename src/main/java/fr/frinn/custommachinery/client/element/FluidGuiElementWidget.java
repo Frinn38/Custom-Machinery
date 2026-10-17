@@ -4,7 +4,6 @@ import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.client.render.FluidRenderer;
 import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.guielement.FluidGuiElement;
-import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.client.TexturedGuiElementWidget;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -22,7 +21,7 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
     @Override
     public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
-        this.getScreen().getTile().getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId())).ifPresent(component ->
+        this.getScreen().getTile().getComponentManager().getComponent(this.getElement().getComponentId()).ifPresent(component ->
             FluidRenderer.renderFluid(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2, component.getFluid(), component.getClientCapacity(), this.getElement().orientation())
         );
         if(this.isHovered() && this.getElement().highlight())
@@ -34,8 +33,7 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
         if(!this.getElement().getTooltips().isEmpty())
             return this.getElement().getTooltips();
         return this.getScreen().getTile().getComponentManager()
-                .getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get())
-                .flatMap(fluidHandler -> fluidHandler.getComponentForID(this.getElement().getComponentId()))
+                .getComponent(this.getElement().getComponentId())
                 .map(component -> {
                     Component tooltip;
                     long amount = component.getFluid().getAmount();

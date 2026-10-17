@@ -10,6 +10,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -19,9 +20,9 @@ import java.util.function.Function;
  * Used to build and/or compare {@link IMachineComponent}.
  * An {@link IMachineComponent} MUST be linked to a single {@link MachineComponentType}.
  * All instances of this class must be created and registered using {@link net.neoforged.neoforge.registries.DeferredRegister}.
- * @param <T> The {@link IMachineComponent} handled by this {@link MachineComponentType}.
+ * @param <C> The {@link IMachineComponent} handled by this {@link MachineComponentType}.
  */
-public class MachineComponentType<T extends IMachineComponent> {
+public class MachineComponentType<C extends IMachineComponent> {
 
     /**
      * The {@link ResourceKey} pointing to the {@link MachineComponentType} vanilla registry.
@@ -58,17 +59,20 @@ public class MachineComponentType<T extends IMachineComponent> {
         return new MachineComponentType<>(codec, defaultComponentBuilder);
     }
 
-    private NamedCodec<? extends IMachineComponentTemplate<T>> codec;
+    @Nullable
+    private NamedCodec<? extends IMachineComponentTemplate<C>> codec;
     private boolean isSingle = true;
-    private BiFunction<IMachineComponentManager, List<T>, IComponentHandler<T>> handlerBuilder;
+    @Nullable
+    private BiFunction<IMachineComponentManager, List<C>, IComponentHandler<C>> handlerBuilder;
     private boolean defaultComponent = false;
-    private Function<IMachineComponentManager, T> defaultComponentBuilder;
+    @Nullable
+    private Function<IMachineComponentManager, C> defaultComponentBuilder;
 
     /**
      * A constructor for {@link MachineComponentType}.
      * Use {@link MachineComponentType#create(NamedCodec)} instead.
      */
-    private MachineComponentType(NamedCodec<? extends IMachineComponentTemplate<T>> codec) {
+    private MachineComponentType(NamedCodec<? extends IMachineComponentTemplate<C>> codec) {
         this.codec = codec;
     }
 
@@ -76,7 +80,7 @@ public class MachineComponentType<T extends IMachineComponent> {
      * A constructor for {@link MachineComponentType}.
      * Use {@link MachineComponentType#create(Function)} instead.
      */
-    private MachineComponentType(Function<IMachineComponentManager, T> defaultComponentBuilder) {
+    private MachineComponentType(Function<IMachineComponentManager, C> defaultComponentBuilder) {
         this.defaultComponent = true;
         this.defaultComponentBuilder = defaultComponentBuilder;
     }
@@ -85,7 +89,7 @@ public class MachineComponentType<T extends IMachineComponent> {
      * A constructor for {@link MachineComponentType}.
      * Use {@link MachineComponentType#create(NamedCodec, Function)} instead.
      */
-    private MachineComponentType(NamedCodec<? extends IMachineComponentTemplate<T>> codec, Function<IMachineComponentManager, T> defaultComponentBuilder) {
+    private MachineComponentType(NamedCodec<? extends IMachineComponentTemplate<C>> codec, Function<IMachineComponentManager, C> defaultComponentBuilder) {
         this.codec = codec;
         this.defaultComponent = true;
         this.defaultComponentBuilder = defaultComponentBuilder;
@@ -99,7 +103,7 @@ public class MachineComponentType<T extends IMachineComponent> {
      *                       This will be used to build the {@link IComponentHandler} when the {@link IMachineComponentManager} is created.
      * @return this
      */
-    public MachineComponentType<T> setNotSingle(BiFunction<IMachineComponentManager, List<T>, IComponentHandler<T>> handlerBuilder) {
+    public MachineComponentType<C> setNotSingle(BiFunction<IMachineComponentManager, List<C>, IComponentHandler<C>> handlerBuilder) {
         this.isSingle = false;
         this.handlerBuilder = handlerBuilder;
         return this;
@@ -108,7 +112,7 @@ public class MachineComponentType<T extends IMachineComponent> {
     /**
      * @return The {@link NamedCodec} passed in the constructor. Used by the {@link IMachineComponent} dispatch codec to deserialize an {@link IMachineComponentTemplate} from the machine JSON.
      */
-    public NamedCodec<? extends IMachineComponentTemplate<T>> getCodec() {
+    public NamedCodec<? extends IMachineComponentTemplate<C>> getCodec() {
         if(this.codec != null)
             return this.codec;
         else throw new RuntimeException("Error while trying to serialize or deserialize Machine Component template: " + getId() + ", Codec not present !");
@@ -129,7 +133,7 @@ public class MachineComponentType<T extends IMachineComponent> {
      *                   This is an unmodifiable list.
      * @return The Created {@link IComponentHandler} that will be put inside the {@link IMachineComponentManager} and hold all {@link IMachineComponent} for this type.
      */
-    public IComponentHandler<T> getHandler(IMachineComponentManager manager, List<T> components) {
+    public IComponentHandler<C> getHandler(IMachineComponentManager manager, List<C> components) {
         if(this.isSingle || this.handlerBuilder == null)
             throw new IllegalStateException("Machine component manager for machine '" + manager.getTile().getMachine().getId() + "' tried to build an handler for single component '" + getId() + "'");
         return this.handlerBuilder.apply(manager, components);
@@ -145,7 +149,9 @@ public class MachineComponentType<T extends IMachineComponent> {
     /**
      * @return The Function used by the {@link IMachineComponentManager} to build an {@link IMachineComponent} passed in this {@link MachineComponentType} constructor.
      */
-    public Function<IMachineComponentManager, T> getDefaultComponentBuilder() {
+    public Function<IMachineComponentManager, C> getDefaultComponentBuilder() {
+        if(this.defaultComponentBuilder == null)
+            throw new IllegalStateException("Trying to build machine component for type: " + this.getId() + " as default component");
         return this.defaultComponentBuilder;
     }
 
@@ -158,6 +164,17 @@ public class MachineComponentType<T extends IMachineComponent> {
         if(id == null)
             throw new IllegalStateException("Trying to get id for an unregistered machine component type");
         return id;
+    }
+
+    /**
+     * A helper method to get a {@link MachineComponentId} of this type, with an optional unique id for non-single components.
+     * @param uniqueId A unique id for non-single components.
+     * @return A {@link MachineComponentId} linking to an {@link IMachineComponent} of this type.
+     */
+    public MachineComponentId<C> componentId(@Nullable String uniqueId) {
+        if(this.isSingle || uniqueId == null || uniqueId.isBlank())
+            return MachineComponentId.forType(this);
+        return new MachineComponentId<>(this, uniqueId, this.getId().withPath(path -> path + "/" + uniqueId));
     }
 
     /**

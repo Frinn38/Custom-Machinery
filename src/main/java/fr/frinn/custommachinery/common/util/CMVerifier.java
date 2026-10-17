@@ -37,7 +37,7 @@ public class CMVerifier {
         //Machines
         builder.pushCategory("Machines");
         builder.info("Found {} custom machines : ", CustomMachinery.MACHINES.size());
-        CustomMachinery.MACHINES.forEach((id, machine) -> {
+        CustomMachinery.MACHINES.forEach((_, machine) -> {
             builder.pushCategory(machine.getId().toString());
             verifyMachine(builder, machine);
             builder.appendNoErrorMessage();
@@ -48,7 +48,7 @@ public class CMVerifier {
         //Upgrades
         builder.pushCategory("Upgrades");
         builder.info("Found {} custom machine upgrades", CustomMachinery.UPGRADES.getAllUpgrades().size());
-        CustomMachinery.UPGRADES.getAllUpgrades().forEach((location, upgrade) -> {
+        CustomMachinery.UPGRADES.getAllUpgrades().forEach((_, upgrade) -> {
             builder.pushCategory(BuiltInRegistries.ITEM.getKey(upgrade.item()).toString());
             verifyUpgrade(builder, upgrade);
             builder.appendNoErrorMessage();
@@ -96,10 +96,10 @@ public class CMVerifier {
 
         //Checking component gui elements without components
         for(IGuiElement element : machine.getGuiElements()) {
-            if(element instanceof SlotGuiElement slotGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template instanceof ItemMachineComponent.Template && template.getId().equals(slotGuiElement.getComponentId())))
+            if(element instanceof SlotGuiElement slotGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template instanceof ItemMachineComponent.Template && template.getId().equals(slotGuiElement.getComponentId().uniqueId())))
                 builder.error("Slot gui element of id '{}' doesn't have an associated machine component", slotGuiElement.getComponentId());
-            if(element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get() && element instanceof IComponentGuiElement<?> componentGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == componentGuiElement.getComponentType() && template.getId().equals(componentGuiElement.getComponentId())))
-                builder.error("Gui element of type {} and id '{}' doesn't have an associated machine component", componentGuiElement.getComponentType().getId().toString(), componentGuiElement.getComponentId());
+            if(element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get() && element instanceof IComponentGuiElement<?> componentGuiElement && machine.getComponentTemplates().stream().noneMatch(template -> template.getType() == componentGuiElement.getComponentId().type() && template.getId().equals(componentGuiElement.getComponentId().uniqueId())))
+                builder.error("Gui element of type {} and id '{}' doesn't have an associated machine component", componentGuiElement.getComponentId().type().getId().toString(), componentGuiElement.getComponentId());
         }
 
         //Checking presence of result item component

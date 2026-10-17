@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.component;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.DataType;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -34,6 +35,11 @@ public class DataMachineComponent extends AbstractMachineComponent implements IS
     @Override
     public MachineComponentType<DataMachineComponent> getType() {
         return CMRegistration.DATA_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<DataMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     @Override

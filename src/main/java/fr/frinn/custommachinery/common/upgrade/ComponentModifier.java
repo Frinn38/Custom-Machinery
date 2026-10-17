@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.upgrade;
 
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.upgrade.Operation;
 import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
@@ -9,14 +10,14 @@ import net.minecraft.network.chat.Component;
 
 import java.math.BigDecimal;
 
-public record ComponentModifier(MachineComponentType<?> component, String id, String target, Operation operation,
+public record ComponentModifier(MachineComponentId<?> id, String target, Operation operation,
                                 double modifier, double max, double min,
                                 Component tooltip) {
 
     public static final NamedCodec<ComponentModifier> CODEC = NamedCodec.record(modifierInstance ->
             modifierInstance.group(
-                    RegistryCodecs.MACHINE_COMPONENT.fieldOf("component").forGetter(modifier -> modifier.component),
-                    NamedCodec.STRING.optionalFieldOf("id", "").forGetter(modifier -> modifier.id),
+                    RegistryCodecs.MACHINE_COMPONENT.fieldOf("component").forGetter(modifier -> modifier.id.type()),
+                    NamedCodec.STRING.optionalFieldOf("id", "").forGetter(modifier -> modifier.id.uniqueId()),
                     NamedCodec.STRING.fieldOf("target").forGetter(modifier -> modifier.target),
                     Operation.CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
                     NamedCodec.DOUBLE.fieldOf("modifier").forGetter(modifier -> modifier.modifier),
@@ -26,8 +27,7 @@ public record ComponentModifier(MachineComponentType<?> component, String id, St
             ).apply(modifierInstance, ComponentModifier::new), "Component modifier"
     );
 
-    public ComponentModifier(MachineComponentType<?> component, String id, String target, Operation operation, double modifier, double max, double min, Component tooltip) {
-        this.component = component;
+    public ComponentModifier(MachineComponentId<?> id, String target, Operation operation, double modifier, double max, double min, Component tooltip) {
         this.id = id;
         this.target = target;
         this.operation = operation;
@@ -37,6 +37,10 @@ public record ComponentModifier(MachineComponentType<?> component, String id, St
         this.tooltip = !tooltip.getString().isEmpty() ? tooltip : getDefaultTooltip();
     }
 
+    public ComponentModifier(MachineComponentType<?> type, String uniqueId, String target, Operation operation, double modifier, double max, double min, Component tooltip) {
+        this(type.componentId(uniqueId), target, operation, modifier, max, min, tooltip);
+    }
+
     public double apply(double original, int upgradeAmount) {
         return this.operation.apply(original, this.modifier, upgradeAmount, this.min, this.max);
     }
@@ -44,13 +48,13 @@ public record ComponentModifier(MachineComponentType<?> component, String id, St
     private Component getDefaultTooltip() {
         return switch (this.operation) {
             case ADDITION -> Component.literal((this.modifier >= 0 ? "+" : "") + new BigDecimal(this.modifier).stripTrailingZeros().toPlainString() + " ")
-                    .append(this.component.getTranslatedName())
+                    .append(this.id.type().getTranslatedName())
                     .append(" ")
                     .append(Component.literal(this.target));
             case MULTIPLICATION, EXPONENTIAL -> {
                 BigDecimal tooltipModifier = new BigDecimal("" + this.modifier).multiply(new BigDecimal("100")).add(new BigDecimal("-100")).stripTrailingZeros();
                 yield Component.literal((tooltipModifier.intValue() >= 0 ? "+" : "") + tooltipModifier.toPlainString() + "%" + " ")
-                        .append(this.component.getTranslatedName())
+                        .append(this.id.type().getTranslatedName())
                         .append(" ")
                         .append(Component.literal(this.target));
             }

@@ -106,7 +106,7 @@ public class CustomMachineContainer extends SyncableContainer {
             .filter(element -> element.getType() == CMRegistration.SLOT_GUI_ELEMENT.get())
             .map(element -> (SlotGuiElement)element)
             .forEach(element ->
-                this.tile.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get()).flatMap(itemHandler -> itemHandler.getComponentForID(element.getComponentId())).ifPresent(component -> {
+                this.tile.getComponentManager().getComponent(element.getComponentId()).ifPresent(component -> {
                     int x = element.getX();
                     int y = element.getY();
                     int width = element.getWidth();
@@ -136,7 +136,7 @@ public class CustomMachineContainer extends SyncableContainer {
                             component.extractXp(component.getXp(), false);
                         } else {
                             component.slotsFromCanRetrieve().forEach(id -> {
-                                if (id.equals(slot.getComponent().getId())) {
+                                if (id.equals(slot.getComponent().getId().uniqueId())) {
                                     player.giveExperiencePoints(component.getXp());
                                     component.extractXp(component.getXp(), false);
                                 }
@@ -210,7 +210,7 @@ public class CustomMachineContainer extends SyncableContainer {
                 return ItemStack.EMPTY;
             else {
                 //Needed as MC doesn't set the stack but mutate it instead.
-                this.tile.getComponentManager().markDirty();
+                this.tile.getComponentManager().setChanged();
                 this.tile.getUpgradeManager().refresh();
             }
 

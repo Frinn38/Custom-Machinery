@@ -1,18 +1,20 @@
 package fr.frinn.custommachinery.common.network;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record CSetFilterSlotItemPacket(ItemStack stack, BlockPos pos, String slotId) implements CustomPacketPayload {
+public record CSetFilterSlotItemPacket(ItemStack stack, BlockPos pos, MachineComponentId<ItemMachineComponent> slotId) implements CustomPacketPayload {
 
     public static final Type<CSetFilterSlotItemPacket> TYPE = new Type<>(CustomMachinery.rl("set_filter_slot_item"));
 
@@ -21,9 +23,9 @@ public record CSetFilterSlotItemPacket(ItemStack stack, BlockPos pos, String slo
             CSetFilterSlotItemPacket::stack,
             BlockPos.STREAM_CODEC,
             CSetFilterSlotItemPacket::pos,
-            ByteBufCodecs.STRING_UTF8,
+            MachineComponentId.STREAM_CODEC,
             CSetFilterSlotItemPacket::slotId,
-            CSetFilterSlotItemPacket::new
+            (stack, pos, slotId) -> new CSetFilterSlotItemPacket(stack, pos, Utils.cast(slotId))
     );
 
     @Override
@@ -36,8 +38,7 @@ public record CSetFilterSlotItemPacket(ItemStack stack, BlockPos pos, String slo
             context.enqueueWork(() -> {
                 if(player.level().getBlockEntity(packet.pos) instanceof CustomMachineTile machine) {
                     machine.getComponentManager()
-                            .getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                            .flatMap(handler -> handler.getComponentForID(packet.slotId))
+                            .getComponent(packet.slotId)
                             .ifPresent(component -> {
                                 if(component.getType() == CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get())
                                     component.setItemStack(packet.stack);

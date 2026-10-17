@@ -57,7 +57,7 @@ public class FluidHandlerItemMachineComponent extends ItemMachineComponent imple
             tanks.addAll(this.getManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).map(handler -> handler.getComponents().stream().filter(component -> component.getMode().isInput() || component.getMode().isOutput() == this.getMode().isOutput()).toList()).orElse(Collections.emptyList()));
         else {
             for(String tank : this.tanks) {
-                this.getManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).ifPresent(tanks::add);
+                this.getManager().getComponent(CMRegistration.FLUID_MACHINE_COMPONENT.get().componentId(tank)).ifPresent(tanks::add);
             }
         }
         if(this.getMode().isInput()) {

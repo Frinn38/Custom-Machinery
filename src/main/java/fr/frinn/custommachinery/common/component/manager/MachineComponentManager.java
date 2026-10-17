@@ -1,4 +1,4 @@
-package fr.frinn.custommachinery.common.component;
+package fr.frinn.custommachinery.common.component.manager;
 
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IDumpComponent;
@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -45,13 +46,14 @@ public class MachineComponentManager implements IMachineComponentManager {
     private final CustomMachineTile tile;
     private final Direction facing;//Cache here to avoid calling Level#getBlockState each time.
     private final Map<MachineComponentType<?>, IMachineComponent> components;
+    private final Map<MachineComponentId<?>, IMachineComponent> allComponents;
     private final List<ISerializableComponent> serializableComponents;
     private final List<ITickableComponent> tickableComponents;
     private final List<ISyncableStuff> syncableComponents;
-    private final List<IComparatorInputComponent> comparatorInputComponents;
+    private final Map<MachineComponentId<?>, IComparatorInputComponent> comparatorInputComponents;
     private final List<IDumpComponent> dumpComponents;
     private final Map<String, ISideConfigComponent> configComponents;
-    private final Map<MachineComponentType<?>, Map<String, Map<String, UpgradeableComponentValue>>> upgradeableComponentValues = new HashMap<>(); //Must be initialized before components.
+    private final Map<MachineComponentId<?>, Map<String, UpgradeableComponentValue>> upgradeableComponentValues = new HashMap<>(); //Must be initialized before components.
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public MachineComponentManager(List<IMachineComponentTemplate<? extends IMachineComponent>> templates, CustomMachineTile tile) {
@@ -64,17 +66,18 @@ public class MachineComponentManager implements IMachineComponentManager {
             if(component.getType().isSingle())
                 components.put(component.getType(), component);
             else if(component instanceof ItemMachineComponent)
-                handlers.computeIfAbsent(CMRegistration.ITEM_MACHINE_COMPONENT.get(), type -> new ArrayList<>()).add(component);
+                handlers.computeIfAbsent(CMRegistration.ITEM_MACHINE_COMPONENT.get(), _ -> new ArrayList<>()).add(component);
             else
-                handlers.computeIfAbsent(component.getType(), type -> new ArrayList<>()).add(component);
+                handlers.computeIfAbsent(component.getType(), _ -> new ArrayList<>()).add(component);
         });
         handlers.forEach((type, list) -> components.put(type, type.getHandler(this, (List)Collections.unmodifiableList(list))));
         StreamSupport.stream(CMRegistration.MACHINE_COMPONENT_TYPE_REGISTRY.spliterator(), false).filter(type -> type.isDefaultComponent() && components.values().stream().noneMatch(component -> component.getType() == type)).forEach(type -> components.put(type, type.getDefaultComponentBuilder().apply(this)));
         this.components = Collections.unmodifiableMap(components);
-        this.serializableComponents = this.components.values().stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).toList();
-        this.tickableComponents = this.components.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).toList();
-        this.syncableComponents = this.components.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).toList();
-        this.comparatorInputComponents = this.components.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).toList();
+        this.allComponents = this.components.values().stream().flatMap(component -> component instanceof IComponentHandler<?> handler ? Stream.concat(handler.getComponents().stream(), Stream.of(handler)) : Stream.of(component)).collect(Collectors.toMap(IMachineComponent::getId, Function.identity()));
+        this.serializableComponents = this.allComponents.values().stream().filter(component -> component instanceof ISerializableComponent).map(component -> (ISerializableComponent)component).toList();
+        this.tickableComponents = this.allComponents.values().stream().filter(component -> component instanceof ITickableComponent).map(component -> (ITickableComponent)component).toList();
+        this.syncableComponents = this.allComponents.values().stream().filter(component -> component instanceof ISyncableStuff).map(component -> (ISyncableStuff)component).toList();
+        this.comparatorInputComponents = this.allComponents.values().stream().filter(component -> component instanceof IComparatorInputComponent).map(component -> (IComparatorInputComponent)component).collect(Collectors.toMap(IMachineComponent::getId, Function.identity()));
         this.dumpComponents = this.components.values().stream().filter(component -> component instanceof IDumpComponent).map(component -> (IDumpComponent)component).toList();
         this.configComponents = this.components.values().stream()
                 .flatMap(component -> {
@@ -88,8 +91,13 @@ public class MachineComponentManager implements IMachineComponentManager {
     }
 
     @Override
-    public Map<MachineComponentType<?>, IMachineComponent> getComponents() {
-        return this.components;
+    public <C extends IMachineComponent> Map<MachineComponentType<C>, C> getComponents() {
+        return Utils.cast(this.components);
+    }
+
+    @Override
+    public <C extends IMachineComponent> Map<MachineComponentId<C>, C> getAllComponents() {
+        return Utils.cast(this.allComponents);
     }
 
     @Override
@@ -108,8 +116,8 @@ public class MachineComponentManager implements IMachineComponentManager {
     }
 
     @Override
-    public List<IComparatorInputComponent> getComparatorInputComponents() {
-        return this.comparatorInputComponents;
+    public <C extends IComparatorInputComponent> Map<MachineComponentId<C>, C> getComparatorInputComponents() {
+        return Utils.cast(this.comparatorInputComponents);
     }
 
     @Override
@@ -117,20 +125,26 @@ public class MachineComponentManager implements IMachineComponentManager {
         return this.dumpComponents;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type) {
-        return Optional.ofNullable((T)this.components.get(type));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type) {
-        return getComponent(type).filter(component -> component instanceof IComponentHandler).map(component -> (IComponentHandler<T>)component);
+    public <C extends IMachineComponent> Optional<C> getComponent(MachineComponentType<C> type) {
+        return Optional.ofNullable(Utils.cast(this.components.get(type)));
     }
 
     @Override
-    public boolean hasComponent(MachineComponentType<?> type) {
+    public <C extends IMachineComponent> Optional<C> getComponent(MachineComponentId<C> id) {
+        //Special case for item components as they all have their own type but the slot gui element can't know which type it should search for.
+        if(id.type() == CMRegistration.ITEM_MACHINE_COMPONENT.get())
+            return this.getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get()).flatMap(handler -> Utils.cast(handler.getComponentForID(id.uniqueId())));
+        return Optional.ofNullable(Utils.cast(this.allComponents.get(id)));
+    }
+
+    @Override
+    public <C extends IMachineComponent> Optional<IComponentHandler<C>> getComponentHandler(MachineComponentType<C> type) {
+        return getComponent(type).filter(component -> component instanceof IComponentHandler).map(Utils::cast);
+    }
+
+    @Override
+    public <C extends IMachineComponent> boolean hasComponent(MachineComponentType<C> type) {
         return this.components.get(type) != null;
     }
 
@@ -150,21 +164,20 @@ public class MachineComponentManager implements IMachineComponentManager {
 
     @Override
     public Supplier<Double> addUpgradeableComponentValue(IMachineComponent component, @Nullable String target, double defaultValue, double min, double max, Consumer<Double> onChange) {
-        String id = component.getType().isSingle() ? "" : component instanceof ISideConfigComponent sideConfigComponent ? sideConfigComponent.getId() : "";
-        Map<String, UpgradeableComponentValue> map = this.upgradeableComponentValues.computeIfAbsent(component.getType(), t -> new HashMap<>())
-            .computeIfAbsent(id, k -> new HashMap<>());
+        Map<String, UpgradeableComponentValue> map = this.upgradeableComponentValues
+                .computeIfAbsent(component.getId(), _ -> new HashMap<>());
         //Standard target key in case of wrong user input like 'min_input' instead of "minInput"
         String targetId = target == null ? "" : Utils.standard(target);
         if(map.containsKey(targetId))
-            throw new IllegalArgumentException("Can't add 2 upgradeable values for component type: " + component.getType().getId() + " id: " + id + " target: " + target);
+            throw new IllegalArgumentException("Can't add 2 upgradeable values for component type: " + component.getType().getId() + " id: " + component.getId() + " target: " + target);
         UpgradeableComponentValue upgradeableValue = new UpgradeableComponentValue(component, targetId, defaultValue, min, max, onChange);
         map.put(targetId, upgradeableValue);
         return upgradeableValue;
     }
 
-    public Optional<UpgradeableComponentValue> getUpgradeableComponentValue(MachineComponentType<?> type, String id, String target) {
-        if(this.upgradeableComponentValues.get(type) != null && this.upgradeableComponentValues.get(type).get(id) != null)
-            return Optional.ofNullable(this.upgradeableComponentValues.get(type).get(id).get(Utils.standard(target)));
+    public Optional<UpgradeableComponentValue> getUpgradeableComponentValue(MachineComponentId<?> id, String target) {
+        if(this.upgradeableComponentValues.get(id) != null)
+            return Optional.ofNullable(this.upgradeableComponentValues.get(id).get(Utils.standard(target)));
         return Optional.empty();
     }
 
@@ -193,29 +206,31 @@ public class MachineComponentManager implements IMachineComponentManager {
     }
 
     public void serverTick() {
-        getTickableComponents().forEach(component -> {
+        this.getTickableComponents().forEach(component -> {
             if(!this.tile.isRemoved())
                 component.serverTick();
         });
     }
 
     public void clientTick() {
-        getTickableComponents().forEach(component -> {
+        this.getTickableComponents().forEach(component -> {
             if(!this.tile.isRemoved())
                 component.clientTick();
         });
     }
 
-    public void markDirty() {
+    public void setChanged() {
         this.getTile().setChanged();
         this.getTile().getProcessor().setMachineInventoryChanged();
     }
 
     public void serialize(ValueOutput output) {
-        getSerializableComponents().forEach(component -> component.serialize(output));
+        this.getSerializableComponents().forEach(component ->
+            component.serialize(output.child(component.getId().toString())));
     }
 
     public void deserialize(ValueInput input) {
-        getSerializableComponents().forEach(component -> component.deserialize(input));
+        this.getSerializableComponents().forEach(component ->
+            input.child(component.getId().toString()).ifPresent(component::deserialize));
     }
 }

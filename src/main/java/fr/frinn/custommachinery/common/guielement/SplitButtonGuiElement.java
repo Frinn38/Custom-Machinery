@@ -5,7 +5,6 @@ import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
-import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
@@ -69,7 +68,7 @@ public class SplitButtonGuiElement extends AbstractTexturedGuiElement {
                     if(handler.getSplitters().contains(this.getId()))
                         handler.removeSplitter(this.getId());
                     else if(this.slots.isEmpty())
-                        handler.addSplitter(this.getId(), handler.getComponents().stream().filter(component -> component.getMode().isInput() && component.getType() == CMRegistration.ITEM_MACHINE_COMPONENT.get()).map(ItemMachineComponent::getId).toList());
+                        handler.addSplitter(this.getId(), handler.getComponents().stream().filter(component -> component.getMode().isInput() && component.getType() == CMRegistration.ITEM_MACHINE_COMPONENT.get()).map(component -> component.getId().uniqueId()).toList());
                     else
                         handler.addSplitter(this.getId(), this.slots);
                 });

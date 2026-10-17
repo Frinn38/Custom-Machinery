@@ -1,9 +1,10 @@
-package fr.frinn.custommachinery.common.component;
+package fr.frinn.custommachinery.common.component.manager;
 
 import fr.frinn.custommachinery.api.component.IComparatorInputComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
@@ -26,7 +27,12 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public Map<MachineComponentType<?>, IMachineComponent> getComponents() {
+    public <C extends IMachineComponent> Map<MachineComponentType<C>, C> getComponents() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public <C extends IMachineComponent> Map<MachineComponentId<C>, C> getAllComponents() {
         return Collections.emptyMap();
     }
 
@@ -46,22 +52,22 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type) {
+    public <C extends IMachineComponent> Optional<C> getComponent(MachineComponentType<C> type) {
         return Optional.empty();
     }
 
     @Override
-    public <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type) {
+    public <C extends IMachineComponent> Optional<IComponentHandler<C>> getComponentHandler(MachineComponentType<C> type) {
         return Optional.empty();
     }
 
     @Override
-    public List<IComparatorInputComponent> getComparatorInputComponents() {
-        return Collections.emptyList();
+    public <C extends IComparatorInputComponent> Map<MachineComponentId<C>, C> getComparatorInputComponents() {
+        return Collections.emptyMap();
     }
 
     @Override
-    public boolean hasComponent(MachineComponentType<?> type) {
+    public <C extends IMachineComponent> boolean hasComponent(MachineComponentType<C> type) {
         return false;
     }
 
@@ -81,7 +87,7 @@ public class DummyComponentManager extends MachineComponentManager {
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
 
     }
 

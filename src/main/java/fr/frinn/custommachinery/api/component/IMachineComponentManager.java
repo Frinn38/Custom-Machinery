@@ -17,9 +17,18 @@ import java.util.function.Supplier;
 public interface IMachineComponentManager {
 
     /**
-     * @return A copy of the List of {@link IMachineComponent} hold by the manager.
+     * @return A map of all of {@link IMachineComponent} hold by the manager.
+     * @param <C> Class implementing {@link IMachineComponent}.
+     * This map includes all single components and all {@link IComponentHandler} but not their subcomponents.
      */
-    Map<MachineComponentType<?>, IMachineComponent> getComponents();
+    <C extends IMachineComponent> Map<MachineComponentType<C>, C> getComponents();
+
+    /**
+     * @return A map of all of {@link IMachineComponent} hold by the manager.
+     * @param <C> Class implementing {@link IMachineComponent}.
+     * This map includes all components and all {@link IComponentHandler} including their subcomponents.
+     */
+    <C extends IMachineComponent> Map<MachineComponentId<C>, C> getAllComponents();
 
     /**
      * @return A List of all components hold by this manager that implements {@link ISerializableComponent}.
@@ -37,9 +46,9 @@ public interface IMachineComponentManager {
     List<ISyncableStuff> getSyncableComponents();
 
     /**
-     * @return A List of all components hold by this manager that implements {@link IComparatorInputComponent}.
+     * @return A map of all components hold by this manager that implements {@link IComparatorInputComponent}.
      */
-    List<IComparatorInputComponent> getComparatorInputComponents();
+    <C extends IComparatorInputComponent> Map<MachineComponentId<C>, C> getComparatorInputComponents();
 
     /**
      * @return A List of all components hold by this manager that implements {@link IDumpComponent}.
@@ -48,23 +57,32 @@ public interface IMachineComponentManager {
 
     /**
      * @param type The {@link MachineComponentType} to search.
-     * @param <T> The component.
-     * @return An Optional {@link IMachineComponent}.
+     * @param <C> The class implementing {@link IMachineComponent}.
+     * @return An Optional instance of {@link C}.
      */
-    <T extends IMachineComponent> Optional<T> getComponent(MachineComponentType<T> type);
+    <C extends IMachineComponent> Optional<C> getComponent(MachineComponentType<C> type);
+
+    /**
+     * Search for a specific {@link IMachineComponent}, identified by its type and optionally its unique id if the component is handled by an {@link IComponentHandler}.
+     * @param id The {@link MachineComponentId} to search.
+     * @param <C> The class implementing {@link IMachineComponent}.
+     * @return An Optional instance of {@link C}.
+     */
+    <C extends IMachineComponent> Optional<C> getComponent(MachineComponentId<C> id);
 
     /**
      * @param type The {@link MachineComponentType} to search.
-     * @param <T> The component.
-     * @return An optional {@link IComponentHandler<T>}.
+     * @param <C> The class implementing {@link IMachineComponent}.
+     * @return An optional {@link IComponentHandler<C>}.
      */
-    <T extends IMachineComponent> Optional<IComponentHandler<T>> getComponentHandler(MachineComponentType<T> type);
+    <C extends IMachineComponent> Optional<IComponentHandler<C>> getComponentHandler(MachineComponentType<C> type);
 
     /**
      * @param type The {@link MachineComponentType} to check.
+     * @param <C> The class implementing {@link IMachineComponent}.
      * @return true if this manager hold a component for this type, false otherwise.
      */
-    boolean hasComponent(MachineComponentType<?> type);
+    <C extends IMachineComponent> boolean hasComponent(MachineComponentType<C> type);
 
     /**
      * Return a side-configurable component (if found).
@@ -96,7 +114,7 @@ public interface IMachineComponentManager {
     /**
      * Mark the tile as dirty, meaning some data changed and need to be written on disk on next tile unload.
      */
-    void markDirty();
+    void setChanged();
 
     /**
      * Add a value that can be modified using machine upgrades, example: energy capacity.

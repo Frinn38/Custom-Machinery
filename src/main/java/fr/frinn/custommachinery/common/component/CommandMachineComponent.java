@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.component;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
@@ -66,6 +67,11 @@ public class CommandMachineComponent extends AbstractMachineComponent {
     @Override
     public MachineComponentType<CommandMachineComponent> getType() {
         return CMRegistration.COMMAND_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<CommandMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     private Vec2 getMachineRotation() {

@@ -156,16 +156,15 @@ public class MachineJS {
     /** FLUID STUFF **/
 
     public FluidStack getFluidStored(String tank) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).map(FluidMachineComponent::getFluid).orElse(FluidStack.EMPTY);
+        return this.internal.getComponentManager().getComponent(CMRegistration.FLUID_MACHINE_COMPONENT.get().componentId(tank)).map(FluidMachineComponent::getFluid).orElse(FluidStack.EMPTY);
     }
 
     public void setFluidStored(String tank, FluidStack stack) {
-        this.internal.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get()).flatMap(handler -> handler.getComponentForID(tank)).ifPresent(x -> x.setFluidStack(stack));
+        this.internal.getComponentManager().getComponent(CMRegistration.FLUID_MACHINE_COMPONENT.get().componentId(tank)).ifPresent(x -> x.setFluidStack(stack));
     }
 
     public int getFluidCapacity(String tank) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(tank))
+        return this.internal.getComponentManager().getComponent(CMRegistration.FLUID_MACHINE_COMPONENT.get().componentId(tank))
                 .map(FluidMachineComponent::getCapacity)
                 .orElse(0);
     }
@@ -190,8 +189,7 @@ public class MachineJS {
 
     //Return amount of fluid that was added.
     public int addFluidToTank(String tank, FluidStack stack, boolean simulate) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(tank))
+        return this.internal.getComponentManager().getComponent(CMRegistration.FLUID_MACHINE_COMPONENT.get().componentId(tank))
                 .map(component -> {
                     try(Transaction transaction = Transaction.openRoot()) {
                         int inserted = component.insertBypassLimit(FluidResource.of(stack), stack.amount(), transaction);
@@ -223,8 +221,7 @@ public class MachineJS {
 
     //Return fluid that was successfully removed.
     public FluidStack removeFluidFromTank(String tank, int amount, boolean simulate) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(tank))
+        return this.internal.getComponentManager().getComponent(CMRegistration.FLUID_MACHINE_COMPONENT.get().componentId(tank))
                 .map(component -> {
                     FluidStack stack = component.getFluid();
                     if(stack.isEmpty())
@@ -242,29 +239,25 @@ public class MachineJS {
     /** ITEM STUFF **/
 
     public ItemStack getItemStored(String slot) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        return this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .map(ItemMachineComponent::getItemStack)
                 .orElse(ItemStack.EMPTY);
     }
 
     public void setItemStored(String slot, ItemStack stack) {
-        this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .ifPresent(component -> component.setItemStack(stack));
     }
 
     public int getItemCapacity(String slot) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        return this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .map(ItemMachineComponent::getCapacity)
                 .orElse(0);
     }
 
     //Return items that couldn't be added.
     public int addItemToSlot(String slot, ItemStack stack, boolean simulate) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        return this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .map(component -> {
                     try(Transaction transaction = Transaction.openRoot()) {
                         int inserted = component.insertBypassLimit(ItemResource.of(stack), stack.count(), transaction);
@@ -278,14 +271,13 @@ public class MachineJS {
 
     //Return items that were successfully removed from the slot.
     public ItemStack removeItemFromSlot(String slot, int toRemove, boolean simulate) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        return this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .map(component -> {
                     ItemStack stack = component.getItemStack();
                     if(stack.isEmpty())
                         return ItemStack.EMPTY;
                     try(Transaction transaction = Transaction.openRoot()) {
-                        int extracted = component.extractBypassLimit(ItemResource.of(stack), stack.count(), transaction);
+                        int extracted = component.extractBypassLimit(ItemResource.of(stack), toRemove, transaction);
                         if(!simulate)
                             transaction.commit();
                         return stack.copyWithCount(extracted);
@@ -295,20 +287,17 @@ public class MachineJS {
     }
 
     public void lockSlot(String slot) {
-        this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .ifPresent(component -> component.setLocked(true));
     }
 
     public void unlockSlot(String slot) {
-        this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .ifPresent(component -> component.setLocked(false));
     }
 
     public boolean isSlotLocked(String slot) {
-        return this.internal.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(slot))
+        return this.internal.getComponentManager().getComponent(CMRegistration.ITEM_MACHINE_COMPONENT.get().componentId(slot))
                 .map(ItemMachineComponent::isLocked)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid slot id: " + slot));
     }

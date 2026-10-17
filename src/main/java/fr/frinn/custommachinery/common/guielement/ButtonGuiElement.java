@@ -93,10 +93,10 @@ public class ButtonGuiElement extends AbstractTexturedGuiElement {
                         component.getData().putBoolean(this.getId(), true);
                         TaskDelayer.enqueue(this.holdTime, () -> {
                             component.getData().putBoolean(this.getId(), false);
-                            component.getManager().markDirty();
+                            component.getManager().setChanged();
                         });
                     }
-                    component.getManager().markDirty();
+                    component.getManager().setChanged();
                     tile.getProcessor().setSearchImmediately();
                     tile.getProcessor().setMachineInventoryChanged();
                 });

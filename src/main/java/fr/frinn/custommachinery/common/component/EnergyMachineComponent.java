@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ISideConfigComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -106,7 +107,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
     public void setEnergy(long energy) {
         this.energy = energy;
-        this.getManager().markDirty();
+        this.getManager().setChanged();
     }
 
     public void configChanged(RelativeSide side, IOSideMode oldMode, IOSideMode newMode) {
@@ -129,13 +130,13 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
     }
 
     @Override
-    public String getId() {
-        return "energy";
+    public MachineComponentType<EnergyMachineComponent> getType() {
+        return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public MachineComponentType<EnergyMachineComponent> getType() {
-        return CMRegistration.ENERGY_MACHINE_COMPONENT.get();
+    public MachineComponentId<EnergyMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     @Override
@@ -212,7 +213,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         int energyReceived = Math.min(Utils.toInt(this.capacity.get() - this.energy), maxReceive);
         if(!simulate) {
             this.energy += energyReceived;
-            getManager().markDirty();
+            getManager().setChanged();
         }
         return energyReceived;
     }
@@ -221,7 +222,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
         int energyExtracted = Math.min(Utils.toInt(this.energy), maxExtract);
         if (!simulate) {
             this.energy -= energyExtracted;
-            getManager().markDirty();
+            getManager().setChanged();
         }
         return energyExtracted;
     }
@@ -280,7 +281,7 @@ public class EnergyMachineComponent extends AbstractMachineComponent implements 
 
         @Override
         protected void onRootCommit(Long originalState) {
-            EnergyMachineComponent.this.getManager().markDirty();
+            EnergyMachineComponent.this.getManager().setChanged();
         }
     }
 

@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
@@ -68,7 +69,7 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     public void setXp(int xp) {
         this.xp = Mth.clamp(xp, 0, this.getCapacity());
         this.xpLevels = ExperienceUtils.getLevelFromXp(xp);
-        getManager().markDirty();
+        getManager().setChanged();
     }
 
     public int receiveXp(int maxReceive, boolean simulate) {
@@ -108,8 +109,13 @@ public class ExperienceMachineComponent extends AbstractMachineComponent impleme
     }
 
     @Override
-    public MachineComponentType<?> getType() {
+    public MachineComponentType<ExperienceMachineComponent> getType() {
         return CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<ExperienceMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     @Override

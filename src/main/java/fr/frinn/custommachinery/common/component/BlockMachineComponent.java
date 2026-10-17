@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.component;
 import com.google.common.collect.AbstractIterator;
 import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.requirement.BlockRequirement.Order;
@@ -41,6 +42,11 @@ public class BlockMachineComponent extends AbstractMachineComponent {
     @Override
     public MachineComponentType<BlockMachineComponent> getType() {
         return CMRegistration.BLOCK_MACHINE_COMPONENT.get();
+    }
+
+    @Override
+    public MachineComponentId<BlockMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     public long getBlockAmount(AABB box, List<BlockIngredient> filter, boolean whitelist) {

@@ -3,6 +3,7 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 import com.google.common.collect.ImmutableList;
 import dev.latvian.mods.kubejs.error.KubeRuntimeException;
 import dev.latvian.mods.kubejs.event.KubeEvent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
@@ -156,8 +157,7 @@ public class CustomMachineUpgradeJSBuilder {
 
     public static class JSComponentModifierBuilder {
 
-        private final MachineComponentType<?> type;
-        private final String id;
+        private final MachineComponentId<?> id;
         private final Operation operation;
         private final double modifier;
         private String target = "";
@@ -165,23 +165,22 @@ public class CustomMachineUpgradeJSBuilder {
         private double min = Double.NEGATIVE_INFINITY;
         private Component tooltip = Component.empty();
 
-        private JSComponentModifierBuilder(MachineComponentType<?> type, String id, Operation operation, double modifier) {
-            this.type = type;
+        private JSComponentModifierBuilder(MachineComponentId<?> id, Operation operation, double modifier) {
             this.id = id;
             this.operation = operation;
             this.modifier = modifier;
         }
 
         public static JSComponentModifierBuilder add(MachineComponentType<?> type, String id, double modifier) {
-            return new JSComponentModifierBuilder(type, id, Operation.ADDITION, modifier);
+            return new JSComponentModifierBuilder(type.componentId(id), Operation.ADDITION, modifier);
         }
 
         public static JSComponentModifierBuilder mul(MachineComponentType<?> type, String id, double modifier) {
-            return new JSComponentModifierBuilder(type, id, Operation.MULTIPLICATION, modifier);
+            return new JSComponentModifierBuilder(type.componentId(id), Operation.MULTIPLICATION, modifier);
         }
 
         public static JSComponentModifierBuilder exp(MachineComponentType<?> type, String id, double modifier) {
-            return new JSComponentModifierBuilder(type, id, Operation.EXPONENTIAL, modifier);
+            return new JSComponentModifierBuilder(type.componentId(id), Operation.EXPONENTIAL, modifier);
         }
 
         public JSComponentModifierBuilder target(String target) {
@@ -206,8 +205,8 @@ public class CustomMachineUpgradeJSBuilder {
 
         private ComponentModifier build() {
             if(this.target.isEmpty())
-                throw new KubeRuntimeException("Invalid CM upgrade component modifier for component: " + this.type.getId() + " target not specified");
-            return new ComponentModifier(this.type, this.id, this.target, this.operation, this.modifier, this.max, this.min, this.tooltip);
+                throw new KubeRuntimeException("Invalid CM upgrade component modifier for component: " + this.id.id() + " target not specified");
+            return new ComponentModifier(this.id, this.target, this.operation, this.modifier, this.max, this.min, this.tooltip);
         }
     }
 

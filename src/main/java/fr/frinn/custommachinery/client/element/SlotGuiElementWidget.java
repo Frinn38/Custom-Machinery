@@ -3,7 +3,6 @@ package fr.frinn.custommachinery.client.element;
 import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
-import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.GhostItem;
 import fr.frinn.custommachinery.impl.client.TexturedGuiElementRenderable;
@@ -35,8 +34,7 @@ public class SlotGuiElementWidget extends TexturedGuiElementRenderable<SlotGuiEl
     private boolean isSlotEmpty() {
         return this.getScreen().getTile()
                 .getComponentManager()
-                .getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(this.getElement().getComponentId()))
+                .getComponent(this.getElement().getComponentId())
                 .map(component -> component.getItemStack().isEmpty())
                 .orElse(true);
     }

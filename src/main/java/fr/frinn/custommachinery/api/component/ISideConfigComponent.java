@@ -13,9 +13,4 @@ public interface ISideConfigComponent extends IMachineComponent {
      * @return The {@link SideConfig} used by this component.
      */
     SideConfig<?> getConfig();
-
-    /**
-     * @return The id of the component to configure.
-     */
-    String getId();
 }

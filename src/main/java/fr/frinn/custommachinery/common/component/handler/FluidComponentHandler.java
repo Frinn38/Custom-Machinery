@@ -3,12 +3,11 @@ package fr.frinn.custommachinery.common.component.handler;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 import fr.frinn.custommachinery.api.component.IDumpComponent;
+import fr.frinn.custommachinery.api.component.IMachineComponent;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
-import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.ITickableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.network.ISyncable;
-import fr.frinn.custommachinery.api.network.ISyncableStuff;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.transfer.InteractionFluidHandler;
@@ -18,9 +17,6 @@ import fr.frinn.custommachinery.impl.component.config.IOSideMode;
 import fr.frinn.custommachinery.impl.component.config.RelativeSide;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.level.storage.ValueOutput.ValueOutputList;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -34,12 +30,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements ISerializableComponent, ISyncableStuff, ITickableComponent, IDumpComponent {
+public class FluidComponentHandler extends AbstractComponentHandler<FluidMachineComponent> implements IMachineComponent, ITickableComponent, IDumpComponent {
 
     public final InteractionFluidHandler interactionFluidHandler = new InteractionFluidHandler(this);
     private final SidedFluidHandler generalHandler = new SidedFluidHandler(null, this);
@@ -79,8 +73,8 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     }
 
     @Override
-    public Optional<FluidMachineComponent> getComponentForID(String id) {
-        return this.getComponents().stream().filter(component -> component.getId().equals(id)).findFirst();
+    public MachineComponentId<FluidMachineComponent> getId() {
+        return this.getType().componentId("handler");
     }
 
     @Override
@@ -109,29 +103,9 @@ public class FluidComponentHandler extends AbstractComponentHandler<FluidMachine
     }
 
     @Override
-    public void serialize(ValueOutput output) {
-        ValueOutputList list = output.childrenList("fluids");
-        this.getComponents().forEach(component -> {
-            ValueOutput child = list.addChild();
-            component.serialize(child);
-            child.putString("id", component.getId());
-        });
-    }
-
-    @Override
-    public void deserialize(ValueInput input) {
-        input.childrenList("fluids").ifPresent(list -> list.forEach(child -> child.getString("id").flatMap(this::getComponentForID).ifPresent(component -> component.deserialize(child))));
-    }
-
-    @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        this.getComponents().forEach(component -> component.getStuffToSync(container));
-    }
-
-    @Override
     public void dump(List<String> ids) {
         this.getComponents().stream()
-                .filter(component -> ids.contains(component.getId()))
+                .filter(component -> ids.contains(component.getId().uniqueId()))
                 .forEach(component -> component.setFluidStack(FluidStack.EMPTY));
     }
 

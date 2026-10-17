@@ -3,9 +3,9 @@ package fr.frinn.custommachinery.client.integration.jei;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
-import fr.frinn.custommachinery.common.component.DummyComponentManager;
-import fr.frinn.custommachinery.common.component.MachineComponentManager;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
+import fr.frinn.custommachinery.common.component.manager.DummyComponentManager;
+import fr.frinn.custommachinery.common.component.manager.MachineComponentManager;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -39,12 +39,12 @@ public class RecipeHelper implements IRecipeHelper {
     @Override
     public Optional<IMachineComponentTemplate<?>> getComponentForElement(IComponentGuiElement<?> element) {
         return this.machine.getComponentTemplates().stream().filter(template -> {
-            if(!template.getId().equals(element.getComponentId()))
+            if(!template.getId().equals(element.getComponentId().uniqueId()))
                 return false;
             //Special case for slot gui element because several components of different types (default, filter, fluid etc...) can map to it.
-            if(element.getComponentType() == CMRegistration.ITEM_MACHINE_COMPONENT.get())
+            if(element.getComponentId().type() == CMRegistration.ITEM_MACHINE_COMPONENT.get())
                 return template instanceof ItemMachineComponent.Template;
-            return template.getType() == element.getComponentType();
+            return template.getType() == element.getComponentId().type();
         }).findFirst();
     }
 

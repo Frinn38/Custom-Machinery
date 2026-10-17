@@ -43,7 +43,7 @@ public class UpgradeManager implements IMachineUpgradeManager {
         this.activeModifiedValues.clear();
         this.getCurrentUpgrades().forEach(pair ->
             pair.getFirst().components().forEach(modifier ->
-                this.tile.getComponentManager().getUpgradeableComponentValue(modifier.component(), modifier.id(), modifier.target())
+                this.tile.getComponentManager().getUpgradeableComponentValue(modifier.id(), modifier.target())
                         .ifPresent(value -> {
                             actives.remove(value);
                             this.activeModifiedValues.add(value);

@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
@@ -168,5 +169,11 @@ public class Utils {
                 .replace("-", "")
                 .replace(".", "")
                 .toLowerCase(Locale.ROOT);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Contract("null -> null; !null -> !null")
+    public static <T> @Nullable T cast(@Nullable Object o) {
+        return (T) o;
     }
 }

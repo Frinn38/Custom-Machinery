@@ -3,7 +3,7 @@ package fr.frinn.custommachinery.common.guielement;
 import com.google.common.base.Predicates;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.component.MachineComponentType;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IComponentGuiElement;
 import fr.frinn.custommachinery.api.machine.MachineTile;
@@ -57,13 +57,8 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
     }
 
     @Override
-    public MachineComponentType<FluidMachineComponent> getComponentType() {
-        return CMRegistration.FLUID_MACHINE_COMPONENT.get();
-    }
-
-    @Override
-    public String getComponentId() {
-        return this.getId();
+    public MachineComponentId<FluidMachineComponent> getComponentId() {
+        return CMRegistration.FLUID_MACHINE_COMPONENT.get().componentId(this.getId());
     }
 
     @Override
@@ -78,8 +73,7 @@ public class FluidGuiElement extends AbstractTexturedGuiElement implements IComp
         if(fluidHandlerItem == null)
             return;
 
-        tile.getComponentManager().getComponentHandler(CMRegistration.FLUID_MACHINE_COMPONENT.get())
-                .flatMap(handler -> handler.getComponentForID(this.getId()))
+        tile.getComponentManager().getComponent(this.getComponentId())
                 .ifPresent(component -> {
                     //Try empty item in component
                     if(component.getMode().isInput() && component.getCapacity() - component.getFluid().getAmount() > 0)
