@@ -1,9 +1,11 @@
 package fr.frinn.custommachinery.common.upgrade;
 
+import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.api.component.IMachineComponent;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -36,11 +38,12 @@ public class UpgradeableComponentValue implements Supplier<Double> {
         return this.target;
     }
 
-    protected void refresh(ComponentModifier modifier, int upgradeAmount) {
-        if(upgradeAmount == 0)
-            this.value = this.defaultValue;
-        else
-            this.value = Mth.clamp(modifier.apply(this.defaultValue, upgradeAmount), this.min, this.max);
+    protected void refresh(List<Pair<ComponentModifier, Integer>> modifiers) {
+        this.value = this.defaultValue;
+        modifiers.forEach(pair -> {
+            if(pair.getSecond() != 0)
+                this.value = Mth.clamp(pair.getFirst().apply(this.value, pair.getSecond()), this.min, this.max);
+        });
 
         //Notify the component that the value changed
         this.onChange.accept(this.value);
