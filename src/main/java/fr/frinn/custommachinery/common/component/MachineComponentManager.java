@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.init.Registration;
@@ -218,6 +219,14 @@ public class MachineComponentManager implements IMachineComponentManager {
     }
 
     public void deserializeNBT(CompoundTag nbt, HolderLookup.Provider registries) {
-        getSerializableComponents().forEach(component -> component.deserialize(nbt, registries));
+        List<ISerializableComponent> others = new ArrayList<>();
+        //Deserialize items first so that upgrades are applied
+        this.getSerializableComponents().forEach(component -> {
+            if(component instanceof ItemComponentHandler handler)
+                handler.deserialize(nbt, registries);
+            else
+                others.add(component);
+        });
+        others.forEach(component -> component.deserialize(nbt, registries));
     }
 }

@@ -32,7 +32,8 @@ public class UpgradeManager implements IMachineUpgradeManager {
     @Override
     public void refresh() {
         //Refresh only on the server side
-        if(this.tile.getLevel() == null || this.tile.getLevel().isClientSide())
+        //If level is null we are deserializing the machine, so upgrades should be refreshed
+        if(this.tile.getLevel() != null && this.tile.getLevel().isClientSide())
             return;
         
         //Recipe modifiers can be refreshed only when a recipe need them
