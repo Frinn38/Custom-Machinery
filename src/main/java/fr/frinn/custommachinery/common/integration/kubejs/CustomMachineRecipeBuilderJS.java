@@ -31,6 +31,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.ItemRequi
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ItemTransformRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.LightRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.LootTableRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.MachineDurabilityRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.PositionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.RedstoneRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequirementJS;
@@ -47,7 +48,7 @@ public class CustomMachineRecipeBuilderJS extends AbstractRecipeJSBuilder<Custom
         FuelRequirementJS, CommandRequirementJS, EffectRequirementJS, WeatherRequirementJS, RedstoneRequirementJS, LightRequirementJS,
         EntityRequirementJS, BlockRequirementJS, StructureRequirementJS, LootTableRequirementJS, DropRequirementJS, FunctionRequirementJS,
         ButtonRequirementJS, SkyRequirementJS, ItemFilterRequirementJS, ExperienceRequirementJS, ExperiencePerTickRequirementJS,
-        ChunkloadRequirementJS, WorkingCoreRequirementJS, DataRequirementJS {
+        ChunkloadRequirementJS, WorkingCoreRequirementJS, DataRequirementJS, MachineDurabilityRequirementJS {
 
     public CustomMachineRecipeBuilderJS() {
         super(CMRegistration.CUSTOM_MACHINE_RECIPE.getId());

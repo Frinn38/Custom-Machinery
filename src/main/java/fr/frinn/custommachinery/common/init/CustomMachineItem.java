@@ -2,9 +2,11 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.creation.tabs.TooltipsTab.EditorTooltipFlag;
+import fr.frinn.custommachinery.common.component.DurabilityMachineComponent;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -46,11 +48,19 @@ public class CustomMachineItem extends BlockItem {
     }
 
     public static ItemStack makeMachineItem(Identifier machineId) {
+        ItemStack stack;
         if(CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(machineId))
-            return CustomMachinery.CUSTOM_BLOCK_MACHINES.get(machineId).asItem().getDefaultInstance();
-
-        ItemStack stack = CMRegistration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
-        stack.set(CMRegistration.MACHINE_DATA, machineId);
+            stack = CustomMachinery.CUSTOM_BLOCK_MACHINES.get(machineId).asItem().getDefaultInstance();
+        else {
+            stack = CMRegistration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
+            stack.set(CMRegistration.MACHINE_DATA, machineId);
+        }
+        getMachine(stack).flatMap(machine -> machine.getComponentTemplates()
+                .stream()
+                .filter(template -> template instanceof DurabilityMachineComponent.Template)
+                .map(template -> (DurabilityMachineComponent.Template) template)
+                .findFirst()
+        ).ifPresent(template -> stack.set(DataComponents.MAX_DAMAGE, template.maxDurability()));
         return stack;
     }
 

@@ -3,13 +3,15 @@ package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
 import fr.frinn.custommachinery.common.requirement.ButtonRequirement;
 
+import java.util.List;
+
 public interface ButtonRequirementJS extends RecipeJSBuilder {
 
-    default RecipeJSBuilder requireButtonPressed(String id) {
-        return addRequirement(new ButtonRequirement(id, false));
+    default RecipeJSBuilder requireButtonPressed(List<String> ids) {
+        return addRequirement(new ButtonRequirement(ids, false));
     }
 
-    default RecipeJSBuilder requireButtonReleased(String id) {
-        return addRequirement(new ButtonRequirement(id, true));
+    default RecipeJSBuilder requireButtonReleased(List<String> ids) {
+        return addRequirement(new ButtonRequirement(ids, true));
     }
 }

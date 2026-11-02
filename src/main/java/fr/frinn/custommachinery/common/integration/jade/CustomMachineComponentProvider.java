@@ -10,6 +10,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -23,6 +25,7 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+        IDisplayHelper helper = IDisplayHelper.get();
         if(accessor.getBlockEntity() instanceof CustomMachineTile tile) {
             CompoundTag nbt = accessor.getServerData().getCompoundOrEmpty(CustomMachinery.MODID);
             if(nbt.isEmpty() || tile.getLevel() == null)
@@ -54,16 +57,20 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
                         int recipeTotalTime = coreNbt.getIntOr("recipeTotalTime", 0);
                         float progress = (float) (recipeProgressTime / recipeTotalTime);
                         Component component = Component.literal((int)recipeProgressTime + " / " + recipeTotalTime).withStyle(ChatFormatting.WHITE);
-                        IDisplayHelper helper = IDisplayHelper.get();
                         //tooltip.add(helper.progress(progress, component, helper.progressStyle(), BoxStyle.getNestedBox(), true));
                     }
                     if(coreNbt.contains("errorMessage") && tile.getLevel() != null)
                         tooltip.add(TextComponentUtils.fromJSON(coreNbt.getStringOr("errorMessage", "")));
                 });
             }
-
-
-
+            if(nbt.contains("durability", Tag.TAG_INT) && nbt.contains("max_durability", Tag.TAG_INT)) {
+                int durability = nbt.getInt("durability");
+                int maxDurability = nbt.getInt("max_durability");
+                float progress = (float) (durability / (double)maxDurability);
+                Component component = Component.translatable("custommachinery.machine.component.durability").append(": " + durability + " / " + maxDurability).withStyle(ChatFormatting.WHITE);
+                int color = ARGB.color(255, Mth.hsvToRgb(Math.max(0.0F, (float)durability / maxDurability) / 3.0F, 1.0F, 1.0F));
+                tooltip.add(helper.progress(progress, component, helper.progressStyle().color(color), BoxStyle.getNestedBox(), true));
+            }
         }
     }
 

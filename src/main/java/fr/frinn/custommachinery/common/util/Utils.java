@@ -11,13 +11,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.Permissions;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
@@ -169,6 +173,18 @@ public class Utils {
                 .replace("-", "")
                 .replace(".", "")
                 .toLowerCase(Locale.ROOT);
+    }
+
+    public static void setBlock(Level level, BlockPos pos, PartialBlockState state) {
+        level.setBlockAndUpdate(pos, state.getBlockState());
+        BlockEntity tile = level.getBlockEntity(pos);
+        if(tile != null && state.getNbt() != null && !state.getNbt().isEmpty()) {
+            CompoundTag nbt = state.getNbt().copy();
+            nbt.putInt("x", pos.getX());
+            nbt.putInt("y", pos.getY());
+            nbt.putInt("z", pos.getZ());
+            tile.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), nbt), level.registryAccess());
+        }
     }
 
     @SuppressWarnings("unchecked")

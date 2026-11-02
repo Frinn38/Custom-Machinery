@@ -31,22 +31,22 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
                     NamedCodec.of(Ingredient.CODEC).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
                     NamedCodec.intRange(1, Integer.MAX_VALUE).fieldOf("amount").forGetter(requirement -> requirement.amount),
                     NamedCodec.BOOL.optionalFieldOf("break", false).forGetter(requirement -> requirement.canBreak),
-                    NamedCodec.STRING.optionalFieldOf("slot", "").forGetter(requirement -> requirement.slot)
+                    NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(requirement -> requirement.slots)
             ).apply(durabilityRequirementInstance, DurabilityRequirement::new), "Durability requirement"
     );
 
     private final RequirementIOMode mode;
     private final Ingredient ingredient;
     private final int amount;
-    private final String slot;
+    private final List<String> slots;
     private final boolean canBreak;
 
-    public DurabilityRequirement(RequirementIOMode mode, Ingredient ingredient, int amount, boolean canBreak, String slot) {
+    public DurabilityRequirement(RequirementIOMode mode, Ingredient ingredient, int amount, boolean canBreak, List<String> slots) {
         this.mode = mode;
         this.ingredient = ingredient;
         this.amount = amount;
         this.canBreak = canBreak;
-        this.slot = slot;
+        this.slots = slots;
     }
 
     @Override
@@ -68,9 +68,9 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
         if(getMode() == RequirementIOMode.INPUT)
-            return component.getDurabilityAmount(this.slot, this.ingredient) >= amount;
+            return component.getDurabilityAmount(this.slots, this.ingredient) >= amount;
         else
-            return component.getSpaceForDurability(this.slot, this.ingredient) >= amount;
+            return component.getSpaceForDurability(this.slots, this.ingredient) >= amount;
     }
 
     @Override
@@ -83,9 +83,9 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
 
     public CraftingResult processInputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
-        int maxRemove = component.getDurabilityAmount(this.slot, this.ingredient);
+        int maxRemove = component.getDurabilityAmount(this.slots, this.ingredient);
         if(maxRemove >= amount) {
-            component.removeDurability(this.slot, this.ingredient, amount, this.canBreak);
+            component.removeDurability(this.slots, this.ingredient, amount, this.canBreak);
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.input", amount, maxRemove));
@@ -93,9 +93,9 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
 
     public CraftingResult processOutputs(ItemComponentHandler component, ICraftingContext context) {
         int amount = (int)context.getIntegerModifiedValue(this.amount, this, null);
-        int maxRepair = component.getSpaceForDurability(this.slot, this.ingredient);
+        int maxRepair = component.getSpaceForDurability(this.slots, this.ingredient);
         if(maxRepair >= amount) {
-            component.repairItem(this.slot, this.ingredient, amount);
+            component.repairItem(this.slots, this.ingredient, amount);
             return CraftingResult.success();
         }
         return CraftingResult.error(Component.translatable("custommachinery.requirements.durability.error.output", amount, maxRepair));
@@ -103,6 +103,6 @@ public class DurabilityRequirement implements IRequirement<ItemComponentHandler>
 
     @Override
     public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), new SizedIngredient(this.ingredient, this.amount), requirement.chance(), true, this.slot, true));
+        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), new SizedIngredient(this.ingredient, this.amount), requirement.chance(), true, this.slots, true));
     }
 }

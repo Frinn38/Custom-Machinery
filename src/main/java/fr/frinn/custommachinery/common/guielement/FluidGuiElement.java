@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.impl.guielement.AbstractTexturedGuiElement;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;

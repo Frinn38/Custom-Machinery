@@ -10,7 +10,11 @@ import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.UpgradedCustomMachine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class UpgradeManager implements IMachineUpgradeManager {
@@ -28,7 +32,8 @@ public class UpgradeManager implements IMachineUpgradeManager {
     @Override
     public void refresh() {
         //Refresh only on the server side
-        if(this.tile.getLevel() == null || this.tile.getLevel().isClientSide())
+        //If level is null we are deserializing the machine, so upgrades should be refreshed
+        if(this.tile.getLevel() != null && this.tile.getLevel().isClientSide())
             return;
         
         //Recipe modifiers can be refreshed only when a recipe need them
@@ -39,18 +44,24 @@ public class UpgradeManager implements IMachineUpgradeManager {
     }
 
     private void refreshComponentModifiers() {
-        List<UpgradeableComponentValue> actives = new ArrayList<>(this.activeModifiedValues);
+        Set<UpgradeableComponentValue> actives = new HashSet<>(this.activeModifiedValues);
         this.activeModifiedValues.clear();
+        Map<UpgradeableComponentValue, List<Pair<ComponentModifier, Integer>>> valueModifiers = new HashMap<>();
+
+        //Search for values to modify
         this.getCurrentUpgrades().forEach(pair ->
             pair.getFirst().components().forEach(modifier ->
                 this.tile.getComponentManager().getUpgradeableComponentValue(modifier.id(), modifier.target())
-                        .ifPresent(value -> {
-                            actives.remove(value);
-                            this.activeModifiedValues.add(value);
-                            value.refresh(modifier, pair.getSecond());
-                        })
+                        .ifPresent(value -> valueModifiers.computeIfAbsent(value, key -> new ArrayList<>()).add(Pair.of(modifier, pair.getSecond())))
             )
         );
+
+        //modify each values and update active list
+        valueModifiers.forEach((value, modifiers) -> {
+            actives.remove(value);
+            this.activeModifiedValues.add(value);
+            value.refresh(modifiers);
+        });
         //Values that were active but now aren't must be reset.
         actives.forEach(UpgradeableComponentValue::reset);
 

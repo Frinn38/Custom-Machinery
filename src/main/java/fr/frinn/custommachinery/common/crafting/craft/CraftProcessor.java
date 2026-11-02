@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.common.crafting.CraftingContext;
 import fr.frinn.custommachinery.common.crafting.MutableCraftingContext;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.crafting.RequirementList;
 import fr.frinn.custommachinery.impl.crafting.RequirementList.RequirementWithFunction;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -65,6 +67,8 @@ public class CraftProcessor implements IProcessor {
             this.recipeCheckCooldown = 20;
             if(!this.checkRecipe(this.currentRecipe, this.currentContext))
                 this.reset();
+            else
+                this.setCurrentRecipe(this.currentRecipe);
         }
 
         this.shouldCheck = false;
@@ -110,7 +114,12 @@ public class CraftProcessor implements IProcessor {
         this.currentContext = new CraftingContext(this.tile, recipe, () -> 0.0, 0);
         this.tile.getComponentManager().getComponentHandler(CMRegistration.ITEM_MACHINE_COMPONENT.get())
                 .flatMap(handler -> handler.getComponents().stream().filter(component -> component.getType() == CMRegistration.ITEM_RESULT_MACHINE_COMPONENT.get()).findFirst())
-                .ifPresent(component -> component.setItemStack(recipe.value().getOutput().copy()));
+                .ifPresent(component -> {
+                    ItemStack result = recipe.value().getOutput().copy();
+                    if(!recipe.value().getTransform().isEmpty() && ModList.get().isLoaded("kubejs"))
+                        result = KubeJSIntegration.sendCraftResultTransformEvent(recipe.value().getTransform(), this.currentContext, result);
+                    component.setItemStack(result);
+                });
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

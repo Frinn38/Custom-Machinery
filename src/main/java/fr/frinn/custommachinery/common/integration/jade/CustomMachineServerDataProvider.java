@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.crafting.IProcessor;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.util.TextComponentUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -28,16 +29,20 @@ public class CustomMachineServerDataProvider implements IServerDataProvider<Bloc
                 ListTag cores = new ListTag();
                 machineProcessor.getCores().forEach(core -> {
                     CompoundTag coreNbt = new CompoundTag();
-
                     if(core.getCurrentRecipe() != null) {
                         coreNbt.putDouble("recipeProgressTime", core.getRecipeProgressTime());
                         coreNbt.putInt("recipeTotalTime", core.getCurrentRecipe().value().getRecipeTime());
                     }
                     if(core.getError() != null)
                         coreNbt.putString("errorMessage", TextComponentUtils.toJSON(core.getError()));
+                    cores.add(coreNbt);
                 });
-                nbt.put("cores", cores);
+                tag.put("cores", cores);
             }
+            machine.getComponentManager().getComponent(CMRegistration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> {
+                tag.putInt("durability", component.getDurability());
+                tag.putInt("max_durability", component.getMaxDurability());
+            });
             nbt.put(CustomMachinery.MODID, tag);
         }
     }

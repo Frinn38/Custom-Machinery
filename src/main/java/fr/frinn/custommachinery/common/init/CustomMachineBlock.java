@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.common.util.MachineBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.TickTask;
@@ -115,6 +116,10 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                     components.put("componentManager", inventory);
                     machineTile.loadAdditional(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), components));
                 }
+                machineTile.getComponentManager().getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> {
+                    if(stack.get(DataComponents.DAMAGE) instanceof Integer durability)
+                        component.setDurability(component.getMaxDurability() - durability);
+                });
                 if(level instanceof ServerLevel serverLevel && placer != null && placer.getItemInHand(InteractionHand.OFF_HAND) == stack)
                     level.getServer().submit(new TickTask(1, () -> PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(pos), new SRefreshCustomMachineTilePacket(pos, machine.getId())))).join();
             }

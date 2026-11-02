@@ -1,11 +1,14 @@
 package fr.frinn.custommachinery.common.integration.theoneprobe;
 
 import fr.frinn.custommachinery.CustomMachinery;
+import fr.frinn.custommachinery.common.component.DurabilityMachineComponent;
 import fr.frinn.custommachinery.common.crafting.machine.MachineProcessor;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
+import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import fr.frinn.custommachinery.common.util.MachineBlockState;
+import mcjty.theoneprobe.api.Color;
 import mcjty.theoneprobe.api.CompoundText;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IIconStyle;
@@ -25,6 +28,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.FastColor.ARGB32;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -70,10 +75,18 @@ public class TOPInfoProvider implements IProbeInfoProvider, Function<ITheOneProb
         if(tile instanceof CustomMachineTile machine) {
             if(machine.getOwnerName() != null)
                 info.text(CompoundText.create().label(Component.translatable("custommachinery.machine.info.owner", machine.getOwnerName())));
+            machine.getComponentManager().getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> showDurabilityInfo(component, info));
             MachineAppearance appearance = machine.getAppearance();
             showHarvestInfo(info, appearance, player.hasCorrectToolForDrops(MachineBlockState.CACHE.getUnchecked(appearance), world, data.getPos()));
             showCraftingManagerInfo(machine, info);
         }
+    }
+
+    private void showDurabilityInfo(DurabilityMachineComponent component, IProbeInfo info) {
+        int durability = component.getDurability();
+        int maxDurability = component.getMaxDurability();
+        int color = ARGB32.color(255, Mth.hsvToRgb(Math.max(0.0F, (float)durability / maxDurability) / 3.0F, 1.0F, 1.0F));
+        info.progress(durability, maxDurability, info.defaultProgressStyle().filledColor(Color.darker(color, 0.7)).alternateFilledColor(Color.darker(color, 0.7)).prefix(Component.translatable("custommachinery.machine.component.durability").append(": ").withStyle(ChatFormatting.WHITE)).suffix("/" + maxDurability));
     }
 
     private void showCraftingManagerInfo(CustomMachineTile tile, IProbeInfo info) {

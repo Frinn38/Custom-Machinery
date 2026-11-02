@@ -12,6 +12,7 @@ import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.component.handler.IComponentHandler;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
@@ -230,7 +231,14 @@ public class MachineComponentManager implements IMachineComponentManager {
     }
 
     public void deserialize(ValueInput input) {
-        this.getSerializableComponents().forEach(component ->
-            input.child(component.getId().toString()).ifPresent(component::deserialize));
+        List<ISerializableComponent> others = new ArrayList<>();
+        //Deserialize items first so that upgrades are applied
+        this.getSerializableComponents().forEach(component -> {
+            if(component instanceof ItemComponentHandler handler)
+                input.child(handler.getId().toString()).ifPresent(handler::deserialize);
+            else
+                others.add(component);
+        });
+        others.forEach(component -> input.child(component.getId().toString()).ifPresent(component::deserialize));
     }
 }

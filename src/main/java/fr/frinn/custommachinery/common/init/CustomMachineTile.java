@@ -174,8 +174,11 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
         if(paused) {
             this.prevStatus = this.status;
             this.setStatus(MachineStatus.PAUSED);
-        } else
+        } else {
             this.setStatus(this.prevStatus);
+            this.processor.setSearchImmediately();
+        }
+
     }
 
     @Override

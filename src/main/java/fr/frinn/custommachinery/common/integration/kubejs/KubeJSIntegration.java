@@ -2,13 +2,16 @@ package fr.frinn.custommachinery.common.integration.kubejs;
 
 import dev.latvian.mods.kubejs.KubeJS;
 import dev.latvian.mods.kubejs.event.EventResult;
+import dev.latvian.mods.kubejs.plugin.builtin.wrapper.ItemWrapper;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.script.data.KubeFileResourcePack;
 import dev.latvian.mods.kubejs.script.data.VirtualDataPack;
 import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.common.integration.kubejs.CustomMachineUpgradeJSBuilder.UpgradeKubeEvent;
+import fr.frinn.custommachinery.common.integration.kubejs.craft.CraftResultTransformKubeEvent;
 import fr.frinn.custommachinery.common.integration.kubejs.function.FunctionKubeEvent;
+import fr.frinn.custommachinery.common.integration.kubejs.transform.ItemTransformKubeEvent;
 import fr.frinn.custommachinery.common.machine.MachineLocation;
 import fr.frinn.custommachinery.common.upgrade.MachineUpgrade;
 import fr.frinn.custommachinery.common.upgrade.UpgradeLocation;
@@ -18,6 +21,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.io.File;
@@ -122,5 +126,27 @@ public class KubeJSIntegration {
 
     public static void logError(Throwable error) {
         ScriptType.SERVER.console.error("Error while processing function requirement: ", error);
+    }
+
+    public static ItemStack sendCraftResultTransformEvent(String id, ICraftingContext context, ItemStack originalResult) {
+        if(!CustomMachineryKubeJSPlugin.CRAFT_RESULT_TRANSFORM.hasListeners(id))
+            return originalResult;
+        EventResult result = CustomMachineryKubeJSPlugin.CRAFT_RESULT_TRANSFORM.post(new CraftResultTransformKubeEvent(context, originalResult), id);
+        if(result.value() instanceof ItemStack stack)
+            return stack;
+        else if((result.interruptTrue() || result.interruptDefault()) && result.value() != null)
+            return ItemWrapper.wrap(result.cx(), result.value());
+        return originalResult;
+    }
+
+    public static ItemStack sendItemTransformEvent(String id, ICraftingContext context, ItemStack input, ItemStack originalOutput) {
+        if(!CustomMachineryKubeJSPlugin.ITEM_TRANSFORM.hasListeners(id))
+            return originalOutput;
+        EventResult result = CustomMachineryKubeJSPlugin.ITEM_TRANSFORM.post(new ItemTransformKubeEvent(context, input, originalOutput), id);
+        if(result.value() instanceof ItemStack stack)
+            return stack;
+        else if((result.interruptTrue() || result.interruptDefault()) && result.value() != null)
+            return ItemWrapper.wrap(result.cx(), result.value());
+        return originalOutput;
     }
 }

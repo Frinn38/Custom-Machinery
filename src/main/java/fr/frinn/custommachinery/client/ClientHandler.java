@@ -52,6 +52,7 @@ import fr.frinn.custommachinery.client.screen.creation.appearance.builder.ToolTy
 import fr.frinn.custommachinery.client.screen.creation.component.MachineComponentBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.component.RegisterComponentBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ChunkloadComponentBuilder;
+import fr.frinn.custommachinery.client.screen.creation.component.builder.DurabilityComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.EnergyComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.ExperienceComponentBuilder;
 import fr.frinn.custommachinery.client.screen.creation.component.builder.FluidComponentBuilder;
@@ -229,6 +230,7 @@ public class ClientHandler {
 
     private void registerMachineComponentBuilders(final RegisterComponentBuilderEvent event) {
         event.register(CMRegistration.CHUNKLOAD_MACHINE_COMPONENT.get(), new ChunkloadComponentBuilder());
+        event.register(CMRegistration.DURABILITY_MACHINE_COMPONENT.get(), new DurabilityComponentBuilder());
         event.register(CMRegistration.ENERGY_MACHINE_COMPONENT.get(), new EnergyComponentBuilder());
         event.register(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get(), new ExperienceComponentBuilder());
         event.register(CMRegistration.FLUID_MACHINE_COMPONENT.get(), new FluidComponentBuilder());
