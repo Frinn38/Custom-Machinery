@@ -7,11 +7,9 @@ import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
@@ -46,20 +44,8 @@ public class StructureMachineComponent extends AbstractMachineComponent {
             if(pos != BlockPos.ZERO && !validToPlace.isEmpty() && validToPlace.stream().noneMatch(blockIngredient -> blockIngredient.test(new BlockInWorld(getManager().getLevel(), worldPos, false)))) {
                 if(!getManager().getLevel().getBlockState(worldPos).isAir())
                     getManager().getLevel().destroyBlock(worldPos, drops);
-                setBlock(getManager().getLevel(), worldPos, validToPlace.stream().flatMap(blockIngredient -> blockIngredient.getAll().stream()).findAny().orElse(PartialBlockState.AIR));
+                Utils.setBlock(getManager().getLevel(), worldPos, validToPlace.stream().flatMap(blockIngredient -> blockIngredient.getAll().stream()).findAny().orElse(PartialBlockState.AIR));
             }
         });
-    }
-
-    private void setBlock(Level world, BlockPos pos, PartialBlockState state) {
-        world.setBlockAndUpdate(pos, state.getBlockState());
-        BlockEntity tile = world.getBlockEntity(pos);
-        if(tile != null && state.getNbt() != null && !state.getNbt().isEmpty()) {
-            CompoundTag nbt = state.getNbt().copy();
-            nbt.putInt("x", pos.getX());
-            nbt.putInt("y", pos.getY());
-            nbt.putInt("z", pos.getZ());
-            tile.loadWithComponents(nbt, world.registryAccess());
-        }
     }
 }

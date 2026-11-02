@@ -19,6 +19,7 @@ import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent.Templ
 import fr.frinn.custommachinery.common.component.CommandMachineComponent;
 import fr.frinn.custommachinery.common.component.DataMachineComponent;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
+import fr.frinn.custommachinery.common.component.DurabilityMachineComponent;
 import fr.frinn.custommachinery.common.component.EffectMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.EntityMachineComponent;
@@ -116,6 +117,7 @@ import fr.frinn.custommachinery.common.requirement.ItemRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemTransformRequirement;
 import fr.frinn.custommachinery.common.requirement.LightRequirement;
 import fr.frinn.custommachinery.common.requirement.LootTableRequirement;
+import fr.frinn.custommachinery.common.requirement.MachineDurabilityRequirement;
 import fr.frinn.custommachinery.common.requirement.PositionRequirement;
 import fr.frinn.custommachinery.common.requirement.RedstoneRequirement;
 import fr.frinn.custommachinery.common.requirement.SkyRequirement;
@@ -253,11 +255,7 @@ public class Registration {
             output.accept(BOX_CREATOR_ITEM.get());
             output.accept(STRUCTURE_CREATOR_ITEM.get());
             output.accept(CONFIGURATION_CARD_ITEM.get());
-            CustomMachinery.CUSTOM_BLOCK_MACHINES.values().forEach(block -> output.accept(block.asItem()));
-            CustomMachinery.MACHINES.keySet().forEach(id -> {
-                if(!CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(id))
-                    output.accept(CustomMachineItem.makeMachineItem(id));
-            });
+            CustomMachinery.MACHINES.keySet().forEach(id -> output.accept(CustomMachineItem.makeMachineItem(id)));
         }).build()
     );
 
@@ -287,6 +285,7 @@ public class Registration {
     public static final Supplier<MachineComponentType<CommandMachineComponent>>     COMMAND_MACHINE_COMPONENT      = MACHINE_COMPONENTS.register("command", () -> MachineComponentType.create(CommandMachineComponent::new));
     public static final Supplier<MachineComponentType<DataMachineComponent>>        DATA_MACHINE_COMPONENT         = MACHINE_COMPONENTS.register("data", () -> MachineComponentType.create(DataMachineComponent::new));
     public static final Supplier<MachineComponentType<DropMachineComponent>>        DROP_MACHINE_COMPONENT         = MACHINE_COMPONENTS.register("drop", () -> MachineComponentType.create(DropMachineComponent::new));
+    public static final Supplier<MachineComponentType<DurabilityMachineComponent>>  DURABILITY_MACHINE_COMPONENT   = MACHINE_COMPONENTS.register("durability", () -> MachineComponentType.create(DurabilityMachineComponent.Template.CODEC));
     public static final Supplier<MachineComponentType<EffectMachineComponent>>      EFFECT_MACHINE_COMPONENT       = MACHINE_COMPONENTS.register("effect", () -> MachineComponentType.create(EffectMachineComponent::new));
     public static final Supplier<MachineComponentType<EnergyMachineComponent>>      ENERGY_MACHINE_COMPONENT       = MACHINE_COMPONENTS.register("energy", () -> MachineComponentType.create(EnergyMachineComponent.Template.CODEC));
     public static final Supplier<MachineComponentType<EntityMachineComponent>>      ENTITY_MACHINE_COMPONENT       = MACHINE_COMPONENTS.register("entity", () -> MachineComponentType.create(EntityMachineComponent::new));
@@ -336,6 +335,7 @@ public class Registration {
     public static final Supplier<RequirementType<ItemTransformRequirement>>     ITEM_TRANSFORM_REQUIREMENT      = REQUIREMENTS.register("item_transform", () -> RequirementType.inventory(ItemTransformRequirement.CODEC));
     public static final Supplier<RequirementType<LightRequirement>>             LIGHT_REQUIREMENT               = REQUIREMENTS.register("light", () -> RequirementType.world(LightRequirement.CODEC));
     public static final Supplier<RequirementType<LootTableRequirement>>         LOOT_TABLE_REQUIREMENT          = REQUIREMENTS.register("loot_table", () -> RequirementType.inventory(LootTableRequirement.CODEC));
+    public static final Supplier<RequirementType<MachineDurabilityRequirement>> MACHINE_DURABILITY_REQUIREMENT  = REQUIREMENTS.register("machine_durability", () -> RequirementType.inventory(MachineDurabilityRequirement.CODEC));
     public static final Supplier<RequirementType<NBTDataRequirement>>           NBT_DATA_REQUIREMENT            = REQUIREMENTS.register("nbt_data", () -> RequirementType.world(NBTDataRequirement.CODEC));
     public static final Supplier<RequirementType<PositionRequirement>>          POSITION_REQUIREMENT            = REQUIREMENTS.register("position", () -> RequirementType.world(PositionRequirement.CODEC));
     public static final Supplier<RequirementType<RedstoneRequirement>>          REDSTONE_REQUIREMENT            = REQUIREMENTS.register("redstone", () -> RequirementType.world(RedstoneRequirement.CODEC));

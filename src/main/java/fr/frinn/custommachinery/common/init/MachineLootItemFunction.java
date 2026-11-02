@@ -1,6 +1,7 @@
 package fr.frinn.custommachinery.common.init;
 
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -17,13 +18,24 @@ public class MachineLootItemFunction implements LootItemFunction {
     }
 
     @Override
-    public ItemStack apply(ItemStack itemStack, LootContext lootContext) {
+    public ItemStack apply(ItemStack stack, LootContext lootContext) {
         if(lootContext.getParam(LootContextParams.BLOCK_ENTITY) instanceof CustomMachineTile machine) {
-            if(itemStack.getItem() == Registration.CUSTOM_MACHINE_ITEM.get())
-                itemStack.set(Registration.MACHINE_DATA, machine.getId());
-            if(itemStack.getItem() instanceof CustomMachineItem && machine.getAppearance().shouldKeepInventory())
-                itemStack.set(Registration.MACHINE_INVENTORY_DATA, machine.getComponentManager().serializeNBT(lootContext.getLevel().registryAccess()));
+            //Set machine id to nbt
+            if(stack.getItem() == Registration.CUSTOM_MACHINE_ITEM.get())
+                stack.set(Registration.MACHINE_DATA, machine.getId());
+
+            //Save machine inventory to nbt
+            if(stack.getItem() instanceof CustomMachineItem && machine.getAppearance().shouldKeepInventory())
+                stack.set(Registration.MACHINE_INVENTORY_DATA, machine.getComponentManager().serializeNBT(lootContext.getLevel().registryAccess()));
+
+            //Save machine durability to nbt
+            machine.getComponentManager().getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> {
+                if(component.shouldShowItemDurability()) {
+                    stack.set(DataComponents.MAX_DAMAGE, component.getMaxDurability());
+                    stack.set(DataComponents.DAMAGE, component.getMaxDurability() - component.getDurability());
+                }
+            });
         }
-        return itemStack;
+        return stack;
     }
 }

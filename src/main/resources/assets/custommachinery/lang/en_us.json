@@ -235,6 +235,11 @@
   "custommachinery.gui.creation.components.experience.retrieve.tooltip": "If set, the player will retrieve all the contained xp when taking an item from the machine's slots",
   "custommachinery.gui.creation.components.experience.slots": "Retrieve slots",
   "custommachinery.gui.creation.components.experience.slots.tooltip": "Slots that will give the contained xp to the player when an item is taken out\nEach slot id must be separated by a comma ','",
+  "custommachinery.gui.creation.components.durability.title": "Durability Component",
+  "custommachinery.gui.creation.components.durability.max": "Max",
+  "custommachinery.gui.creation.components.durability.item": "Show item",
+  "custommachinery.gui.creation.components.durability.break": "Break action",
+  "custommachinery.gui.creation.components.durability.replace": "Replacement",
 
   "custommachinery.gui.creation.gui.add": "Add new gui element",
   "custommachinery.gui.creation.gui.mouse": "(%s,%s)",
@@ -421,6 +426,7 @@
   "custommachinery.machine.component.chunkload": "Chunkload",
   "custommachinery.machine.component.redstone": "Redstone",
   "custommachinery.machine.component.experience": "Experience",
+  "custommachinery.machine.component.durability": "Durability",
 
   "custommachinery.machine.component.mode.input": "Input",
   "custommachinery.machine.component.mode.output": "Output",

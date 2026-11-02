@@ -2,9 +2,11 @@ package fr.frinn.custommachinery.common.init;
 
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.client.screen.creation.tabs.TooltipsTab.EditorTooltipFlag;
+import fr.frinn.custommachinery.common.component.DurabilityMachineComponent;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +17,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.TooltipFlag.Default;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -28,8 +29,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class CustomMachineItem extends BlockItem {
-
-    public static final TooltipFlag NO_TOOLTIP = new Default(true, true);
 
     @Nullable
     private final ResourceLocation machineID;
@@ -47,11 +46,19 @@ public class CustomMachineItem extends BlockItem {
     }
 
     public static ItemStack makeMachineItem(ResourceLocation machineId) {
+        ItemStack stack;
         if(CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(machineId))
-            return CustomMachinery.CUSTOM_BLOCK_MACHINES.get(machineId).asItem().getDefaultInstance();
-
-        ItemStack stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
-        stack.set(Registration.MACHINE_DATA, machineId);
+            stack = CustomMachinery.CUSTOM_BLOCK_MACHINES.get(machineId).asItem().getDefaultInstance();
+        else {
+            stack = Registration.CUSTOM_MACHINE_ITEM.get().getDefaultInstance();
+            stack.set(Registration.MACHINE_DATA, machineId);
+        }
+        getMachine(stack).flatMap(machine -> machine.getComponentTemplates()
+                .stream()
+                .filter(template -> template instanceof DurabilityMachineComponent.Template)
+                .map(template -> (DurabilityMachineComponent.Template) template)
+                .findFirst()
+        ).ifPresent(template -> stack.set(DataComponents.MAX_DAMAGE, template.maxDurability()));
         return stack;
     }
 

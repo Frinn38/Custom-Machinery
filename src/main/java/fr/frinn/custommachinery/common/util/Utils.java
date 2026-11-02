@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -15,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -64,7 +66,7 @@ public class Utils {
 
     public static boolean isResourceNameValid(String resourceLocation) {
         try {
-            ResourceLocation location = ResourceLocation.parse(resourceLocation);
+            ResourceLocation.parse(resourceLocation);
             return true;
         } catch (ResourceLocationException e) {
             return false;
@@ -152,7 +154,7 @@ public class Utils {
             return ingredient.getFluids()[0].getHoverName();
     }
 
-    public static String incrementLastNumber(String input) {
+    public static String incrementLastNumber(@Nullable String input) {
         if(input == null || input.isEmpty())
             return "";
 
@@ -179,5 +181,17 @@ public class Utils {
                 .replace("-", "")
                 .replace(".", "")
                 .toLowerCase(Locale.ROOT);
+    }
+
+    public static void setBlock(Level level, BlockPos pos, PartialBlockState state) {
+        level.setBlockAndUpdate(pos, state.getBlockState());
+        BlockEntity tile = level.getBlockEntity(pos);
+        if(tile != null && state.getNbt() != null && !state.getNbt().isEmpty()) {
+            CompoundTag nbt = state.getNbt().copy();
+            nbt.putInt("x", pos.getX());
+            nbt.putInt("y", pos.getY());
+            nbt.putInt("z", pos.getZ());
+            tile.loadWithComponents(nbt, level.registryAccess());
+        }
     }
 }

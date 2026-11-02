@@ -5,6 +5,7 @@ import dev.latvian.mods.kubejs.level.CachedLevelBlock;
 import dev.latvian.mods.rhino.Wrapper;
 import fr.frinn.custommachinery.api.machine.MachineStatus;
 import fr.frinn.custommachinery.common.component.ChunkloadMachineComponent;
+import fr.frinn.custommachinery.common.component.DurabilityMachineComponent;
 import fr.frinn.custommachinery.common.component.EnergyMachineComponent;
 import fr.frinn.custommachinery.common.component.FluidMachineComponent;
 import fr.frinn.custommachinery.common.component.handler.FluidComponentHandler;
@@ -282,5 +283,39 @@ public class MachineJS {
                 .getComponent(Registration.CHUNKLOAD_MACHINE_COMPONENT.get())
                 .map(ChunkloadMachineComponent::getRadius)
                 .orElse(0);
+    }
+
+    /** Machine Durability stuff **/
+
+    public int getMachineDurability() {
+        return this.internal.getComponentManager()
+                .getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get())
+                .map(DurabilityMachineComponent::getDurability)
+                .orElse(0);
+    }
+
+    public int getMachineMaxDurability() {
+        return this.internal.getComponentManager()
+                .getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get())
+                .map(DurabilityMachineComponent::getMaxDurability)
+                .orElse(0);
+    }
+
+    public void setMachineDurability(int durability) {
+        this.internal.getComponentManager()
+                .getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get())
+                .ifPresent(component -> component.setDurability(durability));
+    }
+
+    public void damageMachine(int damage) {
+        this.internal.getComponentManager()
+                .getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get())
+                .ifPresent(component -> component.damage(damage));
+    }
+
+    public void repairMachine(int repair) {
+        this.internal.getComponentManager()
+                .getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get())
+                .ifPresent(component -> component.repair(repair));
     }
 }

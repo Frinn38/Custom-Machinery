@@ -6,6 +6,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.BiomeRequ
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.BlockRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ButtonRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.CommandRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.DataRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DimensionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DropRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.DurabilityRequirementJS;
@@ -21,6 +22,7 @@ import fr.frinn.custommachinery.common.integration.kubejs.requirements.ItemRequi
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.ItemTransformRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.LightRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.LootTableRequirementJS;
+import fr.frinn.custommachinery.common.integration.kubejs.requirements.MachineDurabilityRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.PositionRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.RedstoneRequirementJS;
 import fr.frinn.custommachinery.common.integration.kubejs.requirements.SkyRequirementJS;
@@ -33,7 +35,7 @@ public class CustomCraftRecipeBuilderJS extends AbstractRecipeJSBuilder<CustomCr
         EffectRequirementJS, EnergyRequirementJS, EntityRequirementJS, FluidRequirementJS, FuelRequirementJS, FunctionRequirementJS,
         ItemRequirementJS, ItemTransformRequirementJS, LightRequirementJS, LootTableRequirementJS, PositionRequirementJS, RedstoneRequirementJS,
         StructureRequirementJS, TimeRequirementJS, WeatherRequirementJS, ButtonRequirementJS, SkyRequirementJS, ItemFilterRequirementJS,
-        ExperienceRequirementJS {
+        ExperienceRequirementJS, DataRequirementJS, MachineDurabilityRequirementJS {
 
     public CustomCraftRecipeBuilderJS() {
         super(Registration.CUSTOM_CRAFT_RECIPE.getId());
