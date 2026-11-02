@@ -166,6 +166,8 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     @Override
     public void setPaused(boolean paused) {
+        if(this.paused && !paused)
+            this.processor.setSearchImmediately();
         this.paused = paused;
     }
 
