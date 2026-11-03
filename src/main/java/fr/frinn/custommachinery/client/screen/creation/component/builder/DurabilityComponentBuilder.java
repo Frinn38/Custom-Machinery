@@ -11,10 +11,10 @@ import fr.frinn.custommachinery.client.screen.widget.IntegerEditBox;
 import fr.frinn.custommachinery.common.component.DurabilityMachineComponent;
 import fr.frinn.custommachinery.common.component.DurabilityMachineComponent.OnBreak;
 import fr.frinn.custommachinery.common.component.DurabilityMachineComponent.Template;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -29,7 +29,7 @@ public class DurabilityComponentBuilder implements IMachineComponentBuilder<Dura
 
     @Override
     public MachineComponentType<DurabilityMachineComponent> type() {
-        return Registration.DURABILITY_MACHINE_COMPONENT.get();
+        return CMRegistration.DURABILITY_MACHINE_COMPONENT.get();
     }
 
     @Override
@@ -38,9 +38,9 @@ public class DurabilityComponentBuilder implements IMachineComponentBuilder<Dura
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, int width, int height, Template template) {
-        graphics.renderFakeItem(Items.ANVIL.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.drawString(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+    public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Template template) {
+        graphics.item(Items.ANVIL.getDefaultInstance(), x, y + height / 2 - 8);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
     }
 
     public static class DurabilityComponentBuilderPopup extends ComponentBuilderPopup<Template> {
@@ -72,7 +72,7 @@ public class DurabilityComponentBuilder implements IMachineComponentBuilder<Dura
             this.showItem = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.durability.item"), Checkbox.builder(Component.empty(), this.font).selected(this.baseTemplate().map(Template::showItemDurability).orElse(true)).build());
 
             //On break
-            this.onBreak = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.durability.break"), CycleButton.<OnBreak>builder(value -> Component.literal(value.name().toLowerCase(Locale.ROOT))).withValues(OnBreak.values()).withInitialValue(this.baseTemplate().map(Template::onBreak).orElse(OnBreak.NOTHING)).displayOnlyValue().create(0, 0, 100, 20, Component.empty()));
+            this.onBreak = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.durability.break"), CycleButton.<OnBreak>builder(value -> Component.literal(value.name().toLowerCase(Locale.ROOT)), this.baseTemplate().map(Template::onBreak).orElse(OnBreak.NOTHING)).withValues(OnBreak.values()).displayOnlyValue().create(0, 0, 100, 20, Component.empty()));
 
             //Replace
             this.replace = this.propertyList.add(Component.translatable("custommachinery.gui.creation.components.durability.replace"), new EditBox(this.font, 0, 0, 150, 20, Component.empty()));

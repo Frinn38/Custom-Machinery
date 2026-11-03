@@ -26,14 +26,14 @@ public class MachineLootItemFunction implements LootItemFunction {
                 stack.set(CMRegistration.MACHINE_DATA, machine.getId());
 
             //Save machine inventory to nbt
-            if(itemStack.getItem() instanceof CustomMachineItem && machine.getAppearance().shouldKeepInventory()) {
+            if(stack.getItem() instanceof CustomMachineItem && machine.getAppearance().shouldKeepInventory()) {
                 TagValueOutput componentMManagerOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, lootContext.getLevel().registryAccess());
                 machine.getComponentManager().serialize(componentMManagerOutput);
                 stack.set(CMRegistration.MACHINE_INVENTORY_DATA, componentMManagerOutput.buildResult());
             }
 
             //Save machine durability to nbt
-            machine.getComponentManager().getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> {
+            machine.getComponentManager().getComponent(CMRegistration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> {
                 if(component.shouldShowItemDurability()) {
                     stack.set(DataComponents.MAX_DAMAGE, component.getMaxDurability());
                     stack.set(DataComponents.DAMAGE, component.getMaxDurability() - component.getDurability());

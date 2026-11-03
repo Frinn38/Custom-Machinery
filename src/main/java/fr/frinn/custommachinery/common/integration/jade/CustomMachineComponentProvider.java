@@ -16,7 +16,10 @@ import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.IDisplayHelper;
+import snownee.jade.api.ui.BoxStyle;
+import snownee.jade.api.ui.JadeUI;
+import snownee.jade.api.view.ProgressView;
+import snownee.jade.api.view.ProgressView.Part;
 
 public class CustomMachineComponentProvider implements IBlockComponentProvider {
 
@@ -25,7 +28,6 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        IDisplayHelper helper = IDisplayHelper.get();
         if(accessor.getBlockEntity() instanceof CustomMachineTile tile) {
             CompoundTag nbt = accessor.getServerData().getCompoundOrEmpty(CustomMachinery.MODID);
             if(nbt.isEmpty() || tile.getLevel() == null)
@@ -57,19 +59,23 @@ public class CustomMachineComponentProvider implements IBlockComponentProvider {
                         int recipeTotalTime = coreNbt.getIntOr("recipeTotalTime", 0);
                         float progress = (float) (recipeProgressTime / recipeTotalTime);
                         Component component = Component.literal((int)recipeProgressTime + " / " + recipeTotalTime).withStyle(ChatFormatting.WHITE);
-                        //tooltip.add(helper.progress(progress, component, helper.progressStyle(), BoxStyle.getNestedBox(), true));
+                        ProgressView view = new ProgressView(Part.of(progress), component, JadeUI.progressStyle(), BoxStyle.nestedBox());
+                        tooltip.add(JadeUI.progress(view));
                     }
                     if(coreNbt.contains("errorMessage") && tile.getLevel() != null)
                         tooltip.add(TextComponentUtils.fromJSON(coreNbt.getStringOr("errorMessage", "")));
                 });
             }
-            if(nbt.contains("durability", Tag.TAG_INT) && nbt.contains("max_durability", Tag.TAG_INT)) {
-                int durability = nbt.getInt("durability");
-                int maxDurability = nbt.getInt("max_durability");
+            if(nbt.contains("durability") && nbt.contains("max_durability")) {
+                int durability = nbt.getIntOr("durability", 0);
+                int maxDurability = nbt.getIntOr("max_durability", 0);
+                if(maxDurability == 0)
+                    return;
                 float progress = (float) (durability / (double)maxDurability);
                 Component component = Component.translatable("custommachinery.machine.component.durability").append(": " + durability + " / " + maxDurability).withStyle(ChatFormatting.WHITE);
                 int color = ARGB.color(255, Mth.hsvToRgb(Math.max(0.0F, (float)durability / maxDurability) / 3.0F, 1.0F, 1.0F));
-                tooltip.add(helper.progress(progress, component, helper.progressStyle().color(color), BoxStyle.getNestedBox(), true));
+                ProgressView view = new ProgressView(Part.of(progress, color), component, JadeUI.progressStyle(), BoxStyle.nestedBox());
+                tooltip.add(JadeUI.progress(view));
             }
         }
     }

@@ -10,7 +10,7 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.integration.kubejs.function.MachineJS;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class CraftResultTransformKubeEvent implements KubeEvent {
@@ -49,7 +49,7 @@ public class CraftResultTransformKubeEvent implements KubeEvent {
         return this.internal.getRecipe();
     }
 
-    public ResourceLocation getRecipeId() {
+    public Identifier getRecipeId() {
         return this.internal.getRecipeId();
     }
 

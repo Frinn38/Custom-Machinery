@@ -77,7 +77,7 @@ public class DataType<T> {
      * @param <T> The type of the object to sync.
      */
     public static <T> DataType<T> create(Class<T> type, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec, BiPredicate<T, T> equalityCheck, UnaryOperator<T> copier) {
-        return new DataType<>(type, streamCodec, equalityCheck, null);
+        return new DataType<>(type, streamCodec, equalityCheck, copier);
     }
 
     private final Class<T> type;

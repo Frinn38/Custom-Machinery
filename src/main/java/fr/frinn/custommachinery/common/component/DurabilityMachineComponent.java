@@ -5,19 +5,17 @@ import fr.frinn.custommachinery.api.component.ComponentIOMode;
 import fr.frinn.custommachinery.api.component.IMachineComponentManager;
 import fr.frinn.custommachinery.api.component.IMachineComponentTemplate;
 import fr.frinn.custommachinery.api.component.ISerializableComponent;
+import fr.frinn.custommachinery.api.component.MachineComponentId;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
-import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
-import fr.frinn.custommachinery.common.init.Registration;
-import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
-import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import fr.frinn.custommachinery.impl.network.SyncableList;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class DurabilityMachineComponent extends AbstractMachineComponent implements ISerializableComponent, ISyncableStuff {
@@ -52,7 +50,7 @@ public class DurabilityMachineComponent extends AbstractMachineComponent impleme
 
     public void setDurability(int durability) {
         this.currentDurability = durability;
-        this.getManager().markDirty();
+        this.getManager().setChanged();
         if(this.currentDurability <= 0)
             switch (this.onBreak) {
                 case BREAK -> this.getManager().getLevel().destroyBlock(this.getManager().getTile().getBlockPos(), true);
@@ -78,23 +76,27 @@ public class DurabilityMachineComponent extends AbstractMachineComponent impleme
 
     @Override
     public MachineComponentType<DurabilityMachineComponent> getType() {
-        return Registration.DURABILITY_MACHINE_COMPONENT.get();
+        return CMRegistration.DURABILITY_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public void serialize(CompoundTag nbt, Provider registries) {
-        nbt.putInt("durability", this.currentDurability);
+    public MachineComponentId<DurabilityMachineComponent> getId() {
+        return this.getType().componentId("");
     }
 
     @Override
-    public void deserialize(CompoundTag nbt, Provider registries) {
-        if(nbt.contains("durability", Tag.TAG_INT))
-            this.currentDurability = nbt.getInt("durability");
+    public void serialize(ValueOutput output) {
+        output.putInt("durability", this.currentDurability);
     }
 
     @Override
-    public void getStuffToSync(Consumer<ISyncable<?, ?>> container) {
-        container.accept(IntegerSyncable.create(() -> this.currentDurability, durability -> this.currentDurability = durability));
+    public void deserialize(ValueInput input) {
+        input.getInt("durability").ifPresent(durability -> this.currentDurability = durability);
+    }
+
+    @Override
+    public void getStuffToSync(SyncableList list) {
+        list.syncInt(() -> this.currentDurability, durability -> this.currentDurability = durability);
     }
 
     public enum OnBreak {
@@ -119,7 +121,7 @@ public class DurabilityMachineComponent extends AbstractMachineComponent impleme
 
         @Override
         public MachineComponentType<DurabilityMachineComponent> getType() {
-            return Registration.DURABILITY_MACHINE_COMPONENT.get();
+            return CMRegistration.DURABILITY_MACHINE_COMPONENT.get();
         }
 
         @Override

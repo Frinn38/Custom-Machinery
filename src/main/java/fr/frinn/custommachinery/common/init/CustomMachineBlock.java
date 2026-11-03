@@ -116,7 +116,7 @@ public class CustomMachineBlock extends Block implements EntityBlock {
                     components.put("componentManager", inventory);
                     machineTile.loadAdditional(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), components));
                 }
-                machineTile.getComponentManager().getComponent(Registration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> {
+                machineTile.getComponentManager().getComponent(CMRegistration.DURABILITY_MACHINE_COMPONENT.get()).ifPresent(component -> {
                     if(stack.get(DataComponents.DAMAGE) instanceof Integer durability)
                         component.setDurability(component.getMaxDurability() - durability);
                 });

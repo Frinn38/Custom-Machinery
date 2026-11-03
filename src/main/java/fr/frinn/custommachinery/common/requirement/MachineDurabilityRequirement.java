@@ -9,7 +9,7 @@ import fr.frinn.custommachinery.api.requirement.IRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DurabilityMachineComponent;
-import fr.frinn.custommachinery.common.init.Registration;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 
 public record MachineDurabilityRequirement(RequirementIOMode mode, int amount) implements IRequirement<DurabilityMachineComponent> {
 
@@ -22,12 +22,12 @@ public record MachineDurabilityRequirement(RequirementIOMode mode, int amount) i
 
     @Override
     public RequirementType<MachineDurabilityRequirement> getType() {
-        return Registration.MACHINE_DURABILITY_REQUIREMENT.get();
+        return CMRegistration.MACHINE_DURABILITY_REQUIREMENT.get();
     }
 
     @Override
     public MachineComponentType<DurabilityMachineComponent> getComponentType() {
-        return Registration.DURABILITY_MACHINE_COMPONENT.get();
+        return CMRegistration.DURABILITY_MACHINE_COMPONENT.get();
     }
 
     @Override
