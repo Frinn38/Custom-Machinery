@@ -40,7 +40,7 @@ public class TextGuiElementWidget extends AbstractGuiElementRenderable<TextGuiEl
             graphics.pose().scale(scaleX, scaleY);
             graphics.pose().translation(-this.getElement().getX(), -this.getElement().getY());
         }
-        graphics.text(Minecraft.getInstance().font, this.getElement().getText(), posX, posY, 0, false);
+        graphics.text(Minecraft.getInstance().font, this.getElement().getText(), posX, posY, 0xFF000000, false);
         graphics.pose().popMatrix();
     }
 }

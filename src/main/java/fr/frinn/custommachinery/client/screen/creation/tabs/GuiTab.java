@@ -190,7 +190,7 @@ public class GuiTab extends MachineEditTab {
             float scale = Math.clamp(this.getWidth() / (float)(font.width(hint) - 50), 0.5F, 1.0F);
             graphics.pose().pushMatrix();
             graphics.pose().scale(scale, scale);
-            graphics.text(Minecraft.getInstance().font, this.getMessage(), (int)(this.getX() / scale), (int)((this.getY() + 1) / scale), 0, false);
+            graphics.text(Minecraft.getInstance().font, this.getMessage(), (int)(this.getX() / scale), (int)((this.getY() + 1) / scale), 0xFF000000, false);
             graphics.pose().popMatrix();
         }
     }

@@ -46,7 +46,7 @@ public class ExperienceJEIIngredientRenderer extends JEIIngredientRenderer<Exper
     if(this.element.getMode().isDisplayBar()) {
       String levels = "" + (ingredient != null ? ingredient.isLevels() ? ingredient.xp() : ExperienceUtils.getLevelFromXp(ingredient.xp()) : 0);
       int xPos = width / 2 - Minecraft.getInstance().font.width(levels) / 2;
-      graphics.text(Minecraft.getInstance().font, levels, xPos, 0, 0x80FF20, true);
+      graphics.text(Minecraft.getInstance().font, levels, xPos, 0, 0xFF80FF20, true);
       graphics.fill(0, height - 3, width, height, 0xFF000000);
       if(ingredient != null && ingredient.isPoints()) {
         int level = ExperienceUtils.getLevelFromXp(ingredient.xp());

@@ -91,7 +91,7 @@ public class GuiElementCreationPopup extends PopupScreen {
 
             @Override
             public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-                graphics.text(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), x + 5, y + 5, 0, false);
+                graphics.text(Minecraft.getInstance().font, this.builder.type().getTranslatedName(), x + 5, y + 5, 0xFF000000, false);
             }
 
             @Override

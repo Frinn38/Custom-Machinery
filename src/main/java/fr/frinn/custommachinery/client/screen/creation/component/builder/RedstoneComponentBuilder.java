@@ -38,7 +38,7 @@ public class RedstoneComponentBuilder implements IMachineComponentBuilder<Redsto
     @Override
     public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, Template template) {
         graphics.item(Items.REDSTONE.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0xFF000000, false);
     }
 
     public static class RedstoneComponentBuilderPopup extends ComponentBuilderPopup<Template> {
