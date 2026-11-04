@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.api.component.ISerializableComponent;
 import fr.frinn.custommachinery.api.component.MachineComponentType;
 import fr.frinn.custommachinery.api.network.ISyncable;
 import fr.frinn.custommachinery.api.network.ISyncableStuff;
+import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.Registration;
 import fr.frinn.custommachinery.common.network.syncable.IntegerSyncable;
 import fr.frinn.custommachinery.common.util.PartialBlockState;
@@ -16,7 +17,9 @@ import fr.frinn.custommachinery.impl.component.AbstractMachineComponent;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.Block;
 
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -56,12 +59,18 @@ public class DurabilityMachineComponent extends AbstractMachineComponent impleme
         if(this.currentDurability <= 0)
             switch (this.onBreak) {
                 case BREAK -> this.getManager().getLevel().destroyBlock(this.getManager().getTile().getBlockPos(), true);
-                case DESTROY -> this.getManager().getLevel().destroyBlock(this.getManager().getTile().getBlockPos(), false);
+                case DESTROY -> {
+                    if(this.getManager().getTile().getAppearance().shouldKeepInventory())
+                        this.dropContent();
+                    this.getManager().getLevel().destroyBlock(this.getManager().getTile().getBlockPos(), false);
+                }
                 case REPLACE_BREAK -> {
                     this.getManager().getLevel().destroyBlock(this.getManager().getTile().getBlockPos(), true);
                     Utils.setBlock(this.getManager().getLevel(), this.getManager().getTile().getBlockPos(), this.replace);
                 }
                 case REPLACE_DESTROY -> {
+                    if(this.getManager().getTile().getAppearance().shouldKeepInventory())
+                        this.dropContent();
                     this.getManager().getLevel().destroyBlock(this.getManager().getTile().getBlockPos(), false);
                     Utils.setBlock(this.getManager().getLevel(), this.getManager().getTile().getBlockPos(), this.replace);
                 }
@@ -74,6 +83,17 @@ public class DurabilityMachineComponent extends AbstractMachineComponent impleme
 
     public void damage(int amount) {
         this.setDurability(Math.clamp(this.currentDurability - amount, 0, this.maxDurability.get()));
+    }
+
+    private void dropContent() {
+        this.getManager().getTile().getComponentManager().getComponentHandler(Registration.ITEM_MACHINE_COMPONENT.get())
+                .map(handler -> handler.getComponents().stream()
+                        .filter(ItemMachineComponent::shouldDrop)
+                        .map(component -> component.getItemStack().copy())
+                        .filter(stack -> !stack.isEmpty())
+                        .toList()
+                ).orElse(Collections.emptyList())
+                .forEach(stack -> Block.popResource(this.getManager().getLevel(), this.getManager().getTile().getBlockPos(), stack));
     }
 
     @Override
@@ -89,7 +109,7 @@ public class DurabilityMachineComponent extends AbstractMachineComponent impleme
     @Override
     public void deserialize(CompoundTag nbt, Provider registries) {
         if(nbt.contains("durability", Tag.TAG_INT))
-            this.currentDurability = nbt.getInt("durability");
+            this.currentDurability = Math.min(nbt.getInt("durability"), this.maxDurability.get());
     }
 
     @Override
