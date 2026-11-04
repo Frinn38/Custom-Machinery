@@ -10,6 +10,7 @@ import fr.frinn.custommachinery.client.screen.widget.SuggestedEditBox;
 import fr.frinn.custommachinery.common.util.CycleTimer;
 import fr.frinn.custommachinery.common.util.Filter;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
@@ -234,7 +235,7 @@ public class FilterConfigPopup<T> extends PopupScreen {
 
             @Override
             public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-                graphics.blit(ADD_TEXTURE, 0, 0, 0, 0, 20, 20, 20, 20);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, ADD_TEXTURE, 0, 0, 0, 0, 20, 20, 20, 20);
             }
 
             @Override

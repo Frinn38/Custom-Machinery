@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement.Orientation;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import org.joml.Math;
@@ -34,17 +35,17 @@ public class ProgressArrowRenderer {
             rotate(graphics.pose(), element.getDirection(), x, y, width, height);
 
             ScreenUtils.blit(graphics, element.getEmptyTexture(), 0, 0, width, height);
-            graphics.blit(element.getFilledTexture().texture(), 0, 0, element.getFilledTexture().u(), element.getFilledTexture().v(), filledWidth, height, width, height);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, element.getFilledTexture().texture(), 0, 0, element.getFilledTexture().u(), element.getFilledTexture().v(), filledWidth, height, width, height);
 
             graphics.pose().popMatrix();
         } else {
             ScreenUtils.blit(graphics, element.getEmptyTexture(), x, y, width, height);
             TextureInfo filled = element.getFilledTexture();
             switch (element.getDirection()) {
-                case RIGHT -> graphics.blit(filled.texture(), x, y, filled.u(), filled.v(), filledWidth, height, width, height);
-                case LEFT -> graphics.blit(filled.texture(), x + width - filledWidth, y, filled.u() + width - filledWidth, filled.v(), filledWidth, height, width, height);
-                case BOTTOM -> graphics.blit(filled.texture(), x, y, filled.u(), filled.v(), width, filledHeight, width, height);
-                case TOP -> graphics.blit(filled.texture(), x, y + height - filledHeight, filled.u(), filled.v() + height - filledHeight, width, filledHeight, width, height);
+                case RIGHT -> graphics.blit(RenderPipelines.GUI_TEXTURED, filled.texture(), x, y, filled.u(), filled.v(), filledWidth, height, width, height);
+                case LEFT -> graphics.blit(RenderPipelines.GUI_TEXTURED, filled.texture(), x + width - filledWidth, y, filled.u() + width - filledWidth, filled.v(), filledWidth, height, width, height);
+                case BOTTOM -> graphics.blit(RenderPipelines.GUI_TEXTURED, filled.texture(), x, y, filled.u(), filled.v(), width, filledHeight, width, height);
+                case TOP -> graphics.blit(RenderPipelines.GUI_TEXTURED, filled.texture(), x, y + height - filledHeight, filled.u(), filled.v() + height - filledHeight, width, filledHeight, width, height);
             }
         }
     }
