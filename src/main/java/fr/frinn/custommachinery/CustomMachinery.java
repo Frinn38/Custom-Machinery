@@ -58,6 +58,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Mod(CustomMachinery.MODID)
@@ -162,7 +163,7 @@ public class CustomMachinery {
             }
         });
         //Same for upgrades
-        Map<UpgradeLocation, MachineUpgrade> timestamped = new HashMap<>();
+        Map<UpgradeLocation, MachineUpgrade> timestamped = new LinkedHashMap<>();
         UPGRADES.getAllUpgrades().forEach((location, upgrade) -> {
             if(!location.canEdit())
                 timestamped.put(location, upgrade);

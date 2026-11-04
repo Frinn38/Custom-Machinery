@@ -5,6 +5,8 @@ import net.minecraft.world.item.Item;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,15 +20,15 @@ public class Upgrades {
 
     public void refresh(Map<UpgradeLocation, MachineUpgrade> upgrades) {
         this.upgrades = Collections.unmodifiableMap(upgrades);
-        this.upgradesByItem = upgrades.values().stream().collect(Collectors.groupingBy(MachineUpgrade::item));
+        this.upgradesByItem = upgrades.values().stream().collect(Collectors.groupingBy(MachineUpgrade::item, LinkedHashMap::new, Collectors.toCollection(LinkedList::new)));
         this.upgradesByMachine = upgrades.values().stream().flatMap(upgrade -> upgrade.machines().stream()).distinct()
                 .collect(Collectors.toMap(Function.identity(), id -> upgrades.values().stream().filter(upgrade -> upgrade.machines().contains(id)).toList()));
     }
 
     public void addUpgrade(UpgradeLocation location, MachineUpgrade upgrade) {
-        Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>(this.upgrades);
+        Map<UpgradeLocation, MachineUpgrade> upgrades = new LinkedHashMap<>(this.upgrades);
         upgrades.put(location, upgrade);
-        refresh(upgrades);
+        this.refresh(upgrades);
     }
 
     public void removeUpgrade(ResourceLocation id) {
@@ -34,8 +36,19 @@ public class Upgrades {
         if(location != null) {
             Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>(this.upgrades);
             upgrades.remove(location);
-            refresh(upgrades);
+            this.refresh(upgrades);
         }
+    }
+
+    public void replaceUpgrade(UpgradeLocation location, MachineUpgrade upgrade) {
+        Map<UpgradeLocation, MachineUpgrade> upgrades = new LinkedHashMap<>();
+        this.upgrades.forEach(((location1, upgrade1) -> {
+            if(location.id().equals(location1.id()))
+                upgrades.put(location, upgrade);
+            else
+                upgrades.put(location1, upgrade1);
+        }));
+        this.refresh(upgrades);
     }
 
     public Map<UpgradeLocation, MachineUpgrade> getAllUpgrades() {

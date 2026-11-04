@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -89,7 +89,7 @@ public class KubeJSIntegration {
         UpgradeKubeEvent event = new UpgradeKubeEvent();
         CustomMachineryKubeJSPlugin.UPGRADES.post(ScriptType.SERVER, event);
 
-        List<MachineUpgrade> upgrades = new ArrayList<>();
+        List<MachineUpgrade> upgrades = new LinkedList<>();
 
         try {
             upgrades = event.getBuilders().stream().map(CustomMachineUpgradeJSBuilder::build).toList();
@@ -99,8 +99,8 @@ public class KubeJSIntegration {
 
         ScriptType.SERVER.console.infof("Successfully added %s Custom Machine upgrades", event.getBuilders().size());
 
-        Map<UpgradeLocation, MachineUpgrade> upgradeMap = new HashMap<>();
-        upgrades.stream().collect(Collectors.groupingBy(MachineUpgrade::item)).forEach((item, upgradeList) -> {
+        Map<UpgradeLocation, MachineUpgrade> upgradeMap = new LinkedHashMap<>();
+        upgrades.stream().collect(Collectors.groupingBy(MachineUpgrade::item, LinkedHashMap::new, Collectors.toCollection(LinkedList::new))).forEach((item, upgradeList) -> {
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
             if(upgradeList.size() == 1)
                 upgradeMap.put(UpgradeLocation.fromKubeJSScript(ResourceLocation.fromNamespaceAndPath(KubeJS.MOD_ID, itemId.getNamespace() + "/" + itemId.getPath()), ""), upgradeList.getFirst());

@@ -10,7 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public record SUpdateUpgradesPacket(Map<UpgradeLocation, MachineUpgrade> upgrades) implements CustomPacketPayload {
@@ -37,7 +37,7 @@ public record SUpdateUpgradesPacket(Map<UpgradeLocation, MachineUpgrade> upgrade
     }
 
     public static SUpdateUpgradesPacket read(FriendlyByteBuf buf) {
-        Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>();
+        Map<UpgradeLocation, MachineUpgrade> upgrades = new LinkedHashMap<>();
         int size = buf.readVarInt();
         for(int i = 0; i < size; i++) {
             try {

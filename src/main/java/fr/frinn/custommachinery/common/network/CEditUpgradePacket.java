@@ -45,7 +45,6 @@ public record CEditUpgradePacket(UpgradeLocation location, MachineUpgrade upgrad
         if(context.player() instanceof ServerPlayer player && player.hasPermissions(2)) {
             context.enqueueWork(() -> {
                 FileUtils.writeUpgradeJson(player.server, packet.location, packet.upgrade);
-                CustomMachinery.UPGRADES.removeUpgrade(packet.location.id());
                 UpgradeLocation location = packet.location;
                 try {
                     File upgradeJson = location.getFile(player.server);
@@ -56,7 +55,7 @@ public record CEditUpgradePacket(UpgradeLocation location, MachineUpgrade upgrad
                 } catch (IOException | NullPointerException ignored) {
 
                 }
-                CustomMachinery.UPGRADES.addUpgrade(location, packet.upgrade);
+                CustomMachinery.UPGRADES.replaceUpgrade(location, packet.upgrade);
                 PacketDistributor.sendToAllPlayers(new SUpdateUpgradesPacket(CustomMachinery.UPGRADES.getAllUpgrades()));
             });
         }

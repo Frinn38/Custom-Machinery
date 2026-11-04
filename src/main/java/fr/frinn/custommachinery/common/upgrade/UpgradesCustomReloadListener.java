@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
@@ -45,7 +45,7 @@ public class UpgradesCustomReloadListener extends CustomJsonReloadListener {
         Logger logger = ICustomMachineryAPI.INSTANCE.logger();
         Marker marker = MarkerManager.getMarker("UpgradeLoader");
 
-        Map<UpgradeLocation, MachineUpgrade> upgrades = new HashMap<>();
+        Map<UpgradeLocation, MachineUpgrade> upgrades = new LinkedHashMap<>();
 
         logger.info(marker, "Reading Custom Machinery Upgrades json");
 
