@@ -36,7 +36,7 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
             graphics.blit(texture.texture(), this.getX(), this.getY(), texture.u(), texture.v(), this.width, this.height, this.width, this.height);
 
         if(!getElement().getText().getString().isEmpty())
-            graphics.text(Minecraft.getInstance().font, this.getElement().getText(), (int)(this.getX() + this.width / 2.0f - Minecraft.getInstance().font.width(getElement().getText()) / 2.0f), (int)(this.getY() + this.height / 2.0f - Minecraft.getInstance().font.lineHeight / 2.0f), 0);
+            graphics.text(Minecraft.getInstance().font, this.getElement().getText(), (int)(this.getX() + this.width / 2.0f - Minecraft.getInstance().font.width(getElement().getText()) / 2.0f), (int)(this.getY() + this.height / 2.0f - Minecraft.getInstance().font.lineHeight / 2.0f), 0xFF000000);
 
         if(!getElement().getItem().isEmpty())
             graphics.item(getElement().getItem(), (int)(this.getX() + this.width / 2.0f - 8), (int)(this.getY() + this.height / 2.0f - 8));

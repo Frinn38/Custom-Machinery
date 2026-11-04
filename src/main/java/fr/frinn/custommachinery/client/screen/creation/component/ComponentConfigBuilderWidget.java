@@ -87,7 +87,7 @@ public class ComponentConfigBuilderWidget extends Button.Plain {
         public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
             super.extractBackground(graphics, mouseX, mouseY, partialTicks);
             graphics.blit(this.template.guiData().background().texture(), this.x, this.y, this.template.guiData().background().u(), this.template.guiData().background().v(), this.template.guiData().width(), this.template.guiData().height(), this.template.guiData().background().width(), this.template.guiData().background().height());
-            graphics.text(Minecraft.getInstance().font, this.template.guiData().title(), (int)(this.x + this.template.guiData().width() / 2F - font.width(this.template.guiData().title()) / 2F), this.y + 5, 0, false);
+            graphics.text(Minecraft.getInstance().font, this.template.guiData().title(), (int)(this.x + this.template.guiData().width() / 2F - font.width(this.template.guiData().title()) / 2F), this.y + 5, 0xFF000000, false);
         }
 
         @Override

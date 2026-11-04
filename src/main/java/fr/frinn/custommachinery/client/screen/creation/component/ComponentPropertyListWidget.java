@@ -35,7 +35,7 @@ public class ComponentPropertyListWidget extends ListWidget<ComponentPropertyEnt
 
         @Override
         public void render(GuiGraphicsExtractor graphics, int index, int x, int y, int width, int height, int mouseX, int mouseY, float partialTick) {
-            graphics.text(Minecraft.getInstance().font, this.title, x, y + (height - Minecraft.getInstance().font.lineHeight) / 2, 0, false);
+            graphics.text(Minecraft.getInstance().font, this.title, x, y + (height - Minecraft.getInstance().font.lineHeight) / 2, 0xFF000000, false);
             this.widget.setPosition(x + width - this.widget.getWidth() - 10, y + (height - this.widget.getHeight()) / 2);
         }
 

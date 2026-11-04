@@ -49,7 +49,7 @@ public class ItemComponentBuilder implements IMachineComponentBuilder<ItemMachin
     @Override
     public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int height, ItemMachineComponent.Template template) {
         graphics.item(Items.DIAMOND.getDefaultInstance(), x, y + height / 2 - 8);
-        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0, false);
+        graphics.text(Minecraft.getInstance().font, "type: " + template.getType().getId().getPath(), x + 25, y + 5, 0xFF000000, false);
         graphics.text(Minecraft.getInstance().font, "id: \"" + template.getId() + "\"", x + 25, y + 15, ARGB.color(255, 128, 0, 0), false);
         graphics.text(Minecraft.getInstance().font, "mode: " + template.mode, x + 25, y + 25, ARGB.color(255, 0, 0, 128), false);
     }

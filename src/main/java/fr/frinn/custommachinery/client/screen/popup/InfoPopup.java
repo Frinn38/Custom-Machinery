@@ -37,7 +37,7 @@ public class InfoPopup extends PopupScreen {
             FormattedCharSequence text = list.get(i);
             int width = font.width(text);
             int x = (this.xSize - width) / 2 + this.x;
-            graphics.text(font, text, x, this.y + i * font.lineHeight + 5, 0, false);
+            graphics.text(font, text, x, this.y + i * font.lineHeight + 5, 0xFF000000, false);
         }
     }
 }

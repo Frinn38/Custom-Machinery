@@ -34,7 +34,7 @@ public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<Experie
             int xp = component.map(ExperienceMachineComponent::getXp).orElse(0);
             String levels = "" + level;
             int xPos = this.getX() + this.width / 2 - Minecraft.getInstance().font.width(levels) / 2;
-            graphics.text(Minecraft.getInstance().font, levels, xPos, this.getY(), 0x80FF20, true);
+            graphics.text(Minecraft.getInstance().font, levels, xPos, this.getY(), 0xFF80FF20, true);
             graphics.fill(this.getX(), this.getY() + 9, this.getX() + this.width, this.getY() + 12, 0xFF000000);
             int xpDiff = xp - ExperienceUtils.getXpFromLevel(level);
             if (xpDiff > 0) {
