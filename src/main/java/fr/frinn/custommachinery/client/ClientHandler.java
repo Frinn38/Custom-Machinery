@@ -282,6 +282,7 @@ public class ClientHandler {
         event.register(CustomMachineItemModel.Unbaked.ID, CustomMachineItemModel.Unbaked.CODEC);
     }
 
+    private static final Identifier nopeModelId = CustomMachinery.rl("block/nope");
     private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> standaloneModels = new HashMap<>();
 
     @Nullable
@@ -291,8 +292,22 @@ public class ClientHandler {
         return Minecraft.getInstance().getModelManager().getStandaloneModel(standaloneModels.get(id));
     }
 
+    public static BlockStateModel getNopeModel() {
+        BlockStateModel nopeModel = getStandaloneModel(nopeModelId);
+        if(nopeModel == null)
+            throw new IllegalStateException("Trying to get nope model before registration");
+        return nopeModel;
+    }
+
     private void registerStandaloneModels(final RegisterStandalone event) {
         standaloneModels.clear();
+
+        //Nope model
+        StandaloneModelKey<BlockStateModel> nopeModelKey = new StandaloneModelKey<>(nopeModelId::toString);
+        event.register(nopeModelKey, SimpleUnbakedStandaloneModel.blockStateModel(nopeModelId));
+        standaloneModels.put(nopeModelId, nopeModelKey);
+
+        //All models in 'machines' folder
         for(String folder : CMConfig.CONFIG.modelFolders.get()) {
             Minecraft.getInstance().getResourceManager().listResources("models/" + folder, s -> s.getPath().endsWith(".json")).forEach((id, _) -> {
                 Identifier modelId = Identifier.fromNamespaceAndPath(id.getNamespace(), id.getPath().substring(7).replace(".json", ""));
@@ -301,7 +316,6 @@ public class ClientHandler {
                     event.register(key, SimpleUnbakedStandaloneModel.blockStateModel(modelId));
                     standaloneModels.put(modelId, key);
                 }
-
             });
         }
     }

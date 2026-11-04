@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
+import fr.frinn.custommachinery.client.ClientHandler;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.CycleTimer;
@@ -15,9 +16,12 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.neoforged.neoforge.client.NeoForgeRenderTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,19 +67,21 @@ public class StructureRenderer {
     }
 
     private void renderTransparentBlock(PartialBlockState state, PoseStack pose, MultiBufferSource buffer) {
-            VertexConsumer builder = buffer.getBuffer(RenderTypes.PHANTOM);
+            VertexConsumer builder = buffer.getBuffer(NeoForgeRenderTypes.BLOCK_ITEM_LAYERED_TRANSLUCENT.get());
             pose.translate(0.1F, 0.1F, 0.1F);
             pose.scale(0.8F, 0.8F, 0.8F);
             BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state.getBlockState());
             if(model != Minecraft.getInstance().getModelManager().getBlockStateModelSet().missingModel()) {
                 List<BlockStateModelPart> parts = new ArrayList<>();
-                model.collectParts(BlockAndTintGetter.EMPTY, BlockPos.ZERO, state.getBlockState(), RandomSource.create(), parts);
+                model.collectParts(BlockAndTintGetter.EMPTY, BlockPos.ZERO, state.getBlockState(), RandomSource.create(0), parts);
+                QuadInstance instance = new QuadInstance();
+                instance.setColor(ARGB.color(204, 255, 255, 255));
                 parts.forEach(part -> {
                     Arrays.stream(Direction.values())
                             .flatMap(direction -> part.getQuads(direction).stream())
-                            .forEach(quad -> builder.putBakedQuad(pose.last(), quad, new QuadInstance()));
+                            .forEach(quad -> builder.putBakedQuad(pose.last(), quad, instance));
                     part.getQuads(null)
-                            .forEach(quad -> builder.putBakedQuad(pose.last(), quad, new QuadInstance()));
+                            .forEach(quad -> builder.putBakedQuad(pose.last(), quad, instance));
                 });
             }
     }
@@ -86,18 +92,23 @@ public class StructureRenderer {
     }
 
     private void renderNope(PoseStack pose, MultiBufferSource buffer) {
-        /*
-        VertexConsumer builder = buffer.getBuffer(RenderTypes.NOPE);
-        BakedModel model = Minecraft.getInstance().getModelManager()..getModel(ModelResourceLocation.standalone(CustomMachinery.rl("block/nope")));
-        pose.translate(-0.0005, -0.0005, -0.0005);
-        pose.scale(1.001F, 1.001F, 1.001F);
-        Arrays.stream(Direction.values())
-                .flatMap(direction -> model.getQuads(null, direction, RandomSource.create(42L), ModelData.EMPTY, null).stream())
-                .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
-        model.getQuads(null, null, RandomSource.create(42L), ModelData.EMPTY, null)
-                .forEach(quad -> builder.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 0.8F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false));
-
-         */
+        VertexConsumer builder = buffer.getBuffer(NeoForgeRenderTypes.BLOCK_ITEM_LAYERED_CUTOUT.get());
+        pose.translate(-0.01F, -0.01F, -0.01F);
+        pose.scale(1.02F, 1.02F, 1.02F);
+        BlockStateModel model = ClientHandler.getNopeModel();
+        if(model != Minecraft.getInstance().getModelManager().getBlockStateModelSet().missingModel()) {
+            List<BlockStateModelPart> parts = new ArrayList<>();
+            model.collectParts(BlockAndTintGetter.EMPTY, BlockPos.ZERO, Blocks.AIR.defaultBlockState(), RandomSource.create(0), parts);
+            QuadInstance instance = new QuadInstance();
+            instance.setColor(ARGB.color(204, 255, 255, 255));
+            parts.forEach(part -> {
+                Arrays.stream(Direction.values())
+                        .flatMap(direction -> part.getQuads(direction).stream())
+                        .forEach(quad -> builder.putBakedQuad(pose.last(), quad, instance));
+                part.getQuads(null)
+                        .forEach(quad -> builder.putBakedQuad(pose.last(), quad, instance));
+            });
+        }
     }
 
     public boolean shouldRender() {
