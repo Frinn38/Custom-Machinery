@@ -66,6 +66,7 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
         if(this.background != null && this.background.getTexture() != null) {
             ScreenUtils.blit(graphics, this.background.getTexture(), this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
         }
