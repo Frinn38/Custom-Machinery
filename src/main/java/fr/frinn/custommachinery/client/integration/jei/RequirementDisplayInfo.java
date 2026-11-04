@@ -11,13 +11,16 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.model.sprite.SpriteId;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RequirementDisplayInfo implements IDisplayInfo {
 
@@ -27,6 +30,8 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     private final List<Pair<Component, TooltipPredicate>> tooltips = new ArrayList<>();
     @Nullable
     private ClickAction clickAction;
+    @Nullable
+    private Map<BlockPos, List<BlockState>> structurePreview;
 
     @Override
     public RequirementDisplayInfo setTextureIcon(Identifier icon, int width, int height, int u, int v) {
@@ -51,6 +56,17 @@ public class RequirementDisplayInfo implements IDisplayInfo {
     public RequirementDisplayInfo addTooltip(Component tooltip, TooltipPredicate predicate) {
         this.tooltips.add(Pair.of(tooltip, predicate));
         return this;
+    }
+
+    @Override
+    public IDisplayInfo setStructurePreview(Map<BlockPos, List<BlockState>> blocks) {
+        this.structurePreview = blocks;
+        return this;
+    }
+
+    @Nullable
+    public Map<BlockPos, List<BlockState>> getStructurePreview() {
+        return this.structurePreview;
     }
 
     @Override

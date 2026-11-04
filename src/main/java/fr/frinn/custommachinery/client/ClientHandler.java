@@ -84,6 +84,8 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElemen
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer;
 import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer.BlockStateRenderState;
+import fr.frinn.custommachinery.client.screen.pip.StructurePIPRenderer;
+import fr.frinn.custommachinery.client.screen.pip.StructurePIPRenderer.StructureRenderState;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
@@ -319,6 +321,7 @@ public class ClientHandler {
 
     private void registerPIPRenderers(final RegisterPictureInPictureRenderersEvent event) {
         event.register(BlockStateRenderState.class, BlockStatePIPRenderer::new);
+        event.register(StructureRenderState.class, StructurePIPRenderer::new);
     }
 
     private static BlockTintSource blockColor() {

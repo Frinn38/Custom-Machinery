@@ -7,11 +7,16 @@ import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.impl.codec.FieldCodec;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Used by the JEI integration to collect information about an {@link fr.frinn.custommachinery.api.requirement.IRequirement}
@@ -96,6 +101,17 @@ public interface IDisplayInfo {
      * @return Itself, to chain calls.
      */
     IDisplayInfo setItemIcon(ItemStack stack);
+
+    /**
+     * Display a rotating 3D preview of a multiblock structure directly in the jei recipe screen.
+     * Only one preview is displayed per recipe, if several requirements set one, the first is used.
+     * @param blocks The blocks of the structure, keyed by their position relative to the structure origin.
+     *               Each position can have several candidate states (like a block tag), they will be cycled through.
+     * @return Itself, to chain calls.
+     */
+    default IDisplayInfo setStructurePreview(Map<BlockPos, List<BlockState>> blocks) {
+        return this;
+    }
 
     /**
      * Set an action to execute when the player click on the requirement icon in the jei recipe gui.
