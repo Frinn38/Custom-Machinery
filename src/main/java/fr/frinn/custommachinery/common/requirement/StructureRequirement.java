@@ -29,6 +29,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.HashMap;
@@ -148,7 +149,9 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, Li
             if(ingredients.isEmpty() || ingredients.getFirst() == BlockIngredient.ANY || ingredients.getFirst() == BlockIngredient.AIR)
                 return;
             if(ingredients.getFirst() == BlockIngredient.MACHINE) {
-                preview.put(pos, List.of(CMRegistration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState()));
+                //The structure is stored for a machine facing south, so the preview machine has to face south too
+                preview.put(pos, List.of(CMRegistration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState()
+                        .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.SOUTH)));
                 return;
             }
             List<BlockState> states = ingredients.stream()
