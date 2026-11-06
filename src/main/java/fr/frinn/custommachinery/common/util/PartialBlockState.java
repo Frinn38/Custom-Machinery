@@ -6,7 +6,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
-import fr.frinn.custommachinery.api.machine.MachineTile;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
 import fr.frinn.custommachinery.common.machine.CustomMachine;
@@ -82,7 +81,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         return new PartialBlockState(state, Collections.emptyList(), nbt) {
             @Override
             public boolean test(BlockInWorld cachedBlockInfo) {
-                return cachedBlockInfo.getState().getBlock() instanceof CustomMachineBlock && cachedBlockInfo.getEntity() instanceof MachineTile tile && tile.getId().equals(machineId);
+                return cachedBlockInfo.getState().getBlock() instanceof CustomMachineBlock;
             }
 
             @Override
@@ -121,7 +120,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
     }
 
     public PartialBlockState rotate(Rotation rotation) {
-        if(this.properties.contains(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING) && !(this.blockState.getBlock() instanceof CustomMachineBlock)) {
+        if(this.properties.contains(BlockStateProperties.HORIZONTAL_FACING) && this.blockState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
             Direction direction = this.blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
             direction = rotation.rotate(direction);
             BlockState blockState = this.blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
@@ -129,7 +128,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
             if(!properties.contains(BlockStateProperties.HORIZONTAL_FACING))
                 properties.add(BlockStateProperties.HORIZONTAL_FACING);
             return new PartialBlockState(blockState, properties, this.nbt);
-        } else if(this.properties.contains(BlockStateProperties.FACING) && this.blockState.hasProperty(BlockStateProperties.FACING) && !(this.blockState.getBlock() instanceof CustomMachineBlock)) {
+        } else if(this.properties.contains(BlockStateProperties.FACING) && this.blockState.hasProperty(BlockStateProperties.FACING)) {
             Direction direction = this.blockState.getValue(BlockStateProperties.FACING);
             if(direction.getAxis() == Axis.Y)
                 return this;

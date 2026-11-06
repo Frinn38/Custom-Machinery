@@ -266,7 +266,7 @@ public class MachineProcessorCore implements ISyncableStuff {
 
     public void serialize(ValueOutput output) {
         if(this.currentRecipe != null)
-            output.putString("recipe", this.currentRecipe.id().toString());
+            output.putString("recipe", this.currentRecipe.id().identifier().toString());
         output.putString("phase", this.phase.toString());
         output.putDouble("recipeProgressTime", this.recipeProgressTime);
     }
