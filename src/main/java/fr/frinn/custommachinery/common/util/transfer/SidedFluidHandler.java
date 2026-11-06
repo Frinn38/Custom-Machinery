@@ -48,7 +48,7 @@ public class SidedFluidHandler implements ResourceHandler<FluidResource> {
     public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
         FluidMachineComponent component = this.handler.getComponents().get(index);
         if(this.side == null || component.getConfig().getDirectionMode(this.side).isInput())
-            component.insert(resource, amount, transaction);
+            return component.insert(resource, amount, transaction);
         return 0;
     }
 
@@ -56,7 +56,7 @@ public class SidedFluidHandler implements ResourceHandler<FluidResource> {
     public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
         FluidMachineComponent component = this.handler.getComponents().get(index);
         if(this.side == null || component.getConfig().getDirectionMode(this.side).isOutput())
-            component.extract(resource, amount, transaction);
+            return component.extract(resource, amount, transaction);
         return 0;
     }
 }

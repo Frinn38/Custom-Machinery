@@ -52,7 +52,7 @@ public class SidedItemHandler implements ResourceHandler<ItemResource> {
     public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
         ItemMachineComponent component = this.handler.getComponents().get(index);
         if(this.side == null || component.getConfig().getDirectionMode(this.side).isInput())
-            component.insert(resource, amount, transaction);
+            return component.insert(resource, amount, transaction);
         return 0;
     }
 
@@ -60,7 +60,7 @@ public class SidedItemHandler implements ResourceHandler<ItemResource> {
     public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
         ItemMachineComponent component = this.handler.getComponents().get(index);
         if(this.side == null || component.getConfig().getDirectionMode(this.side).isOutput())
-            component.extract(resource, amount, transaction);
+            return component.extract(resource, amount, transaction);
         return 0;
     }
 }
