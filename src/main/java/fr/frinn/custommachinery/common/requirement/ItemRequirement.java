@@ -16,108 +16,121 @@ import fr.frinn.custommachinery.client.integration.jei.wrapper.ItemIngredientWra
 import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-public record ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, List<String> slots, boolean consumeOnEnd) implements IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
+public interface ItemRequirement extends IRequirement<ItemComponentHandler>, IJEIIngredientRequirement<ItemStack> {
 
-    public static final NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
+    NamedCodec<ItemRequirement> CODEC = NamedCodec.record(itemRequirementInstance ->
             itemRequirementInstance.group(
                     RequirementIOMode.CODEC.fieldOf("mode").forGetter(ItemRequirement::getMode),
-                    NamedCodec.of(SizedIngredient.NESTED_CODEC).fieldOf("ingredient").aliases("item").forGetter(requirement -> requirement.ingredient),
-                    NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(requirement -> requirement.slots),
-                    NamedCodec.BOOL.optionalFieldOf("consume_on_end", false).forGetter(requirement -> requirement.consumeOnEnd)
-            ).apply(itemRequirementInstance, ItemRequirement::new), "Item requirement"
+                    NamedCodec.of(SizedIngredient.NESTED_CODEC).optionalFieldOf("ingredient").aliases("item").forGetter(requirement -> requirement instanceof Input input ? Optional.of(input.ingredient) : Optional.empty()),
+                    DefaultCodecs.ITEM_OR_STACK.optionalFieldOf("output").forGetter(requirement -> requirement instanceof Output output ? Optional.of(output.output) : Optional.empty()),
+                    NamedCodec.STRING.listOf().optionalFieldOf("slots", Collections.emptyList()).aliases("slot").forGetter(ItemRequirement::slots),
+                    NamedCodec.BOOL.optionalFieldOf("consume_on_end", false).forGetter(requirement -> requirement instanceof Input input && input.consumeOnEnd)
+            ).apply(itemRequirementInstance, (mode, ingredient, output, slots, end) -> {
+                if(mode == RequirementIOMode.INPUT) {
+                    if(ingredient.isPresent())
+                        return new Input(ingredient.get(), slots, end);
+                    throw new IllegalArgumentException("Item requirement in input mode must use ingredient");
+                } else {
+                    if(output.isPresent())
+                        return new Output(output.get(), slots);
+                    throw new IllegalArgumentException("Item requirement in output mode must use itemstack");
+                }
+            }), "Item requirement"
     );
 
-    public ItemRequirement(RequirementIOMode mode, SizedIngredient ingredient, List<String> slots, boolean consumeOnEnd) {
-        this.mode = mode;
-        if(mode == RequirementIOMode.OUTPUT && ingredient.ingredient().getValues().size() > 1)
-            throw new IllegalArgumentException("You can't use a Tag for an Output Item Requirement");
-        this.ingredient = ingredient;
-        this.slots = slots;
-        this.consumeOnEnd = consumeOnEnd;
-    }
-
     @Override
-    public RequirementType<ItemRequirement> getType() {
+    default RequirementType<ItemRequirement> getType() {
         return CMRegistration.ITEM_REQUIREMENT.get();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public MachineComponentType getComponentType() {
+    default MachineComponentType getComponentType() {
         return CMRegistration.ITEM_MACHINE_COMPONENT.get();
     }
 
     @Override
-    public RequirementIOMode getMode() {
-        return this.mode;
+    default RequirementIOMode getMode() {
+        return this instanceof Input ? RequirementIOMode.INPUT : RequirementIOMode.OUTPUT;
     }
 
-    @Override
-    public boolean test(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        if(getMode() == RequirementIOMode.INPUT) {
+    List<String> slots();
+
+    record Input(SizedIngredient ingredient, List<String> slots, boolean consumeOnEnd) implements ItemRequirement {
+
+        @Override
+        public boolean test(ItemComponentHandler component, ICraftingContext context) {
+            int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
             return component.getIngredientAmount(this.slots, this.ingredient.ingredient()) >= amount;
-        } else {
-            if(this.ingredient.ingredient().getValues().size() > 0)
-                return component.getSpaceForItem(this.slots, this.ingredient.ingredient().getValues().get(0).value().getDefaultInstance()) >= amount;
-            else throw new IllegalStateException("Can't use output empty item");
         }
-    }
 
-    @Override
-    public void gatherRequirements(IRequirementList<ItemComponentHandler> list) {
-        if(this.mode == RequirementIOMode.INPUT) {
+        @Override
+        public void gatherRequirements(IRequirementList<ItemComponentHandler> list) {
             if(this.consumeOnEnd) {
                 list.inventoryCondition(this::checkInputs);
                 list.processOnEnd(this::processInputs);
             } else
                 list.processOnStart(this::processInputs);
         }
-        else
-            list.processOnEnd(this::processOutputs);
-    }
 
-    private CraftingResult checkInputs(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        int maxExtract = component.getIngredientAmount(this.slots, this.ingredient.ingredient());
-        if(maxExtract >= amount) {
-            return CraftingResult.success();
-        }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
-    }
-
-    private CraftingResult processInputs(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        int maxExtract = component.getIngredientAmount(this.slots, this.ingredient.ingredient());
-        if(maxExtract >= amount) {
-            component.removeFromInputs(this.slots, this.ingredient.ingredient(), amount);
-            return CraftingResult.success();
-        }
-        return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
-    }
-
-    private CraftingResult processOutputs(ItemComponentHandler component, ICraftingContext context) {
-        int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
-        if(this.ingredient.ingredient().getValues().size() > 0) {
-            ItemStack item = this.ingredient.ingredient().getValues().get(0).value().getDefaultInstance();
-            int canInsert = component.getSpaceForItem(this.slots, item);
-            if(canInsert >= amount) {
-                component.addToOutputs(this.slots, item.copy(), amount);
+        private CraftingResult checkInputs(ItemComponentHandler component, ICraftingContext context) {
+            int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
+            int maxExtract = component.getIngredientAmount(this.slots, this.ingredient.ingredient());
+            if(maxExtract >= amount) {
                 return CraftingResult.success();
             }
-            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, item.getHoverName()));
-        } else throw new IllegalStateException("Can't use output item requirement with item tag");
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
+        }
+
+        private CraftingResult processInputs(ItemComponentHandler component, ICraftingContext context) {
+            int amount = (int)context.getIntegerModifiedValue(this.ingredient.count(), this, null);
+            int maxExtract = component.getIngredientAmount(this.slots, this.ingredient.ingredient());
+            if(maxExtract >= amount) {
+                component.removeFromInputs(this.slots, this.ingredient.ingredient(), amount);
+                return CraftingResult.success();
+            }
+            return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.input", Utils.itemIngredientName(this.ingredient), amount, maxExtract));
+        }
+
+        @Override
+        public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
+            return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.ingredient, requirement.chance(), false, this.slots, true));
+        }
     }
 
-    @Override
-    public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
-        return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.ingredient, requirement.chance(), false, this.slots, true));
+    record Output(ItemStack output, List<String> slots) implements ItemRequirement {
+
+        @Override
+        public boolean test(ItemComponentHandler component, ICraftingContext context) {
+            int amount = (int)context.getIntegerModifiedValue(this.output.count(), this, null);
+            return component.getSpaceForItem(this.slots, this.output) >= amount;
+        }
+
+        @Override
+        public void gatherRequirements(IRequirementList<ItemComponentHandler> list) {
+            list.processOnEnd(((component, context) -> {
+                int amount = (int)context.getIntegerModifiedValue(this.output.count(), this, null);
+                int canInsert = component.getSpaceForItem(this.slots, this.output);
+                if(canInsert >= amount) {
+                    component.addToOutputs(this.slots, this.output.copy(), amount);
+                    return CraftingResult.success();
+                }
+                return CraftingResult.error(Component.translatable("custommachinery.requirements.item.error.output", amount, this.output.getHoverName()));
+            }));
+        }
+
+        @Override
+        public List<IJEIIngredientWrapper<ItemStack>> getJEIIngredientWrappers(IMachineRecipe recipe, RecipeRequirement<?, ?> requirement) {
+            return Collections.singletonList(new ItemIngredientWrapper(this.getMode(), this.output, requirement.chance(), false, this.slots, true));
+        }
     }
 }

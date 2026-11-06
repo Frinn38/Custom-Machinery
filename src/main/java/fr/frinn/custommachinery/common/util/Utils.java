@@ -13,6 +13,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
@@ -133,10 +134,10 @@ public class Utils {
     }
 
     public static Component itemIngredientName(SizedIngredient ingredient) {
-        if(ingredient.ingredient().getValues().size() == 0)
+        if(ingredient.ingredient().isEmpty())
             return Component.translatable(Items.AIR.getDescriptionId());
         else
-            return ingredient.ingredient().getValues().get(0).value().getDefaultInstance().getDisplayName();
+            return ingredient.ingredient().display().resolveForFirstStack(ContextMap.EMPTY).getDisplayName();
     }
 
     public static Component fluidIngredientName(SizedFluidIngredient ingredient) {

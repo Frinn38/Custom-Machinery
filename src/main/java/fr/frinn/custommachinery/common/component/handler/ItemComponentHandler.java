@@ -313,7 +313,9 @@ public class ItemComponentHandler extends AbstractComponentHandler<ItemMachineCo
         AtomicInteger toAdd = new AtomicInteger(amount);
         try(Transaction transaction = Transaction.openRoot()) {
             this.outputs.stream().filter(component -> canPlaceOutput(component, slots, stack)).forEach(component -> {
-                int maxInsert = toAdd.get() - component.insertBypassLimit(ItemResource.of(stack), toAdd.get(), transaction);
+                if(toAdd.get() == 0)
+                    return;
+                int maxInsert = component.insertBypassLimit(ItemResource.of(stack), toAdd.get(), transaction);
                 toAdd.addAndGet(-maxInsert);
             });
             transaction.commit();

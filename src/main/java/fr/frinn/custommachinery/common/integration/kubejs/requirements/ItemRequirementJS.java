@@ -1,7 +1,6 @@
 package fr.frinn.custommachinery.common.integration.kubejs.requirements;
 
 import fr.frinn.custommachinery.api.integration.kubejs.RecipeJSBuilder;
-import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.common.requirement.ItemEmptyRequirement;
 import fr.frinn.custommachinery.common.requirement.ItemRequirement;
 import net.minecraft.world.item.ItemStack;
@@ -19,9 +18,9 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireItem(SizedIngredient ingredient, List<String> slots) {
-        if(ingredient.ingredient().getValues().size() == 0)
+        if(ingredient.ingredient().isEmpty())
             return this.error("Invalid empty ingredient in item input requirement");
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, slots, false));
+        return this.addRequirement(new ItemRequirement.Input(ingredient, slots, false));
     }
 
     default RecipeJSBuilder requireItemOnEnd(SizedIngredient ingredient) {
@@ -29,9 +28,9 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireItemOnEnd(SizedIngredient ingredient, List<String> slots) {
-        if(ingredient.ingredient().getValues().size() == 0)
+        if(ingredient.ingredient().isEmpty())
             return this.error("Invalid empty ingredient in item input requirement");
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.INPUT, ingredient, slots, true));
+        return this.addRequirement(new ItemRequirement.Input(ingredient, slots, true));
     }
 
     default RecipeJSBuilder requireEmptyItem() {
@@ -50,6 +49,6 @@ public interface ItemRequirementJS extends RecipeJSBuilder {
         if(stack.isEmpty())
             return this.error("Invalid empty item in item output requirement");
         Ingredient ingredient = stack.isComponentsPatchEmpty() ? Ingredient.of(stack.getItem()) : DataComponentIngredient.of(true, stack);
-        return this.addRequirement(new ItemRequirement(RequirementIOMode.OUTPUT, new SizedIngredient(ingredient, stack.getCount()), slots, false));
+        return this.addRequirement(new ItemRequirement.Output(stack, slots));
     }
 }

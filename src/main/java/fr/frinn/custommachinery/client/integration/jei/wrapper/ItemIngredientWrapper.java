@@ -12,12 +12,15 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +28,10 @@ import java.util.stream.Collectors;
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
     private final RequirementIOMode mode;
+    @Nullable
     private final SizedIngredient ingredient;
+    @Nullable
+    private final ItemStack output;
     private final double chance;
     private final boolean useDurability;
     private final List<String> slots;
@@ -34,6 +40,17 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
     public ItemIngredientWrapper(RequirementIOMode mode, SizedIngredient ingredient, double chance, boolean useDurability, List<String> slots, boolean showRequireSlot) {
         this.mode = mode;
         this.ingredient = ingredient;
+        this.output = null;
+        this.chance = chance;
+        this.useDurability = useDurability;
+        this.slots = slots;
+        this.showRequireSlot = showRequireSlot;
+    }
+
+    public ItemIngredientWrapper(RequirementIOMode mode, ItemStack output, double chance, boolean useDurability, List<String> slots, boolean showRequireSlot) {
+        this.mode = mode;
+        this.ingredient = null;
+        this.output = output;
         this.chance = chance;
         this.useDurability = useDurability;
         this.slots = slots;
@@ -45,19 +62,30 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
         if(!(element instanceof SlotGuiElement slotElement) || element.getType() != CMRegistration.SLOT_GUI_ELEMENT.get())
             return false;
 
-        List<ItemStack> ingredients = this.ingredient.ingredient().getValues().stream().map(item -> item.value().getDefaultInstance().copyWithCount(this.ingredient.count())).collect(Collectors.toCollection(ArrayList::new));
+        List<ItemStack> ingredients;
+        if(this.ingredient != null)
+            ingredients = this.ingredient.ingredient().display().resolveForStacks(ContextMap.EMPTY).stream().map(item -> item.copyWithCount(this.ingredient.count())).collect(Collectors.toCollection(ArrayList::new));
+        else if(this.output != null)
+            ingredients = List.of(this.output.copy());
+        else
+            ingredients = Collections.emptyList();
         Optional<IMachineComponentTemplate<?>> template = helper.getComponentForElement(slotElement);
-        if(this.slots.contains(slotElement.getComponentId()) || template.map(t -> t.getType() != CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get() && t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slots.isEmpty() || this.slots.contains(t.getId()))).orElse(false)) {
+        if(this.slots.contains(slotElement.getComponentId().uniqueId()) || template.map(t -> t.getType() != CMRegistration.ITEM_FILTER_MACHINE_COMPONENT.get() && t.canAccept(ingredients, this.mode == RequirementIOMode.INPUT, helper.getDummyManager()) && (this.slots.isEmpty() || this.slots.contains(t.getId()))).orElse(false)) {
             int slotX = element.getX() + (element.getWidth() - 16) / 2;
             int slotY = element.getY() + (element.getHeight() - 16) / 2;
             builder.addSlot(roleFromMode(this.mode), slotX - xOffset, slotY - yOffset)
                     .addIngredients(VanillaTypes.ITEM_STACK, ingredients)
                     .setSlotName(slotElement.getComponentId().uniqueId())
                     .addRichTooltipCallback((_, tooltips) -> {
+                        int count = 0;
+                        if(this.ingredient != null)
+                            count = this.ingredient.count();
+                        else if(this.output != null)
+                            count = this.output.count();
                         if(this.useDurability && this.mode == RequirementIOMode.INPUT)
-                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.consume", this.ingredient.count()));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.consume", count));
                         else if(this.useDurability && this.mode == RequirementIOMode.OUTPUT)
-                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.repair", this.ingredient.count()));
+                            tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.durability.repair", count));
 
                         if(this.chance == 0)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance.0").withStyle(ChatFormatting.DARK_RED));
@@ -73,7 +101,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
                                     tooltips.add(Component.translatable("custommachinery.jei.ingredient.chance", decimal.doubleValue()));
                             }
                         }
-                        if(!this.slots.isEmpty() && this.slots.contains(slotElement.getComponentId()) && this.showRequireSlot && Minecraft.getInstance().options.advancedItemTooltips)
+                        if(!this.slots.isEmpty() && this.slots.contains(slotElement.getComponentId().uniqueId()) && this.showRequireSlot && Minecraft.getInstance().options.advancedItemTooltips)
                             tooltips.add(Component.translatable("custommachinery.jei.ingredient.item.specificSlot").withStyle(ChatFormatting.DARK_RED));
                     });
             return true;
