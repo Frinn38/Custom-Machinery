@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,12 +22,24 @@ public class BlockStructure {
     private final Map<BlockPos, List<BlockIngredient>> blocks_east;
     private final Map<BlockPos, List<BlockIngredient>> blocks_south;
     private final Map<BlockPos, List<BlockIngredient>> blocks_west;
+    private final BoundingBox box;
 
     public BlockStructure(Map<BlockPos, List<BlockIngredient>> blocks) {
         this.blocks_south = blocks;
         this.blocks_west = rotate(blocks, Rotation.CLOCKWISE_90);
         this.blocks_north = rotate(blocks, Rotation.CLOCKWISE_180);
         this.blocks_east = rotate(blocks, Rotation.COUNTERCLOCKWISE_90);
+        int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+        for(BlockPos pos : blocks.keySet()) {
+            minX = Math.min(minX, pos.getX());
+            minY = Math.min(minY, pos.getY());
+            minZ = Math.min(minZ, pos.getZ());
+            maxX = Math.max(maxX, pos.getX());
+            maxY = Math.max(maxY, pos.getY());
+            maxZ = Math.max(maxZ, pos.getZ());
+        }
+        this.box = BoundingBox.encapsulatingPositions(this.blocks_north.keySet()).orElse(new BoundingBox(BlockPos.ZERO));
     }
 
     public Map<BlockPos, List<BlockIngredient>> getBlocks(Direction direction) {
@@ -49,6 +62,10 @@ public class BlockStructure {
                 return false;
         }
         return true;
+    }
+
+    public BoundingBox box() {
+        return this.box;
     }
 
     private Map<BlockPos, List<BlockIngredient>> rotate(Map<BlockPos, List<BlockIngredient>> blocks, Rotation rotation) {

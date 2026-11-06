@@ -8,8 +8,10 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.DisplayInfoContext;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientRequirement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
+import fr.frinn.custommachinery.api.machine.ICustomMachine;
 import fr.frinn.custommachinery.client.integration.jei.RequirementDisplayInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -88,8 +90,8 @@ public class RecipeRequirement<C extends IMachineComponent, R extends IRequireme
         return rand.nextDouble() > chance;
     }
 
-    public void getDisplayInfo(RequirementDisplayInfo info) {
-        this.requirement.getDefaultDisplayInfo(info, this);
+    public void getDisplayInfo(RequirementDisplayInfo info, ICustomMachine machine, IMachineRecipe recipe) {
+        this.requirement.getDefaultDisplayInfo(info, new DisplayInfoContext(this, machine, recipe));
     }
 
     public List<? extends IJEIIngredientWrapper<?>> getJeiIngredientWrappers(IMachineRecipe recipe) {

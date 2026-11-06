@@ -6,8 +6,8 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.DisplayInfoContext;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.TimeMachineComponent;
@@ -59,7 +59,7 @@ public record TimeRequirement(IntRange range) implements IRequirement<TimeMachin
 
 
     @Override
-    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, DisplayInfoContext context) {
         info.addTooltip(Component.translatable("custommachinery.requirements.time.info").withStyle(ChatFormatting.AQUA));
         this.range.getRestrictions().forEach(restriction -> info.addTooltip(Component.literal("* " + restriction.toFormattedString())));
         info.setItemIcon(Items.CLOCK);

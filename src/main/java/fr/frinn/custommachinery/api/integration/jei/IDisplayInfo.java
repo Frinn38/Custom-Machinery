@@ -4,19 +4,16 @@ import com.mojang.serialization.DataResult;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
 import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.machine.ICustomMachine;
+import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.impl.codec.FieldCodec;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Used by the JEI integration to collect information about an {@link fr.frinn.custommachinery.api.requirement.IRequirement}
@@ -42,6 +39,25 @@ public interface IDisplayInfo {
      * @return Itself, to chain calls.
      */
     IDisplayInfo addTooltip(Component text, TooltipPredicate predicate);
+
+    /**
+     * Add a new tooltip component to display when the player mouse cursor hover the requirement.
+     * This component will be rendered only if the {@link TooltipPredicate} return true.
+     * @param component The component to render.
+     * @return Itself, to chain calls.
+     */
+    default IDisplayInfo addTooltipComponent(TooltipComponent component) {
+        return addTooltipComponent(component, TooltipPredicate.ALWAYS);
+    }
+
+    /**
+     * Add a new tooltip component to display when the player mouse cursor hover the requirement.
+     * This component will be rendered only if the {@link TooltipPredicate} return true.
+     * @param component The component to render.
+     * @param predicate A predicate to check if this component should be rendered.
+     * @return Itself, to chain calls.
+     */
+    IDisplayInfo addTooltipComponent(TooltipComponent component, TooltipPredicate predicate);
 
     /**
      * Set a texture as the requirement icon in the jei recipe screen.
@@ -103,17 +119,6 @@ public interface IDisplayInfo {
     IDisplayInfo setItemIcon(ItemStack stack);
 
     /**
-     * Display a rotating 3D preview of a multiblock structure directly in the jei recipe screen.
-     * Only one preview is displayed per recipe, if several requirements set one, the first is used.
-     * @param blocks The blocks of the structure, keyed by their position relative to the structure origin.
-     *               Each position can have several candidate states (like a block tag), they will be cycled through.
-     * @return Itself, to chain calls.
-     */
-    default IDisplayInfo setStructurePreview(Map<BlockPos, List<BlockState>> blocks) {
-        return this;
-    }
-
-    /**
      * Set an action to execute when the player click on the requirement icon in the jei recipe gui.
      * Note that the action will always be executed on the client side, if you want to execute some server-side code you will need to send a packet.
      * The {@link ClickAction} will give you the {@link ICustomMachine} handling this {@link IMachineRecipe} and which mouse button was clicked. 0 = left, 1 = right, 2 = middle
@@ -126,11 +131,9 @@ public interface IDisplayInfo {
      */
     interface ClickAction {
         /**
-         * @param machine The machine that will process the recipe.
-         * @param recipe The recipe that contain this requirement.
          * @param inputWithModifiers The mouse button that was pressed: 0 = left, 1 = right, 2 = middle + any other modifiers (ctrl, shift, alt).
          */
-        void handleClick(ICustomMachine machine, IMachineRecipe recipe, InputWithModifiers inputWithModifiers);
+        void handleClick(InputWithModifiers inputWithModifiers);
     }
 
     /**
@@ -159,4 +162,12 @@ public interface IDisplayInfo {
          */
         boolean shouldDisplay(Player player, boolean advancedTooltips);
     }
+
+    /**
+     * Hold various useful context data about the requirement being rendered.
+     * @param requirement The requirement currently rendered.
+     * @param machine The machine crafting the recipe being rendered.
+     * @param recipe The recipe which hold the requirement being rendered.
+     */
+    record DisplayInfoContext(RecipeRequirement<?, ?> requirement, ICustomMachine machine, IMachineRecipe recipe) {}
 }

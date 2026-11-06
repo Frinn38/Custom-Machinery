@@ -6,9 +6,9 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.DisplayInfoContext;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.TooltipPredicate;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
@@ -17,44 +17,35 @@ import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.network.CPlaceStructurePacket;
 import fr.frinn.custommachinery.common.util.BlockIngredient;
 import fr.frinn.custommachinery.common.util.BlockStructure;
-import fr.frinn.custommachinery.common.util.PartialBlockState;
 import fr.frinn.custommachinery.common.util.Utils;
+import fr.frinn.custommachinery.common.util.tooltip.StructureTooltipComponent;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public record StructureRequirement(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys, Action action, boolean jeiStructure, BlockStructure structure) implements IRequirement<StructureMachineComponent> {
+public record StructureRequirement(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys, Action action, BlockStructure structure) implements IRequirement<StructureMachineComponent> {
 
     public static final NamedCodec<StructureRequirement> CODEC = NamedCodec.record(structureRequirementInstance ->
             structureRequirementInstance.group(
                     NamedCodec.STRING.forcedListOf().forcedListOf().fieldOf("pattern").forGetter(requirement -> requirement.pattern),
                     NamedCodec.unboundedMap(DefaultCodecs.CHARACTER, BlockIngredient.CODEC.listOf(), "Structure keys").fieldOf("keys").forGetter(requirement -> requirement.keys),
-                    NamedCodec.enumCodec(Action.class).optionalFieldOf("action", Action.CHECK).forGetter(requirement -> requirement.action),
-                    NamedCodec.BOOL.optionalFieldOf("show_in_jei", false).forGetter(requirement -> requirement.jeiStructure)
+                    NamedCodec.enumCodec(Action.class).optionalFieldOf("action", Action.CHECK).forGetter(requirement -> requirement.action)
             ).apply(structureRequirementInstance, StructureRequirement::new), "Structure requirement"
     );
 
     public StructureRequirement(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys, Action action) {
-        this(pattern, keys, action, false);
-    }
-
-    public StructureRequirement(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys, Action action, boolean jeiStructure) {
-        this(pattern, keys, action, jeiStructure, makeStructure(pattern, keys));
+        this(pattern, keys, action, makeStructure(pattern, keys));
     }
 
     public static BlockStructure makeStructure(List<List<String>> pattern, Map<Character, List<BlockIngredient>> keys) {
@@ -114,9 +105,10 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, Li
     }
 
     @Override
-    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, DisplayInfoContext context) {
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.info"));
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.click"));
+        info.addTooltipComponent(new StructureTooltipComponent(context.machine(), this.structure));
         this.pattern.stream().flatMap(List::stream).flatMap(s -> s.chars().mapToObj(c -> (char)c)).collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).forEach((key, amount) -> {
             List<BlockIngredient> ingredients = this.keys.get(key);
             if(ingredients != null && !ingredients.isEmpty() && amount > 0) {
@@ -131,36 +123,14 @@ public record StructureRequirement(List<List<String>> pattern, Map<Character, Li
             case PLACE_BREAK, PLACE_DESTROY -> info.addTooltip(Component.translatable("custommachinery.requirements.structure.place").withStyle(ChatFormatting.DARK_RED));
         }
         info.addTooltip(Component.translatable("custommachinery.requirements.structure.creative").withStyle(ChatFormatting.DARK_PURPLE), TooltipPredicate.CREATIVE);
-        info.setClickAction((machine, recipe, inputWithModifiers) -> {
+        info.addTooltip(Component.translatable("custommachinery.requirements.structure.creative2").withStyle(ChatFormatting.DARK_PURPLE), TooltipPredicate.CREATIVE);
+        info.setClickAction(inputWithModifiers -> {
             if(inputWithModifiers.hasShiftDown())
-                ClientPacketDistributor.sendToServer(new CPlaceStructurePacket(machine.getId(), this.pattern, this.keys));
+                ClientPacketDistributor.sendToServer(new CPlaceStructurePacket(context.machine().getId(), this.pattern, this.keys));
             else
-                CustomMachineRenderer.addRenderBlock(machine.getId(), this.structure::getBlocks);
+                CustomMachineRenderer.addRenderBlock(context.machine().getId(), this.structure::getBlocks);
         });
         info.setItemIcon(Items.STRUCTURE_BLOCK);
-        if(this.jeiStructure)
-            info.setStructurePreview(this.getPreviewBlocks());
-    }
-
-    private Map<BlockPos, List<BlockState>> getPreviewBlocks() {
-        Map<BlockPos, List<BlockState>> preview = new HashMap<>();
-        this.structure.getBlocks(Direction.SOUTH).forEach((pos, ingredients) -> {
-            if(ingredients.isEmpty() || ingredients.getFirst() == BlockIngredient.ANY || ingredients.getFirst() == BlockIngredient.AIR)
-                return;
-            if(ingredients.getFirst() == BlockIngredient.MACHINE) {
-                preview.put(pos, List.of(CMRegistration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState()));
-                return;
-            }
-            List<BlockState> states = ingredients.stream()
-                    .filter(ingredient -> !ingredient.not())
-                    .flatMap(ingredient -> ingredient.getAll().stream())
-                    .map(PartialBlockState::getBlockState)
-                    .filter(state -> !state.isAir())
-                    .toList();
-            if(!states.isEmpty())
-                preview.put(pos, states);
-        });
-        return preview;
     }
 
     public enum Action {

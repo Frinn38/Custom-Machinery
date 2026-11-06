@@ -6,8 +6,8 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.DisplayInfoContext;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.WeatherMachineComponent;
@@ -57,7 +57,7 @@ public record WeatherRequirement(WeatherType weather, boolean onMachine) impleme
     }
 
     @Override
-    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, DisplayInfoContext context) {
         info.addTooltip(Component.translatable("custommachinery.requirements.weather.info", this.weather.getText()));
         if(this.onMachine)
             info.addTooltip(Component.translatable("custommachinery.requirements.weather.info.sky"));

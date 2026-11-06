@@ -28,13 +28,9 @@ public interface StructureRequirementJS extends RecipeJSBuilder {
     }
 
     default RecipeJSBuilder requireStructure(String[][] pattern, Map<Character, List<BlockIngredient>> keys, Action action) {
-        return requireStructure(pattern, keys, action, false);
-    }
-
-    default RecipeJSBuilder requireStructure(String[][] pattern, Map<Character, List<BlockIngredient>> keys, Action action, boolean jeiStructure) {
         List<List<String>> patternList = Arrays.stream(pattern).map(floors -> Arrays.stream(floors).toList()).toList();
         try {
-            return addRequirement(new StructureRequirement(patternList, keys, action, jeiStructure));
+            return addRequirement(new StructureRequirement(patternList, keys, action));
         } catch (IllegalStateException e) {
             return error("Error while creating structure requirement: {}\nPattern: {}\nKeys: {}", e.getMessage(), pattern, keys);
         }

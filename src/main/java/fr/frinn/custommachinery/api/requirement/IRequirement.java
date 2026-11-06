@@ -9,6 +9,7 @@ import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.DisplayInfoTemplate;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.DisplayInfoContext;
 import fr.frinn.custommachinery.impl.codec.NamedMapCodec;
 import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 
@@ -74,8 +75,9 @@ public interface IRequirement<C extends IMachineComponent> {
      * Note: The {@link DisplayInfoTemplate} returned by {@link RecipeRequirement#info} (if present) will take priority
      * over this method. Use it to define the "default" display info, that might be overridden by the user.
      * @param info The display info of the requirement.
+     * @param context Various useful context data about the requirement being rendered.
      */
-    default void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
+    default void getDefaultDisplayInfo(IDisplayInfo info, DisplayInfoContext context) {
 
     }
 }

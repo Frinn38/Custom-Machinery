@@ -8,8 +8,8 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.DisplayInfoContext;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
@@ -123,7 +123,7 @@ public record DropRequirement(RequirementIOMode mode, Action action, Ingredient 
     }
 
     @Override
-    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, DisplayInfoContext context) {
         switch (this.action) {
             case CHECK -> {
                 info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.check", this.amount, this.radius));

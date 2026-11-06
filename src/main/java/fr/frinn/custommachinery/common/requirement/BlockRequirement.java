@@ -6,8 +6,8 @@ import fr.frinn.custommachinery.api.crafting.CraftingResult;
 import fr.frinn.custommachinery.api.crafting.ICraftingContext;
 import fr.frinn.custommachinery.api.crafting.IRequirementList;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
+import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo.DisplayInfoContext;
 import fr.frinn.custommachinery.api.requirement.IRequirement;
-import fr.frinn.custommachinery.api.requirement.RecipeRequirement;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
@@ -117,7 +117,7 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
     }
 
     @Override
-    public void getDefaultDisplayInfo(IDisplayInfo info, RecipeRequirement<?, ?> requirement) {
+    public void getDefaultDisplayInfo(IDisplayInfo info, DisplayInfoContext context) {
         MutableComponent action = switch (this.action) {
             case CHECK -> Component.translatable("custommachinery.requirements.block.check.info");
             case BREAK -> {
@@ -157,7 +157,7 @@ public record BlockRequirement(RequirementIOMode mode, Action action, AABB pos, 
                 this.filter.forEach(block -> info.addTooltip(Component.literal("- ").append(Utils.blockIngredientName(List.of(block)))));
         }
         info.addTooltip(Component.translatable("custommachinery.requirements.block.info.box").withStyle(ChatFormatting.GOLD));
-        info.setClickAction((machine, recipe, mouseButton) -> CustomMachineRenderer.addRenderBox(machine.getId(), this.pos));
+        info.setClickAction(inputWithModifiers -> CustomMachineRenderer.addRenderBox(context.machine().getId(), this.pos));
         info.setItemIcon(Items.GRASS_BLOCK);
     }
 

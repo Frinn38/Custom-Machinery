@@ -35,8 +35,6 @@ import fr.frinn.custommachinery.client.model.CustomMachineBlockStateModel;
 import fr.frinn.custommachinery.client.model.CustomMachineItemModel;
 import fr.frinn.custommachinery.client.render.CustomMachineRenderer;
 import fr.frinn.custommachinery.client.screen.CustomMachineScreen;
-import fr.frinn.custommachinery.client.screen.creation.MachineTooltipComponent;
-import fr.frinn.custommachinery.client.screen.creation.MachineTooltipComponent.ClientMachineTooltipComponent;
 import fr.frinn.custommachinery.client.screen.creation.appearance.AppearancePropertyBuilderRegistry;
 import fr.frinn.custommachinery.client.screen.creation.appearance.RegisterAppearancePropertyBuilderEvent;
 import fr.frinn.custommachinery.client.screen.creation.appearance.builder.AmbientSoundAppearancePropertyBuilder;
@@ -86,10 +84,14 @@ import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer;
 import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer.BlockStateRenderState;
 import fr.frinn.custommachinery.client.screen.pip.StructurePIPRenderer;
 import fr.frinn.custommachinery.client.screen.pip.StructurePIPRenderer.StructureRenderState;
+import fr.frinn.custommachinery.client.screen.tooltip.ClientMachineTooltipComponent;
+import fr.frinn.custommachinery.client.screen.tooltip.ClientStructureTooltipComponent;
 import fr.frinn.custommachinery.common.config.CMConfig;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.machine.MachineAppearance;
+import fr.frinn.custommachinery.common.util.tooltip.MachineTooltipComponent;
+import fr.frinn.custommachinery.common.util.tooltip.StructureTooltipComponent;
 import fr.frinn.custommachinery.impl.client.GuiElementWidgetSupplierRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.GuiElementJEIRendererRegistry;
 import fr.frinn.custommachinery.impl.integration.jei.WidgetToJeiIngredientRegistry;
@@ -272,6 +274,7 @@ public class ClientHandler {
 
     private void registerClientTooltipComponents(final RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(MachineTooltipComponent.class, ClientMachineTooltipComponent::new);
+        event.register(StructureTooltipComponent.class, ClientStructureTooltipComponent::new);
     }
 
     private void registerBlockStateModels(final RegisterBlockStateModels event) {

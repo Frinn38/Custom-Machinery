@@ -1,37 +1,35 @@
 package fr.frinn.custommachinery.client.integration.jei;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import fr.frinn.custommachinery.CustomMachinery;
-import fr.frinn.custommachinery.api.crafting.IMachineRecipe;
 import fr.frinn.custommachinery.api.integration.jei.IDisplayInfo;
-import fr.frinn.custommachinery.common.machine.CustomMachine;
+import fr.frinn.custommachinery.common.util.BlockStructure;
 import fr.frinn.custommachinery.impl.util.TextureSizeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.model.sprite.SpriteId;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class RequirementDisplayInfo implements IDisplayInfo {
 
     private static final IDisplayInfoRenderer DEFAULT_RENDERER = new Texture(CustomMachinery.rl("textures/gui/create_icon.png"), 10, 10, 0, 0);
 
     private IDisplayInfoRenderer renderer = DEFAULT_RENDERER;
-    private final List<Pair<Component, TooltipPredicate>> tooltips = new ArrayList<>();
+    private final List<Pair<Either<Component, TooltipComponent>, TooltipPredicate>> tooltips = new ArrayList<>();
     @Nullable
     private ClickAction clickAction;
     @Nullable
-    private Map<BlockPos, List<BlockState>> structurePreview;
+    private BlockStructure structure;
 
     @Override
     public RequirementDisplayInfo setTextureIcon(Identifier icon, int width, int height, int u, int v) {
@@ -54,19 +52,14 @@ public class RequirementDisplayInfo implements IDisplayInfo {
 
     @Override
     public RequirementDisplayInfo addTooltip(Component tooltip, TooltipPredicate predicate) {
-        this.tooltips.add(Pair.of(tooltip, predicate));
+        this.tooltips.add(Pair.of(Either.left(tooltip), predicate));
         return this;
     }
 
     @Override
-    public IDisplayInfo setStructurePreview(Map<BlockPos, List<BlockState>> blocks) {
-        this.structurePreview = blocks;
+    public IDisplayInfo addTooltipComponent(TooltipComponent component, TooltipPredicate predicate) {
+        this.tooltips.add(Pair.of(Either.right(component), predicate));
         return this;
-    }
-
-    @Nullable
-    public Map<BlockPos, List<BlockState>> getStructurePreview() {
-        return this.structurePreview;
     }
 
     @Override
@@ -78,13 +71,13 @@ public class RequirementDisplayInfo implements IDisplayInfo {
         this.renderer.render(graphics, size);
     }
 
-    public List<Pair<Component, TooltipPredicate>> getTooltips() {
+    public List<Pair<Either<Component, TooltipComponent>, TooltipPredicate>> getTooltips() {
         return this.tooltips;
     }
 
-    public boolean handleClick(CustomMachine machine, IMachineRecipe recipe, InputWithModifiers inputWithModifiers) {
+    public boolean handleClick(InputWithModifiers inputWithModifiers) {
         if(this.clickAction != null) {
-            this.clickAction.handleClick(machine, recipe, inputWithModifiers);
+            this.clickAction.handleClick(inputWithModifiers);
             return true;
         }
         return false;

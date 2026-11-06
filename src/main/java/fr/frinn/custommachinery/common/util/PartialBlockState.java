@@ -4,8 +4,12 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
+import fr.frinn.custommachinery.CustomMachinery;
 import fr.frinn.custommachinery.api.codec.NamedCodec;
+import fr.frinn.custommachinery.api.machine.MachineTile;
+import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineBlock;
+import fr.frinn.custommachinery.common.machine.CustomMachine;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.commands.arguments.blocks.BlockStateParser.BlockResult;
 import net.minecraft.core.Direction;
@@ -14,6 +18,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -47,17 +52,7 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         }
     };
 
-    public static final PartialBlockState MACHINE = new PartialBlockState(Blocks.AIR.defaultBlockState(), Collections.emptyList(), null) {
-        @Override
-        public boolean test(BlockInWorld cachedBlockInfo) {
-            return cachedBlockInfo.getState().getBlock() instanceof CustomMachineBlock;
-        }
-
-        @Override
-        public String toString() {
-            return "MACHINE";
-        }
-    };
+    public static final PartialBlockState MACHINE = machine(CustomMachine.DUMMY_ID);
 
     public static final NamedCodec<PartialBlockState> CODEC = NamedCodec.STRING.comapFlatMap(s -> {
         try {
@@ -71,6 +66,30 @@ public class PartialBlockState implements Predicate<BlockInWorld> {
         StringReader reader = new StringReader(s);
         BlockResult result = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK, reader, true);
         return new PartialBlockState(result.blockState(), Lists.newArrayList(result.properties().keySet()), result.nbt());
+    }
+
+    public static PartialBlockState machine(Identifier machineId) {
+        BlockState state;
+        CompoundTag nbt;
+        if(CustomMachinery.CUSTOM_BLOCK_MACHINES.containsKey(machineId)) {
+            state = CustomMachinery.CUSTOM_BLOCK_MACHINES.get(machineId).defaultBlockState();
+            nbt = null;
+        } else {
+            state = CMRegistration.CUSTOM_MACHINE_BLOCK.get().defaultBlockState();
+            nbt = new CompoundTag();
+            nbt.putString("machineID", machineId.toString());
+        }
+        return new PartialBlockState(state, Collections.emptyList(), nbt) {
+            @Override
+            public boolean test(BlockInWorld cachedBlockInfo) {
+                return cachedBlockInfo.getState().getBlock() instanceof CustomMachineBlock && cachedBlockInfo.getEntity() instanceof MachineTile tile && tile.getId().equals(machineId);
+            }
+
+            @Override
+            public String toString() {
+                return "MACHINE";
+            }
+        };
     }
 
     private final BlockState blockState;
