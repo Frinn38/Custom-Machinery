@@ -63,7 +63,7 @@ public record CustomMachineBlockStateModel(BlockStateModelPart defaultIdle, Bloc
     }
 
     public List<BlockStateModelPart> rotate(List<BlockStateModelPart> parts, BlockState state) {
-        Direction machineFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        Direction machineFacing = state.hasProperty(BlockStateProperties.HORIZONTAL_FACING) ? state.getValue(BlockStateProperties.HORIZONTAL_FACING) : Direction.NORTH;
         if(machineFacing == Direction.NORTH || machineFacing.getAxis() == Direction.Axis.Y)
             return parts;
 
