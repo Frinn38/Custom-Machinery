@@ -14,6 +14,7 @@ import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
 import fr.frinn.custommachinery.api.requirement.RequirementType;
 import fr.frinn.custommachinery.common.component.DropMachineComponent;
 import fr.frinn.custommachinery.common.init.CMRegistration;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
 import fr.frinn.custommachinery.impl.codec.RegistryCodecs;
 import net.minecraft.ChatFormatting;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.registries.holdersets.AnyHolderSet;
 
 import java.util.Locale;
@@ -131,7 +133,7 @@ public record DropRequirement(RequirementIOMode mode, Action action, Ingredient 
                 if(this.input == ANY.get())
                     info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.any"));
                 else
-                    this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
+                    info.addTooltip(Utils.itemIngredientName(new SizedIngredient(this.input, this.amount)));
                 info.setItemIcon(Items.OAK_PRESSURE_PLATE);
             }
             case CONSUME -> {
@@ -140,7 +142,7 @@ public record DropRequirement(RequirementIOMode mode, Action action, Ingredient 
                 if(this.input == ANY.get())
                     info.addTooltip(Component.translatable("custommachinery.requirements.drop.info.any"));
                 else
-                    this.input.getValues().forEach(holder -> info.addTooltip(holder.value().getDefaultInstance().getDisplayName()));
+                    info.addTooltip(Utils.itemIngredientName(new SizedIngredient(this.input, this.amount)));
                 info.setItemIcon(Items.HOPPER);
             }
             case PRODUCE -> {

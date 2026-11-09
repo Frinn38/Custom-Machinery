@@ -18,11 +18,10 @@ import fr.frinn.custommachinery.common.component.handler.ItemComponentHandler;
 import fr.frinn.custommachinery.common.component.item.ItemMachineComponent;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.integration.kubejs.KubeJSIntegration;
+import fr.frinn.custommachinery.common.util.Utils;
 import fr.frinn.custommachinery.impl.codec.DefaultCodecs;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.fml.ModList;
@@ -66,10 +65,10 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, List<S
 
     @Override
     public boolean test(ItemComponentHandler component, ICraftingContext context) {
-        return this.input.getValues().stream().anyMatch(item -> {
-            if(component.getIngredientAmount(this.inputSlots, Ingredient.of(item.value())) < this.inputAmount)
+        return Utils.getIngredientStacks(this.input).anyMatch(stack -> {
+            if(component.getIngredientAmount(this.inputSlots, Ingredient.of(stack.getItem())) < this.inputAmount)
                 return false;
-            ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == item.value()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
+            ItemStack input = component.getComponents().stream().filter(slot -> slot.getItemStack().getItem() == stack.getItem()).findFirst().map(ItemMachineComponent::getItemStack).orElse(ItemStack.EMPTY);
             ItemStack output = this.output.copyWithCount(this.outputAmount);
             if(!this.transform.isEmpty() && ModList.get().isLoaded("kubejs"))
                 output = KubeJSIntegration.sendItemTransformEvent(this.transform, context, input, output);
@@ -89,7 +88,7 @@ public record ItemTransformRequirement(Ingredient input, int inputAmount, List<S
     }
 
     private CraftingResult processTransform(ItemComponentHandler component, ICraftingContext context) {
-        for(ItemStack stack : this.input.getValues().stream().map(Holder::value).map(Item::getDefaultInstance).toList()) {
+        for(ItemStack stack : Utils.getIngredientStacks(this.input).toList()) {
             Ingredient ingredient = Ingredient.of(stack.getItem());
             if(component.getIngredientAmount(this.inputSlots, ingredient) < this.inputAmount)
                 continue;

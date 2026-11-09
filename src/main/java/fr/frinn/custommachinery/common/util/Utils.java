@@ -7,15 +7,18 @@ import fr.frinn.custommachinery.common.machine.MachineAppearance;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -39,6 +42,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class Utils {
 
@@ -136,8 +140,10 @@ public class Utils {
     public static Component itemIngredientName(SizedIngredient ingredient) {
         if(ingredient.ingredient().isEmpty())
             return Component.translatable(Items.AIR.getDescriptionId());
+        else if(ingredient.ingredient().getCustomIngredient() != null)
+            return ingredient.ingredient().getCustomIngredient().items().findFirst().map(item -> Component.translatable(item.value().getDescriptionId())).orElse(Component.translatable(Items.AIR.getDescriptionId()));
         else
-            return ingredient.ingredient().display().resolveForFirstStack(ContextMap.EMPTY).getDisplayName();
+            return ingredient.ingredient().getValues().stream().findFirst().map(item -> Component.translatable(item.value().getDescriptionId())).orElse(Component.translatable(Items.AIR.getDescriptionId()));
     }
 
     public static Component fluidIngredientName(SizedFluidIngredient ingredient) {
@@ -186,6 +192,13 @@ public class Utils {
             nbt.putInt("z", pos.getZ());
             tile.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), nbt));
         }
+    }
+
+    public static Stream<ItemStack> getIngredientStacks(Ingredient ingredient) {
+        if(ingredient.getCustomIngredient() != null)
+            return ingredient.getCustomIngredient().items().map(Holder::value).map(Item::getDefaultInstance);
+        else
+            return ingredient.getValues().stream().map(Holder::value).map(Item::getDefaultInstance);
     }
 
     @SuppressWarnings("unchecked")

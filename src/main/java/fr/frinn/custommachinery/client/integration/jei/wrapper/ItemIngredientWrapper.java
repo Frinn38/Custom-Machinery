@@ -5,6 +5,7 @@ import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.api.integration.jei.IJEIIngredientWrapper;
 import fr.frinn.custommachinery.api.integration.jei.IRecipeHelper;
 import fr.frinn.custommachinery.api.requirement.RequirementIOMode;
+import fr.frinn.custommachinery.client.ClientUtils;
 import fr.frinn.custommachinery.common.guielement.SlotGuiElement;
 import fr.frinn.custommachinery.common.init.CMRegistration;
 import mezz.jei.api.constants.VanillaTypes;
@@ -12,18 +13,15 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jspecify.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
@@ -64,7 +62,7 @@ public class ItemIngredientWrapper implements IJEIIngredientWrapper<ItemStack> {
 
         List<ItemStack> ingredients;
         if(this.ingredient != null)
-            ingredients = this.ingredient.ingredient().display().resolveForStacks(ContextMap.EMPTY).stream().map(item -> item.copyWithCount(this.ingredient.count())).collect(Collectors.toCollection(ArrayList::new));
+            ingredients = ClientUtils.getIngredientStacks(this.ingredient).toList();
         else if(this.output != null)
             ingredients = List.of(this.output.copy());
         else
