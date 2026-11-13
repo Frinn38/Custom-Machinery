@@ -99,7 +99,7 @@ public class ClientPacketHandler {
         }
     }
 
-    public static void handleUpdateMachineGuiElementsPacket(BlockPos pos, List<IGuiElement> elements) {
+    public static void handleUpdateMachineGuiElementsPacket(BlockPos pos, @Nullable List<IGuiElement> elements) {
         Minecraft mc = Minecraft.getInstance();
         if(mc.level != null) {
             BlockEntity tile = mc.level.getBlockEntity(pos);

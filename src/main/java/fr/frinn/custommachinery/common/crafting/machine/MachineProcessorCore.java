@@ -245,6 +245,7 @@ public class MachineProcessorCore implements ISyncableStuff {
         this.phase = Phase.CONDITIONS;
         this.currentProcessRequirements.clear();
         this.status = MachineStatus.IDLE;
+        this.error = null;
     }
 
     public void setSearchImmediately() {

@@ -123,10 +123,10 @@ public class CustomMachineTile extends MachineTile implements ISyncableStuff {
 
     @Override
     public void setStatus(MachineStatus status, Component message) {
+        this.errorMessage = message;
         if(this.status != status) {
             this.componentManager.getComponents().values().forEach(component -> component.onStatusChanged(this.status, status, message));
             this.status = status;
-            this.errorMessage = message;
             this.setChanged();
             if(this.getLevel() instanceof ServerLevel serverLevel) {
                 BlockPos pos = this.getBlockPos();

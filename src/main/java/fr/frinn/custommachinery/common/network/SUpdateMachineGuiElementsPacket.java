@@ -9,10 +9,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public record SUpdateMachineGuiElementsPacket(BlockPos pos, List<IGuiElement> elements) implements CustomPacketPayload {
+public record SUpdateMachineGuiElementsPacket(BlockPos pos, @Nullable List<IGuiElement> elements) implements CustomPacketPayload {
 
     public static final Type<SUpdateMachineGuiElementsPacket> TYPE = new Type<>(CustomMachinery.rl("update_machine_gui_elements"));
 
