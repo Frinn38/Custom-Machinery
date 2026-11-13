@@ -20,7 +20,7 @@ import org.joml.Matrix4f;
 
 public class FluidRenderer {
 
-    private static final int MIN_FLUID_SIZE = 1;
+    private static final int MIN_FLUID_SIZE = 2;
     private static final int TEXTURE_SIZE = 16;
 
     public static void renderFluid(PoseStack poseStack, int posX, int posY, int width, int height, FluidStack fluidStack, int capacity) {
@@ -52,23 +52,23 @@ public class FluidRenderer {
         switch (orientation) {
             case TOP -> {
                 fluidHeight = (int) (fillingPercent * height);
-                if(amount > 0 && height < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidHeight < MIN_FLUID_SIZE)
                     fluidHeight = MIN_FLUID_SIZE;
                 yOffset = height - fluidHeight;
             }
             case BOTTOM -> {
                 fluidHeight = (int) (fillingPercent * height);
-                if(amount > 0 && height < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidHeight < MIN_FLUID_SIZE)
                     fluidHeight = MIN_FLUID_SIZE;
             }
             case RIGHT -> {
                 fluidWidth = (int) (fillingPercent * width);
-                if(amount > 0 && width < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidWidth < MIN_FLUID_SIZE)
                     fluidWidth = MIN_FLUID_SIZE;
             }
             case LEFT -> {
                 fluidWidth = (int) (fillingPercent * width);
-                if(amount > 0 && width < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidWidth < MIN_FLUID_SIZE)
                     fluidWidth = MIN_FLUID_SIZE;
                 xOffset = width - fluidWidth;
             }
