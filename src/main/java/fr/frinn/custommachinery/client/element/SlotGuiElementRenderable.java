@@ -11,11 +11,11 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class SlotGuiElementWidget extends TexturedGuiElementRenderable<SlotGuiElement> {
+public class SlotGuiElementRenderable extends TexturedGuiElementRenderable<SlotGuiElement> {
 
     private static final CycleTimer timer = new CycleTimer(CMConfig.CONFIG.itemSlotCycleTime);
 
-    public SlotGuiElementWidget(SlotGuiElement element, IMachineScreen screen) {
+    public SlotGuiElementRenderable(SlotGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 

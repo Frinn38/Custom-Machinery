@@ -8,9 +8,9 @@ import fr.frinn.custommachinery.common.guielement.ProgressBarGuiElement;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-public class ProgressGuiElementWidget extends AbstractGuiElementRenderable<ProgressBarGuiElement> {
+public class ProgressGuiElementRenderable extends AbstractGuiElementRenderable<ProgressBarGuiElement> {
 
-    public ProgressGuiElementWidget(ProgressBarGuiElement element, IMachineScreen screen) {
+    public ProgressGuiElementRenderable(ProgressBarGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 

@@ -13,9 +13,9 @@ import net.minecraft.network.chat.Component;
 import java.util.Collections;
 import java.util.List;
 
-public class EnergyGuiElementWidget extends TexturedGuiElementRenderable<EnergyGuiElement> {
+public class EnergyGuiElementRenderable extends TexturedGuiElementRenderable<EnergyGuiElement> {
 
-    public EnergyGuiElementWidget(EnergyGuiElement element, IMachineScreen screen) {
+    public EnergyGuiElementRenderable(EnergyGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 

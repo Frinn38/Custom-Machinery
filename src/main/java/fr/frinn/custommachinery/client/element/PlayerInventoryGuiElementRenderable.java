@@ -4,9 +4,9 @@ import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.PlayerInventoryGuiElement;
 import fr.frinn.custommachinery.impl.client.TexturedGuiElementRenderable;
 
-public class PlayerInventoryGuiElementWidget extends TexturedGuiElementRenderable<PlayerInventoryGuiElement> {
+public class PlayerInventoryGuiElementRenderable extends TexturedGuiElementRenderable<PlayerInventoryGuiElement> {
 
-    public PlayerInventoryGuiElementWidget(PlayerInventoryGuiElement element, IMachineScreen screen) {
+    public PlayerInventoryGuiElementRenderable(PlayerInventoryGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 }

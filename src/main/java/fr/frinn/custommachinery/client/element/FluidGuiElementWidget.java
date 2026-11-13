@@ -19,8 +19,8 @@ public class FluidGuiElementWidget extends TexturedGuiElementWidget<FluidGuiElem
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+    public void extractElementRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractElementRenderState(graphics, mouseX, mouseY, partialTicks);
         this.getScreen().getTile().getComponentManager().getComponent(this.getElement().getComponentId()).ifPresent(component ->
             FluidRenderer.renderFluid(graphics, this.getX() + 1, this.getY() + 1, this.width - 2, this.height - 2, component.getFluid(), component.getClientCapacity(), this.getElement().orientation())
         );

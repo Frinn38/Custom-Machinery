@@ -13,9 +13,9 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatusGuiElementWidget extends AbstractGuiElementRenderable<StatusGuiElement> {
+public class StatusGuiElementRenderable extends AbstractGuiElementRenderable<StatusGuiElement> {
 
-    public StatusGuiElementWidget(StatusGuiElement element, IMachineScreen screen) {
+    public StatusGuiElementRenderable(StatusGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 

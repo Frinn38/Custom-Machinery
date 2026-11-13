@@ -25,9 +25,9 @@ public class ExperienceGuiElementWidget extends TexturedGuiElementWidget<Experie
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractElementRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         if (!this.getElement().getMode().isDisplayBar())
-            super.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            super.extractElementRenderState(graphics, mouseX, mouseY, partialTicks);
         else {
             Optional<ExperienceMachineComponent> component = getScreen().getTile().getComponentManager().getComponent(CMRegistration.EXPERIENCE_MACHINE_COMPONENT.get());
             int level = component.map(ExperienceMachineComponent::getLevels).orElse(0);

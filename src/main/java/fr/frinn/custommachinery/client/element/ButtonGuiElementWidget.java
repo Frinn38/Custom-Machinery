@@ -6,8 +6,8 @@ import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.util.TextureInfo;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 
 public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiElement> {
@@ -19,7 +19,7 @@ public class ButtonGuiElementWidget extends AbstractGuiElementWidget<ButtonGuiEl
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractElementRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         TextureInfo texture;
         if(getElement().isToggle() && getScreen().getTile().getComponentManager().getComponent(CMRegistration.DATA_MACHINE_COMPONENT.get()).map(component -> component.getData().getBooleanOr(getElement().getId(), false)).orElse(false)) {
             if(this.isHovered())

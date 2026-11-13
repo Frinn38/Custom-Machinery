@@ -6,9 +6,9 @@ import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-public class TextGuiElementWidget extends AbstractGuiElementRenderable<TextGuiElement> {
+public class TextGuiElementRenderable extends AbstractGuiElementRenderable<TextGuiElement> {
 
-    public TextGuiElementWidget(TextGuiElement element, IMachineScreen screen) {
+    public TextGuiElementRenderable(TextGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 

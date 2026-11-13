@@ -4,6 +4,7 @@ import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.screen.ScreenUtils;
 import fr.frinn.custommachinery.common.network.CGuiElementClickPacket;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -22,7 +23,6 @@ public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends Ab
         super(element.getX() + screen.getX(), element.getY() + screen.getY(), element.getWidth(), element.getHeight(), title);
         this.element = element;
         this.screen = screen;
-        this.setTooltip(Tooltip.create(ScreenUtils.merge(this.getTooltips())));
     }
 
     public List<Component> getTooltips() {
@@ -36,6 +36,14 @@ public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends Ab
     public IMachineScreen getScreen() {
         return this.screen;
     }
+
+    @Override
+    protected final void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        this.extractElementRenderState(graphics, mouseX, mouseY, partialTicks);
+        this.setTooltip(Tooltip.create(ScreenUtils.merge(this.getTooltips())));
+    }
+
+    protected abstract void extractElementRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks);
 
     @Override
     public void updateWidgetNarration(NarrationElementOutput output) {

@@ -5,8 +5,8 @@ import fr.frinn.custommachinery.common.guielement.EmptyGuiElement;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementRenderable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-public class EmptyGuiElementWidget extends AbstractGuiElementRenderable<EmptyGuiElement> {
-    public EmptyGuiElementWidget(EmptyGuiElement element, IMachineScreen screen) {
+public class EmptyGuiElementRenderable extends AbstractGuiElementRenderable<EmptyGuiElement> {
+    public EmptyGuiElementRenderable(EmptyGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 

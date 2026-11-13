@@ -20,7 +20,7 @@ public class ConfigGuiElementWidget extends AbstractGuiElementWidget<ConfigGuiEl
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int i, int j, float f) {
+    public void extractElementRenderState(GuiGraphicsExtractor graphics, int i, int j, float f) {
         if(!this.isHovered() || this.getElement().getTextureHovered() == null)
             ScreenUtils.blit(graphics, this.getElement().getTexture(), this.getX(), this.getY(), this.width, this.height);
         else

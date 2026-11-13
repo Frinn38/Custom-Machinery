@@ -13,7 +13,7 @@ public class TexturedGuiElementWidget<T extends AbstractTexturedGuiElement> exte
     }
 
     @Override
-    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractElementRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         if(this.getElement().getTextureHovered() != null && this.isHovered())
             ScreenUtils.blit(graphics, this.getElement().getTextureHovered(), this.getX(), this.getY(), this.width, this.height);
         else

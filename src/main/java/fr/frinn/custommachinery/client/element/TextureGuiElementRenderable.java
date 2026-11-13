@@ -5,9 +5,9 @@ import fr.frinn.custommachinery.common.guielement.TextureGuiElement;
 import fr.frinn.custommachinery.impl.client.TexturedGuiElementRenderable;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-public class TextureGuiElementWidget extends TexturedGuiElementRenderable<TextureGuiElement> {
+public class TextureGuiElementRenderable extends TexturedGuiElementRenderable<TextureGuiElement> {
 
-    public TextureGuiElementWidget(TextureGuiElement element, IMachineScreen screen) {
+    public TextureGuiElementRenderable(TextureGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 

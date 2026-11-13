@@ -14,7 +14,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidRenderer {
 
-    private static final int MIN_FLUID_SIZE = 1;
+    private static final int MIN_FLUID_SIZE = 2;
 
     public static void renderFluid(GuiGraphicsExtractor graphics, int posX, int posY, int width, int height, FluidStack fluidStack, int capacity) {
         renderFluid(graphics, posX, posY, width, height, fluidStack, capacity, Orientation.RIGHT);
@@ -24,9 +24,6 @@ public class FluidRenderer {
         Fluid fluid = fluidStack.getFluid();
         if (fluid == Fluids.EMPTY || fluidStack.isEmpty() || capacity == 0)
             return;
-
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(posX, posY);
 
         FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.defaultFluidState());
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
@@ -43,31 +40,29 @@ public class FluidRenderer {
         switch (orientation) {
             case TOP -> {
                 fluidHeight = (int) (fillingPercent * height);
-                if(amount > 0 && height < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidHeight < MIN_FLUID_SIZE)
                     fluidHeight = MIN_FLUID_SIZE;
                 yOffset = height - fluidHeight;
             }
             case BOTTOM -> {
                 fluidHeight = (int) (fillingPercent * height);
-                if(amount > 0 && height < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidHeight < MIN_FLUID_SIZE)
                     fluidHeight = MIN_FLUID_SIZE;
             }
             case RIGHT -> {
                 fluidWidth = (int) (fillingPercent * width);
-                if(amount > 0 && width < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidWidth < MIN_FLUID_SIZE)
                     fluidWidth = MIN_FLUID_SIZE;
             }
             case LEFT -> {
                 fluidWidth = (int) (fillingPercent * width);
-                if(amount > 0 && width < MIN_FLUID_SIZE)
+                if(amount > 0 && fluidWidth < MIN_FLUID_SIZE)
                     fluidWidth = MIN_FLUID_SIZE;
                 xOffset = width - fluidWidth;
             }
         }
 
         drawTiledSprite(graphics, posX, posY, xOffset, yOffset, fluidWidth, fluidHeight, sprite, fluidColor);
-
-        graphics.pose().popMatrix();
     }
 
     public static void drawTiledSprite(GuiGraphicsExtractor guiGraphics, int xPosition, int yPosition, int xOffset, int yOffset, int desiredWidth, int desiredHeight, TextureAtlasSprite sprite, int color) {
@@ -75,24 +70,20 @@ public class FluidRenderer {
             return;
 
         SpriteContents spriteContents = sprite.contents();
-        int xStart = xPosition + xOffset - desiredWidth;
-        int yStart = yPosition + yOffset - desiredHeight;
-        guiGraphics.enableScissor(xStart, yStart, xStart + desiredWidth, yStart + desiredHeight);
-            guiGraphics.blitTiledSprite(
-                    RenderPipelines.GUI_TEXTURED,
-                    sprite,
-                    xPosition,
-                    yStart,
-                    desiredWidth,
-                    desiredHeight,
-                    0,
-                    0,
-                    spriteContents.width(),
-                    spriteContents.height(),
-                    spriteContents.width(),
-                    spriteContents.height(),
-                    color
-            );
-        guiGraphics.disableScissor();
+        guiGraphics.blitTiledSprite(
+                RenderPipelines.GUI_TEXTURED,
+                sprite,
+                xPosition + xOffset,
+                yPosition + yOffset,
+                desiredWidth,
+                desiredHeight,
+                0,
+                0,
+                spriteContents.width(),
+                spriteContents.height(),
+                spriteContents.width(),
+                spriteContents.height(),
+                color
+        );
     }
 }

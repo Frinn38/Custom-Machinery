@@ -9,19 +9,19 @@ import fr.frinn.custommachinery.client.element.BarGuiElementRenderable;
 import fr.frinn.custommachinery.client.element.ButtonGuiElementWidget;
 import fr.frinn.custommachinery.client.element.ConfigGuiElementWidget;
 import fr.frinn.custommachinery.client.element.DumpGuiElementWidget;
-import fr.frinn.custommachinery.client.element.EmptyGuiElementWidget;
-import fr.frinn.custommachinery.client.element.EnergyGuiElementWidget;
+import fr.frinn.custommachinery.client.element.EmptyGuiElementRenderable;
+import fr.frinn.custommachinery.client.element.EnergyGuiElementRenderable;
 import fr.frinn.custommachinery.client.element.ExperienceGuiElementWidget;
 import fr.frinn.custommachinery.client.element.FluidGuiElementWidget;
-import fr.frinn.custommachinery.client.element.FuelGuiElementWidget;
-import fr.frinn.custommachinery.client.element.PlayerInventoryGuiElementWidget;
-import fr.frinn.custommachinery.client.element.ProgressGuiElementWidget;
+import fr.frinn.custommachinery.client.element.FuelGuiElementRenderable;
+import fr.frinn.custommachinery.client.element.PlayerInventoryGuiElementRenderable;
+import fr.frinn.custommachinery.client.element.ProgressGuiElementRenderable;
 import fr.frinn.custommachinery.client.element.ResetGuiElementWidget;
-import fr.frinn.custommachinery.client.element.SlotGuiElementWidget;
+import fr.frinn.custommachinery.client.element.SlotGuiElementRenderable;
 import fr.frinn.custommachinery.client.element.SplitButtonGuiElementWidget;
-import fr.frinn.custommachinery.client.element.StatusGuiElementWidget;
-import fr.frinn.custommachinery.client.element.TextGuiElementWidget;
-import fr.frinn.custommachinery.client.element.TextureGuiElementWidget;
+import fr.frinn.custommachinery.client.element.StatusGuiElementRenderable;
+import fr.frinn.custommachinery.client.element.TextGuiElementRenderable;
+import fr.frinn.custommachinery.client.element.TextureGuiElementRenderable;
 import fr.frinn.custommachinery.client.integration.jei.FluidIngredientGetter;
 import fr.frinn.custommachinery.client.integration.jei.element.EnergyGuiElementJeiRenderer;
 import fr.frinn.custommachinery.client.integration.jei.element.ExperienceGuiElementJeiRenderer;
@@ -191,15 +191,15 @@ public class ClientHandler {
 
         //Renderables
         event.registerRenderable(CMRegistration.BAR_GUI_ELEMENT.get(), BarGuiElementRenderable::new);
-        event.registerRenderable(CMRegistration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.FUEL_GUI_ELEMENT.get(), FuelGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.SLOT_GUI_ELEMENT.get(), SlotGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.STATUS_GUI_ELEMENT.get(), StatusGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.TEXT_GUI_ELEMENT.get(), TextGuiElementWidget::new);
-        event.registerRenderable(CMRegistration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.FUEL_GUI_ELEMENT.get(), FuelGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.SLOT_GUI_ELEMENT.get(), SlotGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.STATUS_GUI_ELEMENT.get(), StatusGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.TEXT_GUI_ELEMENT.get(), TextGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementRenderable::new);
     }
 
     private void registerGuiElementJEIRenderers(final RegisterGuiElementJEIRendererEvent event) {

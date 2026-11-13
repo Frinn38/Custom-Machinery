@@ -11,10 +11,10 @@ import net.minecraft.network.chat.Component;
 import java.util.Collections;
 import java.util.List;
 
-public class FuelGuiElementWidget extends AbstractGuiElementRenderable<FuelGuiElement> {
+public class FuelGuiElementRenderable extends AbstractGuiElementRenderable<FuelGuiElement> {
 
 
-    public FuelGuiElementWidget(FuelGuiElement element, IMachineScreen screen) {
+    public FuelGuiElementRenderable(FuelGuiElement element, IMachineScreen screen) {
         super(element, screen);
     }
 
