@@ -106,7 +106,7 @@ public class StructurePIPRenderer extends PictureInPictureRenderer<StructureRend
     public record StructureRenderState(int x0, int x1, int y0, int y1, float scale, Matrix3x2f pose, @Nullable ScreenRectangle scissorArea, @Nullable ScreenRectangle bounds, BlockStructure structure, ICustomMachine machine) implements PictureInPictureRenderState {
 
         public StructureRenderState(int x0, int x1, int y0, int y1, Matrix3x2f pose, @Nullable ScreenRectangle scissorArea, BlockStructure structure, ICustomMachine machine) {
-            this(x0, x1, y0, y1, computeScale(Math.min(x1 - x0, y1 - y0), structure), new Matrix3x2f(pose), scissorArea, computeBounds(x0, x1, y0, y1, pose, scissorArea), structure, machine);
+            this(x0, x1, y0, y1, computeScale(Math.min(x1 - x0, y1 - y0), structure), pose, scissorArea, computeBounds(x0, x1, y0, y1, pose, scissorArea), structure, machine);
         }
 
         @Nullable

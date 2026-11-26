@@ -27,7 +27,7 @@ public class EnergyGuiElementRenderable extends TexturedGuiElementRenderable<Ene
                         .map(EnergyMachineComponent::getFillPercent)
                         .orElse(0.0D);
         ScreenUtils.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight(), percent, this.getElement().getOrientation());
-        if(this.isHovered(mouseX, mouseY) && this.getElement().highlight())
+        if(this.isMouseOver(mouseX, mouseY) && this.getElement().highlight())
             ScreenUtils.renderSlotHighlight(graphics, this.getElement().getX() + 1, this.getElement().getY() + 1, this.getElement().getWidth() - 2, this.getElement().getHeight() - 2);
     }
 

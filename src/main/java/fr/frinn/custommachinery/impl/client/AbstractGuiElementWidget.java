@@ -1,5 +1,6 @@
 package fr.frinn.custommachinery.impl.client;
 
+import fr.frinn.custommachinery.api.client.IGuiElementRenderable;
 import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
 import fr.frinn.custommachinery.client.screen.ScreenUtils;
@@ -12,9 +13,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-import java.util.List;
-
-public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends AbstractWidget {
+public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends AbstractWidget implements IGuiElementRenderable<T> {
 
     private final T element;
     private final IMachineScreen screen;
@@ -25,16 +24,19 @@ public abstract class AbstractGuiElementWidget<T extends IGuiElement> extends Ab
         this.screen = screen;
     }
 
-    public List<Component> getTooltips() {
-        return this.element.getTooltips();
-    }
-
+    @Override
     public T getElement() {
         return this.element;
     }
 
+    @Override
     public IMachineScreen getScreen() {
         return this.screen;
+    }
+
+    @Override
+    public void setPosition(int x, int y) {
+        super.setPosition(x, y);
     }
 
     @Override

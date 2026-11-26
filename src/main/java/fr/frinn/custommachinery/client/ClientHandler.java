@@ -82,6 +82,8 @@ import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextGuiElemen
 import fr.frinn.custommachinery.client.screen.creation.gui.builder.TextureGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer;
 import fr.frinn.custommachinery.client.screen.pip.BlockStatePIPRenderer.BlockStateRenderState;
+import fr.frinn.custommachinery.client.screen.pip.GhostItemPIPRenderer;
+import fr.frinn.custommachinery.client.screen.pip.GhostItemPIPRenderer.GhostItemRenderState;
 import fr.frinn.custommachinery.client.screen.pip.StructurePIPRenderer;
 import fr.frinn.custommachinery.client.screen.pip.StructurePIPRenderer.StructureRenderState;
 import fr.frinn.custommachinery.client.screen.tooltip.ClientMachineTooltipComponent;
@@ -180,23 +182,20 @@ public class ClientHandler {
     }
 
     private void registerGuiElementWidgets(final RegisterGuiElementWidgetSupplierEvent event) {
-        //Widgets
-        event.registerWidget(CMRegistration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
-        event.registerWidget(CMRegistration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
-        event.registerWidget(CMRegistration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
-        event.registerWidget(CMRegistration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
-        event.registerWidget(CMRegistration.FLUID_GUI_ELEMENT.get(), FluidGuiElementWidget::new);
-        event.registerWidget(CMRegistration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
-        event.registerWidget(CMRegistration.SPLIT_GUI_ELEMENT.get(), SplitButtonGuiElementWidget::new);
-
-        //Renderables
         event.registerRenderable(CMRegistration.BAR_GUI_ELEMENT.get(), BarGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.BUTTON_GUI_ELEMENT.get(), ButtonGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.CONFIG_GUI_ELEMENT.get(), ConfigGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.DUMP_GUI_ELEMENT.get(), DumpGuiElementWidget::new);
         event.registerRenderable(CMRegistration.EMPTY_GUI_ELEMENT.get(), EmptyGuiElementRenderable::new);
         event.registerRenderable(CMRegistration.ENERGY_GUI_ELEMENT.get(), EnergyGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.EXPERIENCE_GUI_ELEMENT.get(), ExperienceGuiElementWidget::new);
+        event.registerRenderable(CMRegistration.FLUID_GUI_ELEMENT.get(), FluidGuiElementWidget::new);
         event.registerRenderable(CMRegistration.FUEL_GUI_ELEMENT.get(), FuelGuiElementRenderable::new);
         event.registerRenderable(CMRegistration.PLAYER_INVENTORY_GUI_ELEMENT.get(), PlayerInventoryGuiElementRenderable::new);
         event.registerRenderable(CMRegistration.PROGRESS_GUI_ELEMENT.get(), ProgressGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.RESET_GUI_ELEMENT.get(), ResetGuiElementWidget::new);
         event.registerRenderable(CMRegistration.SLOT_GUI_ELEMENT.get(), SlotGuiElementRenderable::new);
+        event.registerRenderable(CMRegistration.SPLIT_GUI_ELEMENT.get(), SplitButtonGuiElementWidget::new);
         event.registerRenderable(CMRegistration.STATUS_GUI_ELEMENT.get(), StatusGuiElementRenderable::new);
         event.registerRenderable(CMRegistration.TEXT_GUI_ELEMENT.get(), TextGuiElementRenderable::new);
         event.registerRenderable(CMRegistration.TEXTURE_GUI_ELEMENT.get(), TextureGuiElementRenderable::new);
@@ -338,6 +337,7 @@ public class ClientHandler {
 
     private void registerPIPRenderers(final RegisterPictureInPictureRenderersEvent event) {
         event.register(BlockStateRenderState.class, BlockStatePIPRenderer::new);
+        event.register(GhostItemRenderState.class, GhostItemPIPRenderer::new);
         event.register(StructureRenderState.class, StructurePIPRenderer::new);
     }
 

@@ -1,7 +1,7 @@
 package fr.frinn.custommachinery.client.screen;
 
+import fr.frinn.custommachinery.api.client.IGuiElementRenderable;
 import fr.frinn.custommachinery.api.client.IGuiElementRenderableSupplier;
-import fr.frinn.custommachinery.api.client.IGuiElementWidgetSupplier;
 import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.common.guielement.BackgroundGuiElement;
 import fr.frinn.custommachinery.common.init.CustomMachineContainer;
@@ -11,6 +11,7 @@ import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.client.GuiElementWidgetSupplierRegistry;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -53,13 +54,13 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
                 .filter(element -> GuiElementWidgetSupplierRegistry.hasSupplier(element.getType()))
                 .sorted(Comparators.GUI_ELEMENTS_COMPARATOR.reversed())
                 .forEach(element -> {
-                    IGuiElementWidgetSupplier widgetSupplier = GuiElementWidgetSupplierRegistry.getWidgetSupplier(element.getType());
-                    if(widgetSupplier != null)
-                        this.addRenderableWidget(widgetSupplier.get(element, this));
-                    else {
-                        IGuiElementRenderableSupplier renderableSupplier = GuiElementWidgetSupplierRegistry.getRenderableSupplier(element.getType());
-                        if(renderableSupplier != null)
-                            this.addRenderableOnly(renderableSupplier.get(element, this));
+                    IGuiElementRenderableSupplier renderableSupplier = GuiElementWidgetSupplierRegistry.getRenderableSupplier(element.getType());
+                    if(renderableSupplier != null) {
+                        IGuiElementRenderable<?> renderable = renderableSupplier.get(element, this);
+                        if(renderable instanceof AbstractWidget widget)
+                            this.addRenderableWidget(widget);
+                        else
+                            this.addRenderableOnly(renderable);
                     }
                 });
     }
@@ -112,12 +113,10 @@ public class CustomMachineScreen extends AbstractContainerScreen<CustomMachineCo
         return this.tile;
     }
 
-    public Optional<AbstractGuiElementWidget<?>> getElementUnderMouse(double mouseX, double mouseY) {
-        for(GuiEventListener widget : this.children()) {
-            if(widget instanceof AbstractGuiElementWidget<?> elementWidget && elementWidget.isMouseOver(mouseX, mouseY)) {
+    public Optional<AbstractGuiElementWidget<?>> getWidgetUnderMouse(double mouseX, double mouseY) {
+        for(GuiEventListener widget : this.children())
+            if(widget instanceof AbstractGuiElementWidget<?> elementWidget && elementWidget.isMouseOver(mouseX, mouseY))
                 return Optional.of(elementWidget);
-            }
-        }
         return Optional.empty();
     }
 }

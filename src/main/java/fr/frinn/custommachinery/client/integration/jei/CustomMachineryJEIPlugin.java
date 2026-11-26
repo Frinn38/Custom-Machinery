@@ -152,7 +152,7 @@ public class CustomMachineryJEIPlugin implements IModPlugin {
 
             @Override
             public Optional<IClickableIngredient<?>> getClickableIngredientUnderMouse(IClickableIngredientFactory builder, CustomMachineScreen screen, double mouseX, double mouseY) {
-                return screen.getElementUnderMouse(mouseX, mouseY)
+                return screen.getWidgetUnderMouse(mouseX, mouseY)
                         .flatMap(widget -> Optional.ofNullable(WidgetToJeiIngredientRegistry.getIngredient(widget, mouseX, mouseY, registration.getJeiHelpers())));
             }
 

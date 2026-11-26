@@ -13,7 +13,7 @@ public class TexturedGuiElementRenderable<T extends AbstractTexturedGuiElement> 
 
     @Override
     public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
-        if(this.getElement().getTextureHovered() != null && this.isHovered(mouseX, mouseY))
+        if(this.getElement().getTextureHovered() != null && this.isMouseOver(mouseX, mouseY))
             ScreenUtils.blit(graphics, this.getElement().getTextureHovered(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight());
         else
             ScreenUtils.blit(graphics, this.getElement().getTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight());

@@ -2,7 +2,8 @@ package fr.frinn.custommachinery.client.screen.creation.gui;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
-import fr.frinn.custommachinery.api.client.IGuiElementWidgetSupplier;
+import fr.frinn.custommachinery.api.client.IGuiElementRenderable;
+import fr.frinn.custommachinery.api.client.IGuiElementRenderableSupplier;
 import fr.frinn.custommachinery.api.client.IMachineScreen;
 import fr.frinn.custommachinery.api.guielement.GuiElementType;
 import fr.frinn.custommachinery.api.guielement.IGuiElement;
@@ -17,7 +18,6 @@ import fr.frinn.custommachinery.common.init.CMRegistration;
 import fr.frinn.custommachinery.common.init.CustomMachineTile;
 import fr.frinn.custommachinery.common.util.Comparators;
 import fr.frinn.custommachinery.common.util.Utils;
-import fr.frinn.custommachinery.impl.client.AbstractGuiElementWidget;
 import fr.frinn.custommachinery.impl.client.GuiElementWidgetSupplierRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -89,7 +89,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     }
 
     public <T extends IGuiElement> void config(WidgetEditorWidget<T> widget) {
-        this.parent.openPopup(widget.builder.makeConfigPopup(this.parent, widget.properties, widget.widget.getElement(), widget::refreshWidget));
+        this.parent.openPopup(widget.builder.makeConfigPopup(this.parent, widget.properties, widget.renderable.getElement(), widget::refreshWidget));
     }
 
     public void setChanged() {
@@ -137,7 +137,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 this.copied.remove(widget);
                 this.widgets.remove(widget);
                 this.setFocused(null);
-                this.parent.getBuilder().getGuiElements().remove(widget.widget.getElement());
+                this.parent.getBuilder().getGuiElements().remove(widget.renderable.getElement());
                 this.setChanged();
             });
             popup.title(Component.translatable("custommachinery.gui.popup.warning").withStyle(ChatFormatting.DARK_RED));
@@ -153,7 +153,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                     change.add(widget);
                     this.copied.remove(widget);
                     this.widgets.remove(widget);
-                    this.parent.getBuilder().getGuiElements().remove(widget.widget.getElement());
+                    this.parent.getBuilder().getGuiElements().remove(widget.renderable.getElement());
                     iterator.remove();
                 }
                 this.setChanged();
@@ -168,10 +168,10 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     @SuppressWarnings("unchecked")
     @Nullable
     private <T extends IGuiElement> WidgetEditorWidget<T> getWidget(T element) {
-        IGuiElementWidgetSupplier<T> widgetSupplier = GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType<T>)element.getType());
-        if(widgetSupplier == null)
+        IGuiElementRenderableSupplier<T> renderableSupplier = GuiElementWidgetSupplierRegistry.getRenderableSupplier((GuiElementType<T>)element.getType());
+        if(renderableSupplier == null)
             return null;
-        AbstractGuiElementWidget<T> widget =  widgetSupplier.get(element, this.dummyScreen);
+        IGuiElementRenderable<T> widget =  renderableSupplier.get(element, this.dummyScreen);
         IGuiElementBuilder<T> builder = GuiElementBuilderRegistry.getBuilder((GuiElementType<T>)element.getType());
         if(builder == null)
             return null;
@@ -378,14 +378,14 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
     @Override
     public void setX(int x) {
         super.setX(x);
-        this.widgets.forEach(widget -> widget.setX(x + widget.widget.getElement().getX()));
+        this.widgets.forEach(widget -> widget.setX(x + widget.renderable.getElement().getX()));
         this.configWidget.setX(this.getX() + this.getWidth() + 20);
     }
 
     @Override
     public void setY(int y) {
         super.setY(y);
-        this.widgets.forEach(widget -> widget.setY(y + widget.widget.getElement().getY()));
+        this.widgets.forEach(widget -> widget.setY(y + widget.renderable.getElement().getY()));
         this.configWidget.setY(this.getY() - 5);
     }
 
@@ -601,16 +601,16 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         private final IGuiElementBuilder<T> builder;
         private final MutableProperties properties;
 
-        private AbstractGuiElementWidget<T> widget;
+        private IGuiElementRenderable<T> renderable;
         private DragType dragType = DragType.NONE;
         private float dragX = 0.0F;
         private float dragY = 0.0F;
 
-        public WidgetEditorWidget(AbstractGuiElementWidget<T> widget, IGuiElementBuilder<T> builder) {
-            super(widget.getX(), widget.getY(), widget.getWidth(), widget.getHeight(), widget.getMessage());
-            this.widget = widget;
+        public WidgetEditorWidget(IGuiElementRenderable<T> renderable, IGuiElementBuilder<T> builder) {
+            super(renderable.getX(), renderable.getY(), renderable.getWidth(), renderable.getHeight(), Component.empty());
+            this.renderable = renderable;
             this.builder = builder;
-            this.properties = new MutableProperties(widget.getElement().getProperties());
+            this.properties = new MutableProperties(renderable.getElement().getProperties());
         }
 
         public IGuiElementBuilder<T> getBuilder() {
@@ -623,15 +623,15 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
 
         @SuppressWarnings("unchecked")
         public void refreshWidget(@Nullable T from) {
-            T element = this.widget.getElement();
+            T element = this.renderable.getElement();
             T newElement = from != null ? from : this.builder.make(this.properties.build(), element);
-            IGuiElementWidgetSupplier<T> widgetSupplier = GuiElementWidgetSupplierRegistry.getWidgetSupplier((GuiElementType<T>)element.getType());
-            if(widgetSupplier == null)
+            IGuiElementRenderableSupplier<T> renderableSupplier = GuiElementWidgetSupplierRegistry.getRenderableSupplier((GuiElementType<T>)element.getType());
+            if(renderableSupplier == null)
                 throw new IllegalStateException("Gui element type '" + this.builder.type().getId() + "' don't have a widget supplier");
-            this.widget = widgetSupplier.get(newElement, GuiEditorWidget.this.dummyScreen);
-            this.widget.setPosition(this.getX(), this.getY());
-            this.width = this.widget.getWidth();
-            this.height = this.widget.getHeight();
+            this.renderable = renderableSupplier.get(newElement, GuiEditorWidget.this.dummyScreen);
+            this.renderable.setPosition(this.getX(), this.getY());
+            this.width = this.renderable.getWidth();
+            this.height = this.renderable.getHeight();
             GuiEditorWidget.this.parent.getBuilder().getGuiElements().remove(element);
             GuiEditorWidget.this.parent.getBuilder().getGuiElements().add(newElement);
         }
@@ -649,7 +649,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 copyId.set(Utils.incrementLastNumber(copyId.get()));
             }
             copyProperties.setId(copyId.get());
-            T element = this.builder.make(copyProperties.build(), this.widget.getElement());
+            T element = this.builder.make(copyProperties.build(), this.renderable.getElement());
             WidgetEditorWidget<T> widget = GuiEditorWidget.this.getWidget(element);
             if(widget == null)
                 throw new IllegalStateException("Copy of widget '" + this + "' returned a null widget");
@@ -724,7 +724,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
                 checkCursorShape(mouseX, mouseY);
                 highlighted = true;
             }
-            this.widget.extractRenderState(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTick);
+            this.renderable.extractRenderState(graphics, Integer.MAX_VALUE, Integer.MAX_VALUE, partialTick);
             if(GuiEditorWidget.this.copied.contains(this)) {
                 int offset = (int)(System.currentTimeMillis() / 100 % 100);
                 if(highlighted)
@@ -1011,7 +1011,7 @@ public class GuiEditorWidget extends AbstractWidget implements ContainerEventHan
         public void revert() {
             GuiEditorWidget.this.copied.remove(widget);
             GuiEditorWidget.this.widgets.remove(widget);
-            GuiEditorWidget.this.parent.getBuilder().getGuiElements().remove(widget.widget.getElement());
+            GuiEditorWidget.this.parent.getBuilder().getGuiElements().remove(widget.renderable.getElement());
             GuiEditorWidget.this.setChanged();
         }
     }

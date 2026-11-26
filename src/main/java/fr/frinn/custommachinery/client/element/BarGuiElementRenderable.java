@@ -29,7 +29,7 @@ public class BarGuiElementRenderable extends AbstractGuiElementRenderable<BarGui
     @Override
     public void extractRenderableRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         ScreenUtils.renderOrientedProgressTextures(graphics, this.getElement().getEmptyTexture(), this.getElement().getFilledTexture(), this.getElement().getX(), this.getElement().getY(), this.getElement().getWidth(), this.getElement().getHeight(), this.getFillingPercent(), this.getElement().getOrientation());
-        if(this.isHovered(mouseX, mouseY) && this.getElement().isHighlight())
+        if(this.isMouseOver(mouseX, mouseY) && this.getElement().isHighlight())
             ScreenUtils.renderSlotHighlight(graphics, this.getElement().getX() + 1, this.getElement().getY() + 1, this.getElement().getWidth() - 2, this.getElement().getHeight() - 2);
     }
 

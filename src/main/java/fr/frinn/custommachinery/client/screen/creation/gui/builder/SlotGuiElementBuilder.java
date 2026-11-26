@@ -8,6 +8,7 @@ import fr.frinn.custommachinery.client.screen.creation.MachineEditScreen;
 import fr.frinn.custommachinery.client.screen.creation.gui.GuiElementBuilderPopup;
 import fr.frinn.custommachinery.client.screen.creation.gui.IGuiElementBuilder;
 import fr.frinn.custommachinery.client.screen.creation.gui.MutableProperties;
+import fr.frinn.custommachinery.client.screen.pip.GhostItemPIPRenderer.GhostItemRenderState;
 import fr.frinn.custommachinery.client.screen.popup.PopupScreen;
 import fr.frinn.custommachinery.client.screen.widget.GroupWidget;
 import fr.frinn.custommachinery.client.screen.widget.IntegerSlider;
@@ -27,11 +28,14 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
@@ -139,7 +143,9 @@ public class SlotGuiElementBuilder implements IGuiElementBuilder<SlotGuiElement>
         protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             ScreenUtils.blit(graphics, SlotGuiElement.BASE_TEXTURE, this.getX() - 20, this.getY(), 18, 18);
             try {
-                //TODO FakeItemRenderer.render(graphics, BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.items.getValue())).map(Item::getDefaultInstance).orElse(ItemStack.EMPTY), this.getX() - 19, this.getY() + 1, this.color.getARGB());
+                ItemStack stack = BuiltInRegistries.ITEM.getOptional(Identifier.parse(this.items.getValue())).map(Item::getDefaultInstance).orElse(ItemStack.EMPTY);
+                ScreenRectangle itemSlot = new ScreenRectangle(this.getX() - 19, this.getY() + 1, 16, 16);
+                graphics.submitPictureInPictureRenderState(new GhostItemRenderState(itemSlot, graphics.pose(), stack, this.color));
             } catch (IdentifierException | NullPointerException ignored) {
 
             }
